@@ -1,0 +1,55 @@
+#[link(name = "nalgebra"
+       , vers = "0.0"
+       , author = "Sébastien Crozet"
+       , uuid = "1E96070F-4778-4EC1-B080-BF69F7048216")];
+#[crate_type = "lib"];
+#[warn(non_camel_case_types)]
+
+extern mod std;
+
+pub use dim2::vec2::Vec2;
+pub use dim3::vec3::Vec3;
+pub use dim2::mat2::Mat2;
+pub use dim2::rotmat2::Rotmat2;
+
+pub use traits::dot::Dot;
+pub use traits::cross::Cross;
+pub use traits::dim::Dim;
+
+pub use traits::workarounds::sqrt::Sqrt;
+pub use traits::workarounds::trigonometric::Trigonometric;
+
+pub use traits::inv::Inv;
+pub use traits::transpose::Transpose;
+
+mod dim2
+{
+  mod vec2;
+  mod mat2;
+  mod rotmat2;
+}
+
+mod dim3
+{
+  mod vec3;
+  mod mat3;
+}
+
+mod ndim
+{
+}
+
+mod traits
+{
+  mod dot;
+  mod cross;
+  mod inv;
+  mod transpose;
+  mod dim;
+
+  mod workarounds
+  {
+    mod sqrt;
+    mod trigonometric;
+  }
+}
