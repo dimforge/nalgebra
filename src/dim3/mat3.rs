@@ -1,0 +1,146 @@
+use core::num::{One, Zero};
+use traits::inv::Inv;
+use dim3::vec3::Vec3;
+
+pub struct Mat3<T>
+{
+    m11: T, m12: T, m13: T,
+    m21: T, m22: T, m23: T,
+    m31: T, m32: T, m33: T
+}
+
+pub fn Mat3<T:Copy>(m11: T, m12: T, m13: T,
+                    m21: T, m22: T, m23: T,
+                    m31: T, m32: T, m33: T) -> Mat3<T>
+{
+  Mat3
+  {
+    m11: m11, m12: m12, m13: m13,
+    m21: m21, m22: m22, m23: m23,
+    m31: m31, m32: m32, m33: m33
+  }
+}
+
+impl<T:Copy + One + Zero> One for Mat3<T>
+{
+  fn one() -> Mat3<T>
+  {
+    let (_0, _1) = (Zero::zero(), One::one());
+    return Mat3(_1, _0, _0,
+                _0, _1, _0,
+                _0, _0, _1)
+  }
+}
+
+impl<T:Copy + Zero> Zero for Mat3<T>
+{
+  fn zero() -> Mat3<T>
+  {
+    let _0 = Zero::zero();
+    return Mat3(_0, _0, _0,
+                _0, _0, _0,
+                _0, _0, _0)
+  }
+
+  // fn is_zero(&self) -> bool
+  // {
+  //   self.m11.is_zero() && self.m12.is_zero() && self.m13.is_zero()
+  //   && self.m21.is_zero() && self.m22.is_zero() && self.m23.is_zero()
+  //   && self.m31.is_zero() && self.m32.is_zero() && self.m33.is_zero()
+  // }
+}
+
+impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat3<T>, Mat3<T>> for Mat3<T>
+{
+  fn mul(&self, other : &Mat3<T>) -> Mat3<T>
+  {
+    Mat3(
+      self.m11 * other.m11  + self.m12 * other.m21 + self.m13 * other.m31,
+      self.m11 * other.m12  + self.m12 * other.m22 + self.m13 * other.m32,
+      self.m11 * other.m13  + self.m12 * other.m23 + self.m13 * other.m33,
+
+      self.m21 * other.m11  + self.m22 * other.m21 + self.m23 * other.m31,
+      self.m21 * other.m12  + self.m22 * other.m22 + self.m23 * other.m32,
+      self.m21 * other.m13  + self.m22 * other.m23 + self.m23 * other.m33,
+
+      self.m31 * other.m11  + self.m32 * other.m21 + self.m33 * other.m31,
+      self.m31 * other.m12  + self.m32 * other.m22 + self.m33 * other.m32,
+      self.m31 * other.m13  + self.m32 * other.m23 + self.m33 * other.m33
+    )
+  }
+}
+
+// FIXME: implementation of multiple classes for the same struct fails
+// with "internal compiler error: Asked to compute kind of a type variable".
+//
+// impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Vec3<T>, Vec3<T>> for Mat3<T>
+// {
+//   fn mul(&self, m : &Mat3<T>) -> Vec3<T>
+//   {
+//     Vec3(self.x * m.m11 + self.y * m.m21 + self.z * m.m31,
+//          self.x * m.m12 + self.y * m.m22 + self.z * m.m32,
+//          self.x * m.m13 + self.y * m.m23 + self.z * m.m33)
+//   }
+// }
+
+impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat3<T>, Vec3<T>> for Vec3<T>
+{
+  fn mul(&self, m : &Mat3<T>) -> Vec3<T>
+  {
+    Vec3(self.x * m.m11 + self.y * m.m21 + self.z * m.m31,
+         self.x * m.m12 + self.y * m.m22 + self.z * m.m32,
+         self.x * m.m13 + self.y * m.m23 + self.z * m.m33)
+  }
+}
+
+impl<T:Copy + Mul<T, T> + Div<T, T> + Sub<T, T> + Add<T, T> + Neg<T>
+     + Eq + Zero>
+Inv<T> for Mat3<T>
+{
+  fn inv(&self) -> Mat3<T>
+  {
+    let minor_m22_m33 = self.m22 * self.m33 - self.m32 * self.m23;
+    let minor_m21_m33 = self.m21 * self.m33 - self.m31 * self.m23;
+    let minor_m21_m32 = self.m21 * self.m32 - self.m31 * self.m22;
+
+    let det = self.m11 * minor_m22_m33
+              - self.m12 * minor_m21_m33
+              + self.m13 * minor_m21_m32;
+
+    assert!(det != Zero::zero());
+
+    Mat3(
+      (minor_m22_m33  / det),
+      ((self.m13 * self.m32 - self.m33 * self.m12) / det),
+      ((self.m12 * self.m23 - self.m22 * self.m13) / det),
+
+      (-minor_m21_m33 / det),
+      ((self.m11 * self.m33 - self.m31 * self.m13) / det),
+      ((self.m13 * self.m21 - self.m23 * self.m11) / det),
+
+      (minor_m21_m32  / det),
+      ((self.m12 * self.m31 - self.m31 * self.m11) / det),
+      ((self.m11 * self.m22 - self.m21 * self.m12) / det)
+    )
+  }
+}
+
+impl<T:ToStr> ToStr for Mat3<T>
+{
+  fn to_str(&self) -> ~str
+  {
+    ~"Mat3 {"
+    + " m11: " + self.m11.to_str()
+    + " m12: " + self.m12.to_str()
+    + " m13: " + self.m13.to_str()
+
+    + " m21: " + self.m21.to_str()
+    + " m22: " + self.m22.to_str()
+    + " m23: " + self.m23.to_str()
+
+    + " m31: " + self.m31.to_str()
+    + " m32: " + self.m32.to_str()
+    + " m33: " + self.m33.to_str()
+    + " }"
+  }
+}
