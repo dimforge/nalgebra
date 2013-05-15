@@ -107,23 +107,30 @@ Inv for NMat<D, T>
       // FIXME: this is kind of uggly…
       // … but we cannot use position_betwee since we are iterating on one
       // columns
-      let mut n0 = dim; // index of a non-zero entry
+      let mut n0 = 0u; // index of a non-zero entry
 
-      for uint::range(k, dim) |i|
+      while (n0 != dim)
       {
-        n0 = k;
-
-        if (cpy[(i, k)] != _0T)
+        if (cpy[(n0, k)] != _0T)
         { break; }
+
+        n0 += 1;
       }
 
       assert!(n0 != dim); // non inversible matrix
 
       // swap pivot line
-      for uint::range(0u, dim) |j|
+      if (n0 != k)
       {
-        swap(cpy.mij, NMat::offset::<D, T>(n0, j), NMat::offset::<D, T>(k, j));
-        swap(res.mij, NMat::offset::<D, T>(n0, j), NMat::offset::<D, T>(k, j));
+        for uint::range(0u, dim) |j|
+        {
+          swap(cpy.mij,
+               NMat::offset::<D, T>(n0, j),
+               NMat::offset::<D, T>(k, j));
+          swap(res.mij,
+               NMat::offset::<D, T>(n0, j),
+               NMat::offset::<D, T>(k, j));
+        }
       }
 
       let pivot = cpy[(k, k)];
