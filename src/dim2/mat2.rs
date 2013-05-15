@@ -60,7 +60,7 @@ impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat2<T>, Mat2<T>> for Mat2<T>
     (self.m11 * other.m11 + self.m12 * other.m21,
      self.m11 * other.m12 + self.m12 * other.m22,
      self.m21 * other.m11 + self.m22 * other.m21,
-     self.m21 * other.m22 + self.m22 * other.m22)
+     self.m21 * other.m12 + self.m22 * other.m22)
   }
 }
 

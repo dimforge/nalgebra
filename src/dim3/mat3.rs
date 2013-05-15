@@ -51,13 +51,6 @@ impl<T:Copy + Zero> Zero for Mat3<T>
                 _0, _0, _0,
                 _0, _0, _0)
   }
-
-  // fn is_zero(&self) -> bool
-  // {
-  //   self.m11.is_zero() && self.m12.is_zero() && self.m13.is_zero()
-  //   && self.m21.is_zero() && self.m22.is_zero() && self.m23.is_zero()
-  //   && self.m31.is_zero() && self.m32.is_zero() && self.m33.is_zero()
-  // }
 }
 
 impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat3<T>, Mat3<T>> for Mat3<T>
@@ -129,7 +122,7 @@ Inv for Mat3<T>
       ((self.m13 * self.m21 - self.m23 * self.m11) / det),
 
       (minor_m21_m32  / det),
-      ((self.m12 * self.m31 - self.m31 * self.m11) / det),
+      ((self.m12 * self.m31 - self.m32 * self.m11) / det),
       ((self.m11 * self.m22 - self.m21 * self.m12) / det)
     )
   }
