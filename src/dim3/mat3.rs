@@ -1,7 +1,11 @@
 use core::num::{One, Zero};
+// use core::rand::{Rand, Rng};
+use traits::dim::Dim;
 use traits::inv::Inv;
+use traits::transpose::Transpose;
 use dim3::vec3::Vec3;
 
+#[deriving(Eq)]
 pub struct Mat3<T>
 {
     m11: T, m12: T, m13: T,
@@ -19,6 +23,12 @@ pub fn Mat3<T:Copy>(m11: T, m12: T, m13: T,
     m21: m21, m22: m22, m23: m23,
     m31: m31, m32: m32, m33: m33
   }
+}
+
+impl<T> Dim for Mat3<T>
+{
+  fn dim() -> uint
+  { 3 }
 }
 
 impl<T:Copy + One + Zero> One for Mat3<T>
@@ -95,7 +105,7 @@ impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat3<T>, Vec3<T>> for Vec3<T>
 
 impl<T:Copy + Mul<T, T> + Div<T, T> + Sub<T, T> + Add<T, T> + Neg<T>
      + Eq + Zero>
-Inv<T> for Mat3<T>
+Inv for Mat3<T>
 {
   fn inv(&self) -> Mat3<T>
   {
@@ -124,6 +134,36 @@ Inv<T> for Mat3<T>
     )
   }
 }
+
+impl<T:Copy> Transpose for Mat3<T>
+{
+  fn transposed(&self) -> Mat3<T>
+  {
+    Mat3(self.m11, self.m21, self.m31,
+         self.m12, self.m22, self.m32,
+         self.m13, self.m23, self.m33)
+  }
+
+  fn transpose(&mut self)
+  {
+    self.m12 <-> self.m21;
+    self.m13 <-> self.m31;
+    self.m23 <-> self.m32;
+  }
+}
+
+// impl<T:Rand> Rand for Mat3<T>
+// {
+//   fn rand<R:Rng>(rng: &mut R) -> Mat3<T>
+//   {
+//     Mat3
+//     {
+//       m11: rng.next(), m12: rng.next(), m13: rng.next(),
+//       m21: rng.next(), m22: rng.next(), m23: rng.next(),
+//       m31: rng.next(), m32: rng.next(), m33: rng.next()
+//     }
+//   }
+// }
 
 impl<T:ToStr> ToStr for Mat3<T>
 {

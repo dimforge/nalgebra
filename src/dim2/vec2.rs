@@ -1,5 +1,8 @@
+use core::num::Zero;
 use traits::dot::Dot;
-use traits::sqrt::Sqrt;
+use traits::dim::Dim;
+use traits::cross::Cross;
+use traits::workarounds::sqrt::Sqrt;
 
 #[deriving(Eq)]
 pub struct Vec2<T>
@@ -11,6 +14,11 @@ pub struct Vec2<T>
 pub fn Vec2<T:Copy>(x: T, y: T) -> Vec2<T>
 { Vec2 {x: x, y: y} }
 
+impl<T> Dim for Vec2<T>
+{
+  fn dim() -> uint
+  { 2 }
+}
 
 impl<T:Copy + Add<T,T>> Add<Vec2<T>, Vec2<T>> for Vec2<T>
 {
@@ -34,6 +42,21 @@ impl<T:Copy + Mul<T, T> + Add<T, T> + Sqrt> Dot<T> for Vec2<T>
 
   fn norm(&self) -> T
   { self.sqnorm().sqrt() }
+}
+
+impl<T:Copy + Mul<T, T> + Sub<T, T>> Cross<T> for Vec2<T>
+{
+  fn cross(&self, other : &Vec2<T>) -> T
+  { self.x * other.y - self.y * other.x }
+}
+
+impl<T:Copy + Zero> Zero for Vec2<T>
+{
+  fn zero() -> Vec2<T>
+  {
+    let _0 = Zero::zero();
+    Vec2(_0, _0)
+  }
 }
 
 impl<T:ToStr> ToStr for Vec2<T>

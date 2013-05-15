@@ -1,5 +1,8 @@
+use core::num::Zero;
+use traits::dim::Dim;
 use traits::dot::Dot;
-use traits::sqrt::Sqrt;
+use traits::cross::Cross;
+use traits::workarounds::sqrt::Sqrt;
 
 #[deriving(Eq)]
 pub struct Vec3<T>
@@ -12,6 +15,11 @@ pub struct Vec3<T>
 pub fn Vec3<T:Copy>(x: T, y: T, z: T) -> Vec3<T>
 { Vec3 {x: x, y: y, z: z} }
 
+impl<T> Dim for Vec3<T>
+{
+  fn dim() -> uint
+  { 3 }
+}
 
 impl<T:Copy + Add<T,T>> Add<Vec3<T>, Vec3<T>> for Vec3<T>
 {
@@ -25,18 +33,6 @@ impl<T:Copy + Sub<T,T>> Sub<Vec3<T>, Vec3<T>> for Vec3<T>
   { Vec3(self.x - other.x, self.y - other.y, self.z - other.z) }
 }
 
-impl<T:ToStr> ToStr for Vec3<T>
-{
-  fn to_str(&self) -> ~str
-  {
-    ~"Vec3 "
-    + "{ x : " + self.x.to_str()
-    + ", y : " + self.y.to_str()
-    + ", z : " + self.z.to_str()
-    + " }"
-  }
-}
-
 impl<T:Copy + Mul<T, T> + Add<T, T> + Sqrt> Dot<T> for Vec3<T>
 {
   fn dot(&self, other : &Vec3<T>) -> T
@@ -47,4 +43,37 @@ impl<T:Copy + Mul<T, T> + Add<T, T> + Sqrt> Dot<T> for Vec3<T>
 
   fn norm(&self) -> T
   { self.sqnorm().sqrt() }
+}
+
+impl<T:Copy + Mul<T, T> + Sub<T, T>> Cross<Vec3<T>> for Vec3<T>
+{
+  fn cross(&self, other : &Vec3<T>) -> Vec3<T>
+  {
+    Vec3(
+      self.y * other.z - self.z * other.y,
+      self.z * other.x - self.x * other.z,
+      self.x * other.y - self.y * other.x
+    )
+  }
+}
+
+impl<T:Copy + Zero> Zero for Vec3<T>
+{
+  fn zero() -> Vec3<T>
+  {
+    let _0 = Zero::zero();
+    Vec3(_0, _0, _0)
+  }
+}
+
+impl<T:ToStr> ToStr for Vec3<T>
+{
+  fn to_str(&self) -> ~str
+  {
+    ~"Vec3 "
+    + "{ x : " + self.x.to_str()
+    + ", y : " + self.y.to_str()
+    + ", z : " + self.z.to_str()
+    + " }"
+  }
 }

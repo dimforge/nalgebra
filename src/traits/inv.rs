@@ -1,4 +1,4 @@
-pub trait Inv<T>
+pub trait Inv
 {
   fn inv(&self) -> Self;
 }

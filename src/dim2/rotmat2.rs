@@ -9,7 +9,7 @@ use dim2::mat2::Mat2;
 #[deriving(Eq)]
 pub struct Rotmat2<T>
 {
-  submat: Mat2<T>
+  priv submat: Mat2<T>
 }
 
 pub fn Rotmat2<T:Copy + Trigonometric + Neg<T>>(angle: T) -> Rotmat2<T>
