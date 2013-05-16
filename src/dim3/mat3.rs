@@ -1,8 +1,8 @@
 use core::num::{One, Zero};
-// use core::rand::{Rand, Rng};
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
+use traits::workarounds::rlmul::{RMul, LMul};
 use dim3::vec3::Vec3;
 
 #[deriving(Eq)]
@@ -51,11 +51,18 @@ impl<T:Copy + Zero> Zero for Mat3<T>
                 _0, _0, _0,
                 _0, _0, _0)
   }
+
+  fn is_zero(&self) -> bool
+  {
+    self.m11.is_zero() && self.m12.is_zero() && self.m13.is_zero() &&
+    self.m21.is_zero() && self.m22.is_zero() && self.m23.is_zero() &&
+    self.m31.is_zero() && self.m32.is_zero() && self.m33.is_zero()
+  }
 }
 
 impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat3<T>, Mat3<T>> for Mat3<T>
 {
-  fn mul(&self, other : &Mat3<T>) -> Mat3<T>
+  fn mul(&self, other: &Mat3<T>) -> Mat3<T>
   {
     Mat3(
       self.m11 * other.m11  + self.m12 * other.m21 + self.m13 * other.m31,
@@ -73,34 +80,44 @@ impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat3<T>, Mat3<T>> for Mat3<T>
   }
 }
 
-// FIXME: implementation of multiple classes for the same struct fails
-// with "internal compiler error: Asked to compute kind of a type variable".
-//
-// impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Vec3<T>, Vec3<T>> for Mat3<T>
-// {
-//   fn mul(&self, m : &Mat3<T>) -> Vec3<T>
-//   {
-//     Vec3(self.x * m.m11 + self.y * m.m21 + self.z * m.m31,
-//          self.x * m.m12 + self.y * m.m22 + self.z * m.m32,
-//          self.x * m.m13 + self.y * m.m23 + self.z * m.m33)
-//   }
-// }
-
-impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat3<T>, Vec3<T>> for Vec3<T>
+impl<T:Copy + Add<T, T> + Mul<T, T>> RMul<Vec3<T>> for Mat3<T>
 {
-  fn mul(&self, m : &Mat3<T>) -> Vec3<T>
+  fn rmul(&self, other: &Vec3<T>) -> Vec3<T>
   {
-    Vec3(self.x * m.m11 + self.y * m.m21 + self.z * m.m31,
-         self.x * m.m12 + self.y * m.m22 + self.z * m.m32,
-         self.x * m.m13 + self.y * m.m23 + self.z * m.m33)
+    Vec3(
+      self.m11 * other.x + self.m12 * other.y + self.m13 * other.z,
+      self.m21 * other.x + self.m22 * other.y + self.m33 * other.z,
+      self.m31 * other.x + self.m32 * other.y + self.m33 * other.z
+    )
   }
 }
 
-impl<T:Copy + Mul<T, T> + Div<T, T> + Sub<T, T> + Add<T, T> + Neg<T>
+impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec3<T>> for Mat3<T>
+{
+  fn lmul(&self, other: &Vec3<T>) -> Vec3<T>
+  {
+    Vec3(
+      self.m11 * other.x + self.m21 * other.y + self.m31 * other.z,
+      self.m12 * other.x + self.m22 * other.y + self.m32 * other.z,
+      self.m13 * other.x + self.m23 * other.y + self.m33 * other.z
+    )
+  }
+}
+
+impl<T:Copy + Mul<T, T> + Quot<T, T> + Sub<T, T> + Add<T, T> + Neg<T>
      + Eq + Zero>
 Inv for Mat3<T>
 {
-  fn inv(&self) -> Mat3<T>
+  fn inverse(&self) -> Mat3<T>
+  {
+    let mut res = *self;
+
+    res.invert();
+
+    res
+  }
+
+  fn invert(&mut self)
   {
     let minor_m22_m33 = self.m22 * self.m33 - self.m32 * self.m23;
     let minor_m21_m33 = self.m21 * self.m33 - self.m31 * self.m23;
@@ -112,7 +129,7 @@ Inv for Mat3<T>
 
     assert!(det != Zero::zero());
 
-    Mat3(
+    *self = Mat3(
       (minor_m22_m33  / det),
       ((self.m13 * self.m32 - self.m33 * self.m12) / det),
       ((self.m12 * self.m23 - self.m22 * self.m13) / det),

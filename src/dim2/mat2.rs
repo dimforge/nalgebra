@@ -2,6 +2,7 @@ use core::num::{One, Zero};
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
+use traits::workarounds::rlmul::{RMul, LMul};
 use dim2::vec2::Vec2;
 
 #[deriving(Eq)]
@@ -45,11 +46,11 @@ impl<T:Copy + Zero> Zero for Mat2<T>
                 _0, _0)
   }
 
-  // fn is_zero(&self) -> bool
-  // {
-  //   self.m11.is_zero() && self.m11.is_zero() && self.m12.is_zero()
-  //   && self.m21.is_zero() && self.m21.is_zero() && self.m22.is_zero()
-  // }
+  fn is_zero(&self) -> bool
+  {
+    self.m11.is_zero() && self.m12.is_zero() &&
+    self.m21.is_zero() && self.m22.is_zero()
+  }
 }
 
 impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat2<T>, Mat2<T>> for Mat2<T>
@@ -64,32 +65,48 @@ impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat2<T>, Mat2<T>> for Mat2<T>
   }
 }
 
-// FIXME: implementation of multiple classes for the same struct fails
-// with "internal compiler error: Asked to compute kind of a type variable".
-//
-// impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Vec2<T>, Vec2<T>> for Mat2<T>
-// {
-//   fn mul(&self, v: &Vec2<T>) -> Vec2<T>
-//   { Vec2(self.m11 * v.x + self.m12 * v.y, self.m21 * v.x + self.m22 * v.y) }
-// }
-
-impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat2<T>, Vec2<T>> for Vec2<T>
+impl<T:Copy + Add<T, T> + Mul<T, T>> RMul<Vec2<T>> for Mat2<T>
 {
-  fn mul(&self, m: &Mat2<T>) -> Vec2<T>
-  { Vec2(self.x * m.m11 + self.y * m.m21, self.x * m.m12 + self.y * m.m22) }
+  fn rmul(&self, other: &Vec2<T>) -> Vec2<T>
+  {
+    Vec2(
+      self.m11 * other.x + self.m12 * other.y,
+      self.m21 * other.x + self.m22 * other.y
+    )
+  }
 }
 
-impl<T:Copy + Mul<T, T> + Div<T, T> + Sub<T, T> + Neg<T> + Eq + Zero>
+impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec2<T>> for Mat2<T>
+{
+  fn lmul(&self, other: &Vec2<T>) -> Vec2<T>
+  {
+    Vec2(
+      self.m11 * other.x + self.m21 * other.y,
+      self.m12 * other.x + self.m22 * other.y
+    )
+  }
+}
+
+impl<T:Copy + Mul<T, T> + Quot<T, T> + Sub<T, T> + Neg<T> + Eq + Zero>
 Inv for Mat2<T>
 {
-  fn inv(&self) -> Mat2<T>
+  fn inverse(&self) -> Mat2<T>
+  {
+    let mut res : Mat2<T> = *self;
+
+    res.invert();
+
+    res
+  }
+
+  fn invert(&mut self)
   {
     let det = self.m11 * self.m22 - self.m21 * self.m12;
 
     assert!(det != Zero::zero());
 
-    Mat2(self.m22 / det , -self.m12 / det,
-         -self.m21 / det, self.m11 / det)
+    *self = Mat2(self.m22 / det , -self.m12 / det,
+                 -self.m21 / det, self.m11 / det)
   }
 }
 

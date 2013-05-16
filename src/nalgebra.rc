@@ -12,26 +12,26 @@ pub use dim3::mat3::Mat3;
 
 pub use dim2::vec2::Vec2;
 pub use dim2::mat2::Mat2;
-pub use dim2::rotmat2::Rotmat2;
 
 pub use ndim::nvec::NVec;
 pub use ndim::nmat::NMat;
 
+pub use adaptors::rotmat::Rotmat;
+pub use adaptors::transform::Transform;
+
 pub use traits::dot::Dot;
 pub use traits::cross::Cross;
 pub use traits::dim::Dim;
-
-pub use traits::workarounds::sqrt::Sqrt;
-pub use traits::workarounds::trigonometric::Trigonometric;
-
 pub use traits::inv::Inv;
 pub use traits::transpose::Transpose;
+
+pub use traits::workarounds::rlmul::{RMul, LMul};
+pub use traits::workarounds::trigonometric::Trigonometric;
 
 mod dim2
 {
   mod vec2;
   mod mat2;
-  mod rotmat2;
 }
 
 mod dim3
@@ -46,6 +46,12 @@ mod ndim
   mod nmat;
 }
 
+mod adaptors
+{
+  mod rotmat;
+  mod transform;
+}
+
 mod traits
 {
   mod dot;
@@ -56,7 +62,7 @@ mod traits
 
   mod workarounds
   {
-    mod sqrt;
+    mod rlmul;
     mod trigonometric;
   }
 }

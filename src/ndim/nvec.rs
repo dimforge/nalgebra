@@ -1,8 +1,7 @@
-use core::vec::{map2, from_elem};
-use core::num::Zero;
+use core::vec::{map_zip, from_elem, map, all};
+use core::num::{Zero, Algebraic};
 use traits::dim::Dim;
 use traits::dot::Dot;
-use traits::workarounds::sqrt::Sqrt;
 
 // D is a phantom parameter, used only as a dimensional token.
 // Its allows use to encode the vector dimension at the type-level.
@@ -26,16 +25,23 @@ impl<D: Dim, T> Dim for NVec<D, T>
 impl<D, T:Copy + Add<T,T>> Add<NVec<D, T>, NVec<D, T>> for NVec<D, T>
 {
   fn add(&self, other: &NVec<D, T>) -> NVec<D, T>
-  { NVec { at: map2(self.at, other.at, | a, b | { *a + *b }) } }
+  { NVec { at: map_zip(self.at, other.at, | a, b | { *a + *b }) } }
 }
 
 impl<D, T:Copy + Sub<T,T>> Sub<NVec<D, T>, NVec<D, T>> for NVec<D, T>
 {
   fn sub(&self, other: &NVec<D, T>) -> NVec<D, T>
-  { NVec { at: map2(self.at, other.at, | a, b | *a - *b) } }
+  { NVec { at: map_zip(self.at, other.at, | a, b | *a - *b) } }
 }
 
-impl<D: Dim, T:Copy + Mul<T, T> + Add<T, T> + Sqrt + Zero> Dot<T> for NVec<D, T>
+impl<D, T:Copy + Neg<T>> Neg<NVec<D, T>> for NVec<D, T>
+{
+  fn neg(&self) -> NVec<D, T>
+  { NVec { at: map(self.at, |a| -a) } }
+}
+
+impl<D: Dim, T:Copy + Mul<T, T> + Add<T, T> + Algebraic + Zero>
+Dot<T> for NVec<D, T>
 {
   fn dot(&self, other: &NVec<D, T>) -> T
   {
@@ -69,6 +75,11 @@ impl<D: Dim, T:Copy + Zero> Zero for NVec<D, T>
     let _0 = Zero::zero();
 
     NVec { at: from_elem(Dim::dim::<D>(), _0) }
+  }
+
+  fn is_zero(&self) -> bool
+  {
+    all(self.at, |e| e.is_zero())
   }
 }
 

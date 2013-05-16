@@ -1,8 +1,7 @@
-use core::num::Zero;
+use core::num::{Zero, Algebraic};
 use traits::dim::Dim;
 use traits::dot::Dot;
 use traits::cross::Cross;
-use traits::workarounds::sqrt::Sqrt;
 
 #[deriving(Eq)]
 pub struct Vec3<T>
@@ -33,7 +32,13 @@ impl<T:Copy + Sub<T,T>> Sub<Vec3<T>, Vec3<T>> for Vec3<T>
   { Vec3(self.x - other.x, self.y - other.y, self.z - other.z) }
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T> + Sqrt> Dot<T> for Vec3<T>
+impl<T:Copy + Neg<T>> Neg<Vec3<T>> for Vec3<T>
+{
+  fn neg(&self) -> Vec3<T>
+  { Vec3(-self.x, -self.y, -self.z) }
+}
+
+impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec3<T>
 {
   fn dot(&self, other : &Vec3<T>) -> T
   { self.x * other.x + self.y * other.y + self.z * other.z } 
@@ -64,6 +69,9 @@ impl<T:Copy + Zero> Zero for Vec3<T>
     let _0 = Zero::zero();
     Vec3(_0, _0, _0)
   }
+
+  fn is_zero(&self) -> bool
+  { self.x.is_zero() && self.y.is_zero() && self.z.is_zero() }
 }
 
 impl<T:ToStr> ToStr for Vec3<T>

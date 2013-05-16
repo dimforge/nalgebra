@@ -1,4 +1,5 @@
 pub trait Inv
 {
-  fn inv(&self) -> Self;
+  fn inverse(&self) -> Self;
+  fn invert(&mut self);
 }

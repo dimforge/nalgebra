@@ -1,8 +1,7 @@
-use core::num::Zero;
+use core::num::{Zero, Algebraic};
 use traits::dot::Dot;
 use traits::dim::Dim;
 use traits::cross::Cross;
-use traits::workarounds::sqrt::Sqrt;
 
 #[deriving(Eq)]
 pub struct Vec2<T>
@@ -32,7 +31,7 @@ impl<T:Copy + Sub<T,T>> Sub<Vec2<T>, Vec2<T>> for Vec2<T>
   { Vec2(self.x - other.x, self.y - other.y) }
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T> + Sqrt> Dot<T> for Vec2<T>
+impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec2<T>
 {
   fn dot(&self, other : &Vec2<T>) -> T
   { self.x * other.x + self.y * other.y } 
@@ -50,6 +49,12 @@ impl<T:Copy + Mul<T, T> + Sub<T, T>> Cross<T> for Vec2<T>
   { self.x * other.y - self.y * other.x }
 }
 
+impl<T:Copy + Neg<T>> Neg<Vec2<T>> for Vec2<T>
+{
+  fn neg(&self) -> Vec2<T>
+  { Vec2(-self.x, -self.y) }
+}
+
 impl<T:Copy + Zero> Zero for Vec2<T>
 {
   fn zero() -> Vec2<T>
@@ -57,6 +62,9 @@ impl<T:Copy + Zero> Zero for Vec2<T>
     let _0 = Zero::zero();
     Vec2(_0, _0)
   }
+
+  fn is_zero(&self) -> bool
+  { self.x.is_zero() && self.y.is_zero() }
 }
 
 impl<T:ToStr> ToStr for Vec2<T>

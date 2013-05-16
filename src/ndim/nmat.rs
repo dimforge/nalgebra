@@ -1,9 +1,10 @@
 use core::num::{One, Zero};
-use core::vec::{from_elem, swap};
+use core::vec::{from_elem, swap, all};
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
-// use ndim::nvec::NVec;
+use traits::workarounds::rlmul::{RMul, LMul};
+use ndim::nvec::NVec;
 
 // D is a phantom type parameter, used only as a dimensional token.
 // Its allows use to encode the vector dimension at the type-level.
@@ -13,6 +14,12 @@ use traits::transpose::Transpose;
 pub struct NMat<D, T>
 {
   mij: ~[T]
+}
+
+impl<D, T: Clone> Clone for NMat<D, T>
+{
+  fn clone(&self) -> NMat<D, T>
+  { NMat{ mij: self.mij.clone() } }
 }
 
 impl<D: Dim, T: Copy> NMat<D, T>
@@ -59,6 +66,9 @@ impl<D: Dim, T:Copy + Zero> Zero for NMat<D, T>
 
     NMat{ mij: from_elem(dim * dim, Zero::zero()) }
   }
+
+  fn is_zero(&self) -> bool
+  { all(self.mij, |e| e.is_zero()) }
 }
 
 impl<D: Dim, T:Copy + Mul<T, T> + Add<T, T> + Zero>
@@ -86,13 +96,59 @@ Mul<NMat<D, T>, NMat<D, T>> for NMat<D, T>
   }
 }
 
+impl<D: Dim, T:Copy + Add<T, T> + Mul<T, T> + Zero>
+RMul<NVec<D, T>> for NMat<D, T>
+{
+  fn rmul(&self, other: &NVec<D, T>) -> NVec<D, T>
+  {
+    let     dim              = Dim::dim::<D>();
+    let mut res : NVec<D, T> = Zero::zero();
+
+    for uint::range(0u, dim) |i|
+    {
+      for uint::range(0u, dim) |j|
+      { res.at[i] = res.at[i] + other.at[j] * self[(i, j)]; }
+    }
+
+    res
+  }
+}
+
+impl<D: Dim, T:Copy + Add<T, T> + Mul<T, T> + Zero>
+LMul<NVec<D, T>> for NMat<D, T>
+{
+  fn lmul(&self, other: &NVec<D, T>) -> NVec<D, T>
+  {
+    let     dim              = Dim::dim::<D>();
+    let mut res : NVec<D, T> = Zero::zero();
+
+    for uint::range(0u, dim) |i|
+    {
+      for uint::range(0u, dim) |j|
+      { res.at[i] = res.at[i] + other.at[j] * self[(j, i)]; }
+    }
+
+    res
+  }
+}
+
 impl<D: Dim,
-     T: Copy + Mul<T, T> + Div<T, T> + Sub<T, T> + Neg<T> + Eq + One + Zero>
+     T: Clone + Copy + Eq + One + Zero +
+        Mul<T, T> + Quot<T, T> + Sub<T, T> + Neg<T>
+     >
 Inv for NMat<D, T>
 {
-  fn inv(&self) -> NMat<D, T>
+  fn inverse(&self) -> NMat<D, T>
   {
-    let mut cpy = copy *self;
+    let mut res : NMat<D, T> = self.clone();
+
+    res.invert();
+
+    res
+  }
+
+  fn invert(&mut self)
+  {
     let     dim = Dim::dim::<D>();
     let mut res = One::one::<NMat<D, T>>();
     let     _0T = Zero::zero::<T>();
@@ -111,7 +167,7 @@ Inv for NMat<D, T>
 
       while (n0 != dim)
       {
-        if (cpy[(n0, k)] != _0T)
+        if (self[(n0, k)] != _0T)
         { break; }
 
         n0 += 1;
@@ -124,7 +180,7 @@ Inv for NMat<D, T>
       {
         for uint::range(0u, dim) |j|
         {
-          swap(cpy.mij,
+          swap(self.mij,
                NMat::offset::<D, T>(n0, j),
                NMat::offset::<D, T>(k, j));
           swap(res.mij,
@@ -133,11 +189,11 @@ Inv for NMat<D, T>
         }
       }
 
-      let pivot = cpy[(k, k)];
+      let pivot = self[(k, k)];
 
       for uint::range(k, dim) |j|
       {
-        cpy.set(k, j, &(cpy[(k, j)] / pivot));
+        self.set(k, j, &(self[(k, j)] / pivot));
         res.set(k, j, &(res[(k, j)] / pivot));
       }
 
@@ -145,18 +201,16 @@ Inv for NMat<D, T>
       {
         if (l != k)
         {
-          let normalizer = cpy[(l, k)] / pivot;
+          let normalizer = self[(l, k)] / pivot;
 
           for uint::range(k, dim) |j|
           {
-            cpy.set(k, j, &(cpy[(l, j)] - cpy[(k, j)] * normalizer));
+            self.set(k, j, &(self[(l, j)] - self[(k, j)] * normalizer));
             res.set(k, j, &(res[(l, j)] - res[(k, j)] * normalizer));
           }
         }
       }
     }
-
-    res
   }
 }
 
