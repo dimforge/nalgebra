@@ -2,6 +2,7 @@ use core::num::{Zero, Algebraic};
 use traits::dot::Dot;
 use traits::dim::Dim;
 use traits::cross::Cross;
+use dim1::vec1::Vec1;
 
 #[deriving(Eq)]
 pub struct Vec2<T>
@@ -43,10 +44,10 @@ impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec2<T>
   { self.sqnorm().sqrt() }
 }
 
-impl<T:Copy + Mul<T, T> + Sub<T, T>> Cross<T> for Vec2<T>
+impl<T:Copy + Mul<T, T> + Sub<T, T>> Cross<Vec1<T>> for Vec2<T>
 {
-  fn cross(&self, other : &Vec2<T>) -> T
-  { self.x * other.y - self.y * other.x }
+  fn cross(&self, other : &Vec2<T>) -> Vec1<T>
+  { Vec1(self.x * other.y - self.y * other.x) }
 }
 
 impl<T:Copy + Neg<T>> Neg<Vec2<T>> for Vec2<T>

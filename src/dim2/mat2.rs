@@ -87,7 +87,7 @@ impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec2<T>> for Mat2<T>
   }
 }
 
-impl<T:Copy + Mul<T, T> + Quot<T, T> + Sub<T, T> + Neg<T> + Eq + Zero>
+impl<T:Copy + Mul<T, T> + Quot<T, T> + Sub<T, T> + Neg<T> + Zero>
 Inv for Mat2<T>
 {
   fn inverse(&self) -> Mat2<T>
@@ -103,7 +103,7 @@ Inv for Mat2<T>
   {
     let det = self.m11 * self.m22 - self.m21 * self.m12;
 
-    assert!(det != Zero::zero());
+    assert!(!det.is_zero());
 
     *self = Mat2(self.m22 / det , -self.m12 / det,
                  -self.m21 / det, self.m11 / det)

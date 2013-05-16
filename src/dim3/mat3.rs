@@ -104,8 +104,7 @@ impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec3<T>> for Mat3<T>
   }
 }
 
-impl<T:Copy + Mul<T, T> + Quot<T, T> + Sub<T, T> + Add<T, T> + Neg<T>
-     + Eq + Zero>
+impl<T:Copy + Mul<T, T> + Quot<T, T> + Sub<T, T> + Add<T, T> + Neg<T> + Zero>
 Inv for Mat3<T>
 {
   fn inverse(&self) -> Mat3<T>
@@ -127,7 +126,7 @@ Inv for Mat3<T>
               - self.m12 * minor_m21_m33
               + self.m13 * minor_m21_m32;
 
-    assert!(det != Zero::zero());
+    assert!(det.is_zero());
 
     *self = Mat3(
       (minor_m22_m33  / det),

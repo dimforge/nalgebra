@@ -13,6 +13,9 @@ pub use dim3::mat3::Mat3;
 pub use dim2::vec2::Vec2;
 pub use dim2::mat2::Mat2;
 
+pub use dim1::vec1::Vec1;
+pub use dim1::mat1::Mat1;
+
 pub use ndim::nvec::NVec;
 pub use ndim::nmat::NMat;
 
@@ -32,6 +35,12 @@ mod dim2
 {
   mod vec2;
   mod mat2;
+}
+
+mod dim1
+{
+  mod vec1;
+  mod mat1;
 }
 
 mod dim3
