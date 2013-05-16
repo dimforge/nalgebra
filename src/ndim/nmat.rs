@@ -134,8 +134,7 @@ LMul<NVec<D, T>> for NMat<D, T>
 
 impl<D: Dim,
      T: Clone + Copy + Eq + One + Zero +
-        Mul<T, T> + Quot<T, T> + Sub<T, T> + Neg<T>
-     >
+        Mul<T, T> + Quot<T, T> + Sub<T, T> + Neg<T>>
 Inv for NMat<D, T>
 {
   fn inverse(&self) -> NMat<D, T>
@@ -161,7 +160,7 @@ Inv for NMat<D, T>
       // instead?
 
       // FIXME: this is kind of uggly…
-      // … but we cannot use position_betwee since we are iterating on one
+      // … but we cannot use position_between since we are iterating on one
       // columns
       let mut n0 = 0u; // index of a non-zero entry
 
