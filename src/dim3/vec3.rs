@@ -1,4 +1,5 @@
 use core::num::{Zero, Algebraic};
+use std::cmp::FuzzyEq;
 use traits::dim::Dim;
 use traits::dot::Dot;
 use traits::cross::Cross;
@@ -72,6 +73,23 @@ impl<T:Copy + Zero> Zero for Vec3<T>
 
   fn is_zero(&self) -> bool
   { self.x.is_zero() && self.y.is_zero() && self.z.is_zero() }
+}
+
+impl<T:FuzzyEq<T>> FuzzyEq<T> for Vec3<T>
+{
+  fn fuzzy_eq(&self, other: &Vec3<T>) -> bool
+  {
+    self.x.fuzzy_eq(&other.x) &&
+    self.y.fuzzy_eq(&other.y) &&
+    self.z.fuzzy_eq(&other.z)
+  }
+
+  fn fuzzy_eq_eps(&self, other: &Vec3<T>, epsilon: &T) -> bool
+  {
+    self.x.fuzzy_eq_eps(&other.x, epsilon) &&
+    self.y.fuzzy_eq_eps(&other.y, epsilon) &&
+    self.z.fuzzy_eq_eps(&other.z, epsilon)
+  }
 }
 
 impl<T:ToStr> ToStr for Vec3<T>

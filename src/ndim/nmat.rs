@@ -1,5 +1,6 @@
 use core::num::{One, Zero};
-use core::vec::{from_elem, swap, all};
+use core::vec::{from_elem, swap, all, all2};
+use std::cmp::FuzzyEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
@@ -238,6 +239,15 @@ impl<D: Dim, T:Copy> Transpose for NMat<D, T>
       }
     }
   }
+}
+
+impl<D, T:FuzzyEq<T>> FuzzyEq<T> for NMat<D, T>
+{
+  fn fuzzy_eq(&self, other: &NMat<D, T>) -> bool
+  { all2(self.mij, other.mij, |a, b| a.fuzzy_eq(b)) }
+
+  fn fuzzy_eq_eps(&self, other: &NMat<D, T>, epsilon: &T) -> bool
+  { all2(self.mij, other.mij, |a, b| a.fuzzy_eq_eps(b, epsilon)) }
 }
 
 impl<D: Dim, T:ToStr> ToStr for NMat<D, T>

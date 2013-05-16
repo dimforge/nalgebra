@@ -1,4 +1,5 @@
 use core::num::{One, Zero};
+use std::cmp::FuzzyEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
@@ -81,6 +82,15 @@ impl<T:Copy> Transpose for Mat1<T>
 
   fn transpose(&mut self)
   { }
+}
+
+impl<T:FuzzyEq<T>> FuzzyEq<T> for Mat1<T>
+{
+  fn fuzzy_eq(&self, other: &Mat1<T>) -> bool
+  { self.m11.fuzzy_eq(&other.m11) }
+
+  fn fuzzy_eq_eps(&self, other: &Mat1<T>, epsilon: &T) -> bool
+  { self.m11.fuzzy_eq_eps(&other.m11, epsilon) }
 }
 
 impl<T:ToStr> ToStr for Mat1<T>

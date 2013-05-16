@@ -1,4 +1,5 @@
 use core::num::{One, Zero}; // , Trigonometric};
+use std::cmp::FuzzyEq;
 use traits::workarounds::rlmul::{RMul, LMul};
 use traits::workarounds::trigonometric::Trigonometric;
 use traits::dim::Dim;
@@ -103,6 +104,15 @@ Transpose for Rotmat<M>
 
   fn transpose(&mut self)
   { self.submat.transpose() }
+}
+
+impl<T, M:FuzzyEq<T>> FuzzyEq<T> for Rotmat<M>
+{
+  fn fuzzy_eq(&self, other: &Rotmat<M>) -> bool
+  { self.submat.fuzzy_eq(&other.submat) }
+
+  fn fuzzy_eq_eps(&self, other: &Rotmat<M>, epsilon: &T) -> bool
+  { self.submat.fuzzy_eq_eps(&other.submat, epsilon) }
 }
 
 impl<M:ToStr> ToStr for Rotmat<M>

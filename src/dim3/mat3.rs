@@ -1,4 +1,5 @@
 use core::num::{One, Zero};
+use std::cmp::FuzzyEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
@@ -161,18 +162,38 @@ impl<T:Copy> Transpose for Mat3<T>
   }
 }
 
-// impl<T:Rand> Rand for Mat3<T>
-// {
-//   fn rand<R:Rng>(rng: &mut R) -> Mat3<T>
-//   {
-//     Mat3
-//     {
-//       m11: rng.next(), m12: rng.next(), m13: rng.next(),
-//       m21: rng.next(), m22: rng.next(), m23: rng.next(),
-//       m31: rng.next(), m32: rng.next(), m33: rng.next()
-//     }
-//   }
-// }
+impl<T:FuzzyEq<T>> FuzzyEq<T> for Mat3<T>
+{
+  fn fuzzy_eq(&self, other: &Mat3<T>) -> bool
+  {
+    self.m11.fuzzy_eq(&other.m11) &&
+    self.m12.fuzzy_eq(&other.m12) &&
+    self.m13.fuzzy_eq(&other.m13) &&
+
+    self.m21.fuzzy_eq(&other.m21) &&
+    self.m22.fuzzy_eq(&other.m22) &&
+    self.m23.fuzzy_eq(&other.m23) &&
+
+    self.m31.fuzzy_eq(&other.m31) &&
+    self.m32.fuzzy_eq(&other.m32) &&
+    self.m33.fuzzy_eq(&other.m33)
+  }
+
+  fn fuzzy_eq_eps(&self, other: &Mat3<T>, epsilon: &T) -> bool
+  {
+    self.m11.fuzzy_eq_eps(&other.m11, epsilon) &&
+    self.m12.fuzzy_eq_eps(&other.m12, epsilon) &&
+    self.m13.fuzzy_eq_eps(&other.m13, epsilon) &&
+
+    self.m21.fuzzy_eq_eps(&other.m21, epsilon) &&
+    self.m22.fuzzy_eq_eps(&other.m22, epsilon) &&
+    self.m23.fuzzy_eq_eps(&other.m23, epsilon) &&
+
+    self.m31.fuzzy_eq_eps(&other.m31, epsilon) &&
+    self.m32.fuzzy_eq_eps(&other.m32, epsilon) &&
+    self.m33.fuzzy_eq_eps(&other.m33, epsilon)
+  }
+}
 
 impl<T:ToStr> ToStr for Mat3<T>
 {

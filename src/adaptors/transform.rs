@@ -1,4 +1,5 @@
 use core::num::{One, Zero};
+use std::cmp::FuzzyEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
@@ -72,6 +73,21 @@ Inv for Transform<M, V>
     res.invert();
 
     res
+  }
+}
+
+impl<T, M:FuzzyEq<T>, V:FuzzyEq<T>> FuzzyEq<T> for Transform<M, V>
+{
+  fn fuzzy_eq(&self, other: &Transform<M, V>) -> bool
+  {
+    self.submat.fuzzy_eq(&other.submat) &&
+    self.subtrans.fuzzy_eq(&other.subtrans)
+  }
+
+  fn fuzzy_eq_eps(&self, other: &Transform<M, V>, epsilon: &T) -> bool
+  {
+    self.submat.fuzzy_eq_eps(&other.submat, epsilon) &&
+    self.subtrans.fuzzy_eq_eps(&other.subtrans, epsilon)
   }
 }
 

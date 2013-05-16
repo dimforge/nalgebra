@@ -1,5 +1,6 @@
-use core::vec::{map_zip, from_elem, map, all};
+use core::vec::{map_zip, from_elem, map, all, all2};
 use core::num::{Zero, Algebraic};
+use std::cmp::FuzzyEq;
 use traits::dim::Dim;
 use traits::dot::Dot;
 
@@ -81,6 +82,15 @@ impl<D: Dim, T:Copy + Zero> Zero for NVec<D, T>
   {
     all(self.at, |e| e.is_zero())
   }
+}
+
+impl<D, T:FuzzyEq<T>> FuzzyEq<T> for NVec<D, T>
+{
+  fn fuzzy_eq(&self, other: &NVec<D, T>) -> bool
+  { all2(self.at, other.at, |a, b| a.fuzzy_eq(b)) }
+
+  fn fuzzy_eq_eps(&self, other: &NVec<D, T>, epsilon: &T) -> bool
+  { all2(self.at, other.at, |a, b| a.fuzzy_eq_eps(b, epsilon)) }
 }
 
 impl<D: Dim, T:ToStr> ToStr for NVec<D, T>
