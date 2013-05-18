@@ -7,6 +7,7 @@ use traits::cross::Cross;
 use traits::basis::Basis;
 use traits::norm::Norm;
 use dim1::vec1::Vec1;
+use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq)]
 pub struct Vec2<T>
@@ -34,6 +35,59 @@ impl<T:Copy + Sub<T,T>> Sub<Vec2<T>, Vec2<T>> for Vec2<T>
 {
   fn sub(&self, other: &Vec2<T>) -> Vec2<T>
   { Vec2(self.x - other.x, self.y - other.y) }
+}
+
+impl<T: Copy + Mul<T, T>>
+ScalarMul<T> for Vec2<T>
+{
+  fn scalar_mul(&self, s: &T) -> Vec2<T>
+  { Vec2 { x: self.x * *s, y: self.y * *s } }
+
+  fn scalar_mul_inplace(&mut self, s: &T)
+  {
+    self.x *= *s;
+    self.y *= *s;
+  }
+}
+
+
+impl<T: Copy + Quot<T, T>>
+ScalarDiv<T> for Vec2<T>
+{
+  fn scalar_div(&self, s: &T) -> Vec2<T>
+  { Vec2 { x: self.x / *s, y: self.y / *s } }
+
+  fn scalar_div_inplace(&mut self, s: &T)
+  {
+    self.x /= *s;
+    self.y /= *s;
+  }
+}
+
+impl<T: Copy + Add<T, T>>
+ScalarAdd<T> for Vec2<T>
+{
+  fn scalar_add(&self, s: &T) -> Vec2<T>
+  { Vec2 { x: self.x + *s, y: self.y + *s } }
+
+  fn scalar_add_inplace(&mut self, s: &T)
+  {
+    self.x += *s;
+    self.y += *s;
+  }
+}
+
+impl<T: Copy + Sub<T, T>>
+ScalarSub<T> for Vec2<T>
+{
+  fn scalar_sub(&self, s: &T) -> Vec2<T>
+  { Vec2 { x: self.x - *s, y: self.y - *s } }
+
+  fn scalar_sub_inplace(&mut self, s: &T)
+  {
+    self.x -= *s;
+    self.y -= *s;
+  }
 }
 
 impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec2<T>

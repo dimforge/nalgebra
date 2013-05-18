@@ -6,7 +6,7 @@ use traits::dim::Dim;
 use traits::dot::Dot;
 use traits::norm::Norm;
 use traits::basis::Basis;
-use traits::workarounds::scalar_op::ScalarOp;
+use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 // D is a phantom parameter, used only as a dimensional token.
 // Its allows use to encode the vector dimension at the type-level.
@@ -65,38 +65,51 @@ Dot<T> for NVec<D, T>
   } 
 }
 
-impl<D: Dim, T: Copy + Mul<T, T> + Quot<T, T> + Add<T, T> + Sub<T, T>>
-ScalarOp<T> for NVec<D, T>
+impl<D: Dim, T: Copy + Mul<T, T>>
+ScalarMul<T> for NVec<D, T>
 {
   fn scalar_mul(&self, s: &T) -> NVec<D, T>
   { NVec { at: map(self.at, |a| a * *s) } }
-
-  fn scalar_div(&self, s: &T) -> NVec<D, T>
-  { NVec { at: map(self.at, |a| a / *s) } }
-
-  fn scalar_add(&self, s: &T) -> NVec<D, T>
-  { NVec { at: map(self.at, |a| a + *s) } }
-
-  fn scalar_sub(&self, s: &T) -> NVec<D, T>
-  { NVec { at: map(self.at, |a| a - *s) } }
 
   fn scalar_mul_inplace(&mut self, s: &T)
   {
     for uint::range(0u, Dim::dim::<D>()) |i|
     { self.at[i] *= *s; }
   }
+}
+
+
+impl<D: Dim, T: Copy + Quot<T, T>>
+ScalarDiv<T> for NVec<D, T>
+{
+  fn scalar_div(&self, s: &T) -> NVec<D, T>
+  { NVec { at: map(self.at, |a| a / *s) } }
 
   fn scalar_div_inplace(&mut self, s: &T)
   {
     for uint::range(0u, Dim::dim::<D>()) |i|
     { self.at[i] /= *s; }
   }
+}
+
+impl<D: Dim, T: Copy + Add<T, T>>
+ScalarAdd<T> for NVec<D, T>
+{
+  fn scalar_add(&self, s: &T) -> NVec<D, T>
+  { NVec { at: map(self.at, |a| a + *s) } }
 
   fn scalar_add_inplace(&mut self, s: &T)
   {
     for uint::range(0u, Dim::dim::<D>()) |i|
     { self.at[i] += *s; }
   }
+}
+
+impl<D: Dim, T: Copy + Sub<T, T>>
+ScalarSub<T> for NVec<D, T>
+{
+  fn scalar_sub(&self, s: &T) -> NVec<D, T>
+  { NVec { at: map(self.at, |a| a - *s) } }
 
   fn scalar_sub_inplace(&mut self, s: &T)
   {

@@ -32,7 +32,7 @@ pub use traits::norm::Norm;
 
 pub use traits::workarounds::rlmul::{RMul, LMul};
 pub use traits::workarounds::trigonometric::Trigonometric;
-pub use traits::workarounds::scalar_op::ScalarOp;
+pub use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 mod dim2
 {
