@@ -128,7 +128,7 @@ Inv for Mat3<T>
               - self.m12 * minor_m21_m33
               + self.m13 * minor_m21_m32;
 
-    assert!(det.is_zero());
+    assert!(!det.is_zero());
 
     *self = Mat3(
       (minor_m22_m33  / det),

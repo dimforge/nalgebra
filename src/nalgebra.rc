@@ -27,9 +27,12 @@ pub use traits::cross::Cross;
 pub use traits::dim::Dim;
 pub use traits::inv::Inv;
 pub use traits::transpose::Transpose;
+pub use traits::basis::Basis;
+pub use traits::norm::Norm;
 
 pub use traits::workarounds::rlmul::{RMul, LMul};
 pub use traits::workarounds::trigonometric::Trigonometric;
+pub use traits::workarounds::scalar_op::ScalarOp;
 
 mod dim2
 {
@@ -68,10 +71,19 @@ mod traits
   mod inv;
   mod transpose;
   mod dim;
+  mod basis;
+  mod norm;
 
   mod workarounds
   {
     mod rlmul;
     mod trigonometric;
+    mod scalar_op;
   }
+}
+
+mod tests
+{
+  mod mat;
+  mod vec;
 }

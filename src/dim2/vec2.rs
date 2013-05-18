@@ -1,9 +1,11 @@
-use core::num::{Zero, Algebraic};
+use core::num::{Zero, One, Algebraic};
 use core::rand::{Rand, Rng, RngUtil};
 use std::cmp::FuzzyEq;
 use traits::dot::Dot;
 use traits::dim::Dim;
 use traits::cross::Cross;
+use traits::basis::Basis;
+use traits::norm::Norm;
 use dim1::vec1::Vec1;
 
 #[deriving(Eq)]
@@ -38,12 +40,33 @@ impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec2<T>
 {
   fn dot(&self, other : &Vec2<T>) -> T
   { self.x * other.x + self.y * other.y } 
+}
 
+impl<T:Copy + Mul<T, T> + Add<T, T> + Quot<T, T> + Algebraic>
+Norm<T> for Vec2<T>
+{
   fn sqnorm(&self) -> T
   { self.dot(self) }
 
   fn norm(&self) -> T
   { self.sqnorm().sqrt() }
+
+  fn normalized(&self) -> Vec2<T>
+  {
+    let l = self.norm();
+
+    Vec2(self.x / l, self.y / l)
+  }
+
+  fn normalize(&mut self) -> T
+  {
+    let l = self.norm();
+
+    self.x /= l;
+    self.y /= l;
+
+    l
+  }
 }
 
 impl<T:Copy + Mul<T, T> + Sub<T, T>> Cross<Vec1<T>> for Vec2<T>
@@ -68,6 +91,19 @@ impl<T:Copy + Zero> Zero for Vec2<T>
 
   fn is_zero(&self) -> bool
   { self.x.is_zero() && self.y.is_zero() }
+}
+
+impl<T: Copy + One + Zero + Neg<T>> Basis for Vec2<T>
+{
+  fn canonical_basis()     -> ~[Vec2<T>]
+  {
+    // FIXME: this should be static
+    ~[ Vec2(One::one(), Zero::zero()),
+       Vec2(Zero::zero(), One::one()) ]
+  }
+
+  fn orthogonal_subspace_basis(&self) -> ~[Vec2<T>]
+  { ~[ Vec2(-self.y, self.x) ] }
 }
 
 impl<T:FuzzyEq<T>> FuzzyEq<T> for Vec2<T>

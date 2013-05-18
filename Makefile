@@ -1,7 +1,11 @@
+nalgebra_lib_path=lib
 all:
-	rust build src/nalgebra.rc --out-dir lib # rustpkg install
+	rust build src/nalgebra.rc --out-dir $(nalgebra_lib_path)
+
+test:
+	rust test src/nalgebra.rc
 
 doc:
-	rust doc src/nalgebra.rc --output-dir doc
+	rust test src/nalgebra.rc
 
-.PHONY:doc
+.PHONY:doc, test
