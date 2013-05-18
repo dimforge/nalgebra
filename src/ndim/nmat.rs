@@ -1,4 +1,5 @@
 use core::num::{One, Zero};
+use core::rand::{Rand, Rng, RngUtil};
 use core::vec::{from_elem, swap, all, all2};
 use std::cmp::FuzzyEq;
 use traits::dim::Dim;
@@ -38,13 +39,13 @@ impl<D: Dim, T> Dim for NMat<D, T>
   { Dim::dim::<D>() }
 }
 
-impl<D: Dim, T:Copy> Index<(uint, uint), T> for NMat<D, T>
+impl<D: Dim, T: Copy> Index<(uint, uint), T> for NMat<D, T>
 {
   fn index(&self, &(i, j): &(uint, uint)) -> T
   { self.mij[NMat::offset::<D, T>(i, j)] }
 }
 
-impl<D: Dim, T:Copy + One + Zero> One for NMat<D, T>
+impl<D: Dim, T: Copy + One + Zero> One for NMat<D, T>
 {
   fn one() -> NMat<D, T>
   {
@@ -59,7 +60,7 @@ impl<D: Dim, T:Copy + One + Zero> One for NMat<D, T>
   }
 }
 
-impl<D: Dim, T:Copy + Zero> Zero for NMat<D, T>
+impl<D: Dim, T: Copy + Zero> Zero for NMat<D, T>
 {
   fn zero() -> NMat<D, T>
   {
@@ -72,7 +73,7 @@ impl<D: Dim, T:Copy + Zero> Zero for NMat<D, T>
   { all(self.mij, |e| e.is_zero()) }
 }
 
-impl<D: Dim, T:Copy + Mul<T, T> + Add<T, T> + Zero>
+impl<D: Dim, T: Copy + Mul<T, T> + Add<T, T> + Zero>
 Mul<NMat<D, T>, NMat<D, T>> for NMat<D, T>
 {
   fn mul(&self, other: &NMat<D, T>) -> NMat<D, T>
@@ -97,7 +98,7 @@ Mul<NMat<D, T>, NMat<D, T>> for NMat<D, T>
   }
 }
 
-impl<D: Dim, T:Copy + Add<T, T> + Mul<T, T> + Zero>
+impl<D: Dim, T: Copy + Add<T, T> + Mul<T, T> + Zero>
 RMul<NVec<D, T>> for NMat<D, T>
 {
   fn rmul(&self, other: &NVec<D, T>) -> NVec<D, T>
@@ -115,7 +116,7 @@ RMul<NVec<D, T>> for NMat<D, T>
   }
 }
 
-impl<D: Dim, T:Copy + Add<T, T> + Mul<T, T> + Zero>
+impl<D: Dim, T: Copy + Add<T, T> + Mul<T, T> + Zero>
 LMul<NVec<D, T>> for NMat<D, T>
 {
   fn lmul(&self, other: &NVec<D, T>) -> NVec<D, T>
@@ -241,7 +242,7 @@ impl<D: Dim, T:Copy> Transpose for NMat<D, T>
   }
 }
 
-impl<D, T:FuzzyEq<T>> FuzzyEq<T> for NMat<D, T>
+impl<D, T: FuzzyEq<T>> FuzzyEq<T> for NMat<D, T>
 {
   fn fuzzy_eq(&self, other: &NMat<D, T>) -> bool
   { all2(self.mij, other.mij, |a, b| a.fuzzy_eq(b)) }
@@ -250,7 +251,24 @@ impl<D, T:FuzzyEq<T>> FuzzyEq<T> for NMat<D, T>
   { all2(self.mij, other.mij, |a, b| a.fuzzy_eq_eps(b, epsilon)) }
 }
 
-impl<D: Dim, T:ToStr> ToStr for NMat<D, T>
+impl<D: Dim, T: Rand + Zero + Copy> Rand for NMat<D, T>
+{
+  fn rand<R: Rng>(rng: &R) -> NMat<D, T>
+  {
+    let     dim = Dim::dim::<D>();
+    let mut res : NMat<D, T> = Zero::zero();
+
+    for uint::range(0u, dim) |i|
+    {
+      for uint::range(0u, dim) |j|
+      { res.set(i, j, &rng.gen()); }
+    }
+
+    res
+  }
+}
+
+impl<D: Dim, T: ToStr> ToStr for NMat<D, T>
 {
   fn to_str(&self) -> ~str
   { ~"Mat" + Dim::dim::<D>().to_str() + " {" + self.mij.to_str() + " }" }
