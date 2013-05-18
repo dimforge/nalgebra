@@ -84,57 +84,45 @@ fn test_commut_dot_vec1()
 #[test]
 fn test_basis_vec1()
 {
-  for uint::range(0u, 10000u) |_|
-  {
-    let basis = Basis::canonical_basis::<Vec1<f64>>();
+  let basis = Basis::canonical_basis::<Vec1<f64>>();
 
-    // check vectors form an ortogonal basis
-    assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
-    // check vectors form an orthonormal basis
-    assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
-  }
+  // check vectors form an ortogonal basis
+  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+  // check vectors form an orthonormal basis
+  assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
 }
 
 #[test]
 fn test_basis_vec2()
 {
-  for uint::range(0u, 10000u) |_|
-  {
-    let basis = Basis::canonical_basis::<Vec2<f64>>();
+  let basis = Basis::canonical_basis::<Vec2<f64>>();
 
-    // check vectors form an ortogonal basis
-    assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
-    // check vectors form an orthonormal basis
-    assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
-  }
+  // check vectors form an ortogonal basis
+  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+  // check vectors form an orthonormal basis
+  assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
 }
 
 #[test]
 fn test_basis_vec3()
 {
-  for uint::range(0u, 10000u) |_|
-  {
-    let basis = Basis::canonical_basis::<Vec3<f64>>();
+  let basis = Basis::canonical_basis::<Vec3<f64>>();
 
-    // check vectors form an ortogonal basis
-    assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
-    // check vectors form an orthonormal basis
-    assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
-  }
+  // check vectors form an ortogonal basis
+  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+  // check vectors form an orthonormal basis
+  assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
 }
 
 #[test]
 fn test_basis_nvec()
 {
-  for uint::range(0u, 10000u) |_|
-  {
-    let basis = Basis::canonical_basis::<NVec<d7, f64>>();
+  let basis = Basis::canonical_basis::<NVec<d7, f64>>();
 
-    // check vectors form an ortogonal basis
-    assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
-    // check vectors form an orthonormal basis
-    assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
-  }
+  // check vectors form an ortogonal basis
+  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+  // check vectors form an orthonormal basis
+  assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
 }
 
 #[test]
