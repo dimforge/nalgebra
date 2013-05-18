@@ -1,4 +1,5 @@
 use core::num::{Zero, Algebraic};
+use core::rand::{Rand, Rng, RngUtil};
 use std::cmp::FuzzyEq;
 use traits::dot::Dot;
 use traits::dim::Dim;
@@ -79,6 +80,12 @@ impl<T:FuzzyEq<T>> FuzzyEq<T> for Vec2<T>
     self.x.fuzzy_eq_eps(&other.x, epsilon) &&
     self.y.fuzzy_eq_eps(&other.y, epsilon)
   }
+}
+
+impl<T:Rand + Copy> Rand for Vec2<T>
+{
+  fn rand<R: Rng>(rng: &R) -> Vec2<T>
+  { Vec2(rng.gen(), rng.gen()) }
 }
 
 impl<T:ToStr> ToStr for Vec2<T>

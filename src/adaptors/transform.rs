@@ -1,4 +1,5 @@
 use core::num::{One, Zero};
+use core::rand::{Rand, Rng, RngUtil};
 use std::cmp::FuzzyEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
@@ -89,6 +90,12 @@ impl<T, M:FuzzyEq<T>, V:FuzzyEq<T>> FuzzyEq<T> for Transform<M, V>
     self.submat.fuzzy_eq_eps(&other.submat, epsilon) &&
     self.subtrans.fuzzy_eq_eps(&other.subtrans, epsilon)
   }
+}
+
+impl<M: Rand + Copy, V: Rand + Copy> Rand for Transform<M, V>
+{
+  fn rand<R: Rng>(rng: &R) -> Transform<M, V>
+  { Transform(&rng.gen(), &rng.gen()) }
 }
 
 impl<M:ToStr, V:ToStr> ToStr for Transform<M, V>

@@ -1,4 +1,5 @@
 use core::num::{One, Zero}; // , Trigonometric};
+use core::rand::{Rand, Rng, RngUtil};
 use std::cmp::FuzzyEq;
 use traits::workarounds::rlmul::{RMul, LMul};
 use traits::workarounds::trigonometric::Trigonometric;
@@ -54,6 +55,20 @@ pub fn Rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
       (uy * uz * one_m_cos + ux * sin),
       (sqz + (_1 - sqz) * cos))
   }
+}
+
+impl<T:Copy + Rand + Trigonometric + Neg<T>> Rand for Rotmat<Mat2<T>>
+{
+  fn rand<R: Rng>(rng: &R) -> Rotmat<Mat2<T>>
+  { Rotmat2(rng.gen()) }
+}
+
+impl<T:Copy + Rand + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
+       Mul<T, T>>
+Rand for Rotmat<Mat3<T>>
+{
+  fn rand<R: Rng>(rng: &R) -> Rotmat<Mat3<T>>
+  { Rotmat3(&rng.gen(), rng.gen()) }
 }
 
 impl<M: Dim> Dim for Rotmat<M>

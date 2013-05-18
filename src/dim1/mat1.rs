@@ -1,4 +1,5 @@
 use core::num::{One, Zero};
+use core::rand::{Rand, Rng, RngUtil};
 use std::cmp::FuzzyEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
@@ -91,6 +92,12 @@ impl<T:FuzzyEq<T>> FuzzyEq<T> for Mat1<T>
 
   fn fuzzy_eq_eps(&self, other: &Mat1<T>, epsilon: &T) -> bool
   { self.m11.fuzzy_eq_eps(&other.m11, epsilon) }
+}
+
+impl<T:Rand + Copy> Rand for Mat1<T>
+{
+  fn rand<R: Rng>(rng: &R) -> Mat1<T>
+  { Mat1(rng.gen()) }
 }
 
 impl<T:ToStr> ToStr for Mat1<T>
