@@ -1,4 +1,5 @@
 use core::vec::{map_zip, from_elem, map, all, all2};
+use core::rand::{Rand, Rng, RngUtil};
 use core::num::{Zero, Algebraic};
 use std::cmp::FuzzyEq;
 use traits::dim::Dim;
@@ -91,6 +92,20 @@ impl<D, T:FuzzyEq<T>> FuzzyEq<T> for NVec<D, T>
 
   fn fuzzy_eq_eps(&self, other: &NVec<D, T>, epsilon: &T) -> bool
   { all2(self.at, other.at, |a, b| a.fuzzy_eq_eps(b, epsilon)) }
+}
+
+impl<D: Dim, T: Rand + Zero + Copy> Rand for NVec<D, T>
+{
+  fn rand<R: Rng>(rng: &R) -> NVec<D, T>
+  {
+    let     dim = Dim::dim::<D>();
+    let mut res : NVec<D, T> = Zero::zero();
+
+    for uint::range(0u, dim) |i|
+    { res.at[i] = rng.gen() }
+
+    res
+  }
 }
 
 impl<D: Dim, T:ToStr> ToStr for NVec<D, T>
