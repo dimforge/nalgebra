@@ -12,7 +12,7 @@ pub struct Transform<M, V>
   subtrans : V
 }
 
-pub fn Transform<M: Copy, V: Copy>(mat: &M, trans: &V) -> Transform<M, V>
+pub fn transform<M: Copy, V: Copy>(mat: &M, trans: &V) -> Transform<M, V>
 { Transform { submat: *mat, subtrans: *trans } }
 
 impl<M:Dim, V> Dim for Transform<M, V>
@@ -95,7 +95,7 @@ impl<T, M:FuzzyEq<T>, V:FuzzyEq<T>> FuzzyEq<T> for Transform<M, V>
 impl<M: Rand + Copy, V: Rand + Copy> Rand for Transform<M, V>
 {
   fn rand<R: Rng>(rng: &R) -> Transform<M, V>
-  { Transform(&rng.gen(), &rng.gen()) }
+  { transform(&rng.gen(), &rng.gen()) }
 }
 
 impl<M:ToStr, V:ToStr> ToStr for Transform<M, V>

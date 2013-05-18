@@ -6,9 +6,9 @@ use traits::workarounds::trigonometric::Trigonometric;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
-use dim2::mat2::Mat2;
-use dim3::mat3::Mat3;
-use dim3::vec3::Vec3;
+use dim2::mat2::{Mat2, mat2};
+use dim3::mat3::{Mat3, mat3};
+use dim3::vec3::{Vec3};
 
 // FIXME: use a newtype here?
 #[deriving(Eq)]
@@ -17,16 +17,16 @@ pub struct Rotmat<M>
   priv submat: M
 }
 
-pub fn Rotmat2<T: Copy + Trigonometric + Neg<T>>(angle: T) -> Rotmat<Mat2<T>>
+pub fn rotmat2<T: Copy + Trigonometric + Neg<T>>(angle: T) -> Rotmat<Mat2<T>>
 {
   let coa = Trigonometric::cos(angle);
   let sia = Trigonometric::sin(angle);
 
   Rotmat
-  { submat: Mat2(coa, -sia, sia, coa) }
+  { submat: mat2(coa, -sia, sia, coa) }
 }
 
-pub fn Rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
+pub fn rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
                   Mul<T, T>>
 (axis: &Vec3<T>, angle: T) -> Rotmat<Mat3<T>>
 {
@@ -42,7 +42,7 @@ pub fn Rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
   let sin       = Trigonometric::sin(angle);
 
   Rotmat {
-    submat: Mat3(
+    submat: mat3(
       (sqx + (_1 - sqx) * cos),
       (ux * uy * one_m_cos - uz * sin),
       (ux * uz * one_m_cos + uy * sin),
@@ -60,7 +60,7 @@ pub fn Rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
 impl<T:Copy + Rand + Trigonometric + Neg<T>> Rand for Rotmat<Mat2<T>>
 {
   fn rand<R: Rng>(rng: &R) -> Rotmat<Mat2<T>>
-  { Rotmat2(rng.gen()) }
+  { rotmat2(rng.gen()) }
 }
 
 impl<T:Copy + Rand + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
@@ -68,7 +68,7 @@ impl<T:Copy + Rand + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
 Rand for Rotmat<Mat3<T>>
 {
   fn rand<R: Rng>(rng: &R) -> Rotmat<Mat3<T>>
-  { Rotmat3(&rng.gen(), rng.gen()) }
+  { rotmat3(&rng.gen(), rng.gen()) }
 }
 
 impl<M: Dim> Dim for Rotmat<M>
