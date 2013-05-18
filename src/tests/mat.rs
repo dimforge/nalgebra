@@ -7,6 +7,8 @@ use std::cmp::FuzzyEq;
 // #[test]
 // use ndim::nmat::NMat;
 #[test]
+use traits::inv::Inv;
+#[test]
 use dim1::mat1::Mat1;
 #[test]
 use dim2::mat2::Mat2;

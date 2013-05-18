@@ -18,6 +18,13 @@ use ndim::nvec::NVec;
 use traits::dim::d7;
 #[test]
 use traits::basis::Basis;
+#[test]
+use traits::cross::Cross;
+#[test]
+use traits::dot::Dot;
+#[test]
+use traits::norm::Norm;
+
 
 #[test]
 fn test_cross_vec3()
