@@ -1,12 +1,13 @@
 use core::num::{Zero, One, Algebraic};
 use core::rand::{Rand, Rng, RngUtil};
-use std::cmp::FuzzyEq;
-use traits::dot::Dot;
-use traits::dim::Dim;
-use traits::cross::Cross;
-use traits::basis::Basis;
-use traits::norm::Norm;
 use dim1::vec1::{Vec1, vec1};
+use std::cmp::FuzzyEq;
+use traits::basis::Basis;
+use traits::cross::Cross;
+use traits::dim::Dim;
+use traits::dot::Dot;
+use traits::norm::Norm;
+use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq)]
@@ -88,6 +89,18 @@ ScalarSub<T> for Vec2<T>
     self.x -= *s;
     self.y -= *s;
   }
+}
+
+impl<T: Copy + Add<T, T>> Translation<Vec2<T>> for Vec2<T>
+{
+  fn translation(&self) -> Vec2<T>
+  { *self }
+
+  fn translated(&self, t: &Vec2<T>) -> Vec2<T>
+  { self + *t }
+
+  fn translate(&mut self, t: &Vec2<T>)
+  { *self += *t; }
 }
 
 impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec2<T>

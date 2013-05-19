@@ -4,6 +4,7 @@ all:
 
 test:
 	rust test src/nalgebra.rc
+	rm nalgebratest~
 
 doc:
 	rust test src/nalgebra.rc

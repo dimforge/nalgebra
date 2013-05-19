@@ -1,11 +1,12 @@
 use core::num::{Zero, One, Algebraic, abs};
 use core::rand::{Rand, Rng, RngUtil};
 use std::cmp::FuzzyEq;
+use traits::basis::Basis;
+use traits::cross::Cross;
 use traits::dim::Dim;
 use traits::dot::Dot;
-use traits::cross::Cross;
-use traits::basis::Basis;
 use traits::norm::Norm;
+use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq)]
@@ -93,6 +94,19 @@ ScalarSub<T> for Vec3<T>
     self.z -= *s;
   }
 }
+
+impl<T: Copy + Add<T, T>> Translation<Vec3<T>> for Vec3<T>
+{
+  fn translation(&self) -> Vec3<T>
+  { *self }
+
+  fn translated(&self, t: &Vec3<T>) -> Vec3<T>
+  { self + *t }
+
+  fn translate(&mut self, t: &Vec3<T>)
+  { *self += *t; }
+}
+
 
 
 impl<T:Copy + Neg<T>> Neg<Vec3<T>> for Vec3<T>

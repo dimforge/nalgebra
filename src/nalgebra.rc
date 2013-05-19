@@ -46,6 +46,8 @@ mod traits
   mod dim;
   mod basis;
   mod norm;
+  mod rotation;
+  mod translation;
 
   mod workarounds
   {

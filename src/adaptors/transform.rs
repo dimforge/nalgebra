@@ -3,6 +3,8 @@ use core::rand::{Rand, Rng, RngUtil};
 use std::cmp::FuzzyEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
+use traits::rotation::Rotation;
+use traits::translation::Translation;
 use traits::transpose::Transpose;
 use traits::workarounds::rlmul::{RMul, LMul};
 
@@ -56,6 +58,30 @@ impl<M: LMul<V>, V> LMul<V> for Transform<M, V>
 {
   fn lmul(&self, other: &V) -> V
   { self.submat.lmul(other) }
+}
+
+impl<M: Copy, V: Copy + Translation<V>> Translation<V> for Transform<M, V>
+{
+  fn translation(&self) -> V
+  { self.subtrans.translation() }
+
+  fn translated(&self, t: &V) -> Transform<M, V>
+  { transform(&self.submat, &self.subtrans.translated(t)) }
+
+  fn translate(&mut self, t: &V)
+  { self.subtrans.translate(t) }
+}
+
+impl<M: Rotation<V> + Copy, V: Copy> Rotation<V> for Transform<M, V>
+{
+  fn rotation(&self) -> V
+  { self.submat.rotation() }
+
+  fn rotated(&self, rot: &V) -> Transform<M, V>
+  { transform(&self.submat.rotated(rot), &self.subtrans) }
+
+  fn rotate(&mut self, rot: &V)
+  { self.submat.rotate(rot) }
 }
 
 impl<M:Copy + Transpose + Inv + RMul<V>, V:Copy + Neg<V>>

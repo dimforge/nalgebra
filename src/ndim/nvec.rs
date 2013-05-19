@@ -2,10 +2,11 @@ use core::num::{Zero, One, Algebraic};
 use core::rand::{Rand, Rng, RngUtil};
 use core::vec::{map_zip, from_elem, map, all, all2};
 use std::cmp::FuzzyEq;
+use traits::basis::Basis;
 use traits::dim::Dim;
 use traits::dot::Dot;
 use traits::norm::Norm;
-use traits::basis::Basis;
+use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 // D is a phantom parameter, used only as a dimensional token.
@@ -116,6 +117,18 @@ ScalarSub<T> for NVec<D, T>
     for uint::range(0u, Dim::dim::<D>()) |i|
     { self.at[i] -= *s; }
   }
+}
+
+impl<D: Dim, T: Clone + Copy + Add<T, T>> Translation<NVec<D, T>> for NVec<D, T>
+{
+  fn translation(&self) -> NVec<D, T>
+  { self.clone() }
+
+  fn translated(&self, t: &NVec<D, T>) -> NVec<D, T>
+  { self + *t }
+
+  fn translate(&mut self, t: &NVec<D, T>)
+  { *self = *self + *t; }
 }
 
 impl<D: Dim, T: Copy + Mul<T, T> + Add<T, T> + Quot<T, T> + Algebraic + Zero +
