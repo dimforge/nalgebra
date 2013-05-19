@@ -6,15 +6,17 @@ use traits::inv::Inv;
 use traits::rotation::Rotation;
 use traits::translation::Translation;
 use traits::transpose::Transpose;
+use traits::delta_transform::DeltaTransform;
 use traits::workarounds::rlmul::{RMul, LMul};
 
 pub struct Transform<M, V>
 {
-  submat   : M,
-  subtrans : V
+  priv submat   : M,
+  priv subtrans : V
 }
 
-pub fn transform<M: Copy, V: Copy>(mat: &M, trans: &V) -> Transform<M, V>
+pub fn transform<M: Copy, V: Copy>(mat: &M, trans: &V)
+-> Transform<M, V>
 { Transform { submat: *mat, subtrans: *trans } }
 
 impl<M:Dim, V> Dim for Transform<M, V>
@@ -93,6 +95,12 @@ Rotation<V> for Transform<M, V>
     self.submat.rotate(rot);
     self.subtrans = delta.rmul(&self.subtrans);
   }
+}
+
+impl<M: Copy, V> DeltaTransform<M> for Transform<M, V>
+{
+  fn delta_transform(&self) -> M
+  { self.submat }
 }
 
 impl<M:Copy + Transpose + Inv + RMul<V>, V:Copy + Neg<V>>

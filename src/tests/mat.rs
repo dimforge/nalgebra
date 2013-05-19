@@ -4,8 +4,6 @@ use core::num::{One, abs};
 use core::rand::{random};
 #[test]
 use std::cmp::FuzzyEq;
-// #[test]
-// use ndim::nmat::NMat;
 #[test]
 use traits::inv::Inv;
 #[test]
@@ -20,8 +18,6 @@ use dim2::mat2::Mat2;
 use dim3::mat3::Mat3;
 #[test]
 use adaptors::rotmat::Rotmat;
-// #[test]
-// use traits::dim::d7;
 
 // FIXME: this one fails with an ICE: node_id_to_type: no type for node [...]
 // #[test]

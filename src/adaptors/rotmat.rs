@@ -7,16 +7,22 @@ use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
 use traits::rotation::Rotation;
+use traits::delta_transform::DeltaTransform;
 use dim1::vec1::{Vec1, vec1};
 use dim2::mat2::{Mat2, mat2};
 use dim3::mat3::{Mat3, mat3};
 use dim3::vec3::{Vec3};
 
-// FIXME: use a newtype here?
 #[deriving(Eq)]
 pub struct Rotmat<M>
 {
   priv submat: M
+}
+
+impl<M: Copy> Rotmat<M>
+{
+  fn submat(&self) -> M
+  { self.submat }
 }
 
 pub fn rotmat2<T: Copy + Trigonometric + Neg<T>>(angle: T) -> Rotmat<Mat2<T>>
@@ -130,8 +136,13 @@ impl<V, M: LMul<V>> LMul<V> for Rotmat<M>
   { self.submat.lmul(other) }
 }
 
-impl<M: Copy + Transpose>
-Inv for Rotmat<M>
+impl<M: Copy> DeltaTransform<M> for Rotmat<M>
+{
+  fn delta_transform(&self) -> M
+  { self.submat }
+}
+
+impl<M: Copy + Transpose> Inv for Rotmat<M>
 {
   fn invert(&mut self)
   { self.transpose() }

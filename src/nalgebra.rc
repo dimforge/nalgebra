@@ -48,6 +48,10 @@ mod traits
   mod norm;
   mod rotation;
   mod translation;
+  mod delta_transform;
+  mod vector_space;
+  mod ring;
+  mod division_ring;
 
   mod workarounds
   {
