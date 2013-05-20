@@ -1,8 +1,7 @@
-use core::num::{One, Zero}; // , Trigonometric};
+use core::num::{One, Zero};
 use core::rand::{Rand, Rng, RngUtil};
 use std::cmp::FuzzyEq;
 use traits::workarounds::rlmul::{RMul, LMul};
-use traits::workarounds::trigonometric::Trigonometric;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
@@ -27,8 +26,8 @@ impl<M: Copy> Rotmat<M>
 
 pub fn rotmat2<T: Copy + Trigonometric + Neg<T>>(angle: T) -> Rotmat<Mat2<T>>
 {
-  let coa = Trigonometric::cos(angle);
-  let sia = Trigonometric::sin(angle);
+  let coa = angle.cos();
+  let sia = angle.sin();
 
   Rotmat
   { submat: mat2(coa, -sia, sia, coa) }
@@ -45,9 +44,9 @@ pub fn rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
   let sqx       = ux * ux;
   let sqy       = uy * uy;
   let sqz       = uz * uz;
-  let cos       = Trigonometric::cos(angle);
+  let cos       = angle.cos();
   let one_m_cos = _1 - cos;
-  let sin       = Trigonometric::sin(angle);
+  let sin       = angle.sin();
 
   Rotmat {
     submat: mat3(
@@ -69,7 +68,7 @@ impl<T: Quot<T, T> + Trigonometric + Neg<T> + Mul<T, T> + Add<T, T> + Copy>
 Rotation<Vec1<T>> for Rotmat<Mat2<T>>
 {
   fn rotation(&self) -> Vec1<T>
-  { vec1(-Trigonometric::atan(self.submat.m12 / self.submat.m11)) }
+  { vec1(-(self.submat.m12 / self.submat.m11).atan()) }
 
   fn rotated(&self, rot: &Vec1<T>) -> Rotmat<Mat2<T>>
   { rotmat2(rot.x) * *self }
