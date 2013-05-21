@@ -7,10 +7,8 @@ pub trait Norm<T>
   fn norm(&self)       -> T;
 
   /**
-   * Computes the squared norm of an object.
-   * 
-   * Computes the squared norm of an object. Computation of the squared norm
-   * is usually faster than the norm itself.
+   * Computes the squared norm of an object. Usually faster than computing the
+   * norm itself.
    */
   fn sqnorm(&self)     -> T;
 
