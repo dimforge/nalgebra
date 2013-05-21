@@ -1,3 +1,6 @@
+/**
+ * Trait of inversible objects. Typically used to implement matrix inverse.
+ */
 pub trait Inv
 {
   /// Returns the inverse of an element.

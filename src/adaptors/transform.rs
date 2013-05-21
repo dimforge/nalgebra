@@ -1,6 +1,6 @@
 use core::num::{One, Zero};
 use core::rand::{Rand, Rng, RngUtil};
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::rotation::Rotation;
@@ -122,24 +122,28 @@ Inv for Transform<M, V>
   }
 }
 
-impl<T, M:FuzzyEq<T>, V:FuzzyEq<T>> FuzzyEq<T> for Transform<M, V>
+impl<T: ApproxEq<T>, M:ApproxEq<T>, V:ApproxEq<T>>
+ApproxEq<T> for Transform<M, V>
 {
-  fn fuzzy_eq(&self, other: &Transform<M, V>) -> bool
+  fn approx_epsilon() -> T
+  { ApproxEq::approx_epsilon::<T, T>() }
+
+  fn approx_eq(&self, other: &Transform<M, V>) -> bool
   {
-    self.submat.fuzzy_eq(&other.submat) &&
-    self.subtrans.fuzzy_eq(&other.subtrans)
+    self.submat.approx_eq(&other.submat) &&
+    self.subtrans.approx_eq(&other.subtrans)
   }
 
-  fn fuzzy_eq_eps(&self, other: &Transform<M, V>, epsilon: &T) -> bool
+  fn approx_eq_eps(&self, other: &Transform<M, V>, epsilon: &T) -> bool
   {
-    self.submat.fuzzy_eq_eps(&other.submat, epsilon) &&
-    self.subtrans.fuzzy_eq_eps(&other.subtrans, epsilon)
+    self.submat.approx_eq_eps(&other.submat, epsilon) &&
+    self.subtrans.approx_eq_eps(&other.subtrans, epsilon)
   }
 }
 
 impl<M: Rand + Copy, V: Rand + Copy> Rand for Transform<M, V>
 {
-  fn rand<R: Rng>(rng: &R) -> Transform<M, V>
+  fn rand<R: Rng>(rng: &mut R) -> Transform<M, V>
   { transform(&rng.gen(), &rng.gen()) }
 }
 

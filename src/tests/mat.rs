@@ -3,7 +3,7 @@ use core::num::{One, abs};
 #[test]
 use core::rand::{random};
 #[test]
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 #[test]
 use traits::inv::Inv;
 #[test]
@@ -25,7 +25,7 @@ use adaptors::rotmat::Rotmat;
 // {
 //   let randmat : NMat<d7, f64> = random();
 // 
-//   assert!((randmat.inverse() * randmat).fuzzy_eq(&One::one()));
+//   assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
 // }
 
 #[test]
@@ -35,7 +35,7 @@ fn test_inv_mat1()
   {
     let randmat : Mat1<f64> = random();
 
-    assert!((randmat.inverse() * randmat).fuzzy_eq(&One::one()));
+    assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
   }
 }
 
@@ -46,7 +46,7 @@ fn test_inv_mat2()
   {
     let randmat : Mat2<f64> = random();
 
-    assert!((randmat.inverse() * randmat).fuzzy_eq(&One::one()));
+    assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
   }
 }
 
@@ -57,7 +57,7 @@ fn test_inv_mat3()
   {
     let randmat : Mat3<f64> = random();
 
-    assert!((randmat.inverse() * randmat).fuzzy_eq(&One::one()));
+    assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
   }
 }
 
@@ -69,6 +69,6 @@ fn test_rotation2()
     let randmat = One::one::<Rotmat<Mat2<f64>>>();
     let ang     = &vec1(abs::<f64>(random()) % f64::consts::pi);
 
-    assert!(randmat.rotated(ang).rotation().fuzzy_eq(ang));
+    assert!(randmat.rotated(ang).rotation().approx_eq(ang));
   }
 }

@@ -1,3 +1,6 @@
+/**
+ * Trait of objects having a dimension (in term of spacial dimension).
+ */
 pub trait Dim {
   /// The dimension of the object.
   fn dim() -> uint;
@@ -5,6 +8,7 @@ pub trait Dim {
 
 // Some dimension token. Useful to restrict the dimension of n-dimensional
 // object at the type-level.
+
 /// Dimensional token for 0-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
 #[deriving(Eq)]

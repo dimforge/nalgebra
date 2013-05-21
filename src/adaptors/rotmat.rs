@@ -1,6 +1,6 @@
 use core::num::{One, Zero};
 use core::rand::{Rand, Rng, RngUtil};
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 use traits::workarounds::rlmul::{RMul, LMul};
 use traits::dim::Dim;
 use traits::inv::Inv;
@@ -64,7 +64,7 @@ pub fn rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
   }
 }
 
-impl<T: Quot<T, T> + Trigonometric + Neg<T> + Mul<T, T> + Add<T, T> + Copy>
+impl<T: Div<T, T> + Trigonometric + Neg<T> + Mul<T, T> + Add<T, T> + Copy>
 Rotation<Vec1<T>> for Rotmat<Mat2<T>>
 {
   fn rotation(&self) -> Vec1<T>
@@ -77,7 +77,7 @@ Rotation<Vec1<T>> for Rotmat<Mat2<T>>
   { *self = self.rotated(rot) }
 }
 
-impl<T: Quot<T, T> + Trigonometric + Neg<T> + Mul<T, T> + Add<T, T> + Copy +
+impl<T: Div<T, T> + Trigonometric + Neg<T> + Mul<T, T> + Add<T, T> + Copy +
         One + Sub<T, T>>
 Rotation<(Vec3<T>, T)> for Rotmat<Mat3<T>>
 {
@@ -93,7 +93,7 @@ Rotation<(Vec3<T>, T)> for Rotmat<Mat3<T>>
 
 impl<T: Copy + Rand + Trigonometric + Neg<T>> Rand for Rotmat<Mat2<T>>
 {
-  fn rand<R: Rng>(rng: &R) -> Rotmat<Mat2<T>>
+  fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat2<T>>
   { rotmat2(rng.gen()) }
 }
 
@@ -101,7 +101,7 @@ impl<T: Copy + Rand + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
        Mul<T, T>>
 Rand for Rotmat<Mat3<T>>
 {
-  fn rand<R: Rng>(rng: &R) -> Rotmat<Mat3<T>>
+  fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat3<T>>
   { rotmat3(&rng.gen(), rng.gen()) }
 }
 
@@ -160,13 +160,16 @@ Transpose for Rotmat<M>
   { self.submat.transpose() }
 }
 
-impl<T, M: FuzzyEq<T>> FuzzyEq<T> for Rotmat<M>
+impl<T: ApproxEq<T>, M: ApproxEq<T>> ApproxEq<T> for Rotmat<M>
 {
-  fn fuzzy_eq(&self, other: &Rotmat<M>) -> bool
-  { self.submat.fuzzy_eq(&other.submat) }
+  fn approx_epsilon() -> T
+  { ApproxEq::approx_epsilon::<T, T>() }
 
-  fn fuzzy_eq_eps(&self, other: &Rotmat<M>, epsilon: &T) -> bool
-  { self.submat.fuzzy_eq_eps(&other.submat, epsilon) }
+  fn approx_eq(&self, other: &Rotmat<M>) -> bool
+  { self.submat.approx_eq(&other.submat) }
+
+  fn approx_eq_eps(&self, other: &Rotmat<M>, epsilon: &T) -> bool
+  { self.submat.approx_eq_eps(&other.submat, epsilon) }
 }
 
 impl<M: ToStr> ToStr for Rotmat<M>

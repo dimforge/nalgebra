@@ -1,6 +1,6 @@
 use core::num::{Zero, One, Algebraic, abs};
 use core::rand::{Rand, Rng, RngUtil};
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 use traits::basis::Basis;
 use traits::cross::Cross;
 use traits::dim::Dim;
@@ -53,7 +53,7 @@ ScalarMul<T> for Vec3<T>
 }
 
 
-impl<T: Copy + Quot<T, T>>
+impl<T: Copy + Div<T, T>>
 ScalarDiv<T> for Vec3<T>
 {
   fn scalar_div(&self, s: &T) -> Vec3<T>
@@ -121,7 +121,7 @@ impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec3<T>
   { self.x * other.x + self.y * other.y + self.z * other.z } 
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T> + Quot<T, T> + Algebraic>
+impl<T:Copy + Mul<T, T> + Add<T, T> + Div<T, T> + Algebraic>
 Norm<T> for Vec3<T>
 {
   fn sqnorm(&self) -> T
@@ -174,7 +174,7 @@ impl<T:Copy + Zero> Zero for Vec3<T>
 }
 
 impl<T: Copy + One + Zero + Neg<T> + Ord + Mul<T, T> + Sub<T, T> + Add<T, T> +
-        Quot<T, T> + Algebraic>
+        Div<T, T> + Algebraic>
 Basis for Vec3<T>
 {
   fn canonical_basis() -> ~[Vec3<T>]
@@ -197,26 +197,29 @@ Basis for Vec3<T>
   }
 }
 
-impl<T:FuzzyEq<T>> FuzzyEq<T> for Vec3<T>
+impl<T:ApproxEq<T>> ApproxEq<T> for Vec3<T>
 {
-  fn fuzzy_eq(&self, other: &Vec3<T>) -> bool
+  fn approx_epsilon() -> T
+  { ApproxEq::approx_epsilon::<T, T>() }
+
+  fn approx_eq(&self, other: &Vec3<T>) -> bool
   {
-    self.x.fuzzy_eq(&other.x) &&
-    self.y.fuzzy_eq(&other.y) &&
-    self.z.fuzzy_eq(&other.z)
+    self.x.approx_eq(&other.x) &&
+    self.y.approx_eq(&other.y) &&
+    self.z.approx_eq(&other.z)
   }
 
-  fn fuzzy_eq_eps(&self, other: &Vec3<T>, epsilon: &T) -> bool
+  fn approx_eq_eps(&self, other: &Vec3<T>, epsilon: &T) -> bool
   {
-    self.x.fuzzy_eq_eps(&other.x, epsilon) &&
-    self.y.fuzzy_eq_eps(&other.y, epsilon) &&
-    self.z.fuzzy_eq_eps(&other.z, epsilon)
+    self.x.approx_eq_eps(&other.x, epsilon) &&
+    self.y.approx_eq_eps(&other.y, epsilon) &&
+    self.z.approx_eq_eps(&other.z, epsilon)
   }
 }
 
 impl<T:Copy + Rand> Rand for Vec3<T>
 {
-  fn rand<R: Rng>(rng: &R) -> Vec3<T>
+  fn rand<R: Rng>(rng: &mut R) -> Vec3<T>
   { vec3(rng.gen(), rng.gen(), rng.gen()) }
 }
 

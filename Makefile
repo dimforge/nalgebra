@@ -1,4 +1,5 @@
 nalgebra_lib_path=lib
+nalgebra_doc_path=doc
 all:
 	rust build src/nalgebra.rc --out-dir $(nalgebra_lib_path)
 
@@ -7,6 +8,7 @@ test:
 	rm nalgebratest~
 
 doc:
-	rust test src/nalgebra.rc
+	rust doc src/nalgebra.rc --output-dir $(nalgebra_doc_path)
 
-.PHONY:doc, test
+.PHONY:doc
+.PHONY:test

@@ -1,3 +1,11 @@
+/*!
+
+# The n-dimensional linear algebra library.
+
+*/
+
+
+
 #[link(name = "nalgebra"
        , vers = "0.0"
        , author = "Sébastien Crozet"
@@ -7,61 +15,72 @@
 
 extern mod std;
 
-mod dim2
+/// 1-dimensional linear algebra.
+pub mod dim1
 {
-  mod vec2;
-  mod mat2;
+  pub mod vec1;
+  pub mod mat1;
 }
 
-mod dim1
+/// 2-dimensional linear algebra.
+pub mod dim2
 {
-  mod vec1;
-  mod mat1;
+  pub mod vec2;
+  pub mod mat2;
 }
 
-mod dim3
+/// 3-dimensional linear algebra.
+pub mod dim3
 {
-  mod vec3;
-  mod mat3;
+  pub mod vec3;
+  pub mod mat3;
 }
 
-mod ndim
+/// n-dimensional linear algebra (slower).
+pub mod ndim
 {
-  mod nvec;
-  mod nmat;
+  pub mod nvec;
+  pub mod nmat;
 }
 
-mod adaptors
+/// Wrappers around raw matrices to restrict their behaviour.
+pub mod adaptors
 {
-  mod rotmat;
-  mod transform;
+  pub mod rotmat;
+  pub mod transform;
 }
 
-mod traits
+/// Useful linear-algebra related traits.
+pub mod traits
 {
-  mod dot;
-  mod cross;
-  mod inv;
-  mod transpose;
-  mod dim;
-  mod basis;
-  mod norm;
-  mod rotation;
-  mod translation;
-  mod delta_transform;
-  mod vector_space;
-  mod ring;
-  mod division_ring;
+  pub mod dot;
+  pub mod cross;
+  pub mod inv;
+  pub mod transpose;
+  pub mod dim;
+  pub mod basis;
+  pub mod norm;
+  pub mod rotation;
+  pub mod translation;
+  pub mod delta_transform;
+  pub mod vector_space;
+  pub mod ring;
+  pub mod division_ring;
 
-  mod workarounds
+  /// This package contains everything done because the current compiler either
+  /// crashes or miss features.
+  /// Therefore, keep in mind anything in there will be inevitably removed some
+  /// days. So dont rely on them too much.
+  pub mod workarounds
   {
-    mod rlmul;
-    mod scalar_op;
+    pub mod rlmul;
+    pub mod scalar_op;
   }
 }
 
-mod tests
+#[cfg(test)]
+pub mod tests
 {
-  mod mat;
-  mod vec;
+  pub mod mat;
+  pub mod vec;
 }

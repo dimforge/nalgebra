@@ -1,6 +1,6 @@
 use core::num::{Zero, One, Algebraic};
 use core::rand::{Rand, Rng, RngUtil};
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 use traits::basis::Basis;
 use traits::dim::Dim;
 use traits::dot::Dot;
@@ -44,7 +44,7 @@ ScalarMul<T> for Vec1<T>
 }
 
 
-impl<T: Copy + Quot<T, T>>
+impl<T: Copy + Div<T, T>>
 ScalarDiv<T> for Vec1<T>
 {
   fn scalar_div(&self, s: &T) -> Vec1<T>
@@ -92,7 +92,7 @@ impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec1<T>
   { self.x * other.x } 
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T> + Quot<T, T> + Algebraic>
+impl<T:Copy + Mul<T, T> + Add<T, T> + Div<T, T> + Algebraic>
 Norm<T> for Vec1<T>
 {
   fn sqnorm(&self) -> T
@@ -141,18 +141,21 @@ impl<T: Copy + One> Basis for Vec1<T>
   { ~[] }
 }
 
-impl<T:FuzzyEq<T>> FuzzyEq<T> for Vec1<T>
+impl<T:ApproxEq<T>> ApproxEq<T> for Vec1<T>
 {
-  fn fuzzy_eq(&self, other: &Vec1<T>) -> bool
-  { self.x.fuzzy_eq(&other.x) }
+  fn approx_epsilon() -> T
+  { ApproxEq::approx_epsilon::<T, T>() }
 
-  fn fuzzy_eq_eps(&self, other: &Vec1<T>, epsilon: &T) -> bool
-  { self.x.fuzzy_eq_eps(&other.x, epsilon) }
+  fn approx_eq(&self, other: &Vec1<T>) -> bool
+  { self.x.approx_eq(&other.x) }
+
+  fn approx_eq_eps(&self, other: &Vec1<T>, epsilon: &T) -> bool
+  { self.x.approx_eq_eps(&other.x, epsilon) }
 }
 
 impl<T:Rand + Copy> Rand for Vec1<T>
 {
-  fn rand<R: Rng>(rng: &R) -> Vec1<T>
+  fn rand<R: Rng>(rng: &mut R) -> Vec1<T>
   { vec1(rng.gen()) }
 }
 

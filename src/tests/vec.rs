@@ -5,7 +5,7 @@ use core::rand::{random};
 #[test]
 use core::vec::{all, all2};
 #[test]
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 #[test]
 use dim3::vec3::Vec3;
 #[test]
@@ -35,8 +35,8 @@ fn test_cross_vec3()
     let v2 : Vec3<f64> = random();
     let v3 : Vec3<f64> = v1.cross(&v2);
 
-    assert!(v3.dot(&v2).fuzzy_eq(&Zero::zero()));
-    assert!(v3.dot(&v1).fuzzy_eq(&Zero::zero()));
+    assert!(v3.dot(&v2).approx_eq(&Zero::zero()));
+    assert!(v3.dot(&v1).approx_eq(&Zero::zero()));
   }
 }
 
@@ -48,7 +48,7 @@ fn test_dot_nvec()
     let v1 : NVec<d7, f64> = random();
     let v2 : NVec<d7, f64> = random();
 
-    assert!(v1.dot(&v2).fuzzy_eq(&v2.dot(&v1)));
+    assert!(v1.dot(&v2).approx_eq(&v2.dot(&v1)));
   }
 }
 
@@ -60,7 +60,7 @@ fn test_commut_dot_vec3()
     let v1 : Vec3<f64> = random();
     let v2 : Vec3<f64> = random();
 
-    assert!(v1.dot(&v2).fuzzy_eq(&v2.dot(&v1)));
+    assert!(v1.dot(&v2).approx_eq(&v2.dot(&v1)));
   }
 }
 
@@ -72,7 +72,7 @@ fn test_commut_dot_vec2()
     let v1 : Vec2<f64> = random();
     let v2 : Vec2<f64> = random();
 
-    assert!(v1.dot(&v2).fuzzy_eq(&v2.dot(&v1)));
+    assert!(v1.dot(&v2).approx_eq(&v2.dot(&v1)));
   }
 }
 
@@ -84,7 +84,7 @@ fn test_commut_dot_vec1()
     let v1 : Vec1<f64> = random();
     let v2 : Vec1<f64> = random();
 
-    assert!(v1.dot(&v2).fuzzy_eq(&v2.dot(&v1)));
+    assert!(v1.dot(&v2).approx_eq(&v2.dot(&v1)));
   }
 }
 
@@ -94,9 +94,9 @@ fn test_basis_vec1()
   let basis = Basis::canonical_basis::<Vec1<f64>>();
 
   // check vectors form an ortogonal basis
-  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
   // check vectors form an orthonormal basis
-  assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
+  assert!(all(basis, |e| e.norm().approx_eq(&One::one())));
 }
 
 #[test]
@@ -105,9 +105,9 @@ fn test_basis_vec2()
   let basis = Basis::canonical_basis::<Vec2<f64>>();
 
   // check vectors form an ortogonal basis
-  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
   // check vectors form an orthonormal basis
-  assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
+  assert!(all(basis, |e| e.norm().approx_eq(&One::one())));
 }
 
 #[test]
@@ -116,9 +116,9 @@ fn test_basis_vec3()
   let basis = Basis::canonical_basis::<Vec3<f64>>();
 
   // check vectors form an ortogonal basis
-  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
   // check vectors form an orthonormal basis
-  assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
+  assert!(all(basis, |e| e.norm().approx_eq(&One::one())));
 }
 
 #[test]
@@ -127,9 +127,9 @@ fn test_basis_nvec()
   let basis = Basis::canonical_basis::<NVec<d7, f64>>();
 
   // check vectors form an ortogonal basis
-  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+  assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
   // check vectors form an orthonormal basis
-  assert!(all(basis, |e| e.norm().fuzzy_eq(&One::one())));
+  assert!(all(basis, |e| e.norm().approx_eq(&One::one())));
 }
 
 #[test]
@@ -142,11 +142,11 @@ fn test_subspace_basis_vec1()
     let subbasis = v1.orthogonal_subspace_basis();
 
     // check vectors are orthogonal to v1
-    assert!(all(subbasis, |e| v1.dot(e).fuzzy_eq(&Zero::zero())));
+    assert!(all(subbasis, |e| v1.dot(e).approx_eq(&Zero::zero())));
     // check vectors form an ortogonal basis
-    assert!(all2(subbasis, subbasis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+    assert!(all2(subbasis, subbasis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
     // check vectors form an orthonormal basis
-    assert!(all(subbasis, |e| e.norm().fuzzy_eq(&One::one())));
+    assert!(all(subbasis, |e| e.norm().approx_eq(&One::one())));
   }
 }
 
@@ -160,11 +160,11 @@ fn test_subspace_basis_vec2()
     let subbasis = v1.orthogonal_subspace_basis();
 
     // check vectors are orthogonal to v1
-    assert!(all(subbasis, |e| v1.dot(e).fuzzy_eq(&Zero::zero())));
+    assert!(all(subbasis, |e| v1.dot(e).approx_eq(&Zero::zero())));
     // check vectors form an ortogonal basis
-    assert!(all2(subbasis, subbasis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+    assert!(all2(subbasis, subbasis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
     // check vectors form an orthonormal basis
-    assert!(all(subbasis, |e| e.norm().fuzzy_eq(&One::one())));
+    assert!(all(subbasis, |e| e.norm().approx_eq(&One::one())));
   }
 }
 
@@ -178,11 +178,11 @@ fn test_subspace_basis_vec3()
     let subbasis = v1.orthogonal_subspace_basis();
 
     // check vectors are orthogonal to v1
-    assert!(all(subbasis, |e| v1.dot(e).fuzzy_eq(&Zero::zero())));
+    assert!(all(subbasis, |e| v1.dot(e).approx_eq(&Zero::zero())));
     // check vectors form an ortogonal basis
-    assert!(all2(subbasis, subbasis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+    assert!(all2(subbasis, subbasis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
     // check vectors form an orthonormal basis
-    assert!(all(subbasis, |e| e.norm().fuzzy_eq(&One::one())));
+    assert!(all(subbasis, |e| e.norm().approx_eq(&One::one())));
   }
 }
 
@@ -198,10 +198,10 @@ fn test_subspace_basis_vec3()
 //     let subbasis = v1.orthogonal_subspace_basis();
 // 
 //     // check vectors are orthogonal to v1
-//     assert!(all(subbasis, |e| v1.dot(e).fuzzy_eq(&Zero::zero())));
+//     assert!(all(subbasis, |e| v1.dot(e).approx_eq(&Zero::zero())));
 //     // check vectors form an ortogonal basis
-//     assert!(all2(subbasis, subbasis, |e1, e2| e1 == e2 || e1.dot(e2).fuzzy_eq(&Zero::zero())));
+//     assert!(all2(subbasis, subbasis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
 //     // check vectors form an orthonormal basis
-//     assert!(all(subbasis, |e| e.norm().fuzzy_eq(&One::one())));
+//     assert!(all(subbasis, |e| e.norm().approx_eq(&One::one())));
 //   }
 // }

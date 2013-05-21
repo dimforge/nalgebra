@@ -1,6 +1,7 @@
 use core::num::{One, Zero};
 use core::rand::{Rand, Rng, RngUtil};
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
+use core::util::swap;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
@@ -106,7 +107,7 @@ impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec3<T>> for Mat3<T>
   }
 }
 
-impl<T:Copy + Mul<T, T> + Quot<T, T> + Sub<T, T> + Add<T, T> + Neg<T> + Zero>
+impl<T:Copy + Mul<T, T> + Div<T, T> + Sub<T, T> + Add<T, T> + Neg<T> + Zero>
 Inv for Mat3<T>
 {
   fn inverse(&self) -> Mat3<T>
@@ -157,48 +158,51 @@ impl<T:Copy> Transpose for Mat3<T>
 
   fn transpose(&mut self)
   {
-    self.m12 <-> self.m21;
-    self.m13 <-> self.m31;
-    self.m23 <-> self.m32;
+    swap(&mut self.m12, &mut self.m21);
+    swap(&mut self.m13, &mut self.m31);
+    swap(&mut self.m23, &mut self.m32);
   }
 }
 
-impl<T:FuzzyEq<T>> FuzzyEq<T> for Mat3<T>
+impl<T:ApproxEq<T>> ApproxEq<T> for Mat3<T>
 {
-  fn fuzzy_eq(&self, other: &Mat3<T>) -> bool
+  fn approx_epsilon() -> T
+  { ApproxEq::approx_epsilon::<T, T>() }
+
+  fn approx_eq(&self, other: &Mat3<T>) -> bool
   {
-    self.m11.fuzzy_eq(&other.m11) &&
-    self.m12.fuzzy_eq(&other.m12) &&
-    self.m13.fuzzy_eq(&other.m13) &&
+    self.m11.approx_eq(&other.m11) &&
+    self.m12.approx_eq(&other.m12) &&
+    self.m13.approx_eq(&other.m13) &&
 
-    self.m21.fuzzy_eq(&other.m21) &&
-    self.m22.fuzzy_eq(&other.m22) &&
-    self.m23.fuzzy_eq(&other.m23) &&
+    self.m21.approx_eq(&other.m21) &&
+    self.m22.approx_eq(&other.m22) &&
+    self.m23.approx_eq(&other.m23) &&
 
-    self.m31.fuzzy_eq(&other.m31) &&
-    self.m32.fuzzy_eq(&other.m32) &&
-    self.m33.fuzzy_eq(&other.m33)
+    self.m31.approx_eq(&other.m31) &&
+    self.m32.approx_eq(&other.m32) &&
+    self.m33.approx_eq(&other.m33)
   }
 
-  fn fuzzy_eq_eps(&self, other: &Mat3<T>, epsilon: &T) -> bool
+  fn approx_eq_eps(&self, other: &Mat3<T>, epsilon: &T) -> bool
   {
-    self.m11.fuzzy_eq_eps(&other.m11, epsilon) &&
-    self.m12.fuzzy_eq_eps(&other.m12, epsilon) &&
-    self.m13.fuzzy_eq_eps(&other.m13, epsilon) &&
+    self.m11.approx_eq_eps(&other.m11, epsilon) &&
+    self.m12.approx_eq_eps(&other.m12, epsilon) &&
+    self.m13.approx_eq_eps(&other.m13, epsilon) &&
 
-    self.m21.fuzzy_eq_eps(&other.m21, epsilon) &&
-    self.m22.fuzzy_eq_eps(&other.m22, epsilon) &&
-    self.m23.fuzzy_eq_eps(&other.m23, epsilon) &&
+    self.m21.approx_eq_eps(&other.m21, epsilon) &&
+    self.m22.approx_eq_eps(&other.m22, epsilon) &&
+    self.m23.approx_eq_eps(&other.m23, epsilon) &&
 
-    self.m31.fuzzy_eq_eps(&other.m31, epsilon) &&
-    self.m32.fuzzy_eq_eps(&other.m32, epsilon) &&
-    self.m33.fuzzy_eq_eps(&other.m33, epsilon)
+    self.m31.approx_eq_eps(&other.m31, epsilon) &&
+    self.m32.approx_eq_eps(&other.m32, epsilon) &&
+    self.m33.approx_eq_eps(&other.m33, epsilon)
   }
 }
 
 impl<T:Rand + Copy> Rand for Mat3<T>
 {
-  fn rand<R: Rng>(rng: &R) -> Mat3<T>
+  fn rand<R: Rng>(rng: &mut R) -> Mat3<T>
   {
     mat3(rng.gen(), rng.gen(), rng.gen(),
          rng.gen(), rng.gen(), rng.gen(),

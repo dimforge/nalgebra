@@ -1,7 +1,7 @@
 use core::num::{One, Zero};
 use core::rand::{Rand, Rng, RngUtil};
 use core::vec::{from_elem, swap, all, all2};
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
@@ -136,7 +136,7 @@ LMul<NVec<D, T>> for NMat<D, T>
 
 impl<D: Dim,
      T: Clone + Copy + Eq + One + Zero +
-        Mul<T, T> + Quot<T, T> + Sub<T, T> + Neg<T>>
+        Mul<T, T> + Div<T, T> + Sub<T, T> + Neg<T>>
 Inv for NMat<D, T>
 {
   fn inverse(&self) -> NMat<D, T>
@@ -194,8 +194,13 @@ Inv for NMat<D, T>
 
       for uint::range(k, dim) |j|
       {
-        self.set(k, j, &(self[(k, j)] / pivot));
-        res.set(k, j, &(res[(k, j)] / pivot));
+        // FIXME: not to putting selfal exression directly on the nuction call
+        // is uggly but does not seem to compile any more…
+        let selfval = &(self[(k, j)] / pivot);
+        let resval  = &(res[(k, j)] / pivot);
+
+        self.set(k, j, selfval);
+        res.set(k, j, resval);
       }
 
       for uint::range(0u, dim) |l|
@@ -206,8 +211,11 @@ Inv for NMat<D, T>
 
           for uint::range(k, dim) |j|
           {
-            self.set(k, j, &(self[(l, j)] - self[(k, j)] * normalizer));
-            res.set(k, j, &(res[(l, j)] - res[(k, j)] * normalizer));
+            let selfval = &(self[(l, j)] - self[(k, j)] * normalizer);
+            let resval  = &(res[(l, j)] - res[(k, j)] * normalizer);
+
+            self.set(k, j, selfval);
+            res.set(k, j, resval);
           }
         }
       }
@@ -242,18 +250,21 @@ impl<D: Dim, T:Copy> Transpose for NMat<D, T>
   }
 }
 
-impl<D, T: FuzzyEq<T>> FuzzyEq<T> for NMat<D, T>
+impl<D, T: ApproxEq<T>> ApproxEq<T> for NMat<D, T>
 {
-  fn fuzzy_eq(&self, other: &NMat<D, T>) -> bool
-  { all2(self.mij, other.mij, |a, b| a.fuzzy_eq(b)) }
+  fn approx_epsilon() -> T
+  { ApproxEq::approx_epsilon::<T, T>() }
 
-  fn fuzzy_eq_eps(&self, other: &NMat<D, T>, epsilon: &T) -> bool
-  { all2(self.mij, other.mij, |a, b| a.fuzzy_eq_eps(b, epsilon)) }
+  fn approx_eq(&self, other: &NMat<D, T>) -> bool
+  { all2(self.mij, other.mij, |a, b| a.approx_eq(b)) }
+
+  fn approx_eq_eps(&self, other: &NMat<D, T>, epsilon: &T) -> bool
+  { all2(self.mij, other.mij, |a, b| a.approx_eq_eps(b, epsilon)) }
 }
 
 impl<D: Dim, T: Rand + Zero + Copy> Rand for NMat<D, T>
 {
-  fn rand<R: Rng>(rng: &R) -> NMat<D, T>
+  fn rand<R: Rng>(rng: &mut R) -> NMat<D, T>
   {
     let     dim = Dim::dim::<D>();
     let mut res : NMat<D, T> = Zero::zero();

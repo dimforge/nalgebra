@@ -1,7 +1,7 @@
 use core::num::{Zero, One, Algebraic};
 use core::rand::{Rand, Rng, RngUtil};
 use dim1::vec1::{Vec1, vec1};
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 use traits::basis::Basis;
 use traits::cross::Cross;
 use traits::dim::Dim;
@@ -52,7 +52,7 @@ ScalarMul<T> for Vec2<T>
 }
 
 
-impl<T: Copy + Quot<T, T>>
+impl<T: Copy + Div<T, T>>
 ScalarDiv<T> for Vec2<T>
 {
   fn scalar_div(&self, s: &T) -> Vec2<T>
@@ -109,7 +109,7 @@ impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec2<T>
   { self.x * other.x + self.y * other.y } 
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T> + Quot<T, T> + Algebraic>
+impl<T:Copy + Mul<T, T> + Add<T, T> + Div<T, T> + Algebraic>
 Norm<T> for Vec2<T>
 {
   fn sqnorm(&self) -> T
@@ -173,21 +173,24 @@ impl<T: Copy + One + Zero + Neg<T>> Basis for Vec2<T>
   { ~[ vec2(-self.y, self.x) ] }
 }
 
-impl<T:FuzzyEq<T>> FuzzyEq<T> for Vec2<T>
+impl<T:ApproxEq<T>> ApproxEq<T> for Vec2<T>
 {
-  fn fuzzy_eq(&self, other: &Vec2<T>) -> bool
-  { self.x.fuzzy_eq(&other.x) && self.y.fuzzy_eq(&other.y) }
+  fn approx_epsilon() -> T
+  { ApproxEq::approx_epsilon::<T, T>() }
 
-  fn fuzzy_eq_eps(&self, other: &Vec2<T>, epsilon: &T) -> bool
+  fn approx_eq(&self, other: &Vec2<T>) -> bool
+  { self.x.approx_eq(&other.x) && self.y.approx_eq(&other.y) }
+
+  fn approx_eq_eps(&self, other: &Vec2<T>, epsilon: &T) -> bool
   {
-    self.x.fuzzy_eq_eps(&other.x, epsilon) &&
-    self.y.fuzzy_eq_eps(&other.y, epsilon)
+    self.x.approx_eq_eps(&other.x, epsilon) &&
+    self.y.approx_eq_eps(&other.y, epsilon)
   }
 }
 
 impl<T:Rand + Copy> Rand for Vec2<T>
 {
-  fn rand<R: Rng>(rng: &R) -> Vec2<T>
+  fn rand<R: Rng>(rng: &mut R) -> Vec2<T>
   { vec2(rng.gen(), rng.gen()) }
 }
 

@@ -1,7 +1,7 @@
 use core::num::{Zero, One, Algebraic};
 use core::rand::{Rand, Rng, RngUtil};
 use core::vec::{map_zip, from_elem, map, all, all2};
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 use traits::basis::Basis;
 use traits::dim::Dim;
 use traits::dot::Dot;
@@ -80,7 +80,7 @@ ScalarMul<T> for NVec<D, T>
 }
 
 
-impl<D: Dim, T: Copy + Quot<T, T>>
+impl<D: Dim, T: Copy + Div<T, T>>
 ScalarDiv<T> for NVec<D, T>
 {
   fn scalar_div(&self, s: &T) -> NVec<D, T>
@@ -131,7 +131,7 @@ impl<D: Dim, T: Clone + Copy + Add<T, T>> Translation<NVec<D, T>> for NVec<D, T>
   { *self = *self + *t; }
 }
 
-impl<D: Dim, T: Copy + Mul<T, T> + Add<T, T> + Quot<T, T> + Algebraic + Zero +
+impl<D: Dim, T: Copy + Mul<T, T> + Add<T, T> + Div<T, T> + Algebraic + Zero +
                 Clone>
 Norm<T> for NVec<D, T>
 {
@@ -163,7 +163,7 @@ Norm<T> for NVec<D, T>
 
 impl<D: Dim,
      T: Copy + One + Zero + Neg<T> + Ord + Mul<T, T> + Sub<T, T> + Add<T, T> +
-        Quot<T, T> + Algebraic + Clone + FuzzyEq<T>>
+        Div<T, T> + Algebraic + Clone + ApproxEq<T>>
 Basis for NVec<D, T>
 {
   fn canonical_basis() -> ~[NVec<D, T>]
@@ -206,7 +206,7 @@ Basis for NVec<D, T>
       for res.each |v|
       { elt -= v.scalar_mul(&elt.dot(v)) };
 
-      if (!elt.sqnorm().fuzzy_eq(&Zero::zero()))
+      if (!elt.sqnorm().approx_eq(&Zero::zero()))
       { res.push(elt.normalized()); }
     }
 
@@ -239,18 +239,21 @@ impl<D: Dim, T: Copy + Zero> Zero for NVec<D, T>
   }
 }
 
-impl<D, T: FuzzyEq<T>> FuzzyEq<T> for NVec<D, T>
+impl<D, T: ApproxEq<T>> ApproxEq<T> for NVec<D, T>
 {
-  fn fuzzy_eq(&self, other: &NVec<D, T>) -> bool
-  { all2(self.at, other.at, |a, b| a.fuzzy_eq(b)) }
+  fn approx_epsilon() -> T
+  { ApproxEq::approx_epsilon::<T, T>() }
 
-  fn fuzzy_eq_eps(&self, other: &NVec<D, T>, epsilon: &T) -> bool
-  { all2(self.at, other.at, |a, b| a.fuzzy_eq_eps(b, epsilon)) }
+  fn approx_eq(&self, other: &NVec<D, T>) -> bool
+  { all2(self.at, other.at, |a, b| a.approx_eq(b)) }
+
+  fn approx_eq_eps(&self, other: &NVec<D, T>, epsilon: &T) -> bool
+  { all2(self.at, other.at, |a, b| a.approx_eq_eps(b, epsilon)) }
 }
 
 impl<D: Dim, T: Rand + Zero + Copy> Rand for NVec<D, T>
 {
-  fn rand<R: Rng>(rng: &R) -> NVec<D, T>
+  fn rand<R: Rng>(rng: &mut R) -> NVec<D, T>
   {
     let     dim = Dim::dim::<D>();
     let mut res : NVec<D, T> = Zero::zero();

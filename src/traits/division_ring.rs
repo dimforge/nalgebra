@@ -1,4 +1,8 @@
 use traits::ring::Ring;
 
-pub trait DivisionRing : Ring + Quot<Self, Self>
+/**
+ * Trait of elements of a division ring. A division ring is an algebraic
+ * structure like a ring, but with the division operator.
+ */
+pub trait DivisionRing : Ring + Div<Self, Self>
 { }

@@ -1,3 +1,6 @@
+/**
+ * Trait of objects having a L² norm and which can be normalized.
+ */
 pub trait Norm<T>
 {
   /// Computes the norm a an object.
@@ -11,9 +14,9 @@ pub trait Norm<T>
    */
   fn sqnorm(&self)     -> T;
 
-  /// Returns the normalized version of the argument.
+  /// Gets the normalized version of the argument.
   fn normalized(&self) -> Self;
 
-  /// Inplace version of `normalized`.
+  /// In-place version of `normalized`.
   fn normalize(&mut self)  -> T;
 }

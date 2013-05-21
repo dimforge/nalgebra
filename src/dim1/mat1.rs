@@ -1,6 +1,6 @@
 use core::num::{One, Zero};
 use core::rand::{Rand, Rng, RngUtil};
-use std::cmp::FuzzyEq;
+use core::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
@@ -56,7 +56,7 @@ impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec1<T>> for Mat1<T>
   { vec1(self.m11 * other.x) }
 }
 
-impl<T:Copy + Mul<T, T> + Quot<T, T> + Sub<T, T> + Neg<T> + Zero + One>
+impl<T:Copy + Mul<T, T> + Div<T, T> + Sub<T, T> + Neg<T> + Zero + One>
 Inv for Mat1<T>
 {
   fn inverse(&self) -> Mat1<T>
@@ -85,18 +85,21 @@ impl<T:Copy> Transpose for Mat1<T>
   { }
 }
 
-impl<T:FuzzyEq<T>> FuzzyEq<T> for Mat1<T>
+impl<T:ApproxEq<T>> ApproxEq<T> for Mat1<T>
 {
-  fn fuzzy_eq(&self, other: &Mat1<T>) -> bool
-  { self.m11.fuzzy_eq(&other.m11) }
+  fn approx_epsilon() -> T
+  { ApproxEq::approx_epsilon::<T, T>() }
 
-  fn fuzzy_eq_eps(&self, other: &Mat1<T>, epsilon: &T) -> bool
-  { self.m11.fuzzy_eq_eps(&other.m11, epsilon) }
+  fn approx_eq(&self, other: &Mat1<T>) -> bool
+  { self.m11.approx_eq(&other.m11) }
+
+  fn approx_eq_eps(&self, other: &Mat1<T>, epsilon: &T) -> bool
+  { self.m11.approx_eq_eps(&other.m11, epsilon) }
 }
 
 impl<T:Rand + Copy> Rand for Mat1<T>
 {
-  fn rand<R: Rng>(rng: &R) -> Mat1<T>
+  fn rand<R: Rng>(rng: &mut R) -> Mat1<T>
   { mat1(rng.gen()) }
 }
 
