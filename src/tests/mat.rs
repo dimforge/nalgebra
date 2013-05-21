@@ -19,47 +19,33 @@ use dim3::mat3::Mat3;
 #[test]
 use adaptors::rotmat::Rotmat;
 
-// FIXME: this one fails with an ICE: node_id_to_type: no type for node [...]
-// #[test]
-// fn test_inv_nmat()
-// {
-//   let randmat : NMat<d7, f64> = random();
-// 
-//   assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
-// }
+macro_rules! test_inv_mat_impl(
+  ($t:ty) => (
+    for uint::range(0u, 10000u) |_|
+    {
+      let randmat : $t = random();
+
+      assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
+    }
+  );
+)
 
 #[test]
 fn test_inv_mat1()
-{
-  for uint::range(0u, 10000u) |_|
-  {
-    let randmat : Mat1<f64> = random();
-
-    assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
-  }
-}
+{ test_inv_mat_impl!(Mat1<f64>); }
 
 #[test]
 fn test_inv_mat2()
-{
-  for uint::range(0u, 10000u) |_|
-  {
-    let randmat : Mat2<f64> = random();
-
-    assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
-  }
-}
+{ test_inv_mat_impl!(Mat2<f64>); }
 
 #[test]
 fn test_inv_mat3()
-{
-  for uint::range(0u, 10000u) |_|
-  {
-    let randmat : Mat3<f64> = random();
+{ test_inv_mat_impl!(Mat3<f64>); }
 
-    assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
-  }
-}
+// FIXME: this one fails with an ICE: node_id_to_type: no type for node [...]
+// #[test]
+// fn test_inv_nmat()
+// { test_inv_mat_impl!(NMat<d7, f64>); }
 
 #[test]
 fn test_rotation2()
