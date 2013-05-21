@@ -1,0 +1,109 @@
+body {
+  padding: 1em;
+  margin: 0;
+  margin-bottom: 4em;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  background-color: white;
+  color: black;
+  line-height: 1.6em;
+}
+
+body {
+  padding: 1em 6em;
+  max-width: 60em;
+}
+
+h1 {
+  font-size: 20pt;
+  margin-top: 2em;
+  border-bottom: 1px solid silver;
+  line-height: 1.6em;
+}
+h2 {
+    font-size: 15pt;
+    margin-top: 2em;
+}
+h3 { font-size: 13pt; }
+
+pre {
+  margin: 1.1em 0;
+  padding: .4em .4em .4em 2em;
+  font-size: 120%;
+}
+
+a, a:visited, a:link {
+  text-decoration: none;
+  color: rgb(0, 105, 214);
+}
+
+h1 a:link, h1 a:visited, h2 a:link, h2 a:visited,
+h3 a:link, h3 a:visited { color: black; }
+
+/* Code highlighting */
+.cm-s-default span.cm-keyword {color: #708;}
+.cm-s-default span.cm-atom {color: #219;}
+.cm-s-default span.cm-number {color: #164;}
+.cm-s-default span.cm-def {color: #00f;}
+.cm-s-default span.cm-variable {color: black;}
+.cm-s-default span.cm-variable-2 {color: #05a;}
+.cm-s-default span.cm-variable-3 {color: #085;}
+.cm-s-default span.cm-property {color: black;}
+.cm-s-default span.cm-operator {color: black;}
+.cm-s-default span.cm-comment {color: #a50;}
+.cm-s-default span.cm-string {color: #a11;}
+.cm-s-default span.cm-string-2 {color: #f50;}
+.cm-s-default span.cm-meta {color: #555;}
+.cm-s-default span.cm-error {color: #f00;}
+.cm-s-default span.cm-qualifier {color: #555;}
+.cm-s-default span.cm-builtin {color: #30a;}
+.cm-s-default span.cm-bracket {color: #cc7;}
+.cm-s-default span.cm-tag {color: #170;}
+.cm-s-default span.cm-attribute {color: #00c;}
+
+#versioninfo {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+
+  background-color: white;
+  padding: 0.5em;
+}
+
+a.lessimportant {
+  color: gray;
+  font-size: 60%;
+}
+
+blockquote {
+    color: black;
+    border-left: solid 1px silver;
+    margin: 1em;
+    padding: 0.5em 1em 0.5em 1em;
+}
+
+/* Make the table under the tutorial's 'Types' section look nicer */
+table {
+    border-top: 1px solid silver;
+    border-bottom: 1px solid silver;
+    padding: 0.8em;
+    font-size: smaller;
+}
+/* Also for the benefit of the type table */
+td {
+    padding-right: 1em;
+}
+
+/* Only display one level of hierarchy in the TOC */
+#TOC ul ul {
+    display: none;
+}
+
+#TOC ul {
+    list-style: none;
+    padding-left: 0px;
+}
+
+/* Adjust list alignment so rustdoc indexes don't align with blockquotes */
+div.index ul {
+    padding-left: 1em;
+}
