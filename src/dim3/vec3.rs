@@ -10,7 +10,7 @@ use traits::norm::Norm;
 use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct Vec3<T>
 {
   x : T,
@@ -228,16 +228,4 @@ impl<T:Copy + Rand> Rand for Vec3<T>
 {
   fn rand<R: Rng>(rng: &mut R) -> Vec3<T>
   { vec3(rng.gen(), rng.gen(), rng.gen()) }
-}
-
-impl<T:ToStr> ToStr for Vec3<T>
-{
-  fn to_str(&self) -> ~str
-  {
-    ~"Vec3 "
-    + "{ x : " + self.x.to_str()
-    + ", y : " + self.y.to_str()
-    + ", z : " + self.z.to_str()
-    + " }"
-  }
 }

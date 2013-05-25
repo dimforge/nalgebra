@@ -12,7 +12,7 @@ use dim2::mat2::{Mat2, mat2};
 use dim3::mat3::{Mat3, mat3};
 use dim3::vec3::{Vec3};
 
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct Rotmat<M>
 {
   priv submat: M
@@ -170,10 +170,4 @@ impl<T: ApproxEq<T>, M: ApproxEq<T>> ApproxEq<T> for Rotmat<M>
 
   fn approx_eq_eps(&self, other: &Rotmat<M>, epsilon: &T) -> bool
   { self.submat.approx_eq_eps(&other.submat, epsilon) }
-}
-
-impl<M: ToStr> ToStr for Rotmat<M>
-{
-  fn to_str(&self) -> ~str
-  { ~"Rotmat {" + " submat: " + self.submat.to_str() + " }" }
 }

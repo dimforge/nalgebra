@@ -18,7 +18,7 @@ use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub}
 // using d0, d1, d2, d3 and d4 tokens are prefered.
 // FIXME: it might be possible to implement type-level integers and use them
 // here?
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct NVec<D, T>
 {
   at: ~[T]
@@ -277,10 +277,4 @@ impl<D: Dim, T: Rand + Zero + Copy> Rand for NVec<D, T>
 
     res
   }
-}
-
-impl<D: Dim, T: ToStr> ToStr for NVec<D, T>
-{
-  fn to_str(&self) -> ~str
-  { ~"Vec" + Dim::dim::<D>().to_str() + self.at.to_str() }
 }

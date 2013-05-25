@@ -9,7 +9,7 @@ use traits::translation::Translation;
 use traits::sub_dot::SubDot;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct Vec1<T>
 { x : T }
 
@@ -164,10 +164,4 @@ impl<T:Rand + Copy> Rand for Vec1<T>
 {
   fn rand<R: Rng>(rng: &mut R) -> Vec1<T>
   { vec1(rng.gen()) }
-}
-
-impl<T:ToStr> ToStr for Vec1<T>
-{
-  fn to_str(&self) -> ~str
-  { ~"Vec1 { x : " + self.x.to_str() + " }" }
 }

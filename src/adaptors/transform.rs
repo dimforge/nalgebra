@@ -9,6 +9,7 @@ use traits::transpose::Transpose;
 use traits::delta_transform::DeltaTransform;
 use traits::workarounds::rlmul::{RMul, LMul};
 
+#[deriving(Eq, ToStr)]
 pub struct Transform<M, V>
 {
   priv submat   : M,
@@ -145,13 +146,4 @@ impl<M: Rand + Copy, V: Rand + Copy> Rand for Transform<M, V>
 {
   fn rand<R: Rng>(rng: &mut R) -> Transform<M, V>
   { transform(&rng.gen(), &rng.gen()) }
-}
-
-impl<M:ToStr, V:ToStr> ToStr for Transform<M, V>
-{
-  fn to_str(&self) -> ~str
-  {
-    ~"Transform {" + " submat: "    + self.submat.to_str()    +
-                     " subtrans: "  + self.subtrans.to_str()  + " }"
-  }
 }

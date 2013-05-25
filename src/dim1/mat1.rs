@@ -7,7 +7,7 @@ use traits::transpose::Transpose;
 use traits::workarounds::rlmul::{RMul, LMul};
 use dim1::vec1::{Vec1, vec1};
 
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct Mat1<T>
 { m11: T }
 
@@ -101,14 +101,4 @@ impl<T:Rand + Copy> Rand for Mat1<T>
 {
   fn rand<R: Rng>(rng: &mut R) -> Mat1<T>
   { mat1(rng.gen()) }
-}
-
-impl<T:ToStr> ToStr for Mat1<T>
-{
-  fn to_str(&self) -> ~str
-  {
-    ~"Mat1 {"
-    + " m11: " + self.m11.to_str()
-    + " }"
-  }
 }

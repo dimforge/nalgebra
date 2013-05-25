@@ -11,42 +11,42 @@ pub trait Dim {
 
 /// Dimensional token for 0-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct d0;
 
 /// Dimensional token for 1-dimension. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct d1;
 
 /// Dimensional token for 2-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct d2;
 
 /// Dimensional token for 3-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct d3;
 
 /// Dimensional token for 4-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct d4;
 
 /// Dimensional token for 5-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct d5;
 
 /// Dimensional token for 6-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct d6;
 
 /// Dimensional token for 7-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct d7;
 
 impl Dim for d0

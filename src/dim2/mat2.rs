@@ -8,7 +8,7 @@ use traits::transpose::Transpose;
 use traits::workarounds::rlmul::{RMul, LMul};
 use dim2::vec2::{Vec2, vec2};
 
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct Mat2<T>
 {
     m11: T, m12: T,
@@ -153,18 +153,4 @@ impl<T:Rand + Copy> Rand for Mat2<T>
 {
   fn rand<R: Rng>(rng: &mut R) -> Mat2<T>
   { mat2(rng.gen(), rng.gen(), rng.gen(), rng.gen()) }
-}
-
-impl<T:ToStr> ToStr for Mat2<T>
-{
-  fn to_str(&self) -> ~str
-  {
-    ~"Mat2 {"
-    + " m11: " + self.m11.to_str()
-    + " m12: " + self.m12.to_str()
-
-    + " m21: " + self.m21.to_str()
-    + " m22: " + self.m22.to_str()
-    + " }"
-  }
 }

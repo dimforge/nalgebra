@@ -12,7 +12,7 @@ use ndim::nvec::NVec;
 // Its allows use to encode the vector dimension at the type-level.
 // It can be anything implementing the Dim trait. However, to avoid confusion,
 // using d0, d1, d2, d3 and d4 tokens are prefered.
-#[deriving(Eq)]
+#[deriving(Eq, ToStr)]
 pub struct NMat<D, T>
 {
   mij: ~[T]
@@ -277,10 +277,4 @@ impl<D: Dim, T: Rand + Zero + Copy> Rand for NMat<D, T>
 
     res
   }
-}
-
-impl<D: Dim, T: ToStr> ToStr for NMat<D, T>
-{
-  fn to_str(&self) -> ~str
-  { ~"Mat" + Dim::dim::<D>().to_str() + " {" + self.mij.to_str() + " }" }
 }
