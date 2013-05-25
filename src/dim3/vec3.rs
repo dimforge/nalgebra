@@ -5,6 +5,7 @@ use traits::basis::Basis;
 use traits::cross::Cross;
 use traits::dim::Dim;
 use traits::dot::Dot;
+use traits::sub_dot::SubDot;
 use traits::norm::Norm;
 use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
@@ -115,10 +116,16 @@ impl<T:Copy + Neg<T>> Neg<Vec3<T>> for Vec3<T>
   { vec3(-self.x, -self.y, -self.z) }
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec3<T>
+impl<T:Copy + Mul<T, T> + Add<T, T>> Dot<T> for Vec3<T>
 {
   fn dot(&self, other : &Vec3<T>) -> T
   { self.x * other.x + self.y * other.y + self.z * other.z } 
+}
+
+impl<T:Copy + Mul<T, T> + Add<T, T> + Sub<T, T>> SubDot<T> for Vec3<T>
+{
+  fn sub_dot(&self, a: &Vec3<T>, b: &Vec3<T>) -> T
+  { (self.x - a.x) * b.x + (self.y - a.y) * b.y + (self.z - a.z) * b.z } 
 }
 
 impl<T:Copy + Mul<T, T> + Add<T, T> + Div<T, T> + Algebraic>

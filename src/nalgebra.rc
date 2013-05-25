@@ -66,6 +66,7 @@ pub mod traits
   pub mod vector_space;
   pub mod ring;
   pub mod division_ring;
+  pub mod sub_dot;
 
   /// This package contains everything done because the current compiler either
   /// crashes or miss features.

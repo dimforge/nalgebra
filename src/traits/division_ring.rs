@@ -6,3 +6,5 @@ use traits::ring::Ring;
  */
 pub trait DivisionRing : Ring + Div<Self, Self>
 { }
+
+impl<T: Ring + Div<T, T>> DivisionRing for T;

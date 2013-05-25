@@ -3,8 +3,11 @@ use core::rand::{Rand, Rng, RngUtil};
 use core::vec::{map_zip, from_elem, map, all, all2};
 use core::cmp::ApproxEq;
 use traits::basis::Basis;
+use traits::ring::Ring;
+use traits::division_ring::DivisionRing;
 use traits::dim::Dim;
 use traits::dot::Dot;
+use traits::sub_dot::SubDot;
 use traits::norm::Norm;
 use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
@@ -52,7 +55,7 @@ impl<D, T: Copy + Neg<T>> Neg<NVec<D, T>> for NVec<D, T>
   { NVec { at: map(self.at, |a| -a) } }
 }
 
-impl<D: Dim, T: Copy + Mul<T, T> + Add<T, T> + Algebraic + Zero>
+impl<D: Dim, T: Copy + Ring>
 Dot<T> for NVec<D, T>
 {
   fn dot(&self, other: &NVec<D, T>) -> T
@@ -61,6 +64,19 @@ Dot<T> for NVec<D, T>
 
     for uint::range(0u, Dim::dim::<D>()) |i|
     { res += self.at[i] * other.at[i]; }
+
+    res
+  } 
+}
+
+impl<D: Dim, T: Copy + Ring> SubDot<T> for NVec<D, T>
+{
+  fn sub_dot(&self, a: &NVec<D, T>, b: &NVec<D, T>) -> T
+  {
+    let mut res = Zero::zero::<T>();
+
+    for uint::range(0u, Dim::dim::<D>()) |i|
+    { res += (self.at[i] - a.at[i]) * b.at[i]; }
 
     res
   } 
@@ -131,8 +147,7 @@ impl<D: Dim, T: Clone + Copy + Add<T, T>> Translation<NVec<D, T>> for NVec<D, T>
   { *self = *self + *t; }
 }
 
-impl<D: Dim, T: Copy + Mul<T, T> + Add<T, T> + Div<T, T> + Algebraic + Zero +
-                Clone>
+impl<D: Dim, T: Copy + DivisionRing + Algebraic + Clone>
 Norm<T> for NVec<D, T>
 {
   fn sqnorm(&self) -> T
@@ -162,8 +177,7 @@ Norm<T> for NVec<D, T>
 }
 
 impl<D: Dim,
-     T: Copy + One + Zero + Neg<T> + Ord + Mul<T, T> + Sub<T, T> + Add<T, T> +
-        Div<T, T> + Algebraic + Clone + ApproxEq<T>>
+     T: Copy + DivisionRing + Algebraic + Clone + ApproxEq<T>>
 Basis for NVec<D, T>
 {
   fn canonical_basis() -> ~[NVec<D, T>]

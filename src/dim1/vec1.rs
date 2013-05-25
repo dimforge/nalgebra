@@ -6,6 +6,7 @@ use traits::dim::Dim;
 use traits::dot::Dot;
 use traits::norm::Norm;
 use traits::translation::Translation;
+use traits::sub_dot::SubDot;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq)]
@@ -86,10 +87,16 @@ impl<T: Copy + Add<T, T>> Translation<Vec1<T>> for Vec1<T>
   { *self += *t }
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T> + Algebraic> Dot<T> for Vec1<T>
+impl<T:Copy + Mul<T, T>> Dot<T> for Vec1<T>
 {
   fn dot(&self, other : &Vec1<T>) -> T
   { self.x * other.x } 
+}
+
+impl<T:Copy + Mul<T, T> + Sub<T, T>> SubDot<T> for Vec1<T>
+{
+  fn sub_dot(&self, a: &Vec1<T>, b: &Vec1<T>) -> T
+  { (self.x - a.x) * b.x } 
 }
 
 impl<T:Copy + Mul<T, T> + Add<T, T> + Div<T, T> + Algebraic>
