@@ -2,7 +2,7 @@ use core::num::{Zero, Algebraic};
 use core::rand::{Rand, Rng, RngUtil};
 use core::vec::{map};
 use core::cmp::ApproxEq;
-use ndim::dvec::{DVec, zero_with_dim, is_zero};
+use ndim::dvec::{DVec, zero_vec_with_dim, is_zero_vec};
 use traits::basis::Basis;
 use traits::ring::Ring;
 use traits::division_ring::DivisionRing;
@@ -164,10 +164,10 @@ Basis for NVec<D, T>
 impl<D: Dim, T: Copy + Zero> Zero for NVec<D, T>
 {
   fn zero() -> NVec<D, T>
-  { NVec { at: zero_with_dim(Dim::dim::<D>()) } }
+  { NVec { at: zero_vec_with_dim(Dim::dim::<D>()) } }
 
   fn is_zero(&self) -> bool
-  { is_zero(&self.at) }
+  { is_zero_vec(&self.at) }
 }
 
 impl<D, T: ApproxEq<T>> ApproxEq<T> for NVec<D, T>

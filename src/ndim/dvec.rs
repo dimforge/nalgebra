@@ -15,10 +15,10 @@ pub struct DVec<T>
   at: ~[T]
 }
 
-pub fn zero_with_dim<T: Zero + Copy>(dim: uint) -> DVec<T>
+pub fn zero_vec_with_dim<T: Zero + Copy>(dim: uint) -> DVec<T>
 { DVec { at: from_elem(dim, Zero::zero::<T>()) } }
 
-pub fn is_zero<T: Zero>(vec: &DVec<T>) -> bool
+pub fn is_zero_vec<T: Zero>(vec: &DVec<T>) -> bool
 { all(vec.at, |e| e.is_zero()) }
 
 // FIXME: is Clone needed?
@@ -30,7 +30,7 @@ impl<T: Copy + DivisionRing + Algebraic + Clone + ApproxEq<T>> DVec<T>
 
     for uint::range(0u, dim) |i|
     {
-      let mut basis_element : DVec<T> = zero_with_dim(dim);
+      let mut basis_element : DVec<T> = zero_vec_with_dim(dim);
 
       basis_element.at[i] = One::one();
 
@@ -49,7 +49,7 @@ impl<T: Copy + DivisionRing + Algebraic + Clone + ApproxEq<T>> DVec<T>
 
     for uint::range(0u, dim) |i|
     {
-      let mut basis_element : DVec<T> = zero_with_dim(len(self.at));
+      let mut basis_element : DVec<T> = zero_vec_with_dim(len(self.at));
 
       basis_element.at[i] = One::one();
 

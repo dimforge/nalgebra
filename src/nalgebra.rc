@@ -39,7 +39,7 @@ pub mod dim3
 /// n-dimensional linear algebra (slower).
 pub mod ndim
 {
-  // pub mod dmat;
+  pub mod dmat;
   pub mod dvec;
   pub mod nvec;
   pub mod nmat;
