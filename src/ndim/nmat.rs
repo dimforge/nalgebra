@@ -3,6 +3,7 @@ use core::rand::{Rand, Rng, RngUtil};
 use core::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
+use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;
 use traits::workarounds::rlmul::{RMul, LMul};
 use ndim::dmat::{DMat, one_mat_with_dim, zero_mat_with_dim, is_zero_mat};
@@ -113,9 +114,7 @@ LMul<NVec<D, T>> for NMat<D, T>
   }
 }
 
-impl<D: Dim,
-     T: Clone + Copy + Eq + One + Zero +
-        Mul<T, T> + Div<T, T> + Sub<T, T> + Neg<T>>
+impl<D: Dim, T: Clone + Copy + Eq + DivisionRing>
 Inv for NMat<D, T>
 {
   fn inverse(&self) -> NMat<D, T>

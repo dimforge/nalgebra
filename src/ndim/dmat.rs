@@ -2,6 +2,7 @@ use core::num::{One, Zero};
 use core::vec::{from_elem, swap, all, all2, len};
 use core::cmp::ApproxEq;
 use traits::inv::Inv;
+use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;
 use traits::workarounds::rlmul::{RMul, LMul};
 use ndim::dvec::{DVec, zero_vec_with_dim};
@@ -41,12 +42,19 @@ impl<T: Copy> DMat<T>
     assert!(j < self.dim);
     self.mij[self.offset(i, j)] = *t
   }
+
+  pub fn at(&self, i: uint, j: uint) -> T
+  {
+    assert!(i < self.dim);
+    assert!(j < self.dim);
+    self.mij[self.offset(i, j)]
+  }
 }
 
 impl<T: Copy> Index<(uint, uint), T> for DMat<T>
 {
   fn index(&self, &(i, j): &(uint, uint)) -> T
-  { self.mij[self.offset(i, j)] }
+  { self.at(i, j) }
 }
 
 impl<T: Copy + Mul<T, T> + Add<T, T> + Zero>
@@ -63,10 +71,10 @@ Mul<DMat<T>, DMat<T>> for DMat<T>
     {
       for uint::range(0u, dim) |j|
       {
-        let mut acc: T = Zero::zero();
+        let mut acc = Zero::zero::<T>();
 
         for uint::range(0u, dim) |k|
-        { acc += self[(i, k)] * other[(k, j)]; }
+        { acc += self.at(i, k) * other.at(k, j); }
 
         res.set(i, j, &acc);
       }
@@ -89,7 +97,7 @@ RMul<DVec<T>> for DMat<T>
     for uint::range(0u, dim) |i|
     {
       for uint::range(0u, dim) |j|
-      { res.at[i] = res.at[i] + other.at[j] * self[(i, j)]; }
+      { res.at[i] = res.at[i] + other.at[j] * self.at(i, j); }
     }
 
     res
@@ -109,15 +117,14 @@ LMul<DVec<T>> for DMat<T>
     for uint::range(0u, dim) |i|
     {
       for uint::range(0u, dim) |j|
-      { res.at[i] = res.at[i] + other.at[j] * self[(j, i)]; }
+      { res.at[i] = res.at[i] + other.at[j] * self.at(j, i); }
     }
 
     res
   }
 }
 
-impl<T: Clone + Copy + Eq + One + Zero +
-        Mul<T, T> + Div<T, T> + Sub<T, T> + Neg<T>>
+impl<T: Clone + Copy + Eq + DivisionRing>
 Inv for DMat<T>
 {
   fn inverse(&self) -> DMat<T>
@@ -142,14 +149,11 @@ Inv for DMat<T>
       // FIXME: would it be worth it to spend some more time searching for the
       // max instead?
 
-      // FIXME: this is kind of uggly…
-      // … but we cannot use position_between since we are iterating on one
-      // columns
-      let mut n0 = 0u; // index of a non-zero entry
+      let mut n0 = k; // index of a non-zero entry
 
       while (n0 != dim)
       {
-        if (self[(n0, k)] != _0T)
+        if (self.at(n0, k) != _0T)
         { break; }
 
         n0 += 1;
@@ -170,16 +174,17 @@ Inv for DMat<T>
         }
       }
 
-      let pivot = self[(k, k)];
+      let pivot = self.at(k, k);
 
       for uint::range(k, dim) |j|
       {
-        // FIXME: not to putting selfal exression directly on the nuction call
-        // is uggly but does not seem to compile any more…
-        let selfval = &(self[(k, j)] / pivot);
-        let resval  = &(res[(k, j)] / pivot);
-
+        let selfval = &(self.at(k, j) / pivot);
         self.set(k, j, selfval);
+      }
+
+      for uint::range(0u, dim) |j|
+      {
+        let resval  = &(res.at(k, j)   / pivot);
         res.set(k, j, resval);
       }
 
@@ -187,19 +192,24 @@ Inv for DMat<T>
       {
         if (l != k)
         {
-          let normalizer = self[(l, k)] / pivot;
+          let normalizer = self.at(l, k);
 
           for uint::range(k, dim) |j|
           {
-            let selfval = &(self[(l, j)] - self[(k, j)] * normalizer);
-            let resval  = &(res[(l, j)] - res[(k, j)] * normalizer);
+            let selfval = &(self.at(l, j) - self.at(k, j) * normalizer);
+            self.set(l, j, selfval);
+          }
 
-            self.set(k, j, selfval);
-            res.set(k, j, resval);
+          for uint::range(0u, dim) |j|
+          {
+            let resval  = &(res.at(l, j)   - res.at(k, j)   * normalizer);
+            res.set(l, j, resval);
           }
         }
       }
     }
+
+    *self = res;
   }
 }
 

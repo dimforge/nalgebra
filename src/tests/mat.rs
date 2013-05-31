@@ -8,6 +8,8 @@ use core::cmp::ApproxEq;
 use traits::inv::Inv;
 #[test]
 use traits::rotation::Rotation;
+// #[test]
+// use traits::dim::d7;
 #[test]
 use dim1::vec1::vec1;
 #[test]
@@ -16,6 +18,8 @@ use dim1::mat1::Mat1;
 use dim2::mat2::Mat2;
 #[test]
 use dim3::mat3::Mat3;
+// #[test]
+// use ndim::nmat::NMat;
 #[test]
 use adaptors::rotmat::Rotmat;
 
@@ -42,7 +46,6 @@ fn test_inv_mat2()
 fn test_inv_mat3()
 { test_inv_mat_impl!(Mat3<f64>); }
 
-// FIXME: this one fails with an ICE: node_id_to_type: no type for node [...]
 // #[test]
 // fn test_inv_nmat()
 // { test_inv_mat_impl!(NMat<d7, f64>); }
