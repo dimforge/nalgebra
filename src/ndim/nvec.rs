@@ -1,7 +1,8 @@
-use core::num::{Zero, One, Algebraic};
+use core::num::{Zero, Algebraic};
 use core::rand::{Rand, Rng, RngUtil};
-use core::vec::{map_zip, from_elem, map, all, all2};
+use core::vec::{map};
 use core::cmp::ApproxEq;
+use ndim::dvec::{DVec, zero_with_dim, is_zero};
 use traits::basis::Basis;
 use traits::ring::Ring;
 use traits::division_ring::DivisionRing;
@@ -15,14 +16,12 @@ use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub}
 // D is a phantom parameter, used only as a dimensional token.
 // Its allows use to encode the vector dimension at the type-level.
 // It can be anything implementing the Dim trait. However, to avoid confusion,
-// using d0, d1, d2, d3 and d4 tokens are prefered.
+// using d0, d1, d2, d3, ..., d7 (or your own dn) are prefered.
 // FIXME: it might be possible to implement type-level integers and use them
 // here?
 #[deriving(Eq, ToStr)]
 pub struct NVec<D, T>
-{
-  at: ~[T]
-}
+{ at: DVec<T> }
 
 
 impl<D: Dim, T> Dim for NVec<D, T>
@@ -40,59 +39,42 @@ impl<D, T: Clone> Clone for NVec<D, T>
 impl<D, T: Copy + Add<T,T>> Add<NVec<D, T>, NVec<D, T>> for NVec<D, T>
 {
   fn add(&self, other: &NVec<D, T>) -> NVec<D, T>
-  { NVec { at: map_zip(self.at, other.at, | a, b | { *a + *b }) } }
+  { NVec { at: self.at + other.at } }
 }
 
 impl<D, T: Copy + Sub<T,T>> Sub<NVec<D, T>, NVec<D, T>> for NVec<D, T>
 {
   fn sub(&self, other: &NVec<D, T>) -> NVec<D, T>
-  { NVec { at: map_zip(self.at, other.at, | a, b | *a - *b) } }
+  { NVec { at: self.at - other.at } }
 }
 
 impl<D, T: Copy + Neg<T>> Neg<NVec<D, T>> for NVec<D, T>
 {
   fn neg(&self) -> NVec<D, T>
-  { NVec { at: map(self.at, |a| -a) } }
+  { NVec { at: -self.at } }
 }
 
 impl<D: Dim, T: Copy + Ring>
 Dot<T> for NVec<D, T>
 {
   fn dot(&self, other: &NVec<D, T>) -> T
-  {
-    let mut res = Zero::zero::<T>();
-
-    for uint::range(0u, Dim::dim::<D>()) |i|
-    { res += self.at[i] * other.at[i]; }
-
-    res
-  } 
+  { self.at.dot(&other.at) } 
 }
 
 impl<D: Dim, T: Copy + Ring> SubDot<T> for NVec<D, T>
 {
   fn sub_dot(&self, a: &NVec<D, T>, b: &NVec<D, T>) -> T
-  {
-    let mut res = Zero::zero::<T>();
-
-    for uint::range(0u, Dim::dim::<D>()) |i|
-    { res += (self.at[i] - a.at[i]) * b.at[i]; }
-
-    res
-  } 
+  { self.at.sub_dot(&a.at, &b.at) } 
 }
 
 impl<D: Dim, T: Copy + Mul<T, T>>
 ScalarMul<T> for NVec<D, T>
 {
   fn scalar_mul(&self, s: &T) -> NVec<D, T>
-  { NVec { at: map(self.at, |a| a * *s) } }
+  { NVec { at: self.at.scalar_mul(s) } }
 
   fn scalar_mul_inplace(&mut self, s: &T)
-  {
-    for uint::range(0u, Dim::dim::<D>()) |i|
-    { self.at[i] *= *s; }
-  }
+  { self.at.scalar_mul_inplace(s) }
 }
 
 
@@ -100,39 +82,30 @@ impl<D: Dim, T: Copy + Div<T, T>>
 ScalarDiv<T> for NVec<D, T>
 {
   fn scalar_div(&self, s: &T) -> NVec<D, T>
-  { NVec { at: map(self.at, |a| a / *s) } }
+  { NVec { at: self.at.scalar_div(s) } }
 
   fn scalar_div_inplace(&mut self, s: &T)
-  {
-    for uint::range(0u, Dim::dim::<D>()) |i|
-    { self.at[i] /= *s; }
-  }
+  { self.at.scalar_div_inplace(s) }
 }
 
 impl<D: Dim, T: Copy + Add<T, T>>
 ScalarAdd<T> for NVec<D, T>
 {
   fn scalar_add(&self, s: &T) -> NVec<D, T>
-  { NVec { at: map(self.at, |a| a + *s) } }
+  { NVec { at: self.at.scalar_add(s) } }
 
   fn scalar_add_inplace(&mut self, s: &T)
-  {
-    for uint::range(0u, Dim::dim::<D>()) |i|
-    { self.at[i] += *s; }
-  }
+  { self.at.scalar_add_inplace(s) }
 }
 
 impl<D: Dim, T: Copy + Sub<T, T>>
 ScalarSub<T> for NVec<D, T>
 {
   fn scalar_sub(&self, s: &T) -> NVec<D, T>
-  { NVec { at: map(self.at, |a| a - *s) } }
+  { NVec { at: self.at.scalar_sub(s) } }
 
   fn scalar_sub_inplace(&mut self, s: &T)
-  {
-    for uint::range(0u, Dim::dim::<D>()) |i|
-    { self.at[i] -= *s; }
-  }
+  { self.scalar_sub_inplace(s) }
 }
 
 impl<D: Dim, T: Clone + Copy + Add<T, T>> Translation<NVec<D, T>> for NVec<D, T>
@@ -166,14 +139,7 @@ Norm<T> for NVec<D, T>
   }
 
   fn normalize(&mut self) -> T
-  {
-    let l = self.norm();
-
-    for uint::range(0u, Dim::dim::<D>()) |i|
-    { self.at[i] /= l; }
-
-    l
-  }
+  { self.at.normalize() }
 }
 
 impl<D: Dim,
@@ -181,53 +147,10 @@ impl<D: Dim,
 Basis for NVec<D, T>
 {
   fn canonical_basis() -> ~[NVec<D, T>]
-  {
-    let     dim = Dim::dim::<D>();
-    let mut res : ~[NVec<D, T>] = ~[];
-
-    for uint::range(0u, dim) |i|
-    {
-      let mut basis_element : NVec<D, T> = Zero::zero();
-
-      basis_element.at[i] = One::one();
-
-      res.push(basis_element);
-    }
-
-    res
-  }
+  { map(DVec::canonical_basis_with_dim(Dim::dim::<D>()), |&e| NVec { at: e }) }
 
   fn orthogonal_subspace_basis(&self) -> ~[NVec<D, T>]
-  {
-    // compute the basis of the orthogonal subspace using Gram-Schmidt
-    // orthogonalization algorithm
-    let     dim = Dim::dim::<D>();
-    let mut res : ~[NVec<D, T>] = ~[];
-
-    for uint::range(0u, dim) |i|
-    {
-      let mut basis_element : NVec<D, T> = Zero::zero();
-
-      basis_element.at[i] = One::one();
-
-      if (res.len() == dim - 1)
-      { break; }
-
-      let mut elt = basis_element.clone();
-
-      elt -= self.scalar_mul(&basis_element.dot(self));
-
-      for res.each |v|
-      { elt -= v.scalar_mul(&elt.dot(v)) };
-
-      if (!elt.sqnorm().approx_eq(&Zero::zero()))
-      { res.push(elt.normalized()); }
-    }
-
-    assert!(res.len() == dim - 1);
-
-    res
-  }
+  { map(self.at.orthogonal_subspace_basis(), |&e| NVec { at: e }) }
 }
 
 // FIXME: I dont really know how te generalize the cross product int
@@ -241,16 +164,10 @@ Basis for NVec<D, T>
 impl<D: Dim, T: Copy + Zero> Zero for NVec<D, T>
 {
   fn zero() -> NVec<D, T>
-  {
-    let _0 = Zero::zero();
-
-    NVec { at: from_elem(Dim::dim::<D>(), _0) }
-  }
+  { NVec { at: zero_with_dim(Dim::dim::<D>()) } }
 
   fn is_zero(&self) -> bool
-  {
-    all(self.at, |e| e.is_zero())
-  }
+  { is_zero(&self.at) }
 }
 
 impl<D, T: ApproxEq<T>> ApproxEq<T> for NVec<D, T>
@@ -259,10 +176,10 @@ impl<D, T: ApproxEq<T>> ApproxEq<T> for NVec<D, T>
   { ApproxEq::approx_epsilon::<T, T>() }
 
   fn approx_eq(&self, other: &NVec<D, T>) -> bool
-  { all2(self.at, other.at, |a, b| a.approx_eq(b)) }
+  { self.at.approx_eq(&other.at) }
 
   fn approx_eq_eps(&self, other: &NVec<D, T>, epsilon: &T) -> bool
-  { all2(self.at, other.at, |a, b| a.approx_eq_eps(b, epsilon)) }
+  { self.at.approx_eq_eps(&other.at, epsilon) }
 }
 
 impl<D: Dim, T: Rand + Zero + Copy> Rand for NVec<D, T>
@@ -273,7 +190,7 @@ impl<D: Dim, T: Rand + Zero + Copy> Rand for NVec<D, T>
     let mut res : NVec<D, T> = Zero::zero();
 
     for uint::range(0u, dim) |i|
-    { res.at[i] = rng.gen() }
+    { res.at.at[i] = rng.gen() }
 
     res
   }

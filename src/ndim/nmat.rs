@@ -109,7 +109,7 @@ RMul<NVec<D, T>> for NMat<D, T>
     for uint::range(0u, dim) |i|
     {
       for uint::range(0u, dim) |j|
-      { res.at[i] = res.at[i] + other.at[j] * self[(i, j)]; }
+      { res.at.at[i] = res.at.at[i] + other.at.at[j] * self[(i, j)]; }
     }
 
     res
@@ -127,7 +127,7 @@ LMul<NVec<D, T>> for NMat<D, T>
     for uint::range(0u, dim) |i|
     {
       for uint::range(0u, dim) |j|
-      { res.at[i] = res.at[i] + other.at[j] * self[(j, i)]; }
+      { res.at.at[i] = res.at.at[i] + other.at.at[j] * self[(j, i)]; }
     }
 
     res
@@ -158,8 +158,8 @@ Inv for NMat<D, T>
     for uint::range(0u, dim) |k|
     {
       // search a non-zero value on the k-th column
-      // FIXME: is it worth it to spend some more time searching for the max
-      // instead?
+      // FIXME: would it be worth it to spend some more time searching for the
+      // max instead?
 
       // FIXME: this is kind of uggly…
       // … but we cannot use position_between since we are iterating on one
