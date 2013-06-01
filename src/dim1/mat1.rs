@@ -1,6 +1,6 @@
-use core::num::{One, Zero};
-use core::rand::{Rand, Rng, RngUtil};
-use core::cmp::ApproxEq;
+use std::num::{One, Zero};
+use std::rand::{Rand, Rng, RngUtil};
+use std::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;

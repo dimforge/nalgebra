@@ -1,6 +1,6 @@
-use core::num::{Zero, One, Algebraic};
-use core::rand::{Rand, Rng, RngUtil};
-use core::cmp::ApproxEq;
+use std::num::{Zero, One, Algebraic};
+use std::rand::{Rand, Rng, RngUtil};
+use std::cmp::ApproxEq;
 use traits::basis::Basis;
 use traits::dim::Dim;
 use traits::dot::Dot;

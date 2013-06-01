@@ -1,4 +1,4 @@
-use core::num::{One, Zero};
+use std::num::{One, Zero};
 
 /**
  * Trait of elements of a ring. A rings is an algebraic structure, the

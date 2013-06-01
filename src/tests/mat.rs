@@ -1,9 +1,9 @@
 #[test]
-use core::num::{One, abs};
+use std::num::{Real, One, abs};
 #[test]
-use core::rand::{random};
+use std::rand::{random};
 #[test]
-use core::cmp::ApproxEq;
+use std::cmp::ApproxEq;
 #[test]
 use traits::inv::Inv;
 #[test]
@@ -25,7 +25,7 @@ use adaptors::rotmat::Rotmat;
 
 macro_rules! test_inv_mat_impl(
   ($t:ty) => (
-    for uint::range(0u, 10000u) |_|
+    for 10000.times
     {
       let randmat : $t = random();
 
@@ -46,6 +46,7 @@ fn test_inv_mat2()
 fn test_inv_mat3()
 { test_inv_mat_impl!(Mat3<f64>); }
 
+// FIXME: ICE
 // #[test]
 // fn test_inv_nmat()
 // { test_inv_mat_impl!(NMat<d7, f64>); }
@@ -53,10 +54,10 @@ fn test_inv_mat3()
 #[test]
 fn test_rotation2()
 {
-  for uint::range(0u, 10000u) |_|
+  for 10000.times
   {
     let randmat = One::one::<Rotmat<Mat2<f64>>>();
-    let ang     = &vec1(abs::<f64>(random()) % f64::consts::pi);
+    let ang     = &vec1(abs::<f64>(random()) % Real::pi());
 
     assert!(randmat.rotated(ang).rotation().approx_eq(ang));
   }

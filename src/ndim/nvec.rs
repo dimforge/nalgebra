@@ -1,7 +1,8 @@
-use core::num::{Zero, Algebraic};
-use core::rand::{Rand, Rng, RngUtil};
-use core::vec::{map};
-use core::cmp::ApproxEq;
+use std::uint::iterate;
+use std::num::{Zero, Algebraic};
+use std::rand::{Rand, Rng, RngUtil};
+use std::vec::{map};
+use std::cmp::ApproxEq;
 use ndim::dvec::{DVec, zero_vec_with_dim, is_zero_vec};
 use traits::basis::Basis;
 use traits::ring::Ring;
@@ -189,7 +190,7 @@ impl<D: Dim, T: Rand + Zero + Copy> Rand for NVec<D, T>
     let     dim = Dim::dim::<D>();
     let mut res : NVec<D, T> = Zero::zero();
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     { res.at.at[i] = rng.gen() }
 
     res

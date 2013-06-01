@@ -1,7 +1,7 @@
-use core::num::{Zero, One, Algebraic};
-use core::rand::{Rand, Rng, RngUtil};
+use std::num::{Zero, One, Algebraic};
+use std::rand::{Rand, Rng, RngUtil};
 use dim1::vec1::{Vec1, vec1};
-use core::cmp::ApproxEq;
+use std::cmp::ApproxEq;
 use traits::basis::Basis;
 use traits::cross::Cross;
 use traits::dim::Dim;

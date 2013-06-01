@@ -1,6 +1,7 @@
-use core::num::{One, Zero};
-use core::vec::{from_elem, swap, all, all2, len};
-use core::cmp::ApproxEq;
+use std::uint::iterate;
+use std::num::{One, Zero};
+use std::vec::{from_elem, swap, all, all2, len};
+use std::cmp::ApproxEq;
 use traits::inv::Inv;
 use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;
@@ -25,7 +26,7 @@ pub fn one_mat_with_dim<T: Copy + One + Zero>(dim: uint) -> DMat<T>
   let mut res = zero_mat_with_dim(dim);
   let     _1  = One::one::<T>();
 
-  for uint::range(0u, dim) |i|
+  for iterate(0u, dim) |i|
   { res.set(i, i, &_1); }
 
   res
@@ -67,13 +68,13 @@ Mul<DMat<T>, DMat<T>> for DMat<T>
     let     dim = self.dim;
     let mut res = zero_mat_with_dim(dim);
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     {
-      for uint::range(0u, dim) |j|
+      for iterate(0u, dim) |j|
       {
         let mut acc = Zero::zero::<T>();
 
-        for uint::range(0u, dim) |k|
+        for iterate(0u, dim) |k|
         { acc += self.at(i, k) * other.at(k, j); }
 
         res.set(i, j, &acc);
@@ -94,9 +95,9 @@ RMul<DVec<T>> for DMat<T>
     let     dim           = self.dim;
     let mut res : DVec<T> = zero_vec_with_dim(dim);
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     {
-      for uint::range(0u, dim) |j|
+      for iterate(0u, dim) |j|
       { res.at[i] = res.at[i] + other.at[j] * self.at(i, j); }
     }
 
@@ -114,9 +115,9 @@ LMul<DVec<T>> for DMat<T>
     let     dim           = self.dim;
     let mut res : DVec<T> = zero_vec_with_dim(dim);
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     {
-      for uint::range(0u, dim) |j|
+      for iterate(0u, dim) |j|
       { res.at[i] = res.at[i] + other.at[j] * self.at(j, i); }
     }
 
@@ -143,7 +144,7 @@ Inv for DMat<T>
     let     _0T = Zero::zero::<T>();
 
     // inversion using Gauss-Jordan elimination
-    for uint::range(0u, dim) |k|
+    for iterate(0u, dim) |k|
     {
       // search a non-zero value on the k-th column
       // FIXME: would it be worth it to spend some more time searching for the
@@ -164,7 +165,7 @@ Inv for DMat<T>
       // swap pivot line
       if (n0 != k)
       {
-        for uint::range(0u, dim) |j|
+        for iterate(0u, dim) |j|
         {
           let off_n0_j = self.offset(n0, j);
           let off_k_j  = self.offset(k, j);
@@ -176,31 +177,31 @@ Inv for DMat<T>
 
       let pivot = self.at(k, k);
 
-      for uint::range(k, dim) |j|
+      for iterate(k, dim) |j|
       {
         let selfval = &(self.at(k, j) / pivot);
         self.set(k, j, selfval);
       }
 
-      for uint::range(0u, dim) |j|
+      for iterate(0u, dim) |j|
       {
         let resval  = &(res.at(k, j)   / pivot);
         res.set(k, j, resval);
       }
 
-      for uint::range(0u, dim) |l|
+      for iterate(0u, dim) |l|
       {
         if (l != k)
         {
           let normalizer = self.at(l, k);
 
-          for uint::range(k, dim) |j|
+          for iterate(k, dim) |j|
           {
             let selfval = &(self.at(l, j) - self.at(k, j) * normalizer);
             self.set(l, j, selfval);
           }
 
-          for uint::range(0u, dim) |j|
+          for iterate(0u, dim) |j|
           {
             let resval  = &(res.at(l, j)   - res.at(k, j)   * normalizer);
             res.set(l, j, resval);
@@ -228,9 +229,9 @@ impl<T:Copy> Transpose for DMat<T>
   {
     let dim = self.dim;
 
-    for uint::range(1u, dim) |i|
+    for iterate(1u, dim) |i|
     {
-      for uint::range(0u, dim - 1) |j|
+      for iterate(0u, dim - 1) |j|
       {
         let off_i_j = self.offset(i, j);
         let off_j_i = self.offset(j, i);

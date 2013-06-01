@@ -1,11 +1,11 @@
 #[test]
-use core::num::{Zero, One};
+use std::num::{Zero, One};
 #[test]
-use core::rand::{random};
+use std::rand::{random};
 #[test]
-use core::vec::{all, all2};
+use std::vec::{all, all2};
 #[test]
-use core::cmp::ApproxEq;
+use std::cmp::ApproxEq;
 #[test]
 use dim3::vec3::Vec3;
 #[test]
@@ -27,7 +27,7 @@ use traits::norm::Norm;
 
 macro_rules! test_commut_dot_impl(
   ($t:ty) => (
-    for uint::range(0u, 10000u) |_|
+    for 10000.times
     {
       let v1 : $t = random();
       let v2 : $t = random();
@@ -39,7 +39,7 @@ macro_rules! test_commut_dot_impl(
 
 macro_rules! test_basis_impl(
   ($t:ty) => (
-    for uint::range(0u, 10000u) |_|
+    for 10000.times
     {
       let basis = Basis::canonical_basis::<$t>();
 
@@ -53,7 +53,7 @@ macro_rules! test_basis_impl(
 
 macro_rules! test_subspace_basis_impl(
   ($t:ty) => (
-    for uint::range(0u, 10000u) |_|
+    for 10000.times
     {
       let v : Vec3<f64> = random();
       let v1 = v.normalized();
@@ -72,7 +72,7 @@ macro_rules! test_subspace_basis_impl(
 #[test]
 fn test_cross_vec3()
 {
-  for uint::range(0u, 10000u) |_|
+  for 10000.times
   {
     let v1 : Vec3<f64> = random();
     let v2 : Vec3<f64> = random();

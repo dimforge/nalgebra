@@ -1,6 +1,7 @@
-use core::num::{One, Zero};
-use core::rand::{Rand, Rng, RngUtil};
-use core::cmp::ApproxEq;
+use std::uint::iterate;
+use std::num::{One, Zero};
+use std::rand::{Rand, Rng, RngUtil};
+use std::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::division_ring::DivisionRing;
@@ -61,13 +62,13 @@ Mul<NMat<D, T>, NMat<D, T>> for NMat<D, T>
     let     dim = Dim::dim::<D>();
     let mut res = Zero::zero::<NMat<D, T>>();
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     {
-      for uint::range(0u, dim) |j|
+      for iterate(0u, dim) |j|
       {
         let mut acc: T = Zero::zero();
 
-        for uint::range(0u, dim) |k|
+        for iterate(0u, dim) |k|
         { acc += self[(i, k)] * other[(k, j)]; }
 
         res.set(i, j, &acc);
@@ -86,9 +87,9 @@ RMul<NVec<D, T>> for NMat<D, T>
     let     dim              = Dim::dim::<D>();
     let mut res : NVec<D, T> = Zero::zero();
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     {
-      for uint::range(0u, dim) |j|
+      for iterate(0u, dim) |j|
       { res.at.at[i] = res.at.at[i] + other.at.at[j] * self[(i, j)]; }
     }
 
@@ -104,9 +105,9 @@ LMul<NVec<D, T>> for NMat<D, T>
     let     dim              = Dim::dim::<D>();
     let mut res : NVec<D, T> = Zero::zero();
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     {
-      for uint::range(0u, dim) |j|
+      for iterate(0u, dim) |j|
       { res.at.at[i] = res.at.at[i] + other.at.at[j] * self[(j, i)]; }
     }
 
@@ -158,9 +159,9 @@ impl<D: Dim, T: Rand + Zero + Copy> Rand for NMat<D, T>
     let     dim = Dim::dim::<D>();
     let mut res : NMat<D, T> = Zero::zero();
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     {
-      for uint::range(0u, dim) |j|
+      for iterate(0u, dim) |j|
       { res.set(i, j, &rng.gen()); }
     }
 

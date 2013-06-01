@@ -1,4 +1,4 @@
-use core::num::Zero;
+use std::num::Zero;
 use traits::division_ring::DivisionRing;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv};
 

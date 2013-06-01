@@ -1,6 +1,7 @@
-use core::num::{Zero, One, Algebraic};
-use core::vec::{map_zip, map, all2, len, from_elem, all};
-use core::cmp::ApproxEq;
+use std::uint::iterate;
+use std::num::{Zero, One, Algebraic};
+use std::vec::{map_zip, map, all2, len, from_elem, all};
+use std::cmp::ApproxEq;
 use traits::ring::Ring;
 use traits::division_ring::DivisionRing;
 use traits::dot::Dot;
@@ -28,7 +29,7 @@ impl<T: Copy + DivisionRing + Algebraic + Clone + ApproxEq<T>> DVec<T>
   {
     let mut res : ~[DVec<T>] = ~[];
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     {
       let mut basis_element : DVec<T> = zero_vec_with_dim(dim);
 
@@ -47,7 +48,7 @@ impl<T: Copy + DivisionRing + Algebraic + Clone + ApproxEq<T>> DVec<T>
     let     dim              = len(self.at);
     let mut res : ~[DVec<T>] = ~[];
 
-    for uint::range(0u, dim) |i|
+    for iterate(0u, dim) |i|
     {
       let mut basis_element : DVec<T> = zero_vec_with_dim(len(self.at));
 
@@ -106,7 +107,7 @@ Dot<T> for DVec<T>
 
     let mut res = Zero::zero::<T>();
 
-    for uint::range(0u, len(self.at)) |i|
+    for iterate(0u, len(self.at)) |i|
     { res += self.at[i] * other.at[i]; }
 
     res
@@ -119,7 +120,7 @@ impl<T: Copy + Ring> SubDot<T> for DVec<T>
   {
     let mut res = Zero::zero::<T>();
 
-    for uint::range(0u, len(self.at)) |i|
+    for iterate(0u, len(self.at)) |i|
     { res += (self.at[i] - a.at[i]) * b.at[i]; }
 
     res
@@ -134,7 +135,7 @@ ScalarMul<T> for DVec<T>
 
   fn scalar_mul_inplace(&mut self, s: &T)
   {
-    for uint::range(0u, len(self.at)) |i|
+    for iterate(0u, len(self.at)) |i|
     { self.at[i] *= *s; }
   }
 }
@@ -148,7 +149,7 @@ ScalarDiv<T> for DVec<T>
 
   fn scalar_div_inplace(&mut self, s: &T)
   {
-    for uint::range(0u, len(self.at)) |i|
+    for iterate(0u, len(self.at)) |i|
     { self.at[i] /= *s; }
   }
 }
@@ -161,7 +162,7 @@ ScalarAdd<T> for DVec<T>
 
   fn scalar_add_inplace(&mut self, s: &T)
   {
-    for uint::range(0u, len(self.at)) |i|
+    for iterate(0u, len(self.at)) |i|
     { self.at[i] += *s; }
   }
 }
@@ -174,7 +175,7 @@ ScalarSub<T> for DVec<T>
 
   fn scalar_sub_inplace(&mut self, s: &T)
   {
-    for uint::range(0u, len(self.at)) |i|
+    for iterate(0u, len(self.at)) |i|
     { self.at[i] -= *s; }
   }
 }
@@ -213,7 +214,7 @@ Norm<T> for DVec<T>
   {
     let l = self.norm();
 
-    for uint::range(0u, len(self.at)) |i|
+    for iterate(0u, len(self.at)) |i|
     { self.at[i] /= l; }
 
     l
