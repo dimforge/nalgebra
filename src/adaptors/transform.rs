@@ -75,13 +75,13 @@ impl<M: Copy, V: Copy + Translation<V>> Translation<V> for Transform<M, V>
   { self.subtrans.translate(t) }
 }
 
-impl<M: Rotation<V> + Copy + RMul<V> + One, V: Copy>
-Rotation<V> for Transform<M, V>
+impl<M: Rotation<AV> + Copy + RMul<V> + One, V: Copy, AV>
+Rotation<AV> for Transform<M, V>
 {
-  fn rotation(&self) -> V
+  fn rotation(&self) -> AV
   { self.submat.rotation() }
 
-  fn rotated(&self, rot: &V) -> Transform<M, V>
+  fn rotated(&self, rot: &AV) -> Transform<M, V>
   {
     // FIXME: this does not seem opitmal
     let delta = One::one::<M>().rotated(rot);
@@ -89,7 +89,7 @@ Rotation<V> for Transform<M, V>
     transform(&self.submat.rotated(rot), &delta.rmul(&self.subtrans))
   }
 
-  fn rotate(&mut self, rot: &V)
+  fn rotate(&mut self, rot: &AV)
   {
     // FIXME: this does not seem opitmal
     let delta = One::one::<M>().rotated(rot);
