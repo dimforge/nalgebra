@@ -13,8 +13,12 @@ use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub}
 pub struct Vec1<T>
 { x : T }
 
-pub fn vec1<T:Copy>(x: T) -> Vec1<T>
-{ Vec1 {x: x} }
+
+impl<T: Copy> Vec1<T>
+{
+  pub fn new(x: T) -> Vec1<T>
+  { Vec1 {x: x} }
+}
 
 impl<T> Dim for Vec1<T>
 {
@@ -25,13 +29,13 @@ impl<T> Dim for Vec1<T>
 impl<T:Copy + Add<T,T>> Add<Vec1<T>, Vec1<T>> for Vec1<T>
 {
   fn add(&self, other: &Vec1<T>) -> Vec1<T>
-  { vec1(self.x + other.x) }
+  { Vec1::new(self.x + other.x) }
 }
 
 impl<T:Copy + Sub<T,T>> Sub<Vec1<T>, Vec1<T>> for Vec1<T>
 {
   fn sub(&self, other: &Vec1<T>) -> Vec1<T>
-  { vec1(self.x - other.x) }
+  { Vec1::new(self.x - other.x) }
 }
 
 impl<T: Copy + Mul<T, T>>
@@ -109,7 +113,7 @@ Norm<T> for Vec1<T>
   { self.sqnorm().sqrt() }
 
   fn normalized(&self) -> Vec1<T>
-  { vec1(self.x / self.norm()) }
+  { Vec1::new(self.x / self.norm()) }
 
   fn normalize(&mut self) -> T
   {
@@ -124,7 +128,7 @@ Norm<T> for Vec1<T>
 impl<T:Copy + Neg<T>> Neg<Vec1<T>> for Vec1<T>
 {
   fn neg(&self) -> Vec1<T>
-  { vec1(-self.x) }
+  { Vec1::new(-self.x) }
 }
 
 impl<T:Copy + Zero> Zero for Vec1<T>
@@ -132,7 +136,7 @@ impl<T:Copy + Zero> Zero for Vec1<T>
   fn zero() -> Vec1<T>
   {
     let _0 = Zero::zero();
-    vec1(_0)
+    Vec1::new(_0)
   }
 
   fn is_zero(&self) -> bool
@@ -142,7 +146,7 @@ impl<T:Copy + Zero> Zero for Vec1<T>
 impl<T: Copy + One> Basis for Vec1<T>
 {
   fn canonical_basis()     -> ~[Vec1<T>]
-  { ~[ vec1(One::one()) ] } // FIXME: this should be static
+  { ~[ Vec1::new(One::one()) ] } // FIXME: this should be static
 
   fn orthogonal_subspace_basis(&self) -> ~[Vec1<T>]
   { ~[] }
@@ -163,5 +167,5 @@ impl<T:ApproxEq<T>> ApproxEq<T> for Vec1<T>
 impl<T:Rand + Copy> Rand for Vec1<T>
 {
   fn rand<R: Rng>(rng: &mut R) -> Vec1<T>
-  { vec1(rng.gen()) }
+  { Vec1::new(rng.gen()) }
 }

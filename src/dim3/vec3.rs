@@ -18,8 +18,11 @@ pub struct Vec3<T>
   z : T
 }
 
-pub fn vec3<T:Copy>(x: T, y: T, z: T) -> Vec3<T>
-{ Vec3 {x: x, y: y, z: z} }
+impl<T: Copy> Vec3<T>
+{
+  pub fn new(x: T, y: T, z: T) -> Vec3<T>
+  { Vec3 {x: x, y: y, z: z} }
+}
 
 impl<T> Dim for Vec3<T>
 {
@@ -30,13 +33,13 @@ impl<T> Dim for Vec3<T>
 impl<T:Copy + Add<T,T>> Add<Vec3<T>, Vec3<T>> for Vec3<T>
 {
   fn add(&self, other: &Vec3<T>) -> Vec3<T>
-  { vec3(self.x + other.x, self.y + other.y, self.z + other.z) }
+  { Vec3::new(self.x + other.x, self.y + other.y, self.z + other.z) }
 }
 
 impl<T:Copy + Sub<T,T>> Sub<Vec3<T>, Vec3<T>> for Vec3<T>
 {
   fn sub(&self, other: &Vec3<T>) -> Vec3<T>
-  { vec3(self.x - other.x, self.y - other.y, self.z - other.z) }
+  { Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z) }
 }
 
 impl<T: Copy + Mul<T, T>>
@@ -113,7 +116,7 @@ impl<T: Copy + Add<T, T>> Translation<Vec3<T>> for Vec3<T>
 impl<T:Copy + Neg<T>> Neg<Vec3<T>> for Vec3<T>
 {
   fn neg(&self) -> Vec3<T>
-  { vec3(-self.x, -self.y, -self.z) }
+  { Vec3::new(-self.x, -self.y, -self.z) }
 }
 
 impl<T:Copy + Mul<T, T> + Add<T, T>> Dot<T> for Vec3<T>
@@ -141,7 +144,7 @@ Norm<T> for Vec3<T>
   {
     let l = self.norm();
 
-    vec3(self.x / l, self.y / l, self.z / l)
+    Vec3::new(self.x / l, self.y / l, self.z / l)
   }
 
   fn normalize(&mut self) -> T
@@ -160,7 +163,7 @@ impl<T:Copy + Mul<T, T> + Sub<T, T>> Cross<Vec3<T>> for Vec3<T>
 {
   fn cross(&self, other : &Vec3<T>) -> Vec3<T>
   {
-    vec3(
+    Vec3::new(
       self.y * other.z - self.z * other.y,
       self.z * other.x - self.x * other.z,
       self.x * other.y - self.y * other.x
@@ -173,7 +176,7 @@ impl<T:Copy + Zero> Zero for Vec3<T>
   fn zero() -> Vec3<T>
   {
     let _0 = Zero::zero();
-    vec3(_0, _0, _0)
+    Vec3::new(_0, _0, _0)
   }
 
   fn is_zero(&self) -> bool
@@ -187,18 +190,18 @@ Basis for Vec3<T>
   fn canonical_basis() -> ~[Vec3<T>]
   {
     // FIXME: this should be static
-    ~[ vec3(One::one(), Zero::zero(), Zero::zero()),
-       vec3(Zero::zero(), One::one(), Zero::zero()),
-       vec3(Zero::zero(), Zero::zero(), One::one()) ]
+    ~[ Vec3::new(One::one(), Zero::zero(), Zero::zero()),
+       Vec3::new(Zero::zero(), One::one(), Zero::zero()),
+       Vec3::new(Zero::zero(), Zero::zero(), One::one()) ]
   }
 
   fn orthogonal_subspace_basis(&self) -> ~[Vec3<T>]
   {
       let a = 
         if (abs(self.x) > abs(self.y))
-        { vec3(self.z, Zero::zero(), -self.x).normalized() }
+        { Vec3::new(self.z, Zero::zero(), -self.x).normalized() }
         else
-        { vec3(Zero::zero(), -self.z, self.y).normalized() };
+        { Vec3::new(Zero::zero(), -self.z, self.y).normalized() };
 
       ~[ a, a.cross(self) ]
   }
@@ -227,5 +230,5 @@ impl<T:ApproxEq<T>> ApproxEq<T> for Vec3<T>
 impl<T:Copy + Rand> Rand for Vec3<T>
 {
   fn rand<R: Rng>(rng: &mut R) -> Vec3<T>
-  { vec3(rng.gen(), rng.gen(), rng.gen()) }
+  { Vec3::new(rng.gen(), rng.gen(), rng.gen()) }
 }

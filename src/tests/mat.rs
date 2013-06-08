@@ -11,7 +11,7 @@ use traits::rotation::Rotation;
 // #[test]
 // use traits::dim::d7;
 #[test]
-use dim1::vec1::vec1;
+use dim1::vec1::Vec1;
 #[test]
 use dim1::mat1::Mat1;
 #[test]
@@ -57,7 +57,7 @@ fn test_rotation2()
   for 10000.times
   {
     let randmat = One::one::<Rotmat<Mat2<f64>>>();
-    let ang     = &vec1(abs::<f64>(random()) % Real::pi());
+    let ang     = &Vec1::new(abs::<f64>(random()) % Real::pi());
 
     assert!(randmat.rotated(ang).rotation().approx_eq(ang));
   }

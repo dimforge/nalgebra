@@ -7,9 +7,9 @@ use traits::inv::Inv;
 use traits::transpose::Transpose;
 use traits::rotation::Rotation;
 use traits::delta_transform::DeltaTransform;
-use dim1::vec1::{Vec1, vec1};
-use dim2::mat2::{Mat2, mat2};
-use dim3::mat3::{Mat3, mat3};
+use dim1::vec1::Vec1;
+use dim2::mat2::Mat2;
+use dim3::mat3::Mat3;
 use dim3::vec3::{Vec3};
 
 #[deriving(Eq, ToStr)]
@@ -30,7 +30,7 @@ pub fn rotmat2<T: Copy + Trigonometric + Neg<T>>(angle: T) -> Rotmat<Mat2<T>>
   let sia = angle.sin();
 
   Rotmat
-  { submat: mat2(coa, -sia, sia, coa) }
+  { submat: Mat2::new(coa, -sia, sia, coa) }
 }
 
 pub fn rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
@@ -49,7 +49,7 @@ pub fn rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
   let sin       = angle.sin();
 
   Rotmat {
-    submat: mat3(
+    submat: Mat3::new(
       (sqx + (_1 - sqx) * cos),
       (ux * uy * one_m_cos - uz * sin),
       (ux * uz * one_m_cos + uy * sin),
@@ -68,7 +68,7 @@ impl<T: Div<T, T> + Trigonometric + Neg<T> + Mul<T, T> + Add<T, T> + Copy>
 Rotation<Vec1<T>> for Rotmat<Mat2<T>>
 {
   fn rotation(&self) -> Vec1<T>
-  { vec1(-(self.submat.m12 / self.submat.m11).atan()) }
+  { Vec1::new(-(self.submat.m12 / self.submat.m11).atan()) }
 
   fn rotated(&self, rot: &Vec1<T>) -> Rotmat<Mat2<T>>
   { rotmat2(rot.x) * *self }
