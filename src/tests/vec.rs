@@ -49,9 +49,7 @@ macro_rules! test_basis_impl(
         |(e1, e2)| { e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero()) }
       );
       // check vectors form an orthonormal basis
-      assert!(
-        do basis.iter().all |e| { e.norm().approx_eq(&One::one()) }
-      );
+      assert!(basis.all(|e| e.norm().approx_eq(&One::one())));
     }
   );
 )
@@ -65,18 +63,14 @@ macro_rules! test_subspace_basis_impl(
       let subbasis      = v1.orthogonal_subspace_basis();
 
       // check vectors are orthogonal to v1
-      assert!(
-        do subbasis.iter().all |e| { v1.dot(e).approx_eq(&Zero::zero()) }
-      );
+      assert!(subbasis.all(|e| v1.dot(e).approx_eq(&Zero::zero())));
       // check vectors form an ortogonal basis
       assert!(
         do subbasis.iter().zip(subbasis.iter()).all
            |(e1, e2)| { e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero()) }
       );
       // check vectors form an orthonormal basis
-      assert!(
-        do subbasis.iter().all |e| { e.norm().approx_eq(&One::one()) }
-      );
+      assert!(subbasis.all(|e| e.norm().approx_eq(&One::one())));
     }
   );
 )
