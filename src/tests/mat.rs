@@ -24,7 +24,7 @@ use dim3::mat3::Mat3;
 use adaptors::rotmat::Rotmat;
 
 macro_rules! test_inv_mat_impl(
-  ($t:ty) => (
+  ($t: ty) => (
     for 10000.times
     {
       let randmat : $t = random();

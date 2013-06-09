@@ -26,7 +26,7 @@ use traits::dot::Dot;
 use traits::norm::Norm;
 
 macro_rules! test_commut_dot_impl(
-  ($t:ty) => (
+  ($t: ty) => (
     for 10000.times
     {
       let v1 : $t = random();
@@ -38,7 +38,7 @@ macro_rules! test_commut_dot_impl(
 )
 
 macro_rules! test_basis_impl(
-  ($t:ty) => (
+  ($t: ty) => (
     for 10000.times
     {
       let basis = Basis::canonical_basis::<$t>();
@@ -55,7 +55,7 @@ macro_rules! test_basis_impl(
 )
 
 macro_rules! test_subspace_basis_impl(
-  ($t:ty) => (
+  ($t: ty) => (
     for 10000.times
     {
       let v : Vec3<f64> = random();
