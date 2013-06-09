@@ -5,17 +5,17 @@
  * exemple does not compile (end with an ICE):
  *
  * ~~~
- * trait Mul<V, T> for T
- * trait Mul<V2, T> for T
+ * trait Mul<V, N> for N
+ * trait Mul<V2, N> for N
  * ~~~
  */
-pub trait ScalarMul<T>
+pub trait ScalarMul<N>
 {
   /// Gets the result of a multiplication by a scalar.
-  fn scalar_mul(&self, &T) -> Self;
+  fn scalar_mul(&self, &N) -> Self;
 
   /// In-place version of `scalar_mul`.
-  fn scalar_mul_inplace(&mut self, &T);
+  fn scalar_mul_inplace(&mut self, &N);
 }
 
 /**
@@ -25,17 +25,17 @@ pub trait ScalarMul<T>
  * exemple does not compile (end with an ICE):
  *
  * ~~~
- * trait Div<V, T> for T
- * trait Div<V2, T> for T
+ * trait Div<V, N> for N
+ * trait Div<V2, N> for N
  * ~~~
  */
-pub trait ScalarDiv<T>
+pub trait ScalarDiv<N>
 {
   /// Gets the result of a division by a scalar.
-  fn scalar_div(&self, &T) -> Self;
+  fn scalar_div(&self, &N) -> Self;
 
   /// In-place version of `scalar_div`.
-  fn scalar_div_inplace(&mut self, &T);
+  fn scalar_div_inplace(&mut self, &N);
 }
 
 /**
@@ -45,17 +45,17 @@ pub trait ScalarDiv<T>
  * exemple does not compile (end with an ICE):
  *
  * ~~~
- * trait Add<V, T> for T
- * trait Add<V2, T> for T
+ * trait Add<V, N> for N
+ * trait Add<V2, N> for N
  * ~~~
  */
-pub trait ScalarAdd<T>
+pub trait ScalarAdd<N>
 {
   /// Gets the result of an addition by a scalar.
-  fn scalar_add(&self, &T) -> Self;
+  fn scalar_add(&self, &N) -> Self;
 
   /// In-place version of `scalar_add`.
-  fn scalar_add_inplace(&mut self, &T);
+  fn scalar_add_inplace(&mut self, &N);
 }
 
 /**
@@ -65,15 +65,15 @@ pub trait ScalarAdd<T>
  * exemple does not compile (end with an ICE):
  *
  * ~~~
- * trait Sub<V, T> for T
- * trait Sub<V2, T> for T
+ * trait Sub<V, N> for N
+ * trait Sub<V2, N> for N
  * ~~~
  */
-pub trait ScalarSub<T>
+pub trait ScalarSub<N>
 {
   /// Gets the result of a subtraction by a scalar.
-  fn scalar_sub(&self, &T) -> Self;
+  fn scalar_sub(&self, &N) -> Self;
 
   /// In-place version of `scalar_sub`.
-  fn scalar_sub_inplace(&mut self, &T);
+  fn scalar_sub_inplace(&mut self, &N);
 }

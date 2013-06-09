@@ -24,7 +24,7 @@ impl<M: Copy> Rotmat<M>
   { self.submat }
 }
 
-pub fn rotmat2<T: Copy + Trigonometric + Neg<T>>(angle: T) -> Rotmat<Mat2<T>>
+pub fn rotmat2<N: Copy + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
 {
   let coa = angle.cos();
   let sia = angle.sin();
@@ -33,11 +33,11 @@ pub fn rotmat2<T: Copy + Trigonometric + Neg<T>>(angle: T) -> Rotmat<Mat2<T>>
   { submat: Mat2::new(coa, -sia, sia, coa) }
 }
 
-pub fn rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
-                  Mul<T, T>>
-(axis: &Vec3<T>, angle: T) -> Rotmat<Mat3<T>>
+pub fn rotmat3<N: Copy + Trigonometric + Neg<N> + One + Sub<N, N> + Add<N, N> +
+                  Mul<N, N>>
+(axis: &Vec3<N>, angle: N) -> Rotmat<Mat3<N>>
 {
-  let _1        = One::one::<T>();
+  let _1        = One::one::<N>();
   let ux        = axis.x;
   let uy        = axis.y;
   let uz        = axis.z;
@@ -64,44 +64,44 @@ pub fn rotmat3<T: Copy + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
   }
 }
 
-impl<T: Div<T, T> + Trigonometric + Neg<T> + Mul<T, T> + Add<T, T> + Copy>
-Rotation<Vec1<T>> for Rotmat<Mat2<T>>
+impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy>
+Rotation<Vec1<N>> for Rotmat<Mat2<N>>
 {
-  fn rotation(&self) -> Vec1<T>
+  fn rotation(&self) -> Vec1<N>
   { Vec1::new(-(self.submat.m12 / self.submat.m11).atan()) }
 
-  fn rotated(&self, rot: &Vec1<T>) -> Rotmat<Mat2<T>>
+  fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>>
   { rotmat2(rot.x) * *self }
 
-  fn rotate(&mut self, rot: &Vec1<T>)
+  fn rotate(&mut self, rot: &Vec1<N>)
   { *self = self.rotated(rot) }
 }
 
-impl<T: Div<T, T> + Trigonometric + Neg<T> + Mul<T, T> + Add<T, T> + Copy +
-        One + Sub<T, T>>
-Rotation<(Vec3<T>, T)> for Rotmat<Mat3<T>>
+impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy +
+        One + Sub<N, N>>
+Rotation<(Vec3<N>, N)> for Rotmat<Mat3<N>>
 {
-  fn rotation(&self) -> (Vec3<T>, T)
+  fn rotation(&self) -> (Vec3<N>, N)
   { fail!("Not yet implemented.") }
 
-  fn rotated(&self, &(axis, angle): &(Vec3<T>, T)) -> Rotmat<Mat3<T>>
+  fn rotated(&self, &(axis, angle): &(Vec3<N>, N)) -> Rotmat<Mat3<N>>
   { rotmat3(&axis, angle) * *self }
 
-  fn rotate(&mut self, rot: &(Vec3<T>, T))
+  fn rotate(&mut self, rot: &(Vec3<N>, N))
   { *self = self.rotated(rot) }
 }
 
-impl<T: Copy + Rand + Trigonometric + Neg<T>> Rand for Rotmat<Mat2<T>>
+impl<N: Copy + Rand + Trigonometric + Neg<N>> Rand for Rotmat<Mat2<N>>
 {
-  fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat2<T>>
+  fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat2<N>>
   { rotmat2(rng.gen()) }
 }
 
-impl<T: Copy + Rand + Trigonometric + Neg<T> + One + Sub<T, T> + Add<T, T> +
-       Mul<T, T>>
-Rand for Rotmat<Mat3<T>>
+impl<N: Copy + Rand + Trigonometric + Neg<N> + One + Sub<N, N> + Add<N, N> +
+       Mul<N, N>>
+Rand for Rotmat<Mat3<N>>
 {
-  fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat3<T>>
+  fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat3<N>>
   { rotmat3(&rng.gen(), rng.gen()) }
 }
 
@@ -160,14 +160,14 @@ Transpose for Rotmat<M>
   { self.submat.transpose() }
 }
 
-impl<T: ApproxEq<T>, M: ApproxEq<T>> ApproxEq<T> for Rotmat<M>
+impl<N: ApproxEq<N>, M: ApproxEq<N>> ApproxEq<N> for Rotmat<M>
 {
-  fn approx_epsilon() -> T
-  { ApproxEq::approx_epsilon::<T, T>() }
+  fn approx_epsilon() -> N
+  { ApproxEq::approx_epsilon::<N, N>() }
 
   fn approx_eq(&self, other: &Rotmat<M>) -> bool
   { self.submat.approx_eq(&other.submat) }
 
-  fn approx_eq_eps(&self, other: &Rotmat<M>, epsilon: &T) -> bool
+  fn approx_eq_eps(&self, other: &Rotmat<M>, epsilon: &N) -> bool
   { self.submat.approx_eq_eps(&other.submat, epsilon) }
 }

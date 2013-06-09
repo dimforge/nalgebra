@@ -12,43 +12,43 @@ use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq, ToStr)]
-pub struct Vec2<T>
+pub struct Vec2<N>
 {
-  x : T,
-  y : T
+  x : N,
+  y : N
 }
 
-impl<T: Copy> Vec2<T>
+impl<N: Copy> Vec2<N>
 {
-  pub fn new(x: T, y: T) -> Vec2<T>
+  pub fn new(x: N, y: N) -> Vec2<N>
   { Vec2 {x: x, y: y} }
 }
 
-impl<T> Dim for Vec2<T>
+impl<N> Dim for Vec2<N>
 {
   fn dim() -> uint
   { 2 }
 }
 
-impl<T:Copy + Add<T,T>> Add<Vec2<T>, Vec2<T>> for Vec2<T>
+impl<N:Copy + Add<N,N>> Add<Vec2<N>, Vec2<N>> for Vec2<N>
 {
-  fn add(&self, other: &Vec2<T>) -> Vec2<T>
+  fn add(&self, other: &Vec2<N>) -> Vec2<N>
   { Vec2::new(self.x + other.x, self.y + other.y) }
 }
 
-impl<T:Copy + Sub<T,T>> Sub<Vec2<T>, Vec2<T>> for Vec2<T>
+impl<N:Copy + Sub<N,N>> Sub<Vec2<N>, Vec2<N>> for Vec2<N>
 {
-  fn sub(&self, other: &Vec2<T>) -> Vec2<T>
+  fn sub(&self, other: &Vec2<N>) -> Vec2<N>
   { Vec2::new(self.x - other.x, self.y - other.y) }
 }
 
-impl<T: Copy + Mul<T, T>>
-ScalarMul<T> for Vec2<T>
+impl<N: Copy + Mul<N, N>>
+ScalarMul<N> for Vec2<N>
 {
-  fn scalar_mul(&self, s: &T) -> Vec2<T>
+  fn scalar_mul(&self, s: &N) -> Vec2<N>
   { Vec2 { x: self.x * *s, y: self.y * *s } }
 
-  fn scalar_mul_inplace(&mut self, s: &T)
+  fn scalar_mul_inplace(&mut self, s: &N)
   {
     self.x *= *s;
     self.y *= *s;
@@ -56,86 +56,86 @@ ScalarMul<T> for Vec2<T>
 }
 
 
-impl<T: Copy + Div<T, T>>
-ScalarDiv<T> for Vec2<T>
+impl<N: Copy + Div<N, N>>
+ScalarDiv<N> for Vec2<N>
 {
-  fn scalar_div(&self, s: &T) -> Vec2<T>
+  fn scalar_div(&self, s: &N) -> Vec2<N>
   { Vec2 { x: self.x / *s, y: self.y / *s } }
 
-  fn scalar_div_inplace(&mut self, s: &T)
+  fn scalar_div_inplace(&mut self, s: &N)
   {
     self.x /= *s;
     self.y /= *s;
   }
 }
 
-impl<T: Copy + Add<T, T>>
-ScalarAdd<T> for Vec2<T>
+impl<N: Copy + Add<N, N>>
+ScalarAdd<N> for Vec2<N>
 {
-  fn scalar_add(&self, s: &T) -> Vec2<T>
+  fn scalar_add(&self, s: &N) -> Vec2<N>
   { Vec2 { x: self.x + *s, y: self.y + *s } }
 
-  fn scalar_add_inplace(&mut self, s: &T)
+  fn scalar_add_inplace(&mut self, s: &N)
   {
     self.x += *s;
     self.y += *s;
   }
 }
 
-impl<T: Copy + Sub<T, T>>
-ScalarSub<T> for Vec2<T>
+impl<N: Copy + Sub<N, N>>
+ScalarSub<N> for Vec2<N>
 {
-  fn scalar_sub(&self, s: &T) -> Vec2<T>
+  fn scalar_sub(&self, s: &N) -> Vec2<N>
   { Vec2 { x: self.x - *s, y: self.y - *s } }
 
-  fn scalar_sub_inplace(&mut self, s: &T)
+  fn scalar_sub_inplace(&mut self, s: &N)
   {
     self.x -= *s;
     self.y -= *s;
   }
 }
 
-impl<T: Copy + Add<T, T>> Translation<Vec2<T>> for Vec2<T>
+impl<N: Copy + Add<N, N>> Translation<Vec2<N>> for Vec2<N>
 {
-  fn translation(&self) -> Vec2<T>
+  fn translation(&self) -> Vec2<N>
   { *self }
 
-  fn translated(&self, t: &Vec2<T>) -> Vec2<T>
+  fn translated(&self, t: &Vec2<N>) -> Vec2<N>
   { self + *t }
 
-  fn translate(&mut self, t: &Vec2<T>)
+  fn translate(&mut self, t: &Vec2<N>)
   { *self += *t; }
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T>> Dot<T> for Vec2<T>
+impl<N:Copy + Mul<N, N> + Add<N, N>> Dot<N> for Vec2<N>
 {
-  fn dot(&self, other : &Vec2<T>) -> T
+  fn dot(&self, other : &Vec2<N>) -> N
   { self.x * other.x + self.y * other.y } 
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T> + Sub<T, T>> SubDot<T> for Vec2<T>
+impl<N:Copy + Mul<N, N> + Add<N, N> + Sub<N, N>> SubDot<N> for Vec2<N>
 {
-  fn sub_dot(&self, a: &Vec2<T>, b: &Vec2<T>) -> T
+  fn sub_dot(&self, a: &Vec2<N>, b: &Vec2<N>) -> N
   { (self.x - a.x) * b.x + (self.y - a.y) * b.y } 
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T> + Div<T, T> + Algebraic>
-Norm<T> for Vec2<T>
+impl<N:Copy + Mul<N, N> + Add<N, N> + Div<N, N> + Algebraic>
+Norm<N> for Vec2<N>
 {
-  fn sqnorm(&self) -> T
+  fn sqnorm(&self) -> N
   { self.dot(self) }
 
-  fn norm(&self) -> T
+  fn norm(&self) -> N
   { self.sqnorm().sqrt() }
 
-  fn normalized(&self) -> Vec2<T>
+  fn normalized(&self) -> Vec2<N>
   {
     let l = self.norm();
 
     Vec2::new(self.x / l, self.y / l)
   }
 
-  fn normalize(&mut self) -> T
+  fn normalize(&mut self) -> N
   {
     let l = self.norm();
 
@@ -146,21 +146,21 @@ Norm<T> for Vec2<T>
   }
 }
 
-impl<T:Copy + Mul<T, T> + Sub<T, T>> Cross<Vec1<T>> for Vec2<T>
+impl<N:Copy + Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N>
 {
-  fn cross(&self, other : &Vec2<T>) -> Vec1<T>
+  fn cross(&self, other : &Vec2<N>) -> Vec1<N>
   { Vec1::new(self.x * other.y - self.y * other.x) }
 }
 
-impl<T:Copy + Neg<T>> Neg<Vec2<T>> for Vec2<T>
+impl<N:Copy + Neg<N>> Neg<Vec2<N>> for Vec2<N>
 {
-  fn neg(&self) -> Vec2<T>
+  fn neg(&self) -> Vec2<N>
   { Vec2::new(-self.x, -self.y) }
 }
 
-impl<T:Copy + Zero> Zero for Vec2<T>
+impl<N:Copy + Zero> Zero for Vec2<N>
 {
-  fn zero() -> Vec2<T>
+  fn zero() -> Vec2<N>
   {
     let _0 = Zero::zero();
     Vec2::new(_0, _0)
@@ -170,36 +170,36 @@ impl<T:Copy + Zero> Zero for Vec2<T>
   { self.x.is_zero() && self.y.is_zero() }
 }
 
-impl<T: Copy + One + Zero + Neg<T>> Basis for Vec2<T>
+impl<N: Copy + One + Zero + Neg<N>> Basis for Vec2<N>
 {
-  fn canonical_basis()     -> ~[Vec2<T>]
+  fn canonical_basis()     -> ~[Vec2<N>]
   {
     // FIXME: this should be static
     ~[ Vec2::new(One::one(), Zero::zero()),
        Vec2::new(Zero::zero(), One::one()) ]
   }
 
-  fn orthogonal_subspace_basis(&self) -> ~[Vec2<T>]
+  fn orthogonal_subspace_basis(&self) -> ~[Vec2<N>]
   { ~[ Vec2::new(-self.y, self.x) ] }
 }
 
-impl<T:ApproxEq<T>> ApproxEq<T> for Vec2<T>
+impl<N:ApproxEq<N>> ApproxEq<N> for Vec2<N>
 {
-  fn approx_epsilon() -> T
-  { ApproxEq::approx_epsilon::<T, T>() }
+  fn approx_epsilon() -> N
+  { ApproxEq::approx_epsilon::<N, N>() }
 
-  fn approx_eq(&self, other: &Vec2<T>) -> bool
+  fn approx_eq(&self, other: &Vec2<N>) -> bool
   { self.x.approx_eq(&other.x) && self.y.approx_eq(&other.y) }
 
-  fn approx_eq_eps(&self, other: &Vec2<T>, epsilon: &T) -> bool
+  fn approx_eq_eps(&self, other: &Vec2<N>, epsilon: &N) -> bool
   {
     self.x.approx_eq_eps(&other.x, epsilon) &&
     self.y.approx_eq_eps(&other.y, epsilon)
   }
 }
 
-impl<T:Rand + Copy> Rand for Vec2<T>
+impl<N:Rand + Copy> Rand for Vec2<N>
 {
-  fn rand<R: Rng>(rng: &mut R) -> Vec2<T>
+  fn rand<R: Rng>(rng: &mut R) -> Vec2<N>
   { Vec2::new(rng.gen(), rng.gen()) }
 }

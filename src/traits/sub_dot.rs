@@ -1,4 +1,4 @@
-pub trait SubDot<T>
+pub trait SubDot<N>
 {
   /**
    * Short-cut to compute the projecton of a point on a vector, but without
@@ -8,5 +8,5 @@ pub trait SubDot<T>
    *   (a - b).dot(c)
    *
    */
-  fn sub_dot(&self, b: &Self, c: &Self) -> T;
+  fn sub_dot(&self, b: &Self, c: &Self) -> N;
 }

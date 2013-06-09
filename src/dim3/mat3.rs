@@ -9,18 +9,18 @@ use traits::workarounds::rlmul::{RMul, LMul};
 use dim3::vec3::Vec3;
 
 #[deriving(Eq, ToStr)]
-pub struct Mat3<T>
+pub struct Mat3<N>
 {
-    m11: T, m12: T, m13: T,
-    m21: T, m22: T, m23: T,
-    m31: T, m32: T, m33: T
+    m11: N, m12: N, m13: N,
+    m21: N, m22: N, m23: N,
+    m31: N, m32: N, m33: N
 }
 
-impl<T: Copy> Mat3<T>
+impl<N: Copy> Mat3<N>
 {
-  pub fn new(m11: T, m12: T, m13: T,
-             m21: T, m22: T, m23: T,
-             m31: T, m32: T, m33: T) -> Mat3<T>
+  pub fn new(m11: N, m12: N, m13: N,
+             m21: N, m22: N, m23: N,
+             m31: N, m32: N, m33: N) -> Mat3<N>
   {
     Mat3
     {
@@ -31,15 +31,15 @@ impl<T: Copy> Mat3<T>
   }
 }
 
-impl<T> Dim for Mat3<T>
+impl<N> Dim for Mat3<N>
 {
   fn dim() -> uint
   { 3 }
 }
 
-impl<T:Copy + One + Zero> One for Mat3<T>
+impl<N:Copy + One + Zero> One for Mat3<N>
 {
-  fn one() -> Mat3<T>
+  fn one() -> Mat3<N>
   {
     let (_0, _1) = (Zero::zero(), One::one());
     return Mat3::new(_1, _0, _0,
@@ -48,9 +48,9 @@ impl<T:Copy + One + Zero> One for Mat3<T>
   }
 }
 
-impl<T:Copy + Zero> Zero for Mat3<T>
+impl<N:Copy + Zero> Zero for Mat3<N>
 {
-  fn zero() -> Mat3<T>
+  fn zero() -> Mat3<N>
   {
     let _0 = Zero::zero();
     return Mat3::new(_0, _0, _0,
@@ -66,9 +66,9 @@ impl<T:Copy + Zero> Zero for Mat3<T>
   }
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat3<T>, Mat3<T>> for Mat3<T>
+impl<N:Copy + Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N>
 {
-  fn mul(&self, other: &Mat3<T>) -> Mat3<T>
+  fn mul(&self, other: &Mat3<N>) -> Mat3<N>
   {
     Mat3::new(
       self.m11 * other.m11  + self.m12 * other.m21 + self.m13 * other.m31,
@@ -86,9 +86,9 @@ impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat3<T>, Mat3<T>> for Mat3<T>
   }
 }
 
-impl<T:Copy + Add<T, T> + Mul<T, T>> RMul<Vec3<T>> for Mat3<T>
+impl<N:Copy + Add<N, N> + Mul<N, N>> RMul<Vec3<N>> for Mat3<N>
 {
-  fn rmul(&self, other: &Vec3<T>) -> Vec3<T>
+  fn rmul(&self, other: &Vec3<N>) -> Vec3<N>
   {
     Vec3::new(
       self.m11 * other.x + self.m12 * other.y + self.m13 * other.z,
@@ -98,9 +98,9 @@ impl<T:Copy + Add<T, T> + Mul<T, T>> RMul<Vec3<T>> for Mat3<T>
   }
 }
 
-impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec3<T>> for Mat3<T>
+impl<N:Copy + Add<N, N> + Mul<N, N>> LMul<Vec3<N>> for Mat3<N>
 {
-  fn lmul(&self, other: &Vec3<T>) -> Vec3<T>
+  fn lmul(&self, other: &Vec3<N>) -> Vec3<N>
   {
     Vec3::new(
       self.m11 * other.x + self.m21 * other.y + self.m31 * other.z,
@@ -110,10 +110,10 @@ impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec3<T>> for Mat3<T>
   }
 }
 
-impl<T:Copy + Mul<T, T> + Div<T, T> + Sub<T, T> + Add<T, T> + Neg<T> + Zero>
-Inv for Mat3<T>
+impl<N:Copy + Mul<N, N> + Div<N, N> + Sub<N, N> + Add<N, N> + Neg<N> + Zero>
+Inv for Mat3<N>
 {
-  fn inverse(&self) -> Mat3<T>
+  fn inverse(&self) -> Mat3<N>
   {
     let mut res = *self;
 
@@ -150,9 +150,9 @@ Inv for Mat3<T>
   }
 }
 
-impl<T:Copy> Transpose for Mat3<T>
+impl<N:Copy> Transpose for Mat3<N>
 {
-  fn transposed(&self) -> Mat3<T>
+  fn transposed(&self) -> Mat3<N>
   {
     Mat3::new(self.m11, self.m21, self.m31,
               self.m12, self.m22, self.m32,
@@ -167,12 +167,12 @@ impl<T:Copy> Transpose for Mat3<T>
   }
 }
 
-impl<T:ApproxEq<T>> ApproxEq<T> for Mat3<T>
+impl<N:ApproxEq<N>> ApproxEq<N> for Mat3<N>
 {
-  fn approx_epsilon() -> T
-  { ApproxEq::approx_epsilon::<T, T>() }
+  fn approx_epsilon() -> N
+  { ApproxEq::approx_epsilon::<N, N>() }
 
-  fn approx_eq(&self, other: &Mat3<T>) -> bool
+  fn approx_eq(&self, other: &Mat3<N>) -> bool
   {
     self.m11.approx_eq(&other.m11) &&
     self.m12.approx_eq(&other.m12) &&
@@ -187,7 +187,7 @@ impl<T:ApproxEq<T>> ApproxEq<T> for Mat3<T>
     self.m33.approx_eq(&other.m33)
   }
 
-  fn approx_eq_eps(&self, other: &Mat3<T>, epsilon: &T) -> bool
+  fn approx_eq_eps(&self, other: &Mat3<N>, epsilon: &N) -> bool
   {
     self.m11.approx_eq_eps(&other.m11, epsilon) &&
     self.m12.approx_eq_eps(&other.m12, epsilon) &&
@@ -203,9 +203,9 @@ impl<T:ApproxEq<T>> ApproxEq<T> for Mat3<T>
   }
 }
 
-impl<T:Rand + Copy> Rand for Mat3<T>
+impl<N:Rand + Copy> Rand for Mat3<N>
 {
-  fn rand<R: Rng>(rng: &mut R) -> Mat3<T>
+  fn rand<R: Rng>(rng: &mut R) -> Mat3<N>
   {
     Mat3::new(rng.gen(), rng.gen(), rng.gen(),
               rng.gen(), rng.gen(), rng.gen(),

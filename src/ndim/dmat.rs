@@ -10,22 +10,22 @@ use traits::workarounds::rlmul::{RMul, LMul};
 use ndim::dvec::{DVec, zero_vec_with_dim};
 
 #[deriving(Eq, ToStr, Clone)]
-pub struct DMat<T>
+pub struct DMat<N>
 {
   dim: uint, // FIXME: handle more than just square matrices
-  mij: ~[T]
+  mij: ~[N]
 }
 
-pub fn zero_mat_with_dim<T: Zero + Copy>(dim: uint) -> DMat<T>
+pub fn zero_mat_with_dim<N: Zero + Copy>(dim: uint) -> DMat<N>
 { DMat { dim: dim, mij: from_elem(dim * dim, Zero::zero()) } }
 
-pub fn is_zero_mat<T: Zero>(mat: &DMat<T>) -> bool
+pub fn is_zero_mat<N: Zero>(mat: &DMat<N>) -> bool
 { mat.mij.all(|e| e.is_zero()) }
 
-pub fn one_mat_with_dim<T: Copy + One + Zero>(dim: uint) -> DMat<T>
+pub fn one_mat_with_dim<N: Copy + One + Zero>(dim: uint) -> DMat<N>
 {
   let mut res = zero_mat_with_dim(dim);
-  let     _1  = One::one::<T>();
+  let     _1  = One::one::<N>();
 
   for iterate(0u, dim) |i|
   { res.set(i, i, &_1); }
@@ -33,19 +33,19 @@ pub fn one_mat_with_dim<T: Copy + One + Zero>(dim: uint) -> DMat<T>
   res
 }
 
-impl<T: Copy> DMat<T>
+impl<N: Copy> DMat<N>
 {
   pub fn offset(&self, i: uint, j: uint) -> uint
   { i * self.dim + j }
 
-  pub fn set(&mut self, i: uint, j: uint, t: &T)
+  pub fn set(&mut self, i: uint, j: uint, t: &N)
   {
     assert!(i < self.dim);
     assert!(j < self.dim);
     self.mij[self.offset(i, j)] = *t
   }
 
-  pub fn at(&self, i: uint, j: uint) -> T
+  pub fn at(&self, i: uint, j: uint) -> N
   {
     assert!(i < self.dim);
     assert!(j < self.dim);
@@ -53,16 +53,16 @@ impl<T: Copy> DMat<T>
   }
 }
 
-impl<T: Copy> Index<(uint, uint), T> for DMat<T>
+impl<N: Copy> Index<(uint, uint), N> for DMat<N>
 {
-  fn index(&self, &(i, j): &(uint, uint)) -> T
+  fn index(&self, &(i, j): &(uint, uint)) -> N
   { self.at(i, j) }
 }
 
-impl<T: Copy + Mul<T, T> + Add<T, T> + Zero>
-Mul<DMat<T>, DMat<T>> for DMat<T>
+impl<N: Copy + Mul<N, N> + Add<N, N> + Zero>
+Mul<DMat<N>, DMat<N>> for DMat<N>
 {
-  fn mul(&self, other: &DMat<T>) -> DMat<T>
+  fn mul(&self, other: &DMat<N>) -> DMat<N>
   {
     assert!(self.dim == other.dim);
 
@@ -73,7 +73,7 @@ Mul<DMat<T>, DMat<T>> for DMat<T>
     {
       for iterate(0u, dim) |j|
       {
-        let mut acc = Zero::zero::<T>();
+        let mut acc = Zero::zero::<N>();
 
         for iterate(0u, dim) |k|
         { acc += self.at(i, k) * other.at(k, j); }
@@ -86,15 +86,15 @@ Mul<DMat<T>, DMat<T>> for DMat<T>
   }
 }
 
-impl<T: Copy + Add<T, T> + Mul<T, T> + Zero>
-RMul<DVec<T>> for DMat<T>
+impl<N: Copy + Add<N, N> + Mul<N, N> + Zero>
+RMul<DVec<N>> for DMat<N>
 {
-  fn rmul(&self, other: &DVec<T>) -> DVec<T>
+  fn rmul(&self, other: &DVec<N>) -> DVec<N>
   {
     assert!(self.dim == other.at.len());
 
     let     dim           = self.dim;
-    let mut res : DVec<T> = zero_vec_with_dim(dim);
+    let mut res : DVec<N> = zero_vec_with_dim(dim);
 
     for iterate(0u, dim) |i|
     {
@@ -106,15 +106,15 @@ RMul<DVec<T>> for DMat<T>
   }
 }
 
-impl<T: Copy + Add<T, T> + Mul<T, T> + Zero>
-LMul<DVec<T>> for DMat<T>
+impl<N: Copy + Add<N, N> + Mul<N, N> + Zero>
+LMul<DVec<N>> for DMat<N>
 {
-  fn lmul(&self, other: &DVec<T>) -> DVec<T>
+  fn lmul(&self, other: &DVec<N>) -> DVec<N>
   {
     assert!(self.dim == other.at.len());
 
     let     dim           = self.dim;
-    let mut res : DVec<T> = zero_vec_with_dim(dim);
+    let mut res : DVec<N> = zero_vec_with_dim(dim);
 
     for iterate(0u, dim) |i|
     {
@@ -126,12 +126,12 @@ LMul<DVec<T>> for DMat<T>
   }
 }
 
-impl<T: Clone + Copy + Eq + DivisionRing>
-Inv for DMat<T>
+impl<N: Clone + Copy + Eq + DivisionRing>
+Inv for DMat<N>
 {
-  fn inverse(&self) -> DMat<T>
+  fn inverse(&self) -> DMat<N>
   {
-    let mut res : DMat<T> = self.clone();
+    let mut res : DMat<N> = self.clone();
 
     res.invert();
 
@@ -141,8 +141,8 @@ Inv for DMat<T>
   fn invert(&mut self)
   {
     let     dim = self.dim;
-    let mut res = one_mat_with_dim::<T>(dim);
-    let     _0T = Zero::zero::<T>();
+    let mut res = one_mat_with_dim::<N>(dim);
+    let     _0T = Zero::zero::<N>();
 
     // inversion using Gauss-Jordan elimination
     for iterate(0u, dim) |k|
@@ -215,9 +215,9 @@ Inv for DMat<T>
   }
 }
 
-impl<T:Copy> Transpose for DMat<T>
+impl<N:Copy> Transpose for DMat<N>
 {
-  fn transposed(&self) -> DMat<T>
+  fn transposed(&self) -> DMat<N>
   {
     let mut res = copy *self;
 
@@ -243,19 +243,19 @@ impl<T:Copy> Transpose for DMat<T>
   }
 }
 
-impl<T: ApproxEq<T>> ApproxEq<T> for DMat<T>
+impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N>
 {
-  fn approx_epsilon() -> T
-  { ApproxEq::approx_epsilon::<T, T>() }
+  fn approx_epsilon() -> N
+  { ApproxEq::approx_epsilon::<N, N>() }
 
-  fn approx_eq(&self, other: &DMat<T>) -> bool
+  fn approx_eq(&self, other: &DMat<N>) -> bool
   {
     let mut zip = self.mij.iter().zip(other.mij.iter());
 
     do zip.all |(a, b)| { a.approx_eq(b) }
   }
 
-  fn approx_eq_eps(&self, other: &DMat<T>, epsilon: &T) -> bool
+  fn approx_eq_eps(&self, other: &DMat<N>, epsilon: &N) -> bool
   {
     let mut zip = self.mij.iter().zip(other.mij.iter());
 

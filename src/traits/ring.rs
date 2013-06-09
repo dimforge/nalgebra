@@ -10,5 +10,5 @@ pub trait Ring :
 Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Mul<Self, Self> + One + Zero
 { }
 
-impl<T: Sub<T, T> + Add<T, T> + Neg<T> + Mul<T, T> + One + Zero>
-Ring for T;
+impl<N: Sub<N, N> + Add<N, N> + Neg<N> + Mul<N, N> + One + Zero>
+Ring for N;

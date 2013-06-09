@@ -123,11 +123,11 @@ Inv for Transform<M, V>
   }
 }
 
-impl<T: ApproxEq<T>, M:ApproxEq<T>, V:ApproxEq<T>>
-ApproxEq<T> for Transform<M, V>
+impl<N: ApproxEq<N>, M:ApproxEq<N>, V:ApproxEq<N>>
+ApproxEq<N> for Transform<M, V>
 {
-  fn approx_epsilon() -> T
-  { ApproxEq::approx_epsilon::<T, T>() }
+  fn approx_epsilon() -> N
+  { ApproxEq::approx_epsilon::<N, N>() }
 
   fn approx_eq(&self, other: &Transform<M, V>) -> bool
   {
@@ -135,7 +135,7 @@ ApproxEq<T> for Transform<M, V>
     self.subtrans.approx_eq(&other.subtrans)
   }
 
-  fn approx_eq_eps(&self, other: &Transform<M, V>, epsilon: &T) -> bool
+  fn approx_eq_eps(&self, other: &Transform<M, V>, epsilon: &N) -> bool
   {
     self.submat.approx_eq_eps(&other.submat, epsilon) &&
     self.subtrans.approx_eq_eps(&other.subtrans, epsilon)

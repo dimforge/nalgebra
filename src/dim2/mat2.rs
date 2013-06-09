@@ -9,15 +9,15 @@ use traits::workarounds::rlmul::{RMul, LMul};
 use dim2::vec2::Vec2;
 
 #[deriving(Eq, ToStr)]
-pub struct Mat2<T>
+pub struct Mat2<N>
 {
-    m11: T, m12: T,
-    m21: T, m22: T
+    m11: N, m12: N,
+    m21: N, m22: N
 }
 
-impl<T: Copy> Mat2<T>
+impl<N: Copy> Mat2<N>
 {
-  pub fn new(m11: T, m12: T, m21: T, m22: T) -> Mat2<T>
+  pub fn new(m11: N, m12: N, m21: N, m22: N) -> Mat2<N>
   {
     Mat2
     {
@@ -27,15 +27,15 @@ impl<T: Copy> Mat2<T>
   }
 }
 
-impl<T> Dim for Mat2<T>
+impl<N> Dim for Mat2<N>
 {
   fn dim() -> uint
   { 2 }
 }
 
-impl<T:Copy + One + Zero> One for Mat2<T>
+impl<N:Copy + One + Zero> One for Mat2<N>
 {
-  fn one() -> Mat2<T>
+  fn one() -> Mat2<N>
   {
     let (_0, _1) = (Zero::zero(), One::one());
     return Mat2::new(_1, _0,
@@ -43,9 +43,9 @@ impl<T:Copy + One + Zero> One for Mat2<T>
   }
 }
 
-impl<T:Copy + Zero> Zero for Mat2<T>
+impl<N:Copy + Zero> Zero for Mat2<N>
 {
-  fn zero() -> Mat2<T>
+  fn zero() -> Mat2<N>
   {
     let _0 = Zero::zero();
     return Mat2::new(_0, _0,
@@ -59,9 +59,9 @@ impl<T:Copy + Zero> Zero for Mat2<T>
   }
 }
 
-impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat2<T>, Mat2<T>> for Mat2<T>
+impl<N:Copy + Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N>
 {
-  fn mul(&self, other: &Mat2<T>) -> Mat2<T>
+  fn mul(&self, other: &Mat2<N>) -> Mat2<N>
   {
     Mat2::new(
       self.m11 * other.m11 + self.m12 * other.m21,
@@ -72,9 +72,9 @@ impl<T:Copy + Mul<T, T> + Add<T, T>> Mul<Mat2<T>, Mat2<T>> for Mat2<T>
   }
 }
 
-impl<T:Copy + Add<T, T> + Mul<T, T>> RMul<Vec2<T>> for Mat2<T>
+impl<N:Copy + Add<N, N> + Mul<N, N>> RMul<Vec2<N>> for Mat2<N>
 {
-  fn rmul(&self, other: &Vec2<T>) -> Vec2<T>
+  fn rmul(&self, other: &Vec2<N>) -> Vec2<N>
   {
     Vec2::new(
       self.m11 * other.x + self.m12 * other.y,
@@ -83,9 +83,9 @@ impl<T:Copy + Add<T, T> + Mul<T, T>> RMul<Vec2<T>> for Mat2<T>
   }
 }
 
-impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec2<T>> for Mat2<T>
+impl<N:Copy + Add<N, N> + Mul<N, N>> LMul<Vec2<N>> for Mat2<N>
 {
-  fn lmul(&self, other: &Vec2<T>) -> Vec2<T>
+  fn lmul(&self, other: &Vec2<N>) -> Vec2<N>
   {
     Vec2::new(
       self.m11 * other.x + self.m21 * other.y,
@@ -94,12 +94,12 @@ impl<T:Copy + Add<T, T> + Mul<T, T>> LMul<Vec2<T>> for Mat2<T>
   }
 }
 
-impl<T:Copy + Mul<T, T> + Div<T, T> + Sub<T, T> + Neg<T> + Zero>
-Inv for Mat2<T>
+impl<N:Copy + Mul<N, N> + Div<N, N> + Sub<N, N> + Neg<N> + Zero>
+Inv for Mat2<N>
 {
-  fn inverse(&self) -> Mat2<T>
+  fn inverse(&self) -> Mat2<N>
   {
-    let mut res : Mat2<T> = *self;
+    let mut res : Mat2<N> = *self;
 
     res.invert();
 
@@ -117,9 +117,9 @@ Inv for Mat2<T>
   }
 }
 
-impl<T:Copy> Transpose for Mat2<T>
+impl<N:Copy> Transpose for Mat2<N>
 {
-  fn transposed(&self) -> Mat2<T>
+  fn transposed(&self) -> Mat2<N>
   {
     Mat2::new(self.m11, self.m21,
               self.m12, self.m22)
@@ -129,12 +129,12 @@ impl<T:Copy> Transpose for Mat2<T>
   { swap(&mut self.m21, &mut self.m12); }
 }
 
-impl<T:ApproxEq<T>> ApproxEq<T> for Mat2<T>
+impl<N:ApproxEq<N>> ApproxEq<N> for Mat2<N>
 {
-  fn approx_epsilon() -> T
-  { ApproxEq::approx_epsilon::<T, T>() }
+  fn approx_epsilon() -> N
+  { ApproxEq::approx_epsilon::<N, N>() }
 
-  fn approx_eq(&self, other: &Mat2<T>) -> bool
+  fn approx_eq(&self, other: &Mat2<N>) -> bool
   {
     self.m11.approx_eq(&other.m11) &&
     self.m12.approx_eq(&other.m12) &&
@@ -143,7 +143,7 @@ impl<T:ApproxEq<T>> ApproxEq<T> for Mat2<T>
     self.m22.approx_eq(&other.m22)
   }
 
-  fn approx_eq_eps(&self, other: &Mat2<T>, epsilon: &T) -> bool
+  fn approx_eq_eps(&self, other: &Mat2<N>, epsilon: &N) -> bool
   {
     self.m11.approx_eq_eps(&other.m11, epsilon) &&
     self.m12.approx_eq_eps(&other.m12, epsilon) &&
@@ -153,8 +153,8 @@ impl<T:ApproxEq<T>> ApproxEq<T> for Mat2<T>
   }
 }
 
-impl<T:Rand + Copy> Rand for Mat2<T>
+impl<N:Rand + Copy> Rand for Mat2<N>
 {
-  fn rand<R: Rng>(rng: &mut R) -> Mat2<T>
+  fn rand<R: Rng>(rng: &mut R) -> Mat2<N>
   { Mat2::new(rng.gen(), rng.gen(), rng.gen(), rng.gen()) }
 }
