@@ -1,7 +1,8 @@
 use std::uint::iterate;
 use std::num::{One, Zero};
-use std::vec::{from_elem, swap, all, all2, len};
+use std::vec::{from_elem, swap};
 use std::cmp::ApproxEq;
+use std::iterator::IteratorUtil;
 use traits::inv::Inv;
 use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;
@@ -19,7 +20,7 @@ pub fn zero_mat_with_dim<T: Zero + Copy>(dim: uint) -> DMat<T>
 { DMat { dim: dim, mij: from_elem(dim * dim, Zero::zero()) } }
 
 pub fn is_zero_mat<T: Zero>(mat: &DMat<T>) -> bool
-{ all(mat.mij, |e| e.is_zero()) }
+{ mat.mij.all(|e| e.is_zero()) }
 
 pub fn one_mat_with_dim<T: Copy + One + Zero>(dim: uint) -> DMat<T>
 {
@@ -90,7 +91,7 @@ RMul<DVec<T>> for DMat<T>
 {
   fn rmul(&self, other: &DVec<T>) -> DVec<T>
   {
-    assert!(self.dim == len(other.at));
+    assert!(self.dim == other.at.len());
 
     let     dim           = self.dim;
     let mut res : DVec<T> = zero_vec_with_dim(dim);
@@ -110,7 +111,7 @@ LMul<DVec<T>> for DMat<T>
 {
   fn lmul(&self, other: &DVec<T>) -> DVec<T>
   {
-    assert!(self.dim == len(other.at));
+    assert!(self.dim == other.at.len());
 
     let     dim           = self.dim;
     let mut res : DVec<T> = zero_vec_with_dim(dim);
@@ -248,8 +249,16 @@ impl<T: ApproxEq<T>> ApproxEq<T> for DMat<T>
   { ApproxEq::approx_epsilon::<T, T>() }
 
   fn approx_eq(&self, other: &DMat<T>) -> bool
-  { all2(self.mij, other.mij, |a, b| a.approx_eq(b)) }
+  {
+    let mut zip = self.mij.iter().zip(other.mij.iter());
+
+    do zip.all |(a, b)| { a.approx_eq(b) }
+  }
 
   fn approx_eq_eps(&self, other: &DMat<T>, epsilon: &T) -> bool
-  { all2(self.mij, other.mij, |a, b| a.approx_eq_eps(b, epsilon)) }
+  {
+    let mut zip = self.mij.iter().zip(other.mij.iter());
+
+    do zip.all |(a, b)| { a.approx_eq_eps(b, epsilon) }
+  }
 }

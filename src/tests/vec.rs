@@ -1,9 +1,9 @@
 #[test]
+use std::iterator::IteratorUtil;
+#[test]
 use std::num::{Zero, One};
 #[test]
 use std::rand::{random};
-#[test]
-use std::vec::{all, all2};
 #[test]
 use std::cmp::ApproxEq;
 #[test]
@@ -44,9 +44,14 @@ macro_rules! test_basis_impl(
       let basis = Basis::canonical_basis::<$t>();
 
       // check vectors form an ortogonal basis
-      assert!(all2(basis, basis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
+      assert!(
+        do basis.iter().zip(basis.iter()).all
+        |(e1, e2)| { e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero()) }
+      );
       // check vectors form an orthonormal basis
-      assert!(all(basis, |e| e.norm().approx_eq(&One::one())));
+      assert!(
+        do basis.iter().all |e| { e.norm().approx_eq(&One::one()) }
+      );
     }
   );
 )
@@ -56,15 +61,22 @@ macro_rules! test_subspace_basis_impl(
     for 10000.times
     {
       let v : Vec3<f64> = random();
-      let v1 = v.normalized();
-      let subbasis = v1.orthogonal_subspace_basis();
+      let v1            = v.normalized();
+      let subbasis      = v1.orthogonal_subspace_basis();
 
       // check vectors are orthogonal to v1
-      assert!(all(subbasis, |e| v1.dot(e).approx_eq(&Zero::zero())));
+      assert!(
+        do subbasis.iter().all |e| { v1.dot(e).approx_eq(&Zero::zero()) }
+      );
       // check vectors form an ortogonal basis
-      assert!(all2(subbasis, subbasis, |e1, e2| e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero())));
+      assert!(
+        do subbasis.iter().zip(subbasis.iter()).all
+           |(e1, e2)| { e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero()) }
+      );
       // check vectors form an orthonormal basis
-      assert!(all(subbasis, |e| e.norm().approx_eq(&One::one())));
+      assert!(
+        do subbasis.iter().all |e| { e.norm().approx_eq(&One::one()) }
+      );
     }
   );
 )

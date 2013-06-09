@@ -1,7 +1,8 @@
 use std::uint::iterate;
 use std::num::{Zero, One, Algebraic};
-use std::vec::{map_zip, map, all2, len, from_elem, all};
+use std::vec::{map_zip, map, from_elem};
 use std::cmp::ApproxEq;
+use std::iterator::IteratorUtil;
 use traits::ring::Ring;
 use traits::division_ring::DivisionRing;
 use traits::dot::Dot;
@@ -20,7 +21,7 @@ pub fn zero_vec_with_dim<T: Zero + Copy>(dim: uint) -> DVec<T>
 { DVec { at: from_elem(dim, Zero::zero::<T>()) } }
 
 pub fn is_zero_vec<T: Zero>(vec: &DVec<T>) -> bool
-{ all(vec.at, |e| e.is_zero()) }
+{ vec.at.all(|e| e.is_zero()) }
 
 // FIXME: is Clone needed?
 impl<T: Copy + DivisionRing + Algebraic + Clone + ApproxEq<T>> DVec<T>
@@ -45,12 +46,12 @@ impl<T: Copy + DivisionRing + Algebraic + Clone + ApproxEq<T>> DVec<T>
   {
     // compute the basis of the orthogonal subspace using Gram-Schmidt
     // orthogonalization algorithm
-    let     dim              = len(self.at);
+    let     dim              = self.at.len();
     let mut res : ~[DVec<T>] = ~[];
 
     for iterate(0u, dim) |i|
     {
-      let mut basis_element : DVec<T> = zero_vec_with_dim(len(self.at));
+      let mut basis_element : DVec<T> = zero_vec_with_dim(self.at.len());
 
       basis_element.at[i] = One::one();
 
@@ -78,7 +79,7 @@ impl<T: Copy + Add<T,T>> Add<DVec<T>, DVec<T>> for DVec<T>
 {
   fn add(&self, other: &DVec<T>) -> DVec<T>
   {
-    assert!(len(self.at) == len(other.at));
+    assert!(self.at.len() == other.at.len());
     DVec { at: map_zip(self.at, other.at, | a, b | { *a + *b }) }
   }
 }
@@ -87,7 +88,7 @@ impl<T: Copy + Sub<T,T>> Sub<DVec<T>, DVec<T>> for DVec<T>
 {
   fn sub(&self, other: &DVec<T>) -> DVec<T>
   {
-    assert!(len(self.at) == len(other.at));
+    assert!(self.at.len() == other.at.len());
     DVec { at: map_zip(self.at, other.at, | a, b | *a - *b) }
   }
 }
@@ -103,11 +104,11 @@ Dot<T> for DVec<T>
 {
   fn dot(&self, other: &DVec<T>) -> T
   {
-    assert!(len(self.at) == len(other.at));
+    assert!(self.at.len() == other.at.len());
 
     let mut res = Zero::zero::<T>();
 
-    for iterate(0u, len(self.at)) |i|
+    for iterate(0u, self.at.len()) |i|
     { res += self.at[i] * other.at[i]; }
 
     res
@@ -120,7 +121,7 @@ impl<T: Copy + Ring> SubDot<T> for DVec<T>
   {
     let mut res = Zero::zero::<T>();
 
-    for iterate(0u, len(self.at)) |i|
+    for iterate(0u, self.at.len()) |i|
     { res += (self.at[i] - a.at[i]) * b.at[i]; }
 
     res
@@ -135,7 +136,7 @@ ScalarMul<T> for DVec<T>
 
   fn scalar_mul_inplace(&mut self, s: &T)
   {
-    for iterate(0u, len(self.at)) |i|
+    for iterate(0u, self.at.len()) |i|
     { self.at[i] *= *s; }
   }
 }
@@ -149,7 +150,7 @@ ScalarDiv<T> for DVec<T>
 
   fn scalar_div_inplace(&mut self, s: &T)
   {
-    for iterate(0u, len(self.at)) |i|
+    for iterate(0u, self.at.len()) |i|
     { self.at[i] /= *s; }
   }
 }
@@ -162,7 +163,7 @@ ScalarAdd<T> for DVec<T>
 
   fn scalar_add_inplace(&mut self, s: &T)
   {
-    for iterate(0u, len(self.at)) |i|
+    for iterate(0u, self.at.len()) |i|
     { self.at[i] += *s; }
   }
 }
@@ -175,7 +176,7 @@ ScalarSub<T> for DVec<T>
 
   fn scalar_sub_inplace(&mut self, s: &T)
   {
-    for iterate(0u, len(self.at)) |i|
+    for iterate(0u, self.at.len()) |i|
     { self.at[i] -= *s; }
   }
 }
@@ -214,7 +215,7 @@ Norm<T> for DVec<T>
   {
     let l = self.norm();
 
-    for iterate(0u, len(self.at)) |i|
+    for iterate(0u, self.at.len()) |i|
     { self.at[i] /= l; }
 
     l
@@ -227,8 +228,16 @@ impl<T: ApproxEq<T>> ApproxEq<T> for DVec<T>
   { ApproxEq::approx_epsilon::<T, T>() }
 
   fn approx_eq(&self, other: &DVec<T>) -> bool
-  { all2(self.at, other.at, |a, b| a.approx_eq(b)) }
+  {
+    let mut zip = self.at.iter().zip(other.at.iter());
+
+    do zip.all |(a, b)| { a.approx_eq(b) }
+  }
 
   fn approx_eq_eps(&self, other: &DVec<T>, epsilon: &T) -> bool
-  { all2(self.at, other.at, |a, b| a.approx_eq_eps(b, epsilon)) }
+  {
+    let mut zip = self.at.iter().zip(other.at.iter());
+
+    do zip.all |(a, b)| { a.approx_eq_eps(b, epsilon) }
+  }
 }
