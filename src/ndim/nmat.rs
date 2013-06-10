@@ -6,6 +6,7 @@ use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;
+use traits::flatten::Flatten;
 use traits::workarounds::rlmul::{RMul, LMul};
 use ndim::dmat::{DMat, one_mat_with_dim, zero_mat_with_dim, is_zero_mat};
 use ndim::nvec::NVec;
@@ -166,5 +167,41 @@ impl<D: Dim, N: Rand + Zero + Copy> Rand for NMat<D, N>
     }
 
     res
+  }
+}
+
+impl<D: Dim, N: Zero + Copy> Flatten<N> for NMat<D, N>
+{
+  fn flat_size() -> uint
+  { Dim::dim::<D>() * Dim::dim::<D>() }
+
+  fn from_flattened(l: &[N], off: uint) -> NMat<D, N>
+  {
+    let     dim = Dim::dim::<D>();
+    let mut res = Zero::zero::<NMat<D, N>>();
+
+    for iterate(0u, dim * dim) |i|
+    { res.mij.mij[i] = l[off + i] }
+
+    res
+  }
+
+  fn to_flattened(&self) -> ~[N]
+  {
+    let     dim = Dim::dim::<D>();
+    let mut res = ~[];
+
+    for iterate(0u, dim * dim) |i|
+    { res.push(self.mij.mij[i]) }
+
+    res
+  }
+
+  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  {
+    let dim = Dim::dim::<D>();
+
+    for iterate(0u, dim * dim) |i|
+    { l[off + i] = self.mij.mij[i] }
   }
 }

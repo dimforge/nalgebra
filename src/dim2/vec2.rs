@@ -8,6 +8,7 @@ use traits::dim::Dim;
 use traits::dot::Dot;
 use traits::sub_dot::SubDot;
 use traits::norm::Norm;
+use traits::flatten::Flatten;
 use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
@@ -202,4 +203,22 @@ impl<N:Rand + Copy> Rand for Vec2<N>
 {
   fn rand<R: Rng>(rng: &mut R) -> Vec2<N>
   { Vec2::new(rng.gen(), rng.gen()) }
+}
+
+impl<N: Copy> Flatten<N> for Vec2<N>
+{
+  fn flat_size() -> uint
+  { 2 }
+
+  fn from_flattened(l: &[N], off: uint) -> Vec2<N>
+  { Vec2::new(l[off], l[off + 1]) }
+
+  fn to_flattened(&self) -> ~[N]
+  { ~[ self.x, self.y ] }
+
+  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  {
+    l[off]     = self.x;
+    l[off + 1] = self.y;
+  }
 }

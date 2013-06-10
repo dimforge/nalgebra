@@ -7,6 +7,7 @@ use traits::dot::Dot;
 use traits::norm::Norm;
 use traits::translation::Translation;
 use traits::sub_dot::SubDot;
+use traits::flatten::Flatten;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq, ToStr)]
@@ -168,4 +169,19 @@ impl<N:Rand + Copy> Rand for Vec1<N>
 {
   fn rand<R: Rng>(rng: &mut R) -> Vec1<N>
   { Vec1::new(rng.gen()) }
+}
+
+impl<N: Copy> Flatten<N> for Vec1<N>
+{
+  fn flat_size() -> uint
+  { 1 }
+
+  fn from_flattened(l: &[N], off: uint) -> Vec1<N>
+  { Vec1::new(l[off]) }
+
+  fn to_flattened(&self) -> ~[N]
+  { ~[ self.x ] }
+
+  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  { l[off] = self.x }
 }

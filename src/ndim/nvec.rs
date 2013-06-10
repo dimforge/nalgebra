@@ -12,6 +12,7 @@ use traits::dot::Dot;
 use traits::sub_dot::SubDot;
 use traits::norm::Norm;
 use traits::translation::Translation;
+use traits::flatten::Flatten;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 // D is a phantom parameter, used only as a dimensional token.
@@ -194,5 +195,41 @@ impl<D: Dim, N: Rand + Zero + Copy> Rand for NVec<D, N>
     { res.at.at[i] = rng.gen() }
 
     res
+  }
+}
+
+impl<D: Dim, N: Zero + Copy> Flatten<N> for NVec<D, N>
+{
+  fn flat_size() -> uint
+  { Dim::dim::<D>() }
+
+  fn from_flattened(l: &[N], off: uint) -> NVec<D, N>
+  {
+    let     dim = Dim::dim::<D>();
+    let mut res = Zero::zero::<NVec<D, N>>();
+
+    for iterate(0u, dim) |i|
+    { res.at.at[i] = l[off + i] }
+
+    res
+  }
+
+  fn to_flattened(&self) -> ~[N]
+  {
+    let     dim = Dim::dim::<D>();
+    let mut res = ~[];
+
+    for iterate(0u, dim) |i|
+    { res.push(self.at.at[i]) }
+
+    res
+  }
+
+  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  {
+    let dim = Dim::dim::<D>();
+
+    for iterate(0u, dim) |i|
+    { l[off + i] = self.at.at[i] }
   }
 }

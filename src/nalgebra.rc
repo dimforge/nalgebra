@@ -69,6 +69,7 @@ pub mod traits
   pub mod ring;
   pub mod division_ring;
   pub mod sub_dot;
+  pub mod flatten;
 
   /// This package contains everything done because the current compiler either
   /// crashes or miss features.

@@ -5,6 +5,7 @@ use std::util::swap;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
+use traits::flatten::Flatten;
 use traits::workarounds::rlmul::{RMul, LMul};
 use dim2::vec2::Vec2;
 
@@ -157,4 +158,24 @@ impl<N:Rand + Copy> Rand for Mat2<N>
 {
   fn rand<R: Rng>(rng: &mut R) -> Mat2<N>
   { Mat2::new(rng.gen(), rng.gen(), rng.gen(), rng.gen()) }
+}
+
+impl<N: Copy> Flatten<N> for Mat2<N>
+{
+  fn flat_size() -> uint
+  { 4 }
+
+  fn from_flattened(l: &[N], off: uint) -> Mat2<N>
+  { Mat2::new(l[off], l[off + 1], l[off + 2], l[off + 3]) }
+
+  fn to_flattened(&self) -> ~[N]
+  { ~[ self.m11, self.m12, self.m21, self.m22 ] }
+
+  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  {
+    l[off]     = self.m11;
+    l[off + 1] = self.m12;
+    l[off + 2] = self.m21;
+    l[off + 3] = self.m22;
+  }
 }

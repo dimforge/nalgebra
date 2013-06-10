@@ -5,6 +5,7 @@ use std::util::swap;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
+use traits::flatten::Flatten;
 use traits::workarounds::rlmul::{RMul, LMul};
 use dim3::vec3::Vec3;
 
@@ -210,5 +211,38 @@ impl<N:Rand + Copy> Rand for Mat3<N>
     Mat3::new(rng.gen(), rng.gen(), rng.gen(),
               rng.gen(), rng.gen(), rng.gen(),
               rng.gen(), rng.gen(), rng.gen())
+  }
+}
+
+impl<N: Copy> Flatten<N> for Mat3<N>
+{
+  fn flat_size() -> uint
+  { 9 }
+
+  fn from_flattened(l: &[N], off: uint) -> Mat3<N>
+  { Mat3::new(l[off + 0], l[off + 1], l[off + 2],
+              l[off + 3], l[off + 4], l[off + 5],
+              l[off + 6], l[off + 7], l[off + 8]) }
+
+  fn to_flattened(&self) -> ~[N]
+  {
+    ~[
+      self.m11, self.m12, self.m13,
+      self.m21, self.m22, self.m23,
+      self.m31, self.m32, self.m33
+    ]
+  }
+
+  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  {
+    l[off + 0] = self.m11;
+    l[off + 1] = self.m12;
+    l[off + 2] = self.m13;
+    l[off + 3] = self.m21;
+    l[off + 4] = self.m22;
+    l[off + 5] = self.m23;
+    l[off + 6] = self.m31;
+    l[off + 7] = self.m32;
+    l[off + 8] = self.m33;
   }
 }

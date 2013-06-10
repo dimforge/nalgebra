@@ -4,6 +4,7 @@ use std::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
+use traits::flatten::Flatten;
 use traits::workarounds::rlmul::{RMul, LMul};
 use dim1::vec1::Vec1;
 
@@ -104,4 +105,19 @@ impl<N:Rand + Copy> Rand for Mat1<N>
 {
   fn rand<R: Rng>(rng: &mut R) -> Mat1<N>
   { Mat1::new(rng.gen()) }
+}
+
+impl<N: Copy> Flatten<N> for Mat1<N>
+{
+  fn flat_size() -> uint
+  { 1 }
+
+  fn from_flattened(l: &[N], off: uint) -> Mat1<N>
+  { Mat1::new(l[off]) }
+
+  fn to_flattened(&self) -> ~[N]
+  { ~[ self.m11 ] }
+
+  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  { l[off] = self.m11 }
 }

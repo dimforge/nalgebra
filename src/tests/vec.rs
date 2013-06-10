@@ -1,4 +1,6 @@
 #[test]
+use std::vec;
+#[test]
 use std::iterator::IteratorUtil;
 #[test]
 use std::num::{Zero, One};
@@ -24,6 +26,8 @@ use traits::cross::Cross;
 use traits::dot::Dot;
 #[test]
 use traits::norm::Norm;
+#[test]
+use traits::flatten::Flatten;
 
 macro_rules! test_commut_dot_impl(
   ($t: ty) => (
@@ -73,6 +77,21 @@ macro_rules! test_subspace_basis_impl(
       assert!(subbasis.all(|e| e.norm().approx_eq(&One::one())));
     }
   );
+)
+
+macro_rules! test_flatten_impl(
+  ($t: ty, $n: ty) => (
+    for 10000.times
+    {
+      let v:     $t    = random();
+      let mut l: ~[$n] = vec::from_elem(42 + Flatten::flat_size::<$n, $t>(), Zero::zero::<$n>());
+
+      v.to_flattened_inplace(l, 42);
+
+      assert!(Flatten::from_flattened::<$n, $t>(v.to_flattened(), 0) == v);
+      assert!(Flatten::from_flattened::<$n, $t>(l, 42) == v);
+    }
+  )
 )
 
 #[test]
@@ -136,3 +155,19 @@ fn test_subspace_basis_vec3()
 #[test]
 fn test_subspace_basis_nvec()
 { test_subspace_basis_impl!(NVec<d7, f64>); }
+
+#[test]
+fn test_flatten_vec1()
+{ test_flatten_impl!(Vec1<f64>, f64); }
+
+#[test]
+fn test_flatten_vec2()
+{ test_flatten_impl!(Vec2<f64>, f64); }
+
+#[test]
+fn test_flatten_vec3()
+{ test_flatten_impl!(Vec3<f64>, f64); }
+
+#[test]
+fn test_flatten_nvec()
+{ test_flatten_impl!(NVec<d7, f64>, f64); }
