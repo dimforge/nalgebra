@@ -115,9 +115,9 @@ impl<N: Copy> Flatten<N> for Mat1<N>
   fn from_flattened(l: &[N], off: uint) -> Mat1<N>
   { Mat1::new(l[off]) }
 
-  fn to_flattened(&self) -> ~[N]
+  fn flatten(&self) -> ~[N]
   { ~[ self.m11 ] }
 
-  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  fn flatten_to(&self, l: &mut [N], off: uint)
   { l[off] = self.m11 }
 }

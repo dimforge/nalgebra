@@ -214,7 +214,7 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NVec<D, N>
     res
   }
 
-  fn to_flattened(&self) -> ~[N]
+  fn flatten(&self) -> ~[N]
   {
     let     dim = Dim::dim::<D>();
     let mut res = ~[];
@@ -225,7 +225,7 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NVec<D, N>
     res
   }
 
-  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  fn flatten_to(&self, l: &mut [N], off: uint)
   {
     let dim = Dim::dim::<D>();
 

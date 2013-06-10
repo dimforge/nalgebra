@@ -168,10 +168,10 @@ impl<N: Copy> Flatten<N> for Mat2<N>
   fn from_flattened(l: &[N], off: uint) -> Mat2<N>
   { Mat2::new(l[off], l[off + 1], l[off + 2], l[off + 3]) }
 
-  fn to_flattened(&self) -> ~[N]
+  fn flatten(&self) -> ~[N]
   { ~[ self.m11, self.m12, self.m21, self.m22 ] }
 
-  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  fn flatten_to(&self, l: &mut [N], off: uint)
   {
     l[off]     = self.m11;
     l[off + 1] = self.m12;

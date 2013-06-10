@@ -179,9 +179,9 @@ impl<N: Copy> Flatten<N> for Vec1<N>
   fn from_flattened(l: &[N], off: uint) -> Vec1<N>
   { Vec1::new(l[off]) }
 
-  fn to_flattened(&self) -> ~[N]
+  fn flatten(&self) -> ~[N]
   { ~[ self.x ] }
 
-  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  fn flatten_to(&self, l: &mut [N], off: uint)
   { l[off] = self.x }
 }

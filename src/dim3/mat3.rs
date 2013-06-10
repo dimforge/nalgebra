@@ -224,7 +224,7 @@ impl<N: Copy> Flatten<N> for Mat3<N>
               l[off + 3], l[off + 4], l[off + 5],
               l[off + 6], l[off + 7], l[off + 8]) }
 
-  fn to_flattened(&self) -> ~[N]
+  fn flatten(&self) -> ~[N]
   {
     ~[
       self.m11, self.m12, self.m13,
@@ -233,7 +233,7 @@ impl<N: Copy> Flatten<N> for Mat3<N>
     ]
   }
 
-  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  fn flatten_to(&self, l: &mut [N], off: uint)
   {
     l[off + 0] = self.m11;
     l[off + 1] = self.m12;

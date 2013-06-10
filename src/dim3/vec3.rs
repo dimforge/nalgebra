@@ -242,10 +242,10 @@ impl<N: Copy> Flatten<N> for Vec3<N>
   fn from_flattened(l: &[N], off: uint) -> Vec3<N>
   { Vec3::new(l[off], l[off + 1], l[off + 2]) }
 
-  fn to_flattened(&self) -> ~[N]
+  fn flatten(&self) -> ~[N]
   { ~[ self.x, self.y, self.z ] }
 
-  fn to_flattened_inplace(&self, l: &mut [N], off: uint)
+  fn flatten_to(&self, l: &mut [N], off: uint)
   {
     l[off]     = self.x;
     l[off + 1] = self.y;

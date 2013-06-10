@@ -20,7 +20,7 @@ pub trait Flatten<N>
    * Creates a flattened version of `self`. The result vector must be of size
    * `flat_size`.
    */
-  fn to_flattened(&self) -> ~[N];
+  fn flatten(&self) -> ~[N];
 
   /**
    * Creates a flattened version of `self` on a vector. It is assumed that
@@ -30,5 +30,5 @@ pub trait Flatten<N>
    *   - `off`: index from which (included) the flat version write must begin.
    *            It is assumed that the caller allocated a long enough list.
    */
-  fn to_flattened_inplace(&self, l: &mut [N], off: uint); // FIXME: keep (vector + index) or use an iterator (to a mutable value…)?
+  fn flatten_to(&self, l: &mut [N], off: uint); // FIXME: keep (vector + index) or use an iterator (to a mutable value…)?
 }
