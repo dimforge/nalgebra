@@ -6,7 +6,7 @@ use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
 use traits::rotation::Rotation;
-use traits::delta_transform::DeltaTransform;
+use traits::delta_transform::{DeltaTransform, DeltaTransformVector};
 use dim1::vec1::Vec1;
 use dim2::mat2::Mat2;
 use dim3::mat3::Mat3;
@@ -139,6 +139,12 @@ impl<M: Copy> DeltaTransform<M> for Rotmat<M>
 {
   fn delta_transform(&self) -> M
   { self.submat }
+}
+
+impl<M: RMul<V> + Copy, V: Copy> DeltaTransformVector<V> for Rotmat<M>
+{
+  fn delta_transform_vector(&self, v: &V) -> V
+  { self.submat.rmul(v) }
 }
 
 impl<M: Copy + Transpose> Inv for Rotmat<M>

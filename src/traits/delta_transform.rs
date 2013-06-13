@@ -7,6 +7,13 @@ pub trait DeltaTransform<DT>
 {
   /// Extracts the delta transformation associated with this transformation.
   fn delta_transform(&self) -> DT;
-  // FIXME: add functions to apply the delta-transform to a vector without
-  // explicit computation of the transform (does this avoid some matrix copy?)
+}
+
+/**
+ * Trait of delta-transformations on vectors.
+ */
+pub trait DeltaTransformVector<V>
+{
+  /// Applies a delta-transform to a vector.
+  fn delta_transform_vector(&self, &V) -> V;
 }

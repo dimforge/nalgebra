@@ -6,7 +6,7 @@ use traits::inv::Inv;
 use traits::rotation::Rotation;
 use traits::translation::Translation;
 use traits::transpose::Transpose;
-use traits::delta_transform::DeltaTransform;
+use traits::delta_transform::{DeltaTransform, DeltaTransformVector};
 use traits::workarounds::rlmul::{RMul, LMul};
 
 #[deriving(Eq, ToStr)]
@@ -51,16 +51,16 @@ Mul<Transform<M, V>, Transform<M, V>> for Transform<M, V>
   }
 }
 
-impl<M: RMul<V>, V> RMul<V> for Transform<M, V>
+impl<M: RMul<V>, V: Add<V, V>> RMul<V> for Transform<M, V>
 {
   fn rmul(&self, other: &V) -> V
-  { self.submat.rmul(other) }
+  { self.submat.rmul(other) + self.subtrans }
 }
 
-impl<M: LMul<V>, V> LMul<V> for Transform<M, V>
+impl<M: LMul<V>, V: Add<V, V>> LMul<V> for Transform<M, V>
 {
   fn lmul(&self, other: &V) -> V
-  { self.submat.lmul(other) }
+  { self.submat.lmul(other) + self.subtrans }
 }
 
 impl<M: Copy, V: Copy + Translation<V>> Translation<V> for Transform<M, V>
@@ -102,6 +102,12 @@ impl<M: Copy, V> DeltaTransform<M> for Transform<M, V>
 {
   fn delta_transform(&self) -> M
   { self.submat }
+}
+
+impl<M: RMul<V> + Copy, V> DeltaTransformVector<V> for Transform<M, V>
+{
+  fn delta_transform_vector(&self, v: &V) -> V
+  { self.submat.rmul(v) }
 }
 
 impl<M:Copy + Transpose + Inv + RMul<V>, V:Copy + Neg<V>>
