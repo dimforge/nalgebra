@@ -16,12 +16,15 @@ pub struct DMat<N>
   mij: ~[N]
 }
 
+#[inline(always)]
 pub fn zero_mat_with_dim<N: Zero + Copy>(dim: uint) -> DMat<N>
 { DMat { dim: dim, mij: from_elem(dim * dim, Zero::zero()) } }
 
+#[inline(always)]
 pub fn is_zero_mat<N: Zero>(mat: &DMat<N>) -> bool
 { mat.mij.all(|e| e.is_zero()) }
 
+#[inline(always)]
 pub fn one_mat_with_dim<N: Copy + One + Zero>(dim: uint) -> DMat<N>
 {
   let mut res = zero_mat_with_dim(dim);
@@ -35,9 +38,11 @@ pub fn one_mat_with_dim<N: Copy + One + Zero>(dim: uint) -> DMat<N>
 
 impl<N: Copy> DMat<N>
 {
+  #[inline(always)]
   pub fn offset(&self, i: uint, j: uint) -> uint
   { i * self.dim + j }
 
+  #[inline(always)]
   pub fn set(&mut self, i: uint, j: uint, t: &N)
   {
     assert!(i < self.dim);
@@ -45,6 +50,7 @@ impl<N: Copy> DMat<N>
     self.mij[self.offset(i, j)] = *t
   }
 
+  #[inline(always)]
   pub fn at(&self, i: uint, j: uint) -> N
   {
     assert!(i < self.dim);
@@ -55,6 +61,7 @@ impl<N: Copy> DMat<N>
 
 impl<N: Copy> Index<(uint, uint), N> for DMat<N>
 {
+  #[inline(always)]
   fn index(&self, &(i, j): &(uint, uint)) -> N
   { self.at(i, j) }
 }
@@ -129,6 +136,7 @@ LMul<DVec<N>> for DMat<N>
 impl<N: Clone + Copy + Eq + DivisionRing>
 Inv for DMat<N>
 {
+  #[inline(always)]
   fn inverse(&self) -> DMat<N>
   {
     let mut res : DMat<N> = self.clone();
@@ -217,6 +225,7 @@ Inv for DMat<N>
 
 impl<N:Copy> Transpose for DMat<N>
 {
+  #[inline(always)]
   fn transposed(&self) -> DMat<N>
   {
     let mut res = copy *self;
@@ -245,9 +254,11 @@ impl<N:Copy> Transpose for DMat<N>
 
 impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N>
 {
+  #[inline(always)]
   fn approx_epsilon() -> N
   { ApproxEq::approx_epsilon::<N, N>() }
 
+  #[inline(always)]
   fn approx_eq(&self, other: &DMat<N>) -> bool
   {
     let mut zip = self.mij.iter().zip(other.mij.iter());
@@ -255,6 +266,7 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N>
     do zip.all |(a, b)| { a.approx_eq(b) }
   }
 
+  #[inline(always)]
   fn approx_eq_eps(&self, other: &DMat<N>, epsilon: &N) -> bool
   {
     let mut zip = self.mij.iter().zip(other.mij.iter());

@@ -86,9 +86,9 @@ macro_rules! test_flatten_impl(
       let v:     $t    = random();
       let mut l: ~[$n] = vec::from_elem(42 + Flatten::flat_size::<$n, $t>(), Zero::zero::<$n>());
 
-      v.to_flattened_inplace(l, 42);
+      v.flatten_to(l, 42);
 
-      assert!(Flatten::from_flattened::<$n, $t>(v.to_flattened(), 0) == v);
+      assert!(Flatten::from_flattened::<$n, $t>(v.flatten(), 0) == v);
       assert!(Flatten::from_flattened::<$n, $t>(l, 42) == v);
     }
   )
