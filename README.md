@@ -1,7 +1,7 @@
 nalgebra
 ========
 
-nalgebra is a n-dimensional linear algebra library written with the rust
+**nalgebra** is a n-dimensional linear algebra library written with the rust
 programming language.
 
 
