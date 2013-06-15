@@ -1,5 +1,5 @@
 use std::uint::iterate;
-use std::num::{Zero, Algebraic};
+use std::num::{Zero, Algebraic, Bounded};
 use std::rand::{Rand, Rng, RngUtil};
 use std::vec::{map};
 use std::cmp::ApproxEq;
@@ -264,4 +264,15 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NVec<D, N>
     for iterate(0u, dim) |i|
     { l[off + i] = self.at.at[i] }
   }
+}
+
+impl<D: Dim, N: Bounded + Zero + Add<N, N> + Copy> Bounded for NVec<D, N>
+{
+  #[inline(always)]
+  fn max_value() -> NVec<D, N>
+  { Zero::zero::<NVec<D, N>>().scalar_add(&Bounded::max_value()) }
+
+  #[inline(always)]
+  fn min_value() -> NVec<D, N>
+  { Zero::zero::<NVec<D, N>>().scalar_add(&Bounded::min_value()) }
 }

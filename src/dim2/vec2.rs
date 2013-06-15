@@ -1,4 +1,4 @@
-use std::num::{Zero, One, Algebraic};
+use std::num::{Zero, One, Algebraic, Bounded};
 use std::rand::{Rand, Rng, RngUtil};
 use dim1::vec1::Vec1;
 use std::cmp::ApproxEq;
@@ -256,4 +256,15 @@ impl<N: Copy> Flatten<N> for Vec2<N>
     l[off]     = self.x;
     l[off + 1] = self.y;
   }
+}
+
+impl<N: Bounded + Copy> Bounded for Vec2<N>
+{
+  #[inline(always)]
+  fn max_value() -> Vec2<N>
+  { Vec2::new(Bounded::max_value(), Bounded::max_value()) }
+
+  #[inline(always)]
+  fn min_value() -> Vec2<N>
+  { Vec2::new(Bounded::min_value(), Bounded::min_value()) }
 }

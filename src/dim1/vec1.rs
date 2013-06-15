@@ -1,4 +1,4 @@
-use std::num::{Zero, One, Algebraic};
+use std::num::{Zero, One, Algebraic, Bounded};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
 use traits::basis::Basis;
@@ -13,7 +13,6 @@ use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 #[deriving(Eq, Ord, ToStr)]
 pub struct Vec1<N>
 { x : N }
-
 
 impl<N: Copy> Vec1<N>
 {
@@ -218,4 +217,15 @@ impl<N: Copy> Flatten<N> for Vec1<N>
   #[inline(always)]
   fn flatten_to(&self, l: &mut [N], off: uint)
   { l[off] = self.x }
+}
+
+impl<N: Bounded + Copy> Bounded for Vec1<N>
+{
+  #[inline(always)]
+  fn max_value() -> Vec1<N>
+  { Vec1::new(Bounded::max_value()) }
+
+  #[inline(always)]
+  fn min_value() -> Vec1<N>
+  { Vec1::new(Bounded::min_value()) }
 }

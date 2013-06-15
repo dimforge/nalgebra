@@ -1,4 +1,4 @@
-use std::num::{Zero, One, Algebraic, abs};
+use std::num::{Zero, One, Algebraic, abs, Bounded};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
 use traits::basis::Basis;
@@ -286,4 +286,15 @@ impl<N: Copy> Flatten<N> for Vec3<N>
     l[off + 1] = self.y;
     l[off + 2] = self.z;
   }
+}
+
+impl<N: Bounded + Copy> Bounded for Vec3<N>
+{
+  #[inline(always)]
+  fn max_value() -> Vec3<N>
+  { Vec3::new(Bounded::max_value(), Bounded::max_value(), Bounded::max_value()) }
+
+  #[inline(always)]
+  fn min_value() -> Vec3<N>
+  { Vec3::new(Bounded::min_value(), Bounded::min_value(), Bounded::min_value()) }
 }
