@@ -6,7 +6,7 @@ use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
 use traits::flatten::Flatten;
-use traits::workarounds::rlmul::{RMul, LMul};
+use traits::rlmul::{RMul, LMul};
 use dim2::vec2::Vec2;
 
 #[deriving(Eq, ToStr)]

@@ -9,7 +9,7 @@ use traits::dot::Dot;
 use traits::sub_dot::SubDot;
 use traits::norm::Norm;
 use traits::translation::Translation;
-use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
+use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq, Ord, ToStr, Clone)]
 pub struct DVec<N>

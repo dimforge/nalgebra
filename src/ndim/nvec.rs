@@ -13,14 +13,12 @@ use traits::sub_dot::SubDot;
 use traits::norm::Norm;
 use traits::translation::Translation;
 use traits::flatten::Flatten;
-use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
+use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 // D is a phantom parameter, used only as a dimensional token.
 // Its allows use to encode the vector dimension at the type-level.
 // It can be anything implementing the Dim trait. However, to avoid confusion,
 // using d0, d1, d2, d3, ..., d7 (or your own dn) are prefered.
-// FIXME: it might be possible to implement type-level integers and use them
-// here?
 #[deriving(Eq, Ord, ToStr)]
 pub struct NVec<D, N>
 { at: DVec<N> }

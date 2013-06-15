@@ -7,7 +7,7 @@ use traits::rotation::Rotation;
 use traits::translation::Translation;
 use traits::transpose::Transpose;
 use traits::delta_transform::{DeltaTransform, DeltaTransformVector};
-use traits::workarounds::rlmul::{RMul, LMul};
+use traits::rlmul::{RMul, LMul};
 
 #[deriving(Eq, ToStr)]
 pub struct Transform<M, V>

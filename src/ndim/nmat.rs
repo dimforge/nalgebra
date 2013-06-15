@@ -7,7 +7,7 @@ use traits::inv::Inv;
 use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;
 use traits::flatten::Flatten;
-use traits::workarounds::rlmul::{RMul, LMul};
+use traits::rlmul::{RMul, LMul};
 use ndim::dmat::{DMat, one_mat_with_dim, zero_mat_with_dim, is_zero_mat};
 use ndim::nvec::NVec;
 

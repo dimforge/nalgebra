@@ -1,7 +1,7 @@
 use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
-use traits::workarounds::rlmul::{RMul, LMul};
+use traits::rlmul::{RMul, LMul};
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;

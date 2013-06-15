@@ -70,16 +70,8 @@ pub mod traits
   pub mod division_ring;
   pub mod sub_dot;
   pub mod flatten;
-
-  /// This package contains everything done because the current compiler either
-  /// crashes or miss features.
-  /// Therefore, keep in mind anything in there will be inevitably removed some
-  /// days. So dont rely on them too much.
-  pub mod workarounds
-  {
-    pub mod rlmul;
-    pub mod scalar_op;
-  }
+  pub mod rlmul;
+  pub mod scalar_op;
 }
 
 #[cfg(test)]

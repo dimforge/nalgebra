@@ -6,7 +6,7 @@ use std::iterator::IteratorUtil;
 use traits::inv::Inv;
 use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;
-use traits::workarounds::rlmul::{RMul, LMul};
+use traits::rlmul::{RMul, LMul};
 use ndim::dvec::{DVec, zero_vec_with_dim};
 
 #[deriving(Eq, ToStr, Clone)]

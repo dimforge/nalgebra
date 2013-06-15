@@ -10,7 +10,7 @@ use traits::sub_dot::SubDot;
 use traits::norm::Norm;
 use traits::flatten::Flatten;
 use traits::translation::Translation;
-use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
+use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq, Ord, ToStr)]
 pub struct Vec2<N>

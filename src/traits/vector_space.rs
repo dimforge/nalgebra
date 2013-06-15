@@ -1,6 +1,6 @@
 use std::num::Zero;
 use traits::division_ring::DivisionRing;
-use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv};
+use traits::scalar_op::{ScalarMul, ScalarDiv};
 
 /// Trait of elements of a vector space. A vector space is an algebraic
 /// structure, the elements of which have addition, substraction, negation,
