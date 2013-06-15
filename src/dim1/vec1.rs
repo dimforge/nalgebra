@@ -10,7 +10,7 @@ use traits::sub_dot::SubDot;
 use traits::flatten::Flatten;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, Ord, ToStr)]
 pub struct Vec1<N>
 { x : N }
 
@@ -171,7 +171,7 @@ impl<N:Copy + Zero> Zero for Vec1<N>
 impl<N: Copy + One> Basis for Vec1<N>
 {
   #[inline(always)]
-  fn canonical_basis()     -> ~[Vec1<N>]
+  fn canonical_basis() -> ~[Vec1<N>]
   { ~[ Vec1::new(One::one()) ] } // FIXME: this should be static
 
   #[inline(always)]
@@ -194,7 +194,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Vec1<N>
   { self.x.approx_eq_eps(&other.x, epsilon) }
 }
 
-impl<N:Rand + Copy> Rand for Vec1<N>
+impl<N: Rand + Copy> Rand for Vec1<N>
 {
   #[inline(always)]
   fn rand<R: Rng>(rng: &mut R) -> Vec1<N>

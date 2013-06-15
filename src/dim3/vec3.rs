@@ -11,7 +11,7 @@ use traits::flatten::Flatten;
 use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, Ord, ToStr)]
 pub struct Vec3<N>
 {
   x : N,

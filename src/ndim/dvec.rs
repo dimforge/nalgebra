@@ -11,7 +11,7 @@ use traits::norm::Norm;
 use traits::translation::Translation;
 use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
-#[deriving(Eq, ToStr, Clone)]
+#[deriving(Eq, Ord, ToStr, Clone)]
 pub struct DVec<N>
 {
   at: ~[N]

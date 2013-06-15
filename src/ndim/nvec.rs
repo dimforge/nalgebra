@@ -21,7 +21,7 @@ use traits::workarounds::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub}
 // using d0, d1, d2, d3, ..., d7 (or your own dn) are prefered.
 // FIXME: it might be possible to implement type-level integers and use them
 // here?
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, Ord, ToStr)]
 pub struct NVec<D, N>
 { at: DVec<N> }
 
