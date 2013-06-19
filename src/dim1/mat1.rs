@@ -74,7 +74,7 @@ Inv for Mat1<N>
   #[inline(always)]
   fn inverse(&self) -> Mat1<N>
   {
-    let mut res : Mat1<N> = *self;
+    let mut res : Mat1<N> = copy *self;
 
     res.invert();
 
@@ -94,7 +94,7 @@ impl<N:Copy> Transpose for Mat1<N>
 {
   #[inline(always)]
   fn transposed(&self) -> Mat1<N>
-  { *self }
+  { copy *self }
 
   #[inline(always)]
   fn transpose(&mut self)
@@ -131,13 +131,13 @@ impl<N: Copy> Flatten<N> for Mat1<N>
 
   #[inline(always)]
   fn from_flattened(l: &[N], off: uint) -> Mat1<N>
-  { Mat1::new(l[off]) }
+  { Mat1::new(copy l[off]) }
 
   #[inline(always)]
   fn flatten(&self) -> ~[N]
-  { ~[ self.m11 ] }
+  { ~[ copy self.m11 ] }
 
   #[inline(always)]
   fn flatten_to(&self, l: &mut [N], off: uint)
-  { l[off] = self.m11 }
+  { l[off] = copy self.m11 }
 }

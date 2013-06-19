@@ -28,6 +28,8 @@ use traits::dot::Dot;
 use traits::norm::Norm;
 #[test]
 use traits::flatten::Flatten;
+#[test]
+use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 macro_rules! test_commut_dot_impl(
   ($t: ty) => (
@@ -37,6 +39,30 @@ macro_rules! test_commut_dot_impl(
       let v2 : $t = random();
     
       assert!(v1.dot(&v2).approx_eq(&v2.dot(&v1)));
+    }
+  );
+)
+
+macro_rules! test_scalar_op_impl(
+  ($t: ty, $n: ty) => (
+    for 10000.times
+    {
+      let v1 : $t = random();
+      let n  : $n = random();
+    
+      assert!(v1.scalar_mul(&n).scalar_div(&n).approx_eq(&v1));
+      assert!(v1.scalar_div(&n).scalar_mul(&n).approx_eq(&v1));
+      assert!(v1.scalar_sub(&n).scalar_add(&n).approx_eq(&v1));
+      assert!(v1.scalar_add(&n).scalar_sub(&n).approx_eq(&v1));
+
+      let mut v1 : $t = random();
+      let v0 : $t = copy v1;
+      let n  : $n = random();
+
+      v1.scalar_mul_inplace(&n);
+      v1.scalar_div_inplace(&n);
+    
+      assert!(v1.approx_eq(&v0));
     }
   );
 )
@@ -62,9 +88,9 @@ macro_rules! test_subspace_basis_impl(
   ($t: ty) => (
     for 10000.times
     {
-      let v : Vec3<f64> = random();
-      let v1            = v.normalized();
-      let subbasis      = v1.orthogonal_subspace_basis();
+      let v : $t   = random();
+      let v1       = v.normalized();
+      let subbasis = v1.orthogonal_subspace_basis();
 
       // check vectors are orthogonal to v1
       assert!(subbasis.all(|e| v1.dot(e).approx_eq(&Zero::zero())));
@@ -111,7 +137,7 @@ fn test_cross_vec3()
 #[test]
 fn test_commut_dot_nvec()
 { test_commut_dot_impl!(NVec<d7, f64>); }
-
+ 
 #[test]
 fn test_commut_dot_vec3()
 { test_commut_dot_impl!(Vec3<f64>); }
@@ -171,3 +197,19 @@ fn test_flatten_vec3()
 #[test]
 fn test_flatten_nvec()
 { test_flatten_impl!(NVec<d7, f64>, f64); }
+
+#[test]
+fn test_scalar_op_vec1()
+{ test_scalar_op_impl!(Vec1<f64>, f64); }
+
+#[test]
+fn test_scalar_op_vec2()
+{ test_scalar_op_impl!(Vec2<f64>, f64); }
+ 
+#[test]
+fn test_scalar_op_vec3()
+{ test_scalar_op_impl!(Vec3<f64>, f64); }
+
+#[test]
+fn test_scalar_op_nvec()
+{ test_scalar_op_impl!(NVec<d7, f64>, f64); }

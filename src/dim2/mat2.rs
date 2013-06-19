@@ -42,8 +42,8 @@ impl<N:Copy + One + Zero> One for Mat2<N>
   fn one() -> Mat2<N>
   {
     let (_0, _1) = (Zero::zero(), One::one());
-    return Mat2::new(_1, _0,
-                     _0, _1)
+    return Mat2::new(copy _1, copy _0,
+                     copy _0, copy _1)
   }
 }
 
@@ -53,8 +53,8 @@ impl<N:Copy + Zero> Zero for Mat2<N>
   fn zero() -> Mat2<N>
   {
     let _0 = Zero::zero();
-    return Mat2::new(_0, _0,
-                     _0, _0)
+    return Mat2::new(copy _0, copy _0,
+                     copy _0, copy _0)
   }
 
   #[inline(always)]
@@ -109,7 +109,7 @@ Inv for Mat2<N>
   #[inline(always)]
   fn inverse(&self) -> Mat2<N>
   {
-    let mut res : Mat2<N> = *self;
+    let mut res : Mat2<N> = copy *self;
 
     res.invert();
 
@@ -133,8 +133,8 @@ impl<N:Copy> Transpose for Mat2<N>
   #[inline(always)]
   fn transposed(&self) -> Mat2<N>
   {
-    Mat2::new(self.m11, self.m21,
-              self.m12, self.m22)
+    Mat2::new(copy self.m11, copy self.m21,
+              copy self.m12, copy self.m22)
   }
 
   #[inline(always)]
@@ -184,18 +184,18 @@ impl<N: Copy> Flatten<N> for Mat2<N>
 
   #[inline(always)]
   fn from_flattened(l: &[N], off: uint) -> Mat2<N>
-  { Mat2::new(l[off], l[off + 1], l[off + 2], l[off + 3]) }
+  { Mat2::new(copy l[off], copy l[off + 1], copy l[off + 2], copy l[off + 3]) }
 
   #[inline(always)]
   fn flatten(&self) -> ~[N]
-  { ~[ self.m11, self.m12, self.m21, self.m22 ] }
+  { ~[ copy self.m11, copy self.m12, copy self.m21, copy self.m22 ] }
 
   #[inline(always)]
   fn flatten_to(&self, l: &mut [N], off: uint)
   {
-    l[off]     = self.m11;
-    l[off + 1] = self.m12;
-    l[off + 2] = self.m21;
-    l[off + 3] = self.m22;
+    l[off]     = copy self.m11;
+    l[off + 1] = copy self.m12;
+    l[off + 2] = copy self.m21;
+    l[off + 3] = copy self.m22;
   }
 }

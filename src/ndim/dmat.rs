@@ -47,7 +47,7 @@ impl<N: Copy> DMat<N>
   {
     assert!(i < self.dim);
     assert!(j < self.dim);
-    self.mij[self.offset(i, j)] = *t
+    self.mij[self.offset(i, j)] = copy *t
   }
 
   #[inline(always)]
@@ -55,7 +55,7 @@ impl<N: Copy> DMat<N>
   {
     assert!(i < self.dim);
     assert!(j < self.dim);
-    self.mij[self.offset(i, j)]
+    copy self.mij[self.offset(i, j)]
   }
 }
 
@@ -83,7 +83,7 @@ Mul<DMat<N>, DMat<N>> for DMat<N>
         let mut acc = Zero::zero::<N>();
 
         for iterate(0u, dim) |k|
-        { acc += self.at(i, k) * other.at(k, j); }
+        { acc = acc + self.at(i, k) * other.at(k, j); }
 
         res.set(i, j, &acc);
       }
@@ -166,7 +166,7 @@ Inv for DMat<N>
         if (self.at(n0, k) != _0T)
         { break; }
 
-        n0 += 1;
+        n0 = n0 + 1;
       }
 
       assert!(n0 != dim); // non inversible matrix

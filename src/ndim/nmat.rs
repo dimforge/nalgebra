@@ -77,7 +77,7 @@ Mul<NMat<D, N>, NMat<D, N>> for NMat<D, N>
         let mut acc: N = Zero::zero();
 
         for iterate(0u, dim) |k|
-        { acc += self[(i, k)] * other[(k, j)]; }
+        { acc = acc + self[(i, k)] * other[(k, j)]; }
 
         res.set(i, j, &acc);
       }
@@ -197,7 +197,7 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NMat<D, N>
     let mut res = Zero::zero::<NMat<D, N>>();
 
     for iterate(0u, dim * dim) |i|
-    { res.mij.mij[i] = l[off + i] }
+    { res.mij.mij[i] = copy l[off + i] }
 
     res
   }
@@ -209,7 +209,7 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NMat<D, N>
     let mut res = ~[];
 
     for iterate(0u, dim * dim) |i|
-    { res.push(self.mij.mij[i]) }
+    { res.push(copy self.mij.mij[i]) }
 
     res
   }
@@ -220,6 +220,6 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NMat<D, N>
     let dim = Dim::dim::<D>();
 
     for iterate(0u, dim * dim) |i|
-    { l[off + i] = self.mij.mij[i] }
+    { l[off + i] = copy self.mij.mij[i] }
   }
 }

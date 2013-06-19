@@ -239,7 +239,7 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NVec<D, N>
     let mut res = Zero::zero::<NVec<D, N>>();
 
     for iterate(0u, dim) |i|
-    { res.at.at[i] = l[off + i] }
+    { res.at.at[i] = copy l[off + i] }
 
     res
   }
@@ -251,7 +251,7 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NVec<D, N>
     let mut res = ~[];
 
     for iterate(0u, dim) |i|
-    { res.push(self.at.at[i]) }
+    { res.push(copy self.at.at[i]) }
 
     res
   }
@@ -262,7 +262,7 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NVec<D, N>
     let dim = Dim::dim::<D>();
 
     for iterate(0u, dim) |i|
-    { l[off + i] = self.at.at[i] }
+    { l[off + i] = copy self.at.at[i] }
   }
 }
 

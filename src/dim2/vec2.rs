@@ -57,8 +57,8 @@ ScalarMul<N> for Vec2<N>
   #[inline(always)]
   fn scalar_mul_inplace(&mut self, s: &N)
   {
-    self.x *= *s;
-    self.y *= *s;
+    self.x = self.x * copy *s;
+    self.y = self.y * copy *s;
   }
 }
 
@@ -73,8 +73,8 @@ ScalarDiv<N> for Vec2<N>
   #[inline(always)]
   fn scalar_div_inplace(&mut self, s: &N)
   {
-    self.x /= *s;
-    self.y /= *s;
+    self.x = self.x / copy *s;
+    self.y = self.y / copy *s;
   }
 }
 
@@ -88,8 +88,8 @@ ScalarAdd<N> for Vec2<N>
   #[inline(always)]
   fn scalar_add_inplace(&mut self, s: &N)
   {
-    self.x += *s;
-    self.y += *s;
+    self.x = self.x + copy *s;
+    self.y = self.y + copy *s;
   }
 }
 
@@ -103,8 +103,8 @@ ScalarSub<N> for Vec2<N>
   #[inline(always)]
   fn scalar_sub_inplace(&mut self, s: &N)
   {
-    self.x -= *s;
-    self.y -= *s;
+    self.x = self.x - copy *s;
+    self.y = self.y - copy *s;
   }
 }
 
@@ -112,7 +112,7 @@ impl<N: Copy + Add<N, N>> Translation<Vec2<N>> for Vec2<N>
 {
   #[inline(always)]
   fn translation(&self) -> Vec2<N>
-  { *self }
+  { copy *self }
 
   #[inline(always)]
   fn translated(&self, t: &Vec2<N>) -> Vec2<N>
@@ -120,7 +120,7 @@ impl<N: Copy + Add<N, N>> Translation<Vec2<N>> for Vec2<N>
 
   #[inline(always)]
   fn translate(&mut self, t: &Vec2<N>)
-  { *self += *t; }
+  { *self = *self + copy *t; }
 }
 
 impl<N:Copy + Mul<N, N> + Add<N, N>> Dot<N> for Vec2<N>
@@ -161,10 +161,10 @@ Norm<N> for Vec2<N>
   {
     let l = self.norm();
 
-    self.x /= l;
-    self.y /= l;
+    self.x = self.x / copy l;
+    self.y = self.y / copy l;
 
-    l
+    copy l
   }
 }
 
@@ -188,7 +188,7 @@ impl<N:Copy + Zero> Zero for Vec2<N>
   fn zero() -> Vec2<N>
   {
     let _0 = Zero::zero();
-    Vec2::new(_0, _0)
+    Vec2::new(copy _0, copy _0)
   }
 
   #[inline(always)]
@@ -208,7 +208,7 @@ impl<N: Copy + One + Zero + Neg<N>> Basis for Vec2<N>
 
   #[inline(always)]
   fn orthogonal_subspace_basis(&self) -> ~[Vec2<N>]
-  { ~[ Vec2::new(-self.y, self.x) ] }
+  { ~[ Vec2::new(-self.y, copy self.x) ] }
 }
 
 impl<N:ApproxEq<N>> ApproxEq<N> for Vec2<N>
@@ -244,17 +244,17 @@ impl<N: Copy> Flatten<N> for Vec2<N>
 
   #[inline(always)]
   fn from_flattened(l: &[N], off: uint) -> Vec2<N>
-  { Vec2::new(l[off], l[off + 1]) }
+  { Vec2::new(copy l[off], copy l[off + 1]) }
 
   #[inline(always)]
   fn flatten(&self) -> ~[N]
-  { ~[ self.x, self.y ] }
+  { ~[ copy self.x, copy self.y ] }
 
   #[inline(always)]
   fn flatten_to(&self, l: &mut [N], off: uint)
   {
-    l[off]     = self.x;
-    l[off + 1] = self.y;
+    l[off]     = copy self.x;
+    l[off + 1] = copy self.y;
   }
 }
 

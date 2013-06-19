@@ -46,9 +46,9 @@ impl<N:Copy + One + Zero> One for Mat3<N>
   fn one() -> Mat3<N>
   {
     let (_0, _1) = (Zero::zero(), One::one());
-    return Mat3::new(_1, _0, _0,
-                     _0, _1, _0,
-                     _0, _0, _1)
+    return Mat3::new(copy _1, copy _0, copy _0,
+                     copy _0, copy _1, copy _0,
+                     copy _0, copy _0, copy _1)
   }
 }
 
@@ -58,9 +58,9 @@ impl<N:Copy + Zero> Zero for Mat3<N>
   fn zero() -> Mat3<N>
   {
     let _0 = Zero::zero();
-    return Mat3::new(_0, _0, _0,
-                     _0, _0, _0,
-                     _0, _0, _0)
+    return Mat3::new(copy _0, copy _0, copy _0,
+                     copy _0, copy _0, copy _0,
+                     copy _0, copy _0, copy _0)
   }
 
   #[inline(always)]
@@ -125,7 +125,7 @@ Inv for Mat3<N>
   #[inline(always)]
   fn inverse(&self) -> Mat3<N>
   {
-    let mut res = *self;
+    let mut res = copy *self;
 
     res.invert();
 
@@ -166,9 +166,9 @@ impl<N:Copy> Transpose for Mat3<N>
   #[inline(always)]
   fn transposed(&self) -> Mat3<N>
   {
-    Mat3::new(self.m11, self.m21, self.m31,
-              self.m12, self.m22, self.m32,
-              self.m13, self.m23, self.m33)
+    Mat3::new(copy self.m11, copy self.m21, copy self.m31,
+              copy self.m12, copy self.m22, copy self.m32,
+              copy self.m13, copy self.m23, copy self.m33)
   }
 
   #[inline(always)]
@@ -238,31 +238,31 @@ impl<N: Copy> Flatten<N> for Mat3<N>
 
   #[inline(always)]
   fn from_flattened(l: &[N], off: uint) -> Mat3<N>
-  { Mat3::new(l[off + 0], l[off + 1], l[off + 2],
-              l[off + 3], l[off + 4], l[off + 5],
-              l[off + 6], l[off + 7], l[off + 8]) }
+  { Mat3::new(copy l[off + 0], copy l[off + 1], copy l[off + 2],
+              copy l[off + 3], copy l[off + 4], copy l[off + 5],
+              copy l[off + 6], copy l[off + 7], copy l[off + 8]) }
 
   #[inline(always)]
   fn flatten(&self) -> ~[N]
   {
     ~[
-      self.m11, self.m12, self.m13,
-      self.m21, self.m22, self.m23,
-      self.m31, self.m32, self.m33
+      copy self.m11, copy self.m12, copy self.m13,
+      copy self.m21, copy self.m22, copy self.m23,
+      copy self.m31, copy self.m32, copy self.m33
     ]
   }
 
   #[inline(always)]
   fn flatten_to(&self, l: &mut [N], off: uint)
   {
-    l[off + 0] = self.m11;
-    l[off + 1] = self.m12;
-    l[off + 2] = self.m13;
-    l[off + 3] = self.m21;
-    l[off + 4] = self.m22;
-    l[off + 5] = self.m23;
-    l[off + 6] = self.m31;
-    l[off + 7] = self.m32;
-    l[off + 8] = self.m33;
+    l[off + 0] = copy self.m11;
+    l[off + 1] = copy self.m12;
+    l[off + 2] = copy self.m13;
+    l[off + 3] = copy self.m21;
+    l[off + 4] = copy self.m22;
+    l[off + 5] = copy self.m23;
+    l[off + 6] = copy self.m31;
+    l[off + 7] = copy self.m32;
+    l[off + 8] = copy self.m33;
   }
 }

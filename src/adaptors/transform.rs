@@ -20,7 +20,7 @@ impl<M: Copy, V: Copy> Transform<M, V>
 {
   #[inline(always)]
   pub fn new(mat: &M, trans: &V) -> Transform<M, V>
-  { Transform { submat: *mat, subtrans: *trans } }
+  { Transform { submat: copy *mat, subtrans: copy *trans } }
 }
 
 impl<M:Dim, V> Dim for Transform<M, V>
@@ -118,7 +118,7 @@ impl<M: Copy, V> DeltaTransform<M> for Transform<M, V>
 {
   #[inline(always)]
   fn delta_transform(&self) -> M
-  { self.submat }
+  { copy self.submat }
 }
 
 impl<M: RMul<V> + Copy, V> DeltaTransformVector<V> for Transform<M, V>
@@ -141,7 +141,7 @@ Inv for Transform<M, V>
   #[inline(always)]
   fn inverse(&self) -> Transform<M, V>
   {
-    let mut res = *self;
+    let mut res = copy *self;
 
     res.invert();
 

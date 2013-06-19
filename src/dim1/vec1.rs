@@ -51,7 +51,7 @@ ScalarMul<N> for Vec1<N>
 
   #[inline(always)]
   fn scalar_mul_inplace(&mut self, s: &N)
-  { self.x *= *s; }
+  { self.x = self.x * copy *s; }
 }
 
 
@@ -64,7 +64,7 @@ ScalarDiv<N> for Vec1<N>
 
   #[inline(always)]
   fn scalar_div_inplace(&mut self, s: &N)
-  { self.x /= *s; }
+  { self.x = self.x / copy *s; }
 }
 
 impl<N: Copy + Add<N, N>>
@@ -76,7 +76,7 @@ ScalarAdd<N> for Vec1<N>
 
   #[inline(always)]
   fn scalar_add_inplace(&mut self, s: &N)
-  { self.x += *s; }
+  { self.x = self.x + copy *s; }
 }
 
 impl<N: Copy + Sub<N, N>>
@@ -88,14 +88,14 @@ ScalarSub<N> for Vec1<N>
 
   #[inline(always)]
   fn scalar_sub_inplace(&mut self, s: &N)
-  { self.x -= *s; }
+  { self.x = self.x - copy *s; }
 }
 
 impl<N: Copy + Add<N, N>> Translation<Vec1<N>> for Vec1<N>
 {
   #[inline(always)]
   fn translation(&self) -> Vec1<N>
-  { *self }
+  { copy *self }
 
   #[inline(always)]
   fn translated(&self, t: &Vec1<N>) -> Vec1<N>
@@ -103,7 +103,7 @@ impl<N: Copy + Add<N, N>> Translation<Vec1<N>> for Vec1<N>
 
   #[inline(always)]
   fn translate(&mut self, t: &Vec1<N>)
-  { *self += *t }
+  { *self = *self + copy *t }
 }
 
 impl<N:Copy + Mul<N, N>> Dot<N> for Vec1<N>
@@ -140,7 +140,7 @@ Norm<N> for Vec1<N>
   {
     let l = self.norm();
 
-    self.x /= l;
+    self.x = self.x / copy l;
 
     l
   }
@@ -208,15 +208,15 @@ impl<N: Copy> Flatten<N> for Vec1<N>
 
   #[inline(always)]
   fn from_flattened(l: &[N], off: uint) -> Vec1<N>
-  { Vec1::new(l[off]) }
+  { Vec1::new(copy l[off]) }
 
   #[inline(always)]
   fn flatten(&self) -> ~[N]
-  { ~[ self.x ] }
+  { ~[ copy self.x ] }
 
   #[inline(always)]
   fn flatten_to(&self, l: &mut [N], off: uint)
-  { l[off] = self.x }
+  { l[off] = copy self.x }
 }
 
 impl<N: Bounded + Copy> Bounded for Vec1<N>

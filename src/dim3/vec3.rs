@@ -57,9 +57,9 @@ ScalarMul<N> for Vec3<N>
   #[inline(always)]
   fn scalar_mul_inplace(&mut self, s: &N)
   {
-    self.x *= *s;
-    self.y *= *s;
-    self.z *= *s;
+    self.x = self.x * copy *s;
+    self.y = self.y * copy *s;
+    self.z = self.z * copy *s;
   }
 }
 
@@ -74,9 +74,9 @@ ScalarDiv<N> for Vec3<N>
   #[inline(always)]
   fn scalar_div_inplace(&mut self, s: &N)
   {
-    self.x /= *s;
-    self.y /= *s;
-    self.z /= *s;
+    self.x = self.x / copy *s;
+    self.y = self.y / copy *s;
+    self.z = self.z / copy *s;
   }
 }
 
@@ -90,9 +90,9 @@ ScalarAdd<N> for Vec3<N>
   #[inline(always)]
   fn scalar_add_inplace(&mut self, s: &N)
   {
-    self.x += *s;
-    self.y += *s;
-    self.z += *s;
+    self.x = self.x + copy *s;
+    self.y = self.y + copy *s;
+    self.z = self.z + copy *s;
   }
 }
 
@@ -106,9 +106,9 @@ ScalarSub<N> for Vec3<N>
   #[inline(always)]
   fn scalar_sub_inplace(&mut self, s: &N)
   {
-    self.x -= *s;
-    self.y -= *s;
-    self.z -= *s;
+    self.x = self.x - copy *s;
+    self.y = self.y - copy *s;
+    self.z = self.z - copy *s;
   }
 }
 
@@ -116,7 +116,7 @@ impl<N: Copy + Add<N, N>> Translation<Vec3<N>> for Vec3<N>
 {
   #[inline(always)]
   fn translation(&self) -> Vec3<N>
-  { *self }
+  { copy *self }
 
   #[inline(always)]
   fn translated(&self, t: &Vec3<N>) -> Vec3<N>
@@ -124,7 +124,7 @@ impl<N: Copy + Add<N, N>> Translation<Vec3<N>> for Vec3<N>
 
   #[inline(always)]
   fn translate(&mut self, t: &Vec3<N>)
-  { *self += *t; }
+  { *self = *self + copy *t; }
 }
 
 
@@ -174,9 +174,9 @@ Norm<N> for Vec3<N>
   {
     let l = self.norm();
 
-    self.x /= l;
-    self.y /= l;
-    self.z /= l;
+    self.x = self.x / copy l;
+    self.y = self.y / copy l;
+    self.z = self.z / copy l;
 
     l
   }
@@ -201,7 +201,7 @@ impl<N:Copy + Zero> Zero for Vec3<N>
   fn zero() -> Vec3<N>
   {
     let _0 = Zero::zero();
-    Vec3::new(_0, _0, _0)
+    Vec3::new(copy _0, copy _0, copy _0)
   }
 
   #[inline(always)]
@@ -226,12 +226,12 @@ Basis for Vec3<N>
   fn orthogonal_subspace_basis(&self) -> ~[Vec3<N>]
   {
       let a = 
-        if (abs(self.x) > abs(self.y))
-        { Vec3::new(self.z, Zero::zero(), -self.x).normalized() }
+        if (abs(copy self.x) > abs(copy self.y))
+        { Vec3::new(copy self.z, Zero::zero(), -copy self.x).normalized() }
         else
-        { Vec3::new(Zero::zero(), -self.z, self.y).normalized() };
+        { Vec3::new(Zero::zero(), -self.z, copy self.y).normalized() };
 
-      ~[ a, a.cross(self) ]
+      ~[ a.cross(self), a ]
   }
 }
 
@@ -273,18 +273,18 @@ impl<N: Copy> Flatten<N> for Vec3<N>
 
   #[inline(always)]
   fn from_flattened(l: &[N], off: uint) -> Vec3<N>
-  { Vec3::new(l[off], l[off + 1], l[off + 2]) }
+  { Vec3::new(copy l[off], copy l[off + 1], copy l[off + 2]) }
 
   #[inline(always)]
   fn flatten(&self) -> ~[N]
-  { ~[ self.x, self.y, self.z ] }
+  { ~[ copy self.x, copy self.y, copy self.z ] }
 
   #[inline(always)]
   fn flatten_to(&self, l: &mut [N], off: uint)
   {
-    l[off]     = self.x;
-    l[off + 1] = self.y;
-    l[off + 2] = self.z;
+    l[off]     = copy self.x;
+    l[off + 1] = copy self.y;
+    l[off + 2] = copy self.z;
   }
 }
 

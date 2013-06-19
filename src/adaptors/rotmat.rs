@@ -22,7 +22,7 @@ impl<M: Copy> Rotmat<M>
 {
   #[inline(always)]
   fn submat(&self) -> M
-  { self.submat }
+  { copy self.submat }
 }
 
 pub fn rotmat2<N: Copy + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
@@ -31,7 +31,7 @@ pub fn rotmat2<N: Copy + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
   let sia = angle.sin();
 
   Rotmat
-  { submat: Mat2::new(coa, -sia, sia, coa) }
+  { submat: Mat2::new(copy coa, -sia, copy sia, copy coa) }
 }
 
 pub fn rotmat3<N: Copy + Trigonometric + Neg<N> + One + Sub<N, N> + Add<N, N> +
@@ -39,9 +39,9 @@ pub fn rotmat3<N: Copy + Trigonometric + Neg<N> + One + Sub<N, N> + Add<N, N> +
 (axis: &Vec3<N>, angle: N) -> Rotmat<Mat3<N>>
 {
   let _1        = One::one::<N>();
-  let ux        = axis.x;
-  let uy        = axis.y;
-  let uz        = axis.z;
+  let ux        = copy axis.x;
+  let uy        = copy axis.y;
+  let uz        = copy axis.z;
   let sqx       = ux * ux;
   let sqy       = uy * uy;
   let sqz       = uz * uz;
@@ -74,7 +74,7 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>>
 
   #[inline(always)]
   fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>>
-  { rotmat2(rot.x) * *self }
+  { rotmat2(copy rot.x) * *self }
 
   #[inline(always)]
   fn rotate(&mut self, rot: &Vec1<N>)
@@ -153,7 +153,7 @@ impl<M: Copy> DeltaTransform<M> for Rotmat<M>
 {
   #[inline(always)]
   fn delta_transform(&self) -> M
-  { self.submat }
+  { copy self.submat }
 }
 
 impl<M: RMul<V> + Copy, V: Copy> DeltaTransformVector<V> for Rotmat<M>

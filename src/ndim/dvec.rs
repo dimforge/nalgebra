@@ -62,10 +62,10 @@ impl<N: Copy + DivisionRing + Algebraic + Clone + ApproxEq<N>> DVec<N>
 
       let mut elt = basis_element.clone();
 
-      elt -= self.scalar_mul(&basis_element.dot(self));
+      elt = elt - self.scalar_mul(&basis_element.dot(self));
 
       for res.each |v|
-      { elt -= v.scalar_mul(&elt.dot(v)) };
+      { elt = elt - v.scalar_mul(&elt.dot(v)) };
 
       if (!elt.sqnorm().approx_eq(&Zero::zero()))
       { res.push(elt.normalized()); }
@@ -115,7 +115,7 @@ Dot<N> for DVec<N>
     let mut res = Zero::zero::<N>();
 
     for iterate(0u, self.at.len()) |i|
-    { res += self.at[i] * other.at[i]; }
+    { res = res + self.at[i] * other.at[i]; }
 
     res
   } 
@@ -129,7 +129,7 @@ impl<N: Copy + Ring> SubDot<N> for DVec<N>
     let mut res = Zero::zero::<N>();
 
     for iterate(0u, self.at.len()) |i|
-    { res += (self.at[i] - a.at[i]) * b.at[i]; }
+    { res = res + (self.at[i] - a.at[i]) * b.at[i]; }
 
     res
   } 
@@ -146,7 +146,7 @@ ScalarMul<N> for DVec<N>
   fn scalar_mul_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] *= *s; }
+    { self.at[i] = self.at[i] * copy *s; }
   }
 }
 
@@ -162,7 +162,7 @@ ScalarDiv<N> for DVec<N>
   fn scalar_div_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] /= *s; }
+    { self.at[i] = self.at[i] / copy *s; }
   }
 }
 
@@ -177,7 +177,7 @@ ScalarAdd<N> for DVec<N>
   fn scalar_add_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] += *s; }
+    { self.at[i] = self.at[i] + copy *s; }
   }
 }
 
@@ -192,7 +192,7 @@ ScalarSub<N> for DVec<N>
   fn scalar_sub_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] -= *s; }
+    { self.at[i] = self.at[i] - copy *s; }
   }
 }
 
@@ -238,7 +238,7 @@ Norm<N> for DVec<N>
     let l = self.norm();
 
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] /= l; }
+    { self.at[i] = self.at[i] / copy l; }
 
     l
   }
