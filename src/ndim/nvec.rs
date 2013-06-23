@@ -120,7 +120,7 @@ ScalarSub<N> for NVec<D, N>
 
   #[inline(always)]
   fn scalar_sub_inplace(&mut self, s: &N)
-  { self.scalar_sub_inplace(s) }
+  { self.at.scalar_sub_inplace(s) }
 }
 
 impl<D: Dim, N: Clone + Copy + Add<N, N>> Translation<NVec<D, N>> for NVec<D, N>
@@ -143,11 +143,11 @@ Norm<N> for NVec<D, N>
 {
   #[inline(always)]
   fn sqnorm(&self) -> N
-  { self.dot(self) }
+  { self.at.sqnorm() }
 
   #[inline(always)]
   fn norm(&self) -> N
-  { self.sqnorm().sqrt() }
+  { self.at.norm() }
 
   #[inline(always)]
   fn normalized(&self) -> NVec<D, N>
