@@ -57,7 +57,7 @@ impl<N: Copy + DivisionRing + Algebraic + Clone + ApproxEq<N>> DVec<N>
 
       basis_element.at[i] = One::one();
 
-      if (res.len() == dim - 1)
+      if res.len() == dim - 1
       { break; }
 
       let mut elt = basis_element.clone();
@@ -67,7 +67,7 @@ impl<N: Copy + DivisionRing + Algebraic + Clone + ApproxEq<N>> DVec<N>
       for res.each |v|
       { elt = elt - v.scalar_mul(&elt.dot(v)) };
 
-      if (!elt.sqnorm().approx_eq(&Zero::zero()))
+      if !elt.sqnorm().approx_eq(&Zero::zero())
       { res.push(elt.normalized()); }
     }
 

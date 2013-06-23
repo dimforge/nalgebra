@@ -163,7 +163,7 @@ Inv for DMat<N>
 
       while (n0 != dim)
       {
-        if (self.at(n0, k) != _0T)
+        if self.at(n0, k) != _0T
         { break; }
 
         n0 = n0 + 1;
@@ -172,7 +172,7 @@ Inv for DMat<N>
       assert!(n0 != dim); // non inversible matrix
 
       // swap pivot line
-      if (n0 != k)
+      if n0 != k
       {
         for iterate(0u, dim) |j|
         {
@@ -200,7 +200,7 @@ Inv for DMat<N>
 
       for iterate(0u, dim) |l|
       {
-        if (l != k)
+        if l != k
         {
           let normalizer = self.at(l, k);
 

@@ -226,7 +226,7 @@ Basis for Vec3<N>
   fn orthogonal_subspace_basis(&self) -> ~[Vec3<N>]
   {
       let a = 
-        if (abs(copy self.x) > abs(copy self.y))
+        if abs(copy self.x) > abs(copy self.y)
         { Vec3::new(copy self.z, Zero::zero(), -copy self.x).normalized() }
         else
         { Vec3::new(Zero::zero(), -self.z, copy self.y).normalized() };
