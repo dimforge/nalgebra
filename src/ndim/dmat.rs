@@ -22,7 +22,7 @@ pub fn zero_mat_with_dim<N: Zero + Copy>(dim: uint) -> DMat<N>
 
 #[inline(always)]
 pub fn is_zero_mat<N: Zero>(mat: &DMat<N>) -> bool
-{ mat.mij.all(|e| e.is_zero()) }
+{ mat.mij.iter().all(|e| e.is_zero()) }
 
 #[inline(always)]
 pub fn one_mat_with_dim<N: Copy + One + Zero>(dim: uint) -> DMat<N>

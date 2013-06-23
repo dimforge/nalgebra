@@ -23,7 +23,7 @@ pub fn zero_vec_with_dim<N: Zero + Copy>(dim: uint) -> DVec<N>
 
 #[inline(always)]
 pub fn is_zero_vec<N: Zero>(vec: &DVec<N>) -> bool
-{ vec.at.all(|e| e.is_zero()) }
+{ vec.at.iter().all(|e| e.is_zero()) }
 
 // FIXME: is Clone needed?
 impl<N: Copy + DivisionRing + Algebraic + Clone + ApproxEq<N>> DVec<N>
@@ -64,7 +64,7 @@ impl<N: Copy + DivisionRing + Algebraic + Clone + ApproxEq<N>> DVec<N>
 
       elt = elt - self.scalar_mul(&basis_element.dot(self));
 
-      for res.each |v|
+      for res.iter().advance |v|
       { elt = elt - v.scalar_mul(&elt.dot(v)) };
 
       if !elt.sqnorm().approx_eq(&Zero::zero())
