@@ -19,8 +19,8 @@ pub struct Transform<M, V>
 impl<M: Copy, V: Copy> Transform<M, V>
 {
   #[inline(always)]
-  pub fn new(mat: &M, trans: &V) -> Transform<M, V>
-  { Transform { submat: copy *mat, subtrans: copy *trans } }
+  pub fn new(mat: M, trans: V) -> Transform<M, V>
+  { Transform { submat: mat, subtrans: trans } }
 }
 
 impl<M:Dim, V> Dim for Transform<M, V>
@@ -81,7 +81,7 @@ impl<M: Copy, V: Copy + Translation<V>> Translation<V> for Transform<M, V>
 
   #[inline(always)]
   fn translated(&self, t: &V) -> Transform<M, V>
-  { Transform::new(&self.submat, &self.subtrans.translated(t)) }
+  { Transform::new(copy self.submat, self.subtrans.translated(t)) }
 
   #[inline(always)]
   fn translate(&mut self, t: &V)
@@ -101,7 +101,7 @@ Rotation<AV> for Transform<M, V>
     // FIXME: this does not seem opitmal
     let delta = One::one::<M>().rotated(rot);
 
-    Transform::new(&self.submat.rotated(rot), &delta.rmul(&self.subtrans))
+    Transform::new(self.submat.rotated(rot), delta.rmul(&self.subtrans))
   }
 
   #[inline(always)]
@@ -175,5 +175,5 @@ impl<M: Rand + Copy, V: Rand + Copy> Rand for Transform<M, V>
 {
   #[inline(always)]
   fn rand<R: Rng>(rng: &mut R) -> Transform<M, V>
-  { Transform::new(&rng.gen(), &rng.gen()) }
+  { Transform::new(rng.gen(), rng.gen()) }
 }

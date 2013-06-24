@@ -1,4 +1,6 @@
-pub trait SubDot<N>
+use traits::dot::Dot;
+
+pub trait SubDot<N> : Sub<Self, Self> + Dot<N>
 {
   /**
    * Short-cut to compute the projecton of a point on a vector, but without
