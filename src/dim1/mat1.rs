@@ -12,7 +12,7 @@ use dim1::vec1::Vec1;
 pub struct Mat1<N>
 { m11: N }
 
-impl<N: Copy> Mat1<N>
+impl<N> Mat1<N>
 {
   #[inline(always)]
   pub fn new(m11: N) -> Mat1<N>
@@ -29,14 +29,14 @@ impl<N> Dim for Mat1<N>
   { 1 }
 }
 
-impl<N:Copy + One> One for Mat1<N>
+impl<N: One> One for Mat1<N>
 {
   #[inline(always)]
   fn one() -> Mat1<N>
   { return Mat1::new(One::one()) }
 }
 
-impl<N:Copy + Zero> Zero for Mat1<N>
+impl<N: Zero> Zero for Mat1<N>
 {
   #[inline(always)]
   fn zero() -> Mat1<N>
@@ -47,21 +47,21 @@ impl<N:Copy + Zero> Zero for Mat1<N>
   { self.m11.is_zero() }
 }
 
-impl<N:Copy + Mul<N, N> + Add<N, N>> Mul<Mat1<N>, Mat1<N>> for Mat1<N>
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat1<N>, Mat1<N>> for Mat1<N>
 {
   #[inline(always)]
   fn mul(&self, other: &Mat1<N>) -> Mat1<N>
   { Mat1::new(self.m11 * other.m11) }
 }
 
-impl<N:Copy + Add<N, N> + Mul<N, N>> RMul<Vec1<N>> for Mat1<N>
+impl<N: Add<N, N> + Mul<N, N>> RMul<Vec1<N>> for Mat1<N>
 {
   #[inline(always)]
   fn rmul(&self, other: &Vec1<N>) -> Vec1<N>
   { Vec1::new(self.m11 * other.x) }
 }
 
-impl<N:Copy + Add<N, N> + Mul<N, N>> LMul<Vec1<N>> for Mat1<N>
+impl<N: Add<N, N> + Mul<N, N>> LMul<Vec1<N>> for Mat1<N>
 {
   #[inline(always)]
   fn lmul(&self, other: &Vec1<N>) -> Vec1<N>
@@ -90,7 +90,7 @@ Inv for Mat1<N>
   }
 }
 
-impl<N:Copy> Transpose for Mat1<N>
+impl<N: Copy> Transpose for Mat1<N>
 {
   #[inline(always)]
   fn transposed(&self) -> Mat1<N>
@@ -116,7 +116,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Mat1<N>
   { self.m11.approx_eq_eps(&other.m11, epsilon) }
 }
 
-impl<N:Rand + Copy> Rand for Mat1<N>
+impl<N: Rand > Rand for Mat1<N>
 {
   #[inline(always)]
   fn rand<R: Rng>(rng: &mut R) -> Mat1<N>

@@ -3,14 +3,14 @@ use traits::translation::Translation;
 /// Trait of object which represent a rotation, and to wich new rotations can
 /// be appended. A rotation is assumed to be an isomitry without translation
 /// and without reflexion.
-pub trait Rotation<V>
+pub trait Rotation<V, Res>
 {
   /// Gets the rotation associated with this object.
-  fn rotation(&self)   -> V;
+  fn rotation(&self) -> V;
 
   /// Appends a rotation from an alternative representation. Such
   /// representation has the same format as the one returned by `rotation`.
-  fn rotated(&self, &V) -> Self;
+  fn rotated(&self, &V) -> Res;
 
   /// In-place version of `rotated`.
   fn rotate(&mut self, &V);
@@ -24,8 +24,13 @@ pub trait Rotation<V>
  *   - `point`:   the center of rotation.
  */
 #[inline(always)]
-pub fn rotate_wrt_point<M: Rotation<AV> + Translation<LV>, LV: Neg<LV>, AV>
-       (m: &M, ammount: &AV, center: &LV) -> M
+pub fn rotate_wrt_point<M: Translation<LV, ResT>,
+                        ResT: Rotation<AV, Res> + Translation<LV, ResT2>,
+                        ResT2,
+                        Res,
+                        LV: Neg<LV>,
+                        AV>
+       (m: &M, ammount: &AV, center: &LV) -> ResT
 {
   let mut res = m.translated(&-center);
 

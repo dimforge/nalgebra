@@ -14,7 +14,7 @@ use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 pub struct Vec1<N>
 { x : N }
 
-impl<N: Copy> Vec1<N>
+impl<N> Vec1<N>
 {
   #[inline(always)]
   pub fn new(x: N) -> Vec1<N>
@@ -28,21 +28,21 @@ impl<N> Dim for Vec1<N>
   { 1 }
 }
 
-impl<N:Copy + Add<N,N>> Add<Vec1<N>, Vec1<N>> for Vec1<N>
+impl<N: Add<N, N>> Add<Vec1<N>, Vec1<N>> for Vec1<N>
 {
   #[inline(always)]
   fn add(&self, other: &Vec1<N>) -> Vec1<N>
   { Vec1::new(self.x + other.x) }
 }
 
-impl<N:Copy + Sub<N,N>> Sub<Vec1<N>, Vec1<N>> for Vec1<N>
+impl<N: Sub<N, N>> Sub<Vec1<N>, Vec1<N>> for Vec1<N>
 {
   #[inline(always)]
   fn sub(&self, other: &Vec1<N>) -> Vec1<N>
   { Vec1::new(self.x - other.x) }
 }
 
-impl<N: Copy + Mul<N, N>>
+impl<N: Mul<N, N>>
 ScalarMul<N> for Vec1<N>
 {
   #[inline(always)]
@@ -51,11 +51,11 @@ ScalarMul<N> for Vec1<N>
 
   #[inline(always)]
   fn scalar_mul_inplace(&mut self, s: &N)
-  { self.x = self.x * copy *s; }
+  { self.x = self.x * *s; }
 }
 
 
-impl<N: Copy + Div<N, N>>
+impl<N: Div<N, N>>
 ScalarDiv<N> for Vec1<N>
 {
   #[inline(always)]
@@ -64,10 +64,10 @@ ScalarDiv<N> for Vec1<N>
 
   #[inline(always)]
   fn scalar_div_inplace(&mut self, s: &N)
-  { self.x = self.x / copy *s; }
+  { self.x = self.x / *s; }
 }
 
-impl<N: Copy + Add<N, N>>
+impl<N: Add<N, N>>
 ScalarAdd<N> for Vec1<N>
 {
   #[inline(always)]
@@ -76,10 +76,10 @@ ScalarAdd<N> for Vec1<N>
 
   #[inline(always)]
   fn scalar_add_inplace(&mut self, s: &N)
-  { self.x = self.x + copy *s; }
+  { self.x = self.x + *s; }
 }
 
-impl<N: Copy + Sub<N, N>>
+impl<N: Sub<N, N>>
 ScalarSub<N> for Vec1<N>
 {
   #[inline(always)]
@@ -88,10 +88,10 @@ ScalarSub<N> for Vec1<N>
 
   #[inline(always)]
   fn scalar_sub_inplace(&mut self, s: &N)
-  { self.x = self.x - copy *s; }
+  { self.x = self.x - *s; }
 }
 
-impl<N: Copy + Add<N, N>> Translation<Vec1<N>> for Vec1<N>
+impl<N: Copy + Add<N, N>> Translation<Vec1<N>, Vec1<N>> for Vec1<N>
 {
   #[inline(always)]
   fn translation(&self) -> Vec1<N>
@@ -103,24 +103,24 @@ impl<N: Copy + Add<N, N>> Translation<Vec1<N>> for Vec1<N>
 
   #[inline(always)]
   fn translate(&mut self, t: &Vec1<N>)
-  { *self = *self + copy *t }
+  { *self = *self + *t }
 }
 
-impl<N:Copy + Mul<N, N>> Dot<N> for Vec1<N>
+impl<N: Mul<N, N>> Dot<N> for Vec1<N>
 {
   #[inline(always)]
   fn dot(&self, other : &Vec1<N>) -> N
   { self.x * other.x } 
 }
 
-impl<N:Copy + Mul<N, N> + Sub<N, N>> SubDot<N> for Vec1<N>
+impl<N: Mul<N, N> + Sub<N, N>> SubDot<N> for Vec1<N>
 {
   #[inline(always)]
   fn sub_dot(&self, a: &Vec1<N>, b: &Vec1<N>) -> N
   { (self.x - a.x) * b.x } 
 }
 
-impl<N:Copy + Mul<N, N> + Add<N, N> + Div<N, N> + Algebraic>
+impl<N: Mul<N, N> + Add<N, N> + Div<N, N> + Algebraic>
 Norm<N> for Vec1<N>
 {
   #[inline(always)]
@@ -140,20 +140,20 @@ Norm<N> for Vec1<N>
   {
     let l = self.norm();
 
-    self.x = self.x / copy l;
+    self.x = self.x / l;
 
     l
   }
 }
 
-impl<N:Copy + Neg<N>> Neg<Vec1<N>> for Vec1<N>
+impl<N: Neg<N>> Neg<Vec1<N>> for Vec1<N>
 {
   #[inline(always)]
   fn neg(&self) -> Vec1<N>
   { Vec1::new(-self.x) }
 }
 
-impl<N:Copy + Zero> Zero for Vec1<N>
+impl<N: Zero> Zero for Vec1<N>
 {
   #[inline(always)]
   fn zero() -> Vec1<N>
@@ -167,7 +167,7 @@ impl<N:Copy + Zero> Zero for Vec1<N>
   { self.x.is_zero() }
 }
 
-impl<N: Copy + One> Basis for Vec1<N>
+impl<N: One> Basis for Vec1<N>
 {
   #[inline(always)]
   fn canonical_basis() -> ~[Vec1<N>]
@@ -193,7 +193,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Vec1<N>
   { self.x.approx_eq_eps(&other.x, epsilon) }
 }
 
-impl<N: Rand + Copy> Rand for Vec1<N>
+impl<N: Rand> Rand for Vec1<N>
 {
   #[inline(always)]
   fn rand<R: Rng>(rng: &mut R) -> Vec1<N>
@@ -219,7 +219,7 @@ impl<N: Copy> Flatten<N> for Vec1<N>
   { l[off] = copy self.x }
 }
 
-impl<N: Bounded + Copy> Bounded for Vec1<N>
+impl<N: Bounded> Bounded for Vec1<N>
 {
   #[inline(always)]
   fn max_value() -> Vec1<N>

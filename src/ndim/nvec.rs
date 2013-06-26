@@ -52,14 +52,14 @@ impl<D, N: Copy + Sub<N,N>> Sub<NVec<D, N>, NVec<D, N>> for NVec<D, N>
   { NVec { at: self.at - other.at } }
 }
 
-impl<D, N: Copy + Neg<N>> Neg<NVec<D, N>> for NVec<D, N>
+impl<D, N: Neg<N>> Neg<NVec<D, N>> for NVec<D, N>
 {
   #[inline(always)]
   fn neg(&self) -> NVec<D, N>
   { NVec { at: -self.at } }
 }
 
-impl<D: Dim, N: Copy + Ring>
+impl<D: Dim, N: Ring>
 Dot<N> for NVec<D, N>
 {
   #[inline(always)]
@@ -67,14 +67,14 @@ Dot<N> for NVec<D, N>
   { self.at.dot(&other.at) } 
 }
 
-impl<D: Dim, N: Copy + Ring> SubDot<N> for NVec<D, N>
+impl<D: Dim, N: Ring> SubDot<N> for NVec<D, N>
 {
   #[inline(always)]
   fn sub_dot(&self, a: &NVec<D, N>, b: &NVec<D, N>) -> N
   { self.at.sub_dot(&a.at, &b.at) } 
 }
 
-impl<D: Dim, N: Copy + Mul<N, N>>
+impl<D: Dim, N: Mul<N, N>>
 ScalarMul<N> for NVec<D, N>
 {
   #[inline(always)]
@@ -87,7 +87,7 @@ ScalarMul<N> for NVec<D, N>
 }
 
 
-impl<D: Dim, N: Copy + Div<N, N>>
+impl<D: Dim, N: Div<N, N>>
 ScalarDiv<N> for NVec<D, N>
 {
   #[inline(always)]
@@ -99,7 +99,7 @@ ScalarDiv<N> for NVec<D, N>
   { self.at.scalar_div_inplace(s) }
 }
 
-impl<D: Dim, N: Copy + Add<N, N>>
+impl<D: Dim, N: Add<N, N>>
 ScalarAdd<N> for NVec<D, N>
 {
   #[inline(always)]
@@ -111,7 +111,7 @@ ScalarAdd<N> for NVec<D, N>
   { self.at.scalar_add_inplace(s) }
 }
 
-impl<D: Dim, N: Copy + Sub<N, N>>
+impl<D: Dim, N: Sub<N, N>>
 ScalarSub<N> for NVec<D, N>
 {
   #[inline(always)]
@@ -123,7 +123,7 @@ ScalarSub<N> for NVec<D, N>
   { self.at.scalar_sub_inplace(s) }
 }
 
-impl<D: Dim, N: Clone + Copy + Add<N, N>> Translation<NVec<D, N>> for NVec<D, N>
+impl<D: Dim, N: Clone + Copy + Add<N, N>> Translation<NVec<D, N>, NVec<D, N>> for NVec<D, N>
 {
   #[inline(always)]
   fn translation(&self) -> NVec<D, N>

@@ -16,7 +16,7 @@ pub struct Mat2<N>
     m21: N, m22: N
 }
 
-impl<N: Copy> Mat2<N>
+impl<N> Mat2<N>
 {
   #[inline(always)]
   pub fn new(m11: N, m12: N, m21: N, m22: N) -> Mat2<N>
@@ -36,14 +36,14 @@ impl<N> Dim for Mat2<N>
   { 2 }
 }
 
-impl<N:Copy + One + Zero> One for Mat2<N>
+impl<N: Copy + One + Zero> One for Mat2<N>
 {
   #[inline(always)]
   fn one() -> Mat2<N>
   {
     let (_0, _1) = (Zero::zero(), One::one());
     return Mat2::new(copy _1, copy _0,
-                     copy _0, copy _1)
+                     _0,      _1)
   }
 }
 
@@ -54,7 +54,7 @@ impl<N:Copy + Zero> Zero for Mat2<N>
   {
     let _0 = Zero::zero();
     return Mat2::new(copy _0, copy _0,
-                     copy _0, copy _0)
+                     copy _0, _0)
   }
 
   #[inline(always)]
@@ -65,7 +65,7 @@ impl<N:Copy + Zero> Zero for Mat2<N>
   }
 }
 
-impl<N:Copy + Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N>
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N>
 {
   #[inline(always)]
   fn mul(&self, other: &Mat2<N>) -> Mat2<N>
@@ -79,7 +79,7 @@ impl<N:Copy + Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N>
   }
 }
 
-impl<N:Copy + Add<N, N> + Mul<N, N>> RMul<Vec2<N>> for Mat2<N>
+impl<N: Add<N, N> + Mul<N, N>> RMul<Vec2<N>> for Mat2<N>
 {
   #[inline(always)]
   fn rmul(&self, other: &Vec2<N>) -> Vec2<N>
@@ -91,7 +91,7 @@ impl<N:Copy + Add<N, N> + Mul<N, N>> RMul<Vec2<N>> for Mat2<N>
   }
 }
 
-impl<N:Copy + Add<N, N> + Mul<N, N>> LMul<Vec2<N>> for Mat2<N>
+impl<N: Add<N, N> + Mul<N, N>> LMul<Vec2<N>> for Mat2<N>
 {
   #[inline(always)]
   fn lmul(&self, other: &Vec2<N>) -> Vec2<N>
@@ -128,7 +128,7 @@ Inv for Mat2<N>
   }
 }
 
-impl<N:Copy> Transpose for Mat2<N>
+impl<N: Copy> Transpose for Mat2<N>
 {
   #[inline(always)]
   fn transposed(&self) -> Mat2<N>
@@ -169,7 +169,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Mat2<N>
   }
 }
 
-impl<N:Rand + Copy> Rand for Mat2<N>
+impl<N: Rand> Rand for Mat2<N>
 {
   #[inline(always)]
   fn rand<R: Rng>(rng: &mut R) -> Mat2<N>

@@ -17,7 +17,7 @@ pub struct Mat3<N>
     m31: N, m32: N, m33: N
 }
 
-impl<N: Copy> Mat3<N>
+impl<N> Mat3<N>
 {
   #[inline(always)]
   pub fn new(m11: N, m12: N, m13: N,
@@ -27,8 +27,8 @@ impl<N: Copy> Mat3<N>
     Mat3
     {
       m11: m11, m12: m12, m13: m13,
-           m21: m21, m22: m22, m23: m23,
-           m31: m31, m32: m32, m33: m33
+      m21: m21, m22: m22, m23: m23,
+      m31: m31, m32: m32, m33: m33
     }
   }
 }
@@ -40,7 +40,7 @@ impl<N> Dim for Mat3<N>
   { 3 }
 }
 
-impl<N:Copy + One + Zero> One for Mat3<N>
+impl<N: Copy + One + Zero> One for Mat3<N>
 {
   #[inline(always)]
   fn one() -> Mat3<N>
@@ -48,11 +48,11 @@ impl<N:Copy + One + Zero> One for Mat3<N>
     let (_0, _1) = (Zero::zero(), One::one());
     return Mat3::new(copy _1, copy _0, copy _0,
                      copy _0, copy _1, copy _0,
-                     copy _0, copy _0, copy _1)
+                     copy _0, _0,      _1)
   }
 }
 
-impl<N:Copy + Zero> Zero for Mat3<N>
+impl<N: Copy + Zero> Zero for Mat3<N>
 {
   #[inline(always)]
   fn zero() -> Mat3<N>
@@ -60,7 +60,7 @@ impl<N:Copy + Zero> Zero for Mat3<N>
     let _0 = Zero::zero();
     return Mat3::new(copy _0, copy _0, copy _0,
                      copy _0, copy _0, copy _0,
-                     copy _0, copy _0, copy _0)
+                     copy _0, copy _0, _0)
   }
 
   #[inline(always)]
@@ -72,7 +72,7 @@ impl<N:Copy + Zero> Zero for Mat3<N>
   }
 }
 
-impl<N:Copy + Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N>
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N>
 {
   #[inline(always)]
   fn mul(&self, other: &Mat3<N>) -> Mat3<N>
@@ -93,7 +93,7 @@ impl<N:Copy + Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N>
   }
 }
 
-impl<N:Copy + Add<N, N> + Mul<N, N>> RMul<Vec3<N>> for Mat3<N>
+impl<N: Add<N, N> + Mul<N, N>> RMul<Vec3<N>> for Mat3<N>
 {
   #[inline(always)]
   fn rmul(&self, other: &Vec3<N>) -> Vec3<N>
@@ -106,7 +106,7 @@ impl<N:Copy + Add<N, N> + Mul<N, N>> RMul<Vec3<N>> for Mat3<N>
   }
 }
 
-impl<N:Copy + Add<N, N> + Mul<N, N>> LMul<Vec3<N>> for Mat3<N>
+impl<N: Add<N, N> + Mul<N, N>> LMul<Vec3<N>> for Mat3<N>
 {
   #[inline(always)]
   fn lmul(&self, other: &Vec3<N>) -> Vec3<N>
@@ -219,7 +219,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Mat3<N>
   }
 }
 
-impl<N:Rand + Copy> Rand for Mat3<N>
+impl<N: Rand> Rand for Mat3<N>
 {
   #[inline(always)]
   fn rand<R: Rng>(rng: &mut R) -> Mat3<N>

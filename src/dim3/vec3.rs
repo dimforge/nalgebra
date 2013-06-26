@@ -19,7 +19,7 @@ pub struct Vec3<N>
   z : N
 }
 
-impl<N: Copy> Vec3<N>
+impl<N> Vec3<N>
 {
   #[inline(always)]
   pub fn new(x: N, y: N, z: N) -> Vec3<N>
@@ -33,21 +33,21 @@ impl<N> Dim for Vec3<N>
   { 3 }
 }
 
-impl<N:Copy + Add<N,N>> Add<Vec3<N>, Vec3<N>> for Vec3<N>
+impl<N: Add<N,N>> Add<Vec3<N>, Vec3<N>> for Vec3<N>
 {
   #[inline(always)]
   fn add(&self, other: &Vec3<N>) -> Vec3<N>
   { Vec3::new(self.x + other.x, self.y + other.y, self.z + other.z) }
 }
 
-impl<N:Copy + Sub<N,N>> Sub<Vec3<N>, Vec3<N>> for Vec3<N>
+impl<N: Sub<N,N>> Sub<Vec3<N>, Vec3<N>> for Vec3<N>
 {
   #[inline(always)]
   fn sub(&self, other: &Vec3<N>) -> Vec3<N>
   { Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z) }
 }
 
-impl<N: Copy + Mul<N, N>>
+impl<N: Mul<N, N>>
 ScalarMul<N> for Vec3<N>
 {
   #[inline(always)]
@@ -57,14 +57,14 @@ ScalarMul<N> for Vec3<N>
   #[inline(always)]
   fn scalar_mul_inplace(&mut self, s: &N)
   {
-    self.x = self.x * copy *s;
-    self.y = self.y * copy *s;
-    self.z = self.z * copy *s;
+    self.x = self.x * *s;
+    self.y = self.y * *s;
+    self.z = self.z * *s;
   }
 }
 
 
-impl<N: Copy + Div<N, N>>
+impl<N: Div<N, N>>
 ScalarDiv<N> for Vec3<N>
 {
   #[inline(always)]
@@ -74,13 +74,13 @@ ScalarDiv<N> for Vec3<N>
   #[inline(always)]
   fn scalar_div_inplace(&mut self, s: &N)
   {
-    self.x = self.x / copy *s;
-    self.y = self.y / copy *s;
-    self.z = self.z / copy *s;
+    self.x = self.x / *s;
+    self.y = self.y / *s;
+    self.z = self.z / *s;
   }
 }
 
-impl<N: Copy + Add<N, N>>
+impl<N: Add<N, N>>
 ScalarAdd<N> for Vec3<N>
 {
   #[inline(always)]
@@ -90,13 +90,13 @@ ScalarAdd<N> for Vec3<N>
   #[inline(always)]
   fn scalar_add_inplace(&mut self, s: &N)
   {
-    self.x = self.x + copy *s;
-    self.y = self.y + copy *s;
-    self.z = self.z + copy *s;
+    self.x = self.x + *s;
+    self.y = self.y + *s;
+    self.z = self.z + *s;
   }
 }
 
-impl<N: Copy + Sub<N, N>>
+impl<N: Sub<N, N>>
 ScalarSub<N> for Vec3<N>
 {
   #[inline(always)]
@@ -106,13 +106,13 @@ ScalarSub<N> for Vec3<N>
   #[inline(always)]
   fn scalar_sub_inplace(&mut self, s: &N)
   {
-    self.x = self.x - copy *s;
-    self.y = self.y - copy *s;
-    self.z = self.z - copy *s;
+    self.x = self.x - *s;
+    self.y = self.y - *s;
+    self.z = self.z - *s;
   }
 }
 
-impl<N: Copy + Add<N, N>> Translation<Vec3<N>> for Vec3<N>
+impl<N: Copy + Add<N, N>> Translation<Vec3<N>, Vec3<N>> for Vec3<N>
 {
   #[inline(always)]
   fn translation(&self) -> Vec3<N>
@@ -124,33 +124,33 @@ impl<N: Copy + Add<N, N>> Translation<Vec3<N>> for Vec3<N>
 
   #[inline(always)]
   fn translate(&mut self, t: &Vec3<N>)
-  { *self = *self + copy *t; }
+  { *self = *self + *t; }
 }
 
 
 
-impl<N:Copy + Neg<N>> Neg<Vec3<N>> for Vec3<N>
+impl<N: Neg<N>> Neg<Vec3<N>> for Vec3<N>
 {
   #[inline(always)]
   fn neg(&self) -> Vec3<N>
   { Vec3::new(-self.x, -self.y, -self.z) }
 }
 
-impl<N:Copy + Mul<N, N> + Add<N, N>> Dot<N> for Vec3<N>
+impl<N: Mul<N, N> + Add<N, N>> Dot<N> for Vec3<N>
 {
   #[inline(always)]
   fn dot(&self, other : &Vec3<N>) -> N
   { self.x * other.x + self.y * other.y + self.z * other.z } 
 }
 
-impl<N:Copy + Mul<N, N> + Add<N, N> + Sub<N, N>> SubDot<N> for Vec3<N>
+impl<N: Mul<N, N> + Add<N, N> + Sub<N, N>> SubDot<N> for Vec3<N>
 {
   #[inline(always)]
   fn sub_dot(&self, a: &Vec3<N>, b: &Vec3<N>) -> N
   { (self.x - a.x) * b.x + (self.y - a.y) * b.y + (self.z - a.z) * b.z } 
 }
 
-impl<N:Copy + Mul<N, N> + Add<N, N> + Div<N, N> + Algebraic>
+impl<N: Mul<N, N> + Add<N, N> + Div<N, N> + Algebraic>
 Norm<N> for Vec3<N>
 {
   #[inline(always)]
@@ -174,15 +174,15 @@ Norm<N> for Vec3<N>
   {
     let l = self.norm();
 
-    self.x = self.x / copy l;
-    self.y = self.y / copy l;
-    self.z = self.z / copy l;
+    self.x = self.x / l;
+    self.y = self.y / l;
+    self.z = self.z / l;
 
     l
   }
 }
 
-impl<N:Copy + Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N>
+impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N>
 {
   #[inline(always)]
   fn cross(&self, other : &Vec3<N>) -> Vec3<N>
@@ -195,14 +195,11 @@ impl<N:Copy + Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N>
   }
 }
 
-impl<N:Copy + Zero> Zero for Vec3<N>
+impl<N: Zero> Zero for Vec3<N>
 {
   #[inline(always)]
   fn zero() -> Vec3<N>
-  {
-    let _0 = Zero::zero();
-    Vec3::new(copy _0, copy _0, copy _0)
-  }
+  { Vec3::new(Zero::zero(), Zero::zero(), Zero::zero()) }
 
   #[inline(always)]
   fn is_zero(&self) -> bool
@@ -258,7 +255,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Vec3<N>
   }
 }
 
-impl<N:Copy + Rand> Rand for Vec3<N>
+impl<N: Rand> Rand for Vec3<N>
 {
   #[inline(always)]
   fn rand<R: Rng>(rng: &mut R) -> Vec3<N>
@@ -288,7 +285,7 @@ impl<N: Copy> Flatten<N> for Vec3<N>
   }
 }
 
-impl<N: Bounded + Copy> Bounded for Vec3<N>
+impl<N: Bounded> Bounded for Vec3<N>
 {
   #[inline(always)]
   fn max_value() -> Vec3<N>

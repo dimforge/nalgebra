@@ -14,16 +14,7 @@ use dim3::vec3::{Vec3};
 
 #[deriving(Eq, ToStr)]
 pub struct Rotmat<M>
-{
-  priv submat: M
-}
-
-impl<M: Copy> Rotmat<M>
-{
-  #[inline(always)]
-  fn submat(&self) -> M
-  { copy self.submat }
-}
+{ priv submat: M }
 
 pub fn rotmat2<N: Copy + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
 {
@@ -66,7 +57,7 @@ pub fn rotmat3<N: Copy + Trigonometric + Neg<N> + One + Sub<N, N> + Add<N, N> +
 }
 
 impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy>
-Rotation<Vec1<N>> for Rotmat<Mat2<N>>
+Rotation<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>>
 {
   #[inline(always)]
   fn rotation(&self) -> Vec1<N>
@@ -83,7 +74,7 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>>
 
 impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy +
         One + Sub<N, N>>
-Rotation<(Vec3<N>, N)> for Rotmat<Mat3<N>>
+Rotation<(Vec3<N>, N), Rotmat<Mat3<N>>> for Rotmat<Mat3<N>>
 {
   #[inline(always)]
   fn rotation(&self) -> (Vec3<N>, N)
@@ -121,14 +112,14 @@ impl<M: Dim> Dim for Rotmat<M>
   { Dim::dim::<M>() }
 }
  
-impl<M: Copy + One + Zero> One for Rotmat<M>
+impl<M: One + Zero> One for Rotmat<M>
 {
   #[inline(always)]
   fn one() -> Rotmat<M>
   { Rotmat { submat: One::one() } }
 }
 
-impl<M: Copy + Mul<M, M>> Mul<Rotmat<M>, Rotmat<M>> for Rotmat<M>
+impl<M: Mul<M, M>> Mul<Rotmat<M>, Rotmat<M>> for Rotmat<M>
 {
   #[inline(always)]
   fn mul(&self, other: &Rotmat<M>) -> Rotmat<M>
@@ -156,14 +147,14 @@ impl<M: Copy> DeltaTransform<M> for Rotmat<M>
   { copy self.submat }
 }
 
-impl<M: RMul<V> + Copy, V: Copy> DeltaTransformVector<V> for Rotmat<M>
+impl<M: RMul<V>, V> DeltaTransformVector<V> for Rotmat<M>
 {
   #[inline(always)]
   fn delta_transform_vector(&self, v: &V) -> V
   { self.submat.rmul(v) }
 }
 
-impl<M: Copy + Transpose> Inv for Rotmat<M>
+impl<M: Transpose> Inv for Rotmat<M>
 {
   #[inline(always)]
   fn invert(&mut self)
@@ -174,7 +165,7 @@ impl<M: Copy + Transpose> Inv for Rotmat<M>
   { self.transposed() }
 }
 
-impl<M: Copy + Transpose>
+impl<M: Transpose>
 Transpose for Rotmat<M>
 {
   #[inline(always)]

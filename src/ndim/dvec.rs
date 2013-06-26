@@ -97,14 +97,14 @@ impl<N: Copy + Sub<N,N>> Sub<DVec<N>, DVec<N>> for DVec<N>
   }
 }
 
-impl<N: Copy + Neg<N>> Neg<DVec<N>> for DVec<N>
+impl<N: Neg<N>> Neg<DVec<N>> for DVec<N>
 {
   #[inline(always)]
   fn neg(&self) -> DVec<N>
   { DVec { at: map(self.at, |a| -a) } }
 }
 
-impl<N: Copy + Ring>
+impl<N: Ring>
 Dot<N> for DVec<N>
 {
   #[inline(always)]
@@ -121,7 +121,7 @@ Dot<N> for DVec<N>
   } 
 }
 
-impl<N: Copy + Ring> SubDot<N> for DVec<N>
+impl<N: Ring> SubDot<N> for DVec<N>
 {
   #[inline(always)]
   fn sub_dot(&self, a: &DVec<N>, b: &DVec<N>) -> N
@@ -135,7 +135,7 @@ impl<N: Copy + Ring> SubDot<N> for DVec<N>
   } 
 }
 
-impl<N: Copy + Mul<N, N>>
+impl<N: Mul<N, N>>
 ScalarMul<N> for DVec<N>
 {
   #[inline(always)]
@@ -146,12 +146,12 @@ ScalarMul<N> for DVec<N>
   fn scalar_mul_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] = self.at[i] * copy *s; }
+    { self.at[i] = self.at[i] * *s; }
   }
 }
 
 
-impl<N: Copy + Div<N, N>>
+impl<N: Div<N, N>>
 ScalarDiv<N> for DVec<N>
 {
   #[inline(always)]
@@ -162,11 +162,11 @@ ScalarDiv<N> for DVec<N>
   fn scalar_div_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] = self.at[i] / copy *s; }
+    { self.at[i] = self.at[i] / *s; }
   }
 }
 
-impl<N: Copy + Add<N, N>>
+impl<N: Add<N, N>>
 ScalarAdd<N> for DVec<N>
 {
   #[inline(always)]
@@ -177,11 +177,11 @@ ScalarAdd<N> for DVec<N>
   fn scalar_add_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] = self.at[i] + copy *s; }
+    { self.at[i] = self.at[i] + *s; }
   }
 }
 
-impl<N: Copy + Sub<N, N>>
+impl<N: Sub<N, N>>
 ScalarSub<N> for DVec<N>
 {
   #[inline(always)]
@@ -192,11 +192,11 @@ ScalarSub<N> for DVec<N>
   fn scalar_sub_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] = self.at[i] - copy *s; }
+    { self.at[i] = self.at[i] - *s; }
   }
 }
 
-impl<N: Clone + Copy + Add<N, N>> Translation<DVec<N>> for DVec<N>
+impl<N: Clone + Copy + Add<N, N>> Translation<DVec<N>, DVec<N>> for DVec<N>
 {
   #[inline(always)]
   fn translation(&self) -> DVec<N>
@@ -238,7 +238,7 @@ Norm<N> for DVec<N>
     let l = self.norm();
 
     for iterate(0u, self.at.len()) |i|
-    { self.at[i] = self.at[i] / copy l; }
+    { self.at[i] = self.at[i] / l; }
 
     l
   }

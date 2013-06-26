@@ -16,7 +16,7 @@ pub struct Transform<M, V>
   priv subtrans : V
 }
 
-impl<M: Copy, V: Copy> Transform<M, V>
+impl<M, V> Transform<M, V>
 {
   #[inline(always)]
   pub fn new(mat: M, trans: V) -> Transform<M, V>
@@ -30,14 +30,14 @@ impl<M:Dim, V> Dim for Transform<M, V>
   { Dim::dim::<M>() }
 }
 
-impl<M:Copy + One, V:Copy + Zero> One for Transform<M, V>
+impl<M: One, V: Zero> One for Transform<M, V>
 {
   #[inline(always)]
   fn one() -> Transform<M, V>
   { Transform { submat: One::one(), subtrans: Zero::zero() } }
 }
 
-impl<M:Copy + Zero, V:Copy + Zero> Zero for Transform<M, V>
+impl<M: Zero, V: Zero> Zero for Transform<M, V>
 {
   #[inline(always)]
   fn zero() -> Transform<M, V>
@@ -48,7 +48,7 @@ impl<M:Copy + Zero, V:Copy + Zero> Zero for Transform<M, V>
   { self.submat.is_zero() && self.subtrans.is_zero() }
 }
 
-impl<M:Copy + RMul<V> + Mul<M, M>, V:Copy + Add<V, V>>
+impl<M: RMul<V> + Mul<M, M>, V: Add<V, V>>
 Mul<Transform<M, V>, Transform<M, V>> for Transform<M, V>
 {
   #[inline(always)]
@@ -73,14 +73,14 @@ impl<M: LMul<V>, V: Add<V, V>> LMul<V> for Transform<M, V>
   { self.submat.lmul(other) + self.subtrans }
 }
 
-impl<M: Copy, V: Copy + Translation<V>> Translation<V> for Transform<M, V>
+impl<M: Copy, V: Translation<V, Res>, Res> Translation<V, Transform<M, Res>> for Transform<M, V>
 {
   #[inline(always)]
   fn translation(&self) -> V
   { self.subtrans.translation() }
 
   #[inline(always)]
-  fn translated(&self, t: &V) -> Transform<M, V>
+  fn translated(&self, t: &V) -> Transform<M, Res>
   { Transform::new(copy self.submat, self.subtrans.translated(t)) }
 
   #[inline(always)]
@@ -88,15 +88,18 @@ impl<M: Copy, V: Copy + Translation<V>> Translation<V> for Transform<M, V>
   { self.subtrans.translate(t) }
 }
 
-impl<M: Rotation<AV> + Copy + RMul<V> + One, V: Copy, AV>
-Rotation<AV> for Transform<M, V>
+impl<M: Rotation<AV, Res> + One,
+     Res: RMul<V>,
+     V,
+     AV>
+Rotation<AV, Transform<Res, V>> for Transform<M, V>
 {
   #[inline(always)]
   fn rotation(&self) -> AV
   { self.submat.rotation() }
 
   #[inline(always)]
-  fn rotated(&self, rot: &AV) -> Transform<M, V>
+  fn rotated(&self, rot: &AV) -> Transform<Res, V>
   {
     // FIXME: this does not seem opitmal
     let delta = One::one::<M>().rotated(rot);
@@ -121,14 +124,14 @@ impl<M: Copy, V> DeltaTransform<M> for Transform<M, V>
   { copy self.submat }
 }
 
-impl<M: RMul<V> + Copy, V> DeltaTransformVector<V> for Transform<M, V>
+impl<M: RMul<V>, V> DeltaTransformVector<V> for Transform<M, V>
 {
   #[inline(always)]
   fn delta_transform_vector(&self, v: &V) -> V
   { self.submat.rmul(v) }
 }
 
-impl<M:Copy + Transpose + Inv + RMul<V>, V:Copy + Neg<V>>
+impl<M:Copy + Transpose + Inv + RMul<V>, V: Copy + Neg<V>>
 Inv for Transform<M, V>
 {
   #[inline(always)]
@@ -171,7 +174,7 @@ ApproxEq<N> for Transform<M, V>
   }
 }
 
-impl<M: Rand + Copy, V: Rand + Copy> Rand for Transform<M, V>
+impl<M: Rand, V: Rand> Rand for Transform<M, V>
 {
   #[inline(always)]
   fn rand<R: Rng>(rng: &mut R) -> Transform<M, V>

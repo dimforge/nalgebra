@@ -11,6 +11,5 @@ pub trait VectorSpace<N>
   ScalarMul<N> + ScalarDiv<N>
 { }
 
-impl<V: Sub<V, V> + Add<V, V> + Neg<V> + Zero +
-        ScalarMul<N> + ScalarDiv<N>,
+impl<V: Sub<V, V> + Add<V, V> + Neg<V> + Zero + ScalarMul<N> + ScalarDiv<N>,
      N: DivisionRing> VectorSpace<N> for V;
