@@ -26,7 +26,7 @@ pub trait Rotatable<V, Res: Rotation<V>>
  *   - `ammount`: the rotation to apply.
  *   - `point`:   the center of rotation.
  */
-#[inline(always)]
+#[inline]
 pub fn rotate_wrt_point<M: Translatable<LV, M2>,
                         M2: Rotation<AV> + Translation<LV>,
                         LV: Neg<LV>,

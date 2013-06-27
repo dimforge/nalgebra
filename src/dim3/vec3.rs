@@ -21,28 +21,28 @@ pub struct Vec3<N>
 
 impl<N> Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   pub fn new(x: N, y: N, z: N) -> Vec3<N>
   { Vec3 {x: x, y: y, z: z} }
 }
 
 impl<N> Dim for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn dim() -> uint
   { 3 }
 }
 
 impl<N: Add<N,N>> Add<Vec3<N>, Vec3<N>> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn add(&self, other: &Vec3<N>) -> Vec3<N>
   { Vec3::new(self.x + other.x, self.y + other.y, self.z + other.z) }
 }
 
 impl<N: Sub<N,N>> Sub<Vec3<N>, Vec3<N>> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn sub(&self, other: &Vec3<N>) -> Vec3<N>
   { Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z) }
 }
@@ -50,11 +50,11 @@ impl<N: Sub<N,N>> Sub<Vec3<N>, Vec3<N>> for Vec3<N>
 impl<N: Mul<N, N>>
 ScalarMul<N> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn scalar_mul(&self, s: &N) -> Vec3<N>
   { Vec3 { x: self.x * *s, y: self.y * *s, z: self.z * *s } }
 
-  #[inline(always)]
+  #[inline]
   fn scalar_mul_inplace(&mut self, s: &N)
   {
     self.x = self.x * *s;
@@ -67,11 +67,11 @@ ScalarMul<N> for Vec3<N>
 impl<N: Div<N, N>>
 ScalarDiv<N> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn scalar_div(&self, s: &N) -> Vec3<N>
   { Vec3 { x: self.x / *s, y: self.y / *s, z: self.z / *s } }
 
-  #[inline(always)]
+  #[inline]
   fn scalar_div_inplace(&mut self, s: &N)
   {
     self.x = self.x / *s;
@@ -83,11 +83,11 @@ ScalarDiv<N> for Vec3<N>
 impl<N: Add<N, N>>
 ScalarAdd<N> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn scalar_add(&self, s: &N) -> Vec3<N>
   { Vec3 { x: self.x + *s, y: self.y + *s, z: self.z + *s } }
 
-  #[inline(always)]
+  #[inline]
   fn scalar_add_inplace(&mut self, s: &N)
   {
     self.x = self.x + *s;
@@ -99,11 +99,11 @@ ScalarAdd<N> for Vec3<N>
 impl<N: Sub<N, N>>
 ScalarSub<N> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn scalar_sub(&self, s: &N) -> Vec3<N>
   { Vec3 { x: self.x - *s, y: self.y - *s, z: self.z - *s } }
 
-  #[inline(always)]
+  #[inline]
   fn scalar_sub_inplace(&mut self, s: &N)
   {
     self.x = self.x - *s;
@@ -114,18 +114,18 @@ ScalarSub<N> for Vec3<N>
 
 impl<N: Copy + Add<N, N>> Translation<Vec3<N>> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn translation(&self) -> Vec3<N>
   { copy *self }
 
-  #[inline(always)]
+  #[inline]
   fn translate(&mut self, t: &Vec3<N>)
   { *self = *self + *t; }
 }
 
 impl<N: Add<N, N>> Translatable<Vec3<N>, Vec3<N>> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn translated(&self, t: &Vec3<N>) -> Vec3<N>
   { self + *t }
 }
@@ -134,21 +134,21 @@ impl<N: Add<N, N>> Translatable<Vec3<N>, Vec3<N>> for Vec3<N>
 
 impl<N: Neg<N>> Neg<Vec3<N>> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn neg(&self) -> Vec3<N>
   { Vec3::new(-self.x, -self.y, -self.z) }
 }
 
 impl<N: Mul<N, N> + Add<N, N>> Dot<N> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn dot(&self, other : &Vec3<N>) -> N
   { self.x * other.x + self.y * other.y + self.z * other.z } 
 }
 
 impl<N: Mul<N, N> + Add<N, N> + Sub<N, N>> SubDot<N> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn sub_dot(&self, a: &Vec3<N>, b: &Vec3<N>) -> N
   { (self.x - a.x) * b.x + (self.y - a.y) * b.y + (self.z - a.z) * b.z } 
 }
@@ -156,15 +156,15 @@ impl<N: Mul<N, N> + Add<N, N> + Sub<N, N>> SubDot<N> for Vec3<N>
 impl<N: Mul<N, N> + Add<N, N> + Div<N, N> + Algebraic>
 Norm<N> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn sqnorm(&self) -> N
   { self.dot(self) }
 
-  #[inline(always)]
+  #[inline]
   fn norm(&self) -> N
   { self.sqnorm().sqrt() }
 
-  #[inline(always)]
+  #[inline]
   fn normalized(&self) -> Vec3<N>
   {
     let l = self.norm();
@@ -172,7 +172,7 @@ Norm<N> for Vec3<N>
     Vec3::new(self.x / l, self.y / l, self.z / l)
   }
 
-  #[inline(always)]
+  #[inline]
   fn normalize(&mut self) -> N
   {
     let l = self.norm();
@@ -187,7 +187,7 @@ Norm<N> for Vec3<N>
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn cross(&self, other : &Vec3<N>) -> Vec3<N>
   {
     Vec3::new(
@@ -200,11 +200,11 @@ impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N>
 
 impl<N: Zero> Zero for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn zero() -> Vec3<N>
   { Vec3::new(Zero::zero(), Zero::zero(), Zero::zero()) }
 
-  #[inline(always)]
+  #[inline]
   fn is_zero(&self) -> bool
   { self.x.is_zero() && self.y.is_zero() && self.z.is_zero() }
 }
@@ -213,7 +213,7 @@ impl<N: Copy + One + Zero + Neg<N> + Ord + Mul<N, N> + Sub<N, N> + Add<N, N> +
         Div<N, N> + Algebraic>
 Basis for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn canonical_basis() -> ~[Vec3<N>]
   {
     // FIXME: this should be static
@@ -222,7 +222,7 @@ Basis for Vec3<N>
        Vec3::new(Zero::zero(), Zero::zero(), One::one()) ]
   }
 
-  #[inline(always)]
+  #[inline]
   fn orthogonal_subspace_basis(&self) -> ~[Vec3<N>]
   {
       let a = 
@@ -237,11 +237,11 @@ Basis for Vec3<N>
 
 impl<N:ApproxEq<N>> ApproxEq<N> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn approx_epsilon() -> N
   { ApproxEq::approx_epsilon::<N, N>() }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq(&self, other: &Vec3<N>) -> bool
   {
     self.x.approx_eq(&other.x) &&
@@ -249,7 +249,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Vec3<N>
     self.z.approx_eq(&other.z)
   }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq_eps(&self, other: &Vec3<N>, epsilon: &N) -> bool
   {
     self.x.approx_eq_eps(&other.x, epsilon) &&
@@ -260,26 +260,26 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Vec3<N>
 
 impl<N: Rand> Rand for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Vec3<N>
   { Vec3::new(rng.gen(), rng.gen(), rng.gen()) }
 }
 
 impl<N: Copy> Flatten<N> for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn flat_size() -> uint
   { 3 }
 
-  #[inline(always)]
+  #[inline]
   fn from_flattened(l: &[N], off: uint) -> Vec3<N>
   { Vec3::new(copy l[off], copy l[off + 1], copy l[off + 2]) }
 
-  #[inline(always)]
+  #[inline]
   fn flatten(&self) -> ~[N]
   { ~[ copy self.x, copy self.y, copy self.z ] }
 
-  #[inline(always)]
+  #[inline]
   fn flatten_to(&self, l: &mut [N], off: uint)
   {
     l[off]     = copy self.x;
@@ -290,11 +290,11 @@ impl<N: Copy> Flatten<N> for Vec3<N>
 
 impl<N: Bounded> Bounded for Vec3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn max_value() -> Vec3<N>
   { Vec3::new(Bounded::max_value(), Bounded::max_value(), Bounded::max_value()) }
 
-  #[inline(always)]
+  #[inline]
   fn min_value() -> Vec3<N>
   { Vec3::new(Bounded::min_value(), Bounded::min_value(), Bounded::min_value()) }
 }

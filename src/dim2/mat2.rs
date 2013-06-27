@@ -18,7 +18,7 @@ pub struct Mat2<N>
 
 impl<N> Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   pub fn new(m11: N, m12: N, m21: N, m22: N) -> Mat2<N>
   {
     Mat2
@@ -31,14 +31,14 @@ impl<N> Mat2<N>
 
 impl<N> Dim for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn dim() -> uint
   { 2 }
 }
 
 impl<N: Copy + One + Zero> One for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn one() -> Mat2<N>
   {
     let (_0, _1) = (Zero::zero(), One::one());
@@ -49,7 +49,7 @@ impl<N: Copy + One + Zero> One for Mat2<N>
 
 impl<N:Copy + Zero> Zero for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn zero() -> Mat2<N>
   {
     let _0 = Zero::zero();
@@ -57,7 +57,7 @@ impl<N:Copy + Zero> Zero for Mat2<N>
                      copy _0, _0)
   }
 
-  #[inline(always)]
+  #[inline]
   fn is_zero(&self) -> bool
   {
     self.m11.is_zero() && self.m12.is_zero() &&
@@ -67,7 +67,7 @@ impl<N:Copy + Zero> Zero for Mat2<N>
 
 impl<N: Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn mul(&self, other: &Mat2<N>) -> Mat2<N>
   {
     Mat2::new(
@@ -81,7 +81,7 @@ impl<N: Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N>
 
 impl<N: Add<N, N> + Mul<N, N>> RMul<Vec2<N>> for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn rmul(&self, other: &Vec2<N>) -> Vec2<N>
   {
     Vec2::new(
@@ -93,7 +93,7 @@ impl<N: Add<N, N> + Mul<N, N>> RMul<Vec2<N>> for Mat2<N>
 
 impl<N: Add<N, N> + Mul<N, N>> LMul<Vec2<N>> for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn lmul(&self, other: &Vec2<N>) -> Vec2<N>
   {
     Vec2::new(
@@ -106,7 +106,7 @@ impl<N: Add<N, N> + Mul<N, N>> LMul<Vec2<N>> for Mat2<N>
 impl<N:Copy + Mul<N, N> + Div<N, N> + Sub<N, N> + Neg<N> + Zero>
 Inv for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn inverse(&self) -> Mat2<N>
   {
     let mut res : Mat2<N> = copy *self;
@@ -116,7 +116,7 @@ Inv for Mat2<N>
     res
   }
 
-  #[inline(always)]
+  #[inline]
   fn invert(&mut self)
   {
     let det = self.m11 * self.m22 - self.m21 * self.m12;
@@ -130,25 +130,25 @@ Inv for Mat2<N>
 
 impl<N: Copy> Transpose for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn transposed(&self) -> Mat2<N>
   {
     Mat2::new(copy self.m11, copy self.m21,
               copy self.m12, copy self.m22)
   }
 
-  #[inline(always)]
+  #[inline]
   fn transpose(&mut self)
   { swap(&mut self.m21, &mut self.m12); }
 }
 
 impl<N:ApproxEq<N>> ApproxEq<N> for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn approx_epsilon() -> N
   { ApproxEq::approx_epsilon::<N, N>() }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq(&self, other: &Mat2<N>) -> bool
   {
     self.m11.approx_eq(&other.m11) &&
@@ -158,7 +158,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Mat2<N>
     self.m22.approx_eq(&other.m22)
   }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq_eps(&self, other: &Mat2<N>, epsilon: &N) -> bool
   {
     self.m11.approx_eq_eps(&other.m11, epsilon) &&
@@ -171,26 +171,26 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Mat2<N>
 
 impl<N: Rand> Rand for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Mat2<N>
   { Mat2::new(rng.gen(), rng.gen(), rng.gen(), rng.gen()) }
 }
 
 impl<N: Copy> Flatten<N> for Mat2<N>
 {
-  #[inline(always)]
+  #[inline]
   fn flat_size() -> uint
   { 4 }
 
-  #[inline(always)]
+  #[inline]
   fn from_flattened(l: &[N], off: uint) -> Mat2<N>
   { Mat2::new(copy l[off], copy l[off + 1], copy l[off + 2], copy l[off + 3]) }
 
-  #[inline(always)]
+  #[inline]
   fn flatten(&self) -> ~[N]
   { ~[ copy self.m11, copy self.m12, copy self.m21, copy self.m22 ] }
 
-  #[inline(always)]
+  #[inline]
   fn flatten_to(&self, l: &mut [N], off: uint)
   {
     l[off]     = copy self.m11;

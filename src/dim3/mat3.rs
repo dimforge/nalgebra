@@ -19,7 +19,7 @@ pub struct Mat3<N>
 
 impl<N> Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   pub fn new(m11: N, m12: N, m13: N,
              m21: N, m22: N, m23: N,
              m31: N, m32: N, m33: N) -> Mat3<N>
@@ -35,14 +35,14 @@ impl<N> Mat3<N>
 
 impl<N> Dim for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn dim() -> uint
   { 3 }
 }
 
 impl<N: Copy + One + Zero> One for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn one() -> Mat3<N>
   {
     let (_0, _1) = (Zero::zero(), One::one());
@@ -54,7 +54,7 @@ impl<N: Copy + One + Zero> One for Mat3<N>
 
 impl<N: Copy + Zero> Zero for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn zero() -> Mat3<N>
   {
     let _0 = Zero::zero();
@@ -63,7 +63,7 @@ impl<N: Copy + Zero> Zero for Mat3<N>
                      copy _0, copy _0, _0)
   }
 
-  #[inline(always)]
+  #[inline]
   fn is_zero(&self) -> bool
   {
     self.m11.is_zero() && self.m12.is_zero() && self.m13.is_zero() &&
@@ -74,7 +74,7 @@ impl<N: Copy + Zero> Zero for Mat3<N>
 
 impl<N: Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn mul(&self, other: &Mat3<N>) -> Mat3<N>
   {
     Mat3::new(
@@ -95,7 +95,7 @@ impl<N: Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N>
 
 impl<N: Add<N, N> + Mul<N, N>> RMul<Vec3<N>> for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn rmul(&self, other: &Vec3<N>) -> Vec3<N>
   {
     Vec3::new(
@@ -108,7 +108,7 @@ impl<N: Add<N, N> + Mul<N, N>> RMul<Vec3<N>> for Mat3<N>
 
 impl<N: Add<N, N> + Mul<N, N>> LMul<Vec3<N>> for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn lmul(&self, other: &Vec3<N>) -> Vec3<N>
   {
     Vec3::new(
@@ -122,7 +122,7 @@ impl<N: Add<N, N> + Mul<N, N>> LMul<Vec3<N>> for Mat3<N>
 impl<N:Copy + Mul<N, N> + Div<N, N> + Sub<N, N> + Add<N, N> + Neg<N> + Zero>
 Inv for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn inverse(&self) -> Mat3<N>
   {
     let mut res = copy *self;
@@ -132,7 +132,7 @@ Inv for Mat3<N>
     res
   }
 
-  #[inline(always)]
+  #[inline]
   fn invert(&mut self)
   {
     let minor_m22_m33 = self.m22 * self.m33 - self.m32 * self.m23;
@@ -163,7 +163,7 @@ Inv for Mat3<N>
 
 impl<N:Copy> Transpose for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn transposed(&self) -> Mat3<N>
   {
     Mat3::new(copy self.m11, copy self.m21, copy self.m31,
@@ -171,7 +171,7 @@ impl<N:Copy> Transpose for Mat3<N>
               copy self.m13, copy self.m23, copy self.m33)
   }
 
-  #[inline(always)]
+  #[inline]
   fn transpose(&mut self)
   {
     swap(&mut self.m12, &mut self.m21);
@@ -182,11 +182,11 @@ impl<N:Copy> Transpose for Mat3<N>
 
 impl<N:ApproxEq<N>> ApproxEq<N> for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn approx_epsilon() -> N
   { ApproxEq::approx_epsilon::<N, N>() }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq(&self, other: &Mat3<N>) -> bool
   {
     self.m11.approx_eq(&other.m11) &&
@@ -202,7 +202,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Mat3<N>
     self.m33.approx_eq(&other.m33)
   }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq_eps(&self, other: &Mat3<N>, epsilon: &N) -> bool
   {
     self.m11.approx_eq_eps(&other.m11, epsilon) &&
@@ -221,7 +221,7 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Mat3<N>
 
 impl<N: Rand> Rand for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Mat3<N>
   {
     Mat3::new(rng.gen(), rng.gen(), rng.gen(),
@@ -232,17 +232,17 @@ impl<N: Rand> Rand for Mat3<N>
 
 impl<N: Copy> Flatten<N> for Mat3<N>
 {
-  #[inline(always)]
+  #[inline]
   fn flat_size() -> uint
   { 9 }
 
-  #[inline(always)]
+  #[inline]
   fn from_flattened(l: &[N], off: uint) -> Mat3<N>
   { Mat3::new(copy l[off + 0], copy l[off + 1], copy l[off + 2],
               copy l[off + 3], copy l[off + 4], copy l[off + 5],
               copy l[off + 6], copy l[off + 7], copy l[off + 8]) }
 
-  #[inline(always)]
+  #[inline]
   fn flatten(&self) -> ~[N]
   {
     ~[
@@ -252,7 +252,7 @@ impl<N: Copy> Flatten<N> for Mat3<N>
     ]
   }
 
-  #[inline(always)]
+  #[inline]
   fn flatten_to(&self, l: &mut [N], off: uint)
   {
     l[off + 0] = copy self.m11;

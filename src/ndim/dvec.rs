@@ -17,11 +17,11 @@ pub struct DVec<N>
   at: ~[N]
 }
 
-#[inline(always)]
+#[inline]
 pub fn zero_vec_with_dim<N: Zero + Copy>(dim: uint) -> DVec<N>
 { DVec { at: from_elem(dim, Zero::zero::<N>()) } }
 
-#[inline(always)]
+#[inline]
 pub fn is_zero_vec<N: Zero>(vec: &DVec<N>) -> bool
 { vec.at.iter().all(|e| e.is_zero()) }
 
@@ -79,7 +79,7 @@ impl<N: Copy + DivisionRing + Algebraic + Clone + ApproxEq<N>> DVec<N>
 
 impl<N: Copy + Add<N,N>> Add<DVec<N>, DVec<N>> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn add(&self, other: &DVec<N>) -> DVec<N>
   {
     assert!(self.at.len() == other.at.len());
@@ -89,7 +89,7 @@ impl<N: Copy + Add<N,N>> Add<DVec<N>, DVec<N>> for DVec<N>
 
 impl<N: Copy + Sub<N,N>> Sub<DVec<N>, DVec<N>> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn sub(&self, other: &DVec<N>) -> DVec<N>
   {
     assert!(self.at.len() == other.at.len());
@@ -99,7 +99,7 @@ impl<N: Copy + Sub<N,N>> Sub<DVec<N>, DVec<N>> for DVec<N>
 
 impl<N: Neg<N>> Neg<DVec<N>> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn neg(&self) -> DVec<N>
   { DVec { at: map(self.at, |a| -a) } }
 }
@@ -107,7 +107,7 @@ impl<N: Neg<N>> Neg<DVec<N>> for DVec<N>
 impl<N: Ring>
 Dot<N> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn dot(&self, other: &DVec<N>) -> N
   {
     assert!(self.at.len() == other.at.len());
@@ -123,7 +123,7 @@ Dot<N> for DVec<N>
 
 impl<N: Ring> SubDot<N> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn sub_dot(&self, a: &DVec<N>, b: &DVec<N>) -> N
   {
     let mut res = Zero::zero::<N>();
@@ -138,11 +138,11 @@ impl<N: Ring> SubDot<N> for DVec<N>
 impl<N: Mul<N, N>>
 ScalarMul<N> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn scalar_mul(&self, s: &N) -> DVec<N>
   { DVec { at: map(self.at, |a| a * *s) } }
 
-  #[inline(always)]
+  #[inline]
   fn scalar_mul_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
@@ -154,11 +154,11 @@ ScalarMul<N> for DVec<N>
 impl<N: Div<N, N>>
 ScalarDiv<N> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn scalar_div(&self, s: &N) -> DVec<N>
   { DVec { at: map(self.at, |a| a / *s) } }
 
-  #[inline(always)]
+  #[inline]
   fn scalar_div_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
@@ -169,11 +169,11 @@ ScalarDiv<N> for DVec<N>
 impl<N: Add<N, N>>
 ScalarAdd<N> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn scalar_add(&self, s: &N) -> DVec<N>
   { DVec { at: map(self.at, |a| a + *s) } }
 
-  #[inline(always)]
+  #[inline]
   fn scalar_add_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
@@ -184,11 +184,11 @@ ScalarAdd<N> for DVec<N>
 impl<N: Sub<N, N>>
 ScalarSub<N> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn scalar_sub(&self, s: &N) -> DVec<N>
   { DVec { at: map(self.at, |a| a - *s) } }
 
-  #[inline(always)]
+  #[inline]
   fn scalar_sub_inplace(&mut self, s: &N)
   {
     for iterate(0u, self.at.len()) |i|
@@ -198,18 +198,18 @@ ScalarSub<N> for DVec<N>
 
 impl<N: Clone + Copy + Add<N, N>> Translation<DVec<N>> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn translation(&self) -> DVec<N>
   { self.clone() }
 
-  #[inline(always)]
+  #[inline]
   fn translate(&mut self, t: &DVec<N>)
   { *self = *self + *t; }
 }
 
 impl<N: Add<N, N> + Copy> Translatable<DVec<N>, DVec<N>> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn translated(&self, t: &DVec<N>) -> DVec<N>
   { self + *t }
 }
@@ -217,15 +217,15 @@ impl<N: Add<N, N> + Copy> Translatable<DVec<N>, DVec<N>> for DVec<N>
 impl<N: Copy + DivisionRing + Algebraic + Clone>
 Norm<N> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn sqnorm(&self) -> N
   { self.dot(self) }
 
-  #[inline(always)]
+  #[inline]
   fn norm(&self) -> N
   { self.sqnorm().sqrt() }
 
-  #[inline(always)]
+  #[inline]
   fn normalized(&self) -> DVec<N>
   {
     let mut res : DVec<N> = self.clone();
@@ -235,7 +235,7 @@ Norm<N> for DVec<N>
     res
   }
 
-  #[inline(always)]
+  #[inline]
   fn normalize(&mut self) -> N
   {
     let l = self.norm();
@@ -249,11 +249,11 @@ Norm<N> for DVec<N>
 
 impl<N: ApproxEq<N>> ApproxEq<N> for DVec<N>
 {
-  #[inline(always)]
+  #[inline]
   fn approx_epsilon() -> N
   { ApproxEq::approx_epsilon::<N, N>() }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq(&self, other: &DVec<N>) -> bool
   {
     let mut zip = self.at.iter().zip(other.at.iter());
@@ -261,7 +261,7 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DVec<N>
     do zip.all |(a, b)| { a.approx_eq(b) }
   }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq_eps(&self, other: &DVec<N>, epsilon: &N) -> bool
   {
     let mut zip = self.at.iter().zip(other.at.iter());

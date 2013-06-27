@@ -21,43 +21,43 @@ pub struct NMat<D, N>
 
 impl<D: Dim, N: Copy> NMat<D, N>
 {
-  #[inline(always)]
+  #[inline]
   fn offset(i: uint, j: uint) -> uint
   { i * Dim::dim::<D>() + j }
 
-  #[inline(always)]
+  #[inline]
   fn set(&mut self, i: uint, j: uint, t: &N)
   { self.mij.set(i, j, t) }
 }
 
 impl<D: Dim, N> Dim for NMat<D, N>
 {
-  #[inline(always)]
+  #[inline]
   fn dim() -> uint
   { Dim::dim::<D>() }
 }
 
 impl<D: Dim, N: Copy> Index<(uint, uint), N> for NMat<D, N>
 {
-  #[inline(always)]
+  #[inline]
   fn index(&self, &idx: &(uint, uint)) -> N
   { self.mij[idx] }
 }
 
 impl<D: Dim, N: Copy + One + Zero> One for NMat<D, N>
 {
-  #[inline(always)]
+  #[inline]
   fn one() -> NMat<D, N>
   { NMat { mij: one_mat_with_dim(Dim::dim::<D>()) } }
 }
 
 impl<D: Dim, N: Copy + Zero> Zero for NMat<D, N>
 {
-  #[inline(always)]
+  #[inline]
   fn zero() -> NMat<D, N>
   { NMat { mij: zero_mat_with_dim(Dim::dim::<D>()) } }
 
-  #[inline(always)]
+  #[inline]
   fn is_zero(&self) -> bool
   { is_zero_mat(&self.mij) }
 }
@@ -126,18 +126,18 @@ LMul<NVec<D, N>> for NMat<D, N>
 impl<D: Dim, N: Clone + Copy + Eq + DivisionRing>
 Inv for NMat<D, N>
 {
-  #[inline(always)]
+  #[inline]
   fn inverse(&self) -> NMat<D, N>
   { NMat { mij: self.mij.inverse() } }
 
-  #[inline(always)]
+  #[inline]
   fn invert(&mut self)
   { self.mij.invert() }
 }
 
 impl<D: Dim, N:Copy> Transpose for NMat<D, N>
 {
-  #[inline(always)]
+  #[inline]
   fn transposed(&self) -> NMat<D, N>
   {
     let mut res = copy *self;
@@ -147,22 +147,22 @@ impl<D: Dim, N:Copy> Transpose for NMat<D, N>
     res
   }
 
-  #[inline(always)]
+  #[inline]
   fn transpose(&mut self)
   { self.mij.transpose() }
 }
 
 impl<D, N: ApproxEq<N>> ApproxEq<N> for NMat<D, N>
 {
-  #[inline(always)]
+  #[inline]
   fn approx_epsilon() -> N
   { ApproxEq::approx_epsilon::<N, N>() }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq(&self, other: &NMat<D, N>) -> bool
   { self.mij.approx_eq(&other.mij) }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq_eps(&self, other: &NMat<D, N>, epsilon: &N) -> bool
   { self.mij.approx_eq_eps(&other.mij, epsilon) }
 }
@@ -186,11 +186,11 @@ impl<D: Dim, N: Rand + Zero + Copy> Rand for NMat<D, N>
 
 impl<D: Dim, N: Zero + Copy> Flatten<N> for NMat<D, N>
 {
-  #[inline(always)]
+  #[inline]
   fn flat_size() -> uint
   { Dim::dim::<D>() * Dim::dim::<D>() }
 
-  #[inline(always)]
+  #[inline]
   fn from_flattened(l: &[N], off: uint) -> NMat<D, N>
   {
     let     dim = Dim::dim::<D>();
@@ -202,7 +202,7 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NMat<D, N>
     res
   }
 
-  #[inline(always)]
+  #[inline]
   fn flatten(&self) -> ~[N]
   {
     let     dim = Dim::dim::<D>();
@@ -214,7 +214,7 @@ impl<D: Dim, N: Zero + Copy> Flatten<N> for NMat<D, N>
     res
   }
 
-  #[inline(always)]
+  #[inline]
   fn flatten_to(&self, l: &mut [N], off: uint)
   {
     let dim = Dim::dim::<D>();

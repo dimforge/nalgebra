@@ -59,11 +59,11 @@ pub fn rotmat3<N: Copy + Trigonometric + Neg<N> + One + Sub<N, N> + Add<N, N> +
 impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy>
 Rotation<Vec1<N>> for Rotmat<Mat2<N>>
 {
-  #[inline(always)]
+  #[inline]
   fn rotation(&self) -> Vec1<N>
   { Vec1::new(-(self.submat.m12 / self.submat.m11).atan()) }
 
-  #[inline(always)]
+  #[inline]
   fn rotate(&mut self, rot: &Vec1<N>)
   { *self = self.rotated(rot) }
 }
@@ -71,7 +71,7 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>>
 impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy>
 Rotatable<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>>
 {
-  #[inline(always)]
+  #[inline]
   fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>>
   { rotmat2(copy rot.x) * *self }
 }
@@ -80,11 +80,11 @@ impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy +
         One + Sub<N, N>>
 Rotation<(Vec3<N>, N)> for Rotmat<Mat3<N>>
 {
-  #[inline(always)]
+  #[inline]
   fn rotation(&self) -> (Vec3<N>, N)
   { fail!("Not yet implemented.") }
 
-  #[inline(always)]
+  #[inline]
   fn rotate(&mut self, rot: &(Vec3<N>, N))
   { *self = self.rotated(rot) }
 }
@@ -93,14 +93,14 @@ impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy +
         One + Sub<N, N>>
 Rotatable<(Vec3<N>, N), Rotmat<Mat3<N>>> for Rotmat<Mat3<N>>
 {
-  #[inline(always)]
+  #[inline]
   fn rotated(&self, &(axis, angle): &(Vec3<N>, N)) -> Rotmat<Mat3<N>>
   { rotmat3(&axis, angle) * *self }
 }
 
 impl<N: Copy + Rand + Trigonometric + Neg<N>> Rand for Rotmat<Mat2<N>>
 {
-  #[inline(always)]
+  #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat2<N>>
   { rotmat2(rng.gen()) }
 }
@@ -109,67 +109,67 @@ impl<N: Copy + Rand + Trigonometric + Neg<N> + One + Sub<N, N> + Add<N, N> +
        Mul<N, N>>
 Rand for Rotmat<Mat3<N>>
 {
-  #[inline(always)]
+  #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat3<N>>
   { rotmat3(&rng.gen(), rng.gen()) }
 }
 
 impl<M: Dim> Dim for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn dim() -> uint
   { Dim::dim::<M>() }
 }
  
 impl<M: One + Zero> One for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn one() -> Rotmat<M>
   { Rotmat { submat: One::one() } }
 }
 
 impl<M: Mul<M, M>> Mul<Rotmat<M>, Rotmat<M>> for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn mul(&self, other: &Rotmat<M>) -> Rotmat<M>
   { Rotmat { submat: self.submat.mul(&other.submat) } }
 }
 
 impl<V, M: RMul<V>> RMul<V> for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn rmul(&self, other: &V) -> V
   { self.submat.rmul(other) }
 }
 
 impl<V, M: LMul<V>> LMul<V> for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn lmul(&self, other: &V) -> V
   { self.submat.lmul(other) }
 }
 
 impl<M: Copy> DeltaTransform<M> for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn delta_transform(&self) -> M
   { copy self.submat }
 }
 
 impl<M: RMul<V>, V> DeltaTransformVector<V> for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn delta_transform_vector(&self, v: &V) -> V
   { self.submat.rmul(v) }
 }
 
 impl<M: Transpose> Inv for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn invert(&mut self)
   { self.transpose() }
 
-  #[inline(always)]
+  #[inline]
   fn inverse(&self) -> Rotmat<M>
   { self.transposed() }
 }
@@ -177,26 +177,26 @@ impl<M: Transpose> Inv for Rotmat<M>
 impl<M: Transpose>
 Transpose for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn transposed(&self) -> Rotmat<M>
   { Rotmat { submat: self.submat.transposed() } }
 
-  #[inline(always)]
+  #[inline]
   fn transpose(&mut self)
   { self.submat.transpose() }
 }
 
 impl<N: ApproxEq<N>, M: ApproxEq<N>> ApproxEq<N> for Rotmat<M>
 {
-  #[inline(always)]
+  #[inline]
   fn approx_epsilon() -> N
   { ApproxEq::approx_epsilon::<N, N>() }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq(&self, other: &Rotmat<M>) -> bool
   { self.submat.approx_eq(&other.submat) }
 
-  #[inline(always)]
+  #[inline]
   fn approx_eq_eps(&self, other: &Rotmat<M>, epsilon: &N) -> bool
   { self.submat.approx_eq_eps(&other.submat, epsilon) }
 }
