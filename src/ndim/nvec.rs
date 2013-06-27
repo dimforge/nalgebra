@@ -11,7 +11,7 @@ use traits::dim::Dim;
 use traits::dot::Dot;
 use traits::sub_dot::SubDot;
 use traits::norm::Norm;
-use traits::translation::Translation;
+use traits::translation::{Translation, Translatable};
 use traits::flatten::Flatten;
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
@@ -123,19 +123,22 @@ ScalarSub<N> for NVec<D, N>
   { self.at.scalar_sub_inplace(s) }
 }
 
-impl<D: Dim, N: Clone + Copy + Add<N, N>> Translation<NVec<D, N>, NVec<D, N>> for NVec<D, N>
+impl<D: Dim, N: Clone + Copy + Add<N, N>> Translation<NVec<D, N>> for NVec<D, N>
 {
   #[inline(always)]
   fn translation(&self) -> NVec<D, N>
   { self.clone() }
 
   #[inline(always)]
-  fn translated(&self, t: &NVec<D, N>) -> NVec<D, N>
-  { self + *t }
-
-  #[inline(always)]
   fn translate(&mut self, t: &NVec<D, N>)
   { *self = *self + *t; }
+}
+
+impl<D: Dim, N: Add<N, N> + Copy> Translatable<NVec<D, N>, NVec<D, N>> for NVec<D, N>
+{
+  #[inline(always)]
+  fn translated(&self, t: &NVec<D, N>) -> NVec<D, N>
+  { self + *t }
 }
 
 impl<D: Dim, N: Copy + DivisionRing + Algebraic + Clone>

@@ -9,7 +9,7 @@ use traits::dot::Dot;
 use traits::sub_dot::SubDot;
 use traits::norm::Norm;
 use traits::flatten::Flatten;
-use traits::translation::Translation;
+use traits::translation::{Translation, Translatable};
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq, Ord, ToStr)]
@@ -108,19 +108,22 @@ ScalarSub<N> for Vec2<N>
   }
 }
 
-impl<N: Copy + Add<N, N>> Translation<Vec2<N>, Vec2<N>> for Vec2<N>
+impl<N: Copy + Add<N, N>> Translation<Vec2<N>> for Vec2<N>
 {
   #[inline(always)]
   fn translation(&self) -> Vec2<N>
   { copy *self }
 
   #[inline(always)]
-  fn translated(&self, t: &Vec2<N>) -> Vec2<N>
-  { self + *t }
-
-  #[inline(always)]
   fn translate(&mut self, t: &Vec2<N>)
   { *self = *self + *t; }
+}
+
+impl<N: Add<N, N>> Translatable<Vec2<N>, Vec2<N>> for Vec2<N>
+{
+  #[inline(always)]
+  fn translated(&self, t: &Vec2<N>) -> Vec2<N>
+  { self + *t }
 }
 
 impl<N: Mul<N, N> + Add<N, N>> Dot<N> for Vec2<N>

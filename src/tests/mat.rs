@@ -3,13 +3,13 @@ use std::vec;
 #[test]
 use std::num::{Real, Zero, One, abs};
 #[test]
-use std::rand::{random};
+use std::rand::random;
 #[test]
 use std::cmp::ApproxEq;
 #[test]
 use traits::inv::Inv;
 #[test]
-use traits::rotation::Rotation;
+use traits::rotation::{Rotation, Rotatable};
 #[test]
 use traits::dim::d7;
 #[test]

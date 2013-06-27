@@ -5,7 +5,7 @@ use traits::rlmul::{RMul, LMul};
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
-use traits::rotation::Rotation;
+use traits::rotation::{Rotation, Rotatable};
 use traits::delta_transform::{DeltaTransform, DeltaTransformVector};
 use dim1::vec1::Vec1;
 use dim2::mat2::Mat2;
@@ -57,36 +57,45 @@ pub fn rotmat3<N: Copy + Trigonometric + Neg<N> + One + Sub<N, N> + Add<N, N> +
 }
 
 impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy>
-Rotation<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>>
+Rotation<Vec1<N>> for Rotmat<Mat2<N>>
 {
   #[inline(always)]
   fn rotation(&self) -> Vec1<N>
   { Vec1::new(-(self.submat.m12 / self.submat.m11).atan()) }
 
   #[inline(always)]
-  fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>>
-  { rotmat2(copy rot.x) * *self }
-
-  #[inline(always)]
   fn rotate(&mut self, rot: &Vec1<N>)
   { *self = self.rotated(rot) }
 }
 
+impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy>
+Rotatable<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>>
+{
+  #[inline(always)]
+  fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>>
+  { rotmat2(copy rot.x) * *self }
+}
+
 impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy +
         One + Sub<N, N>>
-Rotation<(Vec3<N>, N), Rotmat<Mat3<N>>> for Rotmat<Mat3<N>>
+Rotation<(Vec3<N>, N)> for Rotmat<Mat3<N>>
 {
   #[inline(always)]
   fn rotation(&self) -> (Vec3<N>, N)
   { fail!("Not yet implemented.") }
 
   #[inline(always)]
-  fn rotated(&self, &(axis, angle): &(Vec3<N>, N)) -> Rotmat<Mat3<N>>
-  { rotmat3(&axis, angle) * *self }
-
-  #[inline(always)]
   fn rotate(&mut self, rot: &(Vec3<N>, N))
   { *self = self.rotated(rot) }
+}
+
+impl<N: Div<N, N> + Trigonometric + Neg<N> + Mul<N, N> + Add<N, N> + Copy +
+        One + Sub<N, N>>
+Rotatable<(Vec3<N>, N), Rotmat<Mat3<N>>> for Rotmat<Mat3<N>>
+{
+  #[inline(always)]
+  fn rotated(&self, &(axis, angle): &(Vec3<N>, N)) -> Rotmat<Mat3<N>>
+  { rotmat3(&axis, angle) * *self }
 }
 
 impl<N: Copy + Rand + Trigonometric + Neg<N>> Rand for Rotmat<Mat2<N>>

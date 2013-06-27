@@ -5,7 +5,7 @@ use traits::basis::Basis;
 use traits::dim::Dim;
 use traits::dot::Dot;
 use traits::norm::Norm;
-use traits::translation::Translation;
+use traits::translation::{Translation, Translatable};
 use traits::sub_dot::SubDot;
 use traits::flatten::Flatten;
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
@@ -91,19 +91,22 @@ ScalarSub<N> for Vec1<N>
   { self.x = self.x - *s; }
 }
 
-impl<N: Copy + Add<N, N>> Translation<Vec1<N>, Vec1<N>> for Vec1<N>
+impl<N: Copy + Add<N, N>> Translation<Vec1<N>> for Vec1<N>
 {
   #[inline(always)]
   fn translation(&self) -> Vec1<N>
   { copy *self }
 
   #[inline(always)]
-  fn translated(&self, t: &Vec1<N>) -> Vec1<N>
-  { self + *t }
-
-  #[inline(always)]
   fn translate(&mut self, t: &Vec1<N>)
   { *self = *self + *t }
+}
+
+impl<N: Add<N, N>> Translatable<Vec1<N>, Vec1<N>> for Vec1<N>
+{
+  #[inline(always)]
+  fn translated(&self, t: &Vec1<N>) -> Vec1<N>
+  { self + *t }
 }
 
 impl<N: Mul<N, N>> Dot<N> for Vec1<N>

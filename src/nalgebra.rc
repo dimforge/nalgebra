@@ -64,6 +64,7 @@ pub mod traits
   pub mod norm;
   pub mod rotation;
   pub mod translation;
+  pub mod transformation;
   pub mod delta_transform;
   pub mod vector_space;
   pub mod ring;

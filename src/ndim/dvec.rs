@@ -8,7 +8,7 @@ use traits::division_ring::DivisionRing;
 use traits::dot::Dot;
 use traits::sub_dot::SubDot;
 use traits::norm::Norm;
-use traits::translation::Translation;
+use traits::translation::{Translation, Translatable};
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 #[deriving(Eq, Ord, ToStr, Clone)]
@@ -196,19 +196,22 @@ ScalarSub<N> for DVec<N>
   }
 }
 
-impl<N: Clone + Copy + Add<N, N>> Translation<DVec<N>, DVec<N>> for DVec<N>
+impl<N: Clone + Copy + Add<N, N>> Translation<DVec<N>> for DVec<N>
 {
   #[inline(always)]
   fn translation(&self) -> DVec<N>
   { self.clone() }
 
   #[inline(always)]
-  fn translated(&self, t: &DVec<N>) -> DVec<N>
-  { self + *t }
-
-  #[inline(always)]
   fn translate(&mut self, t: &DVec<N>)
   { *self = *self + *t; }
+}
+
+impl<N: Add<N, N> + Copy> Translatable<DVec<N>, DVec<N>> for DVec<N>
+{
+  #[inline(always)]
+  fn translated(&self, t: &DVec<N>) -> DVec<N>
+  { self + *t }
 }
 
 impl<N: Copy + DivisionRing + Algebraic + Clone>
