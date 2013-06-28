@@ -16,24 +16,7 @@
 extern mod std;
 
 pub mod vec;
-
-/// 1-dimensional linear algebra.
-pub mod dim1
-{
-  pub mod mat1;
-}
-
-/// 2-dimensional linear algebra.
-pub mod dim2
-{
-  pub mod mat2;
-}
-
-/// 3-dimensional linear algebra.
-pub mod dim3
-{
-  pub mod mat3;
-}
+pub mod mat;
 
 /// n-dimensional linear algebra (slower).
 pub mod ndim

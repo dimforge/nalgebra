@@ -11,11 +11,7 @@ use traits::rotation::{Rotation, Rotatable};
 #[test]
 use vec::Vec1;
 #[test]
-use dim1::mat1::Mat1;
-#[test]
-use dim2::mat2::Mat2;
-#[test]
-use dim3::mat3::Mat3;
+use mat::{Mat1, Mat2, Mat3};
 #[test]
 use adaptors::rotmat::Rotmat;
 
