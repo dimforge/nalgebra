@@ -4,10 +4,11 @@ use std::cmp::ApproxEq;
 use std::util::swap;
 use traits::dim::Dim;
 use traits::inv::Inv;
+use traits::transformation::Transform;
+use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;
-use traits::flatten::Flatten;
 use traits::rlmul::{RMul, LMul};
-use dim3::vec3::Vec3;
+use vec::Vec3;
 
 #[deriving(Eq, ToStr)]
 pub struct Mat3<N>
@@ -93,15 +94,27 @@ impl<N: Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N>
   }
 }
 
+impl<N: Copy + DivisionRing>
+Transform<Vec3<N>> for Mat3<N>
+{
+  #[inline]
+  fn transform_vec(&self, v: &Vec3<N>) -> Vec3<N>
+  { self.rmul(v) }
+
+  #[inline]
+  fn inv_transform(&self, v: &Vec3<N>) -> Vec3<N>
+  { self.inverse().transform_vec(v) }
+}
+
 impl<N: Add<N, N> + Mul<N, N>> RMul<Vec3<N>> for Mat3<N>
 {
   #[inline]
   fn rmul(&self, other: &Vec3<N>) -> Vec3<N>
   {
     Vec3::new(
-      self.m11 * other.x + self.m12 * other.y + self.m13 * other.z,
-      self.m21 * other.x + self.m22 * other.y + self.m33 * other.z,
-      self.m31 * other.x + self.m32 * other.y + self.m33 * other.z
+      [self.m11 * other.at[0] + self.m12 * other.at[1] + self.m13 * other.at[2],
+       self.m21 * other.at[0] + self.m22 * other.at[1] + self.m33 * other.at[2],
+       self.m31 * other.at[0] + self.m32 * other.at[1] + self.m33 * other.at[2]]
     )
   }
 }
@@ -112,14 +125,14 @@ impl<N: Add<N, N> + Mul<N, N>> LMul<Vec3<N>> for Mat3<N>
   fn lmul(&self, other: &Vec3<N>) -> Vec3<N>
   {
     Vec3::new(
-      self.m11 * other.x + self.m21 * other.y + self.m31 * other.z,
-      self.m12 * other.x + self.m22 * other.y + self.m32 * other.z,
-      self.m13 * other.x + self.m23 * other.y + self.m33 * other.z
+      [self.m11 * other.at[0] + self.m21 * other.at[1] + self.m31 * other.at[2],
+       self.m12 * other.at[0] + self.m22 * other.at[1] + self.m32 * other.at[2],
+       self.m13 * other.at[0] + self.m23 * other.at[1] + self.m33 * other.at[2]]
     )
   }
 }
 
-impl<N:Copy + Mul<N, N> + Div<N, N> + Sub<N, N> + Add<N, N> + Neg<N> + Zero>
+impl<N: Copy + DivisionRing>
 Inv for Mat3<N>
 {
   #[inline]
@@ -227,42 +240,5 @@ impl<N: Rand> Rand for Mat3<N>
     Mat3::new(rng.gen(), rng.gen(), rng.gen(),
               rng.gen(), rng.gen(), rng.gen(),
               rng.gen(), rng.gen(), rng.gen())
-  }
-}
-
-impl<N: Copy> Flatten<N> for Mat3<N>
-{
-  #[inline]
-  fn flat_size() -> uint
-  { 9 }
-
-  #[inline]
-  fn from_flattened(l: &[N], off: uint) -> Mat3<N>
-  { Mat3::new(copy l[off + 0], copy l[off + 1], copy l[off + 2],
-              copy l[off + 3], copy l[off + 4], copy l[off + 5],
-              copy l[off + 6], copy l[off + 7], copy l[off + 8]) }
-
-  #[inline]
-  fn flatten(&self) -> ~[N]
-  {
-    ~[
-      copy self.m11, copy self.m12, copy self.m13,
-      copy self.m21, copy self.m22, copy self.m23,
-      copy self.m31, copy self.m32, copy self.m33
-    ]
-  }
-
-  #[inline]
-  fn flatten_to(&self, l: &mut [N], off: uint)
-  {
-    l[off + 0] = copy self.m11;
-    l[off + 1] = copy self.m12;
-    l[off + 2] = copy self.m13;
-    l[off + 3] = copy self.m21;
-    l[off + 4] = copy self.m22;
-    l[off + 5] = copy self.m23;
-    l[off + 6] = copy self.m31;
-    l[off + 7] = copy self.m32;
-    l[off + 8] = copy self.m33;
   }
 }

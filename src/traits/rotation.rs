@@ -8,8 +8,10 @@ pub trait Rotation<V>
   /// Gets the rotation associated with this object.
   fn rotation(&self) -> V;
 
+  fn inv_rotation(&self) -> V;
+
   /// In-place version of `rotated`.
-  fn rotate(&mut self, &V);
+  fn rotate_by(&mut self, &V);
 }
 
 pub trait Rotatable<V, Res: Rotation<V>>
@@ -17,6 +19,12 @@ pub trait Rotatable<V, Res: Rotation<V>>
   /// Appends a rotation from an alternative representation. Such
   /// representation has the same format as the one returned by `rotation`.
   fn rotated(&self, &V) -> Res;
+}
+
+pub trait Rotate<V>
+{
+  fn rotate(&self, &V)     -> V;
+  fn inv_rotate(&self, &V) -> V;
 }
 
 /**
@@ -35,8 +43,8 @@ pub fn rotate_wrt_point<M: Translatable<LV, M2>,
 {
   let mut res = m.translated(&-center);
 
-  res.rotate(ammount);
-  res.translate(center);
+  res.rotate_by(ammount);
+  res.translate_by(center);
 
   res
 }

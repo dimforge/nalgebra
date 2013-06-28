@@ -1,8 +1,10 @@
 use std::uint::iterate;
 use std::num::{Zero, One, Algebraic};
+use std::vec::{VecIterator, VecMutIterator};
 use std::vec::{map_zip, map, from_elem};
 use std::cmp::ApproxEq;
-use std::iterator::IteratorUtil;
+use std::iterator::{FromIterator, IteratorUtil};
+use traits::iterable::{Iterable, IterableMut};
 use traits::ring::Ring;
 use traits::division_ring::DivisionRing;
 use traits::dot::Dot;
@@ -24,6 +26,31 @@ pub fn zero_vec_with_dim<N: Zero + Copy>(dim: uint) -> DVec<N>
 #[inline]
 pub fn is_zero_vec<N: Zero>(vec: &DVec<N>) -> bool
 { vec.at.iter().all(|e| e.is_zero()) }
+
+impl<N> Iterable<N> for DVec<N>
+{
+  fn iter<'l>(&'l self) -> VecIterator<'l, N>
+  { self.at.iter() }
+}
+
+impl<N> IterableMut<N> for DVec<N>
+{
+  fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N>
+  { self.at.mut_iter() }
+}
+
+impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for DVec<N>
+{
+  fn from_iterator(param: &mut Iter) -> DVec<N>
+  {
+    let mut res = DVec { at: ~[] };
+
+    for param.advance |e|
+    { res.at.push(e) }
+
+    res
+  }
+}
 
 // FIXME: is Clone needed?
 impl<N: Copy + DivisionRing + Algebraic + Clone + ApproxEq<N>> DVec<N>
@@ -196,14 +223,18 @@ ScalarSub<N> for DVec<N>
   }
 }
 
-impl<N: Clone + Copy + Add<N, N>> Translation<DVec<N>> for DVec<N>
+impl<N: Clone + Copy + Add<N, N> + Neg<N>> Translation<DVec<N>> for DVec<N>
 {
   #[inline]
   fn translation(&self) -> DVec<N>
   { self.clone() }
 
   #[inline]
-  fn translate(&mut self, t: &DVec<N>)
+  fn inv_translation(&self) -> DVec<N>
+  { -self }
+
+  #[inline]
+  fn translate_by(&mut self, t: &DVec<N>)
   { *self = *self + *t; }
 }
 

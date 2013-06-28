@@ -6,8 +6,16 @@ pub trait Translation<V>
   /// Gets the translation associated with this object.
   fn translation(&self) -> V;
 
+  fn inv_translation(&self) -> V;
+
   /// In-place version of `translate`.
-  fn translate(&mut self, &V);
+  fn translate_by(&mut self, &V);
+}
+
+pub trait Translate<V>
+{
+  fn translate(&self, &V)     -> V;
+  fn inv_translate(&self, &V) -> V;
 }
 
 pub trait Translatable<V, Res: Translation<V>>

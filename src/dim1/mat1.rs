@@ -1,12 +1,13 @@
 use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
+use traits::division_ring::DivisionRing;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
-use traits::flatten::Flatten;
+use traits::transformation::Transform; // FIXME: implement Transformable, Transformation
 use traits::rlmul::{RMul, LMul};
-use dim1::vec1::Vec1;
+use vec::Vec1;
 
 #[deriving(Eq, ToStr)]
 pub struct Mat1<N>
@@ -54,21 +55,33 @@ impl<N: Mul<N, N> + Add<N, N>> Mul<Mat1<N>, Mat1<N>> for Mat1<N>
   { Mat1::new(self.m11 * other.m11) }
 }
 
+impl<N: Copy + DivisionRing>
+Transform<Vec1<N>> for Mat1<N>
+{
+  #[inline]
+  fn transform_vec(&self, v: &Vec1<N>) -> Vec1<N>
+  { self.rmul(v) }
+
+  #[inline]
+  fn inv_transform(&self, v: &Vec1<N>) -> Vec1<N>
+  { self.inverse().transform_vec(v) }
+}
+
 impl<N: Add<N, N> + Mul<N, N>> RMul<Vec1<N>> for Mat1<N>
 {
   #[inline]
   fn rmul(&self, other: &Vec1<N>) -> Vec1<N>
-  { Vec1::new(self.m11 * other.x) }
+  { Vec1::new([self.m11 * other.at[0]]) }
 }
 
 impl<N: Add<N, N> + Mul<N, N>> LMul<Vec1<N>> for Mat1<N>
 {
   #[inline]
   fn lmul(&self, other: &Vec1<N>) -> Vec1<N>
-  { Vec1::new(self.m11 * other.x) }
+  { Vec1::new([self.m11 * other.at[0]]) }
 }
 
-impl<N:Copy + Mul<N, N> + Div<N, N> + Sub<N, N> + Neg<N> + Zero + One>
+impl<N: Copy + DivisionRing>
 Inv for Mat1<N>
 {
   #[inline]
@@ -101,7 +114,7 @@ impl<N: Copy> Transpose for Mat1<N>
   { }
 }
 
-impl<N:ApproxEq<N>> ApproxEq<N> for Mat1<N>
+impl<N: ApproxEq<N>> ApproxEq<N> for Mat1<N>
 {
   #[inline]
   fn approx_epsilon() -> N
@@ -116,28 +129,9 @@ impl<N:ApproxEq<N>> ApproxEq<N> for Mat1<N>
   { self.m11.approx_eq_eps(&other.m11, epsilon) }
 }
 
-impl<N: Rand > Rand for Mat1<N>
+impl<N: Rand> Rand for Mat1<N>
 {
   #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Mat1<N>
   { Mat1::new(rng.gen()) }
-}
-
-impl<N: Copy> Flatten<N> for Mat1<N>
-{
-  #[inline]
-  fn flat_size() -> uint
-  { 1 }
-
-  #[inline]
-  fn from_flattened(l: &[N], off: uint) -> Mat1<N>
-  { Mat1::new(copy l[off]) }
-
-  #[inline]
-  fn flatten(&self) -> ~[N]
-  { ~[ copy self.m11 ] }
-
-  #[inline]
-  fn flatten_to(&self, l: &mut [N], off: uint)
-  { l[off] = copy self.m11 }
 }

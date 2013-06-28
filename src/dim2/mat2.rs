@@ -2,12 +2,13 @@ use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
 use std::util::swap;
+use traits::transformation::Transform;
+use traits::division_ring::DivisionRing;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
-use traits::flatten::Flatten;
 use traits::rlmul::{RMul, LMul};
-use dim2::vec2::Vec2;
+use vec::Vec2;
 
 #[deriving(Eq, ToStr)]
 pub struct Mat2<N>
@@ -79,14 +80,26 @@ impl<N: Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N>
   }
 }
 
+impl<N: Copy + DivisionRing>
+Transform<Vec2<N>> for Mat2<N>
+{
+  #[inline]
+  fn transform_vec(&self, v: &Vec2<N>) -> Vec2<N>
+  { self.rmul(v) }
+
+  #[inline]
+  fn inv_transform(&self, v: &Vec2<N>) -> Vec2<N>
+  { self.inverse().transform_vec(v) }
+}
+
 impl<N: Add<N, N> + Mul<N, N>> RMul<Vec2<N>> for Mat2<N>
 {
   #[inline]
   fn rmul(&self, other: &Vec2<N>) -> Vec2<N>
   {
     Vec2::new(
-      self.m11 * other.x + self.m12 * other.y,
-      self.m21 * other.x + self.m22 * other.y
+      [ self.m11 * other.at[0] + self.m12 * other.at[1],
+        self.m21 * other.at[0] + self.m22 * other.at[1] ]
     )
   }
 }
@@ -97,13 +110,13 @@ impl<N: Add<N, N> + Mul<N, N>> LMul<Vec2<N>> for Mat2<N>
   fn lmul(&self, other: &Vec2<N>) -> Vec2<N>
   {
     Vec2::new(
-      self.m11 * other.x + self.m21 * other.y,
-      self.m12 * other.x + self.m22 * other.y
+      [ self.m11 * other.at[0] + self.m21 * other.at[1],
+        self.m12 * other.at[0] + self.m22 * other.at[1] ]
     )
   }
 }
 
-impl<N:Copy + Mul<N, N> + Div<N, N> + Sub<N, N> + Neg<N> + Zero>
+impl<N: Copy + DivisionRing>
 Inv for Mat2<N>
 {
   #[inline]
@@ -174,28 +187,4 @@ impl<N: Rand> Rand for Mat2<N>
   #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Mat2<N>
   { Mat2::new(rng.gen(), rng.gen(), rng.gen(), rng.gen()) }
-}
-
-impl<N: Copy> Flatten<N> for Mat2<N>
-{
-  #[inline]
-  fn flat_size() -> uint
-  { 4 }
-
-  #[inline]
-  fn from_flattened(l: &[N], off: uint) -> Mat2<N>
-  { Mat2::new(copy l[off], copy l[off + 1], copy l[off + 2], copy l[off + 3]) }
-
-  #[inline]
-  fn flatten(&self) -> ~[N]
-  { ~[ copy self.m11, copy self.m12, copy self.m21, copy self.m22 ] }
-
-  #[inline]
-  fn flatten_to(&self, l: &mut [N], off: uint)
-  {
-    l[off]     = copy self.m11;
-    l[off + 1] = copy self.m12;
-    l[off + 2] = copy self.m21;
-    l[off + 3] = copy self.m22;
-  }
 }

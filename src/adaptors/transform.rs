@@ -3,11 +3,10 @@ use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
-use traits::rotation::{Rotation, Rotatable};
-use traits::translation::{Translation, Translatable};
+use traits::rotation::{Rotation, Rotate, Rotatable};
+use traits::translation::{Translation, Translate, Translatable};
+use traits::transformation;
 use traits::transformation::{Transformation, Transformable};
-use traits::transpose::Transpose;
-use traits::delta_transform::{DeltaTransform, DeltaTransformVector};
 use traits::rlmul::{RMul, LMul};
 
 #[deriving(Eq, ToStr)]
@@ -81,8 +80,23 @@ impl<M, V: Translation<V>> Translation<V> for Transform<M, V>
   { self.subtrans.translation() }
 
   #[inline]
-  fn translate(&mut self, t: &V)
-  { self.subtrans.translate(t) }
+  fn inv_translation(&self) -> V
+  { self.subtrans.inv_translation() }
+
+  #[inline]
+  fn translate_by(&mut self, t: &V)
+  { self.subtrans.translate_by(t) }
+}
+
+impl<M: Translate<V>, V, _0> Translate<V> for Transform<M, _0>
+{
+  #[inline]
+  fn translate(&self, v: &V) -> V
+  { self.submat.translate(v) }
+
+  #[inline]
+  fn inv_translate(&self, v: &V) -> V
+  { self.submat.inv_translate(v) }
 }
 
 impl<M: Copy, V: Translatable<V, Res>, Res: Translation<V>>
@@ -103,14 +117,30 @@ Rotation<AV> for Transform<M, V>
   { self.submat.rotation() }
 
   #[inline]
-  fn rotate(&mut self, rot: &AV)
+  fn inv_rotation(&self) -> AV
+  { self.submat.inv_rotation() }
+
+
+  #[inline]
+  fn rotate_by(&mut self, rot: &AV)
   {
     // FIXME: this does not seem opitmal
     let mut delta = One::one::<M>();
-    delta.rotate(rot);
-    self.submat.rotate(rot);
+    delta.rotate_by(rot);
+    self.submat.rotate_by(rot);
     self.subtrans = delta.rmul(&self.subtrans);
   }
+}
+
+impl<M: Rotate<V>, V, _0> Rotate<V> for Transform<M, _0>
+{
+  #[inline]
+  fn rotate(&self, v: &V) -> V
+  { self.submat.rotate(v) }
+
+  #[inline]
+  fn inv_rotate(&self, v: &V) -> V
+  { self.submat.inv_rotate(v) }
 }
 
 impl<M: Rotatable<AV, Res> + One,
@@ -129,14 +159,31 @@ Rotatable<AV, Transform<Res, V>> for Transform<M, V>
   }
 }
 
-impl<M: RMul<V> + Mul<M, M> + Copy, V: Add<V, V> + Copy> Transformation<Transform<M, V>> for Transform<M, V>
+impl<M: Inv + RMul<V> + Mul<M, M> + Copy, V: Add<V, V> + Neg<V> + Copy>
+Transformation<Transform<M, V>> for Transform<M, V>
 {
   fn transformation(&self) -> Transform<M, V>
   { copy *self }
 
+  fn inv_transformation(&self) -> Transform<M, V>
+  { self.inverse() }
+
   fn transform_by(&mut self, other: &Transform<M, V>)
   { *self = other * *self; }
 }
+
+impl<M: transformation::Transform<V>, V: Add<V, V> + Sub<V, V>>
+transformation::Transform<V> for Transform<M, V>
+{
+  #[inline]
+  fn transform_vec(&self, v: &V) -> V
+  { self.submat.transform_vec(v) + self.subtrans }
+
+  #[inline]
+  fn inv_transform(&self, v: &V) -> V
+  { self.submat.inv_transform(&(v - self.subtrans)) }
+}
+
 
 // FIXME: constraints are too restrictive.
 // Should be: Transformable<M2, // Transform<Res, V> ...
@@ -147,21 +194,7 @@ Transformable<Transform<M, V>, Transform<M, V>> for Transform<M, V>
   { t * *self }
 }
 
-impl<M: Copy, V> DeltaTransform<M> for Transform<M, V>
-{
-  #[inline]
-  fn delta_transform(&self) -> M
-  { copy self.submat }
-}
-
-impl<M: RMul<V>, V> DeltaTransformVector<V> for Transform<M, V>
-{
-  #[inline]
-  fn delta_transform_vector(&self, v: &V) -> V
-  { self.submat.rmul(v) }
-}
-
-impl<M:Copy + Transpose + Inv + RMul<V>, V: Copy + Neg<V>>
+impl<M: Copy + Inv + RMul<V>, V: Copy + Neg<V>>
 Inv for Transform<M, V>
 {
   #[inline]

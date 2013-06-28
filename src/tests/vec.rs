@@ -1,6 +1,4 @@
 #[test]
-use std::vec;
-#[test]
 use std::iterator::IteratorUtil;
 #[test]
 use std::num::{Zero, One};
@@ -9,11 +7,7 @@ use std::rand::{random};
 #[test]
 use std::cmp::ApproxEq;
 #[test]
-use dim3::vec3::Vec3;
-#[test]
-use dim2::vec2::Vec2;
-#[test]
-use dim1::vec1::Vec1;
+use vec::{Vec1, Vec2, Vec3};
 #[test]
 use ndim::nvec::NVec;
 #[test]
@@ -27,9 +21,27 @@ use traits::dot::Dot;
 #[test]
 use traits::norm::Norm;
 #[test]
-use traits::flatten::Flatten;
+use traits::iterable::{Iterable, IterableMut};
 #[test]
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
+
+macro_rules! test_iterator_impl(
+  ($t: ty, $n: ty) => (
+    for 10000.times
+    {
+      let v: $t      = random();
+      let mut mv: $t = copy v;
+      let n: $n      = random();
+
+      let nv: $t = v.iter().transform(|e| e * n).collect();
+
+      for mv.mut_iter().advance |e|
+      { *e = *e * n }
+
+      assert!(nv == mv && nv == v.scalar_mul(&n));
+    }
+  )
+)
 
 macro_rules! test_commut_dot_impl(
   ($t: ty) => (
@@ -105,21 +117,6 @@ macro_rules! test_subspace_basis_impl(
   );
 )
 
-macro_rules! test_flatten_impl(
-  ($t: ty, $n: ty) => (
-    for 10000.times
-    {
-      let v:     $t    = random();
-      let mut l: ~[$n] = vec::from_elem(42 + Flatten::flat_size::<$n, $t>(), Zero::zero::<$n>());
-
-      v.flatten_to(l, 42);
-
-      assert!(Flatten::from_flattened::<$n, $t>(v.flatten(), 0) == v);
-      assert!(Flatten::from_flattened::<$n, $t>(l, 42) == v);
-    }
-  )
-)
-
 #[test]
 fn test_cross_vec3()
 {
@@ -183,22 +180,6 @@ fn test_subspace_basis_nvec()
 { test_subspace_basis_impl!(NVec<d7, f64>); }
 
 #[test]
-fn test_flatten_vec1()
-{ test_flatten_impl!(Vec1<f64>, f64); }
-
-#[test]
-fn test_flatten_vec2()
-{ test_flatten_impl!(Vec2<f64>, f64); }
-
-#[test]
-fn test_flatten_vec3()
-{ test_flatten_impl!(Vec3<f64>, f64); }
-
-#[test]
-fn test_flatten_nvec()
-{ test_flatten_impl!(NVec<d7, f64>, f64); }
-
-#[test]
 fn test_scalar_op_vec1()
 { test_scalar_op_impl!(Vec1<f64>, f64); }
 
@@ -213,3 +194,19 @@ fn test_scalar_op_vec3()
 #[test]
 fn test_scalar_op_nvec()
 { test_scalar_op_impl!(NVec<d7, f64>, f64); }
+
+#[test]
+fn test_iterator_vec1()
+{ test_iterator_impl!(Vec1<f64>, f64); }
+
+#[test]
+fn test_iterator_vec2()
+{ test_iterator_impl!(Vec2<f64>, f64); }
+ 
+#[test]
+fn test_iterator_vec3()
+{ test_iterator_impl!(Vec3<f64>, f64); }
+
+#[test]
+fn test_iterator_nvec()
+{ test_iterator_impl!(NVec<d7, f64>, f64); }

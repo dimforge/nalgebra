@@ -2,9 +2,17 @@ pub trait Transformation<M>
 {
   fn transformation(&self) -> M;
 
-  // XXX: we must use "transform_by" instead of "transform" because of a
-  // conflict with some iterator function…
+  fn inv_transformation(&self) -> M;
+
   fn transform_by(&mut self, &M);
+}
+
+pub trait Transform<V>
+{
+  // XXX: sadly we cannot call this `transform` as it conflicts with the
+  // iterators' `transform` function (which seems always exist).
+  fn transform_vec(&self, &V) -> V;
+  fn inv_transform(&self, &V) -> V;
 }
 
 pub trait Transformable<M, Res: Transformation<M>>

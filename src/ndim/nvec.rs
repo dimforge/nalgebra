@@ -1,9 +1,11 @@
 use std::uint::iterate;
 use std::num::{Zero, Algebraic, Bounded};
 use std::rand::{Rand, Rng, RngUtil};
-use std::vec::{map};
+use std::vec::{VecIterator, VecMutIterator};
 use std::cmp::ApproxEq;
+use std::iterator::{IteratorUtil, FromIterator};
 use ndim::dvec::{DVec, zero_vec_with_dim, is_zero_vec};
+use traits::iterable::{Iterable, IterableMut};
 use traits::basis::Basis;
 use traits::ring::Ring;
 use traits::division_ring::DivisionRing;
@@ -12,7 +14,6 @@ use traits::dot::Dot;
 use traits::sub_dot::SubDot;
 use traits::norm::Norm;
 use traits::translation::{Translation, Translatable};
-use traits::flatten::Flatten;
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 // D is a phantom parameter, used only as a dimensional token.
@@ -36,6 +37,35 @@ impl<D, N: Clone> Clone for NVec<D, N>
   #[inline]
   fn clone(&self) -> NVec<D, N>
   { NVec{ at: self.at.clone() } }
+}
+
+impl<D, N> Iterable<N> for NVec<D, N>
+{
+  fn iter<'l>(&'l self) -> VecIterator<'l, N>
+  { self.at.iter() }
+}
+
+impl<D, N> IterableMut<N> for NVec<D, N>
+{
+  fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N>
+  { self.at.mut_iter() }
+}
+
+impl<D: Dim, N: Zero + Copy, Iter: Iterator<N>> FromIterator<N, Iter> for NVec<D, N>
+{
+  fn from_iterator(param: &mut Iter) -> NVec<D, N>
+  {
+    let mut res: NVec<D, N> = Zero::zero();
+    let mut i = 0;
+
+    for param.advance |e|
+    {
+      res.at.at[i] = e;
+      i = i + 1;
+    }
+
+    res
+  }
 }
 
 impl<D, N: Copy + Add<N,N>> Add<NVec<D, N>, NVec<D, N>> for NVec<D, N>
@@ -123,14 +153,19 @@ ScalarSub<N> for NVec<D, N>
   { self.at.scalar_sub_inplace(s) }
 }
 
-impl<D: Dim, N: Clone + Copy + Add<N, N>> Translation<NVec<D, N>> for NVec<D, N>
+impl<D: Dim, N: Clone + Copy + Add<N, N> + Neg<N>> Translation<NVec<D, N>> for NVec<D, N>
 {
   #[inline]
   fn translation(&self) -> NVec<D, N>
   { self.clone() }
 
   #[inline]
-  fn translate(&mut self, t: &NVec<D, N>)
+  fn inv_translation(&self) -> NVec<D, N>
+  { -self.clone() }
+
+
+  #[inline]
+  fn translate_by(&mut self, t: &NVec<D, N>)
   { *self = *self + *t; }
 }
 
@@ -173,11 +208,11 @@ Basis for NVec<D, N>
 {
   #[inline]
   fn canonical_basis() -> ~[NVec<D, N>]
-  { map(DVec::canonical_basis_with_dim(Dim::dim::<D>()), |&e| NVec { at: e }) }
+  { DVec::canonical_basis_with_dim(Dim::dim::<D>()).map(|&e| NVec { at: e }) }
 
   #[inline]
   fn orthogonal_subspace_basis(&self) -> ~[NVec<D, N>]
-  { map(self.at.orthogonal_subspace_basis(), |&e| NVec { at: e }) }
+  { self.at.orthogonal_subspace_basis().map(|&e| NVec { at: e }) }
 }
 
 // FIXME: I dont really know how te generalize the cross product int
@@ -226,46 +261,6 @@ impl<D: Dim, N: Rand + Zero + Copy> Rand for NVec<D, N>
     { res.at.at[i] = rng.gen() }
 
     res
-  }
-}
-
-impl<D: Dim, N: Zero + Copy> Flatten<N> for NVec<D, N>
-{
-  #[inline]
-  fn flat_size() -> uint
-  { Dim::dim::<D>() }
-
-  #[inline]
-  fn from_flattened(l: &[N], off: uint) -> NVec<D, N>
-  {
-    let     dim = Dim::dim::<D>();
-    let mut res = Zero::zero::<NVec<D, N>>();
-
-    for iterate(0u, dim) |i|
-    { res.at.at[i] = copy l[off + i] }
-
-    res
-  }
-
-  #[inline]
-  fn flatten(&self) -> ~[N]
-  {
-    let     dim = Dim::dim::<D>();
-    let mut res = ~[];
-
-    for iterate(0u, dim) |i|
-    { res.push(copy self.at.at[i]) }
-
-    res
-  }
-
-  #[inline]
-  fn flatten_to(&self, l: &mut [N], off: uint)
-  {
-    let dim = Dim::dim::<D>();
-
-    for iterate(0u, dim) |i|
-    { l[off + i] = copy self.at.at[i] }
   }
 }
 

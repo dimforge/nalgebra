@@ -15,24 +15,23 @@
 
 extern mod std;
 
+pub mod vec;
+
 /// 1-dimensional linear algebra.
 pub mod dim1
 {
-  pub mod vec1;
   pub mod mat1;
 }
 
 /// 2-dimensional linear algebra.
 pub mod dim2
 {
-  pub mod vec2;
   pub mod mat2;
 }
 
 /// 3-dimensional linear algebra.
 pub mod dim3
 {
-  pub mod vec3;
   pub mod mat3;
 }
 
@@ -55,6 +54,7 @@ pub mod adaptors
 /// Useful linear-algebra related traits.
 pub mod traits
 {
+  pub mod iterable;
   pub mod dot;
   pub mod cross;
   pub mod inv;
@@ -65,12 +65,10 @@ pub mod traits
   pub mod rotation;
   pub mod translation;
   pub mod transformation;
-  pub mod delta_transform;
   pub mod vector_space;
   pub mod ring;
   pub mod division_ring;
   pub mod sub_dot;
-  pub mod flatten;
   pub mod rlmul;
   pub mod scalar_op;
 }
