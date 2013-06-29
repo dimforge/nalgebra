@@ -7,7 +7,7 @@ use traits::inv::Inv;
 use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;
 use traits::rlmul::{RMul, LMul};
-use ndim::dvec::{DVec, zero_vec_with_dim};
+use dvec::{DVec, zero_vec_with_dim};
 
 #[deriving(Eq, ToStr, Clone)]
 pub struct DMat<N>
@@ -133,13 +133,13 @@ LMul<DVec<N>> for DMat<N>
   }
 }
 
-impl<N: Clone + Copy + Eq + DivisionRing>
+impl<N: Copy + Eq + DivisionRing>
 Inv for DMat<N>
 {
   #[inline]
   fn inverse(&self) -> DMat<N>
   {
-    let mut res : DMat<N> = self.clone();
+    let mut res : DMat<N> = copy *self;
 
     res.invert();
 

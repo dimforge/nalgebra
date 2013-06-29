@@ -17,15 +17,12 @@ extern mod std;
 
 pub mod vec;
 pub mod mat;
+pub mod dmat;
+pub mod dvec;
 
-/// n-dimensional linear algebra (slower).
-pub mod ndim
-{
-  pub mod dmat;
-  pub mod dvec;
-  pub mod nvec;
-  pub mod nmat;
-}
+// specialization for some 1d, 2d and 3d operations
+pub mod mat_spec;
+pub mod vec_spec;
 
 /// Wrappers around raw matrices to restrict their behaviour.
 pub mod adaptors

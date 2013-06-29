@@ -7,11 +7,7 @@ use std::rand::{random};
 #[test]
 use std::cmp::ApproxEq;
 #[test]
-use vec::{Vec1, Vec2, Vec3};
-#[test]
-use ndim::nvec::NVec;
-#[test]
-use traits::dim::d7;
+use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 #[test]
 use traits::basis::Basis;
 #[test]
@@ -133,7 +129,7 @@ fn test_cross_vec3()
 
 #[test]
 fn test_commut_dot_nvec()
-{ test_commut_dot_impl!(NVec<d7, f64>); }
+{ test_commut_dot_impl!(Vec6<f64>); }
  
 #[test]
 fn test_commut_dot_vec3()
@@ -160,8 +156,16 @@ fn test_basis_vec3()
 { test_basis_impl!(Vec3<f64>); }
 
 #[test]
-fn test_basis_nvec()
-{ test_basis_impl!(NVec<d7, f64>); }
+fn test_basis_vec4()
+{ test_basis_impl!(Vec4<f64>); }
+
+#[test]
+fn test_basis_vec5()
+{ test_basis_impl!(Vec5<f64>); }
+
+#[test]
+fn test_basis_vec6()
+{ test_basis_impl!(Vec6<f64>); }
 
 #[test]
 fn test_subspace_basis_vec1()
@@ -176,8 +180,16 @@ fn test_subspace_basis_vec3()
 { test_subspace_basis_impl!(Vec3<f64>); }
 
 #[test]
-fn test_subspace_basis_nvec()
-{ test_subspace_basis_impl!(NVec<d7, f64>); }
+fn test_subspace_basis_vec4()
+{ test_subspace_basis_impl!(Vec4<f64>); }
+
+#[test]
+fn test_subspace_basis_vec5()
+{ test_subspace_basis_impl!(Vec5<f64>); }
+
+#[test]
+fn test_subspace_basis_vec6()
+{ test_subspace_basis_impl!(Vec6<f64>); }
 
 #[test]
 fn test_scalar_op_vec1()
@@ -190,10 +202,18 @@ fn test_scalar_op_vec2()
 #[test]
 fn test_scalar_op_vec3()
 { test_scalar_op_impl!(Vec3<f64>, f64); }
-
+ 
 #[test]
-fn test_scalar_op_nvec()
-{ test_scalar_op_impl!(NVec<d7, f64>, f64); }
+fn test_scalar_op_vec4()
+{ test_scalar_op_impl!(Vec4<f64>, f64); }
+ 
+#[test]
+fn test_scalar_op_vec5()
+{ test_scalar_op_impl!(Vec5<f64>, f64); }
+ 
+#[test]
+fn test_scalar_op_vec6()
+{ test_scalar_op_impl!(Vec6<f64>, f64); }
 
 #[test]
 fn test_iterator_vec1()
@@ -206,7 +226,15 @@ fn test_iterator_vec2()
 #[test]
 fn test_iterator_vec3()
 { test_iterator_impl!(Vec3<f64>, f64); }
-
+ 
 #[test]
-fn test_iterator_nvec()
-{ test_iterator_impl!(NVec<d7, f64>, f64); }
+fn test_iterator_vec4()
+{ test_iterator_impl!(Vec4<f64>, f64); }
+ 
+#[test]
+fn test_iterator_vec5()
+{ test_iterator_impl!(Vec5<f64>, f64); }
+ 
+#[test]
+fn test_iterator_vec6()
+{ test_iterator_impl!(Vec6<f64>, f64); }
