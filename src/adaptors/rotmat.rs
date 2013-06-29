@@ -1,7 +1,6 @@
 use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
-use traits::ring::Ring;
 use traits::division_ring::DivisionRing;
 use traits::rlmul::{RMul, LMul};
 use traits::dim::Dim;
@@ -11,6 +10,7 @@ use traits::rotation::{Rotation, Rotate, Rotatable};
 use traits::transformation::{Transform}; // FIXME: implement Transformation and Transformable
 use traits::homogeneous::ToHomogeneous;
 use traits::indexable::Indexable;
+use traits::norm::Norm;
 use vec::Vec1;
 use mat::{Mat2, Mat3};
 use vec::Vec3;
@@ -28,9 +28,11 @@ pub fn rotmat2<N: Copy + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
   { submat: Mat2::new( [ copy coa, -sia, copy sia, copy coa ] ) }
 }
 
-pub fn rotmat3<N: Copy + Trigonometric + Ring>
-(axis: &Vec3<N>, angle: N) -> Rotmat<Mat3<N>>
+pub fn rotmat3<N: Copy + Trigonometric + DivisionRing + Algebraic>
+(axisangle: Vec3<N>) -> Rotmat<Mat3<N>>
 {
+  let mut axis  = axisangle;
+  let angle     = axis.normalize();
   let _1        = One::one::<N>();
   let ux        = copy axis.at[0];
   let uy        = copy axis.at[1];
@@ -82,29 +84,29 @@ Rotatable<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>>
   { rotmat2(copy rot.at[0]) * *self }
 }
 
-impl<N: Copy + Trigonometric + DivisionRing>
-Rotation<(Vec3<N>, N)> for Rotmat<Mat3<N>>
+impl<N: Copy + Trigonometric + DivisionRing + Algebraic>
+Rotation<Vec3<N>> for Rotmat<Mat3<N>>
 {
   #[inline]
-  fn rotation(&self) -> (Vec3<N>, N)
+  fn rotation(&self) -> Vec3<N>
   { fail!("Not yet implemented.") }
   #[inline]
 
-  fn inv_rotation(&self) -> (Vec3<N>, N)
+  fn inv_rotation(&self) -> Vec3<N>
   { fail!("Not yet implemented.") }
 
 
   #[inline]
-  fn rotate_by(&mut self, rot: &(Vec3<N>, N))
+  fn rotate_by(&mut self, rot: &Vec3<N>)
   { *self = self.rotated(rot) }
 }
 
-impl<N: Copy + Trigonometric + DivisionRing>
-Rotatable<(Vec3<N>, N), Rotmat<Mat3<N>>> for Rotmat<Mat3<N>>
+impl<N: Copy + Trigonometric + DivisionRing + Algebraic>
+Rotatable<Vec3<N>, Rotmat<Mat3<N>>> for Rotmat<Mat3<N>>
 {
   #[inline]
-  fn rotated(&self, &(axis, angle): &(Vec3<N>, N)) -> Rotmat<Mat3<N>>
-  { rotmat3(&axis, angle) * *self }
+  fn rotated(&self, axisangle: &Vec3<N>) -> Rotmat<Mat3<N>>
+  { rotmat3(copy *axisangle) * *self }
 }
 
 impl<N: Copy + Rand + Trigonometric + Neg<N>> Rand for Rotmat<Mat2<N>>
@@ -136,12 +138,12 @@ impl<M: RMul<V> + LMul<V>, V> Transform<V> for Rotmat<M>
   { self.inv_rotate(v) }
 }
 
-impl<N: Copy + Rand + Trigonometric + Ring>
+impl<N: Copy + Rand + Trigonometric + DivisionRing + Algebraic>
 Rand for Rotmat<Mat3<N>>
 {
   #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat3<N>>
-  { rotmat3(&rng.gen(), rng.gen()) }
+  { rotmat3(rng.gen()) }
 }
 
 impl<M: Dim> Dim for Rotmat<M>
