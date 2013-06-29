@@ -9,6 +9,8 @@ use traits::inv::Inv;
 use traits::transpose::Transpose;
 use traits::rotation::{Rotation, Rotate, Rotatable};
 use traits::transformation::{Transform}; // FIXME: implement Transformation and Transformable
+use traits::homogeneous::ToHomogeneous;
+use traits::indexable::Indexable;
 use vec::Vec1;
 use mat::{Mat2, Mat3};
 use vec::Vec3;
@@ -61,7 +63,7 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>>
 {
   #[inline]
   fn rotation(&self) -> Vec1<N>
-  { Vec1::new([ -(self.submat.at(0, 1) / self.submat.at(0, 0)).atan() ]) }
+  { Vec1::new([ -(self.submat.at((0, 1)) / self.submat.at((0, 0))).atan() ]) }
 
   #[inline]
   fn inv_rotation(&self) -> Vec1<N>
@@ -198,6 +200,13 @@ Transpose for Rotmat<M>
   #[inline]
   fn transpose(&mut self)
   { self.submat.transpose() }
+}
+
+// we loose the info that we are a rotation matrix
+impl<M: ToHomogeneous<M2>, M2> ToHomogeneous<M2> for Rotmat<M>
+{
+  fn to_homogeneous(&self) -> M2
+  { self.submat.to_homogeneous() }
 }
 
 impl<N: ApproxEq<N>, M: ApproxEq<N>> ApproxEq<N> for Rotmat<M>

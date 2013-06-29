@@ -7,6 +7,10 @@ macro_rules! mat_impl(
       #[inline]
       pub fn new(mij: [N, ..$dim * $dim]) -> $t<N>
       { $t { mij: mij } }
+
+      #[inline]
+      pub fn offset(&self, i: uint, j: uint) -> uint
+      { i * $dim + j }
     }
   )
 )
@@ -54,24 +58,49 @@ macro_rules! dim_impl(
   )
 )
 
-macro_rules! mat_indexing_impl(
+macro_rules! mat_indexable_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Copy> $t<N>
+    impl<N: Copy> Indexable<(uint, uint), N> for $t<N>
     {
       #[inline]
-      pub fn offset(&self, i: uint, j: uint) -> uint
-      { i * $dim + j }
-    
+      pub fn at(&self, (i, j): (uint, uint)) -> N
+      { copy self.mij[self.offset(i, j)] }
+
       #[inline]
-      pub fn set(&mut self, i: uint, j: uint, t: &N)
+      pub fn set(&mut self, (i, j): (uint, uint), t: N)
+      { self.mij[self.offset(i, j)] = t }
+    }
+  )
+)
+
+macro_rules! column_impl(
+  ($t: ident, $dim: expr) => (
+    impl<N: Copy, V: Zero + Iterable<N> + IterableMut<N>> Column<V> for $t<N>
+    {
+      fn set_column(&mut self, col: uint, v: V)
       {
-        self.mij[self.offset(i, j)] = copy *t
+        for v.iter().enumerate().advance |(i, e)|
+        {
+          if i == Dim::dim::<$t<N>>()
+          { break }
+
+          self.at((i, col)) = copy *e;
+        }
       }
-    
-      #[inline]
-      pub fn at(&self, i: uint, j: uint) -> N
+
+      fn column(&self, col: uint) -> V
       {
-        copy self.mij[self.offset(i, j)]
+        let mut res = Zero::zero::<V>();
+
+        for res.mut_iter().enumerate().advance |(i, e)|
+        {
+          if i >= Dim::dim::<$t<N>>()
+          { break }
+
+          *e = self.at((i, col));
+        }
+
+        res
       }
     }
   )
@@ -93,9 +122,9 @@ macro_rules! mul_impl(
             let mut acc = Zero::zero::<N>();
     
             for iterate(0u, $dim) |k|
-            { acc = acc + self.at(i, k) * other.at(k, j); }
+            { acc = acc + self.at((i, k)) * other.at((k, j)); }
     
-            res.set(i, j, &acc);
+            res.set((i, j), acc);
           }
         }
     
@@ -117,7 +146,7 @@ macro_rules! rmul_impl(
         for iterate(0u, $dim) |i|
         {
           for iterate(0u, $dim) |j|
-          { res.at[i] = res.at[i] + other.at[j] * self.at(i, j); }
+          { res.at[i] = res.at[i] + other.at[j] * self.at((i, j)); }
         }
     
         res
@@ -139,7 +168,7 @@ macro_rules! lmul_impl(
         for iterate(0u, $dim) |i|
         {
           for iterate(0u, $dim) |j|
-          { res.at[i] = res.at[i] + other.at[j] * self.at(j, i); }
+          { res.at[i] = res.at[i] + other.at[j] * self.at((j, i)); }
         }
     
         res
@@ -195,7 +224,7 @@ macro_rules! inv_impl(
     
           while (n0 != $dim)
           {
-            if self.at(n0, k) != _0N
+            if self.at((n0, k)) != _0N
             { break; }
     
             n0 = n0 + 1;
@@ -214,36 +243,36 @@ macro_rules! inv_impl(
             }
           }
     
-          let pivot = self.at(k, k);
+          let pivot = self.at((k, k));
     
           for iterate(k, $dim) |j|
           {
-            let selfval = &(self.at(k, j) / pivot);
-            self.set(k, j, selfval);
+            let selfval = self.at((k, j)) / pivot;
+            self.set((k, j), selfval);
           }
     
           for iterate(0u, $dim) |j|
           {
-            let resval  = &(res.at(k, j)   / pivot);
-            res.set(k, j, resval);
+            let resval = res.at((k, j)) / pivot;
+            res.set((k, j), resval);
           }
     
           for iterate(0u, $dim) |l|
           {
             if l != k
             {
-              let normalizer = self.at(l, k);
+              let normalizer = self.at((l, k));
     
               for iterate(k, $dim) |j|
               {
-                let selfval = &(self.at(l, j) - self.at(k, j) * normalizer);
-                self.set(l, j, selfval);
+                let selfval = self.at((l, j)) - self.at((k, j)) * normalizer;
+                self.set((l, j), selfval);
               }
     
               for iterate(0u, $dim) |j|
               {
-                let resval  = &(res.at(l, j) - res.at(k, j) * normalizer);
-                res.set(l, j, resval);
+                let resval  = res.at((l, j)) - res.at((k, j)) * normalizer;
+                res.set((l, j), resval);
               }
             }
           }
@@ -320,6 +349,49 @@ macro_rules! rand_impl(
       #[inline]
       fn rand<R: Rng>($param: &mut R) -> $t<N>
       { $t::new([ $( $elem.gen(), )+ ]) }
+    }
+  )
+)
+
+macro_rules! to_homogeneous_impl(
+  ($t: ident, $t2: ident, $dim: expr) => (
+    impl<N: One + Zero + Copy> ToHomogeneous<$t2<N>> for $t<N>
+    {
+      fn to_homogeneous(&self) -> $t2<N>
+      {
+        let mut res: $t2<N> = One::one();
+
+        for iterate(0, $dim) |i|
+        {
+          for iterate(0, $dim) |j|
+          { res.set((i, j), self.at((i, j))) }
+        }
+
+        res
+      }
+    }
+  )
+)
+
+macro_rules! from_homogeneous_impl(
+  ($t: ident, $t2: ident, $dim2: expr) => (
+    impl<N: One + Zero + Copy> FromHomogeneous<$t2<N>> for $t<N>
+    {
+      fn from_homogeneous(m: &$t2<N>) -> $t<N>
+      {
+        let mut res: $t<N> = One::one();
+
+        for iterate(0, $dim2) |i|
+        {
+          for iterate(0, $dim2) |j|
+          { res.set((i, j), m.at((i, j))) }
+        }
+
+        // FIXME: do we have to deal the lost components
+        // (like if the 1 is not a 1… do we have to divide?)
+
+        res
+      }
     }
   )
 )

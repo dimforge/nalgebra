@@ -8,6 +8,8 @@ use traits::translation::{Translation, Translate, Translatable};
 use traits::transformation;
 use traits::transformation::{Transformation, Transformable};
 use traits::rlmul::{RMul, LMul};
+use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
+use traits::column::Column;
 
 #[deriving(Eq, ToStr)]
 pub struct Transform<M, V>
@@ -212,6 +214,32 @@ Inv for Transform<M, V>
     res.invert();
 
     res
+  }
+}
+
+impl<M: ToHomogeneous<M2>, M2: Dim + Column<V>, V: Copy>
+ToHomogeneous<M2> for Transform<M, V>
+{
+  fn to_homogeneous(&self) -> M2
+  {
+    let mut res = self.submat.to_homogeneous();
+
+    // copy the translation
+    let dim = Dim::dim::<M2>();
+
+    res.set_column(dim - 1, copy self.subtrans);
+
+    res
+  }
+}
+
+impl<M: Column<V> + Dim, M2: FromHomogeneous<M>, V: Copy>
+FromHomogeneous<M> for Transform<M2, V>
+{
+  fn from_homogeneous(m: &M) -> Transform<M2, V>
+  {
+    Transform::new(FromHomogeneous::from_homogeneous(m),
+                   m.column(Dim::dim::<M>() - 1))
   }
 }
 

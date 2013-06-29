@@ -11,6 +11,21 @@ macro_rules! new_impl(
   )
 )
 
+macro_rules! indexable_impl(
+  ($t: ident) => (
+    impl<N: Copy> Indexable<uint, N> for $t<N>
+    {
+      #[inline]
+      pub fn at(&self, i: uint) -> N
+      { copy self.at[i] }
+
+      #[inline]
+      pub fn set(&mut self, i: uint, val: N)
+      { self.at[i] = val }
+    }
+  )
+)
+
 macro_rules! new_repeat_impl(
   ($t: ident, $param: ident, [ $($elem: ident)|+ ]) => (
     impl<N: Copy> $t<N>
@@ -381,6 +396,17 @@ macro_rules! zero_impl(
   )
 )
 
+macro_rules! one_impl(
+  ($t: ident) => (
+    impl<N: Copy + One> One for $t<N>
+    {
+      #[inline]
+      fn one() -> $t<N>
+      { $t::new_repeat(One::one()) }
+    }
+  )
+)
+
 macro_rules! rand_impl(
   ($t: ident, $param: ident, [ $($elem: ident)|+ ]) => (
     impl<N: Rand> Rand for $t<N>
@@ -428,4 +454,42 @@ macro_rules! bounded_impl(
       { $t::new_repeat(Bounded::min_value()) }
     }
   )
+)
+
+macro_rules! to_homogeneous_impl(
+  ($t: ident, $t2: ident) =>
+  {
+    impl<N: Copy + One> ToHomogeneous<$t2<N>> for $t<N>
+    {
+      fn to_homogeneous(&self) -> $t2<N>
+      {
+        let mut res: $t2<N> = One::one();
+
+        for self.iter().zip(res.mut_iter()).advance |(in, out)|
+        { *out = copy *in }
+
+        res
+      }
+    }
+  }
+)
+
+macro_rules! from_homogeneous_impl(
+  ($t: ident, $t2: ident, $dim2: expr) =>
+  {
+    impl<N: Copy + Div<N, N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N>
+    {
+      fn from_homogeneous(v: &$t2<N>) -> $t<N>
+      {
+        let mut res: $t<N> = Zero::zero();
+
+        for v.iter().zip(res.mut_iter()).advance |(in, out)|
+        { *out = copy *in }
+
+        res.scalar_div(&v.at[$dim2 - 1]);
+
+        res
+      }
+    }
+  }
 )
