@@ -19,6 +19,12 @@ use vec::Vec3;
 pub struct Rotmat<M>
 { priv submat: M }
 
+impl<M: Copy> Rotmat<M>
+{
+  pub fn submat(&self) -> M
+  { copy self.submat }
+}
+
 pub fn rotmat2<N: Copy + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
 {
   let coa = angle.cos();
