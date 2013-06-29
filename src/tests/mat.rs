@@ -9,6 +9,10 @@ use traits::inv::Inv;
 #[test]
 use traits::rotation::{Rotation, Rotatable};
 #[test]
+use traits::indexable::Indexable;
+#[test]
+use traits::transpose::Transpose;
+#[test]
 use vec::Vec1;
 #[test]
 use mat::{Mat1, Mat2, Mat3};
@@ -53,4 +57,12 @@ fn test_rotation2()
 
     assert!(randmat.rotated(ang).rotation().approx_eq(ang));
   }
+}
+
+#[test]
+fn test_index_mat2()
+{
+  let mat: Mat2<f64> = random();
+
+  assert!(mat.at((0, 1)) == mat.transposed().at((1, 0)));
 }

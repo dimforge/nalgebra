@@ -84,7 +84,7 @@ macro_rules! column_impl(
           if i == Dim::dim::<$t<N>>()
           { break }
 
-          self.at((i, col)) = copy *e;
+          self.set((i, col), copy *e);
         }
       }
 
