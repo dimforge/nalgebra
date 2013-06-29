@@ -35,10 +35,10 @@ pub trait Rotate<V>
  *   - `point`:   the center of rotation.
  */
 #[inline]
-pub fn rotate_wrt_point<M: Translatable<LV, M2>,
-                        M2: Rotation<AV> + Translation<LV>,
-                        LV: Neg<LV>,
-                        AV>
+pub fn rotated_wrt_point<M: Translatable<LV, M2>,
+                         M2: Rotation<AV> + Translation<LV>,
+                         LV: Neg<LV>,
+                         AV>
        (m: &M, ammount: &AV, center: &LV) -> M2
 {
   let mut res = m.translated(&-center);
@@ -49,6 +49,17 @@ pub fn rotate_wrt_point<M: Translatable<LV, M2>,
   res
 }
 
+#[inline]
+pub fn rotate_wrt_point<M:  Rotation<AV> + Translation<LV>,
+                        LV: Neg<LV>,
+                        AV>
+       (m: &mut M, ammount: &AV, center: &LV)
+{
+  m.translate_by(&-center);
+  m.rotate_by(ammount);
+  m.translate_by(center);
+}
+
 /**
  * Applies a rotation centered on the input translation.
  *
@@ -56,9 +67,26 @@ pub fn rotate_wrt_point<M: Translatable<LV, M2>,
  *   - `ammount`: the rotation to apply.
  */
 #[inline]
-pub fn rotate_wrt_center<M: Translatable<LV, M2> + Translation<LV>,
-                         M2: Rotation<AV> + Translation<LV>,
+pub fn rotated_wrt_center<M: Translatable<LV, M2> + Translation<LV>,
+                          M2: Rotation<AV> + Translation<LV>,
+                          LV: Neg<LV>,
+                          AV>
+       (m: &M, ammount: &AV) -> M2
+{ rotated_wrt_point(m, ammount, &m.translation()) }
+
+/**
+ * Applies a rotation centered on the input translation.
+ *
+ *   - `m`:       the object to be rotated.
+ *   - `ammount`: the rotation to apply.
+ */
+#[inline]
+pub fn rotate_wrt_center<M: Translatable<LV, M> + Translation<LV> + Rotation<AV>,
                          LV: Neg<LV>,
                          AV>
-       (m: &M, ammount: &AV) -> M2
-{ rotate_wrt_point(m, ammount, &m.translation()) }
+       (m: &mut M, ammount: &AV)
+{
+  let t = m.translation();
+
+  rotate_wrt_point(m, ammount, &t)
+}
