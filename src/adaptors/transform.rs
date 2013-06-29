@@ -25,6 +25,17 @@ impl<M, V> Transform<M, V>
   { Transform { submat: mat, subtrans: trans } }
 }
 
+impl<M: Copy, V: Copy> Transform<M, V>
+{
+  #[inline]
+  pub fn submat(&self) -> M
+  { copy self.submat }
+
+  #[inline]
+  pub fn subtrans(&self) -> V
+  { copy self.subtrans }
+}
+
 impl<M:Dim, V> Dim for Transform<M, V>
 {
   #[inline]
