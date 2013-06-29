@@ -38,7 +38,7 @@ approx_eq_impl!(Mat1)
 rand_impl!(Mat1, rng, [ rng ])
 to_homogeneous_impl!(Mat1, Mat2, 1)
 from_homogeneous_impl!(Mat2, Mat1, 1)
-column_impl!(Mat2, 2)
+column_impl!(Mat1, 1)
 
 #[deriving(ToStr)]
 pub struct Mat2<N>
@@ -62,6 +62,7 @@ rand_impl!(Mat2, rng, [ rng | rng |
                         rng | rng ])
 to_homogeneous_impl!(Mat2, Mat3, 2)
 from_homogeneous_impl!(Mat3, Mat2, 2)
+column_impl!(Mat2, 2)
 
 #[deriving(ToStr)]
 pub struct Mat3<N>
@@ -88,6 +89,7 @@ rand_impl!(Mat3, rng, [ rng | rng | rng |
                         rng | rng | rng])
 to_homogeneous_impl!(Mat3, Mat4, 3)
 from_homogeneous_impl!(Mat4, Mat3, 3)
+column_impl!(Mat3, 3)
 
 #[deriving(ToStr)]
 pub struct Mat4<N>
@@ -123,6 +125,7 @@ rand_impl!(Mat4, rng, [
            ])
 to_homogeneous_impl!(Mat4, Mat5, 4)
 from_homogeneous_impl!(Mat5, Mat4, 4)
+column_impl!(Mat4, 4)
 
 #[deriving(ToStr)]
 pub struct Mat5<N>
@@ -161,6 +164,7 @@ rand_impl!(Mat5, rng, [
            ])
 to_homogeneous_impl!(Mat5, Mat6, 5)
 from_homogeneous_impl!(Mat6, Mat5, 5)
+column_impl!(Mat5, 5)
 
 #[deriving(ToStr)]
 pub struct Mat6<N>
@@ -200,3 +204,4 @@ rand_impl!(Mat6, rng, [
            rng | rng | rng | rng | rng | rng |
            rng | rng | rng | rng | rng | rng
            ])
+column_impl!(Mat6, 6)
