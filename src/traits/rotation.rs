@@ -48,3 +48,17 @@ pub fn rotate_wrt_point<M: Translatable<LV, M2>,
 
   res
 }
+
+/**
+ * Applies a rotation centered on the input translation.
+ *
+ *   - `m`:       the object to be rotated.
+ *   - `ammount`: the rotation to apply.
+ */
+#[inline]
+pub fn rotate_wrt_center<M: Translatable<LV, M2> + Translation<LV>,
+                         M2: Rotation<AV> + Translation<LV>,
+                         LV: Neg<LV>,
+                         AV>
+       (m: &M, ammount: &AV) -> M2
+{ rotate_wrt_point(m, ammount, &m.translation()) }
