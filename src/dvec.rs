@@ -13,7 +13,7 @@ use traits::norm::Norm;
 use traits::translation::{Translation, Translatable};
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
-#[deriving(Eq, Ord, ToStr, Clone)]
+#[deriving(Eq, Ord, ToStr)]
 pub struct DVec<N>
 {
   at: ~[N]
@@ -53,7 +53,7 @@ impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for DVec<N>
 }
 
 // FIXME: is Clone needed?
-impl<N: Copy + DivisionRing + Algebraic + Clone + ApproxEq<N>> DVec<N>
+impl<N: Copy + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
 {
   pub fn canonical_basis_with_dim(dim: uint) -> ~[DVec<N>]
   {
@@ -87,7 +87,7 @@ impl<N: Copy + DivisionRing + Algebraic + Clone + ApproxEq<N>> DVec<N>
       if res.len() == dim - 1
       { break; }
 
-      let mut elt = basis_element.clone();
+      let mut elt = copy basis_element;
 
       elt = elt - self.scalar_mul(&basis_element.dot(self));
 
@@ -223,11 +223,11 @@ ScalarSub<N> for DVec<N>
   }
 }
 
-impl<N: Clone + Copy + Add<N, N> + Neg<N>> Translation<DVec<N>> for DVec<N>
+impl<N: Copy + Add<N, N> + Neg<N>> Translation<DVec<N>> for DVec<N>
 {
   #[inline]
   fn translation(&self) -> DVec<N>
-  { self.clone() }
+  { copy *self }
 
   #[inline]
   fn inv_translation(&self) -> DVec<N>
@@ -238,14 +238,14 @@ impl<N: Clone + Copy + Add<N, N> + Neg<N>> Translation<DVec<N>> for DVec<N>
   { *self = *self + *t; }
 }
 
-impl<N: Add<N, N> + Copy> Translatable<DVec<N>, DVec<N>> for DVec<N>
+impl<N: Add<N, N> + Neg<N> + Copy> Translatable<DVec<N>, DVec<N>> for DVec<N>
 {
   #[inline]
   fn translated(&self, t: &DVec<N>) -> DVec<N>
   { self + *t }
 }
 
-impl<N: Copy + DivisionRing + Algebraic + Clone>
+impl<N: Copy + DivisionRing + Algebraic>
 Norm<N> for DVec<N>
 {
   #[inline]
@@ -259,7 +259,7 @@ Norm<N> for DVec<N>
   #[inline]
   fn normalized(&self) -> DVec<N>
   {
-    let mut res : DVec<N> = self.clone();
+    let mut res : DVec<N> = copy *self;
 
     res.normalize();
 

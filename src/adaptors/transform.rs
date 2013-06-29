@@ -101,11 +101,11 @@ impl<M: Translate<V>, V, _0> Translate<V> for Transform<M, _0>
   { self.submat.inv_translate(v) }
 }
 
-impl<M: Copy, V: Translatable<V, Res>, Res: Translation<V>>
-Translatable<V, Transform<M, Res>> for Transform<M, V>
+impl<M: Copy, V: Translatable<V, V> + Translation<V>>
+Translatable<V, Transform<M, V>> for Transform<M, V>
 {
   #[inline]
-  fn translated(&self, t: &V) -> Transform<M, Res>
+  fn translated(&self, t: &V) -> Transform<M, V>
   { Transform::new(copy self.submat, self.subtrans.translated(t)) }
 }
 
@@ -146,7 +146,7 @@ impl<M: Rotate<V>, V, _0> Rotate<V> for Transform<M, _0>
 }
 
 impl<M: Rotatable<AV, Res> + One,
-     Res: Rotation<AV> + RMul<V>,
+     Res: Rotation<AV> + RMul<V> + One,
      V,
      AV>
 Rotatable<AV, Transform<Res, V>> for Transform<M, V>
@@ -189,7 +189,7 @@ transformation::Transform<V> for Transform<M, V>
 
 // FIXME: constraints are too restrictive.
 // Should be: Transformable<M2, // Transform<Res, V> ...
-impl<M: RMul<V> + Mul<M, M>, V: Add<V, V>>
+impl<M: RMul<V> + Mul<M, M> + Inv, V: Add<V, V> + Neg<V>>
 Transformable<Transform<M, V>, Transform<M, V>> for Transform<M, V>
 {
   fn transformed(&self, t: &Transform<M, V>) -> Transform<M, V>

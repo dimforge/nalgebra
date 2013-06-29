@@ -309,7 +309,7 @@ macro_rules! translation_impl(
 
 macro_rules! translatable_impl(
   ($t: ident) => (
-    impl<N: Add<N, N> + Copy> Translatable<$t<N>, $t<N>> for $t<N>
+    impl<N: Add<N, N> + Neg<N> + Copy> Translatable<$t<N>, $t<N>> for $t<N>
     {
       #[inline]
       fn translated(&self, t: &$t<N>) -> $t<N>
