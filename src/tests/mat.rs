@@ -15,7 +15,7 @@ use traits::transpose::Transpose;
 #[test]
 use vec::Vec1;
 #[test]
-use mat::{Mat1, Mat2, Mat3};
+use mat::{Mat1, Mat2, Mat3, Mat4, Mat5, Mat6};
 #[test]
 use adaptors::rotmat::Rotmat;
 
@@ -42,10 +42,17 @@ fn test_inv_mat2()
 fn test_inv_mat3()
 { test_inv_mat_impl!(Mat3<f64>); }
 
-// FIXME: ICE
-// #[test]
-// fn test_inv_nmat()
-// { test_inv_mat_impl!(NMat<d7, f64>); }
+#[test]
+fn test_inv_mat4()
+{ test_inv_mat_impl!(Mat4<f64>); }
+
+#[test]
+fn test_inv_mat5()
+{ test_inv_mat_impl!(Mat5<f64>); }
+
+#[test]
+fn test_inv_mat6()
+{ test_inv_mat_impl!(Mat6<f64>); }
 
 #[test]
 fn test_rotation2()

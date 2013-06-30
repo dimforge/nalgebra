@@ -37,32 +37,37 @@ pub fn rotmat2<N: Copy + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
 pub fn rotmat3<N: Copy + Trigonometric + DivisionRing + Algebraic>
 (axisangle: Vec3<N>) -> Rotmat<Mat3<N>>
 {
-  let mut axis  = axisangle;
-  let angle     = axis.normalize();
-  let _1        = One::one::<N>();
-  let ux        = copy axis.at[0];
-  let uy        = copy axis.at[1];
-  let uz        = copy axis.at[2];
-  let sqx       = ux * ux;
-  let sqy       = uy * uy;
-  let sqz       = uz * uz;
-  let cos       = angle.cos();
-  let one_m_cos = _1 - cos;
-  let sin       = angle.sin();
+  if axisangle.sqnorm().is_zero()
+  { One::one() }
+  else
+  {
+    let mut axis  = axisangle;
+    let angle     = axis.normalize();
+    let _1        = One::one::<N>();
+    let ux        = copy axis.at[0];
+    let uy        = copy axis.at[1];
+    let uz        = copy axis.at[2];
+    let sqx       = ux * ux;
+    let sqy       = uy * uy;
+    let sqz       = uz * uz;
+    let cos       = angle.cos();
+    let one_m_cos = _1 - cos;
+    let sin       = angle.sin();
 
-  Rotmat {
-    submat: Mat3::new( [
-      (sqx + (_1 - sqx) * cos),
-      (ux * uy * one_m_cos - uz * sin),
-      (ux * uz * one_m_cos + uy * sin),
+    Rotmat {
+      submat: Mat3::new( [
+        (sqx + (_1 - sqx) * cos),
+        (ux * uy * one_m_cos - uz * sin),
+        (ux * uz * one_m_cos + uy * sin),
 
-      (ux * uy * one_m_cos + uz * sin),
-      (sqy + (_1 - sqy) * cos),
-      (uy * uz * one_m_cos - ux * sin),
+        (ux * uy * one_m_cos + uz * sin),
+        (sqy + (_1 - sqy) * cos),
+        (uy * uz * one_m_cos - ux * sin),
 
-      (ux * uz * one_m_cos - uy * sin),
-      (uy * uz * one_m_cos + ux * sin),
-      (sqz + (_1 - sqz) * cos) ] )
+        (ux * uz * one_m_cos - uy * sin),
+        (uy * uz * one_m_cos + ux * sin),
+        (sqz + (_1 - sqz) * cos) ] )
+    }
   }
 }
 
