@@ -79,15 +79,13 @@ macro_rules! test_basis_impl(
   ($t: ty) => (
     for 10000.times
     {
-      let basis = Basis::canonical_basis::<$t>();
+      do Basis::canonical_basis::<$t> |e1|
+      {
+        do Basis::canonical_basis::<$t> |e2|
+        { assert!(e1 == e2 || e1.dot(&e2).approx_eq(&Zero::zero())) }
 
-      // check vectors form an ortogonal basis
-      assert!(
-        do basis.iter().zip(basis.iter()).all
-        |(e1, e2)| { e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero()) }
-      );
-      // check vectors form an orthonormal basis
-      assert!(basis.iter().all(|e| e.norm().approx_eq(&One::one())));
+        assert!(e1.norm().approx_eq(&One::one()));
+      }
     }
   );
 )
@@ -98,17 +96,17 @@ macro_rules! test_subspace_basis_impl(
     {
       let v : $t   = random();
       let v1       = v.normalized();
-      let subbasis = v1.orthogonal_subspace_basis();
 
-      // check vectors are orthogonal to v1
-      assert!(subbasis.iter().all(|e| v1.dot(e).approx_eq(&Zero::zero())));
-      // check vectors form an ortogonal basis
-      assert!(
-        do subbasis.iter().zip(subbasis.iter()).all
-           |(e1, e2)| { e1 == e2 || e1.dot(e2).approx_eq(&Zero::zero()) }
-      );
-      // check vectors form an orthonormal basis
-      assert!(subbasis.iter().all(|e| e.norm().approx_eq(&One::one())));
+      do v1.orthonormal_subspace_basis() |e1|
+      {
+        // check vectors are orthogonal to v1
+        assert!(v1.dot(&e1).approx_eq(&Zero::zero()));
+        // check vectors form an orthonormal basis
+        assert!(e1.norm().approx_eq(&One::one()));
+        // check vectors form an ortogonal basis
+        do v1.orthonormal_subspace_basis() |e2|
+        { assert!(e1 == e2 || e1.dot(&e2).approx_eq(&Zero::zero())) }
+      }
     }
   );
 )

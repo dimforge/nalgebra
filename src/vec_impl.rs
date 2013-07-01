@@ -88,27 +88,23 @@ macro_rules! basis_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Copy + DivisionRing + Algebraic + ApproxEq<N>> Basis for $t<N>
     {
-      pub fn canonical_basis() -> ~[$t<N>]
+      pub fn canonical_basis(f: &fn($t<N>))
       {
-        let mut res : ~[$t<N>] = ~[];
-    
         for iterate(0u, $dim) |i|
         {
           let mut basis_element : $t<N> = Zero::zero();
     
           basis_element.at[i] = One::one();
     
-          res.push(basis_element);
+          f(basis_element);
         }
-    
-        res
       }
     
-      pub fn orthogonal_subspace_basis(&self) -> ~[$t<N>]
+      pub fn orthonormal_subspace_basis(&self, f: &fn($t<N>))
       {
         // compute the basis of the orthogonal subspace using Gram-Schmidt
         // orthogonalization algorithm
-        let mut res : ~[$t<N>] = ~[];
+        let mut basis: ~[$t<N>] = ~[];
     
         for iterate(0u, $dim) |i|
         {
@@ -116,21 +112,25 @@ macro_rules! basis_impl(
     
           basis_element.at[i] = One::one();
     
-          if res.len() == $dim - 1
+          if basis.len() == $dim - 1
           { break; }
     
           let mut elt = copy basis_element;
     
           elt = elt - self.scalar_mul(&basis_element.dot(self));
     
-          for res.iter().advance |v|
+          for basis.iter().advance |v|
           { elt = elt - v.scalar_mul(&elt.dot(v)) };
     
           if !elt.sqnorm().approx_eq(&Zero::zero())
-          { res.push(elt.normalized()); }
+          {
+            let new_element = elt.normalized();
+
+            f(copy new_element);
+
+            basis.push(new_element);
+          }
         }
-    
-        res
       }
     }
   )

@@ -27,44 +27,42 @@ impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N>
 
 impl<N: One> Basis for Vec1<N>
 {
-  #[inline]
-  fn canonical_basis() -> ~[Vec1<N>]
-  { ~[ Vec1::new([One::one()]) ] } // FIXME: this should be static
+  #[inline(always)]
+  fn canonical_basis(f: &fn(Vec1<N>))
+  { f(Vec1::new([One::one()])) }
 
-  #[inline]
-  fn orthogonal_subspace_basis(&self) -> ~[Vec1<N>]
-  { ~[] }
+  #[inline(always)]
+  fn orthonormal_subspace_basis(&self, _: &fn(Vec1<N>))
+  { }
 }
 
 impl<N: Copy + One + Zero + Neg<N>> Basis for Vec2<N>
 {
   #[inline]
-  fn canonical_basis()     -> ~[Vec2<N>]
+  fn canonical_basis(f: &fn(Vec2<N>))
   {
-    // FIXME: this should be static
-    ~[ Vec2::new([One::one(), Zero::zero()]),
-       Vec2::new([Zero::zero(), One::one()]) ]
+    f(Vec2::new([One::one(), Zero::zero()]));
+    f(Vec2::new([Zero::zero(), One::one()]));
   }
 
   #[inline]
-  fn orthogonal_subspace_basis(&self) -> ~[Vec2<N>]
-  { ~[ Vec2::new([-self.at[1], copy self.at[0]]) ] }
+  fn orthonormal_subspace_basis(&self, f: &fn(Vec2<N>))
+  { f(Vec2::new([-self.at[1], copy self.at[0]])) }
 }
 
 impl<N: Copy + DivisionRing + Ord + Algebraic>
 Basis for Vec3<N>
 {
-  #[inline]
-  fn canonical_basis() -> ~[Vec3<N>]
+  #[inline(always)]
+  fn canonical_basis(f: &fn(Vec3<N>))
   {
-    // FIXME: this should be static
-    ~[ Vec3::new([One::one(), Zero::zero(), Zero::zero()]),
-       Vec3::new([Zero::zero(), One::one(), Zero::zero()]),
-       Vec3::new([Zero::zero(), Zero::zero(), One::one()]) ]
+    f(Vec3::new([One::one(), Zero::zero(), Zero::zero()]));
+    f(Vec3::new([Zero::zero(), One::one(), Zero::zero()]));
+    f(Vec3::new([Zero::zero(), Zero::zero(), One::one()]));
   }
 
-  #[inline]
-  fn orthogonal_subspace_basis(&self) -> ~[Vec3<N>]
+  #[inline(always)]
+  fn orthonormal_subspace_basis(&self, f: &fn(Vec3<N>))
   {
       let a = 
         if abs(copy self.at[0]) > abs(copy self.at[1])
@@ -72,6 +70,7 @@ Basis for Vec3<N>
         else
         { Vec3::new([Zero::zero(), -self.at[2], copy self.at[1]]).normalized() };
 
-      ~[ a.cross(self), a ]
+      f(a.cross(self));
+      f(a);
   }
 }
