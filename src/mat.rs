@@ -1,6 +1,5 @@
 use std::uint::iterate;
 use std::num::{One, Zero};
-use std::vec::swap;
 use std::cmp::ApproxEq;
 use std::rand::{Rand, Rng, RngUtil};
 use std::iterator::IteratorUtil;

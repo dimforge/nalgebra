@@ -1,7 +1,7 @@
 use std::uint::iterate;
 use std::num::{Zero, One, Algebraic};
 use std::vec::{VecIterator, VecMutIterator};
-use std::vec::{map_zip, map, from_elem};
+use std::vec::from_elem;
 use std::cmp::ApproxEq;
 use std::iterator::{FromIterator, IteratorUtil};
 use traits::iterable::{Iterable, IterableMut};
@@ -110,7 +110,9 @@ impl<N: Copy + Add<N,N>> Add<DVec<N>, DVec<N>> for DVec<N>
   fn add(&self, other: &DVec<N>) -> DVec<N>
   {
     assert!(self.at.len() == other.at.len());
-    DVec { at: map_zip(self.at, other.at, | a, b | { *a + *b }) }
+    DVec {
+      at: self.at.iter().zip(other.at.iter()).transform(|(a, b)| *a + *b).collect()
+    }
   }
 }
 
@@ -120,7 +122,9 @@ impl<N: Copy + Sub<N,N>> Sub<DVec<N>, DVec<N>> for DVec<N>
   fn sub(&self, other: &DVec<N>) -> DVec<N>
   {
     assert!(self.at.len() == other.at.len());
-    DVec { at: map_zip(self.at, other.at, | a, b | *a - *b) }
+    DVec {
+      at: self.at.iter().zip(other.at.iter()).transform(|(a, b)| *a - *b).collect()
+    }
   }
 }
 
@@ -128,7 +132,7 @@ impl<N: Neg<N>> Neg<DVec<N>> for DVec<N>
 {
   #[inline]
   fn neg(&self) -> DVec<N>
-  { DVec { at: map(self.at, |a| -a) } }
+  { DVec { at: self.at.iter().transform(|a| -a).collect() } }
 }
 
 impl<N: Ring>
@@ -167,7 +171,7 @@ ScalarMul<N> for DVec<N>
 {
   #[inline]
   fn scalar_mul(&self, s: &N) -> DVec<N>
-  { DVec { at: map(self.at, |a| a * *s) } }
+  { DVec { at: self.at.iter().transform(|a| a * *s).collect() } }
 
   #[inline]
   fn scalar_mul_inplace(&mut self, s: &N)
@@ -183,7 +187,7 @@ ScalarDiv<N> for DVec<N>
 {
   #[inline]
   fn scalar_div(&self, s: &N) -> DVec<N>
-  { DVec { at: map(self.at, |a| a / *s) } }
+  { DVec { at: self.at.iter().transform(|a| a / *s).collect() } }
 
   #[inline]
   fn scalar_div_inplace(&mut self, s: &N)
@@ -198,7 +202,7 @@ ScalarAdd<N> for DVec<N>
 {
   #[inline]
   fn scalar_add(&self, s: &N) -> DVec<N>
-  { DVec { at: map(self.at, |a| a + *s) } }
+  { DVec { at: self.at.iter().transform(|a| a + *s).collect() } }
 
   #[inline]
   fn scalar_add_inplace(&mut self, s: &N)
@@ -213,7 +217,7 @@ ScalarSub<N> for DVec<N>
 {
   #[inline]
   fn scalar_sub(&self, s: &N) -> DVec<N>
-  { DVec { at: map(self.at, |a| a - *s) } }
+  { DVec { at: self.at.iter().transform(|a| a - *s).collect() } }
 
   #[inline]
   fn scalar_sub_inplace(&mut self, s: &N)

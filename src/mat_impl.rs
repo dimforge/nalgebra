@@ -238,8 +238,8 @@ macro_rules! inv_impl(
               let off_n0_j = self.offset(n0, j);
               let off_k_j  = self.offset(k, j);
     
-              swap(self.mij, off_n0_j, off_k_j);
-              swap(res.mij,  off_n0_j, off_k_j);
+              self.mij.swap(off_n0_j, off_k_j);
+              res.mij.swap(off_n0_j, off_k_j);
             }
           }
     
@@ -307,7 +307,7 @@ macro_rules! transpose_impl(
             let off_i_j = self.offset(i, j);
             let off_j_i = self.offset(j, i);
     
-            swap(self.mij, off_i_j, off_j_i);
+            self.mij.swap(off_i_j, off_j_i);
           }
         }
       }
