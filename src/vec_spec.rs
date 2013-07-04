@@ -3,6 +3,7 @@ use traits::basis::Basis;
 use traits::cross::Cross;
 use traits::division_ring::DivisionRing;
 use traits::norm::Norm;
+use traits::sample::UniformSphereSample;
 use vec::{Vec1, Vec2, Vec3};
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N>
@@ -36,7 +37,7 @@ impl<N: One> Basis for Vec1<N>
   { }
 }
 
-impl<N: Copy + One + Zero + Neg<N>> Basis for Vec2<N>
+impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N>
 {
   #[inline]
   fn canonical_basis(f: &fn(Vec2<N>))
@@ -47,10 +48,10 @@ impl<N: Copy + One + Zero + Neg<N>> Basis for Vec2<N>
 
   #[inline]
   fn orthonormal_subspace_basis(&self, f: &fn(Vec2<N>))
-  { f(Vec2::new([-self.at[1], copy self.at[0]])) }
+  { f(Vec2::new([-self.at[1], self.at[0].clone()])) }
 }
 
-impl<N: Copy + DivisionRing + Ord + Algebraic>
+impl<N: Clone + Copy + DivisionRing + Ord + Algebraic>
 Basis for Vec3<N>
 {
   #[inline(always)]
@@ -65,12 +66,46 @@ Basis for Vec3<N>
   fn orthonormal_subspace_basis(&self, f: &fn(Vec3<N>))
   {
       let a = 
-        if abs(copy self.at[0]) > abs(copy self.at[1])
-        { Vec3::new([copy self.at[2], Zero::zero(), -copy self.at[0]]).normalized() }
+        if abs(self.at[0].clone()) > abs(self.at[1].clone())
+        { Vec3::new([self.at[2].clone(), Zero::zero(), -self.at[0]]).normalized() }
         else
-        { Vec3::new([Zero::zero(), -self.at[2], copy self.at[1]]).normalized() };
+        { Vec3::new([Zero::zero(), -self.at[2], self.at[1].clone()]).normalized() };
 
       f(a.cross(self));
       f(a);
+  }
+}
+
+// FIXME: this bad: this fixes definitly the number of samples…
+static SAMPLES_2_F64: [Vec2<f64>, ..21] = [
+  Vec2 { at: [1.0, 0.0] },
+  Vec2 { at: [0.95557281, 0.29475517] },
+  Vec2 { at: [0.82623877, 0.56332006] },
+  Vec2 { at: [0.6234898, 0.78183148] },
+  Vec2 { at: [0.36534102, 0.93087375] },
+  Vec2 { at: [0.07473009, 0.9972038] },
+  Vec2 { at: [-0.22252093, 0.97492791] },
+  Vec2 { at: [-0.5, 0.8660254] },
+  Vec2 { at: [-0.73305187, 0.68017274] },
+  Vec2 { at: [-0.90096887, 0.43388374] },
+  Vec2 { at: [-0.98883083, 0.14904227] },
+  Vec2 { at: [-0.98883083, -0.14904227] },
+  Vec2 { at: [-0.90096887, -0.43388374] },
+  Vec2 { at: [-0.73305187, -0.68017274] },
+  Vec2 { at: [-0.5, -0.8660254] },
+  Vec2 { at: [-0.22252093, -0.97492791] },
+  Vec2 { at: [0.07473009, -0.9972038] },
+  Vec2 { at: [0.36534102, -0.93087375] },
+  Vec2 { at: [0.6234898, -0.78183148] },
+  Vec2 { at: [0.82623877, -0.56332006] },
+  Vec2 { at: [0.95557281, -0.29475517] },
+];
+
+impl UniformSphereSample for Vec2<f64>
+{
+  pub fn sample(f: &fn(&'static Vec2<f64>))
+  {
+    for SAMPLES_2_F64.iter().advance |sample|
+    { f(sample) }
   }
 }

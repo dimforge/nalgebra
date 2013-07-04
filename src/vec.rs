@@ -24,6 +24,7 @@ mod vec_impl;
 pub struct Vec1<N>
 { at: [N, ..1] }
 
+clone_impl!(Vec1)
 new_impl!(Vec1, 1)
 new_repeat_impl!(Vec1, elem, [elem])
 indexable_impl!(Vec1)
@@ -58,6 +59,7 @@ from_homogeneous_impl!(Vec2, Vec1, 2)
 pub struct Vec2<N>
 { at: [N, ..2] }
 
+clone_impl!(Vec2)
 new_impl!(Vec2, 2)
 new_repeat_impl!(Vec2, elem, [elem | elem])
 indexable_impl!(Vec2)
@@ -92,6 +94,7 @@ from_homogeneous_impl!(Vec3, Vec2, 3)
 pub struct Vec3<N>
 { at: [N, ..3] }
 
+clone_impl!(Vec3)
 new_impl!(Vec3, 3)
 new_repeat_impl!(Vec3, elem, [elem | elem | elem])
 indexable_impl!(Vec3)
@@ -126,6 +129,7 @@ from_homogeneous_impl!(Vec4, Vec3, 4)
 pub struct Vec4<N>
 { at: [N, ..4] }
 
+clone_impl!(Vec4)
 new_impl!(Vec4, 4)
 new_repeat_impl!(Vec4, elem, [elem | elem | elem | elem])
 indexable_impl!(Vec4)
@@ -160,6 +164,7 @@ from_homogeneous_impl!(Vec5, Vec4, 5)
 pub struct Vec5<N>
 { at: [N, ..5] }
 
+clone_impl!(Vec5)
 new_impl!(Vec5, 5)
 new_repeat_impl!(Vec5, elem, [elem | elem | elem | elem | elem])
 indexable_impl!(Vec5)
@@ -194,6 +199,7 @@ from_homogeneous_impl!(Vec6, Vec5, 6)
 pub struct Vec6<N>
 { at: [N, ..6] }
 
+clone_impl!(Vec6)
 new_impl!(Vec6, 6)
 new_repeat_impl!(Vec6, elem, [elem | elem | elem | elem | elem | elem])
 indexable_impl!(Vec6)

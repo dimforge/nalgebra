@@ -179,7 +179,14 @@ Transformation<Transform<M, V>> for Transform<M, V>
   { copy *self }
 
   fn inv_transformation(&self) -> Transform<M, V>
-  { self.inverse() }
+  {
+    // FIXME: fail or return a Some<Transform<M, V>> ?
+    match self.inverse()
+    {
+      Some(t) => t,
+      None    => fail!("This transformation was not inversible.")
+    }
+  }
 
   fn transform_by(&mut self, other: &Transform<M, V>)
   { *self = other * *self; }
@@ -211,20 +218,26 @@ impl<M: Copy + Inv + RMul<V>, V: Copy + Neg<V>>
 Inv for Transform<M, V>
 {
   #[inline]
-  fn invert(&mut self)
+  fn invert(&mut self) -> bool
   {
-    self.submat.invert();
-    self.subtrans = self.submat.rmul(&-self.subtrans);
+    if !self.submat.invert()
+    { false }
+    else
+    {
+      self.subtrans = self.submat.rmul(&-self.subtrans);
+      true
+    }
   }
 
   #[inline]
-  fn inverse(&self) -> Transform<M, V>
+  fn inverse(&self) -> Option<Transform<M, V>>
   {
     let mut res = copy *self;
 
-    res.invert();
-
-    res
+    if res.invert()
+    { Some(res) }
+    else
+    { None }
   }
 }
 

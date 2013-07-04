@@ -25,7 +25,7 @@ macro_rules! test_inv_mat_impl(
     {
       let randmat : $t = random();
 
-      assert!((randmat.inverse() * randmat).approx_eq(&One::one()));
+      assert!((randmat.inverse().unwrap() * randmat).approx_eq(&One::one()));
     }
   );
 )

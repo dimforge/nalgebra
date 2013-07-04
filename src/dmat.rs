@@ -137,16 +137,17 @@ impl<N: Copy + Eq + DivisionRing>
 Inv for DMat<N>
 {
   #[inline]
-  fn inverse(&self) -> DMat<N>
+  fn inverse(&self) -> Option<DMat<N>>
   {
     let mut res : DMat<N> = copy *self;
 
-    res.invert();
-
-    res
+    if res.invert()
+    { Some(res) }
+    else
+    { None }
   }
 
-  fn invert(&mut self)
+  fn invert(&mut self) -> bool
   {
     let     dim = self.dim;
     let mut res = one_mat_with_dim::<N>(dim);
@@ -169,7 +170,8 @@ Inv for DMat<N>
         n0 = n0 + 1;
       }
 
-      assert!(n0 != dim); // non inversible matrix
+      if n0 == dim
+      { return false }
 
       // swap pivot line
       if n0 != k
@@ -220,6 +222,8 @@ Inv for DMat<N>
     }
 
     *self = res;
+
+    true
   }
 }
 

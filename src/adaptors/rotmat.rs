@@ -19,40 +19,38 @@ use vec::Vec3;
 pub struct Rotmat<M>
 { priv submat: M }
 
-impl<M: Copy> Rotmat<M>
+impl<M: Clone> Rotmat<M>
 {
   pub fn submat(&self) -> M
-  { copy self.submat }
+  { self.submat.clone() }
 }
 
-pub fn rotmat2<N: Copy + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
+pub fn rotmat2<N: Clone + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
 {
-  let coa = angle.cos();
-  let sia = angle.sin();
+  let (sia, coa) = angle.sin_cos();
 
   Rotmat
-  { submat: Mat2::new( [ copy coa, -sia, copy sia, copy coa ] ) }
+  { submat: Mat2::new( [ coa.clone(), -sia, sia.clone(), coa ] ) }
 }
 
-pub fn rotmat3<N: Copy + Trigonometric + DivisionRing + Algebraic>
+pub fn rotmat3<N: Clone + Copy + Trigonometric + DivisionRing + Algebraic>
 (axisangle: Vec3<N>) -> Rotmat<Mat3<N>>
 {
   if axisangle.sqnorm().is_zero()
   { One::one() }
   else
   {
-    let mut axis  = axisangle;
-    let angle     = axis.normalize();
-    let _1        = One::one::<N>();
-    let ux        = copy axis.at[0];
-    let uy        = copy axis.at[1];
-    let uz        = copy axis.at[2];
-    let sqx       = ux * ux;
-    let sqy       = uy * uy;
-    let sqz       = uz * uz;
-    let cos       = angle.cos();
-    let one_m_cos = _1 - cos;
-    let sin       = angle.sin();
+    let mut axis   = axisangle;
+    let angle      = axis.normalize();
+    let _1         = One::one::<N>();
+    let ux         = axis.at[0].clone();
+    let uy         = axis.at[1].clone();
+    let uz         = axis.at[2].clone();
+    let sqx        = ux * ux;
+    let sqy        = uy * uy;
+    let sqz        = uz * uz;
+    let (sin, cos) = angle.sin_cos();
+    let one_m_cos  = _1 - cos;
 
     Rotmat {
       submat: Mat3::new( [
@@ -71,12 +69,12 @@ pub fn rotmat3<N: Copy + Trigonometric + DivisionRing + Algebraic>
   }
 }
 
-impl<N: Trigonometric + DivisionRing + Copy>
+impl<N: Trigonometric + DivisionRing + Clone>
 Rotation<Vec1<N>> for Rotmat<Mat2<N>>
 {
   #[inline]
   fn rotation(&self) -> Vec1<N>
-  { Vec1::new([ -(self.submat.at((0, 1)) / self.submat.at((0, 0))).atan() ]) }
+  { Vec1::new([ (-self.submat.at((0, 1))).atan2(&self.submat.at((0, 0))) ]) }
 
   #[inline]
   fn inv_rotation(&self) -> Vec1<N>
@@ -87,15 +85,15 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>>
   { *self = self.rotated(rot) }
 }
 
-impl<N: Trigonometric + DivisionRing + Copy>
+impl<N: Trigonometric + DivisionRing + Clone>
 Rotatable<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>>
 {
   #[inline]
   fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>>
-  { rotmat2(copy rot.at[0]) * *self }
+  { rotmat2(rot.at[0].clone()) * *self }
 }
 
-impl<N: Copy + Trigonometric + DivisionRing + Algebraic>
+impl<N: Clone + Copy + Trigonometric + DivisionRing + Algebraic>
 Rotation<Vec3<N>> for Rotmat<Mat3<N>>
 {
   #[inline]
@@ -112,15 +110,15 @@ Rotation<Vec3<N>> for Rotmat<Mat3<N>>
   { *self = self.rotated(rot) }
 }
 
-impl<N: Copy + Trigonometric + DivisionRing + Algebraic>
+impl<N: Clone + Copy + Trigonometric + DivisionRing + Algebraic>
 Rotatable<Vec3<N>, Rotmat<Mat3<N>>> for Rotmat<Mat3<N>>
 {
   #[inline]
   fn rotated(&self, axisangle: &Vec3<N>) -> Rotmat<Mat3<N>>
-  { rotmat3(copy *axisangle) * *self }
+  { rotmat3(axisangle.clone()) * *self }
 }
 
-impl<N: Copy + Rand + Trigonometric + Neg<N>> Rand for Rotmat<Mat2<N>>
+impl<N: Clone + Rand + Trigonometric + Neg<N>> Rand for Rotmat<Mat2<N>>
 {
   #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat2<N>>
@@ -149,7 +147,7 @@ impl<M: RMul<V> + LMul<V>, V> Transform<V> for Rotmat<M>
   { self.inv_rotate(v) }
 }
 
-impl<N: Copy + Rand + Trigonometric + DivisionRing + Algebraic>
+impl<N: Clone + Copy + Rand + Trigonometric + DivisionRing + Algebraic>
 Rand for Rotmat<Mat3<N>>
 {
   #[inline]
@@ -195,12 +193,16 @@ impl<V, M: LMul<V>> LMul<V> for Rotmat<M>
 impl<M: Transpose> Inv for Rotmat<M>
 {
   #[inline]
-  fn invert(&mut self)
-  { self.transpose() }
+  fn invert(&mut self) -> bool
+  {
+    self.transpose();
+
+    true
+  }
 
   #[inline]
-  fn inverse(&self) -> Rotmat<M>
-  { self.transposed() }
+  fn inverse(&self) -> Option<Rotmat<M>>
+  { Some(self.transposed()) }
 }
 
 impl<M: Transpose>

@@ -22,6 +22,7 @@ mod mat_impl;
 pub struct Mat1<N>
 { mij: [N, ..1 * 1] }
 
+clone_impl!(Mat1)
 mat_impl!(Mat1, 1)
 one_impl!(Mat1, [ _1 ])
 zero_impl!(Mat1, [ _0 ])
@@ -43,6 +44,7 @@ column_impl!(Mat1, 1)
 pub struct Mat2<N>
 { mij: [N, ..2 * 2] }
 
+clone_impl!(Mat2)
 mat_impl!(Mat2, 2)
 one_impl!(Mat2, [ _1 | _0 |
                   _0 | _1 ])
@@ -67,6 +69,7 @@ column_impl!(Mat2, 2)
 pub struct Mat3<N>
 { mij: [N, ..3 * 3] }
 
+clone_impl!(Mat3)
 mat_impl!(Mat3, 3)
 one_impl!(Mat3, [ _1 | _0 | _0 |
                   _0 | _1 | _0 |
@@ -94,6 +97,7 @@ column_impl!(Mat3, 3)
 pub struct Mat4<N>
 { mij: [N, ..4 * 4] }
 
+clone_impl!(Mat4)
 mat_impl!(Mat4, 4)
 one_impl!(Mat4, [
           _1 | _0 | _0 | _0 |
@@ -130,6 +134,7 @@ column_impl!(Mat4, 4)
 pub struct Mat5<N>
 { mij: [N, ..5 * 5] }
 
+clone_impl!(Mat5)
 mat_impl!(Mat5, 5)
 one_impl!(Mat5, [
           _1 | _0 | _0 | _0 | _0 |
@@ -169,6 +174,7 @@ column_impl!(Mat5, 5)
 pub struct Mat6<N>
 { mij: [N, ..6 * 6] }
 
+clone_impl!(Mat6)
 mat_impl!(Mat6, 6)
 one_impl!(Mat6, [
           _1 | _0 | _0 | _0 | _0 | _0 |

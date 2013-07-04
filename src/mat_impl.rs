@@ -1,5 +1,22 @@
 #[macro_escape];
 
+macro_rules! clone_impl(
+   // FIXME: use 'Clone' alone. For the moment, we need 'Copy' because the automatic
+   // implementation of Clone for [t, ..n] is badly typed.
+  ($t: ident) => (
+    impl<N: Clone + Copy> Clone for $t<N>
+    {
+      #[inline]
+      fn clone(&self) -> $t<N>
+      {
+        $t {
+          mij: copy self.mij
+        }
+      }
+    }
+  )
+)
+
 macro_rules! mat_impl(
   ($t: ident, $dim: expr) => (
     impl<N> $t<N>
@@ -17,13 +34,13 @@ macro_rules! mat_impl(
 
 macro_rules! one_impl(
   ($t: ident, [ $($value: ident)|+ ] ) => (
-    impl<N: Copy + One + Zero> One for $t<N>
+    impl<N: Clone + One + Zero> One for $t<N>
     {
       #[inline]
       fn one() -> $t<N>
       {
         let (_0, _1) = (Zero::zero::<N>(), One::one::<N>());
-        return $t::new( [ $( copy $value, )+ ] )
+        return $t::new( [ $( $value.clone(), )+ ] )
       }
     }
   )
@@ -31,13 +48,13 @@ macro_rules! one_impl(
 
 macro_rules! zero_impl(
   ($t: ident, [ $($value: ident)|+ ] ) => (
-    impl<N: Copy + Zero> Zero for $t<N>
+    impl<N: Clone + Zero> Zero for $t<N>
     {
       #[inline]
       fn zero() -> $t<N>
       {
-        let _0 = Zero::zero();
-        return $t::new( [ $( copy $value, )+ ] )
+        let _0 = Zero::zero::<N>();
+        return $t::new( [ $( $value.clone(), )+ ] )
       }
 
      #[inline]
@@ -60,11 +77,11 @@ macro_rules! dim_impl(
 
 macro_rules! mat_indexable_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Copy> Indexable<(uint, uint), N> for $t<N>
+    impl<N: Clone> Indexable<(uint, uint), N> for $t<N>
     {
       #[inline]
       pub fn at(&self, (i, j): (uint, uint)) -> N
-      { copy self.mij[self.offset(i, j)] }
+      { self.mij[self.offset(i, j)].clone() }
 
       #[inline]
       pub fn set(&mut self, (i, j): (uint, uint), t: N)
@@ -75,7 +92,7 @@ macro_rules! mat_indexable_impl(
 
 macro_rules! column_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Copy, V: Zero + Iterable<N> + IterableMut<N>> Column<V> for $t<N>
+    impl<N: Clone, V: Zero + Iterable<N> + IterableMut<N>> Column<V> for $t<N>
     {
       fn set_column(&mut self, col: uint, v: V)
       {
@@ -84,7 +101,7 @@ macro_rules! column_impl(
           if i == Dim::dim::<$t<N>>()
           { break }
 
-          self.set((i, col), copy *e);
+          self.set((i, col), e.clone());
         }
       }
 
@@ -108,7 +125,7 @@ macro_rules! column_impl(
 
 macro_rules! mul_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Copy + Ring>
+    impl<N: Clone + Ring>
     Mul<$t<N>, $t<N>> for $t<N>
     {
       fn mul(&self, other: &$t<N>) -> $t<N>
@@ -136,7 +153,7 @@ macro_rules! mul_impl(
 
 macro_rules! rmul_impl(
   ($t: ident, $v: ident, $dim: expr) => (
-    impl<N: Copy + Ring>
+    impl<N: Clone + Ring>
     RMul<$v<N>> for $t<N>
     {
       fn rmul(&self, other: &$v<N>) -> $v<N>
@@ -157,7 +174,7 @@ macro_rules! rmul_impl(
 
 macro_rules! lmul_impl(
   ($t: ident, $v: ident, $dim: expr) => (
-    impl<N: Copy + Ring>
+    impl<N: Clone + Ring>
     LMul<$v<N>> for $t<N>
     {
       fn lmul(&self, other: &$v<N>) -> $v<N>
@@ -179,7 +196,7 @@ macro_rules! lmul_impl(
 
 macro_rules! transform_impl(
   ($t: ident, $v: ident) => (
-    impl<N: Copy + DivisionRing + Eq>
+    impl<N: Clone + Copy + DivisionRing + Eq>
     Transform<$v<N>> for $t<N>
     {
       #[inline]
@@ -188,27 +205,34 @@ macro_rules! transform_impl(
     
       #[inline]
       fn inv_transform(&self, v: &$v<N>) -> $v<N>
-      { self.inverse().transform_vec(v) }
+      {
+        match self.inverse()
+        {
+          Some(t) => t.transform_vec(v),
+          None    => fail!("Cannot use inv_transform on a non-inversible matrix.")
+        }
+      }
     }
   )
 )
 
 macro_rules! inv_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Copy + Eq + DivisionRing>
+    impl<N: Clone + Copy + Eq + DivisionRing>
     Inv for $t<N>
     {
       #[inline]
-      fn inverse(&self) -> $t<N>
+      fn inverse(&self) -> Option<$t<N>>
       {
-        let mut res : $t<N> = copy *self;
+        let mut res : $t<N> = self.clone();
     
-        res.invert();
-    
-        res
+        if res.invert()
+        { Some(res) }
+        else
+        { None }
       }
     
-      fn invert(&mut self)
+      fn invert(&mut self) -> bool
       {
         let mut res: $t<N> = One::one();
         let     _0N: N     = Zero::zero();
@@ -229,6 +253,9 @@ macro_rules! inv_impl(
     
             n0 = n0 + 1;
           }
+
+          if n0 == $dim
+          { return false }
     
           // swap pivot line
           if n0 != k
@@ -279,6 +306,8 @@ macro_rules! inv_impl(
         }
     
         *self = res;
+
+        true
       }
     }
   )
@@ -286,12 +315,12 @@ macro_rules! inv_impl(
 
 macro_rules! transpose_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Copy> Transpose for $t<N>
+    impl<N: Clone + Copy> Transpose for $t<N>
     {
       #[inline]
       fn transposed(&self) -> $t<N>
       {
-        let mut res = copy *self;
+        let mut res = self.clone();
     
         res.transpose();
     
@@ -355,7 +384,7 @@ macro_rules! rand_impl(
 
 macro_rules! to_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr) => (
-    impl<N: One + Zero + Copy> ToHomogeneous<$t2<N>> for $t<N>
+    impl<N: One + Zero + Clone> ToHomogeneous<$t2<N>> for $t<N>
     {
       fn to_homogeneous(&self) -> $t2<N>
       {
@@ -375,7 +404,7 @@ macro_rules! to_homogeneous_impl(
 
 macro_rules! from_homogeneous_impl(
   ($t: ident, $t2: ident, $dim2: expr) => (
-    impl<N: One + Zero + Copy> FromHomogeneous<$t2<N>> for $t<N>
+    impl<N: One + Zero + Clone> FromHomogeneous<$t2<N>> for $t<N>
     {
       fn from_homogeneous(m: &$t2<N>) -> $t<N>
       {

@@ -1,5 +1,19 @@
 #[macro_escape];
 
+macro_rules! clone_impl(
+  ($t:ident) => (
+    // FIXME: use 'Clone' alone. For the moment, we need 'Copy' because the automatic
+    // implementation of Clone for [t, ..n] is badly typed.
+    impl<N: Clone + Copy> Clone for $t<N>
+    {
+      fn clone(&self) -> $t<N>
+      {
+        $t { at: copy self.at }
+      }
+    }
+  )
+)
+
 macro_rules! new_impl(
   ($t: ident, $dim: expr) => (
     impl<N> $t<N>
@@ -13,11 +27,11 @@ macro_rules! new_impl(
 
 macro_rules! indexable_impl(
   ($t: ident) => (
-    impl<N: Copy> Indexable<uint, N> for $t<N>
+    impl<N: Clone> Indexable<uint, N> for $t<N>
     {
       #[inline]
       pub fn at(&self, i: uint) -> N
-      { copy self.at[i] }
+      { self.at[i].clone() }
 
       #[inline]
       pub fn set(&mut self, i: uint, val: N)
@@ -28,11 +42,11 @@ macro_rules! indexable_impl(
 
 macro_rules! new_repeat_impl(
   ($t: ident, $param: ident, [ $($elem: ident)|+ ]) => (
-    impl<N: Copy> $t<N>
+    impl<N: Clone> $t<N>
     {
       #[inline]
       pub fn new_repeat($param: N) -> $t<N>
-      { $t{ at: [ $( copy $elem, )+ ] } }
+      { $t{ at: [ $( $elem.clone(), )+ ] } }
     }
   )
 )
@@ -86,7 +100,7 @@ macro_rules! dim_impl(
 // FIXME: add the possibility to specialize that
 macro_rules! basis_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Copy + DivisionRing + Algebraic + ApproxEq<N>> Basis for $t<N>
+    impl<N: Clone + Copy + DivisionRing + Algebraic + ApproxEq<N>> Basis for $t<N>
     {
       pub fn canonical_basis(f: &fn($t<N>))
       {
@@ -115,7 +129,7 @@ macro_rules! basis_impl(
           if basis.len() == $dim - 1
           { break; }
     
-          let mut elt = copy basis_element;
+          let mut elt = basis_element.clone();
     
           elt = elt - self.scalar_mul(&basis_element.dot(self));
     
@@ -126,7 +140,7 @@ macro_rules! basis_impl(
           {
             let new_element = elt.normalized();
 
-            f(copy new_element);
+            f(new_element.clone());
 
             basis.push(new_element);
           }
@@ -138,7 +152,7 @@ macro_rules! basis_impl(
 
 macro_rules! add_impl(
   ($t: ident) => (
-    impl<N: Copy + Add<N,N>> Add<$t<N>, $t<N>> for $t<N>
+    impl<N: Clone + Add<N,N>> Add<$t<N>, $t<N>> for $t<N>
     {
       #[inline]
       fn add(&self, other: &$t<N>) -> $t<N>
@@ -154,7 +168,7 @@ macro_rules! add_impl(
 
 macro_rules! sub_impl(
   ($t: ident) => (
-    impl<N: Copy + Sub<N,N>> Sub<$t<N>, $t<N>> for $t<N>
+    impl<N: Clone + Sub<N,N>> Sub<$t<N>, $t<N>> for $t<N>
     {
       #[inline]
       fn sub(&self, other: &$t<N>) -> $t<N>
@@ -290,11 +304,11 @@ macro_rules! scalar_sub_impl(
 
 macro_rules! translation_impl(
   ($t: ident) => (
-    impl<N: Copy + Add<N, N> + Neg<N>> Translation<$t<N>> for $t<N>
+    impl<N: Clone + Copy + Add<N, N> + Neg<N>> Translation<$t<N>> for $t<N>
     {
       #[inline]
       fn translation(&self) -> $t<N>
-      { copy *self }
+      { self.clone() }
 
       #[inline]
       fn inv_translation(&self) -> $t<N>
@@ -309,7 +323,7 @@ macro_rules! translation_impl(
 
 macro_rules! translatable_impl(
   ($t: ident) => (
-    impl<N: Add<N, N> + Neg<N> + Copy> Translatable<$t<N>, $t<N>> for $t<N>
+    impl<N: Add<N, N> + Neg<N> + Clone> Translatable<$t<N>, $t<N>> for $t<N>
     {
       #[inline]
       fn translated(&self, t: &$t<N>) -> $t<N>
@@ -320,7 +334,7 @@ macro_rules! translatable_impl(
 
 macro_rules! norm_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Copy + DivisionRing + Algebraic> Norm<N> for $t<N>
+    impl<N: Clone + Copy + DivisionRing + Algebraic> Norm<N> for $t<N>
     {
       #[inline]
       fn sqnorm(&self) -> N
@@ -333,7 +347,7 @@ macro_rules! norm_impl(
       #[inline]
       fn normalized(&self) -> $t<N>
       {
-        let mut res : $t<N> = copy *self;
+        let mut res : $t<N> = self.clone();
     
         res.normalize();
     
@@ -383,7 +397,7 @@ macro_rules! approx_eq_impl(
 
 macro_rules! zero_impl(
   ($t: ident) => (
-    impl<N: Copy + Zero> Zero for $t<N>
+    impl<N: Clone + Zero> Zero for $t<N>
     {
       #[inline]
       fn zero() -> $t<N>
@@ -398,7 +412,7 @@ macro_rules! zero_impl(
 
 macro_rules! one_impl(
   ($t: ident) => (
-    impl<N: Copy + One> One for $t<N>
+    impl<N: Clone + One> One for $t<N>
     {
       #[inline]
       fn one() -> $t<N>
@@ -420,13 +434,13 @@ macro_rules! rand_impl(
 
 macro_rules! from_any_iterator_impl(
   ($t: ident, $param: ident, [ $($elem: ident)|+ ]) => (
-    impl<N: Copy> FromAnyIterator<N> for $t<N>
+    impl<N: Clone> FromAnyIterator<N> for $t<N>
     {
       fn from_iterator<'l>($param: &mut VecIterator<'l, N>) -> $t<N>
-      { $t { at: [ $( copy *$elem.next().unwrap(), )+ ] } }
+      { $t { at: [ $( $elem.next().unwrap().clone(), )+ ] } }
 
       fn from_mut_iterator<'l>($param: &mut VecMutIterator<'l, N>) -> $t<N>
-      { $t { at: [ $( copy *$elem.next().unwrap(), )+ ] } }
+      { $t { at: [ $( $elem.next().unwrap().clone(), )+ ] } }
     }
   )
 )
@@ -443,7 +457,7 @@ macro_rules! from_iterator_impl(
 
 macro_rules! bounded_impl(
   ($t: ident) => (
-    impl<N: Bounded + Copy> Bounded for $t<N>
+    impl<N: Bounded + Clone> Bounded for $t<N>
     {
       #[inline]
       fn max_value() -> $t<N>
@@ -459,14 +473,14 @@ macro_rules! bounded_impl(
 macro_rules! to_homogeneous_impl(
   ($t: ident, $t2: ident) =>
   {
-    impl<N: Copy + One> ToHomogeneous<$t2<N>> for $t<N>
+    impl<N: Clone + One> ToHomogeneous<$t2<N>> for $t<N>
     {
       fn to_homogeneous(&self) -> $t2<N>
       {
         let mut res: $t2<N> = One::one();
 
         for self.iter().zip(res.mut_iter()).advance |(in, out)|
-        { *out = copy *in }
+        { *out = in.clone() }
 
         res
       }
@@ -477,14 +491,14 @@ macro_rules! to_homogeneous_impl(
 macro_rules! from_homogeneous_impl(
   ($t: ident, $t2: ident, $dim2: expr) =>
   {
-    impl<N: Copy + Div<N, N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N>
+    impl<N: Clone + Div<N, N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N>
     {
       fn from_homogeneous(v: &$t2<N>) -> $t<N>
       {
         let mut res: $t<N> = Zero::zero();
 
         for v.iter().zip(res.mut_iter()).advance |(in, out)|
-        { *out = copy *in }
+        { *out = in.clone() }
 
         res.scalar_div(&v.at[$dim2 - 1]);
 
