@@ -14,6 +14,21 @@ macro_rules! clone_impl(
   )
 )
 
+macro_rules! deep_clone_impl(
+  ($t:ident) => (
+    // FIXME: use 'DeepClone' alone. For the moment, we need 'Copy' because the automatic
+    // implementation of DeepClone for [t, ..n] is badly typed.
+    // XXX: this does not do a real deep clone
+    impl<N: DeepClone + Copy> DeepClone for $t<N>
+    {
+      fn deep_clone(&self) -> $t<N>
+      {
+        $t { at: copy self.at }
+      }
+    }
+  )
+)
+
 macro_rules! new_impl(
   ($t: ident, $dim: expr) => (
     impl<N> $t<N>

@@ -11,7 +11,7 @@ use traits::rlmul::{RMul, LMul};
 use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
 use traits::column::Column;
 
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct Transform<M, V>
 {
   priv submat   : M,

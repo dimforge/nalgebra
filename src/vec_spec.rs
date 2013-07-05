@@ -109,3 +109,11 @@ impl UniformSphereSample for Vec2<f64>
     { f(sample) }
   }
 }
+
+impl UniformSphereSample for Vec3<f64>
+{
+  pub fn sample(_: &fn(&'static Vec3<f64>))
+  {
+    fail!("UniformSphereSample for Vec3<f64> is not yet implemented.")
+  }
+}

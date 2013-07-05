@@ -15,7 +15,7 @@ use vec::Vec1;
 use mat::{Mat2, Mat3};
 use vec::Vec3;
 
-#[deriving(Eq, ToStr)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct Rotmat<M>
 { priv submat: M }
 
