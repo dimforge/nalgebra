@@ -1,10 +1,28 @@
+use std::vec::{VecIterator, VecMutIterator};
+use std::iterator::FromIterator;
 use std::num::{Zero, One, abs};
 use traits::basis::Basis;
 use traits::cross::Cross;
 use traits::division_ring::DivisionRing;
 use traits::norm::Norm;
 use traits::sample::UniformSphereSample;
-use vec::{Vec1, Vec2, Vec3};
+use traits::iterable::FromAnyIterator;
+use vec::{Vec0, Vec1, Vec2, Vec3};
+
+impl<N: Clone> FromAnyIterator<N> for Vec0<N>
+{
+  fn from_iterator<'l>(_: &mut VecIterator<'l, N>) -> Vec0<N>
+  { Vec0 { at: [ ] } }
+
+  fn from_mut_iterator<'l>(_: &mut VecMutIterator<'l, N>) -> Vec0<N>
+  { Vec0 { at: [ ] } }
+}
+
+impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for Vec0<N>
+{
+  fn from_iterator(_: &mut Iter) -> Vec0<N>
+  { Vec0 { at: [ ] } }
+}
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N>
 {
