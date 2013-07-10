@@ -1,6 +1,6 @@
 use std::vec::{VecIterator, VecMutIterator};
 use std::iterator::FromIterator;
-use std::num::{Zero, One, abs};
+use std::num::{Zero, One};
 use traits::basis::Basis;
 use traits::cross::Cross;
 use traits::division_ring::DivisionRing;
@@ -69,7 +69,7 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N>
   { f(Vec2::new([-self.at[1], self.at[0].clone()])) }
 }
 
-impl<N: Clone + Copy + DivisionRing + Ord + Algebraic>
+impl<N: Clone + Copy + DivisionRing + Ord + Algebraic + Signed>
 Basis for Vec3<N>
 {
   #[inline(always)]
@@ -84,7 +84,7 @@ Basis for Vec3<N>
   fn orthonormal_subspace_basis(&self, f: &fn(Vec3<N>))
   {
       let a = 
-        if abs(self.at[0].clone()) > abs(self.at[1].clone())
+        if self.at[0].clone().abs() > self.at[1].clone().abs()
         { Vec3::new([self.at[2].clone(), Zero::zero(), -self.at[0]]).normalized() }
         else
         { Vec3::new([Zero::zero(), -self.at[2], self.at[1].clone()]).normalized() };
