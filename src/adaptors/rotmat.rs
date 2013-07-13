@@ -193,7 +193,7 @@ impl<V, M: LMul<V>> LMul<V> for Rotmat<M>
 impl<M: Transpose> Inv for Rotmat<M>
 {
   #[inline]
-  fn invert(&mut self) -> bool
+  fn inplace_inverse(&mut self) -> bool
   {
     self.transpose();
 

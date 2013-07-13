@@ -226,13 +226,13 @@ macro_rules! inv_impl(
       {
         let mut res : $t<N> = self.clone();
     
-        if res.invert()
+        if res.inplace_inverse()
         { Some(res) }
         else
         { None }
       }
     
-      fn invert(&mut self) -> bool
+      fn inplace_inverse(&mut self) -> bool
       {
         let mut res: $t<N> = One::one();
         let     _0N: N     = Zero::zero();

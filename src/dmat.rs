@@ -141,13 +141,13 @@ Inv for DMat<N>
   {
     let mut res : DMat<N> = copy *self;
 
-    if res.invert()
+    if res.inplace_inverse()
     { Some(res) }
     else
     { None }
   }
 
-  fn invert(&mut self) -> bool
+  fn inplace_inverse(&mut self) -> bool
   {
     let     dim = self.dim;
     let mut res = one_mat_with_dim::<N>(dim);

@@ -12,14 +12,14 @@ Inv for Mat1<N>
   {
     let mut res : Mat1<N> = copy *self;
 
-    if res.invert()
+    if res.inplace_inverse()
     { Some(res) }
     else
     { None }
   }
 
   #[inline]
-  fn invert(&mut self) -> bool
+  fn inplace_inverse(&mut self) -> bool
   {
     if self.mij[0].is_zero()
     { false }
@@ -39,14 +39,14 @@ Inv for Mat2<N>
   {
     let mut res : Mat2<N> = copy *self;
 
-    if res.invert()
+    if res.inplace_inverse()
     { Some(res) }
     else
     { None }
   }
 
   #[inline]
-  fn invert(&mut self) -> bool
+  fn inplace_inverse(&mut self) -> bool
   {
     let det = self.mij[0 * 2 + 0] * self.mij[1 * 2 + 1] - self.mij[1 * 2 + 0] * self.mij[0 * 2 + 1];
 
@@ -70,14 +70,14 @@ Inv for Mat3<N>
   {
     let mut res = copy *self;
 
-    if res.invert()
+    if res.inplace_inverse()
     { Some(res) }
     else
     { None }
   }
 
   #[inline]
-  fn invert(&mut self) -> bool
+  fn inplace_inverse(&mut self) -> bool
   {
     let minor_m12_m23 = self.mij[1 * 3 + 1] * self.mij[2 * 3 + 2] - self.mij[2 * 3 + 1] * self.mij[1 * 3 + 2];
     let minor_m11_m23 = self.mij[1 * 3 + 0] * self.mij[2 * 3 + 2] - self.mij[2 * 3 + 0] * self.mij[1 * 3 + 2];

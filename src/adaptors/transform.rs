@@ -218,9 +218,9 @@ impl<M: Copy + Inv + RMul<V>, V: Copy + Neg<V>>
 Inv for Transform<M, V>
 {
   #[inline]
-  fn invert(&mut self) -> bool
+  fn inplace_inverse(&mut self) -> bool
   {
-    if !self.submat.invert()
+    if !self.submat.inplace_inverse()
     { false }
     else
     {
@@ -234,7 +234,7 @@ Inv for Transform<M, V>
   {
     let mut res = copy *self;
 
-    if res.invert()
+    if res.inplace_inverse()
     { Some(res) }
     else
     { None }
