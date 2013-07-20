@@ -7,7 +7,7 @@ use std::rand::{random};
 #[test]
 use std::cmp::ApproxEq;
 #[test]
-use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
+use vec::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 #[test]
 use traits::basis::Basis;
 #[test]
@@ -126,20 +126,36 @@ fn test_cross_vec3()
 }
 
 #[test]
-fn test_commut_dot_nvec()
-{ test_commut_dot_impl!(Vec6<f64>); }
- 
+fn test_commut_dot_vec0()
+{ test_commut_dot_impl!(Vec0<f64>); }
+
 #[test]
-fn test_commut_dot_vec3()
-{ test_commut_dot_impl!(Vec3<f64>); }
+fn test_commut_dot_vec1()
+{ test_commut_dot_impl!(Vec1<f64>); }
 
 #[test]
 fn test_commut_dot_vec2()
 { test_commut_dot_impl!(Vec2<f64>); }
 
 #[test]
-fn test_commut_dot_vec1()
-{ test_commut_dot_impl!(Vec1<f64>); }
+fn test_commut_dot_vec3()
+{ test_commut_dot_impl!(Vec3<f64>); }
+
+#[test]
+fn test_commut_dot_vec4()
+{ test_commut_dot_impl!(Vec4<f64>); }
+
+#[test]
+fn test_commut_dot_vec5()
+{ test_commut_dot_impl!(Vec5<f64>); }
+
+#[test]
+fn test_commut_dot_vec6()
+{ test_commut_dot_impl!(Vec6<f64>); }
+
+#[test]
+fn test_basis_vec0()
+{ test_basis_impl!(Vec0<f64>); }
 
 #[test]
 fn test_basis_vec1()
@@ -166,6 +182,10 @@ fn test_basis_vec6()
 { test_basis_impl!(Vec6<f64>); }
 
 #[test]
+fn test_subspace_basis_vec0()
+{ test_subspace_basis_impl!(Vec0<f64>); }
+
+#[test]
 fn test_subspace_basis_vec1()
 { test_subspace_basis_impl!(Vec1<f64>); }
 
@@ -190,6 +210,10 @@ fn test_subspace_basis_vec6()
 { test_subspace_basis_impl!(Vec6<f64>); }
 
 #[test]
+fn test_scalar_op_vec0()
+{ test_scalar_op_impl!(Vec0<f64>, f64); }
+
+#[test]
 fn test_scalar_op_vec1()
 { test_scalar_op_impl!(Vec1<f64>, f64); }
 
@@ -212,6 +236,10 @@ fn test_scalar_op_vec5()
 #[test]
 fn test_scalar_op_vec6()
 { test_scalar_op_impl!(Vec6<f64>, f64); }
+
+#[test]
+fn test_iterator_vec0()
+{ test_iterator_impl!(Vec0<f64>, f64); }
 
 #[test]
 fn test_iterator_vec1()
