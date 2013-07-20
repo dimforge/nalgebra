@@ -1,65 +1,51 @@
 #[macro_escape];
 
-macro_rules! clone_impl(
-   // FIXME: use 'Clone' alone. For the moment, we need 'Copy' because the automatic
-   // implementation of Clone for [t, ..n] is badly typed.
-  ($t: ident) => (
-    impl<N: Clone + Copy> Clone for $t<N>
+macro_rules! mat_impl(
+  ($t: ident, $dim: expr, $comp0: ident $(,$compN: ident)*) => (
+    impl<N> $t<N>
     {
       #[inline]
-      fn clone(&self) -> $t<N>
+      pub fn new($comp0: N $(, $compN: N )*) -> $t<N>
       {
         $t {
-          mij: copy self.mij
+          $comp0: $comp0
+          $(, $compN: $compN )*
         }
       }
     }
   )
 )
 
-macro_rules! mat_impl(
+macro_rules! iterable_impl(
   ($t: ident, $dim: expr) => (
-    impl<N> $t<N>
+    impl<N> Iterable<N> for $t<N>
     {
-      #[inline]
-      pub fn new(mij: [N, ..$dim * $dim]) -> $t<N>
-      { $t { mij: mij } }
+      fn iter<'l>(&'l self) -> VecIterator<'l, N>
+      { unsafe { cast::transmute::<&'l $t<N>, &'l [N, ..$dim * $dim]>(self).iter() } }
+    }
+  )
+)
 
-      #[inline]
-      pub fn offset(&self, i: uint, j: uint) -> uint
-      { i * $dim + j }
+macro_rules! iterable_mut_impl(
+  ($t: ident, $dim: expr) => (
+    impl<N> IterableMut<N> for $t<N>
+    {
+      fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N>
+      { unsafe { cast::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim * $dim]>(self).mut_iter() } }
     }
   )
 )
 
 macro_rules! one_impl(
-  ($t: ident, [ $($value: ident)|+ ] ) => (
+  ($t: ident, $value0: ident $(, $valueN: ident)* ) => (
     impl<N: Clone + One + Zero> One for $t<N>
     {
       #[inline]
       fn one() -> $t<N>
       {
         let (_0, _1) = (Zero::zero::<N>(), One::one::<N>());
-        return $t::new( [ $( $value.clone(), )+ ] )
+        return $t::new($value0.clone() $(, $valueN.clone() )*)
       }
-    }
-  )
-)
-
-macro_rules! zero_impl(
-  ($t: ident, [ $($value: ident)|+ ] ) => (
-    impl<N: Clone + Zero> Zero for $t<N>
-    {
-      #[inline]
-      fn zero() -> $t<N>
-      {
-        let _0 = Zero::zero::<N>();
-        return $t::new( [ $( $value.clone(), )+ ] )
-      }
-
-     #[inline]
-     fn is_zero(&self) -> bool
-     { self.mij.iter().all(|e| e.is_zero()) }
     }
   )
 )
@@ -75,17 +61,26 @@ macro_rules! dim_impl(
   )
 )
 
-macro_rules! mat_indexable_impl(
+macro_rules! indexable_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Clone> Indexable<(uint, uint), N> for $t<N>
     {
       #[inline]
       pub fn at(&self, (i, j): (uint, uint)) -> N
-      { self.mij[self.offset(i, j)].clone() }
+      { unsafe { cast::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)[i * $dim + j].clone() } }
 
       #[inline]
-      pub fn set(&mut self, (i, j): (uint, uint), t: N)
-      { self.mij[self.offset(i, j)] = t }
+      pub fn set(&mut self, (i, j): (uint, uint), val: N)
+      { unsafe { cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)[i * $dim + j] = val } }
+
+      #[inline]
+      pub fn swap(&mut self, (i1, j1): (uint, uint), (i2, j2): (uint, uint))
+      {
+        unsafe {
+          cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
+            .swap(i1 * $dim + j1, i2 * $dim + j2)
+        }
+      }
     }
   )
 )
@@ -163,7 +158,10 @@ macro_rules! rmul_impl(
         for iterate(0u, $dim) |i|
         {
           for iterate(0u, $dim) |j|
-          { res.at[i] = res.at[i] + other.at[j] * self.at((i, j)); }
+          {
+            let val = res.at(i) + other.at(j) * self.at((i, j));
+            res.set(i, val)
+          }
         }
     
         res
@@ -185,7 +183,10 @@ macro_rules! lmul_impl(
         for iterate(0u, $dim) |i|
         {
           for iterate(0u, $dim) |j|
-          { res.at[i] = res.at[i] + other.at[j] * self.at((j, i)); }
+          {
+            let val = res.at(i) + other.at(j) * self.at((j, i));
+            res.set(i, val)
+          }
         }
     
         res
@@ -196,7 +197,7 @@ macro_rules! lmul_impl(
 
 macro_rules! transform_impl(
   ($t: ident, $v: ident) => (
-    impl<N: Clone + Copy + DivisionRing + Eq>
+    impl<N: Clone + DivisionRing + Eq>
     Transform<$v<N>> for $t<N>
     {
       #[inline]
@@ -218,7 +219,7 @@ macro_rules! transform_impl(
 
 macro_rules! inv_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Clone + Copy + Eq + DivisionRing>
+    impl<N: Clone + Eq + DivisionRing>
     Inv for $t<N>
     {
       #[inline]
@@ -262,11 +263,8 @@ macro_rules! inv_impl(
           {
             for iterate(0u, $dim) |j|
             {
-              let off_n0_j = self.offset(n0, j);
-              let off_k_j  = self.offset(k, j);
-    
-              self.mij.swap(off_n0_j, off_k_j);
-              res.mij.swap(off_n0_j, off_k_j);
+              self.swap((n0, j), (k, j));
+              res.swap((n0, j), (k, j));
             }
           }
     
@@ -315,7 +313,7 @@ macro_rules! inv_impl(
 
 macro_rules! transpose_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Clone + Copy> Transpose for $t<N>
+    impl<N: Clone> Transpose for $t<N>
     {
       #[inline]
       fn transposed(&self) -> $t<N>
@@ -332,12 +330,7 @@ macro_rules! transpose_impl(
         for iterate(1u, $dim) |i|
         {
           for iterate(0u, $dim - 1) |j|
-          {
-            let off_i_j = self.offset(i, j);
-            let off_j_i = self.offset(j, i);
-    
-            self.mij.swap(off_i_j, off_j_i);
-          }
+          { self.swap((i, j), (j, i)) }
         }
       }
     }
@@ -355,7 +348,7 @@ macro_rules! approx_eq_impl(
       #[inline]
       fn approx_eq(&self, other: &$t<N>) -> bool
       {
-        let mut zip = self.mij.iter().zip(other.mij.iter());
+        let mut zip = self.iter().zip(other.iter());
     
         do zip.all |(a, b)| { a.approx_eq(b) }
       }
@@ -363,7 +356,7 @@ macro_rules! approx_eq_impl(
       #[inline]
       fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool
       {
-        let mut zip = self.mij.iter().zip(other.mij.iter());
+        let mut zip = self.iter().zip(other.iter());
     
         do zip.all |(a, b)| { a.approx_eq_eps(b, epsilon) }
       }
@@ -371,19 +364,8 @@ macro_rules! approx_eq_impl(
   )
 )
 
-macro_rules! rand_impl(
-  ($t: ident, $param: ident, [ $($elem: ident)|+ ]) => (
-    impl<N: Rand> Rand for $t<N>
-    {
-      #[inline]
-      fn rand<R: Rng>($param: &mut R) -> $t<N>
-      { $t::new([ $( $elem.gen(), )+ ]) }
-    }
-  )
-)
-
 macro_rules! to_homogeneous_impl(
-  ($t: ident, $t2: ident, $dim: expr) => (
+  ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
     impl<N: One + Zero + Clone> ToHomogeneous<$t2<N>> for $t<N>
     {
       fn to_homogeneous(&self) -> $t2<N>
@@ -403,7 +385,7 @@ macro_rules! to_homogeneous_impl(
 )
 
 macro_rules! from_homogeneous_impl(
-  ($t: ident, $t2: ident, $dim2: expr) => (
+  ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
     impl<N: One + Zero + Clone> FromHomogeneous<$t2<N>> for $t<N>
     {
       fn from_homogeneous(m: &$t2<N>) -> $t<N>

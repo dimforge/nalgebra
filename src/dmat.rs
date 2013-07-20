@@ -17,7 +17,7 @@ pub struct DMat<N>
 }
 
 #[inline]
-pub fn zero_mat_with_dim<N: Zero + Copy>(dim: uint) -> DMat<N>
+pub fn zero_mat_with_dim<N: Zero + Clone>(dim: uint) -> DMat<N>
 { DMat { dim: dim, mij: from_elem(dim * dim, Zero::zero()) } }
 
 #[inline]
@@ -25,7 +25,7 @@ pub fn is_zero_mat<N: Zero>(mat: &DMat<N>) -> bool
 { mat.mij.iter().all(|e| e.is_zero()) }
 
 #[inline]
-pub fn one_mat_with_dim<N: Copy + One + Zero>(dim: uint) -> DMat<N>
+pub fn one_mat_with_dim<N: Clone + One + Zero>(dim: uint) -> DMat<N>
 {
   let mut res = zero_mat_with_dim(dim);
   let     _1  = One::one::<N>();
@@ -36,7 +36,7 @@ pub fn one_mat_with_dim<N: Copy + One + Zero>(dim: uint) -> DMat<N>
   res
 }
 
-impl<N: Copy> DMat<N>
+impl<N: Clone> DMat<N>
 {
   #[inline]
   pub fn offset(&self, i: uint, j: uint) -> uint
@@ -47,7 +47,7 @@ impl<N: Copy> DMat<N>
   {
     assert!(i < self.dim);
     assert!(j < self.dim);
-    self.mij[self.offset(i, j)] = copy *t
+    self.mij[self.offset(i, j)] = t.clone()
   }
 
   #[inline]
@@ -55,18 +55,18 @@ impl<N: Copy> DMat<N>
   {
     assert!(i < self.dim);
     assert!(j < self.dim);
-    copy self.mij[self.offset(i, j)]
+    self.mij[self.offset(i, j)].clone()
   }
 }
 
-impl<N: Copy> Index<(uint, uint), N> for DMat<N>
+impl<N: Clone> Index<(uint, uint), N> for DMat<N>
 {
   #[inline]
   fn index(&self, &(i, j): &(uint, uint)) -> N
   { self.at(i, j) }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N> + Zero>
+impl<N: Clone + Mul<N, N> + Add<N, N> + Zero>
 Mul<DMat<N>, DMat<N>> for DMat<N>
 {
   fn mul(&self, other: &DMat<N>) -> DMat<N>
@@ -93,7 +93,7 @@ Mul<DMat<N>, DMat<N>> for DMat<N>
   }
 }
 
-impl<N: Copy + Add<N, N> + Mul<N, N> + Zero>
+impl<N: Clone + Add<N, N> + Mul<N, N> + Zero>
 RMul<DVec<N>> for DMat<N>
 {
   fn rmul(&self, other: &DVec<N>) -> DVec<N>
@@ -113,7 +113,7 @@ RMul<DVec<N>> for DMat<N>
   }
 }
 
-impl<N: Copy + Add<N, N> + Mul<N, N> + Zero>
+impl<N: Clone + Add<N, N> + Mul<N, N> + Zero>
 LMul<DVec<N>> for DMat<N>
 {
   fn lmul(&self, other: &DVec<N>) -> DVec<N>
@@ -133,13 +133,13 @@ LMul<DVec<N>> for DMat<N>
   }
 }
 
-impl<N: Copy + Eq + DivisionRing>
+impl<N: Clone + Eq + DivisionRing>
 Inv for DMat<N>
 {
   #[inline]
   fn inverse(&self) -> Option<DMat<N>>
   {
-    let mut res : DMat<N> = copy *self;
+    let mut res : DMat<N> = self.clone();
 
     if res.inplace_inverse()
     { Some(res) }
@@ -227,12 +227,12 @@ Inv for DMat<N>
   }
 }
 
-impl<N:Copy> Transpose for DMat<N>
+impl<N: Clone> Transpose for DMat<N>
 {
   #[inline]
   fn transposed(&self) -> DMat<N>
   {
-    let mut res = copy *self;
+    let mut res = self.clone();
 
     res.transpose();
 

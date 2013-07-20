@@ -30,10 +30,10 @@ pub fn rotmat2<N: Clone + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
   let (sia, coa) = angle.sin_cos();
 
   Rotmat
-  { submat: Mat2::new( [ coa.clone(), -sia, sia.clone(), coa ] ) }
+  { submat: Mat2::new(coa.clone(), -sia, sia.clone(), coa) }
 }
 
-pub fn rotmat3<N: Clone + Copy + Trigonometric + DivisionRing + Algebraic>
+pub fn rotmat3<N: Clone + Trigonometric + DivisionRing + Algebraic>
 (axisangle: Vec3<N>) -> Rotmat<Mat3<N>>
 {
   if axisangle.sqnorm().is_zero()
@@ -43,9 +43,9 @@ pub fn rotmat3<N: Clone + Copy + Trigonometric + DivisionRing + Algebraic>
     let mut axis   = axisangle;
     let angle      = axis.normalize();
     let _1         = One::one::<N>();
-    let ux         = axis.at[0].clone();
-    let uy         = axis.at[1].clone();
-    let uz         = axis.at[2].clone();
+    let ux         = axis.x.clone();
+    let uy         = axis.y.clone();
+    let uz         = axis.z.clone();
     let sqx        = ux * ux;
     let sqy        = uy * uy;
     let sqz        = uz * uz;
@@ -53,7 +53,7 @@ pub fn rotmat3<N: Clone + Copy + Trigonometric + DivisionRing + Algebraic>
     let one_m_cos  = _1 - cos;
 
     Rotmat {
-      submat: Mat3::new( [
+      submat: Mat3::new(
         (sqx + (_1 - sqx) * cos),
         (ux * uy * one_m_cos - uz * sin),
         (ux * uz * one_m_cos + uy * sin),
@@ -64,7 +64,7 @@ pub fn rotmat3<N: Clone + Copy + Trigonometric + DivisionRing + Algebraic>
 
         (ux * uz * one_m_cos - uy * sin),
         (uy * uz * one_m_cos + ux * sin),
-        (sqz + (_1 - sqz) * cos) ] )
+        (sqz + (_1 - sqz) * cos))
     }
   }
 }
@@ -74,7 +74,7 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>>
 {
   #[inline]
   fn rotation(&self) -> Vec1<N>
-  { Vec1::new([ (-self.submat.at((0, 1))).atan2(&self.submat.at((0, 0))) ]) }
+  { Vec1::new((-self.submat.at((0, 1))).atan2(&self.submat.at((0, 0)))) }
 
   #[inline]
   fn inv_rotation(&self) -> Vec1<N>
@@ -90,10 +90,10 @@ Rotatable<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>>
 {
   #[inline]
   fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>>
-  { rotmat2(rot.at[0].clone()) * *self }
+  { rotmat2(rot.x.clone()) * *self }
 }
 
-impl<N: Clone + Copy + Trigonometric + DivisionRing + Algebraic>
+impl<N: Clone + Trigonometric + DivisionRing + Algebraic>
 Rotation<Vec3<N>> for Rotmat<Mat3<N>>
 {
   #[inline]
@@ -110,7 +110,7 @@ Rotation<Vec3<N>> for Rotmat<Mat3<N>>
   { *self = self.rotated(rot) }
 }
 
-impl<N: Clone + Copy + Trigonometric + DivisionRing + Algebraic>
+impl<N: Clone + Trigonometric + DivisionRing + Algebraic>
 Rotatable<Vec3<N>, Rotmat<Mat3<N>>> for Rotmat<Mat3<N>>
 {
   #[inline]
@@ -147,7 +147,7 @@ impl<M: RMul<V> + LMul<V>, V> Transform<V> for Rotmat<M>
   { self.inv_rotate(v) }
 }
 
-impl<N: Clone + Copy + Rand + Trigonometric + DivisionRing + Algebraic>
+impl<N: Clone + Rand + Trigonometric + DivisionRing + Algebraic>
 Rand for Rotmat<Mat3<N>>
 {
   #[inline]

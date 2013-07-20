@@ -4,13 +4,13 @@ use traits::division_ring::DivisionRing;
 use traits::inv::Inv;
 
 // some specializations:
-impl<N: Copy + DivisionRing>
+impl<N: DivisionRing + Clone>
 Inv for Mat1<N>
 {
   #[inline]
   fn inverse(&self) -> Option<Mat1<N>>
   {
-    let mut res : Mat1<N> = copy *self;
+    let mut res : Mat1<N> = self.clone();
 
     if res.inplace_inverse()
     { Some(res) }
@@ -21,23 +21,23 @@ Inv for Mat1<N>
   #[inline]
   fn inplace_inverse(&mut self) -> bool
   {
-    if self.mij[0].is_zero()
+    if self.m11.is_zero()
     { false }
     else
     {
-      self.mij[0] = One::one::<N>() / self.mij[0];
+      self.m11 = One::one::<N>() / self.m11;
       true
     }
   }
 }
 
-impl<N: Copy + DivisionRing>
+impl<N: DivisionRing + Clone>
 Inv for Mat2<N>
 {
   #[inline]
   fn inverse(&self) -> Option<Mat2<N>>
   {
-    let mut res : Mat2<N> = copy *self;
+    let mut res : Mat2<N> = self.clone();
 
     if res.inplace_inverse()
     { Some(res) }
@@ -48,27 +48,27 @@ Inv for Mat2<N>
   #[inline]
   fn inplace_inverse(&mut self) -> bool
   {
-    let det = self.mij[0 * 2 + 0] * self.mij[1 * 2 + 1] - self.mij[1 * 2 + 0] * self.mij[0 * 2 + 1];
+    let det = self.m11 * self.m22 - self.m21 * self.m12;
 
     if det.is_zero()
     { false }
     else
     {
-      *self = Mat2::new([self.mij[1 * 2 + 1] / det , -self.mij[0 * 2 + 1] / det,
-                         -self.mij[1 * 2 + 0] / det, self.mij[0 * 2 + 0] / det]);
+      *self = Mat2::new(self.m22 / det , -self.m12 / det,
+                        -self.m21 / det, self.m11 / det);
 
       true
     }
   }
 }
 
-impl<N: Copy + DivisionRing>
+impl<N: DivisionRing + Clone>
 Inv for Mat3<N>
 {
   #[inline]
   fn inverse(&self) -> Option<Mat3<N>>
   {
-    let mut res = copy *self;
+    let mut res = self.clone();
 
     if res.inplace_inverse()
     { Some(res) }
@@ -79,31 +79,31 @@ Inv for Mat3<N>
   #[inline]
   fn inplace_inverse(&mut self) -> bool
   {
-    let minor_m12_m23 = self.mij[1 * 3 + 1] * self.mij[2 * 3 + 2] - self.mij[2 * 3 + 1] * self.mij[1 * 3 + 2];
-    let minor_m11_m23 = self.mij[1 * 3 + 0] * self.mij[2 * 3 + 2] - self.mij[2 * 3 + 0] * self.mij[1 * 3 + 2];
-    let minor_m11_m22 = self.mij[1 * 3 + 0] * self.mij[2 * 3 + 1] - self.mij[2 * 3 + 0] * self.mij[1 * 3 + 1];
+    let minor_m12_m23 = self.m22 * self.m33 - self.m32 * self.m23;
+    let minor_m11_m23 = self.m21 * self.m33 - self.m31 * self.m23;
+    let minor_m11_m22 = self.m21 * self.m32 - self.m31 * self.m22;
 
-    let det = self.mij[0 * 3 + 0] * minor_m12_m23
-              - self.mij[0 * 3 + 1] * minor_m11_m23
-              + self.mij[0 * 3 + 2] * minor_m11_m22;
+    let det = self.m11 * minor_m12_m23
+              - self.m12 * minor_m11_m23
+              + self.m13 * minor_m11_m22;
 
     if det.is_zero()
     { false }
     else
     {
-      *self = Mat3::new( [
+      *self = Mat3::new(
         (minor_m12_m23  / det),
-        ((self.mij[0 * 3 + 2] * self.mij[2 * 3 + 1] - self.mij[2 * 3 + 2] * self.mij[0 * 3 + 1]) / det),
-        ((self.mij[0 * 3 + 1] * self.mij[1 * 3 + 2] - self.mij[1 * 3 + 1] * self.mij[0 * 3 + 2]) / det),
+        ((self.m13 * self.m32 - self.m33 * self.m12) / det),
+        ((self.m12 * self.m23 - self.m22 * self.m13) / det),
 
         (-minor_m11_m23 / det),
-        ((self.mij[0 * 3 + 0] * self.mij[2 * 3 + 2] - self.mij[2 * 3 + 0] * self.mij[0 * 3 + 2]) / det),
-        ((self.mij[0 * 3 + 2] * self.mij[1 * 3 + 0] - self.mij[1 * 3 + 2] * self.mij[0 * 3 + 0]) / det),
+        ((self.m11 * self.m33 - self.m31 * self.m13) / det),
+        ((self.m13 * self.m21 - self.m23 * self.m11) / det),
 
         (minor_m11_m22  / det),
-        ((self.mij[0 * 3 + 1] * self.mij[2 * 3 + 0] - self.mij[2 * 3 + 1] * self.mij[0 * 3 + 0]) / det),
-        ((self.mij[0 * 3 + 0] * self.mij[1 * 3 + 1] - self.mij[1 * 3 + 0] * self.mij[0 * 3 + 1]) / det)
-      ] );
+        ((self.m12 * self.m31 - self.m32 * self.m11) / det),
+        ((self.m11 * self.m22 - self.m21 * self.m12) / det)
+      );
 
       true
     }

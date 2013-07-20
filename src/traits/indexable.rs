@@ -6,4 +6,5 @@ pub trait Indexable<Index, Res>
 {
   fn at(&self, Index) -> Res;
   fn set(&mut self, Index, Res);
+  fn swap(&mut self, Index, Index);
 }

@@ -1,19 +1,17 @@
 /*!
 
-# The n-dimensional linear algebra library.
+# A n-dimensional linear algebra library.
 
 */
-
-
-
 #[link(name = "nalgebra"
-       , vers = "0.0"
+       , vers = "0.1"
        , author = "Sébastien Crozet"
        , uuid = "1E96070F-4778-4EC1-B080-BF69F7048216")];
 #[crate_type = "lib"];
 #[warn(non_camel_case_types)]
 
 extern mod std;
+extern mod extra;
 
 pub mod vec;
 pub mod mat;

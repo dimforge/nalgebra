@@ -13,14 +13,14 @@ use traits::norm::Norm;
 use traits::translation::{Translation, Translatable};
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
-#[deriving(Eq, Ord, ToStr)]
+#[deriving(Eq, Ord, ToStr, Clone)]
 pub struct DVec<N>
 {
   at: ~[N]
 }
 
 #[inline]
-pub fn zero_vec_with_dim<N: Zero + Copy>(dim: uint) -> DVec<N>
+pub fn zero_vec_with_dim<N: Zero + Clone>(dim: uint) -> DVec<N>
 { DVec { at: from_elem(dim, Zero::zero::<N>()) } }
 
 #[inline]
@@ -53,7 +53,7 @@ impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for DVec<N>
 }
 
 // FIXME: is Clone needed?
-impl<N: Copy + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
+impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
 {
   pub fn canonical_basis_with_dim(dim: uint) -> ~[DVec<N>]
   {
@@ -87,7 +87,7 @@ impl<N: Copy + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
       if res.len() == dim - 1
       { break; }
 
-      let mut elt = copy basis_element;
+      let mut elt = basis_element.clone();
 
       elt = elt - self.scalar_mul(&basis_element.dot(self));
 
@@ -104,7 +104,7 @@ impl<N: Copy + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
   }
 }
 
-impl<N: Copy + Add<N,N>> Add<DVec<N>, DVec<N>> for DVec<N>
+impl<N: Add<N,N>> Add<DVec<N>, DVec<N>> for DVec<N>
 {
   #[inline]
   fn add(&self, other: &DVec<N>) -> DVec<N>
@@ -116,7 +116,7 @@ impl<N: Copy + Add<N,N>> Add<DVec<N>, DVec<N>> for DVec<N>
   }
 }
 
-impl<N: Copy + Sub<N,N>> Sub<DVec<N>, DVec<N>> for DVec<N>
+impl<N: Sub<N,N>> Sub<DVec<N>, DVec<N>> for DVec<N>
 {
   #[inline]
   fn sub(&self, other: &DVec<N>) -> DVec<N>
@@ -227,11 +227,11 @@ ScalarSub<N> for DVec<N>
   }
 }
 
-impl<N: Copy + Add<N, N> + Neg<N>> Translation<DVec<N>> for DVec<N>
+impl<N: Add<N, N> + Neg<N> + Clone> Translation<DVec<N>> for DVec<N>
 {
   #[inline]
   fn translation(&self) -> DVec<N>
-  { copy *self }
+  { self.clone() }
 
   #[inline]
   fn inv_translation(&self) -> DVec<N>
@@ -242,14 +242,14 @@ impl<N: Copy + Add<N, N> + Neg<N>> Translation<DVec<N>> for DVec<N>
   { *self = *self + *t; }
 }
 
-impl<N: Add<N, N> + Neg<N> + Copy> Translatable<DVec<N>, DVec<N>> for DVec<N>
+impl<N: Add<N, N> + Neg<N> + Clone> Translatable<DVec<N>, DVec<N>> for DVec<N>
 {
   #[inline]
   fn translated(&self, t: &DVec<N>) -> DVec<N>
   { self + *t }
 }
 
-impl<N: Copy + DivisionRing + Algebraic>
+impl<N: DivisionRing + Algebraic + Clone>
 Norm<N> for DVec<N>
 {
   #[inline]
@@ -263,7 +263,7 @@ Norm<N> for DVec<N>
   #[inline]
   fn normalized(&self) -> DVec<N>
   {
-    let mut res : DVec<N> = copy *self;
+    let mut res : DVec<N> = self.clone();
 
     res.normalize();
 

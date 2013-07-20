@@ -25,15 +25,15 @@ impl<M, V> Transform<M, V>
   { Transform { submat: mat, subtrans: trans } }
 }
 
-impl<M: Copy, V: Copy> Transform<M, V>
+impl<M: Clone, V: Clone> Transform<M, V>
 {
   #[inline]
   pub fn submat(&self) -> M
-  { copy self.submat }
+  { self.submat.clone() }
 
   #[inline]
   pub fn subtrans(&self) -> V
-  { copy self.subtrans }
+  { self.subtrans.clone() }
 }
 
 impl<M:Dim, V> Dim for Transform<M, V>
@@ -112,12 +112,12 @@ impl<M: Translate<V>, V, _0> Translate<V> for Transform<M, _0>
   { self.submat.inv_translate(v) }
 }
 
-impl<M: Copy, V: Translatable<V, V> + Translation<V>>
+impl<M: Clone, V: Translatable<V, V> + Translation<V>>
 Translatable<V, Transform<M, V>> for Transform<M, V>
 {
   #[inline]
   fn translated(&self, t: &V) -> Transform<M, V>
-  { Transform::new(copy self.submat, self.subtrans.translated(t)) }
+  { Transform::new(self.submat.clone(), self.subtrans.translated(t)) }
 }
 
 impl<M: Rotation<AV> + RMul<V> + One,
@@ -172,11 +172,11 @@ Rotatable<AV, Transform<Res, V>> for Transform<M, V>
   }
 }
 
-impl<M: Inv + RMul<V> + Mul<M, M> + Copy, V: Add<V, V> + Neg<V> + Copy>
+impl<M: Inv + RMul<V> + Mul<M, M> + Clone, V: Add<V, V> + Neg<V> + Clone>
 Transformation<Transform<M, V>> for Transform<M, V>
 {
   fn transformation(&self) -> Transform<M, V>
-  { copy *self }
+  { self.clone() }
 
   fn inv_transformation(&self) -> Transform<M, V>
   {
@@ -207,14 +207,14 @@ transformation::Transform<V> for Transform<M, V>
 
 // FIXME: constraints are too restrictive.
 // Should be: Transformable<M2, // Transform<Res, V> ...
-impl<M: RMul<V> + Mul<M, M> + Inv, V: Add<V, V> + Neg<V>>
+impl<M: RMul<V> + Mul<M, M> + Inv + Clone, V: Add<V, V> + Neg<V> + Clone>
 Transformable<Transform<M, V>, Transform<M, V>> for Transform<M, V>
 {
   fn transformed(&self, t: &Transform<M, V>) -> Transform<M, V>
   { t * *self }
 }
 
-impl<M: Copy + Inv + RMul<V>, V: Copy + Neg<V>>
+impl<M: Inv + RMul<V> + Clone, V: Neg<V> + Clone>
 Inv for Transform<M, V>
 {
   #[inline]
@@ -232,7 +232,7 @@ Inv for Transform<M, V>
   #[inline]
   fn inverse(&self) -> Option<Transform<M, V>>
   {
-    let mut res = copy *self;
+    let mut res = self.clone();
 
     if res.inplace_inverse()
     { Some(res) }
@@ -241,7 +241,7 @@ Inv for Transform<M, V>
   }
 }
 
-impl<M: ToHomogeneous<M2>, M2: Dim + Column<V>, V: Copy>
+impl<M: ToHomogeneous<M2>, M2: Dim + Column<V>, V: Clone>
 ToHomogeneous<M2> for Transform<M, V>
 {
   fn to_homogeneous(&self) -> M2
@@ -251,13 +251,13 @@ ToHomogeneous<M2> for Transform<M, V>
     // copy the translation
     let dim = Dim::dim::<M2>();
 
-    res.set_column(dim - 1, copy self.subtrans);
+    res.set_column(dim - 1, self.subtrans.clone());
 
     res
   }
 }
 
-impl<M: Column<V> + Dim, M2: FromHomogeneous<M>, V: Copy>
+impl<M: Column<V> + Dim, M2: FromHomogeneous<M>, V>
 FromHomogeneous<M> for Transform<M2, V>
 {
   fn from_homogeneous(m: &M) -> Transform<M2, V>

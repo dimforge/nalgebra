@@ -26,7 +26,7 @@ macro_rules! test_iterator_impl(
     for 10000.times
     {
       let v: $t      = random();
-      let mut mv: $t = copy v;
+      let mut mv: $t = v.clone();
       let n: $n      = random();
 
       let nv: $t = v.iter().transform(|e| e * n).collect();
@@ -64,7 +64,7 @@ macro_rules! test_scalar_op_impl(
       assert!(v1.scalar_add(&n).scalar_sub(&n).approx_eq(&v1));
 
       let mut v1 : $t = random();
-      let v0 : $t = copy v1;
+      let v0 : $t = v1.clone();
       let n  : $n = random();
 
       v1.scalar_mul_inplace(&n);
