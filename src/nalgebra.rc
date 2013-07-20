@@ -21,6 +21,7 @@ pub mod dvec;
 // specialization for some 1d, 2d and 3d operations
 pub mod mat_spec;
 pub mod vec_spec;
+pub mod vec0_spec;
 
 /// Wrappers around raw matrices to restrict their behaviour.
 pub mod adaptors

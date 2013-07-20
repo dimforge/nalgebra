@@ -6,12 +6,6 @@ use traits::norm::Norm;
 use traits::sample::UniformSphereSample;
 use vec::{Vec1, Vec2, Vec3};
 
-// FIXME: impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for Vec0<N>
-// FIXME: {
-// FIXME:   fn from_iterator(_: &mut Iter) -> Vec0<N>
-// FIXME:   { Vec0 { at: [ ] } }
-// FIXME: }
-
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N>
 {
   #[inline]

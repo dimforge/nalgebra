@@ -20,44 +20,8 @@ use traits::indexable::Indexable;
 
 mod vec_impl;
 
-// #[deriving(Ord, ToStr)]
-// pub struct Vec0<N>
-// { at: [N, ..0] }
-
-// impl<N: Clone> Vec0<N>
-// {
-//   #[inline]
-//   pub fn new_repeat(_: N) -> Vec0<N>
-//   { Vec0 { at: [ ] } }
-// }
-
-// clone_impl!(Vec0)
-// deep_clone_impl!(Vec0)
-// new_impl!(Vec0, 0)
-// indexable_impl!(Vec0)
-// dim_impl!(Vec0, 0)
-// eq_impl!(Vec0)
-// // (specialized) basis_impl!(Vec0, 0)
-// add_impl!(Vec0)
-// sub_impl!(Vec0)
-// neg_impl!(Vec0)
-// dot_impl!(Vec0, 0)
-// sub_dot_impl!(Vec0, 0)
-// scalar_mul_impl!(Vec0, 0)
-// scalar_div_impl!(Vec0, 0)
-// scalar_add_impl!(Vec0, 0)
-// scalar_sub_impl!(Vec0, 0)
-// translation_impl!(Vec0)
-// translatable_impl!(Vec0)
-// norm_impl!(Vec0, 0)
-// approx_eq_impl!(Vec0)
-// zero_impl!(Vec0)
-// one_impl!(Vec0)
-// bounded_impl!(Vec0)
-// iterable_impl!(Vec0)
-// iterable_mut_impl!(Vec0)
-// to_homogeneous_impl!(Vec0, Vec1)
-// from_homogeneous_impl!(Vec1, Vec0, 1)
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, Rand, Zero, ToStr)]
+pub struct Vec0<N>;
 
 #[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Vec1<N>

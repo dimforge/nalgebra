@@ -82,7 +82,6 @@ macro_rules! dim_impl(
   )
 )
 
-// FIXME: add the possibility to specialize that
 macro_rules! basis_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for $t<N>
