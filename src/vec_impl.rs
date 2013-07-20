@@ -185,7 +185,7 @@ macro_rules! sub_dot_impl(
     {
       #[inline]
       fn sub_dot(&self, a: &$t<N>, b: &$t<N>) -> N
-      { (self.$comp0 - a.$comp0) * b.$comp0 $(+ (self.$compN - a.$comp0) * b.$compN )* } 
+      { (self.$comp0 - a.$comp0) * b.$comp0 $(+ (self.$compN - a.$compN) * b.$compN )* } 
     }
   )
 )
