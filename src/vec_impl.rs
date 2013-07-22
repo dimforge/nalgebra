@@ -1,418 +1,227 @@
-#[macro_escape];
+use std::cast;
+use std::num::{Zero, One, Algebraic, Bounded};
+use std::rand::Rng;
+use std::vec::{VecIterator, VecMutIterator};
+use std::iterator::{Iterator, IteratorUtil, FromIterator};
+use std::cmp::ApproxEq;
+use std::uint::iterate;
+use traits::iterable::{Iterable, IterableMut};
+use traits::basis::Basis;
+use traits::dim::Dim;
+use traits::dot::Dot;
+use traits::sub_dot::SubDot;
+use traits::norm::Norm;
+use traits::translation::{Translation, Translatable};
+use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
+use traits::ring::Ring;
+use traits::division_ring::DivisionRing;
+use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
+use traits::indexable::Indexable;
 
-macro_rules! new_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N> $t<N>
-    {
-      #[inline]
-      pub fn new($comp0: N $( , $compN: N )*) -> $t<N>
-      {
-        $t {
-          $comp0: $comp0
-          $(, $compN: $compN )*
-        }
-      }
-    }
-  )
-)
+mod vec_macros;
 
-macro_rules! indexable_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N: Clone> Indexable<uint, N> for $t<N>
-    {
-      #[inline]
-      pub fn at(&self, i: uint) -> N
-      { unsafe { cast::transmute::<&$t<N>, &[N, ..$dim]>(self)[i].clone() } }
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, Rand, Zero, ToStr)]
+pub struct Vec0<N>;
 
-      #[inline]
-      pub fn set(&mut self, i: uint, val: N)
-      { unsafe { cast::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self)[i] = val } }
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Vec1<N>
+{ x: N }
 
-      #[inline]
-      pub fn swap(&mut self, i1: uint, i2: uint)
-      { unsafe { cast::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).swap(i1, i2) } }
-    }
-  )
-)
+new_impl!(Vec1, x)
+indexable_impl!(Vec1, 1)
+new_repeat_impl!(Vec1, val, x)
+dim_impl!(Vec1, 1)
+// (specialized) basis_impl!(Vec1, 1)
+add_impl!(Vec1, x)
+sub_impl!(Vec1, x)
+neg_impl!(Vec1, x)
+dot_impl!(Vec1, x)
+sub_dot_impl!(Vec1, x)
+scalar_mul_impl!(Vec1, x)
+scalar_div_impl!(Vec1, x)
+scalar_add_impl!(Vec1, x)
+scalar_sub_impl!(Vec1, x)
+translation_impl!(Vec1)
+translatable_impl!(Vec1)
+norm_impl!(Vec1)
+approx_eq_impl!(Vec1, x)
+one_impl!(Vec1)
+from_iterator_impl!(Vec1, iterator)
+bounded_impl!(Vec1)
+iterable_impl!(Vec1, 1)
+iterable_mut_impl!(Vec1, 1)
+to_homogeneous_impl!(Vec1, Vec2, y, x)
+from_homogeneous_impl!(Vec1, Vec2, y, x)
 
-macro_rules! new_repeat_impl(
-  ($t: ident, $param: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Clone> $t<N>
-    {
-      #[inline]
-      pub fn new_repeat($param: N) -> $t<N>
-      {
-        $t{
-          $comp0: $param.clone()
-          $(, $compN: $param.clone() )*
-        }
-      }
-    }
-  )
-)
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Vec2<N>
+{
+  x: N,
+  y: N
+}
 
-macro_rules! iterable_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N> Iterable<N> for $t<N>
-    {
-      fn iter<'l>(&'l self) -> VecIterator<'l, N>
-      { unsafe { cast::transmute::<&'l $t<N>, &'l [N, ..$dim]>(self).iter() } }
-    }
-  )
-)
+new_impl!(Vec2, x, y)
+indexable_impl!(Vec2, 2)
+new_repeat_impl!(Vec2, val, x, y)
+dim_impl!(Vec2, 2)
+// (specialized) basis_impl!(Vec2, 1)
+add_impl!(Vec2, x, y)
+sub_impl!(Vec2, x, y)
+neg_impl!(Vec2, x, y)
+dot_impl!(Vec2, x, y)
+sub_dot_impl!(Vec2, x, y)
+scalar_mul_impl!(Vec2, x, y)
+scalar_div_impl!(Vec2, x, y)
+scalar_add_impl!(Vec2, x, y)
+scalar_sub_impl!(Vec2, x, y)
+translation_impl!(Vec2)
+translatable_impl!(Vec2)
+norm_impl!(Vec2)
+approx_eq_impl!(Vec2, x, y)
+one_impl!(Vec2)
+from_iterator_impl!(Vec2, iterator, iterator)
+bounded_impl!(Vec2)
+iterable_impl!(Vec2, 2)
+iterable_mut_impl!(Vec2, 2)
+to_homogeneous_impl!(Vec2, Vec3, z, x, y)
+from_homogeneous_impl!(Vec2, Vec3, z, x, y)
 
-macro_rules! iterable_mut_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N> IterableMut<N> for $t<N>
-    {
-      fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N>
-      { unsafe { cast::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim]>(self).mut_iter() } }
-    }
-  )
-)
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Vec3<N>
+{
+  x: N,
+  y: N,
+  z: N
+}
 
-macro_rules! dim_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N> Dim for $t<N>
-    {
-      #[inline]
-      fn dim() -> uint
-      { $dim }
-    }
-  )
-)
+new_impl!(Vec3, x, y, z)
+indexable_impl!(Vec3, 3)
+new_repeat_impl!(Vec3, val, x, y, z)
+dim_impl!(Vec3, 3)
+// (specialized) basis_impl!(Vec3, 1)
+add_impl!(Vec3, x, y, z)
+sub_impl!(Vec3, x, y, z)
+neg_impl!(Vec3, x, y, z)
+dot_impl!(Vec3, x, y, z)
+sub_dot_impl!(Vec3, x, y, z)
+scalar_mul_impl!(Vec3, x, y, z)
+scalar_div_impl!(Vec3, x, y, z)
+scalar_add_impl!(Vec3, x, y, z)
+scalar_sub_impl!(Vec3, x, y, z)
+translation_impl!(Vec3)
+translatable_impl!(Vec3)
+norm_impl!(Vec3)
+approx_eq_impl!(Vec3, x, y, z)
+one_impl!(Vec3)
+from_iterator_impl!(Vec3, iterator, iterator, iterator)
+bounded_impl!(Vec3)
+iterable_impl!(Vec3, 3)
+iterable_mut_impl!(Vec3, 3)
+to_homogeneous_impl!(Vec3, Vec4, w, x, y, z)
+from_homogeneous_impl!(Vec3, Vec4, w, x, y, z)
 
-macro_rules! basis_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for $t<N>
-    {
-      pub fn canonical_basis(f: &fn($t<N>))
-      {
-        for iterate(0u, $dim) |i|
-        {
-          let mut basis_element : $t<N> = Zero::zero();
-    
-          basis_element.set(i, One::one());
-    
-          f(basis_element);
-        }
-      }
-    
-      pub fn orthonormal_subspace_basis(&self, f: &fn($t<N>))
-      {
-        // compute the basis of the orthogonal subspace using Gram-Schmidt
-        // orthogonalization algorithm
-        let mut basis: ~[$t<N>] = ~[];
-    
-        for iterate(0u, $dim) |i|
-        {
-          let mut basis_element : $t<N> = Zero::zero();
-    
-          basis_element.set(i, One::one());
-    
-          if basis.len() == $dim - 1
-          { break; }
-    
-          let mut elt = basis_element.clone();
-    
-          elt = elt - self.scalar_mul(&basis_element.dot(self));
-    
-          for basis.iter().advance |v|
-          { elt = elt - v.scalar_mul(&elt.dot(v)) };
-    
-          if !elt.sqnorm().approx_eq(&Zero::zero())
-          {
-            let new_element = elt.normalized();
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Vec4<N>
+{
+  x: N,
+  y: N,
+  z: N,
+  w: N
+}
 
-            f(new_element.clone());
+new_impl!(Vec4, x, y, z, w)
+indexable_impl!(Vec4, 4)
+new_repeat_impl!(Vec4, val, x, y, z, w)
+dim_impl!(Vec4, 4)
+basis_impl!(Vec4, 4)
+add_impl!(Vec4, x, y, z, w)
+sub_impl!(Vec4, x, y, z, w)
+neg_impl!(Vec4, x, y, z, w)
+dot_impl!(Vec4, x, y, z, w)
+sub_dot_impl!(Vec4, x, y, z, w)
+scalar_mul_impl!(Vec4, x, y, z, w)
+scalar_div_impl!(Vec4, x, y, z, w)
+scalar_add_impl!(Vec4, x, y, z, w)
+scalar_sub_impl!(Vec4, x, y, z, w)
+translation_impl!(Vec4)
+translatable_impl!(Vec4)
+norm_impl!(Vec4)
+approx_eq_impl!(Vec4, x, y, z, w)
+one_impl!(Vec4)
+from_iterator_impl!(Vec4, iterator, iterator, iterator, iterator)
+bounded_impl!(Vec4)
+iterable_impl!(Vec4, 4)
+iterable_mut_impl!(Vec4, 4)
+to_homogeneous_impl!(Vec4, Vec5, a, x, y, z, w)
+from_homogeneous_impl!(Vec4, Vec5, a, x, y, z, w)
 
-            basis.push(new_element);
-          }
-        }
-      }
-    }
-  )
-)
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Vec5<N>
+{
+  x: N,
+  y: N,
+  z: N,
+  w: N,
+  a: N,
+}
 
-macro_rules! add_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Clone + Add<N,N>> Add<$t<N>, $t<N>> for $t<N>
-    {
-      #[inline]
-      fn add(&self, other: &$t<N>) -> $t<N>
-      { $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN)*) }
-    }
-  )
-)
+new_impl!(Vec5, x, y, z, w, a)
+indexable_impl!(Vec5, 5)
+new_repeat_impl!(Vec5, val, x, y, z, w, a)
+dim_impl!(Vec5, 5)
+basis_impl!(Vec5, 5)
+add_impl!(Vec5, x, y, z, w, a)
+sub_impl!(Vec5, x, y, z, w, a)
+neg_impl!(Vec5, x, y, z, w, a)
+dot_impl!(Vec5, x, y, z, w, a)
+sub_dot_impl!(Vec5, x, y, z, w, a)
+scalar_mul_impl!(Vec5, x, y, z, w, a)
+scalar_div_impl!(Vec5, x, y, z, w, a)
+scalar_add_impl!(Vec5, x, y, z, w, a)
+scalar_sub_impl!(Vec5, x, y, z, w, a)
+translation_impl!(Vec5)
+translatable_impl!(Vec5)
+norm_impl!(Vec5)
+approx_eq_impl!(Vec5, x, y, z, w, a)
+one_impl!(Vec5)
+from_iterator_impl!(Vec5, iterator, iterator, iterator, iterator, iterator)
+bounded_impl!(Vec5)
+iterable_impl!(Vec5, 5)
+iterable_mut_impl!(Vec5, 5)
+to_homogeneous_impl!(Vec5, Vec6, b, x, y, z, w, a)
+from_homogeneous_impl!(Vec5, Vec6, b, x, y, z, w, a)
 
-macro_rules! sub_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Clone + Sub<N,N>> Sub<$t<N>, $t<N>> for $t<N>
-    {
-      #[inline]
-      fn sub(&self, other: &$t<N>) -> $t<N>
-      { $t::new(self.$comp0 - other.$comp0 $(, self.$compN - other.$compN)*) }
-    }
-  )
-)
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Vec6<N>
+{
+  x: N,
+  y: N,
+  z: N,
+  w: N,
+  a: N,
+  b: N
+}
 
-macro_rules! neg_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Neg<N>> Neg<$t<N>> for $t<N>
-    {
-      #[inline]
-      fn neg(&self) -> $t<N>
-      { $t::new(-self.$comp0 $(, -self.$compN )*) }
-    }
-  )
-)
-
-macro_rules! dot_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Ring> Dot<N> for $t<N>
-    {
-      #[inline]
-      fn dot(&self, other: &$t<N>) -> N
-      { self.$comp0 * other.$comp0 $(+ self.$compN * other.$compN )* } 
-    }
-  )
-)
-
-macro_rules! sub_dot_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Ring> SubDot<N> for $t<N>
-    {
-      #[inline]
-      fn sub_dot(&self, a: &$t<N>, b: &$t<N>) -> N
-      { (self.$comp0 - a.$comp0) * b.$comp0 $(+ (self.$compN - a.$compN) * b.$compN )* } 
-    }
-  )
-)
-
-macro_rules! scalar_mul_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Mul<N, N>> ScalarMul<N> for $t<N>
-    {
-      #[inline]
-      fn scalar_mul(&self, s: &N) -> $t<N>
-      { $t::new(self.$comp0 * *s $(, self.$compN * *s)*) }
-    
-      #[inline]
-      fn scalar_mul_inplace(&mut self, s: &N)
-      {
-        self.$comp0   = self.$comp0 * *s;
-        $(self.$compN = self.$compN * *s;)*
-      }
-    }
-  )
-)
-
-macro_rules! scalar_div_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Div<N, N>> ScalarDiv<N> for $t<N>
-    {
-      #[inline]
-      fn scalar_div(&self, s: &N) -> $t<N>
-      { $t::new(self.$comp0 / *s $(, self.$compN / *s)*) }
-    
-      #[inline]
-      fn scalar_div_inplace(&mut self, s: &N)
-      {
-        self.$comp0   = self.$comp0 / *s;
-        $(self.$compN = self.$compN / *s;)*
-      }
-    }
-  )
-)
-
-macro_rules! scalar_add_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Add<N, N>> ScalarAdd<N> for $t<N>
-    {
-      #[inline]
-      fn scalar_add(&self, s: &N) -> $t<N>
-      { $t::new(self.$comp0 + *s $(, self.$compN + *s)*) }
-    
-      #[inline]
-      fn scalar_add_inplace(&mut self, s: &N)
-      {
-        self.$comp0   = self.$comp0 + *s;
-        $(self.$compN = self.$compN + *s;)*
-      }
-    }
-  )
-)
-
-macro_rules! scalar_sub_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Sub<N, N>> ScalarSub<N> for $t<N>
-    {
-      #[inline]
-      fn scalar_sub(&self, s: &N) -> $t<N>
-      { $t::new(self.$comp0 - *s $(, self.$compN - *s)*) }
-    
-      #[inline]
-      fn scalar_sub_inplace(&mut self, s: &N)
-      {
-        self.$comp0   = self.$comp0 - *s;
-        $(self.$compN = self.$compN - *s;)*
-      }
-    }
-  )
-)
-
-macro_rules! translation_impl(
-  ($t: ident) => (
-    impl<N: Clone + Add<N, N> + Neg<N>> Translation<$t<N>> for $t<N>
-    {
-      #[inline]
-      fn translation(&self) -> $t<N>
-      { self.clone() }
-
-      #[inline]
-      fn inv_translation(&self) -> $t<N>
-      { -self }
-    
-      #[inline]
-      fn translate_by(&mut self, t: &$t<N>)
-      { *self = *self + *t; }
-    }
-  )
-)
-
-macro_rules! translatable_impl(
-  ($t: ident) => (
-    impl<N: Add<N, N> + Neg<N> + Clone> Translatable<$t<N>, $t<N>> for $t<N>
-    {
-      #[inline]
-      fn translated(&self, t: &$t<N>) -> $t<N>
-      { self + *t }
-    }
-  )
-)
-
-macro_rules! norm_impl(
-  ($t: ident) => (
-    impl<N: Clone + DivisionRing + Algebraic> Norm<N> for $t<N>
-    {
-      #[inline]
-      fn sqnorm(&self) -> N
-      { self.dot(self) }
-    
-      #[inline]
-      fn norm(&self) -> N
-      { self.sqnorm().sqrt() }
-    
-      #[inline]
-      fn normalized(&self) -> $t<N>
-      {
-        let mut res : $t<N> = self.clone();
-    
-        res.normalize();
-    
-        res
-      }
-    
-      #[inline]
-      fn normalize(&mut self) -> N
-      {
-        let l = self.norm();
-    
-        self.scalar_div_inplace(&l);
-    
-        l
-      }
-    }
-  )
-)
-
-macro_rules! approx_eq_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: ApproxEq<N>> ApproxEq<N> for $t<N>
-    {
-      #[inline]
-      fn approx_epsilon() -> N
-      { ApproxEq::approx_epsilon::<N, N>() }
-    
-      #[inline]
-      fn approx_eq(&self, other: &$t<N>) -> bool
-      { self.$comp0.approx_eq(&other.$comp0) $(&& self.$compN.approx_eq(&other.$compN))* }
-    
-      #[inline]
-      fn approx_eq_eps(&self, other: &$t<N>, eps: &N) -> bool
-      { self.$comp0.approx_eq_eps(&other.$comp0, eps) $(&& self.$compN.approx_eq_eps(&other.$compN, eps))* }
-    }
-  )
-)
-
-macro_rules! one_impl(
-  ($t: ident) => (
-    impl<N: Clone + One> One for $t<N>
-    {
-      #[inline]
-      fn one() -> $t<N>
-      { $t::new_repeat(One::one()) }
-    }
-  )
-)
-
-macro_rules! from_iterator_impl(
-  ($t: ident, $param0: ident $(, $paramN: ident)*) => (
-    impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for $t<N>
-    {
-      fn from_iterator($param0: &mut Iter) -> $t<N>
-      { $t::new($param0.next().unwrap() $(, $paramN.next().unwrap())*) }
-    }
-  )
-)
-
-macro_rules! bounded_impl(
-  ($t: ident) => (
-    impl<N: Bounded + Clone> Bounded for $t<N>
-    {
-      #[inline]
-      fn max_value() -> $t<N>
-      { $t::new_repeat(Bounded::max_value()) }
-    
-      #[inline]
-      fn min_value() -> $t<N>
-      { $t::new_repeat(Bounded::min_value()) }
-    }
-  )
-)
-
-macro_rules! to_homogeneous_impl(
-  ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Clone + One + Zero> ToHomogeneous<$t2<N>> for $t<N>
-    {
-      fn to_homogeneous(&self) -> $t2<N>
-      {
-        let mut res: $t2<N> = One::one();
-
-        res.$comp0    = self.$comp0.clone();
-        $( res.$compN = self.$compN.clone(); )*
-
-        res
-      }
-    }
-  )
-)
-
-macro_rules! from_homogeneous_impl(
-  ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Clone + Div<N, N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N>
-    {
-      fn from_homogeneous(v: &$t2<N>) -> $t<N>
-      {
-        let mut res: $t<N> = Zero::zero();
-
-        res.$comp0    = v.$comp0.clone();
-        $( res.$compN = v.$compN.clone(); )*
-
-        res.scalar_div(&v.$extra);
-
-        res
-      }
-    }
-  )
-)
+new_impl!(Vec6, x, y, z, w, a, b)
+indexable_impl!(Vec6, 6)
+new_repeat_impl!(Vec6, val, x, y, z, w, a, b)
+dim_impl!(Vec6, 6)
+basis_impl!(Vec6, 6)
+add_impl!(Vec6, x, y, z, w, a, b)
+sub_impl!(Vec6, x, y, z, w, a, b)
+neg_impl!(Vec6, x, y, z, w, a, b)
+dot_impl!(Vec6, x, y, z, w, a, b)
+sub_dot_impl!(Vec6, x, y, z, w, a, b)
+scalar_mul_impl!(Vec6, x, y, z, w, a, b)
+scalar_div_impl!(Vec6, x, y, z, w, a, b)
+scalar_add_impl!(Vec6, x, y, z, w, a, b)
+scalar_sub_impl!(Vec6, x, y, z, w, a, b)
+translation_impl!(Vec6)
+translatable_impl!(Vec6)
+norm_impl!(Vec6)
+approx_eq_impl!(Vec6, x, y, z, w, a, b)
+one_impl!(Vec6)
+from_iterator_impl!(Vec6, iterator, iterator, iterator, iterator, iterator, iterator)
+bounded_impl!(Vec6)
+iterable_impl!(Vec6, 6)
+iterable_mut_impl!(Vec6, 6)

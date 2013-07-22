@@ -1,408 +1,209 @@
-#[macro_escape];
+use std::cast;
+use std::uint::iterate;
+use std::num::{One, Zero};
+use std::cmp::ApproxEq;
+use std::iterator::IteratorUtil;
+use std::vec::{VecIterator, VecMutIterator};
+use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
+use traits::dim::Dim;
+use traits::ring::Ring;
+use traits::inv::Inv;
+use traits::division_ring::DivisionRing;
+use traits::transpose::Transpose;
+use traits::rlmul::{RMul, LMul};
+use traits::transformation::Transform;
+use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
+use traits::indexable::Indexable;
+use traits::column::Column;
+use traits::iterable::{Iterable, IterableMut};
 
-macro_rules! mat_impl(
-  ($t: ident, $dim: expr, $comp0: ident $(,$compN: ident)*) => (
-    impl<N> $t<N>
-    {
-      #[inline]
-      pub fn new($comp0: N $(, $compN: N )*) -> $t<N>
-      {
-        $t {
-          $comp0: $comp0
-          $(, $compN: $compN )*
-        }
-      }
-    }
-  )
+mod mat_macros;
+
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Mat1<N>
+{ m11: N }
+
+mat_impl!(Mat1, 1, m11)
+one_impl!(Mat1, _1)
+iterable_impl!(Mat1, 1)
+iterable_mut_impl!(Mat1, 1)
+dim_impl!(Mat1, 1)
+indexable_impl!(Mat1, 1)
+mul_impl!(Mat1, 1)
+rmul_impl!(Mat1, Vec1, 1)
+lmul_impl!(Mat1, Vec1, 1)
+transform_impl!(Mat1, Vec1)
+// (specialized) inv_impl!(Mat1, 1)
+transpose_impl!(Mat1, 1)
+approx_eq_impl!(Mat1)
+column_impl!(Mat1, 1)
+to_homogeneous_impl!(Mat1, Mat2, 1, 2)
+from_homogeneous_impl!(Mat1, Mat2, 1, 2)
+
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Mat2<N>
+{
+  m11: N, m12: N,
+  m21: N, m22: N
+}
+
+mat_impl!(Mat2, 2, m11, m12,
+                   m21, m22)
+one_impl!(Mat2, _1, _0,
+                _0, _1)
+iterable_impl!(Mat2, 2)
+iterable_mut_impl!(Mat2, 2)
+dim_impl!(Mat2, 2)
+indexable_impl!(Mat2, 2)
+mul_impl!(Mat2, 2)
+rmul_impl!(Mat2, Vec2, 2)
+lmul_impl!(Mat2, Vec2, 2)
+transform_impl!(Mat2, Vec2)
+// (specialized) inv_impl!(Mat2, 2)
+transpose_impl!(Mat2, 2)
+approx_eq_impl!(Mat2)
+column_impl!(Mat2, 2)
+to_homogeneous_impl!(Mat2, Mat3, 2, 3)
+from_homogeneous_impl!(Mat2, Mat3, 2, 3)
+
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Mat3<N>
+{
+  m11: N, m12: N, m13: N,
+  m21: N, m22: N, m23: N,
+  m31: N, m32: N, m33: N
+}
+
+mat_impl!(Mat3, 3, m11, m12, m13,
+                   m21, m22, m23,
+                   m31, m32, m33)
+one_impl!(Mat3, _1, _0, _0,
+                _0, _1, _0,
+                _0, _0, _1)
+iterable_impl!(Mat3, 3)
+iterable_mut_impl!(Mat3, 3)
+dim_impl!(Mat3, 3)
+indexable_impl!(Mat3, 3)
+mul_impl!(Mat3, 3)
+rmul_impl!(Mat3, Vec3, 3)
+lmul_impl!(Mat3, Vec3, 3)
+transform_impl!(Mat3, Vec3)
+// (specialized) inv_impl!(Mat3, 3)
+transpose_impl!(Mat3, 3)
+approx_eq_impl!(Mat3)
+column_impl!(Mat3, 3)
+to_homogeneous_impl!(Mat3, Mat4, 3, 4)
+from_homogeneous_impl!(Mat3, Mat4, 3, 4)
+
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Mat4<N>
+{
+  m11: N, m12: N, m13: N, m14: N,
+  m21: N, m22: N, m23: N, m24: N,
+  m31: N, m32: N, m33: N, m34: N,
+  m41: N, m42: N, m43: N, m44: N
+}
+
+mat_impl!(Mat4, 4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
 )
+one_impl!(Mat4, _1, _0, _0, _0,
+                _0, _1, _0, _0,
+                _0, _0, _1, _0,
+                _0, _0, _0, _1)
+iterable_impl!(Mat4, 4)
+iterable_mut_impl!(Mat4, 4)
+dim_impl!(Mat4, 4)
+indexable_impl!(Mat4, 4)
+mul_impl!(Mat4, 4)
+rmul_impl!(Mat4, Vec4, 4)
+lmul_impl!(Mat4, Vec4, 4)
+transform_impl!(Mat4, Vec4)
+inv_impl!(Mat4, 4)
+transpose_impl!(Mat4, 4)
+approx_eq_impl!(Mat4)
+column_impl!(Mat4, 4)
+to_homogeneous_impl!(Mat4, Mat5, 4, 5)
+from_homogeneous_impl!(Mat4, Mat5, 4, 5)
 
-macro_rules! iterable_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N> Iterable<N> for $t<N>
-    {
-      fn iter<'l>(&'l self) -> VecIterator<'l, N>
-      { unsafe { cast::transmute::<&'l $t<N>, &'l [N, ..$dim * $dim]>(self).iter() } }
-    }
-  )
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Mat5<N>
+{
+  m11: N, m12: N, m13: N, m14: N, m15: N,
+  m21: N, m22: N, m23: N, m24: N, m25: N,
+  m31: N, m32: N, m33: N, m34: N, m35: N,
+  m41: N, m42: N, m43: N, m44: N, m45: N,
+  m51: N, m52: N, m53: N, m54: N, m55: N
+}
+
+mat_impl!(Mat5, 5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
 )
-
-macro_rules! iterable_mut_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N> IterableMut<N> for $t<N>
-    {
-      fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N>
-      { unsafe { cast::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim * $dim]>(self).mut_iter() } }
-    }
-  )
+one_impl!(Mat5,
+  _1, _0, _0, _0, _0,
+  _0, _1, _0, _0, _0,
+  _0, _0, _1, _0, _0,
+  _0, _0, _0, _1, _0,
+  _0, _0, _0, _0, _1
 )
+iterable_impl!(Mat5, 5)
+iterable_mut_impl!(Mat5, 5)
+dim_impl!(Mat5, 5)
+indexable_impl!(Mat5, 5)
+mul_impl!(Mat5, 5)
+rmul_impl!(Mat5, Vec5, 5)
+lmul_impl!(Mat5, Vec5, 5)
+transform_impl!(Mat5, Vec5)
+inv_impl!(Mat5, 5)
+transpose_impl!(Mat5, 5)
+approx_eq_impl!(Mat5)
+column_impl!(Mat5, 5)
+to_homogeneous_impl!(Mat5, Mat6, 5, 6)
+from_homogeneous_impl!(Mat5, Mat6, 5, 6)
 
-macro_rules! one_impl(
-  ($t: ident, $value0: ident $(, $valueN: ident)* ) => (
-    impl<N: Clone + One + Zero> One for $t<N>
-    {
-      #[inline]
-      fn one() -> $t<N>
-      {
-        let (_0, _1) = (Zero::zero::<N>(), One::one::<N>());
-        return $t::new($value0.clone() $(, $valueN.clone() )*)
-      }
-    }
-  )
+#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct Mat6<N>
+{
+  m11: N, m12: N, m13: N, m14: N, m15: N, m16: N,
+  m21: N, m22: N, m23: N, m24: N, m25: N, m26: N,
+  m31: N, m32: N, m33: N, m34: N, m35: N, m36: N,
+  m41: N, m42: N, m43: N, m44: N, m45: N, m46: N,
+  m51: N, m52: N, m53: N, m54: N, m55: N, m56: N,
+  m61: N, m62: N, m63: N, m64: N, m65: N, m66: N
+}
+
+mat_impl!(Mat6, 6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
 )
-
-macro_rules! dim_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N> Dim for $t<N>
-    {
-      #[inline]
-      fn dim() -> uint
-      { $dim }
-    }
-  )
+one_impl!(Mat6,
+  _1, _0, _0, _0, _0, _0,
+  _0, _1, _0, _0, _0, _0,
+  _0, _0, _1, _0, _0, _0,
+  _0, _0, _0, _1, _0, _0,
+  _0, _0, _0, _0, _1, _0,
+  _0, _0, _0, _0, _0, _1
 )
-
-macro_rules! indexable_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N: Clone> Indexable<(uint, uint), N> for $t<N>
-    {
-      #[inline]
-      pub fn at(&self, (i, j): (uint, uint)) -> N
-      { unsafe { cast::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)[i * $dim + j].clone() } }
-
-      #[inline]
-      pub fn set(&mut self, (i, j): (uint, uint), val: N)
-      { unsafe { cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)[i * $dim + j] = val } }
-
-      #[inline]
-      pub fn swap(&mut self, (i1, j1): (uint, uint), (i2, j2): (uint, uint))
-      {
-        unsafe {
-          cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
-            .swap(i1 * $dim + j1, i2 * $dim + j2)
-        }
-      }
-    }
-  )
-)
-
-macro_rules! column_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N: Clone, V: Zero + Iterable<N> + IterableMut<N>> Column<V> for $t<N>
-    {
-      fn set_column(&mut self, col: uint, v: V)
-      {
-        for v.iter().enumerate().advance |(i, e)|
-        {
-          if i == Dim::dim::<$t<N>>()
-          { break }
-
-          self.set((i, col), e.clone());
-        }
-      }
-
-      fn column(&self, col: uint) -> V
-      {
-        let mut res = Zero::zero::<V>();
-
-        for res.mut_iter().enumerate().advance |(i, e)|
-        {
-          if i >= Dim::dim::<$t<N>>()
-          { break }
-
-          *e = self.at((i, col));
-        }
-
-        res
-      }
-    }
-  )
-)
-
-macro_rules! mul_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N: Clone + Ring>
-    Mul<$t<N>, $t<N>> for $t<N>
-    {
-      fn mul(&self, other: &$t<N>) -> $t<N>
-      {
-        let mut res: $t<N> = Zero::zero();
-    
-        for iterate(0u, $dim) |i|
-        {
-          for iterate(0u, $dim) |j|
-          {
-            let mut acc = Zero::zero::<N>();
-    
-            for iterate(0u, $dim) |k|
-            { acc = acc + self.at((i, k)) * other.at((k, j)); }
-    
-            res.set((i, j), acc);
-          }
-        }
-    
-        res
-      }
-    }
-  )
-)
-
-macro_rules! rmul_impl(
-  ($t: ident, $v: ident, $dim: expr) => (
-    impl<N: Clone + Ring>
-    RMul<$v<N>> for $t<N>
-    {
-      fn rmul(&self, other: &$v<N>) -> $v<N>
-      {
-        let mut res : $v<N> = Zero::zero();
-    
-        for iterate(0u, $dim) |i|
-        {
-          for iterate(0u, $dim) |j|
-          {
-            let val = res.at(i) + other.at(j) * self.at((i, j));
-            res.set(i, val)
-          }
-        }
-    
-        res
-      }
-    }
-  )
-)
-
-macro_rules! lmul_impl(
-  ($t: ident, $v: ident, $dim: expr) => (
-    impl<N: Clone + Ring>
-    LMul<$v<N>> for $t<N>
-    {
-      fn lmul(&self, other: &$v<N>) -> $v<N>
-      {
-    
-        let mut res : $v<N> = Zero::zero();
-    
-        for iterate(0u, $dim) |i|
-        {
-          for iterate(0u, $dim) |j|
-          {
-            let val = res.at(i) + other.at(j) * self.at((j, i));
-            res.set(i, val)
-          }
-        }
-    
-        res
-      }
-    }
-  )
-)
-
-macro_rules! transform_impl(
-  ($t: ident, $v: ident) => (
-    impl<N: Clone + DivisionRing + Eq>
-    Transform<$v<N>> for $t<N>
-    {
-      #[inline]
-      fn transform_vec(&self, v: &$v<N>) -> $v<N>
-      { self.rmul(v) }
-    
-      #[inline]
-      fn inv_transform(&self, v: &$v<N>) -> $v<N>
-      {
-        match self.inverse()
-        {
-          Some(t) => t.transform_vec(v),
-          None    => fail!("Cannot use inv_transform on a non-inversible matrix.")
-        }
-      }
-    }
-  )
-)
-
-macro_rules! inv_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N: Clone + Eq + DivisionRing>
-    Inv for $t<N>
-    {
-      #[inline]
-      fn inverse(&self) -> Option<$t<N>>
-      {
-        let mut res : $t<N> = self.clone();
-    
-        if res.inplace_inverse()
-        { Some(res) }
-        else
-        { None }
-      }
-    
-      fn inplace_inverse(&mut self) -> bool
-      {
-        let mut res: $t<N> = One::one();
-        let     _0N: N     = Zero::zero();
-    
-        // inversion using Gauss-Jordan elimination
-        for iterate(0u, $dim) |k|
-        {
-          // search a non-zero value on the k-th column
-          // FIXME: would it be worth it to spend some more time searching for the
-          // max instead?
-    
-          let mut n0 = k; // index of a non-zero entry
-    
-          while (n0 != $dim)
-          {
-            if self.at((n0, k)) != _0N
-            { break; }
-    
-            n0 = n0 + 1;
-          }
-
-          if n0 == $dim
-          { return false }
-    
-          // swap pivot line
-          if n0 != k
-          {
-            for iterate(0u, $dim) |j|
-            {
-              self.swap((n0, j), (k, j));
-              res.swap((n0, j), (k, j));
-            }
-          }
-    
-          let pivot = self.at((k, k));
-    
-          for iterate(k, $dim) |j|
-          {
-            let selfval = self.at((k, j)) / pivot;
-            self.set((k, j), selfval);
-          }
-    
-          for iterate(0u, $dim) |j|
-          {
-            let resval = res.at((k, j)) / pivot;
-            res.set((k, j), resval);
-          }
-    
-          for iterate(0u, $dim) |l|
-          {
-            if l != k
-            {
-              let normalizer = self.at((l, k));
-    
-              for iterate(k, $dim) |j|
-              {
-                let selfval = self.at((l, j)) - self.at((k, j)) * normalizer;
-                self.set((l, j), selfval);
-              }
-    
-              for iterate(0u, $dim) |j|
-              {
-                let resval  = res.at((l, j)) - res.at((k, j)) * normalizer;
-                res.set((l, j), resval);
-              }
-            }
-          }
-        }
-    
-        *self = res;
-
-        true
-      }
-    }
-  )
-)
-
-macro_rules! transpose_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N: Clone> Transpose for $t<N>
-    {
-      #[inline]
-      fn transposed(&self) -> $t<N>
-      {
-        let mut res = self.clone();
-    
-        res.transpose();
-    
-        res
-      }
-    
-      fn transpose(&mut self)
-      {
-        for iterate(1u, $dim) |i|
-        {
-          for iterate(0u, $dim - 1) |j|
-          { self.swap((i, j), (j, i)) }
-        }
-      }
-    }
-  )
-)
-
-macro_rules! approx_eq_impl(
-  ($t: ident) => (
-    impl<N: ApproxEq<N>> ApproxEq<N> for $t<N>
-    {
-      #[inline]
-      fn approx_epsilon() -> N
-      { ApproxEq::approx_epsilon::<N, N>() }
-    
-      #[inline]
-      fn approx_eq(&self, other: &$t<N>) -> bool
-      {
-        let mut zip = self.iter().zip(other.iter());
-    
-        do zip.all |(a, b)| { a.approx_eq(b) }
-      }
-    
-      #[inline]
-      fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool
-      {
-        let mut zip = self.iter().zip(other.iter());
-    
-        do zip.all |(a, b)| { a.approx_eq_eps(b, epsilon) }
-      }
-    }
-  )
-)
-
-macro_rules! to_homogeneous_impl(
-  ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
-    impl<N: One + Zero + Clone> ToHomogeneous<$t2<N>> for $t<N>
-    {
-      fn to_homogeneous(&self) -> $t2<N>
-      {
-        let mut res: $t2<N> = One::one();
-
-        for iterate(0, $dim) |i|
-        {
-          for iterate(0, $dim) |j|
-          { res.set((i, j), self.at((i, j))) }
-        }
-
-        res
-      }
-    }
-  )
-)
-
-macro_rules! from_homogeneous_impl(
-  ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
-    impl<N: One + Zero + Clone> FromHomogeneous<$t2<N>> for $t<N>
-    {
-      fn from_homogeneous(m: &$t2<N>) -> $t<N>
-      {
-        let mut res: $t<N> = One::one();
-
-        for iterate(0, $dim2) |i|
-        {
-          for iterate(0, $dim2) |j|
-          { res.set((i, j), m.at((i, j))) }
-        }
-
-        // FIXME: do we have to deal the lost components
-        // (like if the 1 is not a 1… do we have to divide?)
-
-        res
-      }
-    }
-  )
-)
+iterable_impl!(Mat6, 6)
+iterable_mut_impl!(Mat6, 6)
+dim_impl!(Mat6, 6)
+indexable_impl!(Mat6, 6)
+mul_impl!(Mat6, 6)
+rmul_impl!(Mat6, Vec6, 6)
+lmul_impl!(Mat6, Vec6, 6)
+transform_impl!(Mat6, Vec6)
+inv_impl!(Mat6, 6)
+transpose_impl!(Mat6, 6)
+approx_eq_impl!(Mat6)
+column_impl!(Mat6, 6)

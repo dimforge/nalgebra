@@ -13,10 +13,10 @@
 extern mod std;
 extern mod extra;
 
-pub mod vec;
-pub mod mat;
-pub mod dmat;
-pub mod dvec;
+mod dmat;
+mod dvec;
+mod vec_impl;
+mod mat_impl;
 
 // specialization for some 1d, 2d and 3d operations
 pub mod mat_spec;
@@ -30,9 +30,43 @@ pub mod adaptors
   pub mod transform;
 }
 
+pub mod vec
+{
+  pub use vec_impl::*;
+  pub use dvec::*;
+  pub use traits::sample::*;
+  pub use traits::dot::*;
+  pub use traits::cross::*;
+  pub use traits::basis::*;
+  pub use traits::norm::*;
+  pub use traits::vector_space::*;
+  pub use traits::sub_dot::*;
+  pub use traits::scalar_op::*;
+}
+
+pub mod mat
+{
+  pub use mat_impl::*;
+  pub use dmat::*;
+  pub use traits::column::*;
+  pub use traits::inv::*;
+  pub use traits::transpose::*;
+  pub use traits::rotation::*;
+  pub use traits::translation::*;
+  pub use traits::transformation::*;
+}
+
 /// Useful linear-algebra related traits.
 pub mod traits
 {
+  pub use traits::indexable::*;
+  pub use traits::iterable::*;
+  pub use traits::dim::*;
+  pub use traits::ring::*;
+  pub use traits::division_ring::*;
+  pub use traits::rlmul::*;
+  pub use traits::homogeneous::*;
+
   pub mod sample;
   pub mod indexable;
   pub mod column;
