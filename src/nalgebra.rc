@@ -30,6 +30,8 @@ pub mod adaptors
   pub mod transform;
 }
 
+pub mod types;
+
 pub mod num
 {
   pub use traits::dim::*;
