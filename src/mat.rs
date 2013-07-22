@@ -17,6 +17,7 @@ use traits::indexable::Indexable;
 use traits::column::Column;
 use traits::iterable::{Iterable, IterableMut};
 
+pub use traits::mat_cast::*;
 pub use traits::column::*;
 pub use traits::inv::*;
 pub use traits::rlmul::*;
@@ -31,7 +32,8 @@ mod mat_macros;
 pub struct Mat1<N>
 { m11: N }
 
-mat_impl!(Mat1, 1, m11)
+mat_impl!(Mat1, m11)
+mat_cast_impl!(Mat1, m11)
 one_impl!(Mat1, _1)
 iterable_impl!(Mat1, 1)
 iterable_mut_impl!(Mat1, 1)
@@ -55,8 +57,10 @@ pub struct Mat2<N>
   m21: N, m22: N
 }
 
-mat_impl!(Mat2, 2, m11, m12,
-                   m21, m22)
+mat_impl!(Mat2, m11, m12,
+                m21, m22)
+mat_cast_impl!(Mat2, m11, m12,
+                     m21, m22)
 one_impl!(Mat2, _1, _0,
                 _0, _1)
 iterable_impl!(Mat2, 2)
@@ -82,9 +86,12 @@ pub struct Mat3<N>
   m31: N, m32: N, m33: N
 }
 
-mat_impl!(Mat3, 3, m11, m12, m13,
-                   m21, m22, m23,
-                   m31, m32, m33)
+mat_impl!(Mat3, m11, m12, m13,
+                m21, m22, m23,
+                m31, m32, m33)
+mat_cast_impl!(Mat3, m11, m12, m13,
+                     m21, m22, m23,
+                     m31, m32, m33)
 one_impl!(Mat3, _1, _0, _0,
                 _0, _1, _0,
                 _0, _0, _1)
@@ -112,7 +119,13 @@ pub struct Mat4<N>
   m41: N, m42: N, m43: N, m44: N
 }
 
-mat_impl!(Mat4, 4,
+mat_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+)
+mat_cast_impl!(Mat4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
@@ -147,7 +160,14 @@ pub struct Mat5<N>
   m51: N, m52: N, m53: N, m54: N, m55: N
 }
 
-mat_impl!(Mat5, 5,
+mat_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+)
+mat_cast_impl!(Mat5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
@@ -187,7 +207,15 @@ pub struct Mat6<N>
   m61: N, m62: N, m63: N, m64: N, m65: N, m66: N
 }
 
-mat_impl!(Mat6, 6,
+mat_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+)
+mat_cast_impl!(Mat6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,

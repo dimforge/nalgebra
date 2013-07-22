@@ -15,6 +15,16 @@ macro_rules! new_impl(
     }
   )
 )
+macro_rules! vec_cast_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<Nin: NumCast + Clone, Nout: NumCast> VecCast<$t<Nout>> for $t<Nin>
+    {
+      #[inline]
+      pub fn from(v: $t<Nin>) -> $t<Nout>
+      { $t::new(NumCast::from(v.$comp0.clone()) $(, NumCast::from(v.$compN.clone()))*) }
+    }
+  )
+)
 
 macro_rules! indexable_impl(
   ($t: ident, $dim: expr) => (

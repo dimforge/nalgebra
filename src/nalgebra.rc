@@ -65,6 +65,8 @@ mod traits
   mod rlmul;
   mod scalar_op;
   mod homogeneous;
+  mod vec_cast;
+  mod mat_cast;
 }
 
 #[cfg(test)]

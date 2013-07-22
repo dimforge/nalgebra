@@ -13,6 +13,7 @@ use traits::division_ring::DivisionRing;
 use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
 use traits::indexable::Indexable;
 
+pub use traits::vec_cast::*;
 pub use traits::basis::*;
 pub use traits::cross::*;
 pub use traits::dot::*;
@@ -34,6 +35,7 @@ pub struct Vec1<N>
 { x: N }
 
 new_impl!(Vec1, x)
+vec_cast_impl!(Vec1, x)
 indexable_impl!(Vec1, 1)
 new_repeat_impl!(Vec1, val, x)
 dim_impl!(Vec1, 1)
@@ -67,6 +69,7 @@ pub struct Vec2<N>
 }
 
 new_impl!(Vec2, x, y)
+vec_cast_impl!(Vec2, x, y)
 indexable_impl!(Vec2, 2)
 new_repeat_impl!(Vec2, val, x, y)
 dim_impl!(Vec2, 2)
@@ -101,6 +104,7 @@ pub struct Vec3<N>
 }
 
 new_impl!(Vec3, x, y, z)
+vec_cast_impl!(Vec3, x, y, z)
 indexable_impl!(Vec3, 3)
 new_repeat_impl!(Vec3, val, x, y, z)
 dim_impl!(Vec3, 3)
@@ -136,6 +140,7 @@ pub struct Vec4<N>
 }
 
 new_impl!(Vec4, x, y, z, w)
+vec_cast_impl!(Vec4, x, y, z, w)
 indexable_impl!(Vec4, 4)
 new_repeat_impl!(Vec4, val, x, y, z, w)
 dim_impl!(Vec4, 4)
@@ -172,6 +177,7 @@ pub struct Vec5<N>
 }
 
 new_impl!(Vec5, x, y, z, w, a)
+vec_cast_impl!(Vec5, x, y, z, w, a)
 indexable_impl!(Vec5, 5)
 new_repeat_impl!(Vec5, val, x, y, z, w, a)
 dim_impl!(Vec5, 5)
@@ -209,6 +215,7 @@ pub struct Vec6<N>
 }
 
 new_impl!(Vec6, x, y, z, w, a, b)
+vec_cast_impl!(Vec6, x, y, z, w, a, b)
 indexable_impl!(Vec6, 6)
 new_repeat_impl!(Vec6, val, x, y, z, w, a, b)
 dim_impl!(Vec6, 6)

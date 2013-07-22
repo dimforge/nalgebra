@@ -1,7 +1,7 @@
 #[macro_escape];
 
 macro_rules! mat_impl(
-  ($t: ident, $dim: expr, $comp0: ident $(,$compN: ident)*) => (
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N> $t<N>
     {
       #[inline]
@@ -12,6 +12,17 @@ macro_rules! mat_impl(
           $(, $compN: $compN )*
         }
       }
+    }
+  )
+)
+
+macro_rules! mat_cast_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<Nin: NumCast + Clone, Nout: NumCast> MatCast<$t<Nout>> for $t<Nin>
+    {
+      #[inline]
+      pub fn from(m: $t<Nin>) -> $t<Nout>
+      { $t::new(NumCast::from(m.$comp0.clone()) $(, NumCast::from(m.$compN.clone()) )*) }
     }
   )
 )
