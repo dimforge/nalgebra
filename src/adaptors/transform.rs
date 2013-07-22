@@ -5,7 +5,7 @@ use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::rotation::{Rotation, Rotate, Rotatable};
 use traits::translation::{Translation, Translate, Translatable};
-use traits::transformation;
+use Ts = traits::transformation::Transform;
 use traits::transformation::{Transformation, Transformable};
 use traits::rlmul::{RMul, LMul};
 use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
@@ -192,8 +192,8 @@ Transformation<Transform<M, V>> for Transform<M, V>
   { *self = other * *self; }
 }
 
-impl<M: transformation::Transform<V>, V: Add<V, V> + Sub<V, V>>
-transformation::Transform<V> for Transform<M, V>
+impl<M: Ts<V>, V: Add<V, V> + Sub<V, V>>
+Ts<V> for Transform<M, V>
 {
   #[inline]
   fn transform_vec(&self, v: &V) -> V

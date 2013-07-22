@@ -5,18 +5,24 @@ use std::vec::{VecIterator, VecMutIterator};
 use std::iterator::{Iterator, IteratorUtil, FromIterator};
 use std::cmp::ApproxEq;
 use std::uint::iterate;
-use traits::iterable::{Iterable, IterableMut};
 use traits::basis::Basis;
 use traits::dim::Dim;
-use traits::dot::Dot;
-use traits::sub_dot::SubDot;
-use traits::norm::Norm;
 use traits::translation::{Translation, Translatable};
-use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 use traits::ring::Ring;
 use traits::division_ring::DivisionRing;
 use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
 use traits::indexable::Indexable;
+
+pub use traits::basis::*;
+pub use traits::cross::*;
+pub use traits::dot::*;
+pub use traits::indexable::*;
+pub use traits::iterable::*;
+pub use traits::norm::*;
+pub use traits::sample::*;
+pub use traits::sub_dot::*;
+pub use traits::vector_space::*;
+pub use traits::scalar_op::*;
 
 mod vec_macros;
 

@@ -17,6 +17,14 @@ use traits::indexable::Indexable;
 use traits::column::Column;
 use traits::iterable::{Iterable, IterableMut};
 
+pub use traits::column::*;
+pub use traits::inv::*;
+pub use traits::rlmul::*;
+pub use traits::rotation::*;
+pub use traits::transformation::*;
+pub use traits::translation::*;
+pub use traits::transpose::*;
+
 mod mat_macros;
 
 #[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]

@@ -15,8 +15,8 @@ extern mod extra;
 
 mod dmat;
 mod dvec;
-mod vec_impl;
-mod mat_impl;
+pub mod vec;
+pub mod mat;
 
 // specialization for some 1d, 2d and 3d operations
 pub mod mat_spec;
@@ -30,64 +30,39 @@ pub mod adaptors
   pub mod transform;
 }
 
-pub mod vec
+pub mod num
 {
-  pub use vec_impl::*;
-  pub use dvec::*;
-  pub use traits::sample::*;
-  pub use traits::dot::*;
-  pub use traits::cross::*;
-  pub use traits::basis::*;
-  pub use traits::norm::*;
-  pub use traits::vector_space::*;
-  pub use traits::sub_dot::*;
-  pub use traits::scalar_op::*;
-}
-
-pub mod mat
-{
-  pub use mat_impl::*;
-  pub use dmat::*;
-  pub use traits::column::*;
-  pub use traits::inv::*;
-  pub use traits::transpose::*;
-  pub use traits::rotation::*;
-  pub use traits::translation::*;
-  pub use traits::transformation::*;
-}
-
-/// Useful linear-algebra related traits.
-pub mod traits
-{
-  pub use traits::indexable::*;
-  pub use traits::iterable::*;
   pub use traits::dim::*;
+  pub use traits::homogeneous::*;
   pub use traits::ring::*;
   pub use traits::division_ring::*;
-  pub use traits::rlmul::*;
-  pub use traits::homogeneous::*;
+}
 
-  pub mod sample;
-  pub mod indexable;
-  pub mod column;
-  pub mod iterable;
-  pub mod dot;
-  pub mod cross;
-  pub mod inv;
-  pub mod transpose;
-  pub mod dim;
-  pub mod basis;
-  pub mod norm;
-  pub mod rotation;
-  pub mod translation;
-  pub mod transformation;
-  pub mod vector_space;
-  pub mod ring;
-  pub mod division_ring;
-  pub mod sub_dot;
-  pub mod rlmul;
-  pub mod scalar_op;
-  pub mod homogeneous;
+// FIXME: it would be better to hide all those from the outside!
+/// Useful linear-algebra related traits.
+mod traits
+{
+  mod sample;
+  mod indexable;
+  mod column;
+  mod iterable;
+  mod dot;
+  mod cross;
+  mod inv;
+  mod transpose;
+  mod dim;
+  mod basis;
+  mod norm;
+  mod rotation;
+  mod translation;
+  mod transformation;
+  mod vector_space;
+  mod ring;
+  mod division_ring;
+  mod sub_dot;
+  mod rlmul;
+  mod scalar_op;
+  mod homogeneous;
 }
 
 #[cfg(test)]
