@@ -3,6 +3,7 @@ use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
+use traits::division_ring::DivisionRing;
 use traits::rotation::{Rotation, Rotate, Rotatable};
 use traits::translation::{Translation, Translate, Translatable};
 use Ts = traits::transformation::Transform;
@@ -10,6 +11,9 @@ use traits::transformation::{Transformation, Transformable};
 use traits::rlmul::{RMul, LMul};
 use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
 use traits::column::Column;
+use adaptors::rotmat::Rotmat;
+use vec::Vec3;
+use mat::Mat3;
 
 #[deriving(Eq, ToStr, Clone)]
 pub struct Transform<M, V>
@@ -36,7 +40,16 @@ impl<M: Clone, V: Clone> Transform<M, V>
   { self.subtrans.clone() }
 }
 
-impl<M:Dim, V> Dim for Transform<M, V>
+impl<N: Clone + DivisionRing + Algebraic> Transform<Rotmat<Mat3<N>>, Vec3<N>>
+{
+  pub fn look_at(&mut self, eye: &Vec3<N>, at: &Vec3<N>, up: &Vec3<N>)
+  {
+    self.submat.look_at(&(*at - *eye), up);
+    self.subtrans = self.submat.rotate(&-eye);
+  }
+}
+
+impl<M: Dim, V> Dim for Transform<M, V>
 {
   #[inline]
   fn dim() -> uint

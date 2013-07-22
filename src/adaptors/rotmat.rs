@@ -3,6 +3,7 @@ use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
 use traits::division_ring::DivisionRing;
 use traits::rlmul::{RMul, LMul};
+use traits::cross::Cross;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
@@ -25,47 +26,65 @@ impl<M: Clone> Rotmat<M>
   { self.submat.clone() }
 }
 
-pub fn rotmat2<N: Clone + Trigonometric + Neg<N>>(angle: N) -> Rotmat<Mat2<N>>
+impl<N: Clone + Trigonometric + Neg<N>> Rotmat<Mat2<N>>
 {
-  let (sia, coa) = angle.sin_cos();
+  pub fn from_angle(angle: N) -> Rotmat<Mat2<N>>
+  {
+    let (sia, coa) = angle.sin_cos();
 
-  Rotmat
-  { submat: Mat2::new(coa.clone(), -sia, sia.clone(), coa) }
+    Rotmat { submat: Mat2::new(coa.clone(), -sia, sia.clone(), coa) }
+  }
 }
 
-pub fn rotmat3<N: Clone + Trigonometric + DivisionRing + Algebraic>
-(axisangle: Vec3<N>) -> Rotmat<Mat3<N>>
+impl<N: Clone + Trigonometric + DivisionRing + Algebraic> Rotmat<Mat3<N>>
 {
-  if axisangle.sqnorm().is_zero()
-  { One::one() }
-  else
+  pub fn from_axis_angle(axisangle: Vec3<N>) -> Rotmat<Mat3<N>>
   {
-    let mut axis   = axisangle;
-    let angle      = axis.normalize();
-    let _1         = One::one::<N>();
-    let ux         = axis.x.clone();
-    let uy         = axis.y.clone();
-    let uz         = axis.z.clone();
-    let sqx        = ux * ux;
-    let sqy        = uy * uy;
-    let sqz        = uz * uz;
-    let (sin, cos) = angle.sin_cos();
-    let one_m_cos  = _1 - cos;
+    if axisangle.sqnorm().is_zero()
+    { One::one() }
+    else
+    {
+      let mut axis   = axisangle;
+      let angle      = axis.normalize();
+      let _1         = One::one::<N>();
+      let ux         = axis.x.clone();
+      let uy         = axis.y.clone();
+      let uz         = axis.z.clone();
+      let sqx        = ux * ux;
+      let sqy        = uy * uy;
+      let sqz        = uz * uz;
+      let (sin, cos) = angle.sin_cos();
+      let one_m_cos  = _1 - cos;
 
-    Rotmat {
-      submat: Mat3::new(
-        (sqx + (_1 - sqx) * cos),
-        (ux * uy * one_m_cos - uz * sin),
-        (ux * uz * one_m_cos + uy * sin),
+      Rotmat {
+        submat: Mat3::new(
+                  (sqx + (_1 - sqx) * cos),
+                  (ux * uy * one_m_cos - uz * sin),
+                  (ux * uz * one_m_cos + uy * sin),
 
-        (ux * uy * one_m_cos + uz * sin),
-        (sqy + (_1 - sqy) * cos),
-        (uy * uz * one_m_cos - ux * sin),
+                  (ux * uy * one_m_cos + uz * sin),
+                  (sqy + (_1 - sqy) * cos),
+                  (uy * uz * one_m_cos - ux * sin),
 
-        (ux * uz * one_m_cos - uy * sin),
-        (uy * uz * one_m_cos + ux * sin),
-        (sqz + (_1 - sqz) * cos))
+                  (ux * uz * one_m_cos - uy * sin),
+                  (uy * uz * one_m_cos + ux * sin),
+                  (sqz + (_1 - sqz) * cos))
+      }
     }
+  }
+}
+
+impl<N: Clone + DivisionRing + Algebraic> Rotmat<Mat3<N>>
+{
+  pub fn look_at(&mut self, at: &Vec3<N>, up: &Vec3<N>)
+  {
+    let zaxis = at.normalized();
+    let xaxis = up.cross(&zaxis).normalized();
+    let yaxis = zaxis.cross(&xaxis);
+
+    self.submat = Mat3::new(xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
+                            xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
+                            xaxis.z        , yaxis.z        , zaxis.z)
   }
 }
 
@@ -90,7 +109,7 @@ Rotatable<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>>
 {
   #[inline]
   fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>>
-  { rotmat2(rot.x.clone()) * *self }
+  { Rotmat::from_angle(rot.x.clone()) * *self }
 }
 
 impl<N: Clone + Trigonometric + DivisionRing + Algebraic>
@@ -115,14 +134,14 @@ Rotatable<Vec3<N>, Rotmat<Mat3<N>>> for Rotmat<Mat3<N>>
 {
   #[inline]
   fn rotated(&self, axisangle: &Vec3<N>) -> Rotmat<Mat3<N>>
-  { rotmat3(axisangle.clone()) * *self }
+  { Rotmat::from_axis_angle(axisangle.clone()) * *self }
 }
 
 impl<N: Clone + Rand + Trigonometric + Neg<N>> Rand for Rotmat<Mat2<N>>
 {
   #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat2<N>>
-  { rotmat2(rng.gen()) }
+  { Rotmat::from_angle(rng.gen()) }
 }
 
 impl<M: RMul<V> + LMul<V>, V> Rotate<V> for Rotmat<M>
@@ -152,7 +171,7 @@ Rand for Rotmat<Mat3<N>>
 {
   #[inline]
   fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat3<N>>
-  { rotmat3(rng.gen()) }
+  { Rotmat::from_axis_angle(rng.gen()) }
 }
 
 impl<M: Dim> Dim for Rotmat<M>
