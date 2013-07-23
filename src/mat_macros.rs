@@ -340,7 +340,7 @@ macro_rules! transpose_impl(
       {
         for iterate(1u, $dim) |i|
         {
-          for iterate(0u, $dim - 1) |j|
+          for iterate(0u, i) |j|
           { self.swap((i, j), (j, i)) }
         }
       }
