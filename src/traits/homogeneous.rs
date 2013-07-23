@@ -5,5 +5,5 @@ pub trait ToHomogeneous<U>
 
 pub trait FromHomogeneous<U>
 {
-  fn from_homogeneous(&U) -> Self;
+  fn from(&U) -> Self;
 }
