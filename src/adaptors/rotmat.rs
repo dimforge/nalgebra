@@ -78,8 +78,8 @@ impl<N: Clone + DivisionRing + Algebraic> Rotmat<Mat3<N>>
 {
   pub fn look_at(&mut self, at: &Vec3<N>, up: &Vec3<N>)
   {
-    let zaxis = at.normalized();
-    let xaxis = up.cross(&zaxis).normalized();
+    let xaxis = at.normalized();
+    let zaxis = up.cross(&xaxis).normalized();
     let yaxis = zaxis.cross(&xaxis);
 
     self.submat = Mat3::new(xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
