@@ -47,6 +47,12 @@ impl<N: Clone + DivisionRing + Algebraic> Transform<Rotmat<Mat3<N>>, Vec3<N>>
     self.submat.look_at(&(*at - *eye), up);
     self.subtrans = eye.clone();
   }
+
+  pub fn look_at_z(&mut self, eye: &Vec3<N>, at: &Vec3<N>, up: &Vec3<N>)
+  {
+    self.submat.look_at_z(&(*at - *eye), up);
+    self.subtrans = eye.clone();
+  }
 }
 
 impl<M: Dim, V> Dim for Transform<M, V>
