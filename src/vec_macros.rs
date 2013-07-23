@@ -412,7 +412,7 @@ macro_rules! from_homogeneous_impl(
   ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Clone + Div<N, N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N>
     {
-      fn from_homogeneous(v: &$t2<N>) -> $t<N>
+      fn from(v: &$t2<N>) -> $t<N>
       {
         let mut res: $t<N> = Zero::zero();
 

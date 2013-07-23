@@ -399,7 +399,7 @@ macro_rules! from_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
     impl<N: One + Zero + Clone> FromHomogeneous<$t2<N>> for $t<N>
     {
-      fn from_homogeneous(m: &$t2<N>) -> $t<N>
+      fn from(m: &$t2<N>) -> $t<N>
       {
         let mut res: $t<N> = One::one();
 

@@ -279,9 +279,9 @@ ToHomogeneous<M2> for Transform<M, V>
 impl<M: Column<V> + Dim, M2: FromHomogeneous<M>, V>
 FromHomogeneous<M> for Transform<M2, V>
 {
-  fn from_homogeneous(m: &M) -> Transform<M2, V>
+  fn from(m: &M) -> Transform<M2, V>
   {
-    Transform::new(FromHomogeneous::from_homogeneous(m),
+    Transform::new(FromHomogeneous::from(m),
                    m.column(Dim::dim::<M>() - 1))
   }
 }
