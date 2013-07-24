@@ -10,8 +10,7 @@ usable for graphics too.
 
 ## Compilation
 You will need the last rust compiler from the master branch.
-I pull the compiler and fix my code almost every days. If you encounter
-problems, make sure you have the last version.
+If you encounter problems, make sure you have the last version before creating an issue.
 
     git clone git://github.com/sebcrozet/nalgebra.git
     cd nalgebra

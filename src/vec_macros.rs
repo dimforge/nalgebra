@@ -16,6 +16,38 @@ macro_rules! new_impl(
     }
   )
 )
+
+macro_rules! vec_axis_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Zero + One> $t<N>
+    {
+      /// Create a unit vector with its `$comp0` component equal to 1.0.
+      #[inline]
+      pub fn $comp0() -> $t<N>
+      {
+        let mut res: $t<N> = Zero::zero();
+
+        res.$comp0 = One::one();
+
+        res
+      }
+
+      $(
+        /// Create a unit vector with its `$compN` component equal to 1.0.
+        #[inline]
+        pub fn $compN() -> $t<N>
+        {
+          let mut res: $t<N> = Zero::zero();
+
+          res.$compN = One::one();
+
+          res
+        }
+      )*
+    }
+  )
+)
+
 macro_rules! vec_cast_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<Nin: NumCast + Clone, Nout: NumCast> VecCast<$t<Nout>> for $t<Nin>
