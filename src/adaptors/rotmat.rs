@@ -16,18 +16,23 @@ use vec::Vec1;
 use mat::{Mat2, Mat3};
 use vec::Vec3;
 
+/// Matrix wrapper representing rotation matrix. It is built uppon another matrix and ensures (at
+/// the type-level) that it will always represent a rotation. Rotation matrices have some
+/// properties useful for performances, like the fact that the inversion is simply a transposition.
 #[deriving(Eq, ToStr, Clone)]
 pub struct Rotmat<M>
 { priv submat: M }
 
 impl<M: Clone> Rotmat<M>
 {
+  /// Gets a copy of the internal representation of the rotation.
   pub fn submat(&self) -> M
   { self.submat.clone() }
 }
 
 impl<N: Clone + Trigonometric + Neg<N>> Rotmat<Mat2<N>>
 {
+  /// Builds a 2 dimensional rotation matrix from an angle in radian.
   pub fn from_angle(angle: N) -> Rotmat<Mat2<N>>
   {
     let (sia, coa) = angle.sin_cos();
@@ -38,6 +43,11 @@ impl<N: Clone + Trigonometric + Neg<N>> Rotmat<Mat2<N>>
 
 impl<N: Clone + Trigonometric + DivisionRing + Algebraic> Rotmat<Mat3<N>>
 {
+  /// Builds a 3 dimensional rotation matrix from an axis and an angle.
+  ///
+  /// # Arguments
+  ///   * `axisangle` - A vector representing the rotation. Its magnitude is the amount of rotation
+  ///   in radian. Its direction is the axis of rotation.
   pub fn from_axis_angle(axisangle: Vec3<N>) -> Rotmat<Mat3<N>>
   {
     if axisangle.sqnorm().is_zero()
@@ -76,6 +86,15 @@ impl<N: Clone + Trigonometric + DivisionRing + Algebraic> Rotmat<Mat3<N>>
 
 impl<N: Clone + DivisionRing + Algebraic> Rotmat<Mat3<N>>
 {
+  /// Reorient this matrix such that its local `x` axis points to a given point. Note that the
+  /// usually known `look_at` function does the same thing but with the `z` axis. See `look_at_z`
+  /// for that.
+  ///
+  /// # Arguments
+  ///   * at - The point to look at. It is also the direction the matrix `x` axis will be aligned
+  ///   with
+  ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
+  ///   with `at`. Non-colinearity is not checked.
   pub fn look_at(&mut self, at: &Vec3<N>, up: &Vec3<N>)
   {
     let xaxis = at.normalized();
@@ -87,6 +106,13 @@ impl<N: Clone + DivisionRing + Algebraic> Rotmat<Mat3<N>>
                             xaxis.z        , yaxis.z        , zaxis.z)
   }
 
+  /// Reorient this matrix such that its local `z` axis points to a given point. 
+  ///
+  /// # Arguments
+  ///   * at - The point to look at. It is also the direction the matrix `y` axis will be aligned
+  ///   with
+  ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
+  ///   with `at`. Non-colinearity is not checked.
   pub fn look_at_z(&mut self, at: &Vec3<N>, up: &Vec3<N>)
   {
     let zaxis = at.normalized();

@@ -19,6 +19,7 @@ use vec;
 
 impl<N> vec::Vec0<N>
 {
+  /// Creates a new vector.
   #[inline]
   pub fn new() -> vec::Vec0<N>
   { vec::Vec0 }
@@ -41,6 +42,7 @@ impl<N: Clone> Indexable<uint, N> for vec::Vec0<N>
 
 impl<N: Clone> vec::Vec0<N>
 {
+  /// Creates a new vector. The parameter is not taken in account.
   #[inline]
   pub fn new_repeat(_: N) -> vec::Vec0<N>
   { vec::Vec0 }

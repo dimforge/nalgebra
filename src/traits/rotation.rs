@@ -8,12 +8,16 @@ pub trait Rotation<V>
   /// Gets the rotation associated with this object.
   fn rotation(&self) -> V;
 
+  /// Gets the inverse rotation associated with this object.
   fn inv_rotation(&self) -> V;
 
-  /// In-place version of `rotated`.
+  /// In-place version of `rotated` (see the `Rotatable` trait).
   fn rotate_by(&mut self, &V);
 }
 
+/// Trait of objects which can be put on an alternate form which represent a rotation. This is
+/// typically implemented by structures requiring an internal restructuration to be able to
+/// represent a rotation.
 pub trait Rotatable<V, Res: Rotation<V>>
 {
   /// Appends a rotation from an alternative representation. Such
@@ -21,9 +25,13 @@ pub trait Rotatable<V, Res: Rotation<V>>
   fn rotated(&self, &V) -> Res;
 }
 
+/// Trait of objects able to rotate other objects. This is typically implemented by matrices which
+/// rotate vectors.
 pub trait Rotate<V>
 {
+  /// Apply a rotation to an object.
   fn rotate(&self, &V)     -> V;
+  /// Apply an inverse rotation to an object.
   fn inv_rotate(&self, &V) -> V;
 }
 
@@ -49,6 +57,12 @@ pub fn rotated_wrt_point<M: Translatable<LV, M2>,
   res
 }
 
+/// Rotates an object using a specific center of rotation.
+///
+/// # Arguments
+///   * `m` - the object to be rotated
+///   * `ammount` - the rotation to be applied
+///   * `center` - the new center of rotation
 #[inline]
 pub fn rotate_wrt_point<M:  Rotation<AV> + Translation<LV>,
                         LV: Neg<LV>,
@@ -63,8 +77,9 @@ pub fn rotate_wrt_point<M:  Rotation<AV> + Translation<LV>,
 /**
  * Applies a rotation centered on the input translation.
  *
- *   - `m`:       the object to be rotated.
- *   - `ammount`: the rotation to apply.
+ * # Arguments
+ *   * `m` - the object to be rotated.
+ *   * `ammount` - the rotation to apply.
  */
 #[inline]
 pub fn rotated_wrt_center<M: Translatable<LV, M2> + Translation<LV>,
@@ -77,8 +92,9 @@ pub fn rotated_wrt_center<M: Translatable<LV, M2> + Translation<LV>,
 /**
  * Applies a rotation centered on the input translation.
  *
- *   - `m`:       the object to be rotated.
- *   - `ammount`: the rotation to apply.
+ * # Arguments
+ *   * `m` - the object to be rotated.
+ *   * `ammount` - the rotation to apply.
  */
 #[inline]
 pub fn rotate_wrt_center<M: Translatable<LV, M> + Translation<LV> + Rotation<AV>,

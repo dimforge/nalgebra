@@ -1,9 +1,10 @@
 use traits::dot::Dot;
 
+/// Traits of objects with a subtract and a dot product. Exists only for optimization purpose.
 pub trait SubDot<N> : Sub<Self, Self> + Dot<N>
 {
   /**
-   * Short-cut to compute the projecton of a point on a vector, but without
+   * Short-cut to compute the projection of a point on a vector, but without
    * computing intermediate vectors.
    * This must be equivalent to:
    *

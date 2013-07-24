@@ -9,21 +9,33 @@ use traits::transpose::Transpose;
 use traits::rlmul::{RMul, LMul};
 use dvec::{DVec, zero_vec_with_dim};
 
+/// Square matrix with a dimension unknown at compile-time.
 #[deriving(Eq, ToStr, Clone)]
 pub struct DMat<N>
 {
-  dim: uint, // FIXME: handle more than just square matrices
-  mij: ~[N]
+  priv dim: uint, // FIXME: handle more than just square matrices
+  priv mij: ~[N]
 }
 
+/// Builds a matrix filled with zeros.
+/// 
+/// # Arguments
+///   * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
+///   components.
 #[inline]
 pub fn zero_mat_with_dim<N: Zero + Clone>(dim: uint) -> DMat<N>
 { DMat { dim: dim, mij: from_elem(dim * dim, Zero::zero()) } }
 
+/// Tests if all components of the matrix are zeroes.
 #[inline]
 pub fn is_zero_mat<N: Zero>(mat: &DMat<N>) -> bool
 { mat.mij.iter().all(|e| e.is_zero()) }
 
+/// Builds an identity matrix.
+/// 
+/// # Arguments
+///   * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
+///   components.
 #[inline]
 pub fn one_mat_with_dim<N: Clone + One + Zero>(dim: uint) -> DMat<N>
 {
@@ -39,9 +51,14 @@ pub fn one_mat_with_dim<N: Clone + One + Zero>(dim: uint) -> DMat<N>
 impl<N: Clone> DMat<N>
 {
   #[inline]
-  pub fn offset(&self, i: uint, j: uint) -> uint
+  fn offset(&self, i: uint, j: uint) -> uint
   { i * self.dim + j }
 
+  /// Changes the value of a component of the matrix.
+  ///
+  /// # Arguments
+  ///   * `i` - 0-based index of the line to be changed
+  ///   * `j` - 0-based index of the column to be changed
   #[inline]
   pub fn set(&mut self, i: uint, j: uint, t: &N)
   {
@@ -50,6 +67,11 @@ impl<N: Clone> DMat<N>
     self.mij[self.offset(i, j)] = t.clone()
   }
 
+  /// Reads the value of a component of the matrix.
+  ///
+  /// # Arguments
+  ///   * `i` - 0-based index of the line to be read
+  ///   * `j` - 0-based index of the column to be read
   #[inline]
   pub fn at(&self, i: uint, j: uint) -> N
   {

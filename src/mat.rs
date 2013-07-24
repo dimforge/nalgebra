@@ -1,3 +1,5 @@
+#[allow(missing_doc)]; // we allow missing to avoid having to document the mij components.
+
 use std::cast;
 use std::uint::iterate;
 use std::num::{One, Zero};
@@ -28,9 +30,12 @@ pub use traits::transpose::*;
 
 mod mat_macros;
 
+/// Square matrix of dimension 1.
 #[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat1<N>
-{ m11: N }
+{
+  m11: N
+}
 
 mat_impl!(Mat1, m11)
 mat_cast_impl!(Mat1, m11)
@@ -50,6 +55,7 @@ column_impl!(Mat1, 1)
 to_homogeneous_impl!(Mat1, Mat2, 1, 2)
 from_homogeneous_impl!(Mat1, Mat2, 1, 2)
 
+/// Square matrix of dimension 2.
 #[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat2<N>
 {
@@ -78,6 +84,7 @@ column_impl!(Mat2, 2)
 to_homogeneous_impl!(Mat2, Mat3, 2, 3)
 from_homogeneous_impl!(Mat2, Mat3, 2, 3)
 
+/// Square matrix of dimension 3.
 #[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat3<N>
 {
@@ -110,6 +117,7 @@ column_impl!(Mat3, 3)
 to_homogeneous_impl!(Mat3, Mat4, 3, 4)
 from_homogeneous_impl!(Mat3, Mat4, 3, 4)
 
+/// Square matrix of dimension 4.
 #[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat4<N>
 {
@@ -150,6 +158,7 @@ column_impl!(Mat4, 4)
 to_homogeneous_impl!(Mat4, Mat5, 4, 5)
 from_homogeneous_impl!(Mat4, Mat5, 4, 5)
 
+/// Square matrix of dimension 5.
 #[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat5<N>
 {
@@ -196,6 +205,7 @@ column_impl!(Mat5, 5)
 to_homogeneous_impl!(Mat5, Mat6, 5, 6)
 from_homogeneous_impl!(Mat5, Mat6, 5, 6)
 
+/// Square matrix of dimension 6.
 #[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat6<N>
 {

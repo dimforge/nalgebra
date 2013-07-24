@@ -4,6 +4,7 @@ macro_rules! new_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N> $t<N>
     {
+      /// Creates a new vector.
       #[inline]
       pub fn new($comp0: N $( , $compN: N )*) -> $t<N>
       {
@@ -49,6 +50,7 @@ macro_rules! new_repeat_impl(
   ($t: ident, $param: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Clone> $t<N>
     {
+      /// Creates a new vector with all its components equal to a given value.
       #[inline]
       pub fn new_repeat($param: N) -> $t<N>
       {

@@ -13,16 +13,23 @@ use traits::norm::Norm;
 use traits::translation::{Translation, Translatable};
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
+/// Vector with a dimension unknown at compile-time.
 #[deriving(Eq, Ord, ToStr, Clone)]
 pub struct DVec<N>
 {
+  /// Components of the vector. Contains as much elements as the vector dimension.
   at: ~[N]
 }
 
+/// Builds a vector filled with zeros.
+/// 
+/// # Arguments
+///   * `dim` - The dimension of the vector.
 #[inline]
 pub fn zero_vec_with_dim<N: Zero + Clone>(dim: uint) -> DVec<N>
 { DVec { at: from_elem(dim, Zero::zero::<N>()) } }
 
+/// Tests if all components of the vector are zeroes.
 #[inline]
 pub fn is_zero_vec<N: Zero>(vec: &DVec<N>) -> bool
 { vec.at.iter().all(|e| e.is_zero()) }
@@ -52,9 +59,11 @@ impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for DVec<N>
   }
 }
 
-// FIXME: is Clone needed?
 impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
 {
+  /// Computes the canonical basis for the given dimension. A canonical basis is a set of
+  /// vectors, mutually orthogonal, with all its component equal to 0.0 exept one which is equal to
+  /// 1.0.
   pub fn canonical_basis_with_dim(dim: uint) -> ~[DVec<N>]
   {
     let mut res : ~[DVec<N>] = ~[];
@@ -71,6 +80,8 @@ impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
     res
   }
 
+  /// Computes a basis of the space orthogonal to the vector. If the input vector is of dimension
+  /// `n`, this will return `n - 1` vectors.
   pub fn orthogonal_subspace_basis(&self) -> ~[DVec<N>]
   {
     // compute the basis of the orthogonal subspace using Gram-Schmidt

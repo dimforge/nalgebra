@@ -12,63 +12,55 @@ pub trait Dim {
 /// Dimensional token for 0-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
 #[deriving(Eq, Ord, ToStr)]
-pub struct d0;
+pub struct D0;
 
 /// Dimensional token for 1-dimension. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
 #[deriving(Eq, Ord, ToStr)]
-pub struct d1;
+pub struct D1;
 
 /// Dimensional token for 2-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
 #[deriving(Eq, Ord, ToStr)]
-pub struct d2;
+pub struct D2;
 
 /// Dimensional token for 3-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
 #[deriving(Eq, Ord, ToStr)]
-pub struct d3;
+pub struct D3;
 
 /// Dimensional token for 4-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
 #[deriving(Eq, Ord, ToStr)]
-pub struct d4;
+pub struct D4;
 
 /// Dimensional token for 5-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
 #[deriving(Eq, Ord, ToStr)]
-pub struct d5;
+pub struct D5;
 
 /// Dimensional token for 6-dimensions. Dimensional tokens are the preferred
 /// way to specify at the type level the dimension of n-dimensional objects.
 #[deriving(Eq, Ord, ToStr)]
-pub struct d6;
+pub struct D6;
 
-/// Dimensional token for 7-dimensions. Dimensional tokens are the preferred
-/// way to specify at the type level the dimension of n-dimensional objects.
-#[deriving(Eq, Ord, ToStr)]
-pub struct d7;
-
-impl Dim for d0
+impl Dim for D0
 { fn dim() -> uint { 0 } }
 
-impl Dim for d1
+impl Dim for D1
 { fn dim() -> uint { 1 } }
 
-impl Dim for d2
+impl Dim for D2
 { fn dim() -> uint { 2 } }
 
-impl Dim for d3
+impl Dim for D3
 { fn dim() -> uint { 3 } }
 
-impl Dim for d4
+impl Dim for D4
 { fn dim() -> uint { 4 } }
 
-impl Dim for d5
+impl Dim for D5
 { fn dim() -> uint { 5 } }
 
-impl Dim for d6
+impl Dim for D6
 { fn dim() -> uint { 6 } }
-
-impl Dim for d7
-{ fn dim() -> uint { 7 } }
