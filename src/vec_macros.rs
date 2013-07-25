@@ -180,7 +180,7 @@ macro_rules! basis_impl(
 
 macro_rules! add_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Clone + Add<N,N>> Add<$t<N>, $t<N>> for $t<N>
+    impl<N: Clone + Add<N, N>> Add<$t<N>, $t<N>> for $t<N>
     {
       #[inline]
       fn add(&self, other: &$t<N>) -> $t<N>
@@ -191,7 +191,7 @@ macro_rules! add_impl(
 
 macro_rules! sub_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Clone + Sub<N,N>> Sub<$t<N>, $t<N>> for $t<N>
+    impl<N: Clone + Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N>
     {
       #[inline]
       fn sub(&self, other: &$t<N>) -> $t<N>
@@ -224,7 +224,7 @@ macro_rules! dot_impl(
 
 macro_rules! sub_dot_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Ring> SubDot<N> for $t<N>
+    impl<N: Clone + Ring> SubDot<N> for $t<N>
     {
       #[inline]
       fn sub_dot(&self, a: &$t<N>, b: &$t<N>) -> N

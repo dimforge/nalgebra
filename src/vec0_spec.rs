@@ -143,7 +143,7 @@ impl<N: Ring> Dot<N> for vec::Vec0<N>
   { Zero::zero() } 
 }
 
-impl<N: Ring> SubDot<N> for vec::Vec0<N>
+impl<N: Clone + Ring> SubDot<N> for vec::Vec0<N>
 {
   #[inline]
   fn sub_dot(&self, _: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N
