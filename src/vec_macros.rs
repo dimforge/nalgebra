@@ -161,7 +161,7 @@ macro_rules! basis_impl(
     
           elt = elt - self.scalar_mul(&basis_element.dot(self));
     
-          for basis.iter().advance |v|
+          foreach v in basis.iter()
           { elt = elt - v.scalar_mul(&elt.dot(v)) };
     
           if !elt.sqnorm().approx_eq(&Zero::zero())

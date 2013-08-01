@@ -52,7 +52,7 @@ impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for DVec<N>
   {
     let mut res = DVec { at: ~[] };
 
-    for param.advance |e|
+    foreach e in param
     { res.at.push(e) }
 
     res

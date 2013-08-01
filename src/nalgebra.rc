@@ -17,15 +17,15 @@
 extern mod std;
 extern mod extra;
 
-mod dmat;
-mod dvec;
+pub mod dmat;
+pub mod dvec;
 pub mod vec;
 pub mod mat;
 
 // specialization for some 1d, 2d and 3d operations
-pub mod mat_spec;
-pub mod vec_spec;
-pub mod vec0_spec;
+mod mat_spec;
+mod vec_spec;
+mod vec0_spec;
 
 /// Wrappers around raw matrices to restrict their behaviour.
 pub mod adaptors
@@ -36,41 +36,40 @@ pub mod adaptors
 
 pub mod types;
 
-pub mod num
-{
-  pub use traits::dim::*;
-  pub use traits::homogeneous::*;
-  pub use traits::ring::*;
-  pub use traits::division_ring::*;
-}
+// pub mod num
+// {
+//   pub use traits::dim::*;
+//   pub use traits::homogeneous::*;
+//   pub use traits::ring::*;
+//   pub use traits::division_ring::*;
+// }
 
 // FIXME: it would be better to hide all those from the outside!
-/// Useful linear-algebra related traits.
-mod traits
+pub mod traits
 {
-  mod sample;
-  mod indexable;
-  mod column;
-  mod iterable;
-  mod dot;
-  mod cross;
-  mod inv;
-  mod transpose;
-  mod dim;
-  mod basis;
-  mod norm;
-  mod rotation;
-  mod translation;
-  mod transformation;
-  mod vector_space;
-  mod ring;
-  mod division_ring;
-  mod sub_dot;
-  mod rlmul;
-  mod scalar_op;
-  mod homogeneous;
-  mod vec_cast;
-  mod mat_cast;
+  pub mod sample;
+  pub mod indexable;
+  pub mod column;
+  pub mod iterable;
+  pub mod dot;
+  pub mod cross;
+  pub mod inv;
+  pub mod transpose;
+  pub mod dim;
+  pub mod basis;
+  pub mod norm;
+  pub mod rotation;
+  pub mod translation;
+  pub mod transformation;
+  pub mod vector_space;
+  pub mod ring;
+  pub mod division_ring;
+  pub mod sub_dot;
+  pub mod rlmul;
+  pub mod scalar_op;
+  pub mod homogeneous;
+  pub mod vec_cast;
+  pub mod mat_cast;
 }
 
 #[cfg(test)]
