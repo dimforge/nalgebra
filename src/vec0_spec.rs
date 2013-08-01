@@ -1,9 +1,8 @@
 use std::cast;
 use std::num::{Zero, One, Algebraic, Bounded};
 use std::vec::{VecIterator, VecMutIterator};
-use std::iterator::{Iterator, IteratorUtil, FromIterator};
+use std::iterator::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
-use std::uint::iterate;
 use traits::iterable::{Iterable, IterableMut};
 use traits::basis::Basis;
 use traits::dim::Dim;
@@ -28,16 +27,16 @@ impl<N> vec::Vec0<N>
 impl<N: Clone> Indexable<uint, N> for vec::Vec0<N>
 {
   #[inline]
-  pub fn at(&self, i: uint) -> N
-  { unsafe { cast::transmute::<&vec::Vec0<N>, &[N, ..0]>(self)[i].clone() } }
+  pub fn at(&self, _: uint) -> N
+  { fail!("Cannot index a Vec0.") }
 
   #[inline]
-  pub fn set(&mut self, i: uint, val: N)
-  { unsafe { cast::transmute::<&mut vec::Vec0<N>, &mut [N, ..0]>(self)[i] = val } }
+  pub fn set(&mut self, _: uint, _: N)
+  { }
 
   #[inline]
-  pub fn swap(&mut self, i1: uint, i2: uint)
-  { unsafe { cast::transmute::<&mut vec::Vec0<N>, &mut [N, ..0]>(self).swap(i1, i2) } }
+  pub fn swap(&mut self, _: uint, _: uint)
+  { }
 }
 
 impl<N: Clone> vec::Vec0<N>
@@ -69,50 +68,11 @@ impl<N> Dim for vec::Vec0<N>
 
 impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for vec::Vec0<N>
 {
-  pub fn canonical_basis(f: &fn(vec::Vec0<N>))
-  {
-    for iterate(0u, 0) |i|
-    {
-      let mut basis_element : vec::Vec0<N> = Zero::zero();
+  pub fn canonical_basis(_: &fn(vec::Vec0<N>))
+  { }
 
-      basis_element.set(i, One::one());
-
-      f(basis_element);
-    }
-  }
-
-  pub fn orthonormal_subspace_basis(&self, f: &fn(vec::Vec0<N>))
-  {
-    // compute the basis of the orthogonal subspace using Gram-Schmidt
-    // orthogonalization algorithm
-    let mut basis: ~[vec::Vec0<N>] = ~[];
-
-    for iterate(0u, 0) |i|
-    {
-      let mut basis_element : vec::Vec0<N> = Zero::zero();
-
-      basis_element.set(i, One::one());
-
-      if basis.len() == 0 - 1
-      { break; }
-
-      let mut elt = basis_element.clone();
-
-      elt = elt - self.scalar_mul(&basis_element.dot(self));
-
-      for basis.iter().advance |v|
-      { elt = elt - v.scalar_mul(&elt.dot(v)) };
-
-      if !elt.sqnorm().approx_eq(&Zero::zero())
-      {
-        let new_element = elt.normalized();
-
-        f(new_element.clone());
-
-        basis.push(new_element);
-      }
-    }
-  }
+  pub fn orthonormal_subspace_basis(&self, _: &fn(vec::Vec0<N>))
+  { }
 }
 
 impl<N: Clone + Add<N,N>> Add<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N>

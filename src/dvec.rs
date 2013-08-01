@@ -102,7 +102,7 @@ impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
 
       elt = elt - self.scalar_mul(&basis_element.dot(self));
 
-      for res.iter().advance |v|
+      foreach v in res.iter()
       { elt = elt - v.scalar_mul(&elt.dot(v)) };
 
       if !elt.sqnorm().approx_eq(&Zero::zero())

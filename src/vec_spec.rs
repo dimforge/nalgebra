@@ -150,7 +150,7 @@ impl UniformSphereSample for Vec2<f64>
 {
   pub fn sample(f: &fn(&'static Vec2<f64>))
   {
-    for SAMPLES_2_F64.iter().advance |sample|
+    foreach sample in SAMPLES_2_F64.iter()
     { f(sample) }
   }
 }
@@ -159,7 +159,7 @@ impl UniformSphereSample for Vec3<f64>
 {
   pub fn sample(f: &fn(&'static Vec3<f64>))
   {
-    for SAMPLES_3_F64.iter().advance |sample|
+    foreach sample in SAMPLES_3_F64.iter()
     { f(sample) }
   }
 }

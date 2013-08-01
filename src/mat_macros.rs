@@ -102,7 +102,7 @@ macro_rules! column_impl(
     {
       fn set_column(&mut self, col: uint, v: V)
       {
-        for v.iter().enumerate().advance |(i, e)|
+        foreach (i, e) in v.iter().enumerate()
         {
           if i == Dim::dim::<$t<N>>()
           { break }
@@ -115,7 +115,7 @@ macro_rules! column_impl(
       {
         let mut res = Zero::zero::<V>();
 
-        for res.mut_iter().enumerate().advance |(i, e)|
+        foreach (i, e) in res.mut_iter().enumerate()
         {
           if i >= Dim::dim::<$t<N>>()
           { break }
