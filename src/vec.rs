@@ -2,7 +2,7 @@ use std::cast;
 use std::num::{Zero, One, Algebraic, Bounded};
 use std::rand::Rng;
 use std::vec::{VecIterator, VecMutIterator};
-use std::iterator::{Iterator, IteratorUtil, FromIterator};
+use std::iterator::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
 use std::uint::iterate;
 use traits::basis::Basis;

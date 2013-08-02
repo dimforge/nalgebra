@@ -23,7 +23,7 @@ use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 macro_rules! test_iterator_impl(
   ($t: ty, $n: ty) => (
-    for 10000.times
+    do 10000.times
     {
       let v: $t      = random();
       let mut mv: $t = v.clone();
@@ -41,7 +41,7 @@ macro_rules! test_iterator_impl(
 
 macro_rules! test_commut_dot_impl(
   ($t: ty) => (
-    for 10000.times
+    do 10000.times
     {
       let v1 : $t = random();
       let v2 : $t = random();
@@ -53,7 +53,7 @@ macro_rules! test_commut_dot_impl(
 
 macro_rules! test_scalar_op_impl(
   ($t: ty, $n: ty) => (
-    for 10000.times
+    do 10000.times
     {
       let v1 : $t = random();
       let n  : $n = random();
@@ -77,7 +77,7 @@ macro_rules! test_scalar_op_impl(
 
 macro_rules! test_basis_impl(
   ($t: ty) => (
-    for 10000.times
+    do 10000.times
     {
       do Basis::canonical_basis::<$t> |e1|
       {
@@ -92,7 +92,7 @@ macro_rules! test_basis_impl(
 
 macro_rules! test_subspace_basis_impl(
   ($t: ty) => (
-    for 10000.times
+    do 10000.times
     {
       let v : $t   = random();
       let v1       = v.normalized();
@@ -114,7 +114,7 @@ macro_rules! test_subspace_basis_impl(
 #[test]
 fn test_cross_vec3()
 {
-  for 10000.times
+  do 10000.times
   {
     let v1 : Vec3<f64> = random();
     let v2 : Vec3<f64> = random();

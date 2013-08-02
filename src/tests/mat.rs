@@ -25,7 +25,7 @@ use adaptors::rotmat::Rotmat;
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
-    for 10000.times
+    do 10000.times
     {
       let randmat : $t = random();
 
@@ -36,7 +36,7 @@ macro_rules! test_inv_mat_impl(
 
 macro_rules! test_transpose_mat_impl(
   ($t: ty) => (
-    for 10000.times
+    do 10000.times
     {
       let randmat : $t = random();
 
@@ -96,7 +96,7 @@ fn test_inv_mat6()
 #[test]
 fn test_rotation2()
 {
-  for 10000.times
+  do 10000.times
   {
     let randmat = One::one::<Rotmat<Mat2<f64>>>();
     let ang     = &Vec1::new(abs::<f64>(random()) % Real::pi());
@@ -116,7 +116,7 @@ fn test_index_mat2()
 #[test]
 fn test_inv_rotation3()
 {
-  for 10000.times
+  do 10000.times
   {
     let randmat        = One::one::<Rotmat<Mat3<f64>>>();
     let dir: Vec3<f64> = random();
