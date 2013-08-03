@@ -4,7 +4,6 @@ use std::rand::Rng;
 use std::vec::{VecIterator, VecMutIterator};
 use std::iterator::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
-use std::uint::iterate;
 use traits::basis::Basis;
 use traits::dim::Dim;
 use traits::translation::{Translation, Translatable};

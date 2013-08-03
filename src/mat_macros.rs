@@ -102,7 +102,7 @@ macro_rules! column_impl(
     {
       fn set_column(&mut self, col: uint, v: V)
       {
-        foreach (i, e) in v.iter().enumerate()
+        for (i, e) in v.iter().enumerate()
         {
           if i == Dim::dim::<$t<N>>()
           { break }
@@ -115,7 +115,7 @@ macro_rules! column_impl(
       {
         let mut res = Zero::zero::<V>();
 
-        foreach (i, e) in res.mut_iter().enumerate()
+        for (i, e) in res.mut_iter().enumerate()
         {
           if i >= Dim::dim::<$t<N>>()
           { break }
@@ -138,13 +138,13 @@ macro_rules! mul_impl(
       {
         let mut res: $t<N> = Zero::zero();
     
-        for iterate(0u, $dim) |i|
+        for i in range(0u, $dim)
         {
-          for iterate(0u, $dim) |j|
+          for j in range(0u, $dim)
           {
             let mut acc = Zero::zero::<N>();
     
-            for iterate(0u, $dim) |k|
+            for k in range(0u, $dim)
             { acc = acc + self.at((i, k)) * other.at((k, j)); }
     
             res.set((i, j), acc);
@@ -166,9 +166,9 @@ macro_rules! rmul_impl(
       {
         let mut res : $v<N> = Zero::zero();
     
-        for iterate(0u, $dim) |i|
+        for i in range(0u, $dim)
         {
-          for iterate(0u, $dim) |j|
+          for j in range(0u, $dim)
           {
             let val = res.at(i) + other.at(j) * self.at((i, j));
             res.set(i, val)
@@ -191,9 +191,9 @@ macro_rules! lmul_impl(
     
         let mut res : $v<N> = Zero::zero();
     
-        for iterate(0u, $dim) |i|
+        for i in range(0u, $dim)
         {
-          for iterate(0u, $dim) |j|
+          for j in range(0u, $dim)
           {
             let val = res.at(i) + other.at(j) * self.at((j, i));
             res.set(i, val)
@@ -250,7 +250,7 @@ macro_rules! inv_impl(
         let     _0N: N     = Zero::zero();
     
         // inversion using Gauss-Jordan elimination
-        for iterate(0u, $dim) |k|
+        for k in range(0u, $dim)
         {
           // search a non-zero value on the k-th column
           // FIXME: would it be worth it to spend some more time searching for the
@@ -272,7 +272,7 @@ macro_rules! inv_impl(
           // swap pivot line
           if n0 != k
           {
-            for iterate(0u, $dim) |j|
+            for j in range(0u, $dim)
             {
               self.swap((n0, j), (k, j));
               res.swap((n0, j), (k, j));
@@ -281,31 +281,31 @@ macro_rules! inv_impl(
     
           let pivot = self.at((k, k));
     
-          for iterate(k, $dim) |j|
+          for j in range(k, $dim)
           {
             let selfval = self.at((k, j)) / pivot;
             self.set((k, j), selfval);
           }
     
-          for iterate(0u, $dim) |j|
+          for j in range(0u, $dim)
           {
             let resval = res.at((k, j)) / pivot;
             res.set((k, j), resval);
           }
     
-          for iterate(0u, $dim) |l|
+          for l in range(0u, $dim)
           {
             if l != k
             {
               let normalizer = self.at((l, k));
     
-              for iterate(k, $dim) |j|
+              for j in range(k, $dim)
               {
                 let selfval = self.at((l, j)) - self.at((k, j)) * normalizer;
                 self.set((l, j), selfval);
               }
     
-              for iterate(0u, $dim) |j|
+              for j in range(0u, $dim)
               {
                 let resval  = res.at((l, j)) - res.at((k, j)) * normalizer;
                 res.set((l, j), resval);
@@ -338,9 +338,9 @@ macro_rules! transpose_impl(
     
       fn transpose(&mut self)
       {
-        for iterate(1u, $dim) |i|
+        for i in range(1u, $dim)
         {
-          for iterate(0u, i) |j|
+          for j in range(0u, i)
           { self.swap((i, j), (j, i)) }
         }
       }
@@ -383,9 +383,9 @@ macro_rules! to_homogeneous_impl(
       {
         let mut res: $t2<N> = One::one();
 
-        for iterate(0, $dim) |i|
+        for i in range(0u, $dim)
         {
-          for iterate(0, $dim) |j|
+          for j in range(0u, $dim)
           { res.set((i, j), self.at((i, j))) }
         }
 
@@ -403,9 +403,9 @@ macro_rules! from_homogeneous_impl(
       {
         let mut res: $t<N> = One::one();
 
-        for iterate(0, $dim2) |i|
+        for i in range(0u, $dim2)
         {
-          for iterate(0, $dim2) |j|
+          for j in range(0u, $dim2)
           { res.set((i, j), m.at((i, j))) }
         }
 

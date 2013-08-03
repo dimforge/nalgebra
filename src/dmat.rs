@@ -1,4 +1,3 @@
-use std::uint::iterate;
 use std::num::{One, Zero};
 use std::vec::from_elem;
 use std::cmp::ApproxEq;
@@ -42,7 +41,7 @@ pub fn one_mat_with_dim<N: Clone + One + Zero>(dim: uint) -> DMat<N>
   let mut res = zero_mat_with_dim(dim);
   let     _1  = One::one::<N>();
 
-  for iterate(0u, dim) |i|
+  for i in range(0u, dim)
   { res.set(i, i, &_1); }
 
   res
@@ -98,13 +97,13 @@ Mul<DMat<N>, DMat<N>> for DMat<N>
     let     dim = self.dim;
     let mut res = zero_mat_with_dim(dim);
 
-    for iterate(0u, dim) |i|
+    for i in range(0u, dim)
     {
-      for iterate(0u, dim) |j|
+      for j in range(0u, dim)
       {
         let mut acc = Zero::zero::<N>();
 
-        for iterate(0u, dim) |k|
+        for k in range(0u, dim)
         { acc = acc + self.at(i, k) * other.at(k, j); }
 
         res.set(i, j, &acc);
@@ -125,9 +124,9 @@ RMul<DVec<N>> for DMat<N>
     let     dim           = self.dim;
     let mut res : DVec<N> = zero_vec_with_dim(dim);
 
-    for iterate(0u, dim) |i|
+    for i in range(0u, dim)
     {
-      for iterate(0u, dim) |j|
+      for j in range(0u, dim)
       { res.at[i] = res.at[i] + other.at[j] * self.at(i, j); }
     }
 
@@ -145,9 +144,9 @@ LMul<DVec<N>> for DMat<N>
     let     dim           = self.dim;
     let mut res : DVec<N> = zero_vec_with_dim(dim);
 
-    for iterate(0u, dim) |i|
+    for i in range(0u, dim)
     {
-      for iterate(0u, dim) |j|
+      for j in range(0u, dim)
       { res.at[i] = res.at[i] + other.at[j] * self.at(j, i); }
     }
 
@@ -176,7 +175,7 @@ Inv for DMat<N>
     let     _0T = Zero::zero::<N>();
 
     // inversion using Gauss-Jordan elimination
-    for iterate(0u, dim) |k|
+    for k in range(0u, dim)
     {
       // search a non-zero value on the k-th column
       // FIXME: would it be worth it to spend some more time searching for the
@@ -198,7 +197,7 @@ Inv for DMat<N>
       // swap pivot line
       if n0 != k
       {
-        for iterate(0u, dim) |j|
+        for j in range(0u, dim)
         {
           let off_n0_j = self.offset(n0, j);
           let off_k_j  = self.offset(k, j);
@@ -210,31 +209,31 @@ Inv for DMat<N>
 
       let pivot = self.at(k, k);
 
-      for iterate(k, dim) |j|
+      for j in range(k, dim)
       {
         let selfval = &(self.at(k, j) / pivot);
         self.set(k, j, selfval);
       }
 
-      for iterate(0u, dim) |j|
+      for j in range(0u, dim)
       {
         let resval  = &(res.at(k, j)   / pivot);
         res.set(k, j, resval);
       }
 
-      for iterate(0u, dim) |l|
+      for l in range(0u, dim)
       {
         if l != k
         {
           let normalizer = self.at(l, k);
 
-          for iterate(k, dim) |j|
+          for j in range(k, dim)
           {
             let selfval = &(self.at(l, j) - self.at(k, j) * normalizer);
             self.set(l, j, selfval);
           }
 
-          for iterate(0u, dim) |j|
+          for j in range(0u, dim)
           {
             let resval  = &(res.at(l, j)   - res.at(k, j)   * normalizer);
             res.set(l, j, resval);
@@ -265,9 +264,9 @@ impl<N: Clone> Transpose for DMat<N>
   {
     let dim = self.dim;
 
-    for iterate(1u, dim) |i|
+    for i in range(1u, dim)
     {
-      for iterate(0u, dim - 1) |j|
+      for j in range(0u, dim - 1)
       {
         let off_i_j = self.offset(i, j);
         let off_j_i = self.offset(j, i);

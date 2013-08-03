@@ -1,4 +1,3 @@
-use std::uint::iterate;
 use std::num::{Zero, One, Algebraic};
 use std::vec::{VecIterator, VecMutIterator};
 use std::vec::from_elem;
@@ -52,7 +51,7 @@ impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for DVec<N>
   {
     let mut res = DVec { at: ~[] };
 
-    foreach e in param
+    for e in param
     { res.at.push(e) }
 
     res
@@ -68,7 +67,7 @@ impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
   {
     let mut res : ~[DVec<N>] = ~[];
 
-    for iterate(0u, dim) |i|
+    for i in range(0u, dim)
     {
       let mut basis_element : DVec<N> = zero_vec_with_dim(dim);
 
@@ -89,7 +88,7 @@ impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
     let     dim              = self.at.len();
     let mut res : ~[DVec<N>] = ~[];
 
-    for iterate(0u, dim) |i|
+    for i in range(0u, dim)
     {
       let mut basis_element : DVec<N> = zero_vec_with_dim(self.at.len());
 
@@ -102,7 +101,7 @@ impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> DVec<N>
 
       elt = elt - self.scalar_mul(&basis_element.dot(self));
 
-      foreach v in res.iter()
+      for v in res.iter()
       { elt = elt - v.scalar_mul(&elt.dot(v)) };
 
       if !elt.sqnorm().approx_eq(&Zero::zero())
@@ -156,7 +155,7 @@ Dot<N> for DVec<N>
 
     let mut res = Zero::zero::<N>();
 
-    for iterate(0u, self.at.len()) |i|
+    for i in range(0u, self.at.len())
     { res = res + self.at[i] * other.at[i]; }
 
     res
@@ -170,7 +169,7 @@ impl<N: Ring> SubDot<N> for DVec<N>
   {
     let mut res = Zero::zero::<N>();
 
-    for iterate(0u, self.at.len()) |i|
+    for i in range(0u, self.at.len())
     { res = res + (self.at[i] - a.at[i]) * b.at[i]; }
 
     res
@@ -187,7 +186,7 @@ ScalarMul<N> for DVec<N>
   #[inline]
   fn scalar_mul_inplace(&mut self, s: &N)
   {
-    for iterate(0u, self.at.len()) |i|
+    for i in range(0u, self.at.len())
     { self.at[i] = self.at[i] * *s; }
   }
 }
@@ -203,7 +202,7 @@ ScalarDiv<N> for DVec<N>
   #[inline]
   fn scalar_div_inplace(&mut self, s: &N)
   {
-    for iterate(0u, self.at.len()) |i|
+    for i in range(0u, self.at.len())
     { self.at[i] = self.at[i] / *s; }
   }
 }
@@ -218,7 +217,7 @@ ScalarAdd<N> for DVec<N>
   #[inline]
   fn scalar_add_inplace(&mut self, s: &N)
   {
-    for iterate(0u, self.at.len()) |i|
+    for i in range(0u, self.at.len())
     { self.at[i] = self.at[i] + *s; }
   }
 }
@@ -233,7 +232,7 @@ ScalarSub<N> for DVec<N>
   #[inline]
   fn scalar_sub_inplace(&mut self, s: &N)
   {
-    for iterate(0u, self.at.len()) |i|
+    for i in range(0u, self.at.len())
     { self.at[i] = self.at[i] - *s; }
   }
 }
@@ -286,7 +285,7 @@ Norm<N> for DVec<N>
   {
     let l = self.norm();
 
-    for iterate(0u, self.at.len()) |i|
+    for i in range(0u, self.at.len())
     { self.at[i] = self.at[i] / l; }
 
     l

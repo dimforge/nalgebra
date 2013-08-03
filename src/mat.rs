@@ -1,7 +1,6 @@
 #[allow(missing_doc)]; // we allow missing to avoid having to document the mij components.
 
 use std::cast;
-use std::uint::iterate;
 use std::num::{One, Zero};
 use std::cmp::ApproxEq;
 use std::iterator::IteratorUtil;

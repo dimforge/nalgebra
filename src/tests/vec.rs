@@ -31,7 +31,7 @@ macro_rules! test_iterator_impl(
 
       let nv: $t = v.iter().transform(|e| e * n).collect();
 
-      foreach e in mv.mut_iter()
+      for e in mv.mut_iter()
       { *e = *e * n }
 
       assert!(nv == mv && nv == v.scalar_mul(&n));
