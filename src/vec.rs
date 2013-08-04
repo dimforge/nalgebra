@@ -40,6 +40,7 @@ pub struct Vec1<N>
 
 new_impl!(Vec1, x)
 ord_impl!(Vec1, x)
+orderable_impl!(Vec1, x)
 vec_axis_impl!(Vec1, x)
 vec_cast_impl!(Vec1, x)
 indexable_impl!(Vec1, 1)
@@ -79,6 +80,7 @@ pub struct Vec2<N>
 
 new_impl!(Vec2, x, y)
 ord_impl!(Vec2, x, y)
+orderable_impl!(Vec2, x, y)
 vec_axis_impl!(Vec2, x, y)
 vec_cast_impl!(Vec2, x, y)
 indexable_impl!(Vec2, 2)
@@ -121,6 +123,7 @@ pub struct Vec3<N>
 
 new_impl!(Vec3, x, y, z)
 ord_impl!(Vec3, x, y, z)
+orderable_impl!(Vec3, x, y, z)
 vec_axis_impl!(Vec3, x, y, z)
 vec_cast_impl!(Vec3, x, y, z)
 indexable_impl!(Vec3, 3)
@@ -164,6 +167,7 @@ pub struct Vec4<N>
 
 new_impl!(Vec4, x, y, z, w)
 ord_impl!(Vec4, x, y, z, w)
+orderable_impl!(Vec4, x, y, z, w)
 vec_axis_impl!(Vec4, x, y, z, w)
 vec_cast_impl!(Vec4, x, y, z, w)
 indexable_impl!(Vec4, 4)
@@ -209,6 +213,7 @@ pub struct Vec5<N>
 
 new_impl!(Vec5, x, y, z, w, a)
 ord_impl!(Vec5, x, y, z, w, a)
+orderable_impl!(Vec5, x, y, z, w, a)
 vec_axis_impl!(Vec5, x, y, z, w, a)
 vec_cast_impl!(Vec5, x, y, z, w, a)
 indexable_impl!(Vec5, 5)
@@ -256,6 +261,7 @@ pub struct Vec6<N>
 
 new_impl!(Vec6, x, y, z, w, a, b)
 ord_impl!(Vec6, x, y, z, w, a, b)
+orderable_impl!(Vec6, x, y, z, w, a, b)
 vec_axis_impl!(Vec6, x, y, z, w, a, b)
 vec_cast_impl!(Vec6, x, y, z, w, a, b)
 indexable_impl!(Vec6, 6)

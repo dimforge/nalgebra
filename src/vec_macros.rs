@@ -40,6 +40,28 @@ macro_rules! ord_impl(
   )
 )
 
+macro_rules! orderable_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Orderable> Orderable for $t<N>
+    {
+      #[inline]
+      fn max(&self, other: &$t<N>) -> $t<N>
+      { $t::new(self.$comp0.max(&other.$comp0) $(, self.$compN.max(&other.$compN))*) }
+
+      #[inline]
+      fn min(&self, other: &$t<N>) -> $t<N>
+      { $t::new(self.$comp0.min(&other.$comp0) $(, self.$compN.min(&other.$compN))*) }
+
+      #[inline]
+      fn clamp(&self, min: &$t<N>, max: &$t<N>) -> $t<N>
+      {
+          $t::new(self.$comp0.clamp(&min.$comp0, &max.$comp0)
+                  $(, self.$compN.clamp(&min.$comp0, &max.$comp0))*)
+      }
+    }
+  )
+)
+
 macro_rules! vec_axis_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Zero + One> $t<N>

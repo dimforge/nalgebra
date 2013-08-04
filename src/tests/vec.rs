@@ -285,3 +285,15 @@ fn test_ord_vec3()
     assert!(!(Vec3::new(0.0, 3.0, 0.0) <= Vec3::new(1.0, 2.0, 1.0)));
     assert!(!(Vec3::new(0.0, 3.0, 0.0) >= Vec3::new(1.0, 2.0, 1.0)));
 }
+
+#[test]
+fn test_min_max_vec3()
+{
+    assert_eq!(Vec3::new(1, 2, 3).max(&Vec3::new(3, 2, 1)), Vec3::new(3, 2, 3));
+    assert_eq!(Vec3::new(1, 2, 3).min(&Vec3::new(3, 2, 1)), Vec3::new(1, 2, 1));
+    assert_eq!(
+        Vec3::new(0, 2, 4).clamp(
+            &Vec3::new(1, 1, 1), &Vec3::new(3, 3, 3)
+        ), Vec3::new(1, 2, 3)
+    );
+}
