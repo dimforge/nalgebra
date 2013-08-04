@@ -264,3 +264,24 @@ fn test_iterator_vec5()
 #[test]
 fn test_iterator_vec6()
 { test_iterator_impl!(Vec6<f64>, f64); }
+
+#[test]
+fn test_ord_vec3()
+{
+    // equality
+    assert!(Vec3::new(0.5, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5));
+    assert!(!(Vec3::new(1.5, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5)));
+    assert!(Vec3::new(1.5, 0.5, 0.5) != Vec3::new(0.5, 0.5, 0.5));
+
+    // comparable
+    assert!(Vec3::new(0.5, 0.3, 0.3) < Vec3::new(1.0, 2.0, 1.0));
+    assert!(Vec3::new(0.5, 0.3, 0.3) <= Vec3::new(1.0, 2.0, 1.0));
+    assert!(Vec3::new(2.0, 4.0, 2.0) > Vec3::new(1.0, 2.0, 1.0));
+    assert!(Vec3::new(2.0, 4.0, 2.0) >= Vec3::new(1.0, 2.0, 1.0));
+
+    // not comparable
+    assert!(!(Vec3::new(0.0, 3.0, 0.0) < Vec3::new(1.0, 2.0, 1.0)));
+    assert!(!(Vec3::new(0.0, 3.0, 0.0) > Vec3::new(1.0, 2.0, 1.0)));
+    assert!(!(Vec3::new(0.0, 3.0, 0.0) <= Vec3::new(1.0, 2.0, 1.0)));
+    assert!(!(Vec3::new(0.0, 3.0, 0.0) >= Vec3::new(1.0, 2.0, 1.0)));
+}

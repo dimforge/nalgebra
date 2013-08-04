@@ -30,7 +30,7 @@ pub use traits::transpose::*;
 mod mat_macros;
 
 /// Square matrix of dimension 1.
-#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat1<N>
 {
   m11: N
@@ -55,7 +55,7 @@ to_homogeneous_impl!(Mat1, Mat2, 1, 2)
 from_homogeneous_impl!(Mat1, Mat2, 1, 2)
 
 /// Square matrix of dimension 2.
-#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat2<N>
 {
   m11: N, m12: N,
@@ -84,7 +84,7 @@ to_homogeneous_impl!(Mat2, Mat3, 2, 3)
 from_homogeneous_impl!(Mat2, Mat3, 2, 3)
 
 /// Square matrix of dimension 3.
-#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat3<N>
 {
   m11: N, m12: N, m13: N,
@@ -117,7 +117,7 @@ to_homogeneous_impl!(Mat3, Mat4, 3, 4)
 from_homogeneous_impl!(Mat3, Mat4, 3, 4)
 
 /// Square matrix of dimension 4.
-#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat4<N>
 {
   m11: N, m12: N, m13: N, m14: N,
@@ -158,7 +158,7 @@ to_homogeneous_impl!(Mat4, Mat5, 4, 5)
 from_homogeneous_impl!(Mat4, Mat5, 4, 5)
 
 /// Square matrix of dimension 5.
-#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat5<N>
 {
   m11: N, m12: N, m13: N, m14: N, m15: N,
@@ -205,7 +205,7 @@ to_homogeneous_impl!(Mat5, Mat6, 5, 6)
 from_homogeneous_impl!(Mat5, Mat6, 5, 6)
 
 /// Square matrix of dimension 6.
-#[deriving(Eq, Ord, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat6<N>
 {
   m11: N, m12: N, m13: N, m14: N, m15: N, m16: N,

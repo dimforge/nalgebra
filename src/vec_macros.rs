@@ -17,6 +17,29 @@ macro_rules! new_impl(
   )
 )
 
+macro_rules! ord_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Ord> Ord for $t<N>
+    {
+      #[inline]
+      fn lt(&self, other: &$t<N>) -> bool
+      { self.$comp0 < other.$comp0 $(&& self.$compN < other.$compN)* }
+
+      #[inline]
+      fn le(&self, other: &$t<N>) -> bool
+      { self.$comp0 <= other.$comp0 $(&& self.$compN <= other.$compN)* }
+
+      #[inline]
+      fn gt(&self, other: &$t<N>) -> bool
+      { self.$comp0 > other.$comp0 $(&& self.$compN > other.$compN)* }
+
+      #[inline]
+      fn ge(&self, other: &$t<N>) -> bool
+      { self.$comp0 >= other.$comp0 $(&& self.$compN >= other.$compN)* }
+    }
+  )
+)
+
 macro_rules! vec_axis_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Zero + One> $t<N>
