@@ -5,14 +5,14 @@ use traits::translation::{Translation, Translatable};
 /// and without reflexion.
 pub trait Rotation<V>
 {
-  /// Gets the rotation associated with this object.
-  fn rotation(&self) -> V;
+    /// Gets the rotation associated with this object.
+    fn rotation(&self) -> V;
 
-  /// Gets the inverse rotation associated with this object.
-  fn inv_rotation(&self) -> V;
+    /// Gets the inverse rotation associated with this object.
+    fn inv_rotation(&self) -> V;
 
-  /// In-place version of `rotated` (see the `Rotatable` trait).
-  fn rotate_by(&mut self, &V);
+    /// In-place version of `rotated` (see the `Rotatable` trait).
+    fn rotate_by(&mut self, &V);
 }
 
 /// Trait of objects which can be put on an alternate form which represent a rotation. This is
@@ -20,19 +20,19 @@ pub trait Rotation<V>
 /// represent a rotation.
 pub trait Rotatable<V, Res: Rotation<V>>
 {
-  /// Appends a rotation from an alternative representation. Such
-  /// representation has the same format as the one returned by `rotation`.
-  fn rotated(&self, &V) -> Res;
+    /// Appends a rotation from an alternative representation. Such
+    /// representation has the same format as the one returned by `rotation`.
+    fn rotated(&self, &V) -> Res;
 }
 
 /// Trait of objects able to rotate other objects. This is typically implemented by matrices which
 /// rotate vectors.
 pub trait Rotate<V>
 {
-  /// Apply a rotation to an object.
-  fn rotate(&self, &V)     -> V;
-  /// Apply an inverse rotation to an object.
-  fn inv_rotate(&self, &V) -> V;
+    /// Apply a rotation to an object.
+    fn rotate(&self, &V)     -> V;
+    /// Apply an inverse rotation to an object.
+    fn inv_rotate(&self, &V) -> V;
 }
 
 /**
@@ -46,15 +46,18 @@ pub trait Rotate<V>
 pub fn rotated_wrt_point<M: Translatable<LV, M2>,
                          M2: Rotation<AV> + Translation<LV>,
                          LV: Neg<LV>,
-                         AV>
-       (m: &M, ammount: &AV, center: &LV) -> M2
+                         AV>(
+                         m:       &M,
+                         ammount: &AV,
+                         center:  &LV)
+                         -> M2
 {
-  let mut res = m.translated(&-center);
+    let mut res = m.translated(&-center);
 
-  res.rotate_by(ammount);
-  res.translate_by(center);
+    res.rotate_by(ammount);
+    res.translate_by(center);
 
-  res
+    res
 }
 
 /// Rotates an object using a specific center of rotation.
@@ -66,12 +69,14 @@ pub fn rotated_wrt_point<M: Translatable<LV, M2>,
 #[inline]
 pub fn rotate_wrt_point<M:  Rotation<AV> + Translation<LV>,
                         LV: Neg<LV>,
-                        AV>
-       (m: &mut M, ammount: &AV, center: &LV)
+                        AV>(
+                        m:       &mut M,
+                        ammount: &AV,
+                        center:  &LV)
 {
-  m.translate_by(&-center);
-  m.rotate_by(ammount);
-  m.translate_by(center);
+    m.translate_by(&-center);
+    m.rotate_by(ammount);
+    m.translate_by(center);
 }
 
 /**
@@ -85,8 +90,10 @@ pub fn rotate_wrt_point<M:  Rotation<AV> + Translation<LV>,
 pub fn rotated_wrt_center<M: Translatable<LV, M2> + Translation<LV>,
                           M2: Rotation<AV> + Translation<LV>,
                           LV: Neg<LV>,
-                          AV>
-       (m: &M, ammount: &AV) -> M2
+                          AV>(
+                          m:       &M,
+                          ammount: &AV)
+                          -> M2
 { rotated_wrt_point(m, ammount, &m.translation()) }
 
 /**
@@ -99,10 +106,11 @@ pub fn rotated_wrt_center<M: Translatable<LV, M2> + Translation<LV>,
 #[inline]
 pub fn rotate_wrt_center<M: Translatable<LV, M> + Translation<LV> + Rotation<AV>,
                          LV: Neg<LV>,
-                         AV>
-       (m: &mut M, ammount: &AV)
+                         AV>(
+                         m:       &mut M,
+                         ammount: &AV)
 {
-  let t = m.translation();
+    let t = m.translation();
 
-  rotate_wrt_point(m, ammount, &t)
+    rotate_wrt_point(m, ammount, &t)
 }

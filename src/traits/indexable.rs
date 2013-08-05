@@ -9,10 +9,10 @@
 /// to write to a specific index.
 pub trait Indexable<Index, Res>
 {
-  /// Reads the `i`-th element of `self`.
-  fn at(&self, i: Index) -> Res;
-  /// Writes to the `i`-th element of `self`.
-  fn set(&mut self, i: Index, Res);
-  /// Swaps the `i`-th element of `self` with its `j`-th element.
-  fn swap(&mut self, i: Index, j: Index);
+    /// Reads the `i`-th element of `self`.
+    fn at(&self, i: Index) -> Res;
+    /// Writes to the `i`-th element of `self`.
+    fn set(&mut self, i: Index, Res);
+    /// Swaps the `i`-th element of `self` with its `j`-th element.
+    fn swap(&mut self, i: Index, j: Index);
 }

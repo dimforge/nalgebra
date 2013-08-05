@@ -2,6 +2,6 @@
 /// components.
 pub trait VecCast<V>
 {
-  /// Converts `v` to have the type `V`.
-  fn from(v: Self) -> V;
+    /// Converts `v` to have the type `V`.
+    fn from(v: Self) -> V;
 }

@@ -2,17 +2,17 @@
 /// approximate a sphere using support mapping functions.
 pub trait UniformSphereSample
 {
-  /// Iterate throught the samples.
-  pub fn sample(&fn(&'static Self));
+    /// Iterate throught the samples.
+    pub fn sample(&fn(&'static Self));
 
-  /// Gets the list of all samples.
-  pub fn sample_list() -> ~[&'static Self]
-  {
-    let mut res = ~[];
+    /// Gets the list of all samples.
+    pub fn sample_list() -> ~[&'static Self]
+    {
+        let mut res = ~[];
 
-    do UniformSphereSample::sample::<Self> |s|
-    { res.push(s) }
+        do UniformSphereSample::sample::<Self> |s|
+        { res.push(s) }
 
-    res
-  }
+        res
+    }
 }

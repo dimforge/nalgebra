@@ -2,6 +2,6 @@
 /// components.
 pub trait MatCast<M>
 {
-  /// Converts `m` to have the type `M`.
-  fn from(m: Self) -> M;
+    /// Converts `m` to have the type `M`.
+    fn from(m: Self) -> M;
 }

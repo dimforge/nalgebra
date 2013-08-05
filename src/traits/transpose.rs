@@ -4,9 +4,9 @@
 /// is not stable by transposition).
 pub trait Transpose
 {
-  /// Computes the transpose of a matrix.
-  fn transposed(&self) -> Self;
+    /// Computes the transpose of a matrix.
+    fn transposed(&self) -> Self;
 
-  /// In-place version of `transposed`.
-  fn transpose(&mut self);
+    /// In-place version of `transposed`.
+    fn transpose(&mut self);
 }

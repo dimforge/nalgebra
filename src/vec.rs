@@ -34,8 +34,8 @@ pub struct Vec0<N>;
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Vec1<N>
 {
-  /// First component of the vector.
-  x: N
+    /// First component of the vector.
+    x: N
 }
 
 new_impl!(Vec1, x)
@@ -72,10 +72,10 @@ from_homogeneous_impl!(Vec1, Vec2, y, x)
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Vec2<N>
 {
-  /// First component of the vector.
-  x: N,
-  /// Second component of the vector.
-  y: N
+    /// First component of the vector.
+    x: N,
+    /// Second component of the vector.
+    y: N
 }
 
 new_impl!(Vec2, x, y)
@@ -111,14 +111,13 @@ from_homogeneous_impl!(Vec2, Vec3, z, x, y)
 /// Vector of dimension 3.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Vec3<N>
-
 {
-  /// First component of the vector.
-  x: N,
-  /// Second component of the vector.
-  y: N,
-  /// Third component of the vector.
-  z: N
+    /// First component of the vector.
+    x: N,
+    /// Second component of the vector.
+    y: N,
+    /// Third component of the vector.
+    z: N
 }
 
 new_impl!(Vec3, x, y, z)
@@ -155,14 +154,14 @@ from_homogeneous_impl!(Vec3, Vec4, w, x, y, z)
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Vec4<N>
 {
-  /// First component of the vector.
-  x: N,
-  /// Second component of the vector.
-  y: N,
-  /// Third component of the vector.
-  z: N,
-  /// Fourth component of the vector.
-  w: N
+    /// First component of the vector.
+    x: N,
+    /// Second component of the vector.
+    y: N,
+    /// Third component of the vector.
+    z: N,
+    /// Fourth component of the vector.
+    w: N
 }
 
 new_impl!(Vec4, x, y, z, w)
@@ -199,16 +198,16 @@ from_homogeneous_impl!(Vec4, Vec5, a, x, y, z, w)
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Vec5<N>
 {
-  /// First component of the vector.
-  x: N,
-  /// Second component of the vector.
-  y: N,
-  /// Third component of the vector.
-  z: N,
-  /// Fourth component of the vector.
-  w: N,
-  /// Fifth of the vector.
-  a: N
+    /// First component of the vector.
+    x: N,
+    /// Second component of the vector.
+    y: N,
+    /// Third component of the vector.
+    z: N,
+    /// Fourth component of the vector.
+    w: N,
+    /// Fifth of the vector.
+    a: N
 }
 
 new_impl!(Vec5, x, y, z, w, a)
@@ -245,18 +244,18 @@ from_homogeneous_impl!(Vec5, Vec6, b, x, y, z, w, a)
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Vec6<N>
 {
-  /// First component of the vector.
-  x: N,
-  /// Second component of the vector.
-  y: N,
-  /// Third component of the vector.
-  z: N,
-  /// Fourth component of the vector.
-  w: N,
-  /// Fifth of the vector.
-  a: N,
-  /// Sixth component of the vector.
-  b: N
+    /// First component of the vector.
+    x: N,
+    /// Second component of the vector.
+    y: N,
+    /// Third component of the vector.
+    z: N,
+    /// Fourth component of the vector.
+    w: N,
+    /// Fifth of the vector.
+    a: N,
+    /// Sixth component of the vector.
+    b: N
 }
 
 new_impl!(Vec6, x, y, z, w, a, b)
