@@ -31,8 +31,7 @@ mod mat_macros;
 
 /// Square matrix of dimension 1.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Mat1<N>
-{
+pub struct Mat1<N> {
     m11: N
 }
 
@@ -56,8 +55,7 @@ from_homogeneous_impl!(Mat1, Mat2, 1, 2)
 
 /// Square matrix of dimension 2.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Mat2<N>
-{
+pub struct Mat2<N> {
     m11: N, m12: N,
     m21: N, m22: N
 }
@@ -85,8 +83,7 @@ from_homogeneous_impl!(Mat2, Mat3, 2, 3)
 
 /// Square matrix of dimension 3.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Mat3<N>
-{
+pub struct Mat3<N> {
     m11: N, m12: N, m13: N,
     m21: N, m22: N, m23: N,
     m31: N, m32: N, m33: N
@@ -118,8 +115,7 @@ from_homogeneous_impl!(Mat3, Mat4, 3, 4)
 
 /// Square matrix of dimension 4.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Mat4<N>
-{
+pub struct Mat4<N> {
     m11: N, m12: N, m13: N, m14: N,
     m21: N, m22: N, m23: N, m24: N,
     m31: N, m32: N, m33: N, m34: N,
@@ -159,8 +155,7 @@ from_homogeneous_impl!(Mat4, Mat5, 4, 5)
 
 /// Square matrix of dimension 5.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Mat5<N>
-{
+pub struct Mat5<N> {
     m11: N, m12: N, m13: N, m14: N, m15: N,
     m21: N, m22: N, m23: N, m24: N, m25: N,
     m31: N, m32: N, m33: N, m34: N, m35: N,
@@ -206,8 +201,7 @@ from_homogeneous_impl!(Mat5, Mat6, 5, 6)
 
 /// Square matrix of dimension 6.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Mat6<N>
-{
+pub struct Mat6<N> {
     m11: N, m12: N, m13: N, m14: N, m15: N, m16: N,
     m21: N, m22: N, m23: N, m24: N, m25: N, m26: N,
     m31: N, m32: N, m33: N, m34: N, m35: N, m36: N,

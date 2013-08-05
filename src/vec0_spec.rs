@@ -16,179 +16,176 @@ use traits::division_ring::DivisionRing;
 use traits::indexable::Indexable;
 use vec;
 
-impl<N> vec::Vec0<N>
-{
+impl<N> vec::Vec0<N> {
   /// Creates a new vector.
   #[inline]
-  pub fn new() -> vec::Vec0<N>
-  { vec::Vec0 }
+  pub fn new() -> vec::Vec0<N> {
+      vec::Vec0
+  }
 }
 
-impl<N: Clone> Indexable<uint, N> for vec::Vec0<N>
-{
+impl<N: Clone> Indexable<uint, N> for vec::Vec0<N> {
   #[inline]
-  pub fn at(&self, _: uint) -> N
-  { fail!("Cannot index a Vec0.") }
+  pub fn at(&self, _: uint) -> N {
+      fail!("Cannot index a Vec0.")
+  }
 
   #[inline]
-  pub fn set(&mut self, _: uint, _: N)
-  { }
+  pub fn set(&mut self, _: uint, _: N) {
+ 
+  }
 
   #[inline]
-  pub fn swap(&mut self, _: uint, _: uint)
-  { }
+  pub fn swap(&mut self, _: uint, _: uint) {
+ 
+  }
 }
 
-impl<N: Clone> vec::Vec0<N>
-{
+impl<N: Clone> vec::Vec0<N> {
   /// Creates a new vector. The parameter is not taken in account.
   #[inline]
-  pub fn new_repeat(_: N) -> vec::Vec0<N>
-  { vec::Vec0 }
+  pub fn new_repeat(_: N) -> vec::Vec0<N> {
+      vec::Vec0
+  }
 }
 
-impl<N> Iterable<N> for vec::Vec0<N>
-{
-  fn iter<'l>(&'l self) -> VecIterator<'l, N>
-  { unsafe { cast::transmute::<&'l vec::Vec0<N>, &'l [N, ..0]>(self).iter() } }
+impl<N> Iterable<N> for vec::Vec0<N> {
+  fn iter<'l>(&'l self) -> VecIterator<'l, N> {
+      unsafe { cast::transmute::<&'l vec::Vec0<N>, &'l [N, ..0]>(self).iter() }
+  }
 }
 
-impl<N> IterableMut<N> for vec::Vec0<N>
-{
-  fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N>
-  { unsafe { cast::transmute::<&'l mut vec::Vec0<N>, &'l mut [N, ..0]>(self).mut_iter() } }
+impl<N> IterableMut<N> for vec::Vec0<N> {
+  fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N> {
+      unsafe { cast::transmute::<&'l mut vec::Vec0<N>, &'l mut [N, ..0]>(self).mut_iter() }
+  }
 }
 
-impl<N> Dim for vec::Vec0<N>
-{
+impl<N> Dim for vec::Vec0<N> {
   #[inline]
-  fn dim() -> uint
-  { 0 }
+  fn dim() -> uint {
+      0
+  }
 }
 
-impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for vec::Vec0<N>
-{
-  pub fn canonical_basis(_: &fn(vec::Vec0<N>))
-  { }
+impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for vec::Vec0<N> {
+  pub fn canonical_basis(_: &fn(vec::Vec0<N>)) { }
 
-  pub fn orthonormal_subspace_basis(&self, _: &fn(vec::Vec0<N>))
-  { }
+  pub fn orthonormal_subspace_basis(&self, _: &fn(vec::Vec0<N>)) { }
 }
 
-impl<N: Clone + Add<N,N>> Add<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N>
-{
+impl<N: Clone + Add<N,N>> Add<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N> {
   #[inline]
-  fn add(&self, _: &vec::Vec0<N>) -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn add(&self, _: &vec::Vec0<N>) -> vec::Vec0<N> {
+      vec::Vec0
+  }
 }
 
-impl<N: Clone + Sub<N,N>> Sub<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N>
-{
+impl<N: Clone + Sub<N,N>> Sub<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N> {
   #[inline]
-  fn sub(&self, _: &vec::Vec0<N>) -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn sub(&self, _: &vec::Vec0<N>) -> vec::Vec0<N> { 
+      vec::Vec0
+  }
 }
 
-impl<N: Neg<N>> Neg<vec::Vec0<N>> for vec::Vec0<N>
-{
+impl<N: Neg<N>> Neg<vec::Vec0<N>> for vec::Vec0<N> {
   #[inline]
-  fn neg(&self) -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn neg(&self) -> vec::Vec0<N> {
+      vec::Vec0
+  }
 }
 
-impl<N: Ring> Dot<N> for vec::Vec0<N>
-{
+impl<N: Ring> Dot<N> for vec::Vec0<N> {
   #[inline]
-  fn dot(&self, _: &vec::Vec0<N>) -> N
-  { Zero::zero() } 
+  fn dot(&self, _: &vec::Vec0<N>) -> N {
+      Zero::zero()
+  } 
 }
 
-impl<N: Clone + Ring> SubDot<N> for vec::Vec0<N>
-{
+impl<N: Clone + Ring> SubDot<N> for vec::Vec0<N> {
   #[inline]
-  fn sub_dot(&self, _: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N
-  { Zero::zero() } 
+  fn sub_dot(&self, _: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
+      Zero::zero()
+  } 
 }
 
-impl<N: Mul<N, N>> ScalarMul<N> for vec::Vec0<N>
-{
+impl<N: Mul<N, N>> ScalarMul<N> for vec::Vec0<N> {
   #[inline]
-  fn scalar_mul(&self, _: &N) -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn scalar_mul(&self, _: &N) -> vec::Vec0<N> {
+      vec::Vec0
+  }
 
   #[inline]
-  fn scalar_mul_inplace(&mut self, _: &N)
-  { }
+  fn scalar_mul_inplace(&mut self, _: &N) { }
 }
 
-impl<N: Div<N, N>> ScalarDiv<N> for vec::Vec0<N>
-{
+impl<N: Div<N, N>> ScalarDiv<N> for vec::Vec0<N> {
   #[inline]
-  fn scalar_div(&self, _: &N) -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn scalar_div(&self, _: &N) -> vec::Vec0<N> {
+      vec::Vec0
+  }
 
   #[inline]
-  fn scalar_div_inplace(&mut self, _: &N)
-  { }
+  fn scalar_div_inplace(&mut self, _: &N) { }
 }
 
-impl<N: Add<N, N>> ScalarAdd<N> for vec::Vec0<N>
-{
+impl<N: Add<N, N>> ScalarAdd<N> for vec::Vec0<N> {
   #[inline]
-  fn scalar_add(&self, _: &N) -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn scalar_add(&self, _: &N) -> vec::Vec0<N> {
+      vec::Vec0
+  }
 
   #[inline]
-  fn scalar_add_inplace(&mut self, _: &N)
-  { }
+  fn scalar_add_inplace(&mut self, _: &N) { }
 }
 
-impl<N: Sub<N, N>> ScalarSub<N> for vec::Vec0<N>
-{
+impl<N: Sub<N, N>> ScalarSub<N> for vec::Vec0<N> {
   #[inline]
-  fn scalar_sub(&self, _: &N) -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn scalar_sub(&self, _: &N) -> vec::Vec0<N> {
+      vec::Vec0
+  }
 
   #[inline]
-  fn scalar_sub_inplace(&mut self, _: &N)
-  { }
+  fn scalar_sub_inplace(&mut self, _: &N) { }
 }
 
-impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N>
-{
+impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
   #[inline]
-  fn translation(&self) -> vec::Vec0<N>
-  { self.clone() }
+  fn translation(&self) -> vec::Vec0<N> {
+      self.clone()
+  }
 
   #[inline]
-  fn inv_translation(&self) -> vec::Vec0<N>
-  { -self }
+  fn inv_translation(&self) -> vec::Vec0<N> {
+      -self
+  }
 
   #[inline]
-  fn translate_by(&mut self, t: &vec::Vec0<N>)
-  { *self = *self + *t; }
+  fn translate_by(&mut self, t: &vec::Vec0<N>) {
+      *self = *self + *t;
+  }
 }
 
-impl<N: Add<N, N> + Neg<N> + Clone> Translatable<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N>
-{
+impl<N: Add<N, N> + Neg<N> + Clone> Translatable<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N> {
   #[inline]
-  fn translated(&self, t: &vec::Vec0<N>) -> vec::Vec0<N>
-  { self + *t }
+  fn translated(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
+      self + *t
+  }
 }
 
-impl<N: Clone + DivisionRing + Algebraic> Norm<N> for vec::Vec0<N>
-{
+impl<N: Clone + DivisionRing + Algebraic> Norm<N> for vec::Vec0<N> {
   #[inline]
-  fn sqnorm(&self) -> N
-  { self.dot(self) }
+  fn sqnorm(&self) -> N {
+      self.dot(self)
+  }
 
   #[inline]
-  fn norm(&self) -> N
-  { self.sqnorm().sqrt() }
+  fn norm(&self) -> N {
+      self.sqnorm().sqrt()
+  }
 
   #[inline]
-  fn normalized(&self) -> vec::Vec0<N>
-  {
+  fn normalized(&self) -> vec::Vec0<N> {
     let mut res : vec::Vec0<N> = self.clone();
 
     res.normalize();
@@ -197,8 +194,7 @@ impl<N: Clone + DivisionRing + Algebraic> Norm<N> for vec::Vec0<N>
   }
 
   #[inline]
-  fn normalize(&mut self) -> N
-  {
+  fn normalize(&mut self) -> N {
     let l = self.norm();
 
     self.scalar_div_inplace(&l);
@@ -207,41 +203,44 @@ impl<N: Clone + DivisionRing + Algebraic> Norm<N> for vec::Vec0<N>
   }
 }
 
-impl<N: ApproxEq<N>> ApproxEq<N> for vec::Vec0<N>
-{
+impl<N: ApproxEq<N>> ApproxEq<N> for vec::Vec0<N> {
   #[inline]
-  fn approx_epsilon() -> N
-  { ApproxEq::approx_epsilon::<N, N>() }
+  fn approx_epsilon() -> N {
+      ApproxEq::approx_epsilon::<N, N>()
+  }
 
   #[inline]
-  fn approx_eq(&self, _: &vec::Vec0<N>) -> bool
-  { true }
+  fn approx_eq(&self, _: &vec::Vec0<N>) -> bool {
+      true
+  }
 
   #[inline]
-  fn approx_eq_eps(&self, _: &vec::Vec0<N>, _: &N) -> bool
-  { true }
+  fn approx_eq_eps(&self, _: &vec::Vec0<N>, _: &N) -> bool {
+      true
+  }
 }
 
-impl<N: Clone + One> One for vec::Vec0<N>
-{
+impl<N: Clone + One> One for vec::Vec0<N> {
   #[inline]
-  fn one() -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn one() -> vec::Vec0<N> {
+      vec::Vec0
+  }
 }
 
-impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for vec::Vec0<N>
-{
-  fn from_iterator(_: &mut Iter) -> vec::Vec0<N>
-  { vec::Vec0 }
+impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for vec::Vec0<N> {
+  fn from_iterator(_: &mut Iter) -> vec::Vec0<N> {
+      vec::Vec0
+  }
 }
 
-impl<N: Bounded + Clone> Bounded for vec::Vec0<N>
-{
+impl<N: Bounded + Clone> Bounded for vec::Vec0<N> {
   #[inline]
-  fn max_value() -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn max_value() -> vec::Vec0<N> {
+      vec::Vec0
+  }
 
   #[inline]
-  fn min_value() -> vec::Vec0<N>
-  { vec::Vec0 }
+  fn min_value() -> vec::Vec0<N> {
+      vec::Vec0
+  }
 }

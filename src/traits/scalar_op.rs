@@ -1,8 +1,7 @@
 /**
  * Trait of objects having a multiplication with a scalar.
  */
-pub trait ScalarMul<N>
-{
+pub trait ScalarMul<N> {
     /// Gets the result of a multiplication by a scalar.
     fn scalar_mul(&self, &N) -> Self;
 
@@ -13,8 +12,7 @@ pub trait ScalarMul<N>
 /**
  * Trait of objects having a division with a scalar.
  */
-pub trait ScalarDiv<N>
-{
+pub trait ScalarDiv<N> {
     /// Gets the result of a division by a scalar.
     fn scalar_div(&self, &N) -> Self;
 
@@ -25,8 +23,7 @@ pub trait ScalarDiv<N>
 /**
  * Trait of objects having an addition with a scalar.
  */
-pub trait ScalarAdd<N>
-{
+pub trait ScalarAdd<N> {
     /// Gets the result of an addition by a scalar.
     fn scalar_add(&self, &N) -> Self;
 
@@ -37,8 +34,7 @@ pub trait ScalarAdd<N>
 /**
  * Trait of objects having a subtraction with a scalar.
  */
-pub trait ScalarSub<N>
-{
+pub trait ScalarSub<N> {
     /// Gets the result of a subtraction by a scalar.
     fn scalar_sub(&self, &N) -> Self;
 

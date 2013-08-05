@@ -7,8 +7,7 @@ use std::num::{One, Zero};
  * `Zero`) respectively neutral and absorbant wrt the multiplication.
  */
 pub trait Ring :
-Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Mul<Self, Self> + One + Zero
-{ }
+Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Mul<Self, Self> + One + Zero { }
 
 impl<N: Sub<N, N> + Add<N, N> + Neg<N> + Mul<N, N> + One + Zero>
 Ring for N;

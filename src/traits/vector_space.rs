@@ -8,8 +8,7 @@ use traits::scalar_op::{ScalarMul, ScalarDiv};
 /// has a distinct element (`Zero`) neutral wrt the addition.
 pub trait VectorSpace<N>
 : Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero +
-  ScalarMul<N> + ScalarDiv<N>
-{ }
+  ScalarMul<N> + ScalarDiv<N> { }
 
 impl<V: Sub<V, V> + Add<V, V> + Neg<V> + Zero + ScalarMul<N> + ScalarDiv<N>,
      N: DivisionRing> VectorSpace<N> for V;

@@ -1,8 +1,7 @@
 /**
  * Trait of objects having a L² norm and which can be normalized.
  */
-pub trait Norm<N>
-{
+pub trait Norm<N> {
     /// Computes the norm a an object.
     fn norm(&self) -> N;
 

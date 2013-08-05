@@ -7,8 +7,7 @@
 /// It exists because the `Index` trait cannot be used to express write access.
 /// Thus, this is the same as the `Index` trait but without the syntactic sugar and with a method
 /// to write to a specific index.
-pub trait Indexable<Index, Res>
-{
+pub trait Indexable<Index, Res> {
     /// Reads the `i`-th element of `self`.
     fn at(&self, i: Index) -> Res;
     /// Writes to the `i`-th element of `self`.

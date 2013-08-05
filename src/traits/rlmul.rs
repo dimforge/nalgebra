@@ -1,8 +1,7 @@
 /**
  * Trait of objects having a right multiplication with another element.
  */
-pub trait RMul<V>
-{
+pub trait RMul<V> {
     /// Computes self * v
     fn rmul(&self, v : &V) -> V;
 }
@@ -10,8 +9,7 @@ pub trait RMul<V>
 /**
  * Trait of objects having a left multiplication with another element.
  */
-pub trait LMul<V>
-{
+pub trait LMul<V> {
     /// Computes v * self
     fn lmul(&self, &V) -> V;
 }

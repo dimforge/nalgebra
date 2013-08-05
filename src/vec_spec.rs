@@ -6,18 +6,16 @@ use traits::norm::Norm;
 use traits::sample::UniformSphereSample;
 use vec::{Vec1, Vec2, Vec3};
 
-impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N>
-{
+impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
     #[inline]
-    fn cross(&self, other : &Vec2<N>) -> Vec1<N>
-    { Vec1::new(self.x * other.y - self.y * other.x) }
+    fn cross(&self, other : &Vec2<N>) -> Vec1<N> {
+        Vec1::new(self.x * other.y - self.y * other.x)
+    }
 }
 
-impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N>
-{
+impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
     #[inline]
-    fn cross(&self, other : &Vec3<N>) -> Vec3<N>
-    {
+    fn cross(&self, other : &Vec3<N>) -> Vec3<N> {
         Vec3::new(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
@@ -26,50 +24,47 @@ impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N>
     }
 }
 
-impl<N: One> Basis for Vec1<N>
-{
+impl<N: One> Basis for Vec1<N> {
     #[inline(always)]
-    fn canonical_basis(f: &fn(Vec1<N>))
-    { f(Vec1::new(One::one())) }
+    fn canonical_basis(f: &fn(Vec1<N>)) {
+        f(Vec1::new(One::one()))
+    }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(&self, _: &fn(Vec1<N>))
-    { }
+    fn orthonormal_subspace_basis(&self, _: &fn(Vec1<N>)) { }
 }
 
-impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N>
-{
+impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
     #[inline]
-    fn canonical_basis(f: &fn(Vec2<N>))
-    {
+    fn canonical_basis(f: &fn(Vec2<N>)) {
         f(Vec2::new(One::one(), Zero::zero()));
         f(Vec2::new(Zero::zero(), One::one()));
     }
 
     #[inline]
-    fn orthonormal_subspace_basis(&self, f: &fn(Vec2<N>))
-    { f(Vec2::new(-self.y, self.x.clone())) }
+    fn orthonormal_subspace_basis(&self, f: &fn(Vec2<N>)) {
+        f(Vec2::new(-self.y, self.x.clone()))
+    }
 }
 
 impl<N: Clone + DivisionRing + Ord + Algebraic + Signed>
-Basis for Vec3<N>
-{
+Basis for Vec3<N> {
     #[inline(always)]
-    fn canonical_basis(f: &fn(Vec3<N>))
-    {
+    fn canonical_basis(f: &fn(Vec3<N>)) {
         f(Vec3::new(One::one(), Zero::zero(), Zero::zero()));
         f(Vec3::new(Zero::zero(), One::one(), Zero::zero()));
         f(Vec3::new(Zero::zero(), Zero::zero(), One::one()));
     }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(&self, f: &fn(Vec3<N>))
-    {
+    fn orthonormal_subspace_basis(&self, f: &fn(Vec3<N>)) {
         let a = 
-            if self.x.clone().abs() > self.y.clone().abs()
-            { Vec3::new(self.z.clone(), Zero::zero(), -self.x).normalized() }
-            else
-            { Vec3::new(Zero::zero(), -self.z, self.y.clone()).normalized() };
+            if self.x.clone().abs() > self.y.clone().abs() {
+                Vec3::new(self.z.clone(), Zero::zero(), -self.x).normalized()
+            }
+            else {
+                Vec3::new(Zero::zero(), -self.z, self.y.clone()).normalized()
+            };
 
         f(a.cross(self));
         f(a);
@@ -147,20 +142,18 @@ static SAMPLES_3_F64: [Vec3<f64>, ..42] = [
     Vec3 { x: 0.162456 , y: 0.499995 , z: 0.850654 }
 ];
 
-impl UniformSphereSample for Vec2<f64>
-{
-    pub fn sample(f: &fn(&'static Vec2<f64>))
-    {
-        for sample in SAMPLES_2_F64.iter()
-        { f(sample) }
+impl UniformSphereSample for Vec2<f64> {
+    pub fn sample(f: &fn(&'static Vec2<f64>)) {
+        for sample in SAMPLES_2_F64.iter() {
+            f(sample)
+        }
     }
 }
 
-impl UniformSphereSample for Vec3<f64>
-{
-    pub fn sample(f: &fn(&'static Vec3<f64>))
-    {
-        for sample in SAMPLES_3_F64.iter()
-        { f(sample) }
+impl UniformSphereSample for Vec3<f64> {
+    pub fn sample(f: &fn(&'static Vec3<f64>)) {
+        for sample in SAMPLES_3_F64.iter() {
+            f(sample)
+        }
     }
 }

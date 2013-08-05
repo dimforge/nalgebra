@@ -32,8 +32,7 @@ pub struct Vec0<N>;
 
 /// Vector of dimension 1.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Vec1<N>
-{
+pub struct Vec1<N> {
     /// First component of the vector.
     x: N
 }
@@ -70,8 +69,7 @@ from_homogeneous_impl!(Vec1, Vec2, y, x)
 
 /// Vector of dimension 2.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Vec2<N>
-{
+pub struct Vec2<N> {
     /// First component of the vector.
     x: N,
     /// Second component of the vector.
@@ -110,8 +108,7 @@ from_homogeneous_impl!(Vec2, Vec3, z, x, y)
 
 /// Vector of dimension 3.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Vec3<N>
-{
+pub struct Vec3<N> {
     /// First component of the vector.
     x: N,
     /// Second component of the vector.
@@ -152,8 +149,7 @@ from_homogeneous_impl!(Vec3, Vec4, w, x, y, z)
 
 /// Vector of dimension 4.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Vec4<N>
-{
+pub struct Vec4<N> {
     /// First component of the vector.
     x: N,
     /// Second component of the vector.
@@ -196,8 +192,7 @@ from_homogeneous_impl!(Vec4, Vec5, a, x, y, z, w)
 
 /// Vector of dimension 5.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Vec5<N>
-{
+pub struct Vec5<N> {
     /// First component of the vector.
     x: N,
     /// Second component of the vector.
@@ -242,8 +237,7 @@ from_homogeneous_impl!(Vec5, Vec6, b, x, y, z, w, a)
 
 /// Vector of dimension 6.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
-pub struct Vec6<N>
-{
+pub struct Vec6<N> {
     /// First component of the vector.
     x: N,
     /// Second component of the vector.
