@@ -147,6 +147,7 @@ macro_rules! new_repeat_impl(
 macro_rules! iterable_impl(
     ($t: ident, $dim: expr) => (
         impl<N> Iterable<N> for $t<N> {
+            #[inline]
             fn iter<'l>(&'l self) -> VecIterator<'l, N> {
                 unsafe {
                     cast::transmute::<&'l $t<N>, &'l [N, ..$dim]>(self).iter()
@@ -159,6 +160,7 @@ macro_rules! iterable_impl(
 macro_rules! iterable_mut_impl(
     ($t: ident, $dim: expr) => (
         impl<N> IterableMut<N> for $t<N> {
+            #[inline]
             fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N> {
                 unsafe {
                     cast::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim]>(self).mut_iter()
@@ -182,6 +184,7 @@ macro_rules! dim_impl(
 macro_rules! basis_impl(
     ($t: ident, $dim: expr) => (
         impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for $t<N> {
+            #[inline]
             pub fn canonical_basis(f: &fn($t<N>)) {
                 for i in range(0u, $dim) {
                     let mut basis_element : $t<N> = Zero::zero();
@@ -192,6 +195,7 @@ macro_rules! basis_impl(
                 }
             }
 
+            #[inline]
             pub fn orthonormal_subspace_basis(&self, f: &fn($t<N>)) {
                 // compute the basis of the orthogonal subspace using Gram-Schmidt
                 // orthogonalization algorithm
@@ -451,6 +455,7 @@ macro_rules! one_impl(
 macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident $(, $paramN: ident)*) => (
         impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for $t<N> {
+            #[inline]
             fn from_iterator($param0: &mut Iter) -> $t<N> {
                 $t::new($param0.next().unwrap() $(, $paramN.next().unwrap())*)
             }

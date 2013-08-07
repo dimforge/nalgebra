@@ -143,6 +143,7 @@ static SAMPLES_3_F64: [Vec3<f64>, ..42] = [
 ];
 
 impl UniformSphereSample for Vec2<f64> {
+    #[inline(always)]
     pub fn sample(f: &fn(&'static Vec2<f64>)) {
         for sample in SAMPLES_2_F64.iter() {
             f(sample)
@@ -151,6 +152,7 @@ impl UniformSphereSample for Vec2<f64> {
 }
 
 impl UniformSphereSample for Vec3<f64> {
+    #[inline(always)]
     pub fn sample(f: &fn(&'static Vec3<f64>)) {
         for sample in SAMPLES_3_F64.iter() {
             f(sample)

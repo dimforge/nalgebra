@@ -89,7 +89,7 @@ Inv for Mat3<N> {
         }
         else {
             *self = Mat3::new(
-                (minor_m12_m23  / det),
+                (minor_m12_m23 / det),
                 ((self.m13 * self.m32 - self.m33 * self.m12) / det),
                 ((self.m12 * self.m23 - self.m22 * self.m13) / det),
 

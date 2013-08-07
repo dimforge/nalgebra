@@ -28,6 +28,7 @@ macro_rules! mat_cast_impl(
 macro_rules! iterable_impl(
   ($t: ident, $dim: expr) => (
     impl<N> Iterable<N> for $t<N> {
+        #[inline]
         fn iter<'l>(&'l self) -> VecIterator<'l, N> {
             unsafe {
                 cast::transmute::<&'l $t<N>, &'l [N, ..$dim * $dim]>(self).iter()
@@ -40,6 +41,7 @@ macro_rules! iterable_impl(
 macro_rules! iterable_mut_impl(
   ($t: ident, $dim: expr) => (
     impl<N> IterableMut<N> for $t<N> {
+        #[inline]
         fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N> {
             unsafe {
                 cast::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim * $dim]>(self).mut_iter()
@@ -103,6 +105,7 @@ macro_rules! indexable_impl(
 macro_rules! column_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Clone, V: Zero + Iterable<N> + IterableMut<N>> Column<V> for $t<N> {
+        #[inline]
         fn set_column(&mut self, col: uint, v: V) {
             for (i, e) in v.iter().enumerate() {
                 if i == Dim::dim::<$t<N>>() {
@@ -113,6 +116,7 @@ macro_rules! column_impl(
             }
         }
 
+        #[inline]
         fn column(&self, col: uint) -> V {
             let mut res = Zero::zero::<V>();
 
@@ -133,21 +137,22 @@ macro_rules! column_impl(
 macro_rules! mul_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Clone + Ring> Mul<$t<N>, $t<N>> for $t<N> {
+        #[inline]
         fn mul(&self, other: &$t<N>) -> $t<N> {
             let mut res: $t<N> = Zero::zero();
-    
+
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
                     let mut acc = Zero::zero::<N>();
-    
+
                     for k in range(0u, $dim) {
                         acc = acc + self.at((i, k)) * other.at((k, j));
                     }
-    
+
                     res.set((i, j), acc);
                 }
             }
-    
+
             res
         }
     }
@@ -157,16 +162,17 @@ macro_rules! mul_impl(
 macro_rules! rmul_impl(
   ($t: ident, $v: ident, $dim: expr) => (
     impl<N: Clone + Ring> RMul<$v<N>> for $t<N> {
+        #[inline]
         fn rmul(&self, other: &$v<N>) -> $v<N> {
             let mut res : $v<N> = Zero::zero();
-    
+
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
                     let val = res.at(i) + other.at(j) * self.at((i, j));
                     res.set(i, val)
                 }
             }
-    
+
             res
         }
     }
@@ -176,16 +182,17 @@ macro_rules! rmul_impl(
 macro_rules! lmul_impl(
   ($t: ident, $v: ident, $dim: expr) => (
     impl<N: Clone + Ring> LMul<$v<N>> for $t<N> {
+        #[inline]
         fn lmul(&self, other: &$v<N>) -> $v<N> {
             let mut res : $v<N> = Zero::zero();
-    
+
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
                   let val = res.at(i) + other.at(j) * self.at((j, i));
                   res.set(i, val)
                 }
             }
-    
+
             res
         }
     }
@@ -200,7 +207,7 @@ macro_rules! transform_impl(
         fn transform_vec(&self, v: &$v<N>) -> $v<N> {
             self.rmul(v)
         }
-    
+
         #[inline]
         fn inv_transform(&self, v: &$v<N>) -> $v<N> {
             match self.inverse() {
@@ -219,7 +226,7 @@ macro_rules! inv_impl(
         #[inline]
         fn inverse(&self) -> Option<$t<N>> {
             let mut res : $t<N> = self.clone();
-    
+
             if res.inplace_inverse() {
                 Some(res)
             }
@@ -227,11 +234,11 @@ macro_rules! inv_impl(
                 None
             }
         }
-    
+
         fn inplace_inverse(&mut self) -> bool {
             let mut res: $t<N> = One::one();
             let     _0N: N     = Zero::zero();
-    
+
             // inversion using Gauss-Jordan elimination
             for k in range(0u, $dim) {
                 // search a non-zero value on the k-th column
@@ -288,7 +295,7 @@ macro_rules! inv_impl(
                     }
                 }
             }
-    
+
             *self = res;
 
             true
@@ -303,12 +310,13 @@ macro_rules! transpose_impl(
         #[inline]
         fn transposed(&self) -> $t<N> {
             let mut res = self.clone();
-    
+
             res.transpose();
-    
+
             res
         }
-    
+
+        #[inline]
         fn transpose(&mut self) {
             for i in range(1u, $dim) {
                 for j in range(0u, i) {
@@ -327,20 +335,20 @@ macro_rules! approx_eq_impl(
         fn approx_epsilon() -> N {
             ApproxEq::approx_epsilon::<N, N>()
         }
-    
+
         #[inline]
         fn approx_eq(&self, other: &$t<N>) -> bool {
             let mut zip = self.iter().zip(other.iter());
-    
+
             do zip.all |(a, b)| {
                 a.approx_eq(b)
             }
         }
-    
+
         #[inline]
         fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
             let mut zip = self.iter().zip(other.iter());
-    
+
             do zip.all |(a, b)| {
                 a.approx_eq_eps(b, epsilon)
             }
@@ -352,6 +360,7 @@ macro_rules! approx_eq_impl(
 macro_rules! to_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
     impl<N: One + Zero + Clone> ToHomogeneous<$t2<N>> for $t<N> {
+        #[inline]
         fn to_homogeneous(&self) -> $t2<N> {
             let mut res: $t2<N> = One::one();
 
@@ -370,6 +379,7 @@ macro_rules! to_homogeneous_impl(
 macro_rules! from_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
     impl<N: One + Zero + Clone> FromHomogeneous<$t2<N>> for $t<N> {
+        #[inline]
         fn from(m: &$t2<N>) -> $t<N> {
             let mut res: $t<N> = One::one();
 
