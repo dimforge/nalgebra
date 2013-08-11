@@ -1,3 +1,4 @@
+tmp=_git_distcheck
 nalgebra_lib_path=lib
 nalgebra_doc_path=doc
 all:
@@ -12,6 +13,12 @@ test:
 doc:
 	mkdir -p $(nalgebra_doc_path)
 	rust doc src/nalgebra.rc --output-dir $(nalgebra_doc_path)
+
+distcheck:
+	rm -rf $(tmp)
+	git clone --recursive . $(tmp)
+	make -C $(tmp)
+	rm -rf $(tmp)
 
 .PHONY:doc
 .PHONY:test
