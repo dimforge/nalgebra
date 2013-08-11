@@ -204,14 +204,14 @@ macro_rules! transform_impl(
     impl<N: Clone + DivisionRing + Eq>
     Transform<$v<N>> for $t<N> {
         #[inline]
-        fn transform_vec(&self, v: &$v<N>) -> $v<N> {
+        fn transform(&self, v: &$v<N>) -> $v<N> {
             self.rmul(v)
         }
 
         #[inline]
         fn inv_transform(&self, v: &$v<N>) -> $v<N> {
             match self.inverse() {
-                Some(t) => t.transform_vec(v),
+                Some(t) => t.transform(v),
                 None    => fail!("Cannot use inv_transform on a non-inversible matrix.")
             }
         }

@@ -195,7 +195,7 @@ impl<M: RMul<V> + LMul<V>, V> Rotate<V> for Rotmat<M> {
 
 impl<M: RMul<V> + LMul<V>, V> Transform<V> for Rotmat<M> {
     #[inline]
-    fn transform_vec(&self, v: &V) -> V {
+    fn transform(&self, v: &V) -> V {
         self.rotate(v)
     }
 

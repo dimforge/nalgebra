@@ -15,10 +15,8 @@ pub trait Transformation<M> {
 /// Trait of objects able to transform other objects. This is typically implemented by matrices which
 /// transform vectors.
 pub trait Transform<V> {
-    // XXX: sadly we cannot call this `transform` as it conflicts with the
-    // iterators' `transform` function (which seems always exist).
     /// Apply a transformation to an object.
-    fn transform_vec(&self, &V) -> V;
+    fn transform(&self, &V) -> V;
     /// Apply an inverse transformation to an object.
     fn inv_transform(&self, &V) -> V;
 }

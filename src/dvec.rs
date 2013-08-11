@@ -2,7 +2,7 @@ use std::num::{Zero, One, Algebraic};
 use std::vec::{VecIterator, VecMutIterator};
 use std::vec::from_elem;
 use std::cmp::ApproxEq;
-use std::iterator::{FromIterator, IteratorUtil};
+use std::iterator::FromIterator;
 use traits::iterable::{Iterable, IterableMut};
 use traits::ring::Ring;
 use traits::division_ring::DivisionRing;
@@ -117,7 +117,7 @@ impl<N: Add<N,N>> Add<DVec<N>, DVec<N>> for DVec<N> {
     fn add(&self, other: &DVec<N>) -> DVec<N> {
         assert!(self.at.len() == other.at.len());
         DVec {
-            at: self.at.iter().zip(other.at.iter()).transform(|(a, b)| *a + *b).collect()
+            at: self.at.iter().zip(other.at.iter()).map(|(a, b)| *a + *b).collect()
         }
     }
 }
@@ -127,7 +127,7 @@ impl<N: Sub<N,N>> Sub<DVec<N>, DVec<N>> for DVec<N> {
     fn sub(&self, other: &DVec<N>) -> DVec<N> {
         assert!(self.at.len() == other.at.len());
         DVec {
-            at: self.at.iter().zip(other.at.iter()).transform(|(a, b)| *a - *b).collect()
+            at: self.at.iter().zip(other.at.iter()).map(|(a, b)| *a - *b).collect()
         }
     }
 }
@@ -135,7 +135,7 @@ impl<N: Sub<N,N>> Sub<DVec<N>, DVec<N>> for DVec<N> {
 impl<N: Neg<N>> Neg<DVec<N>> for DVec<N> {
     #[inline]
     fn neg(&self) -> DVec<N> {
-        DVec { at: self.at.iter().transform(|a| -a).collect() }
+        DVec { at: self.at.iter().map(|a| -a).collect() }
     }
 }
 
@@ -170,7 +170,7 @@ impl<N: Ring> SubDot<N> for DVec<N> {
 impl<N: Mul<N, N>> ScalarMul<N> for DVec<N> {
     #[inline]
     fn scalar_mul(&self, s: &N) -> DVec<N> {
-        DVec { at: self.at.iter().transform(|a| a * *s).collect() }
+        DVec { at: self.at.iter().map(|a| a * *s).collect() }
     }
 
     #[inline]
@@ -185,7 +185,7 @@ impl<N: Mul<N, N>> ScalarMul<N> for DVec<N> {
 impl<N: Div<N, N>> ScalarDiv<N> for DVec<N> {
     #[inline]
     fn scalar_div(&self, s: &N) -> DVec<N> {
-        DVec { at: self.at.iter().transform(|a| a / *s).collect() }
+        DVec { at: self.at.iter().map(|a| a / *s).collect() }
     }
 
     #[inline]
@@ -199,7 +199,7 @@ impl<N: Div<N, N>> ScalarDiv<N> for DVec<N> {
 impl<N: Add<N, N>> ScalarAdd<N> for DVec<N> {
     #[inline]
     fn scalar_add(&self, s: &N) -> DVec<N> {
-        DVec { at: self.at.iter().transform(|a| a + *s).collect() }
+        DVec { at: self.at.iter().map(|a| a + *s).collect() }
     }
 
     #[inline]
@@ -213,7 +213,7 @@ impl<N: Add<N, N>> ScalarAdd<N> for DVec<N> {
 impl<N: Sub<N, N>> ScalarSub<N> for DVec<N> {
     #[inline]
     fn scalar_sub(&self, s: &N) -> DVec<N> {
-        DVec { at: self.at.iter().transform(|a| a - *s).collect() }
+        DVec { at: self.at.iter().map(|a| a - *s).collect() }
     }
 
     #[inline]

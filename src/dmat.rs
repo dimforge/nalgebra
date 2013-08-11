@@ -1,7 +1,6 @@
 use std::num::{One, Zero};
 use std::vec::from_elem;
 use std::cmp::ApproxEq;
-use std::iterator::IteratorUtil;
 use traits::inv::Inv;
 use traits::division_ring::DivisionRing;
 use traits::transpose::Transpose;

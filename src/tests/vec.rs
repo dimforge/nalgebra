@@ -1,6 +1,4 @@
 #[test]
-use std::iterator::IteratorUtil;
-#[test]
 use std::num::{Zero, One};
 #[test]
 use std::rand::{random};
@@ -28,7 +26,7 @@ macro_rules! test_iterator_impl(
             let mut mv: $t = v.clone();
             let n: $n      = random();
 
-            let nv: $t = v.iter().transform(|e| e * n).collect();
+            let nv: $t = v.iter().map(|e| e * n).collect();
 
             for e in mv.mut_iter() {
                 *e = *e * n

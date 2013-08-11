@@ -244,8 +244,8 @@ Transformation<Transform<M, V>> for Transform<M, V> {
 impl<M: Ts<V>, V: Add<V, V> + Sub<V, V>>
 Ts<V> for Transform<M, V> {
     #[inline]
-    fn transform_vec(&self, v: &V) -> V {
-        self.submat.transform_vec(v) + self.subtrans
+    fn transform(&self, v: &V) -> V {
+        self.submat.transform(v) + self.subtrans
     }
 
     #[inline]
