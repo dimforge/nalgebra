@@ -17,6 +17,7 @@ use traits::indexable::Indexable;
 use traits::column::Column;
 use traits::iterable::{Iterable, IterableMut};
 use traits::outer::Outer;
+use traits::scalar_op::{ScalarMul, ScalarAdd, ScalarDiv, ScalarSub};
 
 pub use traits::mat_cast::*;
 pub use traits::column::*;
@@ -39,6 +40,10 @@ mat_impl!(Mat1, m11)
 mat_cast_impl!(Mat1, m11)
 add_impl!(Mat1, m11)
 sub_impl!(Mat1, m11)
+scalar_mul_impl!(Mat1, m11)
+scalar_div_impl!(Mat1, m11)
+scalar_add_impl!(Mat1, m11)
+scalar_sub_impl!(Mat1, m11)
 one_impl!(Mat1, _1)
 iterable_impl!(Mat1, 1)
 iterable_mut_impl!(Mat1, 1)
@@ -71,6 +76,14 @@ add_impl!(Mat2, m11, m12,
                 m21, m22)
 sub_impl!(Mat2, m11, m12,
                 m21, m22)
+scalar_mul_impl!(Mat2, m11, m12,
+                       m21, m22)
+scalar_div_impl!(Mat2, m11, m12,
+                       m21, m22)
+scalar_add_impl!(Mat2, m11, m12,
+                       m21, m22)
+scalar_sub_impl!(Mat2, m11, m12,
+                       m21, m22)
 one_impl!(Mat2, _1, _0,
                 _0, _1)
 iterable_impl!(Mat2, 2)
@@ -109,6 +122,18 @@ add_impl!(Mat3, m11, m12, m13,
 sub_impl!(Mat3, m11, m12, m13,
                 m21, m22, m23,
                 m31, m32, m33)
+scalar_mul_impl!(Mat3, m11, m12, m13,
+                       m21, m22, m23,
+                       m31, m32, m33)
+scalar_div_impl!(Mat3, m11, m12, m13,
+                       m21, m22, m23,
+                       m31, m32, m33)
+scalar_add_impl!(Mat3, m11, m12, m13,
+                       m21, m22, m23,
+                       m31, m32, m33)
+scalar_sub_impl!(Mat3, m11, m12, m13,
+                       m21, m22, m23,
+                       m31, m32, m33)
 one_impl!(Mat3, _1, _0, _0,
                 _0, _1, _0,
                 _0, _0, _1)
@@ -156,6 +181,30 @@ add_impl!(Mat4,
   m41, m42, m43, m44
 )
 sub_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+)
+scalar_mul_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+)
+scalar_div_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+)
+scalar_add_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+)
+scalar_sub_impl!(Mat4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
@@ -226,6 +275,34 @@ sub_impl!(Mat5,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 )
+scalar_mul_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+)
+scalar_div_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+)
+scalar_add_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+)
+scalar_sub_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+)
 iterable_impl!(Mat5, 5)
 iterable_mut_impl!(Mat5, 5)
 dim_impl!(Mat5, 5)
@@ -278,6 +355,38 @@ add_impl!(Mat6,
   m61, m62, m63, m64, m65, m66
 )
 sub_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+)
+scalar_mul_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+)
+scalar_div_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+)
+scalar_add_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+)
+scalar_sub_impl!(Mat6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,

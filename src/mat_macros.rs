@@ -47,6 +47,74 @@ macro_rules! sub_impl(
   )
 )
 
+macro_rules! scalar_mul_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Mul<N, N>> ScalarMul<N> for $t<N> {
+        #[inline]
+        pub fn scalar_mul(&self, other: &N) -> $t<N> {
+            $t::new(self.$comp0 * *other $(, self.$compN * *other )*)
+        }
+
+        #[inline]
+        pub fn scalar_mul_inplace(&mut self, other: &N) {
+            self.$comp0 = self.$comp0 * *other;
+            $(self.$compN = self.$compN * *other; )*
+        }
+    }
+  )
+)
+
+macro_rules! scalar_div_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Div<N, N>> ScalarDiv<N> for $t<N> {
+        #[inline]
+        pub fn scalar_div(&self, other: &N) -> $t<N> {
+            $t::new(self.$comp0 / *other $(, self.$compN / *other )*)
+        }
+
+        #[inline]
+        pub fn scalar_div_inplace(&mut self, other: &N) {
+            self.$comp0 = self.$comp0 / *other;
+            $(self.$compN = self.$compN / *other; )*
+        }
+    }
+  )
+)
+
+macro_rules! scalar_add_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Add<N, N>> ScalarAdd<N> for $t<N> {
+        #[inline]
+        pub fn scalar_add(&self, other: &N) -> $t<N> {
+            $t::new(self.$comp0 + *other $(, self.$compN + *other )*)
+        }
+
+        #[inline]
+        pub fn scalar_add_inplace(&mut self, other: &N) {
+            self.$comp0 = self.$comp0 + *other;
+            $(self.$compN = self.$compN + *other; )*
+        }
+    }
+  )
+)
+
+macro_rules! scalar_sub_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Sub<N, N>> ScalarSub<N> for $t<N> {
+        #[inline]
+        pub fn scalar_sub(&self, other: &N) -> $t<N> {
+            $t::new(self.$comp0 - *other $(, self.$compN - *other )*)
+        }
+
+        #[inline]
+        pub fn scalar_sub_inplace(&mut self, other: &N) {
+            self.$comp0 = self.$comp0 - *other;
+            $(self.$compN = self.$compN - *other; )*
+        }
+    }
+  )
+)
+
 macro_rules! iterable_impl(
   ($t: ident, $dim: expr) => (
     impl<N> Iterable<N> for $t<N> {
