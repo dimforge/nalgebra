@@ -37,6 +37,8 @@ pub struct Mat1<N> {
 
 mat_impl!(Mat1, m11)
 mat_cast_impl!(Mat1, m11)
+add_impl!(Mat1, m11)
+sub_impl!(Mat1, m11)
 one_impl!(Mat1, _1)
 iterable_impl!(Mat1, 1)
 iterable_mut_impl!(Mat1, 1)
@@ -65,6 +67,10 @@ mat_impl!(Mat2, m11, m12,
                 m21, m22)
 mat_cast_impl!(Mat2, m11, m12,
                      m21, m22)
+add_impl!(Mat2, m11, m12,
+                m21, m22)
+sub_impl!(Mat2, m11, m12,
+                m21, m22)
 one_impl!(Mat2, _1, _0,
                 _0, _1)
 iterable_impl!(Mat2, 2)
@@ -97,6 +103,12 @@ mat_impl!(Mat3, m11, m12, m13,
 mat_cast_impl!(Mat3, m11, m12, m13,
                      m21, m22, m23,
                      m31, m32, m33)
+add_impl!(Mat3, m11, m12, m13,
+                m21, m22, m23,
+                m31, m32, m33)
+sub_impl!(Mat3, m11, m12, m13,
+                m21, m22, m23,
+                m31, m32, m33)
 one_impl!(Mat3, _1, _0, _0,
                 _0, _1, _0,
                 _0, _0, _1)
@@ -132,6 +144,18 @@ mat_impl!(Mat4,
   m41, m42, m43, m44
 )
 mat_cast_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+)
+add_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+)
+sub_impl!(Mat4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
@@ -188,6 +212,20 @@ one_impl!(Mat5,
   _0, _0, _0, _1, _0,
   _0, _0, _0, _0, _1
 )
+add_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+)
+sub_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+)
 iterable_impl!(Mat5, 5)
 iterable_mut_impl!(Mat5, 5)
 dim_impl!(Mat5, 5)
@@ -224,6 +262,22 @@ mat_impl!(Mat6,
   m61, m62, m63, m64, m65, m66
 )
 mat_cast_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+)
+add_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+)
+sub_impl!(Mat6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,

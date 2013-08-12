@@ -25,6 +25,28 @@ macro_rules! mat_cast_impl(
   )
 )
 
+macro_rules! add_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
+        #[inline]
+        pub fn add(&self, other: &$t<N>) -> $t<N> {
+            $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN )*)
+        }
+    }
+  )
+)
+
+macro_rules! sub_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
+        #[inline]
+        pub fn sub(&self, other: &$t<N>) -> $t<N> {
+            $t::new(self.$comp0 - other.$comp0 $(, self.$compN - other.$compN )*)
+        }
+    }
+  )
+)
+
 macro_rules! iterable_impl(
   ($t: ident, $dim: expr) => (
     impl<N> Iterable<N> for $t<N> {
