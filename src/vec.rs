@@ -15,6 +15,7 @@ use traits::indexable::Indexable;
 pub use traits::vec_cast::*;
 pub use traits::basis::*;
 pub use traits::cross::*;
+pub use traits::outer::*;
 pub use traits::dot::*;
 pub use traits::indexable::*;
 pub use traits::iterable::*;

@@ -16,6 +16,7 @@ use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
 use traits::indexable::Indexable;
 use traits::column::Column;
 use traits::iterable::{Iterable, IterableMut};
+use traits::outer::Outer;
 
 pub use traits::mat_cast::*;
 pub use traits::column::*;
@@ -51,6 +52,7 @@ approx_eq_impl!(Mat1)
 column_impl!(Mat1, 1)
 to_homogeneous_impl!(Mat1, Mat2, 1, 2)
 from_homogeneous_impl!(Mat1, Mat2, 1, 2)
+outer_impl!(Vec1, Mat1)
 
 /// Square matrix of dimension 2.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -79,6 +81,7 @@ approx_eq_impl!(Mat2)
 column_impl!(Mat2, 2)
 to_homogeneous_impl!(Mat2, Mat3, 2, 3)
 from_homogeneous_impl!(Mat2, Mat3, 2, 3)
+outer_impl!(Vec2, Mat2)
 
 /// Square matrix of dimension 3.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -111,6 +114,7 @@ approx_eq_impl!(Mat3)
 column_impl!(Mat3, 3)
 to_homogeneous_impl!(Mat3, Mat4, 3, 4)
 from_homogeneous_impl!(Mat3, Mat4, 3, 4)
+outer_impl!(Vec3, Mat3)
 
 /// Square matrix of dimension 4.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -151,6 +155,7 @@ approx_eq_impl!(Mat4)
 column_impl!(Mat4, 4)
 to_homogeneous_impl!(Mat4, Mat5, 4, 5)
 from_homogeneous_impl!(Mat4, Mat5, 4, 5)
+outer_impl!(Vec4, Mat4)
 
 /// Square matrix of dimension 5.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -197,6 +202,7 @@ approx_eq_impl!(Mat5)
 column_impl!(Mat5, 5)
 to_homogeneous_impl!(Mat5, Mat6, 5, 6)
 from_homogeneous_impl!(Mat5, Mat6, 5, 6)
+outer_impl!(Vec5, Mat5)
 
 /// Square matrix of dimension 6.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -245,3 +251,4 @@ inv_impl!(Mat6, 6)
 transpose_impl!(Mat6, 6)
 approx_eq_impl!(Mat6)
 column_impl!(Mat6, 6)
+outer_impl!(Vec6, Mat6)

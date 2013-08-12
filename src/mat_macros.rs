@@ -397,3 +397,22 @@ macro_rules! from_homogeneous_impl(
     }
   )
 )
+
+macro_rules! outer_impl(
+    ($t: ident, $m: ident) => (
+        impl<N: Mul<N, N> + Zero + Clone> Outer<$t<N>, $m<N>> for $t<N> {
+            #[inline]
+            fn outer(&self, other: &$t<N>) -> $m<N> {
+                let mut res = Zero::zero::<$m<N>>();
+
+                for i in range(0u, Dim::dim::<$t<N>>()) {
+                    for j in range(0u, Dim::dim::<$t<N>>()) {
+                        res.set((i, j), self.at(i) * other.at(j))
+                    }
+                }
+
+                res
+            }
+        }
+    )
+)

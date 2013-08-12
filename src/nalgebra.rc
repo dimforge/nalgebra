@@ -52,6 +52,7 @@ pub mod traits
   pub mod column;
   pub mod iterable;
   pub mod dot;
+  pub mod outer;
   pub mod cross;
   pub mod inv;
   pub mod transpose;

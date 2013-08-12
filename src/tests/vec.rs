@@ -7,6 +7,8 @@ use std::cmp::ApproxEq;
 #[test]
 use vec::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 #[test]
+use mat::Mat3;
+#[test]
 use traits::basis::Basis;
 #[test]
 use traits::cross::Cross;
@@ -18,6 +20,8 @@ use traits::norm::Norm;
 use traits::iterable::{Iterable, IterableMut};
 #[test]
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
+#[test]
+use traits::outer::Outer;
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
@@ -321,4 +325,14 @@ fn test_min_max_vec3() {
             &Vec3::new(1, 1, 1), &Vec3::new(3, 3, 3)
         ), Vec3::new(1, 2, 3)
     );
+}
+
+#[test]
+fn test_outer_vec3() {
+    assert_eq!(
+        Vec3::new(1, 2, 3).outer(&Vec3::new(4, 5, 6)),
+        Mat3::new(
+            4, 5, 6,
+            8, 10, 12,
+            12, 15, 18));
 }
