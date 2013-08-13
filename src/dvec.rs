@@ -13,7 +13,7 @@ use traits::translation::{Translation, Translatable};
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
 
 /// Vector with a dimension unknown at compile-time.
-#[deriving(Eq, Ord, ToStr, Clone)]
+#[deriving(Eq, ToStr, Clone)]
 pub struct DVec<N> {
     /// Components of the vector. Contains as much elements as the vector dimension.
     at: ~[N]
