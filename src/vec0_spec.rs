@@ -26,17 +26,17 @@ impl<N> vec::Vec0<N> {
 
 impl<N: Clone> Indexable<uint, N> for vec::Vec0<N> {
     #[inline]
-    pub fn at(&self, _: uint) -> N {
+    fn at(&self, _: uint) -> N {
         fail!("Cannot index a Vec0.")
     }
 
     #[inline]
-    pub fn set(&mut self, _: uint, _: N) {
+    fn set(&mut self, _: uint, _: N) {
 
     }
 
     #[inline]
-    pub fn swap(&mut self, _: uint, _: uint) {
+    fn swap(&mut self, _: uint, _: uint) {
 
     }
 }
@@ -72,10 +72,10 @@ impl<N> Dim for vec::Vec0<N> {
 
 impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for vec::Vec0<N> {
     #[inline(always)]
-    pub fn canonical_basis(_: &fn(vec::Vec0<N>)) { }
+    fn canonical_basis(_: &fn(vec::Vec0<N>)) { }
 
     #[inline(always)]
-    pub fn orthonormal_subspace_basis(&self, _: &fn(vec::Vec0<N>)) { }
+    fn orthonormal_subspace_basis(&self, _: &fn(vec::Vec0<N>)) { }
 }
 
 impl<N: Clone + Add<N,N>> Add<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N> {

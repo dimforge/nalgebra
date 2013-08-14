@@ -18,7 +18,7 @@ macro_rules! mat_cast_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<Nin: NumCast + Clone, Nout: NumCast> MatCast<$t<Nout>> for $t<Nin> {
         #[inline]
-        pub fn from(m: $t<Nin>) -> $t<Nout> {
+        fn from(m: $t<Nin>) -> $t<Nout> {
             $t::new(NumCast::from(m.$comp0.clone()) $(, NumCast::from(m.$compN.clone()) )*)
         }
     }
@@ -29,7 +29,7 @@ macro_rules! add_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
         #[inline]
-        pub fn add(&self, other: &$t<N>) -> $t<N> {
+        fn add(&self, other: &$t<N>) -> $t<N> {
             $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN )*)
         }
     }
@@ -40,7 +40,7 @@ macro_rules! sub_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
         #[inline]
-        pub fn sub(&self, other: &$t<N>) -> $t<N> {
+        fn sub(&self, other: &$t<N>) -> $t<N> {
             $t::new(self.$comp0 - other.$comp0 $(, self.$compN - other.$compN )*)
         }
     }
@@ -51,12 +51,12 @@ macro_rules! scalar_mul_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Mul<N, N>> ScalarMul<N> for $t<N> {
         #[inline]
-        pub fn scalar_mul(&self, other: &N) -> $t<N> {
+        fn scalar_mul(&self, other: &N) -> $t<N> {
             $t::new(self.$comp0 * *other $(, self.$compN * *other )*)
         }
 
         #[inline]
-        pub fn scalar_mul_inplace(&mut self, other: &N) {
+        fn scalar_mul_inplace(&mut self, other: &N) {
             self.$comp0 = self.$comp0 * *other;
             $(self.$compN = self.$compN * *other; )*
         }
@@ -68,12 +68,12 @@ macro_rules! scalar_div_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Div<N, N>> ScalarDiv<N> for $t<N> {
         #[inline]
-        pub fn scalar_div(&self, other: &N) -> $t<N> {
+        fn scalar_div(&self, other: &N) -> $t<N> {
             $t::new(self.$comp0 / *other $(, self.$compN / *other )*)
         }
 
         #[inline]
-        pub fn scalar_div_inplace(&mut self, other: &N) {
+        fn scalar_div_inplace(&mut self, other: &N) {
             self.$comp0 = self.$comp0 / *other;
             $(self.$compN = self.$compN / *other; )*
         }
@@ -85,12 +85,12 @@ macro_rules! scalar_add_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Add<N, N>> ScalarAdd<N> for $t<N> {
         #[inline]
-        pub fn scalar_add(&self, other: &N) -> $t<N> {
+        fn scalar_add(&self, other: &N) -> $t<N> {
             $t::new(self.$comp0 + *other $(, self.$compN + *other )*)
         }
 
         #[inline]
-        pub fn scalar_add_inplace(&mut self, other: &N) {
+        fn scalar_add_inplace(&mut self, other: &N) {
             self.$comp0 = self.$comp0 + *other;
             $(self.$compN = self.$compN + *other; )*
         }
@@ -102,12 +102,12 @@ macro_rules! scalar_sub_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Sub<N, N>> ScalarSub<N> for $t<N> {
         #[inline]
-        pub fn scalar_sub(&self, other: &N) -> $t<N> {
+        fn scalar_sub(&self, other: &N) -> $t<N> {
             $t::new(self.$comp0 - *other $(, self.$compN - *other )*)
         }
 
         #[inline]
-        pub fn scalar_sub_inplace(&mut self, other: &N) {
+        fn scalar_sub_inplace(&mut self, other: &N) {
             self.$comp0 = self.$comp0 - *other;
             $(self.$compN = self.$compN - *other; )*
         }
@@ -168,21 +168,21 @@ macro_rules! indexable_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Clone> Indexable<(uint, uint), N> for $t<N> {
         #[inline]
-        pub fn at(&self, (i, j): (uint, uint)) -> N {
+        fn at(&self, (i, j): (uint, uint)) -> N {
             unsafe {
                 cast::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)[i * $dim + j].clone()
             }
         }
 
         #[inline]
-        pub fn set(&mut self, (i, j): (uint, uint), val: N) {
+        fn set(&mut self, (i, j): (uint, uint), val: N) {
             unsafe {
                 cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)[i * $dim + j] = val
             }
         }
 
         #[inline]
-        pub fn swap(&mut self, (i1, j1): (uint, uint), (i2, j2): (uint, uint)) {
+        fn swap(&mut self, (i1, j1): (uint, uint), (i2, j2): (uint, uint)) {
             unsafe {
               cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
                 .swap(i1 * $dim + j1, i2 * $dim + j2)

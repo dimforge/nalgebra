@@ -95,7 +95,7 @@ macro_rules! vec_cast_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<Nin: NumCast + Clone, Nout: NumCast> VecCast<$t<Nout>> for $t<Nin> {
             #[inline]
-            pub fn from(v: $t<Nin>) -> $t<Nout> {
+            fn from(v: $t<Nin>) -> $t<Nout> {
                 $t::new(NumCast::from(v.$comp0.clone()) $(, NumCast::from(v.$compN.clone()))*)
             }
         }
@@ -106,21 +106,21 @@ macro_rules! indexable_impl(
     ($t: ident, $dim: expr) => (
         impl<N: Clone> Indexable<uint, N> for $t<N> {
             #[inline]
-            pub fn at(&self, i: uint) -> N {
+            fn at(&self, i: uint) -> N {
                 unsafe {
                     cast::transmute::<&$t<N>, &[N, ..$dim]>(self)[i].clone()
                 }
             }
 
             #[inline]
-            pub fn set(&mut self, i: uint, val: N) {
+            fn set(&mut self, i: uint, val: N) {
                 unsafe {
                     cast::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self)[i] = val
                 }
             }
 
             #[inline]
-            pub fn swap(&mut self, i1: uint, i2: uint) {
+            fn swap(&mut self, i1: uint, i2: uint) {
                 unsafe {
                     cast::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).swap(i1, i2)
                 }
@@ -185,7 +185,7 @@ macro_rules! basis_impl(
     ($t: ident, $dim: expr) => (
         impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for $t<N> {
             #[inline]
-            pub fn canonical_basis(f: &fn($t<N>)) {
+            fn canonical_basis(f: &fn($t<N>)) {
                 for i in range(0u, $dim) {
                     let mut basis_element : $t<N> = Zero::zero();
 
@@ -196,7 +196,7 @@ macro_rules! basis_impl(
             }
 
             #[inline]
-            pub fn orthonormal_subspace_basis(&self, f: &fn($t<N>)) {
+            fn orthonormal_subspace_basis(&self, f: &fn($t<N>)) {
                 // compute the basis of the orthogonal subspace using Gram-Schmidt
                 // orthogonalization algorithm
                 let mut basis: ~[$t<N>] = ~[];
