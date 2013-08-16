@@ -231,9 +231,9 @@ impl<N: Clone + One> One for vec::Vec0<N> {
     }
 }
 
-impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for vec::Vec0<N> {
+impl<N> FromIterator<N> for vec::Vec0<N> {
     #[inline]
-    fn from_iterator(_: &mut Iter) -> vec::Vec0<N> {
+    fn from_iterator<I: Iterator<N>>(_: &mut I) -> vec::Vec0<N> {
         vec::Vec0
     }
 }

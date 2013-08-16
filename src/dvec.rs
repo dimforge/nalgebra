@@ -46,8 +46,8 @@ impl<N> IterableMut<N> for DVec<N> {
     }
 }
 
-impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for DVec<N> {
-    fn from_iterator(mut param: &mut Iter) -> DVec<N> {
+impl<N> FromIterator<N> for DVec<N> {
+    fn from_iterator<I: Iterator<N>>(mut param: &mut I) -> DVec<N> {
         let mut res = DVec { at: ~[] };
 
         for e in param {

@@ -480,9 +480,9 @@ macro_rules! one_impl(
 
 macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident $(, $paramN: ident)*) => (
-        impl<N, Iter: Iterator<N>> FromIterator<N, Iter> for $t<N> {
+        impl<N> FromIterator<N> for $t<N> {
             #[inline]
-            fn from_iterator($param0: &mut Iter) -> $t<N> {
+            fn from_iterator<I: Iterator<N>>($param0: &mut I) -> $t<N> {
                 $t::new($param0.next().unwrap() $(, $paramN.next().unwrap())*)
             }
         }
