@@ -5,13 +5,5 @@ pub trait UniformSphereSample {
     fn sample(&fn(&'static Self));
 
     /// Gets the list of all samples.
-    fn sample_list() -> ~[&'static Self] {
-        let mut res = ~[];
-
-        do UniformSphereSample::sample::<Self> |s| {
-            res.push(s)
-        }
-
-        res
-    }
+    fn sample_list() -> &[Self];
 }

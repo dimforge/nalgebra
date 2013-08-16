@@ -149,6 +149,13 @@ impl UniformSphereSample for Vec2<f64> {
              f(sample)
          }
      }
+
+    #[inline]
+    fn sample_list() -> &[Vec2<f64>] {
+        let res: &[Vec2<f64>] = SAMPLES_2_F64;
+
+        res
+    }
 }
 
 impl UniformSphereSample for Vec3<f64> {
@@ -157,5 +164,12 @@ impl UniformSphereSample for Vec3<f64> {
         for sample in SAMPLES_3_F64.iter() {
             f(sample)
         }
+    }
+
+    #[inline]
+    fn sample_list() -> &[Vec3<f64>] {
+        let res: &[Vec3<f64>] = SAMPLES_3_F64;
+
+        res
     }
 }
