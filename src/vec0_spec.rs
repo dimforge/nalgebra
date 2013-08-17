@@ -72,10 +72,10 @@ impl<N> Dim for vec::Vec0<N> {
 
 impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for vec::Vec0<N> {
     #[inline(always)]
-    fn canonical_basis(_: &fn(vec::Vec0<N>)) { }
+    fn canonical_basis(_: &fn(vec::Vec0<N>) -> bool) { }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(&self, _: &fn(vec::Vec0<N>)) { }
+    fn orthonormal_subspace_basis(&self, _: &fn(vec::Vec0<N>) -> bool) { }
 }
 
 impl<N: Clone + Add<N,N>> Add<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N> {

@@ -185,18 +185,18 @@ macro_rules! basis_impl(
     ($t: ident, $dim: expr) => (
         impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for $t<N> {
             #[inline]
-            fn canonical_basis(f: &fn($t<N>)) {
+            fn canonical_basis(f: &fn($t<N>) -> bool) {
                 for i in range(0u, $dim) {
                     let mut basis_element : $t<N> = Zero::zero();
 
                     basis_element.set(i, One::one());
 
-                    f(basis_element);
+                    if !f(basis_element) { return }
                 }
             }
 
             #[inline]
-            fn orthonormal_subspace_basis(&self, f: &fn($t<N>)) {
+            fn orthonormal_subspace_basis(&self, f: &fn($t<N>) -> bool) {
                 // compute the basis of the orthogonal subspace using Gram-Schmidt
                 // orthogonalization algorithm
                 let mut basis: ~[$t<N>] = ~[];
@@ -221,7 +221,7 @@ macro_rules! basis_impl(
                     if !elt.sqnorm().approx_eq(&Zero::zero()) {
                         let new_element = elt.normalized();
 
-                        f(new_element.clone());
+                        if !f(new_element.clone()) { return };
 
                         basis.push(new_element);
                     }

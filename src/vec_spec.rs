@@ -26,38 +26,38 @@ impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
 
 impl<N: One> Basis for Vec1<N> {
     #[inline(always)]
-    fn canonical_basis(f: &fn(Vec1<N>)) {
-        f(Vec1::new(One::one()))
+    fn canonical_basis(f: &fn(Vec1<N>) -> bool) {
+        f(Vec1::new(One::one()));
     }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(&self, _: &fn(Vec1<N>)) { }
+    fn orthonormal_subspace_basis(&self, _: &fn(Vec1<N>) -> bool ) { }
 }
 
 impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
-    #[inline]
-    fn canonical_basis(f: &fn(Vec2<N>)) {
-        f(Vec2::new(One::one(), Zero::zero()));
+    #[inline(always)]
+    fn canonical_basis(f: &fn(Vec2<N>) -> bool) {
+        if !f(Vec2::new(One::one(), Zero::zero())) { return };
         f(Vec2::new(Zero::zero(), One::one()));
     }
 
     #[inline]
-    fn orthonormal_subspace_basis(&self, f: &fn(Vec2<N>)) {
-        f(Vec2::new(-self.y, self.x.clone()))
+    fn orthonormal_subspace_basis(&self, f: &fn(Vec2<N>) -> bool) {
+        f(Vec2::new(-self.y, self.x.clone()));
     }
 }
 
 impl<N: Clone + DivisionRing + Ord + Algebraic + Signed>
 Basis for Vec3<N> {
     #[inline(always)]
-    fn canonical_basis(f: &fn(Vec3<N>)) {
-        f(Vec3::new(One::one(), Zero::zero(), Zero::zero()));
-        f(Vec3::new(Zero::zero(), One::one(), Zero::zero()));
+    fn canonical_basis(f: &fn(Vec3<N>) -> bool) {
+        if !f(Vec3::new(One::one(), Zero::zero(), Zero::zero())) { return };
+        if !f(Vec3::new(Zero::zero(), One::one(), Zero::zero())) { return };
         f(Vec3::new(Zero::zero(), Zero::zero(), One::one()));
     }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(&self, f: &fn(Vec3<N>)) {
+    fn orthonormal_subspace_basis(&self, f: &fn(Vec3<N>) -> bool) {
         let a = 
             if self.x.clone().abs() > self.y.clone().abs() {
                 Vec3::new(self.z.clone(), Zero::zero(), -self.x).normalized()
@@ -66,7 +66,7 @@ Basis for Vec3<N> {
                 Vec3::new(Zero::zero(), -self.z, self.y.clone()).normalized()
             };
 
-        f(a.cross(self));
+        if !f(a.cross(self)) { return };
         f(a);
     }
 }

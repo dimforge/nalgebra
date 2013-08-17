@@ -80,10 +80,14 @@ macro_rules! test_basis_impl(
         do 10000.times {
             do Basis::canonical_basis::<$t> |e1| {
                 do Basis::canonical_basis::<$t> |e2| {
-                    assert!(e1 == e2 || e1.dot(&e2).approx_eq(&Zero::zero()))
+                    assert!(e1 == e2 || e1.dot(&e2).approx_eq(&Zero::zero()));
+
+                    true
                 }
 
                 assert!(e1.norm().approx_eq(&One::one()));
+
+                true
             }
         }
     );
@@ -102,8 +106,12 @@ macro_rules! test_subspace_basis_impl(
                 assert!(e1.norm().approx_eq(&One::one()));
                 // check vectors form an ortogonal basis
                 do v1.orthonormal_subspace_basis() |e2| {
-                    assert!(e1 == e2 || e1.dot(&e2).approx_eq(&Zero::zero()))
+                    assert!(e1 == e2 || e1.dot(&e2).approx_eq(&Zero::zero()));
+
+                    true
                 }
+
+                true
             }
         }
     );
