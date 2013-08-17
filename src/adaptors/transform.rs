@@ -3,7 +3,7 @@ use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
-use traits::division_ring::DivisionRing;
+use traits::ring::DivisionRing;
 use traits::rotation::{Rotation, Rotate, Rotatable};
 use traits::translation::{Translation, Translate, Translatable};
 use Ts = traits::transformation::Transform;

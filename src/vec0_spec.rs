@@ -11,8 +11,7 @@ use traits::sub_dot::SubDot;
 use traits::norm::Norm;
 use traits::translation::{Translation, Translatable};
 use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
-use traits::ring::Ring;
-use traits::division_ring::DivisionRing;
+use traits::ring::{Ring, DivisionRing};
 use traits::indexable::Indexable;
 use vec;
 

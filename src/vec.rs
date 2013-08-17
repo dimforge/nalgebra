@@ -7,8 +7,7 @@ use std::cmp::ApproxEq;
 use traits::basis::Basis;
 use traits::dim::Dim;
 use traits::translation::{Translation, Translatable};
-use traits::ring::Ring;
-use traits::division_ring::DivisionRing;
+use traits::ring::{Ring, DivisionRing};
 use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
 use traits::indexable::Indexable;
 

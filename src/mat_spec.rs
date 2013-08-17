@@ -1,6 +1,6 @@
 use std::num::{Zero, One};
 use mat::{Mat1, Mat2, Mat3};
-use traits::division_ring::DivisionRing;
+use traits::ring::DivisionRing;
 use traits::inv::Inv;
 
 // some specializations:
@@ -52,8 +52,9 @@ Inv for Mat2<N> {
             false
         }
         else {
-            *self = Mat2::new(self.m22 / det , -self.m12 / det,
-            -self.m21 / det, self.m11 / det);
+            *self = Mat2::new(
+                self.m22 / det , -self.m12 / det,
+                -self.m21 / det, self.m11 / det);
 
             true
         }

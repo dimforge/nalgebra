@@ -1,7 +1,7 @@
 use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
-use traits::division_ring::DivisionRing;
+use traits::ring::DivisionRing;
 use traits::rlmul::{RMul, LMul};
 use traits::cross::Cross;
 use traits::dim::Dim;

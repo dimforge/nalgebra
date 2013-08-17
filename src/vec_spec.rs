@@ -1,7 +1,7 @@
 use std::num::{Zero, One};
 use traits::basis::Basis;
 use traits::cross::Cross;
-use traits::division_ring::DivisionRing;
+use traits::ring::DivisionRing;
 use traits::norm::Norm;
 use traits::sample::UniformSphereSample;
 use vec::{Vec1, Vec2, Vec3};
