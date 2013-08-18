@@ -1,9 +1,9 @@
 use std::num::{Zero, One};
 use traits::basis::Basis;
 use traits::cross::Cross;
-use traits::ring::DivisionRing;
-use traits::norm::Norm;
 use traits::sample::UniformSphereSample;
+use traits::vec_cast::VecCast;
+use traits::vector::{AlgebraicVec};
 use vec::{Vec1, Vec2, Vec3};
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
@@ -47,7 +47,7 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
     }
 }
 
-impl<N: Clone + DivisionRing + Ord + Algebraic + Signed>
+impl<N: Clone + Ord + Algebraic + Signed>
 Basis for Vec3<N> {
     #[inline(always)]
     fn canonical_basis(f: &fn(Vec3<N>) -> bool) {
@@ -142,34 +142,20 @@ static SAMPLES_3_F64: [Vec3<f64>, ..42] = [
     Vec3 { x: 0.162456 , y: 0.499995 , z: 0.850654 }
 ];
 
-impl UniformSphereSample for Vec2<f64> {
+impl<N: NumCast> UniformSphereSample for Vec2<N> {
     #[inline(always)]
-    fn sample(f: &fn(&'static Vec2<f64>)) {
+    fn sample(f: &fn(Vec2<N>)) {
          for sample in SAMPLES_2_F64.iter() {
-             f(sample)
+             f(VecCast::from(*sample))
          }
      }
-
-    #[inline]
-    fn sample_list() -> &[Vec2<f64>] {
-        let res: &[Vec2<f64>] = SAMPLES_2_F64;
-
-        res
-    }
 }
 
-impl UniformSphereSample for Vec3<f64> {
+impl<N: NumCast> UniformSphereSample for Vec3<N> {
     #[inline(always)]
-    fn sample(f: &fn(&'static Vec3<f64>)) {
+    fn sample(f: &fn(Vec3<N>)) {
         for sample in SAMPLES_3_F64.iter() {
-            f(sample)
+            f(VecCast::from(*sample))
         }
-    }
-
-    #[inline]
-    fn sample_list() -> &[Vec3<f64>] {
-        let res: &[Vec3<f64>] = SAMPLES_3_F64;
-
-        res
     }
 }

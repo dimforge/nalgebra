@@ -49,16 +49,11 @@ macro_rules! sub_impl(
 
 macro_rules! scalar_mul_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Mul<N, N>> ScalarMul<N> for $t<N> {
+    impl<N: Mul<N, N>> $t<N> {
         #[inline]
-        fn scalar_mul(&self, other: &N) -> $t<N> {
+        /// Scalar multiplication of each component of this matrix by a scalar.
+        pub fn scalar_mul(&self, other: &N) -> $t<N> {
             $t::new(self.$comp0 * *other $(, self.$compN * *other )*)
-        }
-
-        #[inline]
-        fn scalar_mul_inplace(&mut self, other: &N) {
-            self.$comp0 = self.$comp0 * *other;
-            $(self.$compN = self.$compN * *other; )*
         }
     }
   )
@@ -66,16 +61,11 @@ macro_rules! scalar_mul_impl(
 
 macro_rules! scalar_div_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Div<N, N>> ScalarDiv<N> for $t<N> {
+    impl<N: Div<N, N>> $t<N> {
         #[inline]
-        fn scalar_div(&self, other: &N) -> $t<N> {
+        /// Scalar division of each component of this matrix by a scalar.
+        pub fn scalar_div(&self, other: &N) -> $t<N> {
             $t::new(self.$comp0 / *other $(, self.$compN / *other )*)
-        }
-
-        #[inline]
-        fn scalar_div_inplace(&mut self, other: &N) {
-            self.$comp0 = self.$comp0 / *other;
-            $(self.$compN = self.$compN / *other; )*
         }
     }
   )
@@ -226,7 +216,7 @@ macro_rules! column_impl(
 
 macro_rules! mul_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Clone + Ring> Mul<$t<N>, $t<N>> for $t<N> {
+    impl<N: Clone + Num> Mul<$t<N>, $t<N>> for $t<N> {
         #[inline]
         fn mul(&self, other: &$t<N>) -> $t<N> {
             let mut res: $t<N> = Zero::zero();
@@ -251,7 +241,7 @@ macro_rules! mul_impl(
 
 macro_rules! rmul_impl(
   ($t: ident, $v: ident, $dim: expr) => (
-    impl<N: Clone + Ring> RMul<$v<N>> for $t<N> {
+    impl<N: Clone + Num> RMul<$v<N>> for $t<N> {
         #[inline]
         fn rmul(&self, other: &$v<N>) -> $v<N> {
             let mut res : $v<N> = Zero::zero();
@@ -271,7 +261,7 @@ macro_rules! rmul_impl(
 
 macro_rules! lmul_impl(
   ($t: ident, $v: ident, $dim: expr) => (
-    impl<N: Clone + Ring> LMul<$v<N>> for $t<N> {
+    impl<N: Clone + Num> LMul<$v<N>> for $t<N> {
         #[inline]
         fn lmul(&self, other: &$v<N>) -> $v<N> {
             let mut res : $v<N> = Zero::zero();
@@ -291,7 +281,7 @@ macro_rules! lmul_impl(
 
 macro_rules! transform_impl(
   ($t: ident, $v: ident) => (
-    impl<N: Clone + DivisionRing + Eq>
+    impl<N: Clone + Num + Eq>
     Transform<$v<N>> for $t<N> {
         #[inline]
         fn transform(&self, v: &$v<N>) -> $v<N> {
@@ -311,7 +301,7 @@ macro_rules! transform_impl(
 
 macro_rules! inv_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Clone + Eq + DivisionRing>
+    impl<N: Clone + Eq + Num>
     Inv for $t<N> {
         #[inline]
         fn inverse(&self) -> Option<$t<N>> {

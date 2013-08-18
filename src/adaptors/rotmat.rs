@@ -1,7 +1,6 @@
 use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
-use traits::ring::DivisionRing;
 use traits::rlmul::{RMul, LMul};
 use traits::cross::Cross;
 use traits::dim::Dim;
@@ -11,7 +10,7 @@ use traits::rotation::{Rotation, Rotate, Rotatable};
 use traits::transformation::{Transform}; // FIXME: implement Transformation and Transformable
 use traits::homogeneous::ToHomogeneous;
 use traits::indexable::Indexable;
-use traits::norm::Norm;
+use traits::vector::AlgebraicVec;
 use vec::Vec1;
 use mat::{Mat2, Mat3};
 use vec::Vec3;
@@ -42,7 +41,7 @@ impl<N: Clone + Trigonometric + Neg<N>> Rotmat<Mat2<N>> {
     }
 }
 
-impl<N: Clone + Trigonometric + DivisionRing + Algebraic> Rotmat<Mat3<N>> {
+impl<N: Clone + Trigonometric + Num + Algebraic> Rotmat<Mat3<N>> {
     /// Builds a 3 dimensional rotation matrix from an axis and an angle.
     ///
     /// # Arguments
@@ -83,7 +82,7 @@ impl<N: Clone + Trigonometric + DivisionRing + Algebraic> Rotmat<Mat3<N>> {
     }
 }
 
-impl<N: Clone + DivisionRing + Algebraic> Rotmat<Mat3<N>> {
+impl<N: Clone + Num + Algebraic> Rotmat<Mat3<N>> {
     /// Reorient this matrix such that its local `x` axis points to a given point. Note that the
     /// usually known `look_at` function does the same thing but with the `z` axis. See `look_at_z`
     /// for that.
@@ -121,7 +120,7 @@ impl<N: Clone + DivisionRing + Algebraic> Rotmat<Mat3<N>> {
     }
 }
 
-impl<N: Trigonometric + DivisionRing + Clone>
+impl<N: Trigonometric + Num + Clone>
 Rotation<Vec1<N>> for Rotmat<Mat2<N>> {
     #[inline]
     fn rotation(&self) -> Vec1<N> {
@@ -139,7 +138,7 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>> {
     }
 }
 
-impl<N: Trigonometric + DivisionRing + Clone>
+impl<N: Trigonometric + Num + Clone>
 Rotatable<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>> {
     #[inline]
     fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>> {
@@ -147,7 +146,7 @@ Rotatable<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>> {
     }
 }
 
-impl<N: Clone + Trigonometric + DivisionRing + Algebraic>
+impl<N: Clone + Trigonometric + Num + Algebraic>
 Rotation<Vec3<N>> for Rotmat<Mat3<N>> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {
@@ -166,7 +165,7 @@ Rotation<Vec3<N>> for Rotmat<Mat3<N>> {
     }
 }
 
-impl<N: Clone + Trigonometric + DivisionRing + Algebraic>
+impl<N: Clone + Trigonometric + Num + Algebraic>
 Rotatable<Vec3<N>, Rotmat<Mat3<N>>> for Rotmat<Mat3<N>> {
     #[inline]
     fn rotated(&self, axisangle: &Vec3<N>) -> Rotmat<Mat3<N>> {
@@ -205,7 +204,7 @@ impl<M: RMul<V> + LMul<V>, V> Transform<V> for Rotmat<M> {
     }
 }
 
-impl<N: Clone + Rand + Trigonometric + DivisionRing + Algebraic>
+impl<N: Clone + Rand + Trigonometric + Num + Algebraic>
 Rand for Rotmat<Mat3<N>> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rotmat<Mat3<N>> {

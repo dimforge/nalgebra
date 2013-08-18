@@ -2,7 +2,6 @@ use std::num::{One, Zero};
 use std::vec::from_elem;
 use std::cmp::ApproxEq;
 use traits::inv::Inv;
-use traits::ring::DivisionRing;
 use traits::transpose::Transpose;
 use traits::rlmul::{RMul, LMul};
 use dvec::{DVec, zero_vec_with_dim};
@@ -145,7 +144,7 @@ LMul<DVec<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone + Eq + DivisionRing>
+impl<N: Clone + Num>
 Inv for DMat<N> {
     #[inline]
     fn inverse(&self) -> Option<DMat<N>> {

@@ -3,13 +3,10 @@ use std::vec::{VecIterator, VecMutIterator};
 use std::vec::from_elem;
 use std::cmp::ApproxEq;
 use std::iterator::FromIterator;
+use traits::vector::{Vec, AlgebraicVec};
 use traits::iterable::{Iterable, IterableMut};
-use traits::ring::{Ring, DivisionRing};
-use traits::dot::Dot;
-use traits::sub_dot::SubDot;
-use traits::norm::Norm;
 use traits::translation::{Translation, Translatable};
-use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
+use traits::scalar_op::{ScalarAdd, ScalarSub};
 
 /// Vector with a dimension unknown at compile-time.
 #[deriving(Eq, ToStr, Clone)]
@@ -57,7 +54,7 @@ impl<N> FromIterator<N> for DVec<N> {
     }
 }
 
-impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> DVec<N> {
+impl<N: Clone + Num + Algebraic + ApproxEq<N>> DVec<N> {
     /// Computes the canonical basis for the given dimension. A canonical basis is a set of
     /// vectors, mutually orthogonal, with all its component equal to 0.0 exept one which is equal
     /// to 1.0.
@@ -94,10 +91,10 @@ impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> DVec<N> {
 
             let mut elt = basis_element.clone();
 
-            elt = elt - self.scalar_mul(&basis_element.dot(self));
+            elt = elt - self * basis_element.dot(self);
 
             for v in res.iter() {
-                elt = elt - v.scalar_mul(&elt.dot(v))
+                elt = elt - v * elt.dot(v)
             };
 
             if !elt.sqnorm().approx_eq(&Zero::zero()) {
@@ -138,7 +135,7 @@ impl<N: Neg<N>> Neg<DVec<N>> for DVec<N> {
     }
 }
 
-impl<N: Ring> Dot<N> for DVec<N> {
+impl<N: Num> DVec<N> {
     #[inline]
     fn dot(&self, other: &DVec<N>) -> N {
         assert!(self.at.len() == other.at.len());
@@ -151,9 +148,7 @@ impl<N: Ring> Dot<N> for DVec<N> {
 
         res
     } 
-}
 
-impl<N: Ring> SubDot<N> for DVec<N> {
     #[inline]
     fn sub_dot(&self, a: &DVec<N>, b: &DVec<N>) -> N {
         let mut res = Zero::zero::<N>();
@@ -166,32 +161,18 @@ impl<N: Ring> SubDot<N> for DVec<N> {
     } 
 }
 
-impl<N: Mul<N, N>> ScalarMul<N> for DVec<N> {
+impl<N: Mul<N, N>> Mul<N, DVec<N>> for DVec<N> {
     #[inline]
-    fn scalar_mul(&self, s: &N) -> DVec<N> {
+    fn mul(&self, s: &N) -> DVec<N> {
         DVec { at: self.at.iter().map(|a| a * *s).collect() }
-    }
-
-    #[inline]
-    fn scalar_mul_inplace(&mut self, s: &N) {
-        for i in range(0u, self.at.len()) {
-            self.at[i] = self.at[i] * *s;
-        }
     }
 }
 
 
-impl<N: Div<N, N>> ScalarDiv<N> for DVec<N> {
+impl<N: Div<N, N>> Div<N, DVec<N>> for DVec<N> {
     #[inline]
-    fn scalar_div(&self, s: &N) -> DVec<N> {
+    fn div(&self, s: &N) -> DVec<N> {
         DVec { at: self.at.iter().map(|a| a / *s).collect() }
-    }
-
-    #[inline]
-    fn scalar_div_inplace(&mut self, s: &N) {
-        for i in range(0u, self.at.len()) {
-            self.at[i] = self.at[i] / *s;
-        }
     }
 }
 
@@ -247,7 +228,7 @@ impl<N: Add<N, N> + Neg<N> + Clone> Translatable<DVec<N>, DVec<N>> for DVec<N> {
     }
 }
 
-impl<N: DivisionRing + Algebraic + Clone> Norm<N> for DVec<N> {
+impl<N: Num + Algebraic + Clone> DVec<N> {
     #[inline]
     fn sqnorm(&self) -> N {
         self.dot(self)

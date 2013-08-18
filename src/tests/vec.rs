@@ -13,13 +13,11 @@ use traits::basis::Basis;
 #[test]
 use traits::cross::Cross;
 #[test]
-use traits::dot::Dot;
-#[test]
-use traits::norm::Norm;
+use traits::vector::{Vec, AlgebraicVec};
 #[test]
 use traits::iterable::{Iterable, IterableMut};
 #[test]
-use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
+use traits::scalar_op::{ScalarAdd, ScalarSub};
 #[test]
 use traits::outer::Outer;
 
@@ -36,7 +34,7 @@ macro_rules! test_iterator_impl(
                 *e = *e * n
             }
 
-            assert!(nv == mv && nv == v.scalar_mul(&n));
+            assert!(nv == mv && nv == v * n);
         }
     )
 )
@@ -58,8 +56,8 @@ macro_rules! test_scalar_op_impl(
             let v1 : $t = random();
             let n  : $n = random();
         
-            assert!(v1.scalar_mul(&n).scalar_div(&n).approx_eq(&v1));
-            assert!(v1.scalar_div(&n).scalar_mul(&n).approx_eq(&v1));
+            assert!(((v1 * n) / n).approx_eq(&v1));
+            assert!(((v1 / n) * n).approx_eq(&v1));
             assert!(v1.scalar_sub(&n).scalar_add(&n).approx_eq(&v1));
             assert!(v1.scalar_add(&n).scalar_sub(&n).approx_eq(&v1));
 
@@ -67,8 +65,8 @@ macro_rules! test_scalar_op_impl(
             let v0 : $t = v1.clone();
             let n  : $n = random();
 
-            v1.scalar_mul_inplace(&n);
-            v1.scalar_div_inplace(&n);
+            v1 = v1 * n;
+            v1 = v1 / n;
         
             assert!(v1.approx_eq(&v0));
         }

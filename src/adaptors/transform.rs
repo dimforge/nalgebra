@@ -3,7 +3,6 @@ use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
 use traits::dim::Dim;
 use traits::inv::Inv;
-use traits::ring::DivisionRing;
 use traits::rotation::{Rotation, Rotate, Rotatable};
 use traits::translation::{Translation, Translate, Translatable};
 use Ts = traits::transformation::Transform;
@@ -53,7 +52,7 @@ impl<M: Clone, V: Clone> Transform<M, V> {
     }
 }
 
-impl<N: Clone + DivisionRing + Algebraic> Transform<Rotmat<Mat3<N>>, Vec3<N>> {
+impl<N: Clone + Num + Algebraic> Transform<Rotmat<Mat3<N>>, Vec3<N>> {
     /// Reorient and translate this transformation such that its local `x` axis points to a given
     /// direction.  Note that the usually known `look_at` function does the same thing but with the
     /// `z` axis. See `look_at_z` for that.

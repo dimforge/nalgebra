@@ -1,10 +1,9 @@
 use std::num::{Zero, One};
 use mat::{Mat1, Mat2, Mat3};
-use traits::ring::DivisionRing;
 use traits::inv::Inv;
 
 // some specializations:
-impl<N: DivisionRing + Clone>
+impl<N: Num + Clone>
 Inv for Mat1<N> {
     #[inline]
     fn inverse(&self) -> Option<Mat1<N>> {
@@ -30,7 +29,7 @@ Inv for Mat1<N> {
     }
 }
 
-impl<N: DivisionRing + Clone>
+impl<N: Num + Clone>
 Inv for Mat2<N> {
     #[inline]
     fn inverse(&self) -> Option<Mat2<N>> {
@@ -61,7 +60,7 @@ Inv for Mat2<N> {
     }
 }
 
-impl<N: DivisionRing + Clone>
+impl<N: Num + Clone>
 Inv for Mat3<N> {
     #[inline]
     fn inverse(&self) -> Option<Mat3<N>> {

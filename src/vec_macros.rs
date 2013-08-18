@@ -183,7 +183,7 @@ macro_rules! dim_impl(
 
 macro_rules! basis_impl(
     ($t: ident, $dim: expr) => (
-        impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for $t<N> {
+        impl<N: Clone + Num + Algebraic + ApproxEq<N>> Basis for $t<N> {
             #[inline]
             fn canonical_basis(f: &fn($t<N>) -> bool) {
                 for i in range(0u, $dim) {
@@ -212,10 +212,10 @@ macro_rules! basis_impl(
 
                     let mut elt = basis_element.clone();
 
-                    elt = elt - self.scalar_mul(&basis_element.dot(self));
+                    elt = elt - *self * basis_element.dot(self);
 
                     for v in basis.iter() {
-                        elt = elt - v.scalar_mul(&elt.dot(v))
+                        elt = elt - v * elt.dot(v)
                     };
 
                     if !elt.sqnorm().approx_eq(&Zero::zero()) {
@@ -266,18 +266,12 @@ macro_rules! neg_impl(
 
 macro_rules! dot_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Ring> Dot<N> for $t<N> {
+        impl<N: Num + Clone> Vec<N> for $t<N> {
             #[inline]
             fn dot(&self, other: &$t<N>) -> N {
                 self.$comp0 * other.$comp0 $(+ self.$compN * other.$compN )*
             }
-        }
-    )
-)
 
-macro_rules! sub_dot_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Ring> SubDot<N> for $t<N> {
             #[inline]
             fn sub_dot(&self, a: &$t<N>, b: &$t<N>) -> N {
                 (self.$comp0 - a.$comp0) * b.$comp0 $(+ (self.$compN - a.$compN) * b.$compN )*
@@ -288,16 +282,10 @@ macro_rules! sub_dot_impl(
 
 macro_rules! scalar_mul_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Mul<N, N>> ScalarMul<N> for $t<N> {
+        impl<N: Mul<N, N>> Mul<N, $t<N>> for $t<N> {
             #[inline]
-            fn scalar_mul(&self, s: &N) -> $t<N> {
+            fn mul(&self, s: &N) -> $t<N> {
                 $t::new(self.$comp0 * *s $(, self.$compN * *s)*)
-            }
-
-            #[inline]
-            fn scalar_mul_inplace(&mut self, s: &N) {
-                self.$comp0   = self.$comp0 * *s;
-                $(self.$compN = self.$compN * *s;)*
             }
         }
     )
@@ -305,16 +293,10 @@ macro_rules! scalar_mul_impl(
 
 macro_rules! scalar_div_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Div<N, N>> ScalarDiv<N> for $t<N> {
+        impl<N: Div<N, N>> Div<N, $t<N>> for $t<N> {
             #[inline]
-            fn scalar_div(&self, s: &N) -> $t<N> {
+            fn div(&self, s: &N) -> $t<N> {
                 $t::new(self.$comp0 / *s $(, self.$compN / *s)*)
-            }
-
-            #[inline]
-            fn scalar_div_inplace(&mut self, s: &N) {
-                self.$comp0   = self.$comp0 / *s;
-                $(self.$compN = self.$compN / *s;)*
             }
         }
     )
@@ -388,7 +370,7 @@ macro_rules! translatable_impl(
 
 macro_rules! norm_impl(
     ($t: ident) => (
-        impl<N: Clone + DivisionRing + Algebraic> Norm<N> for $t<N> {
+        impl<N: Clone + Num + Algebraic> AlgebraicVec<N> for $t<N> {
             #[inline]
             fn sqnorm(&self) -> N {
                 self.dot(self)
@@ -412,7 +394,7 @@ macro_rules! norm_impl(
             fn normalize(&mut self) -> N {
                 let l = self.norm();
 
-                self.scalar_div_inplace(&l);
+                *self = *self / l;
 
                 l
             }
@@ -529,7 +511,7 @@ macro_rules! from_homogeneous_impl(
                 res.$comp0    = v.$comp0.clone();
                 $( res.$compN = v.$compN.clone(); )*
 
-                res.scalar_div(&v.$extra);
+                res = res / v.$extra;
 
                 res
             }

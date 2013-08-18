@@ -6,7 +6,6 @@ use std::cmp::ApproxEq;
 use std::vec::{VecIterator, VecMutIterator};
 use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use traits::dim::Dim;
-use traits::ring::{Ring, DivisionRing};
 use traits::inv::Inv;
 use traits::transpose::Transpose;
 use traits::rlmul::{RMul, LMul};
@@ -16,7 +15,7 @@ use traits::indexable::Indexable;
 use traits::column::Column;
 use traits::iterable::{Iterable, IterableMut};
 use traits::outer::Outer;
-use traits::scalar_op::{ScalarMul, ScalarAdd, ScalarDiv, ScalarSub};
+use traits::scalar_op::{ScalarAdd, ScalarSub};
 
 pub use traits::mat_cast::*;
 pub use traits::column::*;

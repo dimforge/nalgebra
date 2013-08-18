@@ -5,10 +5,6 @@ use std::rand::random;
 #[test]
 use std::cmp::ApproxEq;
 #[test]
-use traits::norm::Norm;
-#[test]
-use traits::scalar_op::ScalarMul;
-#[test]
 use traits::inv::Inv;
 #[test]
 use traits::rotation::{Rotation, Rotatable};
@@ -16,6 +12,8 @@ use traits::rotation::{Rotation, Rotatable};
 use traits::indexable::Indexable;
 #[test]
 use traits::transpose::Transpose;
+#[test]
+use traits::vector::AlgebraicVec;
 #[test]
 use vec::{Vec1, Vec3};
 #[test]
@@ -125,7 +123,7 @@ fn test_inv_rotation3() {
   do 10000.times {
     let randmat        = One::one::<Rotmat<Mat3<f64>>>();
     let dir: Vec3<f64> = random();
-    let ang            = &dir.normalized().scalar_mul(&(abs::<f64>(random()) % Real::pi()));
+    let ang            = &(dir.normalized() * (abs::<f64>(random()) % Real::pi()));
     let rot            = randmat.rotated(ang);
 
     assert!((rot.transposed() * rot).approx_eq(&One::one()));

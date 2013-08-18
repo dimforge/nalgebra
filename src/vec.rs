@@ -7,22 +7,12 @@ use std::cmp::ApproxEq;
 use traits::basis::Basis;
 use traits::dim::Dim;
 use traits::translation::{Translation, Translatable};
-use traits::ring::{Ring, DivisionRing};
 use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
 use traits::indexable::Indexable;
-
-pub use traits::vec_cast::*;
-pub use traits::basis::*;
-pub use traits::cross::*;
-pub use traits::outer::*;
-pub use traits::dot::*;
-pub use traits::indexable::*;
-pub use traits::iterable::*;
-pub use traits::norm::*;
-pub use traits::sample::*;
-pub use traits::sub_dot::*;
-pub use traits::vector_space::*;
-pub use traits::scalar_op::*;
+use traits::scalar_op::{ScalarAdd, ScalarSub};
+use traits::iterable::{Iterable, IterableMut};
+use traits::vec_cast::VecCast;
+use traits::vector::{Vec, AlgebraicVec};
 
 mod vec_macros;
 
@@ -50,7 +40,6 @@ add_impl!(Vec1, x)
 sub_impl!(Vec1, x)
 neg_impl!(Vec1, x)
 dot_impl!(Vec1, x)
-sub_dot_impl!(Vec1, x)
 scalar_mul_impl!(Vec1, x)
 scalar_div_impl!(Vec1, x)
 scalar_add_impl!(Vec1, x)
@@ -90,7 +79,6 @@ add_impl!(Vec2, x, y)
 sub_impl!(Vec2, x, y)
 neg_impl!(Vec2, x, y)
 dot_impl!(Vec2, x, y)
-sub_dot_impl!(Vec2, x, y)
 scalar_mul_impl!(Vec2, x, y)
 scalar_div_impl!(Vec2, x, y)
 scalar_add_impl!(Vec2, x, y)
@@ -132,7 +120,6 @@ add_impl!(Vec3, x, y, z)
 sub_impl!(Vec3, x, y, z)
 neg_impl!(Vec3, x, y, z)
 dot_impl!(Vec3, x, y, z)
-sub_dot_impl!(Vec3, x, y, z)
 scalar_mul_impl!(Vec3, x, y, z)
 scalar_div_impl!(Vec3, x, y, z)
 scalar_add_impl!(Vec3, x, y, z)
@@ -176,7 +163,6 @@ add_impl!(Vec4, x, y, z, w)
 sub_impl!(Vec4, x, y, z, w)
 neg_impl!(Vec4, x, y, z, w)
 dot_impl!(Vec4, x, y, z, w)
-sub_dot_impl!(Vec4, x, y, z, w)
 scalar_mul_impl!(Vec4, x, y, z, w)
 scalar_div_impl!(Vec4, x, y, z, w)
 scalar_add_impl!(Vec4, x, y, z, w)
@@ -222,7 +208,6 @@ add_impl!(Vec5, x, y, z, w, a)
 sub_impl!(Vec5, x, y, z, w, a)
 neg_impl!(Vec5, x, y, z, w, a)
 dot_impl!(Vec5, x, y, z, w, a)
-sub_dot_impl!(Vec5, x, y, z, w, a)
 scalar_mul_impl!(Vec5, x, y, z, w, a)
 scalar_div_impl!(Vec5, x, y, z, w, a)
 scalar_add_impl!(Vec5, x, y, z, w, a)
@@ -270,7 +255,6 @@ add_impl!(Vec6, x, y, z, w, a, b)
 sub_impl!(Vec6, x, y, z, w, a, b)
 neg_impl!(Vec6, x, y, z, w, a, b)
 dot_impl!(Vec6, x, y, z, w, a, b)
-sub_dot_impl!(Vec6, x, y, z, w, a, b)
 scalar_mul_impl!(Vec6, x, y, z, w, a, b)
 scalar_div_impl!(Vec6, x, y, z, w, a, b)
 scalar_add_impl!(Vec6, x, y, z, w, a, b)

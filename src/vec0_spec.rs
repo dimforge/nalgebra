@@ -6,13 +6,10 @@ use std::cmp::ApproxEq;
 use traits::iterable::{Iterable, IterableMut};
 use traits::basis::Basis;
 use traits::dim::Dim;
-use traits::dot::Dot;
-use traits::sub_dot::SubDot;
-use traits::norm::Norm;
 use traits::translation::{Translation, Translatable};
-use traits::scalar_op::{ScalarMul, ScalarDiv, ScalarAdd, ScalarSub};
-use traits::ring::{Ring, DivisionRing};
+use traits::scalar_op::{ScalarAdd, ScalarSub};
 use traits::indexable::Indexable;
+use traits::vector::{Vec, AlgebraicVec};
 use vec;
 
 impl<N> vec::Vec0<N> {
@@ -69,7 +66,7 @@ impl<N> Dim for vec::Vec0<N> {
     }
 }
 
-impl<N: Clone + DivisionRing + Algebraic + ApproxEq<N>> Basis for vec::Vec0<N> {
+impl<N: Clone + Num + Algebraic + ApproxEq<N>> Basis for vec::Vec0<N> {
     #[inline(always)]
     fn canonical_basis(_: &fn(vec::Vec0<N>) -> bool) { }
 
@@ -98,38 +95,30 @@ impl<N: Neg<N>> Neg<vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Ring> Dot<N> for vec::Vec0<N> {
+impl<N: Num + Clone> Vec<N> for vec::Vec0<N> {
     #[inline]
     fn dot(&self, _: &vec::Vec0<N>) -> N {
         Zero::zero()
-    } 
-}
+    }
 
-impl<N: Clone + Ring> SubDot<N> for vec::Vec0<N> {
     #[inline]
     fn sub_dot(&self, _: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
         Zero::zero()
     } 
 }
 
-impl<N: Mul<N, N>> ScalarMul<N> for vec::Vec0<N> {
+impl<N: Mul<N, N>> Mul<N, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn scalar_mul(&self, _: &N) -> vec::Vec0<N> {
+    fn mul(&self, _: &N) -> vec::Vec0<N> {
         vec::Vec0
     }
-
-    #[inline]
-    fn scalar_mul_inplace(&mut self, _: &N) { }
 }
 
-impl<N: Div<N, N>> ScalarDiv<N> for vec::Vec0<N> {
+impl<N: Div<N, N>> Div<N, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn scalar_div(&self, _: &N) -> vec::Vec0<N> {
+    fn div(&self, _: &N) -> vec::Vec0<N> {
         vec::Vec0
     }
-
-    #[inline]
-    fn scalar_div_inplace(&mut self, _: &N) { }
 }
 
 impl<N: Add<N, N>> ScalarAdd<N> for vec::Vec0<N> {
@@ -176,7 +165,7 @@ impl<N: Add<N, N> + Neg<N> + Clone> Translatable<vec::Vec0<N>, vec::Vec0<N>> for
     }
 }
 
-impl<N: Clone + DivisionRing + Algebraic> Norm<N> for vec::Vec0<N> {
+impl<N: Clone + Num + Algebraic> AlgebraicVec<N> for vec::Vec0<N> {
     #[inline]
     fn sqnorm(&self) -> N {
         self.dot(self)
@@ -200,7 +189,7 @@ impl<N: Clone + DivisionRing + Algebraic> Norm<N> for vec::Vec0<N> {
     fn normalize(&mut self) -> N {
         let l = self.norm();
 
-        self.scalar_div_inplace(&l);
+        *self = *self / l;
 
         l
     }

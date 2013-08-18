@@ -47,24 +47,20 @@ pub mod types;
 // FIXME: it would be better to hide all those from the outside!
 pub mod traits
 {
+    pub mod vector;
     pub mod sample;
     pub mod indexable;
     pub mod column;
     pub mod iterable;
-    pub mod dot;
     pub mod outer;
     pub mod cross;
     pub mod inv;
     pub mod transpose;
     pub mod dim;
     pub mod basis;
-    pub mod norm;
     pub mod rotation;
     pub mod translation;
     pub mod transformation;
-    pub mod vector_space;
-    pub mod ring;
-    pub mod sub_dot;
     pub mod rlmul;
     pub mod scalar_op;
     pub mod homogeneous;
