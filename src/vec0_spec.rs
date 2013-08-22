@@ -6,7 +6,7 @@ use std::cmp::ApproxEq;
 use traits::iterable::{Iterable, IterableMut};
 use traits::basis::Basis;
 use traits::dim::Dim;
-use traits::translation::{Translation, Translatable};
+use traits::translation::Translation;
 use traits::scalar_op::{ScalarAdd, ScalarSub};
 use traits::indexable::Indexable;
 use traits::vector::{Vec, AlgebraicVec};
@@ -156,9 +156,7 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     fn translate_by(&mut self, t: &vec::Vec0<N>) {
         *self = *self + *t;
     }
-}
 
-impl<N: Add<N, N> + Neg<N> + Clone> Translatable<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
     fn translated(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
         self + *t

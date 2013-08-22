@@ -1,4 +1,4 @@
-use traits::translation::{Translation, Translatable};
+use traits::translation::Translation;
 
 /// Trait of object which represent a rotation, and to wich new rotations can
 /// be appended. A rotation is assumed to be an isomitry without translation
@@ -10,17 +10,11 @@ pub trait Rotation<V> {
     /// Gets the inverse rotation associated with this object.
     fn inv_rotation(&self) -> V;
 
-    /// In-place version of `rotated` (see the `Rotatable` trait).
+    /// In-place version of `rotated`.
     fn rotate_by(&mut self, &V);
-}
 
-/// Trait of objects which can be put on an alternate form which represent a rotation. This is
-/// typically implemented by structures requiring an internal restructuration to be able to
-/// represent a rotation.
-pub trait Rotatable<V, Res: Rotation<V>> {
-    /// Appends a rotation from an alternative representation. Such
-    /// representation has the same format as the one returned by `rotation`.
-    fn rotated(&self, &V) -> Res;
+    /// Appends a rotation.
+    fn rotated(&self, &V) -> Self;
 }
 
 /// Trait of objects able to rotate other objects. This is typically implemented by matrices which
@@ -40,14 +34,13 @@ pub trait Rotate<V> {
  *   - `point`:   the center of rotation.
  */
 #[inline]
-pub fn rotated_wrt_point<M: Translatable<LV, M2>,
-                         M2: Rotation<AV> + Translation<LV>,
+pub fn rotated_wrt_point<M:  Translation<LV> + Rotation<AV>,
                          LV: Neg<LV>,
                          AV>(
                          m:       &M,
                          ammount: &AV,
                          center:  &LV)
-                         -> M2 {
+                         -> M {
     let mut res = m.translated(&-center);
 
     res.rotate_by(ammount);
@@ -82,13 +75,12 @@ pub fn rotate_wrt_point<M:  Rotation<AV> + Translation<LV>,
  *   * `ammount` - the rotation to apply.
  */
 #[inline]
-pub fn rotated_wrt_center<M: Translatable<LV, M2> + Translation<LV>,
-                          M2: Rotation<AV> + Translation<LV>,
+pub fn rotated_wrt_center<M:  Rotation<AV> + Translation<LV>,
                           LV: Neg<LV>,
                           AV>(
                           m:       &M,
                           ammount: &AV)
-                          -> M2 {
+                          -> M {
     rotated_wrt_point(m, ammount, &m.translation())
 }
 
@@ -100,7 +92,7 @@ pub fn rotated_wrt_center<M: Translatable<LV, M2> + Translation<LV>,
  *   * `ammount` - the rotation to apply.
  */
 #[inline]
-pub fn rotate_wrt_center<M: Translatable<LV, M> + Translation<LV> + Rotation<AV>,
+pub fn rotate_wrt_center<M: Translation<LV> + Rotation<AV>,
                          LV: Neg<LV>,
                          AV>(
                          m:       &mut M,

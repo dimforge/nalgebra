@@ -6,7 +6,7 @@ use traits::cross::Cross;
 use traits::dim::Dim;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
-use traits::rotation::{Rotation, Rotate, Rotatable};
+use traits::rotation::{Rotation, Rotate};
 use traits::transformation::{Transform}; // FIXME: implement Transformation and Transformable
 use traits::homogeneous::ToHomogeneous;
 use traits::indexable::Indexable;
@@ -136,10 +136,7 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>> {
     fn rotate_by(&mut self, rot: &Vec1<N>) {
         *self = self.rotated(rot)
     }
-}
 
-impl<N: Trigonometric + Num + Clone>
-Rotatable<Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>> {
     #[inline]
     fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>> {
         Rotmat::from_angle(rot.x.clone()) * *self
@@ -163,10 +160,7 @@ Rotation<Vec3<N>> for Rotmat<Mat3<N>> {
     fn rotate_by(&mut self, rot: &Vec3<N>) {
         *self = self.rotated(rot)
     }
-}
 
-impl<N: Clone + Trigonometric + Num + Algebraic>
-Rotatable<Vec3<N>, Rotmat<Mat3<N>>> for Rotmat<Mat3<N>> {
     #[inline]
     fn rotated(&self, axisangle: &Vec3<N>) -> Rotmat<Mat3<N>> {
         Rotmat::from_axis_angle(axisangle.clone()) * *self

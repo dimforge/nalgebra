@@ -353,13 +353,7 @@ macro_rules! translation_impl(
             fn translate_by(&mut self, t: &$t<N>) {
                 *self = *self + *t;
             }
-        }
-    )
-)
 
-macro_rules! translatable_impl(
-    ($t: ident) => (
-        impl<N: Add<N, N> + Neg<N> + Clone> Translatable<$t<N>, $t<N>> for $t<N> {
             #[inline]
             fn translated(&self, t: &$t<N>) -> $t<N> {
                 self + *t

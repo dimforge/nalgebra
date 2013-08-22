@@ -8,8 +8,11 @@ pub trait Translation<V> {
     /// Gets the inverse translation associated with this object.
     fn inv_translation(&self) -> V;
 
-    /// In-place version of `translated` (see the `Translatable` trait).
+    /// In-place version of `translated`.
     fn translate_by(&mut self, &V);
+
+    /// Appends a translation.
+    fn translated(&self, &V) -> Self;
 }
 
 /// Trait of objects able to rotate other objects. This is typically implemented by matrices which
@@ -19,13 +22,4 @@ pub trait Translate<V> {
     fn translate(&self, &V)     -> V;
     /// Apply an inverse translation to an object.
     fn inv_translate(&self, &V) -> V;
-}
-
-/// Trait of objects which can be put on an alternate form which represent a translation. This is
-/// typically implemented by structures requiring an internal restructuration to be able to
-/// represent a translation.
-pub trait Translatable<V, Res: Translation<V>> {
-    /// Appends a translation from an alternative representation. Such
-    /// representation has the same format as the one returned by `translation`.
-    fn translated(&self, &V) -> Res;
 }

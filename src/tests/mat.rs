@@ -7,7 +7,7 @@ use std::cmp::ApproxEq;
 #[test]
 use traits::inv::Inv;
 #[test]
-use traits::rotation::{Rotation, Rotatable};
+use traits::rotation::Rotation;
 #[test]
 use traits::indexable::Indexable;
 #[test]

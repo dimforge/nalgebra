@@ -5,7 +5,7 @@ use std::cmp::ApproxEq;
 use std::iterator::FromIterator;
 use traits::vector::{Vec, AlgebraicVec};
 use traits::iterable::{Iterable, IterableMut};
-use traits::translation::{Translation, Translatable};
+use traits::translation::Translation;
 use traits::scalar_op::{ScalarAdd, ScalarSub};
 
 /// Vector with a dimension unknown at compile-time.
@@ -219,9 +219,7 @@ impl<N: Add<N, N> + Neg<N> + Clone> Translation<DVec<N>> for DVec<N> {
     fn translate_by(&mut self, t: &DVec<N>) {
         *self = *self + *t;
     }
-}
 
-impl<N: Add<N, N> + Neg<N> + Clone> Translatable<DVec<N>, DVec<N>> for DVec<N> {
     #[inline]
     fn translated(&self, t: &DVec<N>) -> DVec<N> {
         self + *t
