@@ -3,7 +3,7 @@
  */
 pub trait RMul<V> {
     /// Computes self * v
-    fn rmul(&self, v : &V) -> V;
+    fn rmul(&self, v: &V) -> V;
 }
 
 /**

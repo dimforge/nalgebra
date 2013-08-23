@@ -26,6 +26,7 @@ pub mod mat;
 mod mat_spec;
 mod vec_spec;
 mod vec0_spec;
+mod identity_spec;
 
 /// Wrappers around raw matrices to restrict their behaviour.
 pub mod adaptors

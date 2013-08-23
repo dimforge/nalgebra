@@ -20,7 +20,7 @@ impl<N> vec::Vec0<N> {
     }
 }
 
-impl<N: Clone> Indexable<uint, N> for vec::Vec0<N> {
+impl<N> Indexable<uint, N> for vec::Vec0<N> {
     #[inline]
     fn at(&self, _: uint) -> N {
         fail!("Cannot index a Vec0.")
@@ -37,7 +37,7 @@ impl<N: Clone> Indexable<uint, N> for vec::Vec0<N> {
     }
 }
 
-impl<N: Clone> vec::Vec0<N> {
+impl<N> vec::Vec0<N> {
     /// Creates a new vector. The parameter is not taken in account.
     #[inline]
     pub fn new_repeat(_: N) -> vec::Vec0<N> {
@@ -66,7 +66,7 @@ impl<N> Dim for vec::Vec0<N> {
     }
 }
 
-impl<N: Clone + Num + Algebraic + ApproxEq<N>> Basis for vec::Vec0<N> {
+impl<N> Basis for vec::Vec0<N> {
     #[inline(always)]
     fn canonical_basis(_: &fn(vec::Vec0<N>) -> bool) { }
 

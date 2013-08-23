@@ -28,6 +28,18 @@ pub use traits::transpose::*;
 
 mod mat_macros;
 
+/// Special identity matrix. All its operation are no-ops.
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Rand, Zero, ToStr)]
+pub struct Identity;
+
+impl Identity {
+    /// Creates a new identity matrix.
+    #[inline]
+    pub fn new() -> Identity {
+        Identity
+    }
+}
+
 /// Square matrix of dimension 1.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Mat1<N> {
