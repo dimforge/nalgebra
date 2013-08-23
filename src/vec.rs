@@ -6,7 +6,9 @@ use std::iterator::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
 use traits::basis::Basis;
 use traits::dim::Dim;
-use traits::translation::Translation;
+use traits::translation::{Translation, Translate};
+use traits::transformation::Transform;
+use traits::rotation::Rotate;
 use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
 use traits::indexable::Indexable;
 use traits::scalar_op::{ScalarAdd, ScalarSub};
@@ -55,6 +57,9 @@ iterable_impl!(Vec1, 1)
 iterable_mut_impl!(Vec1, 1)
 to_homogeneous_impl!(Vec1, Vec2, y, x)
 from_homogeneous_impl!(Vec1, Vec2, y, x)
+translate_impl!(Vec1)
+rotate_impl!(Vec1)
+transform_impl!(Vec1)
 
 /// Vector of dimension 2.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -93,6 +98,9 @@ iterable_impl!(Vec2, 2)
 iterable_mut_impl!(Vec2, 2)
 to_homogeneous_impl!(Vec2, Vec3, z, x, y)
 from_homogeneous_impl!(Vec2, Vec3, z, x, y)
+translate_impl!(Vec2)
+rotate_impl!(Vec2)
+transform_impl!(Vec2)
 
 /// Vector of dimension 3.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -133,6 +141,9 @@ iterable_impl!(Vec3, 3)
 iterable_mut_impl!(Vec3, 3)
 to_homogeneous_impl!(Vec3, Vec4, w, x, y, z)
 from_homogeneous_impl!(Vec3, Vec4, w, x, y, z)
+translate_impl!(Vec3)
+rotate_impl!(Vec3)
+transform_impl!(Vec3)
 
 /// Vector of dimension 4.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -175,6 +186,9 @@ iterable_impl!(Vec4, 4)
 iterable_mut_impl!(Vec4, 4)
 to_homogeneous_impl!(Vec4, Vec5, a, x, y, z, w)
 from_homogeneous_impl!(Vec4, Vec5, a, x, y, z, w)
+translate_impl!(Vec4)
+rotate_impl!(Vec4)
+transform_impl!(Vec4)
 
 /// Vector of dimension 5.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -219,6 +233,9 @@ iterable_impl!(Vec5, 5)
 iterable_mut_impl!(Vec5, 5)
 to_homogeneous_impl!(Vec5, Vec6, b, x, y, z, w, a)
 from_homogeneous_impl!(Vec5, Vec6, b, x, y, z, w, a)
+translate_impl!(Vec5)
+rotate_impl!(Vec5)
+transform_impl!(Vec5)
 
 /// Vector of dimension 6.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
@@ -263,3 +280,6 @@ from_iterator_impl!(Vec6, iterator, iterator, iterator, iterator, iterator, iter
 bounded_impl!(Vec6)
 iterable_impl!(Vec6, 6)
 iterable_mut_impl!(Vec6, 6)
+translate_impl!(Vec6)
+rotate_impl!(Vec6)
+transform_impl!(Vec6)

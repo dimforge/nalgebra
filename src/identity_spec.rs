@@ -10,13 +10,13 @@ use traits::transformation::{Transformation, Transform};
 impl One for mat::Identity {
     #[inline]
     fn one() -> mat::Identity {
-        mat::Identity
+        mat::Identity::new()
     }
 }
 
 impl Inv for mat::Identity {
     fn inverse(&self) -> Option<mat::Identity> {
-        Some(mat::Identity)
+        Some(mat::Identity::new())
     }
 
     fn inplace_inverse(&mut self) -> bool {
@@ -46,7 +46,7 @@ impl<M: Clone> Mul<M, M> for mat::Identity {
 impl Transpose for mat::Identity {
     #[inline]
     fn transposed(&self) -> mat::Identity {
-        mat::Identity
+        mat::Identity::new()
     }
 
     #[inline]

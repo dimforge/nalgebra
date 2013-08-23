@@ -30,13 +30,17 @@ mod mat_macros;
 
 /// Special identity matrix. All its operation are no-ops.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Rand, Zero, ToStr)]
-pub struct Identity;
+pub struct Identity {
+    unused: uint // XXX: zero-sized structures ICE when used cross-crate.
+}
 
 impl Identity {
     /// Creates a new identity matrix.
     #[inline]
     pub fn new() -> Identity {
-        Identity
+        Identity {
+            unused: 0
+        }
     }
 }
 

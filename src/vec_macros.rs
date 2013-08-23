@@ -233,7 +233,7 @@ macro_rules! basis_impl(
 
 macro_rules! add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
+        impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
             #[inline]
             fn add(&self, other: &$t<N>) -> $t<N> {
                 $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN)*)
@@ -244,7 +244,7 @@ macro_rules! add_impl(
 
 macro_rules! sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
+        impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
             #[inline]
             fn sub(&self, other: &$t<N>) -> $t<N> {
                 $t::new(self.$comp0 - other.$comp0 $(, self.$compN - other.$compN)*)
@@ -508,6 +508,48 @@ macro_rules! from_homogeneous_impl(
                 res = res / v.$extra;
 
                 res
+            }
+        }
+    )
+)
+
+macro_rules! translate_impl(
+    ($t: ident) => (
+        impl<N: Add<N, N> + Sub<N, N>> Translate<$t<N>> for $t<N> {
+            fn translate(&self, other: &$t<N>) -> $t<N> {
+                *other + *self
+            }
+
+            fn inv_translate(&self, other: &$t<N>) -> $t<N> {
+                *other - *self
+            }
+        }
+    )
+)
+
+macro_rules! rotate_impl(
+    ($t: ident) => (
+        impl<N, O: Clone> Rotate<O> for $t<N> {
+            fn rotate(&self, other: &O) -> O {
+                other.clone()
+            }
+
+            fn inv_rotate(&self, other: &O) -> O {
+                other.clone()
+            }
+        }
+    )
+)
+
+macro_rules! transform_impl(
+    ($t: ident) => (
+        impl<N: Add<N, N> + Sub<N, N>> Transform<$t<N>> for $t<N> {
+            fn transform(&self, other: &$t<N>) -> $t<N> {
+                self.translate(other)
+            }
+
+            fn inv_transform(&self, other: &$t<N>) -> $t<N> {
+                self.inv_translate(other)
             }
         }
     )
