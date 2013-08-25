@@ -1,15 +1,25 @@
 use std::num::{Zero, One};
 use traits::basis::Basis;
-use traits::cross::Cross;
+use traits::cross::{Cross, CrossMatrix};
 use traits::sample::UniformSphereSample;
 use traits::vec_cast::VecCast;
 use traits::vector::{AlgebraicVec};
+use traits::row::Row;
 use vec::{Vec1, Vec2, Vec3};
+use mat::Mat3;
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
     #[inline]
     fn cross(&self, other : &Vec2<N>) -> Vec1<N> {
         Vec1::new(self.x * other.y - self.y * other.x)
+    }
+}
+
+// FIXME: instead of returning a Vec2, define a Mat2x1 matrix?
+impl<N: Neg<N> + Clone> CrossMatrix<Vec2<N>> for Vec2<N> {
+    #[inline]
+    fn cross_matrix(&self) -> Vec2<N> {
+        Vec2::new(-self.y, self.x.clone())
     }
 }
 
@@ -21,6 +31,39 @@ impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x
         )
+    }
+}
+
+impl<N: Neg<N> + Zero + Clone> CrossMatrix<Mat3<N>> for Vec3<N> {
+    #[inline]
+    fn cross_matrix(&self) -> Mat3<N> {
+        Mat3::new(
+            Zero::zero()  , -self.z,        self.y.clone(),
+            self.z.clone(), Zero::zero(),   -self.x,
+            -self.y       , self.x.clone(), Zero::zero()
+        )
+    }
+}
+
+// FIXME: iplement this for all other vectors
+impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
+    #[inline]
+    fn row(&self, i: uint) -> Vec1<N> {
+        match i {
+            0 => Vec1::new(self.x.clone()),
+            1 => Vec1::new(self.y.clone()),
+            _ => fail!("Index out of range: 2d vectors do not have " + i.to_str() + " rows.")
+        }
+    }
+
+    #[inline]
+    fn set_row(&mut self, i: uint, r: Vec1<N>) {
+        match i {
+            0 => self.x = r.x,
+            1 => self.y = r.x,
+            _ => fail!("Index out of range: 2d vectors do not have " + i.to_str() + " rows.")
+
+        }
     }
 }
 

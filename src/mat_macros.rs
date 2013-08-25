@@ -183,29 +183,45 @@ macro_rules! indexable_impl(
 )
 
 macro_rules! column_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N: Clone, V: Zero + Iterable<N> + IterableMut<N>> Column<V> for $t<N> {
+  ($t: ident, $tv: ident, $dim: expr) => (
+    impl<N: Clone + Zero> Column<$tv<N>> for $t<N> {
         #[inline]
-        fn set_column(&mut self, col: uint, v: V) {
+        fn set_column(&mut self, col: uint, v: $tv<N>) {
             for (i, e) in v.iter().enumerate() {
-                if i == Dim::dim::<$t<N>>() {
-                    break
-                }
-
                 self.set((i, col), e.clone());
             }
         }
 
         #[inline]
-        fn column(&self, col: uint) -> V {
-            let mut res = Zero::zero::<V>();
+        fn column(&self, col: uint) -> $tv<N> {
+            let mut res = Zero::zero::<$tv<N>>();
 
             for (i, e) in res.mut_iter().enumerate() {
-                if i >= Dim::dim::<$t<N>>() {
-                    break
-                }
-
                 *e = self.at((i, col));
+            }
+
+            res
+        }
+    }
+  )
+)
+
+macro_rules! row_impl(
+  ($t: ident, $tv: ident, $dim: expr) => (
+    impl<N: Clone + Zero> Row<$tv<N>> for $t<N> {
+        #[inline]
+        fn set_row(&mut self, row: uint, v: $tv<N>) {
+            for (i, e) in v.iter().enumerate() {
+                self.set((row, i), e.clone());
+            }
+        }
+
+        #[inline]
+        fn row(&self, row: uint) -> $tv<N> {
+            let mut res = Zero::zero::<$tv<N>>();
+
+            for (i, e) in res.mut_iter().enumerate() {
+                *e = self.at((row, i));
             }
 
             res

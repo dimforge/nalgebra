@@ -1,6 +1,8 @@
 use std::num::{Zero, One};
+use vec::Vec3;
 use mat::{Mat1, Mat2, Mat3};
 use traits::inv::Inv;
+use traits::row::Row;
 
 // some specializations:
 impl<N: Num + Clone>
@@ -103,6 +105,41 @@ Inv for Mat3<N> {
                 );
 
             true
+        }
+    }
+}
+
+impl<N: Clone> Row<Vec3<N>> for Mat3<N> {
+    #[inline]
+    fn row(&self, i: uint) -> Vec3<N> {
+        match i {
+            0 => Vec3::new(self.m11.clone(), self.m12.clone(), self.m13.clone()),
+            1 => Vec3::new(self.m21.clone(), self.m22.clone(), self.m23.clone()),
+            2 => Vec3::new(self.m31.clone(), self.m32.clone(), self.m33.clone()),
+            _ => fail!("Index out of range: 3d matrices do not have " + i.to_str() + " rows.")
+        }
+    }
+
+    #[inline]
+    fn set_row(&mut self, i: uint, r: Vec3<N>) {
+        match i {
+            0 => {
+                self.m11 = r.x.clone();
+                self.m12 = r.y.clone();
+                self.m13 = r.z;
+            },
+            1 => {
+                self.m21 = r.x.clone();
+                self.m22 = r.y.clone();
+                self.m23 = r.z;
+            },
+            2 => {
+                self.m31 = r.x.clone();
+                self.m32 = r.y.clone();
+                self.m33 = r.z;
+            },
+            _ => fail!("Index out of range: 3d matrices do not have " + i.to_str() + " rows.")
+
         }
     }
 }

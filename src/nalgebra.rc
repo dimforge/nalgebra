@@ -52,6 +52,7 @@ pub mod traits
     pub mod sample;
     pub mod indexable;
     pub mod column;
+    pub mod row;
     pub mod iterable;
     pub mod outer;
     pub mod cross;
