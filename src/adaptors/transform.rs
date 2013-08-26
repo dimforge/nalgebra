@@ -277,7 +277,7 @@ Inv for Transform<M, V> {
     }
 }
 
-impl<M: ToHomogeneous<M2>, M2: Dim + Column<V>, V: Clone>
+impl<M: ToHomogeneous<M2>, M2: Dim + Column<V2>, V: ToHomogeneous<V2> + Clone, V2>
 ToHomogeneous<M2> for Transform<M, V> {
     fn to_homogeneous(&self) -> M2 {
         let mut res = self.submat.to_homogeneous();
@@ -285,7 +285,7 @@ ToHomogeneous<M2> for Transform<M, V> {
         // copy the translation
         let dim = Dim::dim::<M2>();
 
-        res.set_column(dim - 1, self.subtrans.clone());
+        res.set_column(dim - 1, self.subtrans.to_homogeneous());
 
         res
     }
