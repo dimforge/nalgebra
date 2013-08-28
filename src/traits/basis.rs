@@ -11,7 +11,7 @@ pub trait Basis {
     fn canonical_basis_list() -> ~[Self] {
         let mut res = ~[];
 
-        do Basis::canonical_basis::<Self> |elem| {
+        do Basis::canonical_basis |elem| {
             res.push(elem);
 
             true

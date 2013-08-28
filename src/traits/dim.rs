@@ -3,5 +3,5 @@
  */
 pub trait Dim {
     /// The dimension of the object.
-    fn dim() -> uint;
+    fn dim(unused_self: Option<Self>) -> uint;
 }

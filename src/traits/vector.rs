@@ -9,7 +9,7 @@ use traits::scalar_op::{ScalarAdd, ScalarSub};
 // NOTE: cant call that `Vector` because it conflicts with std::Vector
 /// Trait grouping most common operations on vectors.
 pub trait Vec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + Eq + Mul<N, Self>
-                     + Div<N, Self>
+                  + Div<N, Self>
 {
     /// Computes the dot (inner) product of two vectors.
     #[inline]

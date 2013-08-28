@@ -104,7 +104,7 @@ fn test_inv_mat6() {
 #[test]
 fn test_rotation2() {
   do 10000.times {
-    let randmat = One::one::<Rotmat<Mat2<f64>>>();
+    let randmat: Rotmat<Mat2<f64>> = One::one();
     let ang     = &Vec1::new(abs::<f64>(random()) % Real::pi());
 
     assert!(randmat.rotated(ang).rotation().approx_eq(ang));
@@ -121,7 +121,7 @@ fn test_index_mat2() {
 #[test]
 fn test_inv_rotation3() {
   do 10000.times {
-    let randmat        = One::one::<Rotmat<Mat3<f64>>>();
+    let randmat: Rotmat<Mat3<f64>> = One::one();
     let dir: Vec3<f64> = random();
     let ang            = &(dir.normalized() * (abs::<f64>(random()) % Real::pi()));
     let rot            = randmat.rotated(ang);

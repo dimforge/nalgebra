@@ -174,7 +174,7 @@ macro_rules! dim_impl(
     ($t: ident, $dim: expr) => (
         impl<N> Dim for $t<N> {
             #[inline]
-            fn dim() -> uint {
+            fn dim(_: Option<$t<N>>) -> uint {
                 $dim
             }
         }
@@ -427,7 +427,8 @@ macro_rules! approx_eq_impl(
         impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {
             #[inline]
             fn approx_epsilon() -> N {
-                ApproxEq::approx_epsilon::<N, N>()
+                fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
+                // ApproxEq::<N>::approx_epsilon()
             }
 
             #[inline]

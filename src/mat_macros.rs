@@ -136,7 +136,7 @@ macro_rules! one_impl(
     impl<N: Clone + One + Zero> One for $t<N> {
         #[inline]
         fn one() -> $t<N> {
-            let (_0, _1) = (Zero::zero::<N>(), One::one::<N>());
+            let (_0, _1): (N, N) = (Zero::zero(), One::one());
             return $t::new($value0.clone() $(, $valueN.clone() )*)
         }
     }
@@ -147,7 +147,7 @@ macro_rules! dim_impl(
   ($t: ident, $dim: expr) => (
     impl<N> Dim for $t<N> {
         #[inline]
-        fn dim() -> uint {
+        fn dim(_: Option<$t<N>>) -> uint {
             $dim
         }
     }
@@ -194,7 +194,7 @@ macro_rules! column_impl(
 
         #[inline]
         fn column(&self, col: uint) -> $tv<N> {
-            let mut res = Zero::zero::<$tv<N>>();
+            let mut res: $tv<N> = Zero::zero();
 
             for (i, e) in res.mut_iter().enumerate() {
                 *e = self.at((i, col));
@@ -218,7 +218,7 @@ macro_rules! row_impl(
 
         #[inline]
         fn row(&self, row: uint) -> $tv<N> {
-            let mut res = Zero::zero::<$tv<N>>();
+            let mut res: $tv<N> = Zero::zero();
 
             for (i, e) in res.mut_iter().enumerate() {
                 *e = self.at((row, i));
@@ -239,7 +239,7 @@ macro_rules! mul_impl(
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
-                    let mut acc = Zero::zero::<N>();
+                    let mut acc: N = Zero::zero();
 
                     for k in range(0u, $dim) {
                         acc = acc + self.at((i, k)) * other.at((k, j));
@@ -429,7 +429,8 @@ macro_rules! approx_eq_impl(
     impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {
         #[inline]
         fn approx_epsilon() -> N {
-            ApproxEq::approx_epsilon::<N, N>()
+            fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
+            // ApproxEq::<N>::approx_epsilon()
         }
 
         #[inline]
@@ -499,10 +500,12 @@ macro_rules! outer_impl(
         impl<N: Mul<N, N> + Zero + Clone> Outer<$t<N>, $m<N>> for $t<N> {
             #[inline]
             fn outer(&self, other: &$t<N>) -> $m<N> {
-                let mut res = Zero::zero::<$m<N>>();
+                let mut res: $m<N> = Zero::zero();
 
-                for i in range(0u, Dim::dim::<$t<N>>()) {
-                    for j in range(0u, Dim::dim::<$t<N>>()) {
+                let _dim: Option<$t<N>> = None;
+                for i in range(0u, Dim::dim(_dim)) {
+                    let _dim: Option<$t<N>> = None;
+                    for j in range(0u, Dim::dim(_dim)) {
                         res.set((i, j), self.at(i) * other.at(j))
                     }
                 }

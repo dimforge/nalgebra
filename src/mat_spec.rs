@@ -25,7 +25,8 @@ Inv for Mat1<N> {
             false
         }
         else {
-            self.m11 = One::one::<N>() / self.m11;
+            let _1: N = One::one();
+            self.m11 = _1 / self.m11;
             true
         }
     }

@@ -36,8 +36,8 @@ pub fn is_zero_mat<N: Zero>(mat: &DMat<N>) -> bool {
 ///   components.
 #[inline]
 pub fn one_mat_with_dim<N: Clone + One + Zero>(dim: uint) -> DMat<N> {
-    let mut res = zero_mat_with_dim(dim);
-    let     _1  = One::one::<N>();
+    let mut res    = zero_mat_with_dim(dim);
+    let     _1: N  = One::one();
 
     for i in range(0u, dim) {
         res.set(i, i, &_1);
@@ -94,7 +94,7 @@ Mul<DMat<N>, DMat<N>> for DMat<N> {
 
         for i in range(0u, dim) {
             for j in range(0u, dim) {
-                let mut acc = Zero::zero::<N>();
+                let mut acc: N = Zero::zero();
 
                 for k in range(0u, dim) {
                     acc = acc + self.at(i, k) * other.at(k, j);
@@ -161,7 +161,7 @@ Inv for DMat<N> {
     fn inplace_inverse(&mut self) -> bool {
         let     dim = self.dim;
         let mut res = one_mat_with_dim::<N>(dim);
-        let     _0T = Zero::zero::<N>();
+        let     _0T: N = Zero::zero();
 
         // inversion using Gauss-Jordan elimination
         for k in range(0u, dim) {
@@ -256,7 +256,10 @@ impl<N: Clone> Transpose for DMat<N> {
 impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     #[inline]
     fn approx_epsilon() -> N {
-        ApproxEq::approx_epsilon::<N, N>()
+        fail!("Fix this.")
+        // let res: N = ApproxEq::<N>::approx_epsilon();
+
+        // res
     }
 
     #[inline]

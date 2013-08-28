@@ -76,8 +76,8 @@ macro_rules! test_scalar_op_impl(
 macro_rules! test_basis_impl(
     ($t: ty) => (
         do 10000.times {
-            do Basis::canonical_basis::<$t> |e1| {
-                do Basis::canonical_basis::<$t> |e2| {
+            do Basis::canonical_basis |e1: $t| {
+                do Basis::canonical_basis |e2: $t| {
                     assert!(e1 == e2 || e1.dot(&e2).approx_eq(&Zero::zero()));
 
                     true

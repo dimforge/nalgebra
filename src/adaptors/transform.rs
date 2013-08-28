@@ -85,8 +85,9 @@ impl<N: Clone + Num + Algebraic> Transform<Rotmat<Mat3<N>>, Vec3<N>> {
 
 impl<M: Dim, V> Dim for Transform<M, V> {
     #[inline]
-    fn dim() -> uint {
-        Dim::dim::<M>()
+    fn dim(_: Option<Transform<M, V>>) -> uint {
+        let _dim: Option<M> = None;
+        Dim::dim(_dim)
     }
 }
 
@@ -188,7 +189,7 @@ Rotation<AV> for Transform<M, V> {
     #[inline]
     fn rotate_by(&mut self, rot: &AV) {
         // FIXME: this does not seem opitmal
-        let mut delta = One::one::<M>();
+        let mut delta: M = One::one();
         delta.rotate_by(rot);
         self.submat.rotate_by(rot);
         self.subtrans = delta.rmul(&self.subtrans);
@@ -197,7 +198,8 @@ Rotation<AV> for Transform<M, V> {
     #[inline]
     fn rotated(&self, rot: &AV) -> Transform<M, V> {
         // FIXME: this does not seem opitmal
-        let delta = One::one::<M>().rotated(rot);
+        let _1: M = One::one();
+        let delta = _1.rotated(rot);
 
         Transform::new(self.submat.rotated(rot), delta.rmul(&self.subtrans))
     }
@@ -283,7 +285,8 @@ ToHomogeneous<M2> for Transform<M, V> {
         let mut res = self.submat.to_homogeneous();
 
         // copy the translation
-        let dim = Dim::dim::<M2>();
+        let _dim: Option<M2> = None;
+        let dim = Dim::dim(_dim);
 
         res.set_column(dim - 1, self.subtrans.to_homogeneous());
 
@@ -294,7 +297,8 @@ ToHomogeneous<M2> for Transform<M, V> {
 impl<M: Column<V> + Dim, M2: FromHomogeneous<M>, V>
 FromHomogeneous<M> for Transform<M2, V> {
     fn from(m: &M) -> Transform<M2, V> {
-        Transform::new(FromHomogeneous::from(m), m.column(Dim::dim::<M>() - 1))
+        let _dim: Option<M> = None;
+        Transform::new(FromHomogeneous::from(m), m.column(Dim::dim(_dim) - 1))
     }
 }
 
@@ -302,7 +306,8 @@ impl<N: ApproxEq<N>, M:ApproxEq<N>, V:ApproxEq<N>>
 ApproxEq<N> for Transform<M, V> {
     #[inline]
     fn approx_epsilon() -> N {
-        ApproxEq::approx_epsilon::<N, N>()
+        fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
+        // ApproxEq::<N>::approx_epsilon()
     }
 
     #[inline]

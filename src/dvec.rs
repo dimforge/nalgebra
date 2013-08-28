@@ -21,7 +21,7 @@ pub struct DVec<N> {
 ///   * `dim` - The dimension of the vector.
 #[inline]
 pub fn zero_vec_with_dim<N: Zero + Clone>(dim: uint) -> DVec<N> {
-    DVec { at: from_elem(dim, Zero::zero::<N>()) }
+    DVec { at: from_elem(dim, Zero::zero()) }
 }
 
 /// Tests if all components of the vector are zeroes.
@@ -140,7 +140,7 @@ impl<N: Num> DVec<N> {
     fn dot(&self, other: &DVec<N>) -> N {
         assert!(self.at.len() == other.at.len());
 
-        let mut res = Zero::zero::<N>();
+        let mut res: N = Zero::zero();
 
         for i in range(0u, self.at.len()) {
             res = res + self.at[i] * other.at[i];
@@ -151,7 +151,7 @@ impl<N: Num> DVec<N> {
 
     #[inline]
     fn sub_dot(&self, a: &DVec<N>, b: &DVec<N>) -> N {
-        let mut res = Zero::zero::<N>();
+        let mut res: N = Zero::zero();
 
         for i in range(0u, self.at.len()) {
             res = res + (self.at[i] - a.at[i]) * b.at[i];
@@ -261,7 +261,10 @@ impl<N: Num + Algebraic + Clone> DVec<N> {
 impl<N: ApproxEq<N>> ApproxEq<N> for DVec<N> {
     #[inline]
     fn approx_epsilon() -> N {
-        ApproxEq::approx_epsilon::<N, N>()
+        fail!("Fix me.")
+        // let res: N = ApproxEq::<N>::approx_epsilon();
+
+        // res
     }
 
     #[inline]

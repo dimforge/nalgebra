@@ -61,7 +61,7 @@ impl<N> IterableMut<N> for vec::Vec0<N> {
 
 impl<N> Dim for vec::Vec0<N> {
     #[inline]
-    fn dim() -> uint {
+    fn dim(_: Option<vec::Vec0<N>>) -> uint {
         0
     }
 }
@@ -196,7 +196,8 @@ impl<N: Clone + Num + Algebraic> AlgebraicVec<N> for vec::Vec0<N> {
 impl<N: ApproxEq<N>> ApproxEq<N> for vec::Vec0<N> {
     #[inline]
     fn approx_epsilon() -> N {
-        ApproxEq::approx_epsilon::<N, N>()
+        fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
+        // ApproxEq::<N>::approx_epsilon()
     }
 
     #[inline]

@@ -54,7 +54,7 @@ impl<N: Clone + Trigonometric + Num + Algebraic> Rotmat<Mat3<N>> {
         else {
             let mut axis   = axisangle;
             let angle      = axis.normalize();
-            let _1         = One::one::<N>();
+            let _1: N      = One::one();
             let ux         = axis.x.clone();
             let uy         = axis.y.clone();
             let uz         = axis.z.clone();
@@ -208,8 +208,9 @@ Rand for Rotmat<Mat3<N>> {
 
 impl<M: Dim> Dim for Rotmat<M> {
     #[inline]
-    fn dim() -> uint {
-        Dim::dim::<M>()
+    fn dim(_: Option<Rotmat<M>>) -> uint {
+        let _dim: Option<M> = None;
+        Dim::dim(_dim)
     }
 }
 
@@ -278,7 +279,8 @@ impl<M: ToHomogeneous<M2>, M2> ToHomogeneous<M2> for Rotmat<M> {
 impl<N: ApproxEq<N>, M: ApproxEq<N>> ApproxEq<N> for Rotmat<M> {
     #[inline]
     fn approx_epsilon() -> N {
-        ApproxEq::approx_epsilon::<N, N>()
+        // ApproxEq::<N>::approx_epsilon()
+        fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
     }
 
     #[inline]
