@@ -86,8 +86,7 @@ impl<N: Clone + Num + Algebraic> Transform<Rotmat<Mat3<N>>, Vec3<N>> {
 impl<M: Dim, V> Dim for Transform<M, V> {
     #[inline]
     fn dim(_: Option<Transform<M, V>>) -> uint {
-        let _dim: Option<M> = None;
-        Dim::dim(_dim)
+        Dim::dim(None::<M>)
     }
 }
 
@@ -285,8 +284,7 @@ ToHomogeneous<M2> for Transform<M, V> {
         let mut res = self.submat.to_homogeneous();
 
         // copy the translation
-        let _dim: Option<M2> = None;
-        let dim = Dim::dim(_dim);
+        let dim = Dim::dim(None::<M2>);
 
         res.set_column(dim - 1, self.subtrans.to_homogeneous());
 
@@ -297,8 +295,7 @@ ToHomogeneous<M2> for Transform<M, V> {
 impl<M: Column<V> + Dim, M2: FromHomogeneous<M>, V>
 FromHomogeneous<M> for Transform<M2, V> {
     fn from(m: &M) -> Transform<M2, V> {
-        let _dim: Option<M> = None;
-        Transform::new(FromHomogeneous::from(m), m.column(Dim::dim(_dim) - 1))
+        Transform::new(FromHomogeneous::from(m), m.column(Dim::dim(None::<M>) - 1))
     }
 }
 

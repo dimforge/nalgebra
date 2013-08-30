@@ -502,10 +502,8 @@ macro_rules! outer_impl(
             fn outer(&self, other: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = Zero::zero();
 
-                let _dim: Option<$t<N>> = None;
-                for i in range(0u, Dim::dim(_dim)) {
-                    let _dim: Option<$t<N>> = None;
-                    for j in range(0u, Dim::dim(_dim)) {
+                for i in range(0u, Dim::dim(None::<$t<N>>)) {
+                    for j in range(0u, Dim::dim(None::<$t<N>>)) {
                         res.set((i, j), self.at(i) * other.at(j))
                     }
                 }

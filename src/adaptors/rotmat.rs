@@ -209,8 +209,7 @@ Rand for Rotmat<Mat3<N>> {
 impl<M: Dim> Dim for Rotmat<M> {
     #[inline]
     fn dim(_: Option<Rotmat<M>>) -> uint {
-        let _dim: Option<M> = None;
-        Dim::dim(_dim)
+        Dim::dim(None::<M>)
     }
 }
 
