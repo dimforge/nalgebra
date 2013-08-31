@@ -20,6 +20,7 @@ pub use traits::iterable::*;
 pub use traits::sample::*;
 pub use traits::scalar_op::*;
 pub use traits::cross::*;
+pub use traits::outer::*;
 pub use traits::sample::*;
 pub use traits::row::*;
 

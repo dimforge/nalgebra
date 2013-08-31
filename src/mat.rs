@@ -4,12 +4,11 @@ use std::cast;
 use std::num::{One, Zero};
 use std::cmp::ApproxEq;
 use std::vec::{VecIterator, VecMutIterator};
-use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
+use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Outer};
 
 pub use traits::dim::*;
 pub use traits::indexable::*;
 pub use traits::iterable::*;
-pub use traits::outer::*;
 pub use traits::scalar_op::*;
 pub use traits::mat_cast::*;
 pub use traits::column::*;
