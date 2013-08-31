@@ -5,9 +5,10 @@ use std::vec::{VecIterator, VecMutIterator};
 use std::iterator::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
 
-pub use traits::translation::*;
-pub use traits::transformation::*;
-pub use traits::rotation::*;
+use traits::translation::*;
+use traits::transformation::*;
+use traits::rotation::*;
+
 pub use traits::homogeneous::*;
 pub use traits::vec_cast::*;
 pub use traits::vector::*;
