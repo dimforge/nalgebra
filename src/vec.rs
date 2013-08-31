@@ -145,6 +145,60 @@ translate_impl!(Vec3)
 rotate_impl!(Vec3)
 transform_impl!(Vec3)
 
+
+/// Vector of dimension 3 with an extra component for padding.
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
+pub struct PVec3<N> {
+    /// First component of the vector.
+    x: N,
+    /// Second component of the vector.
+    y: N,
+    /// Third component of the vector.
+    z: N,
+    // Unused component, for padding
+    priv _unused: N
+}
+
+impl<N: Clone> PVec3<N> {
+    /// Creates a new 3d vector.
+    pub fn new(x: N, y: N, z: N) -> PVec3<N> {
+        PVec3 { x: x.clone(), y: y, z: z, _unused: x }
+    }
+}
+
+ord_impl!(PVec3, x, y, z)
+orderable_impl!(PVec3, x, y, z)
+vec_axis_impl!(PVec3, x, y, z)
+vec_cast_impl!(PVec3, x, y, z)
+indexable_impl!(PVec3, 3)
+new_repeat_impl!(PVec3, val, x, y, z, _unused)
+dim_impl!(PVec3, 3)
+// (specialized) basis_impl!(PVec3, 1)
+add_impl!(PVec3, x, y, z)
+sub_impl!(PVec3, x, y, z)
+neg_impl!(PVec3, x, y, z)
+dot_impl!(PVec3, x, y, z)
+scalar_mul_impl!(PVec3, x, y, z)
+scalar_div_impl!(PVec3, x, y, z)
+scalar_add_impl!(PVec3, x, y, z)
+scalar_sub_impl!(PVec3, x, y, z)
+translation_impl!(PVec3)
+norm_impl!(PVec3)
+approx_eq_impl!(PVec3, x, y, z)
+round_impl!(PVec3, x, y, z)
+one_impl!(PVec3)
+from_iterator_impl!(PVec3, iterator, iterator, iterator)
+bounded_impl!(PVec3)
+iterable_impl!(PVec3, 3)
+iterable_mut_impl!(PVec3, 3)
+to_homogeneous_impl!(PVec3, Vec4, w, x, y, z)
+from_homogeneous_impl!(PVec3, Vec4, w, x, y, z)
+translate_impl!(PVec3)
+rotate_impl!(PVec3)
+transform_impl!(PVec3)
+
+
+
 /// Vector of dimension 4.
 #[deriving(Eq, Encodable, Decodable, Clone, DeepClone, IterBytes, Rand, Zero, ToStr)]
 pub struct Vec4<N> {

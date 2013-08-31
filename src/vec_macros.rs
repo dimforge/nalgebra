@@ -43,7 +43,7 @@ macro_rules! ord_impl(
 
 macro_rules! orderable_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Orderable> Orderable for $t<N> {
+        impl<N: Clone + Orderable> Orderable for $t<N> {
             #[inline]
             fn max(&self, other: &$t<N>) -> $t<N> {
                 $t::new(self.$comp0.max(&other.$comp0) $(, self.$compN.max(&other.$compN))*)
@@ -93,7 +93,7 @@ macro_rules! vec_axis_impl(
 
 macro_rules! vec_cast_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<Nin: NumCast + Clone, Nout: NumCast> VecCast<$t<Nout>> for $t<Nin> {
+        impl<Nin: NumCast + Clone, Nout: Clone + NumCast> VecCast<$t<Nout>> for $t<Nin> {
             #[inline]
             fn from(v: $t<Nin>) -> $t<Nout> {
                 $t::new(NumCast::from(v.$comp0.clone()) $(, NumCast::from(v.$compN.clone()))*)
@@ -233,7 +233,7 @@ macro_rules! basis_impl(
 
 macro_rules! add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
+        impl<N: Clone + Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
             #[inline]
             fn add(&self, other: &$t<N>) -> $t<N> {
                 $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN)*)
@@ -244,7 +244,7 @@ macro_rules! add_impl(
 
 macro_rules! sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
+        impl<N: Clone + Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
             #[inline]
             fn sub(&self, other: &$t<N>) -> $t<N> {
                 $t::new(self.$comp0 - other.$comp0 $(, self.$compN - other.$compN)*)
@@ -255,7 +255,7 @@ macro_rules! sub_impl(
 
 macro_rules! neg_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Neg<N>> Neg<$t<N>> for $t<N> {
+        impl<N: Clone + Neg<N>> Neg<$t<N>> for $t<N> {
             #[inline]
             fn neg(&self) -> $t<N> {
                 $t::new(-self.$comp0 $(, -self.$compN )*)
@@ -282,7 +282,7 @@ macro_rules! dot_impl(
 
 macro_rules! scalar_mul_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Mul<N, N>> Mul<N, $t<N>> for $t<N> {
+        impl<N: Clone + Mul<N, N>> Mul<N, $t<N>> for $t<N> {
             #[inline]
             fn mul(&self, s: &N) -> $t<N> {
                 $t::new(self.$comp0 * *s $(, self.$compN * *s)*)
@@ -293,7 +293,7 @@ macro_rules! scalar_mul_impl(
 
 macro_rules! scalar_div_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Div<N, N>> Div<N, $t<N>> for $t<N> {
+        impl<N: Clone + Div<N, N>> Div<N, $t<N>> for $t<N> {
             #[inline]
             fn div(&self, s: &N) -> $t<N> {
                 $t::new(self.$comp0 / *s $(, self.$compN / *s)*)
@@ -304,7 +304,7 @@ macro_rules! scalar_div_impl(
 
 macro_rules! scalar_add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Add<N, N>> ScalarAdd<N> for $t<N> {
+        impl<N: Clone + Add<N, N>> ScalarAdd<N> for $t<N> {
             #[inline]
             fn scalar_add(&self, s: &N) -> $t<N> {
                 $t::new(self.$comp0 + *s $(, self.$compN + *s)*)
@@ -321,7 +321,7 @@ macro_rules! scalar_add_impl(
 
 macro_rules! scalar_sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Sub<N, N>> ScalarSub<N> for $t<N> {
+        impl<N: Clone + Sub<N, N>> ScalarSub<N> for $t<N> {
             #[inline]
             fn scalar_sub(&self, s: &N) -> $t<N> {
                 $t::new(self.$comp0 - *s $(, self.$compN - *s)*)
@@ -398,7 +398,7 @@ macro_rules! norm_impl(
 
 macro_rules! round_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Round> Round for $t<N> {
+        impl<N: Clone + Round> Round for $t<N> {
             fn floor(&self) -> $t<N> {
                 $t::new(self.$comp0.floor() $(, self.$compN.floor())*)
             }
@@ -457,7 +457,7 @@ macro_rules! one_impl(
 
 macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident $(, $paramN: ident)*) => (
-        impl<N> FromIterator<N> for $t<N> {
+        impl<N: Clone> FromIterator<N> for $t<N> {
             #[inline]
             fn from_iterator<I: Iterator<N>>($param0: &mut I) -> $t<N> {
                 $t::new($param0.next().unwrap() $(, $paramN.next().unwrap())*)
@@ -516,7 +516,7 @@ macro_rules! from_homogeneous_impl(
 
 macro_rules! translate_impl(
     ($t: ident) => (
-        impl<N: Add<N, N> + Sub<N, N>> Translate<$t<N>> for $t<N> {
+        impl<N: Clone + Add<N, N> + Sub<N, N>> Translate<$t<N>> for $t<N> {
             fn translate(&self, other: &$t<N>) -> $t<N> {
                 *other + *self
             }
@@ -544,7 +544,7 @@ macro_rules! rotate_impl(
 
 macro_rules! transform_impl(
     ($t: ident) => (
-        impl<N: Add<N, N> + Sub<N, N>> Transform<$t<N>> for $t<N> {
+        impl<N: Clone + Add<N, N> + Sub<N, N>> Transform<$t<N>> for $t<N> {
             fn transform(&self, other: &$t<N>) -> $t<N> {
                 self.translate(other)
             }

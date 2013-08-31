@@ -185,7 +185,7 @@ static SAMPLES_3_F64: [Vec3<f64>, ..42] = [
     Vec3 { x: 0.162456 , y: 0.499995 , z: 0.850654 }
 ];
 
-impl<N: NumCast> UniformSphereSample for Vec2<N> {
+impl<N: NumCast + Clone> UniformSphereSample for Vec2<N> {
     #[inline(always)]
     fn sample(f: &fn(Vec2<N>)) {
          for sample in SAMPLES_2_F64.iter() {
@@ -194,7 +194,7 @@ impl<N: NumCast> UniformSphereSample for Vec2<N> {
      }
 }
 
-impl<N: NumCast> UniformSphereSample for Vec3<N> {
+impl<N: NumCast + Clone> UniformSphereSample for Vec3<N> {
     #[inline(always)]
     fn sample(f: &fn(Vec3<N>)) {
         for sample in SAMPLES_3_F64.iter() {
