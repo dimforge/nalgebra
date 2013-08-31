@@ -5,24 +5,21 @@ use std::vec::{VecIterator, VecMutIterator};
 use std::iterator::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
 
-use traits::translation::*;
-use traits::transformation::*;
-use traits::rotation::*;
+use traits::translation::{Translation, Translate};
+use traits::transformation::Transform;
+use traits::rotation::Rotate;
 
-pub use traits::homogeneous::*;
-pub use traits::vec_cast::*;
-pub use traits::vector::*;
-pub use traits::basis::*;
-pub use traits::dim::*;
-pub use traits::basis::*;
-pub use traits::indexable::*;
-pub use traits::iterable::*;
-pub use traits::sample::*;
-pub use traits::scalar_op::*;
-pub use traits::cross::*;
-pub use traits::outer::*;
-pub use traits::sample::*;
-pub use traits::row::*;
+pub use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
+pub use traits::vec_cast::VecCast;
+pub use traits::vector::{Vec, VecExt, AlgebraicVec, AlgebraicVecExt};
+pub use traits::basis::Basis;
+pub use traits::dim::Dim;
+pub use traits::indexable::Indexable;
+pub use traits::iterable::{Iterable, IterableMut};
+pub use traits::sample::UniformSphereSample;
+pub use traits::scalar_op::{ScalarAdd, ScalarSub};
+pub use traits::cross::{Cross, CrossMatrix};
+pub use traits::outer::Outer;
 
 mod vec_macros;
 

@@ -37,29 +37,28 @@ pub mod adaptors
 
 pub mod types;
 
-// FIXME: it would be better to hide all those from the outside!
-mod traits
+pub mod traits
 {
-    mod vector;
-    mod sample;
-    mod indexable;
-    mod column;
-    mod row;
-    mod iterable;
-    mod outer;
-    mod cross;
-    mod inv;
-    mod transpose;
-    mod dim;
-    mod basis;
-    mod rotation;
-    mod translation;
-    mod transformation;
-    mod rlmul;
-    mod scalar_op;
-    mod homogeneous;
-    mod vec_cast;
-    mod mat_cast;
+    pub mod vector;
+    pub mod sample;
+    pub mod indexable;
+    pub mod column;
+    pub mod row;
+    pub mod iterable;
+    pub mod outer;
+    pub mod cross;
+    pub mod inv;
+    pub mod transpose;
+    pub mod dim;
+    pub mod basis;
+    pub mod rotation;
+    pub mod translation;
+    pub mod transformation;
+    pub mod rlmul;
+    pub mod scalar_op;
+    pub mod homogeneous;
+    pub mod vec_cast;
+    pub mod mat_cast;
 }
 
 #[cfg(test)]

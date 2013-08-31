@@ -6,20 +6,20 @@ use std::cmp::ApproxEq;
 use std::vec::{VecIterator, VecMutIterator};
 use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Outer};
 
-pub use traits::dim::*;
-pub use traits::indexable::*;
-pub use traits::iterable::*;
-pub use traits::scalar_op::*;
-pub use traits::mat_cast::*;
-pub use traits::column::*;
-pub use traits::row::*;
-pub use traits::inv::*;
-pub use traits::rlmul::*;
-pub use traits::rotation::*;
-pub use traits::transformation::*;
-pub use traits::translation::*;
-pub use traits::transpose::*;
-pub use traits::homogeneous::*;
+pub use traits::dim::Dim;
+pub use traits::indexable::Indexable;
+pub use traits::iterable::{Iterable, IterableMut};
+pub use traits::scalar_op::{ScalarSub, ScalarAdd};
+pub use traits::mat_cast::MatCast;
+pub use traits::column::Column;
+pub use traits::inv::Inv;
+pub use traits::rlmul::{RMul, LMul};
+pub use traits::rotation::{Rotation, Rotate};
+pub use traits::transformation::{Transformation, Transform};
+pub use traits::translation::{Translation, Translate};
+pub use traits::transpose::{Transpose};
+pub use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
+pub use traits::row::Row;
 
 mod mat_macros;
 

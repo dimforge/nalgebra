@@ -1,6 +1,6 @@
 use std::num::{Zero, One};
-use vec::{Vec1, Vec2, Vec3, Row, AlgebraicVec, VecCast, UniformSphereSample, Cross, CrossMatrix, Basis};
-use mat::Mat3;
+use vec::{Vec1, Vec2, Vec3, AlgebraicVec, VecCast, UniformSphereSample, Cross, CrossMatrix, Basis};
+use mat::{Mat3, Row};
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
     #[inline]
