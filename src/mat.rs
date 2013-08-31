@@ -6,6 +6,7 @@ use std::cmp::ApproxEq;
 use std::vec::{VecIterator, VecMutIterator};
 use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Outer};
 
+// traits
 pub use traits::dim::Dim;
 pub use traits::indexable::Indexable;
 pub use traits::iterable::{Iterable, IterableMut};
@@ -20,6 +21,9 @@ pub use traits::translation::{Translation, Translate};
 pub use traits::transpose::{Transpose};
 pub use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
 pub use traits::row::Row;
+
+// functions
+pub use traits::rotation::{rotated_wrt_point, rotate_wrt_point, rotated_wrt_center, rotate_wrt_center};
 
 mod mat_macros;
 
