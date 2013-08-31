@@ -3,16 +3,16 @@ nalgebra_lib_path=lib
 nalgebra_doc_path=doc
 all:
 	mkdir -p $(nalgebra_lib_path)
-	rust build src/nalgebra.rc --out-dir $(nalgebra_lib_path) --opt-level 3
+	rust build src/lib.rs --out-dir $(nalgebra_lib_path) --opt-level 3
 
 test:
 	mkdir -p $(nalgebra_lib_path)
-	rust test src/nalgebra.rc
-	rm nalgebratest~
+	rust test src/lib.rs
+	rm libtest~
 
 doc:
 	mkdir -p $(nalgebra_doc_path)
-	rust doc src/nalgebra.rc --output-dir $(nalgebra_doc_path)
+	rust doc src/lib.rs --output-dir $(nalgebra_doc_path)
 
 distcheck:
 	rm -rf $(tmp)
