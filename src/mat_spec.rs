@@ -1,8 +1,6 @@
 use std::num::{Zero, One};
 use vec::Vec3;
-use mat::{Mat1, Mat2, Mat3};
-use traits::inv::Inv;
-use traits::row::Row;
+use mat::{Mat1, Mat2, Mat3, Inv, Row};
 
 // some specializations:
 impl<N: Num + Clone>

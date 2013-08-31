@@ -4,17 +4,23 @@ use std::rand::Rng;
 use std::vec::{VecIterator, VecMutIterator};
 use std::iterator::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
-use traits::basis::Basis;
-use traits::dim::Dim;
-use traits::translation::{Translation, Translate};
-use traits::transformation::Transform;
-use traits::rotation::Rotate;
-use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
-use traits::indexable::Indexable;
-use traits::scalar_op::{ScalarAdd, ScalarSub};
-use traits::iterable::{Iterable, IterableMut};
-use traits::vec_cast::VecCast;
-use traits::vector::{Vec, AlgebraicVec};
+
+pub use traits::translation::*;
+pub use traits::transformation::*;
+pub use traits::rotation::*;
+pub use traits::homogeneous::*;
+pub use traits::vec_cast::*;
+pub use traits::vector::*;
+pub use traits::basis::*;
+pub use traits::dim::*;
+pub use traits::basis::*;
+pub use traits::indexable::*;
+pub use traits::iterable::*;
+pub use traits::sample::*;
+pub use traits::scalar_op::*;
+pub use traits::cross::*;
+pub use traits::sample::*;
+pub use traits::row::*;
 
 mod vec_macros;
 

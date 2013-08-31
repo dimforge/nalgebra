@@ -1,11 +1,5 @@
 use std::num::{Zero, One};
-use traits::basis::Basis;
-use traits::cross::{Cross, CrossMatrix};
-use traits::sample::UniformSphereSample;
-use traits::vec_cast::VecCast;
-use traits::vector::{AlgebraicVec};
-use traits::row::Row;
-use vec::{Vec1, Vec2, Vec3};
+use vec::{Vec1, Vec2, Vec3, Row, AlgebraicVec, VecCast, UniformSphereSample, Cross, CrossMatrix, Basis};
 use mat::Mat3;
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {

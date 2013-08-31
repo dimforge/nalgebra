@@ -5,27 +5,22 @@ use std::num::{One, Zero};
 use std::cmp::ApproxEq;
 use std::vec::{VecIterator, VecMutIterator};
 use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
-use traits::dim::Dim;
-use traits::inv::Inv;
-use traits::transpose::Transpose;
-use traits::rlmul::{RMul, LMul};
-use traits::transformation::Transform;
-use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
-use traits::indexable::Indexable;
-use traits::column::Column;
-use traits::row::Row;
-use traits::iterable::{Iterable, IterableMut};
-use traits::outer::Outer;
-use traits::scalar_op::{ScalarAdd, ScalarSub};
 
+pub use traits::dim::*;
+pub use traits::indexable::*;
+pub use traits::iterable::*;
+pub use traits::outer::*;
+pub use traits::scalar_op::*;
 pub use traits::mat_cast::*;
 pub use traits::column::*;
+pub use traits::row::*;
 pub use traits::inv::*;
 pub use traits::rlmul::*;
 pub use traits::rotation::*;
 pub use traits::transformation::*;
 pub use traits::translation::*;
 pub use traits::transpose::*;
+pub use traits::homogeneous::*;
 
 mod mat_macros;
 
