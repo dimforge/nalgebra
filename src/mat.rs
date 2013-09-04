@@ -15,15 +15,12 @@ pub use traits::mat_cast::MatCast;
 pub use traits::column::Column;
 pub use traits::inv::Inv;
 pub use traits::rlmul::{RMul, LMul};
-pub use traits::rotation::{Rotation, Rotate};
+pub use traits::rotation::{Rotation, Rotate, RotationWithTranslation};
 pub use traits::transformation::{Transformation, Transform};
 pub use traits::translation::{Translation, Translate};
 pub use traits::transpose::{Transpose};
 pub use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
 pub use traits::row::Row;
-
-// functions
-pub use traits::rotation::{rotated_wrt_point, rotate_wrt_point, rotated_wrt_center, rotate_wrt_center};
 
 mod mat_macros;
 
