@@ -1,6 +1,7 @@
 use std::num::{Zero, One};
 use vec::Vec3;
 use mat::{Mat1, Mat2, Mat3, Inv, Row};
+use mat;
 
 // some specializations:
 impl<N: Num + Clone>
@@ -140,5 +141,27 @@ impl<N: Clone> Row<Vec3<N>> for Mat3<N> {
             _ => fail!("Index out of range: 3d matrices do not have " + i.to_str() + " rows.")
 
         }
+    }
+}
+
+// FIXME: move this to another file?
+impl<N: Real + NumCast + Zero + One> mat::Mat4<N> {
+    /// Computes a projection matrix given the frustrum near plane width, height, the field of
+    /// view, and the distance to the clipping planes (`znear` and `zfar`).
+    pub fn projection(width: N, height: N, fov: N, znear: N, zfar: N) -> mat::Mat4<N> {
+        let aspect = width / height;
+
+        let _1: N = One::one();
+        let sy    = _1 / (fov * NumCast::from(0.5)).tan();
+        let sx    = -sy / aspect;
+        let sz    = -(zfar + znear) / (znear - zfar);
+        let tz    = zfar * znear * NumCast::from(2.0) / (znear - zfar);
+
+        mat::Mat4::new(
+            sx,           Zero::zero(), Zero::zero(), Zero::zero(),
+            Zero::zero(), sy,           Zero::zero(), Zero::zero(),
+            Zero::zero(), Zero::zero(), sz,           tz,
+            Zero::zero(), Zero::zero(), One::one(),   Zero::zero()
+            )
     }
 }
