@@ -15,19 +15,21 @@ pub struct DVec<N> {
     at: ~[N]
 }
 
-/// Builds a vector filled with zeros.
-/// 
-/// # Arguments
-///   * `dim` - The dimension of the vector.
-#[inline]
-pub fn zero_vec_with_dim<N: Zero + Clone>(dim: uint) -> DVec<N> {
-    DVec { at: from_elem(dim, Zero::zero()) }
-}
+impl<N: Zero + Clone> DVec<N> {
+    /// Builds a vector filled with zeros.
+    /// 
+    /// # Arguments
+    ///   * `dim` - The dimension of the vector.
+    #[inline]
+    pub fn new_zeros(dim: uint) -> DVec<N> {
+        DVec { at: from_elem(dim, Zero::zero()) }
+    }
 
-/// Tests if all components of the vector are zeroes.
-#[inline]
-pub fn is_zero_vec<N: Zero>(vec: &DVec<N>) -> bool {
-    vec.at.iter().all(|e| e.is_zero())
+    /// Tests if all components of the vector are zeroes.
+    #[inline]
+    pub fn is_zero(&self) -> bool {
+        self.at.iter().all(|e| e.is_zero())
+    }
 }
 
 impl<N> Iterable<N> for DVec<N> {
@@ -62,7 +64,7 @@ impl<N: Clone + Num + Algebraic + ApproxEq<N>> DVec<N> {
         let mut res : ~[DVec<N>] = ~[];
 
         for i in range(0u, dim) {
-            let mut basis_element : DVec<N> = zero_vec_with_dim(dim);
+            let mut basis_element : DVec<N> = DVec::new_zeros(dim);
 
             basis_element.at[i] = One::one();
 
@@ -81,7 +83,7 @@ impl<N: Clone + Num + Algebraic + ApproxEq<N>> DVec<N> {
         let mut res : ~[DVec<N>] = ~[];
 
         for i in range(0u, dim) {
-            let mut basis_element : DVec<N> = zero_vec_with_dim(self.at.len());
+            let mut basis_element : DVec<N> = DVec::new_zeros(self.at.len());
 
             basis_element.at[i] = One::one();
 

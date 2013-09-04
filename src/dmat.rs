@@ -1,106 +1,110 @@
 use std::num::{One, Zero};
 use std::vec::from_elem;
 use std::cmp::ApproxEq;
+use std::util;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
 use traits::rlmul::{RMul, LMul};
-use dvec::{DVec, zero_vec_with_dim};
+use dvec::DVec;
 
-/// Square matrix with a dimension unknown at compile-time.
+/// Matrix with dimensions unknown at compile-time.
 #[deriving(Eq, ToStr, Clone)]
 pub struct DMat<N> {
-    priv dim: uint, // FIXME: handle more than just square matrices
+    priv nrows: uint,
+    priv ncols: uint,
     priv mij: ~[N]
 }
 
-/// Builds a matrix filled with zeros.
-/// 
-/// # Arguments
-///   * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
-///   components.
-#[inline]
-pub fn zero_mat_with_dim<N: Zero + Clone>(dim: uint) -> DMat<N> {
-    DMat { dim: dim, mij: from_elem(dim * dim, Zero::zero()) }
-}
-
-/// Tests if all components of the matrix are zeroes.
-#[inline]
-pub fn is_zero_mat<N: Zero>(mat: &DMat<N>) -> bool {
-    mat.mij.iter().all(|e| e.is_zero())
-}
-
-/// Builds an identity matrix.
-/// 
-/// # Arguments
-///   * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
-///   components.
-#[inline]
-pub fn one_mat_with_dim<N: Clone + One + Zero>(dim: uint) -> DMat<N> {
-    let mut res    = zero_mat_with_dim(dim);
-    let     _1: N  = One::one();
-
-    for i in range(0u, dim) {
-        res.set(i, i, &_1);
+impl<N: Zero + Clone> DMat<N> {
+    /// Builds a matrix filled with zeros.
+    /// 
+    /// # Arguments
+    ///   * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
+    ///   components.
+    #[inline]
+    pub fn new_zeros(nrows: uint, ncols: uint) -> DMat<N> {
+        DMat {
+            nrows: nrows,
+            ncols: ncols,
+            mij:   from_elem(nrows * ncols, Zero::zero())
+        }
     }
 
-    res
+    /// Tests if all components of the matrix are zeroes.
+    #[inline]
+    pub fn is_zero(&self) -> bool {
+        self.mij.iter().all(|e| e.is_zero())
+    }
 }
+
+// FIXME: add a function to modify the dimension (to avoid useless allocations)?
+
+impl<N: One + Zero + Clone> DMat<N> {
+    /// Builds an identity matrix.
+    /// 
+    /// # Arguments
+    ///   * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
+    ///   components.
+    #[inline]
+    pub fn new_identity(dim: uint) -> DMat<N> {
+        let mut res    = DMat::new_zeros(dim, dim);
+
+        for i in range(0u, dim) {
+            let _1: N  = One::one();
+            res.set(i, i, _1);
+        }
+
+        res
+    }
+}
+
 
 impl<N: Clone> DMat<N> {
     #[inline]
     fn offset(&self, i: uint, j: uint) -> uint {
-        i * self.dim + j
+        i * self.ncols + j
     }
 
     /// Changes the value of a component of the matrix.
     ///
     /// # Arguments
-    ///   * `i` - 0-based index of the line to be changed
-    ///   * `j` - 0-based index of the column to be changed
+    ///   * `row` - 0-based index of the line to be changed
+    ///   * `col` - 0-based index of the column to be changed
     #[inline]
-    pub fn set(&mut self, i: uint, j: uint, t: &N) {
-        assert!(i < self.dim);
-        assert!(j < self.dim);
-        self.mij[self.offset(i, j)] = t.clone()
+    pub fn set(&mut self, row: uint, col: uint, val: N) {
+        assert!(row < self.nrows);
+        assert!(col < self.ncols);
+        self.mij[self.offset(row, col)] = val
     }
 
     /// Reads the value of a component of the matrix.
     ///
     /// # Arguments
-    ///   * `i` - 0-based index of the line to be read
-    ///   * `j` - 0-based index of the column to be read
+    ///   * `row` - 0-based index of the line to be read
+    ///   * `col` - 0-based index of the column to be read
     #[inline]
-    pub fn at(&self, i: uint, j: uint) -> N {
-        assert!(i < self.dim);
-        assert!(j < self.dim);
-        self.mij[self.offset(i, j)].clone()
+    pub fn at(&self, row: uint, col: uint) -> N {
+        assert!(row < self.nrows);
+        assert!(col < self.ncols);
+        self.mij[self.offset(row, col)].clone()
     }
 }
 
-impl<N: Clone> Index<(uint, uint), N> for DMat<N> {
-    #[inline]
-    fn index(&self, &(i, j): &(uint, uint)) -> N {
-        self.at(i, j)
-    }
-}
-
-impl<N: Clone + Mul<N, N> + Add<N, N> + Zero>
-Mul<DMat<N>, DMat<N>> for DMat<N> {
+impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> {
     fn mul(&self, other: &DMat<N>) -> DMat<N> {
-        assert!(self.dim == other.dim);
+        assert!(self.ncols == other.nrows);
 
-        let     dim = self.dim;
-        let mut res = zero_mat_with_dim(dim);
+        let mut res = DMat::new_zeros(self.nrows, other.ncols);
 
-        for i in range(0u, dim) {
-            for j in range(0u, dim) {
+        for i in range(0u, self.nrows) {
+            for j in range(0u, other.ncols) {
                 let mut acc: N = Zero::zero();
 
-                for k in range(0u, dim) {
+                for k in range(0u, self.ncols) {
                     acc = acc + self.at(i, k) * other.at(k, j);
                 }
 
-                res.set(i, j, &acc);
+                res.set(i, j, acc);
             }
         }
 
@@ -111,15 +115,18 @@ Mul<DMat<N>, DMat<N>> for DMat<N> {
 impl<N: Clone + Add<N, N> + Mul<N, N> + Zero>
 RMul<DVec<N>> for DMat<N> {
     fn rmul(&self, other: &DVec<N>) -> DVec<N> {
-        assert!(self.dim == other.at.len());
+        assert!(self.ncols == other.at.len());
 
-        let     dim           = self.dim;
-        let mut res : DVec<N> = zero_vec_with_dim(dim);
+        let mut res : DVec<N> = DVec::new_zeros(self.nrows);
 
-        for i in range(0u, dim) {
-            for j in range(0u, dim) {
-                res.at[i] = res.at[i] + other.at[j] * self.at(i, j);
+        for i in range(0u, self.nrows) {
+            let mut acc: N = Zero::zero();
+
+            for j in range(0u, self.ncols) {
+                acc = acc + other.at[j] * self.at(i, j);
             }
+
+            res.at[i] = acc;
         }
 
         res
@@ -129,15 +136,18 @@ RMul<DVec<N>> for DMat<N> {
 impl<N: Clone + Add<N, N> + Mul<N, N> + Zero>
 LMul<DVec<N>> for DMat<N> {
     fn lmul(&self, other: &DVec<N>) -> DVec<N> {
-        assert!(self.dim == other.at.len());
+        assert!(self.nrows == other.at.len());
 
-        let     dim           = self.dim;
-        let mut res : DVec<N> = zero_vec_with_dim(dim);
+        let mut res : DVec<N> = DVec::new_zeros(self.ncols);
 
-        for i in range(0u, dim) {
-            for j in range(0u, dim) {
-                res.at[i] = res.at[i] + other.at[j] * self.at(j, i);
+        for i in range(0u, self.ncols) {
+            let mut acc: N = Zero::zero();
+
+            for j in range(0u, self.nrows) {
+                acc = acc + other.at[j] * self.at(j, i);
             }
+
+            res.at[i] = acc;
         }
 
         res
@@ -159,9 +169,11 @@ Inv for DMat<N> {
     }
 
     fn inplace_inverse(&mut self) -> bool {
-        let     dim = self.dim;
-        let mut res = one_mat_with_dim::<N>(dim);
-        let     _0T: N = Zero::zero();
+        assert!(self.nrows == self.ncols);
+
+        let dim              = self.nrows;
+        let mut res: DMat<N> = DMat::new_identity(dim);
+        let     _0T: N       = Zero::zero();
 
         // inversion using Gauss-Jordan elimination
         for k in range(0u, dim) {
@@ -197,12 +209,12 @@ Inv for DMat<N> {
             let pivot = self.at(k, k);
 
             for j in range(k, dim) {
-                let selfval = &(self.at(k, j) / pivot);
+                let selfval = self.at(k, j) / pivot;
                 self.set(k, j, selfval);
             }
 
             for j in range(0u, dim) {
-                let resval  = &(res.at(k, j)   / pivot);
+                let resval = res.at(k, j) / pivot;
                 res.set(k, j, resval);
             }
 
@@ -211,12 +223,12 @@ Inv for DMat<N> {
                     let normalizer = self.at(l, k);
 
                     for j in range(k, dim) {
-                        let selfval = &(self.at(l, j) - self.at(k, j) * normalizer);
+                        let selfval = self.at(l, j) - self.at(k, j) * normalizer;
                         self.set(l, j, selfval);
                     }
 
                     for j in range(0u, dim) {
-                        let resval  = &(res.at(l, j)   - res.at(k, j)   * normalizer);
+                        let resval = res.at(l, j) - res.at(k, j) * normalizer;
                         res.set(l, j, resval);
                     }
                 }
@@ -240,23 +252,23 @@ impl<N: Clone> Transpose for DMat<N> {
     }
 
     fn transpose(&mut self) {
-        let dim = self.dim;
-
-        for i in range(1u, dim) {
-            for j in range(0u, dim - 1) {
+        for i in range(1u, self.nrows) {
+            for j in range(0u, self.ncols - 1) {
                 let off_i_j = self.offset(i, j);
                 let off_j_i = self.offset(j, i);
 
                 self.mij.swap(off_i_j, off_j_i);
             }
         }
+
+        util::swap(&mut self.nrows, &mut self.ncols);
     }
 }
 
 impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     #[inline]
     fn approx_epsilon() -> N {
-        fail!("Fix this.")
+        fail!("This function cannot work due to a compiler bug.")
         // let res: N = ApproxEq::<N>::approx_epsilon();
 
         // res
