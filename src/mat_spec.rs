@@ -148,7 +148,7 @@ impl<N: Clone> Row<Vec3<N>> for Mat3<N> {
 impl<N: Real + NumCast + Zero + One> mat::Mat4<N> {
     /// Computes a projection matrix given the frustrum near plane width, height, the field of
     /// view, and the distance to the clipping planes (`znear` and `zfar`).
-    pub fn projection(width: N, height: N, fov: N, znear: N, zfar: N) -> mat::Mat4<N> {
+    pub fn new_perspective(width: N, height: N, fov: N, znear: N, zfar: N) -> mat::Mat4<N> {
         let aspect = width / height;
 
         let _1: N = One::one();
