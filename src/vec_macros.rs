@@ -358,6 +358,11 @@ macro_rules! translation_impl(
             fn translated(&self, t: &$t<N>) -> $t<N> {
                 self + *t
             }
+
+            #[inline]
+            fn set_translation(&mut self, t: $t<N>) {
+                *self = t
+            }
         }
     )
 )

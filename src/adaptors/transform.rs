@@ -27,6 +27,7 @@ pub struct Transform<M, V> {
     priv subtrans : V
 }
 
+// FIXME: this should be Trasform<V, M>
 impl<M, V> Transform<M, V> {
     /// Builds a new transform from a matrix and a vector.
     #[inline]
@@ -158,6 +159,11 @@ impl<M: Clone, V: Translation<V>> Translation<V> for Transform<M, V> {
     fn translated(&self, t: &V) -> Transform<M, V> {
         Transform::new(self.submat.clone(), self.subtrans.translated(t))
     }
+
+    #[inline]
+    fn set_translation(&mut self, t: V) {
+        self.subtrans.set_translation(t)
+    }
 }
 
 impl<M: Translate<V>, V, _0> Translate<V> for Transform<M, _0> {
@@ -202,6 +208,12 @@ Rotation<AV> for Transform<M, V> {
 
         Transform::new(self.submat.rotated(rot), delta.rmul(&self.subtrans))
     }
+
+    #[inline]
+    fn set_rotation(&mut self, rot: AV) {
+        // FIXME: should the translation be changed too?
+        self.submat.set_rotation(rot)
+    }
 }
 
 impl<M: Rotate<V>, V, _0> Rotate<V> for Transform<M, _0> {
@@ -236,6 +248,10 @@ Transformation<Transform<M, V>> for Transform<M, V> {
 
     fn transformed(&self, t: &Transform<M, V>) -> Transform<M, V> {
         t * *self
+    }
+
+    fn set_transformation(&mut self, t: Transform<M, V>) {
+        *self = t
     }
 }
 

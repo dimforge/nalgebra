@@ -161,6 +161,10 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     fn translated(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
         self + *t
     }
+
+    #[inline]
+    fn set_translation(&mut self, _: vec::Vec0<N>) {
+    }
 }
 
 impl<N: Clone + Num + Algebraic> AlgebraicVec<N> for vec::Vec0<N> {

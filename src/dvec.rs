@@ -226,6 +226,11 @@ impl<N: Add<N, N> + Neg<N> + Clone> Translation<DVec<N>> for DVec<N> {
     fn translated(&self, t: &DVec<N>) -> DVec<N> {
         self + *t
     }
+
+    #[inline]
+    fn set_translation(&mut self, t: DVec<N>) {
+        *self = t
+    }
 }
 
 impl<N: Num + Algebraic + Clone> DVec<N> {

@@ -74,6 +74,11 @@ impl<V: Zero> Translation<V> for mat::Identity {
     fn translated(&self, _: &V) -> mat::Identity {
         fail!("Attempted to translate the identity matrix.")
     }
+
+    #[inline]
+    fn set_translation(&mut self, _: V) {
+        fail!("Attempted to translate the identity matrix.")
+    }
 }
 
 impl<V: Clone> Translate<V> for mat::Identity {
@@ -108,6 +113,11 @@ impl<V: Zero> Rotation<V> for mat::Identity {
     fn rotated(&self, _: &V) -> mat::Identity {
         fail!("Attempted to rotate the identity matrix.")
     }
+
+    #[inline]
+    fn set_rotation(&mut self, _: V) {
+        fail!("Attempted to rotate the identity matrix.")
+    }
 }
 
 impl<V: Clone> Rotate<V> for mat::Identity {
@@ -140,6 +150,11 @@ impl<M: One> Transformation<M> for mat::Identity {
 
     #[inline]
     fn transformed(&self, _: &M) -> mat::Identity {
+        fail!("Attempted to transform the identity matrix.")
+    }
+
+    #[inline]
+    fn set_transformation(&mut self, _: M) {
         fail!("Attempted to transform the identity matrix.")
     }
 }

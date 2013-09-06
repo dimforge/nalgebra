@@ -141,6 +141,11 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>> {
     fn rotated(&self, rot: &Vec1<N>) -> Rotmat<Mat2<N>> {
         Rotmat::from_angle(rot.x.clone()) * *self
     }
+
+    #[inline]
+    fn set_rotation(&mut self, rot: Vec1<N>) {
+        *self = Rotmat::from_angle(rot.x)
+    }
 }
 
 impl<N: Clone + Trigonometric + Num + Algebraic>
@@ -164,6 +169,11 @@ Rotation<Vec3<N>> for Rotmat<Mat3<N>> {
     #[inline]
     fn rotated(&self, axisangle: &Vec3<N>) -> Rotmat<Mat3<N>> {
         Rotmat::from_axis_angle(axisangle.clone()) * *self
+    }
+
+    #[inline]
+    fn set_rotation(&mut self, axisangle: Vec3<N>) {
+        *self = Rotmat::from_axis_angle(axisangle)
     }
 }
 

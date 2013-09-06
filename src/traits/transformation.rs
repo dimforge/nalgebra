@@ -13,6 +13,9 @@ pub trait Transformation<M> {
 
     /// Appends a transformation.
     fn transformed(&self, &M) -> Self;
+
+    /// Sets the transformation.
+    fn set_transformation(&mut self, M);
 }
 
 /// Trait of objects able to transform other objects. This is typically implemented by matrices which

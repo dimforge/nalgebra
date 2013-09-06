@@ -15,6 +15,9 @@ pub trait Rotation<V> {
 
     /// Appends a rotation.
     fn rotated(&self, &V) -> Self;
+
+    /// Sets the rotation.
+    fn set_rotation(&mut self, V);
 }
 
 /// Trait of objects able to rotate other objects. This is typically implemented by matrices which
