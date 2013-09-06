@@ -33,11 +33,11 @@ pub type Mat1flt = Mat1<float>;
 // pub type Iso1flt = Transform<Rot1flt, Vec1flt>;
 
 /// 1-dimensional `f64`-valued general transform.
-pub type Aff1f64 = Transform<Mat1f64, Vec1f64>;
+pub type Aff1f64 = Transform<Vec1f64, Mat1f64>;
 /// 1-dimensional `f32`-valued general transform.
-pub type Aff1f32 = Transform<Mat1f32, Vec1f32>;
+pub type Aff1f32 = Transform<Vec1f32, Mat1f32>;
 /// 1-dimensional `float`-valued general transform.
-pub type Aff1flt = Transform<Mat1flt, Vec1flt>;
+pub type Aff1flt = Transform<Vec1flt, Mat1flt>;
 
 // 2D
 /// 2-dimensional `f64`-valued vector.
@@ -62,18 +62,18 @@ pub type Rot2f32 = Rotmat<Mat2<f32>>;
 pub type Rot2flt = Rotmat<Mat2<float>>;
 
 /// 2-dimensional `f64`-valued isometric transform.
-pub type Iso2f64 = Transform<Rot2f64, Vec2f64>;
+pub type Iso2f64 = Transform<Vec2f64, Rot2f64>;
 /// 2-dimensional `f32`-valued isometric transform.
-pub type Iso2f32 = Transform<Rot2f32, Vec2f32>;
+pub type Iso2f32 = Transform<Vec2f32, Rot2f32>;
 /// 2-dimensional `float`-valued isometric transform.
-pub type Iso2flt = Transform<Rot2flt, Vec2flt>;
+pub type Iso2flt = Transform<Vec2flt, Rot2flt>;
 
 /// 2-dimensional `f64`-valued general transform.
-pub type Aff2f64 = Transform<Mat2f64, Vec2f64>;
+pub type Aff2f64 = Transform<Vec2f64, Mat2f64>;
 /// 2-dimensional `f32`-valued general transform.
-pub type Aff2f32 = Transform<Mat2f32, Vec2f32>;
+pub type Aff2f32 = Transform<Vec2f32, Mat2f32>;
 /// 2-dimensional `float`-valued general transform.
-pub type Aff2flt = Transform<Mat2flt, Vec2flt>;
+pub type Aff2flt = Transform<Vec2flt, Mat2flt>;
 
 // 3D
 /// 3-dimensional `f64`-valued vector.
@@ -98,18 +98,18 @@ pub type Rot3f32 = Rotmat<Mat3<f32>>;
 pub type Rot3flt = Rotmat<Mat3<float>>;
 
 /// 3-dimensional `f64`-valued isometric transform.
-pub type Iso3f64 = Transform<Rot3f64, Vec3f64>;
+pub type Iso3f64 = Transform<Vec3f64, Rot3f64>;
 /// 3-dimensional `f32`-valued isometric transform.
-pub type Iso3f32 = Transform<Rot3f32, Vec3f32>;
+pub type Iso3f32 = Transform<Vec3f32, Rot3f32>;
 /// 3-dimensional `float`-valued isometric transform.
-pub type Iso3flt = Transform<Rot3flt, Vec3flt>;
+pub type Iso3flt = Transform<Vec3flt, Rot3flt>;
 
 /// 3-dimensional `f64`-valued general transform.
-pub type Aff3f64 = Transform<Mat3f64, Vec3f64>;
+pub type Aff3f64 = Transform<Vec3f64, Mat3f64>;
 /// 3-dimensional `f32`-valued general transform.
-pub type Aff3f32 = Transform<Mat3f32, Vec3f32>;
+pub type Aff3f32 = Transform<Vec3f32, Mat3f32>;
 /// 3-dimensional `float`-valued general transform.
-pub type Aff3flt = Transform<Mat3flt, Vec3flt>;
+pub type Aff3flt = Transform<Vec3flt, Mat3flt>;
 
 // 4D
 /// 4-dimensional `f64`-valued vector.
@@ -141,11 +141,11 @@ pub type Mat4flt = Mat4<float>;
 // pub type Iso4flt = Transform<Rot4flt, Vec4flt>;
 
 /// 4-dimensional `f64`-valued general transform.
-pub type Aff4f64 = Transform<Mat4f64, Vec4f64>;
+pub type Aff4f64 = Transform<Vec4f64, Mat4f64>;
 /// 4-dimensional `f32`-valued general transform.
-pub type Aff4f32 = Transform<Mat4f32, Vec4f32>;
+pub type Aff4f32 = Transform<Vec4f32, Mat4f32>;
 /// 4-dimensional `float`-valued general transform.
-pub type Aff4flt = Transform<Mat4flt, Vec4flt>;
+pub type Aff4flt = Transform<Vec4flt, Mat4flt>;
 
 // 5D
 /// 5-dimensional `f64`-valued vector.
@@ -177,11 +177,11 @@ pub type Mat5flt = Mat5<float>;
 // pub type Iso5flt = Transform<Rot5flt, Vec5flt>;
 
 /// 5-dimensional `f64`-valued general transform.
-pub type Aff5f64 = Transform<Mat5f64, Vec5f64>;
+pub type Aff5f64 = Transform<Vec5f64, Mat5f64>;
 /// 5-dimensional `f32`-valued general transform.
-pub type Aff5f32 = Transform<Mat5f32, Vec5f32>;
+pub type Aff5f32 = Transform<Vec5f32, Mat5f32>;
 /// 5-dimensional `float`-valued general transform.
-pub type Aff5flt = Transform<Mat5flt, Vec5flt>;
+pub type Aff5flt = Transform<Vec5flt, Mat5flt>;
 
 // 6D
 /// 6-dimensional `f64`-valued vector.
@@ -213,8 +213,8 @@ pub type Mat6flt = Mat6<float>;
 // pub type Iso6flt = Transform<Rot6flt, Vec6flt>;
 
 /// 6-dimensional `f64`-valued general transform.
-pub type Aff6f64 = Transform<Mat6f64, Vec6f64>;
+pub type Aff6f64 = Transform<Vec6f64, Mat6f64>;
 /// 6-dimensional `f32`-valued general transform.
-pub type Aff6f32 = Transform<Mat6f32, Vec6f32>;
+pub type Aff6f32 = Transform<Vec6f32, Mat6f32>;
 /// 6-dimensional `float`-valued general transform.
-pub type Aff6flt = Transform<Mat6flt, Vec6flt>;
+pub type Aff6flt = Transform<Vec6flt, Mat6flt>;
