@@ -22,6 +22,9 @@ pub use traits::transpose::{Transpose};
 pub use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
 pub use traits::row::Row;
 
+// structs
+pub use dmat::DMat;
+
 mod mat_macros;
 
 /// Special identity matrix. All its operation are no-ops.

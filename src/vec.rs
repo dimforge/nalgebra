@@ -21,6 +21,9 @@ pub use traits::scalar_op::{ScalarAdd, ScalarSub};
 pub use traits::cross::{Cross, CrossMatrix};
 pub use traits::outer::Outer;
 
+// structs
+pub use dvec::DVec;
+
 mod vec_macros;
 
 /// Vector of dimension 0.
