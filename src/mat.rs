@@ -57,7 +57,7 @@ scalar_mul_impl!(Mat1, m11)
 scalar_div_impl!(Mat1, m11)
 scalar_add_impl!(Mat1, m11)
 scalar_sub_impl!(Mat1, m11)
-one_impl!(Mat1, _1)
+one_impl!(Mat1, One::one)
 iterable_impl!(Mat1, 1)
 iterable_mut_impl!(Mat1, 1)
 dim_impl!(Mat1, 1)
@@ -98,8 +98,8 @@ scalar_add_impl!(Mat2, m11, m12,
                        m21, m22)
 scalar_sub_impl!(Mat2, m11, m12,
                        m21, m22)
-one_impl!(Mat2, _1, _0,
-                _0, _1)
+one_impl!(Mat2, One::one,   Zero::zero,
+                Zero::zero, One::one)
 iterable_impl!(Mat2, 2)
 iterable_mut_impl!(Mat2, 2)
 dim_impl!(Mat2, 2)
@@ -149,9 +149,9 @@ scalar_add_impl!(Mat3, m11, m12, m13,
 scalar_sub_impl!(Mat3, m11, m12, m13,
                        m21, m22, m23,
                        m31, m32, m33)
-one_impl!(Mat3, _1, _0, _0,
-                _0, _1, _0,
-                _0, _0, _1)
+one_impl!(Mat3, One::one  , Zero::zero, Zero::zero,
+                Zero::zero, One::one  , Zero::zero,
+                Zero::zero, Zero::zero, One::one)
 iterable_impl!(Mat3, 3)
 iterable_mut_impl!(Mat3, 3)
 dim_impl!(Mat3, 3)
@@ -226,10 +226,10 @@ scalar_sub_impl!(Mat4,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 )
-one_impl!(Mat4, _1, _0, _0, _0,
-                _0, _1, _0, _0,
-                _0, _0, _1, _0,
-                _0, _0, _0, _1)
+one_impl!(Mat4, One::one  , Zero::zero, Zero::zero, Zero::zero,
+                Zero::zero, One::one  , Zero::zero, Zero::zero,
+                Zero::zero, Zero::zero, One::one  , Zero::zero,
+                Zero::zero, Zero::zero, Zero::zero, One::one)
 iterable_impl!(Mat4, 4)
 iterable_mut_impl!(Mat4, 4)
 dim_impl!(Mat4, 4)
@@ -272,11 +272,11 @@ mat_cast_impl!(Mat5,
   m51, m52, m53, m54, m55
 )
 one_impl!(Mat5,
-  _1, _0, _0, _0, _0,
-  _0, _1, _0, _0, _0,
-  _0, _0, _1, _0, _0,
-  _0, _0, _0, _1, _0,
-  _0, _0, _0, _0, _1
+  One::one  , Zero::zero, Zero::zero, Zero::zero, Zero::zero,
+  Zero::zero, One::one  , Zero::zero, Zero::zero, Zero::zero,
+  Zero::zero, Zero::zero, One::one  , Zero::zero, Zero::zero,
+  Zero::zero, Zero::zero, Zero::zero, One::one  , Zero::zero,
+  Zero::zero, Zero::zero, Zero::zero, Zero::zero, One::one
 )
 add_impl!(Mat5,
   m11, m12, m13, m14, m15,
@@ -413,12 +413,12 @@ scalar_sub_impl!(Mat6,
   m61, m62, m63, m64, m65, m66
 )
 one_impl!(Mat6,
-  _1, _0, _0, _0, _0, _0,
-  _0, _1, _0, _0, _0, _0,
-  _0, _0, _1, _0, _0, _0,
-  _0, _0, _0, _1, _0, _0,
-  _0, _0, _0, _0, _1, _0,
-  _0, _0, _0, _0, _0, _1
+  One::one  , Zero::zero, Zero::zero, Zero::zero, Zero::zero, Zero::zero,
+  Zero::zero, One::one  , Zero::zero, Zero::zero, Zero::zero, Zero::zero,
+  Zero::zero, Zero::zero, One::one  , Zero::zero, Zero::zero, Zero::zero,
+  Zero::zero, Zero::zero, Zero::zero, One::one  , Zero::zero, Zero::zero,
+  Zero::zero, Zero::zero, Zero::zero, Zero::zero, One::one  , Zero::zero,
+  Zero::zero, Zero::zero, Zero::zero, Zero::zero, Zero::zero, One::one
 )
 iterable_impl!(Mat6, 6)
 iterable_mut_impl!(Mat6, 6)

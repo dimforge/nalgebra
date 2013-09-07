@@ -132,12 +132,11 @@ macro_rules! iterable_mut_impl(
 )
 
 macro_rules! one_impl(
-  ($t: ident, $value0: ident $(, $valueN: ident)* ) => (
+  ($t: ident, $value0: expr $(, $valueN: expr)* ) => (
     impl<N: Clone + One + Zero> One for $t<N> {
         #[inline]
         fn one() -> $t<N> {
-            let (_0, _1): (N, N) = (Zero::zero(), One::one());
-            return $t::new($value0.clone() $(, $valueN.clone() )*)
+            $t::new($value0() $(, $valueN() )*)
         }
     }
   )
