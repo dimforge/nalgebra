@@ -1,6 +1,6 @@
 use std::num::{Zero, One, Algebraic};
+use std::vec;
 use std::vec::{VecIterator, VecMutIterator};
-use std::vec::from_elem;
 use std::cmp::ApproxEq;
 use std::iterator::FromIterator;
 use traits::vector::{Vec, AlgebraicVec};
@@ -22,13 +22,40 @@ impl<N: Zero + Clone> DVec<N> {
     ///   * `dim` - The dimension of the vector.
     #[inline]
     pub fn new_zeros(dim: uint) -> DVec<N> {
-        DVec { at: from_elem(dim, Zero::zero()) }
+        DVec::from_elem(dim, Zero::zero())
     }
 
     /// Tests if all components of the vector are zeroes.
     #[inline]
     pub fn is_zero(&self) -> bool {
         self.at.iter().all(|e| e.is_zero())
+    }
+}
+
+impl<N: One + Clone> DVec<N> {
+    /// Builds a vector filled with ones.
+    /// 
+    /// # Arguments
+    ///   * `dim` - The dimension of the vector.
+    #[inline]
+    pub fn new_ones(dim: uint) -> DVec<N> {
+        DVec::from_elem(dim, One::one())
+    }
+}
+
+impl<N: Clone> DVec<N> {
+    /// Builds a vector filled with a constant.
+    #[inline]
+    pub fn from_elem(dim: uint, elem: N) -> DVec<N> {
+        DVec { at: vec::from_elem(dim, elem) }
+    }
+}
+
+impl<N: Clone> DVec<N> {
+    /// Builds a vector filled with the result of a function.
+    #[inline(always)]
+    pub fn from_fn(dim: uint, f: &fn(uint) -> N) -> DVec<N> {
+        DVec { at: vec::from_fn(dim, |i| f(i)) }
     }
 }
 

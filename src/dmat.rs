@@ -1,5 +1,5 @@
 use std::num::{One, Zero};
-use std::vec::from_elem;
+use std::vec;
 use std::cmp::ApproxEq;
 use std::util;
 use traits::inv::Inv;
@@ -23,17 +23,45 @@ impl<N: Zero + Clone> DMat<N> {
     ///   components.
     #[inline]
     pub fn new_zeros(nrows: uint, ncols: uint) -> DMat<N> {
-        DMat {
-            nrows: nrows,
-            ncols: ncols,
-            mij:   from_elem(nrows * ncols, Zero::zero())
-        }
+        DMat::from_elem(nrows, ncols, Zero::zero())
     }
 
     /// Tests if all components of the matrix are zeroes.
     #[inline]
     pub fn is_zero(&self) -> bool {
         self.mij.iter().all(|e| e.is_zero())
+    }
+}
+
+impl<N: One + Clone> DMat<N> {
+    /// Builds a matrix filled with a given constant.
+    #[inline]
+    pub fn new_ones(nrows: uint, ncols: uint) -> DMat<N> {
+        DMat::from_elem(nrows, ncols, One::one())
+    }
+}
+
+impl<N: Clone> DMat<N> {
+    /// Builds a matrix filled with a given constant.
+    #[inline]
+    pub fn from_elem(nrows: uint, ncols: uint, val: N) -> DMat<N> {
+        DMat {
+            nrows: nrows,
+            ncols: ncols,
+            mij:   vec::from_elem(nrows * ncols, val)
+        }
+    }
+}
+
+impl<N> DMat<N> {
+    /// Builds a matrix filled with a given constant.
+    #[inline(always)]
+    pub fn from_fn(nrows: uint, ncols: uint, f: &fn(uint, uint) -> N) -> DMat<N> {
+        DMat {
+            nrows: nrows,
+            ncols: ncols,
+            mij:   vec::from_fn(nrows * ncols, |i| { let m = i % ncols; f(m, m - i * ncols) })
+        }
     }
 }
 
