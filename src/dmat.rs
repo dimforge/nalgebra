@@ -63,6 +63,16 @@ impl<N> DMat<N> {
             mij:   vec::from_fn(nrows * ncols, |i| { let m = i % ncols; f(m, m - i * ncols) })
         }
     }
+
+    /// The number of row on the matrix.
+    pub fn nrows(&self) -> uint {
+        self.nrows
+    }
+
+    /// The number of columns on the matrix.
+    pub fn ncols(&self) -> uint {
+        self.ncols
+    }
 }
 
 // FIXME: add a function to modify the dimension (to avoid useless allocations)?

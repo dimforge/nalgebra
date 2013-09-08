@@ -59,19 +59,29 @@ impl<N: Clone> DVec<N> {
     }
 }
 
+impl<N> Container for DVec<N> {
+    #[inline]
+    fn len(&self) -> uint {
+        self.at.len()
+    }
+}
+
 impl<N> Iterable<N> for DVec<N> {
+    #[inline]
     fn iter<'l>(&'l self) -> VecIterator<'l, N> {
         self.at.iter()
     }
 }
 
 impl<N> IterableMut<N> for DVec<N> {
+    #[inline]
     fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N> {
         self.at.mut_iter()
     }
 }
 
 impl<N> FromIterator<N> for DVec<N> {
+    #[inline]
     fn from_iterator<I: Iterator<N>>(mut param: &mut I) -> DVec<N> {
         let mut res = DVec { at: ~[] };
 
