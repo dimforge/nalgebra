@@ -175,8 +175,9 @@ impl<N: Neg<N>> Neg<DVec<N>> for DVec<N> {
 }
 
 impl<N: Num> DVec<N> {
+    /// Will change soon.
     #[inline]
-    fn dot(&self, other: &DVec<N>) -> N {
+    pub fn dot(&self, other: &DVec<N>) -> N {
         assert!(self.at.len() == other.at.len());
 
         let mut res: N = Zero::zero();
@@ -188,8 +189,9 @@ impl<N: Num> DVec<N> {
         res
     } 
 
+    /// Will change soon.
     #[inline]
-    fn sub_dot(&self, a: &DVec<N>, b: &DVec<N>) -> N {
+    pub fn sub_dot(&self, a: &DVec<N>, b: &DVec<N>) -> N {
         let mut res: N = Zero::zero();
 
         for i in range(0u, self.at.len()) {
@@ -271,18 +273,21 @@ impl<N: Add<N, N> + Neg<N> + Clone> Translation<DVec<N>> for DVec<N> {
 }
 
 impl<N: Num + Algebraic + Clone> DVec<N> {
+    /// Will change soon.
     #[inline]
-    fn sqnorm(&self) -> N {
+    pub fn sqnorm(&self) -> N {
         self.dot(self)
     }
 
+    /// Will change soon.
     #[inline]
-    fn norm(&self) -> N {
+    pub fn norm(&self) -> N {
         self.sqnorm().sqrt()
     }
 
+    /// Will change soon.
     #[inline]
-    fn normalized(&self) -> DVec<N> {
+    pub fn normalized(&self) -> DVec<N> {
         let mut res : DVec<N> = self.clone();
 
         res.normalize();
@@ -290,8 +295,9 @@ impl<N: Num + Algebraic + Clone> DVec<N> {
         res
     }
 
+    /// Will change soon.
     #[inline]
-    fn normalize(&mut self) -> N {
+    pub fn normalize(&mut self) -> N {
         let l = self.norm();
 
         for i in range(0u, self.at.len()) {
