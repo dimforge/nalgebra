@@ -181,6 +181,17 @@ macro_rules! dim_impl(
     )
 )
 
+macro_rules! container_impl(
+    ($t: ident) => (
+        impl<N> Container for $t<N> {
+            #[inline]
+            fn len(&self) -> uint {
+                Dim::dim(None::<$t<N>>)
+            }
+        }
+    )
+)
+
 macro_rules! basis_impl(
     ($t: ident, $dim: expr) => (
         impl<N: Clone + Num + Algebraic + ApproxEq<N>> Basis for $t<N> {
