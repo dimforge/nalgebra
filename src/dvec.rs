@@ -3,6 +3,8 @@ use std::vec;
 use std::vec::{VecIterator, VecMutIterator};
 use std::cmp::ApproxEq;
 use std::iterator::FromIterator;
+use traits::dot::Dot;
+use traits::norm::Norm;
 use traits::iterable::{Iterable, IterableMut};
 use traits::translation::Translation;
 use traits::scalar_op::{ScalarAdd, ScalarSub};
@@ -173,10 +175,9 @@ impl<N: Neg<N>> Neg<DVec<N>> for DVec<N> {
     }
 }
 
-impl<N: Num> DVec<N> {
-    /// Will change soon.
+impl<N: Num> Dot<N> for DVec<N> {
     #[inline]
-    pub fn dot(&self, other: &DVec<N>) -> N {
+    fn dot(&self, other: &DVec<N>) -> N {
         assert!(self.at.len() == other.at.len());
 
         let mut res: N = Zero::zero();
@@ -188,9 +189,8 @@ impl<N: Num> DVec<N> {
         res
     } 
 
-    /// Will change soon.
     #[inline]
-    pub fn sub_dot(&self, a: &DVec<N>, b: &DVec<N>) -> N {
+    fn sub_dot(&self, a: &DVec<N>, b: &DVec<N>) -> N {
         let mut res: N = Zero::zero();
 
         for i in range(0u, self.at.len()) {
@@ -271,22 +271,19 @@ impl<N: Add<N, N> + Neg<N> + Clone> Translation<DVec<N>> for DVec<N> {
     }
 }
 
-impl<N: Num + Algebraic + Clone> DVec<N> {
-    /// Will change soon.
+impl<N: Num + Algebraic + Clone> Norm<N> for DVec<N> {
     #[inline]
-    pub fn sqnorm(&self) -> N {
+    fn sqnorm(&self) -> N {
         self.dot(self)
     }
 
-    /// Will change soon.
     #[inline]
-    pub fn norm(&self) -> N {
+    fn norm(&self) -> N {
         self.sqnorm().sqrt()
     }
 
-    /// Will change soon.
     #[inline]
-    pub fn normalized(&self) -> DVec<N> {
+    fn normalized(&self) -> DVec<N> {
         let mut res : DVec<N> = self.clone();
 
         res.normalize();
@@ -294,9 +291,8 @@ impl<N: Num + Algebraic + Clone> DVec<N> {
         res
     }
 
-    /// Will change soon.
     #[inline]
-    pub fn normalize(&mut self) -> N {
+    fn normalize(&mut self) -> N {
         let l = self.norm();
 
         for i in range(0u, self.at.len()) {
