@@ -148,16 +148,42 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>> {
     }
 }
 
-impl<N: Clone + Trigonometric + Num + Algebraic>
+impl<N: Clone + Trigonometric + Num + Algebraic + NumCast>
 Rotation<Vec3<N>> for Rotmat<Mat3<N>> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {
-        fail!("Not yet implemented.")
+        let angle = ((self.submat.m11 + self.submat.m22 + self.submat.m33 - One::one()) / NumCast::from(2.0)).acos();
+
+        if angle != angle {
+            // FIXME: handle that correctly
+            Zero::zero()
+        }
+        else if angle.is_zero() {
+            Zero::zero()
+        }
+        else {
+            let m32_m23 = self.submat.m32 - self.submat.m23;
+            let m13_m31 = self.submat.m13 - self.submat.m31;
+            let m21_m12 = self.submat.m21 - self.submat.m12;
+
+            let denom = (m32_m23 * m32_m23 + m13_m31 * m13_m31 + m21_m12 * m21_m12).sqrt();
+
+            if denom.is_zero() {
+                // XXX: handle that properly
+                // fail!("Internal error: singularity.")
+                Zero::zero()
+            }
+            else {
+                let a_d = angle / denom;
+
+                Vec3::new(m32_m23 * a_d, m13_m31 * a_d, m21_m12 * a_d)
+            }
+        }
     }
 
     #[inline]
     fn inv_rotation(&self) -> Vec3<N> {
-        fail!("Not yet implemented.")
+        -self.rotation()
     }
 
 
