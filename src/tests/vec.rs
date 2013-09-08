@@ -13,7 +13,9 @@ use traits::basis::Basis;
 #[test]
 use traits::cross::Cross;
 #[test]
-use traits::vector::{Vec, AlgebraicVec};
+use traits::dot::Dot;
+#[test]
+use traits::norm::Norm;
 #[test]
 use traits::iterable::{Iterable, IterableMut};
 #[test]

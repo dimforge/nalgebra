@@ -1,5 +1,5 @@
 use std::num::{Zero, One};
-use vec::{Vec1, Vec2, Vec3, AlgebraicVec, VecCast, UniformSphereSample, Cross, CrossMatrix, Basis};
+use vec::{Vec1, Vec2, Vec3, Norm, VecCast, UniformSphereSample, Cross, CrossMatrix, Basis};
 use mat::{Mat3, Row};
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
@@ -84,8 +84,7 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
     }
 }
 
-impl<N: Clone + Ord + Algebraic + Signed>
-Basis for Vec3<N> {
+impl<N: Clone + Ord + Algebraic + Signed> Basis for Vec3<N> {
     #[inline(always)]
     fn canonical_basis(f: &fn(Vec3<N>) -> bool) {
         if !f(Vec3::new(One::one(), Zero::zero(), Zero::zero())) { return };

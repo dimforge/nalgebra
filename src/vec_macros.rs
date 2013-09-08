@@ -277,7 +277,7 @@ macro_rules! neg_impl(
 
 macro_rules! dot_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Num + Clone> Vec<N> for $t<N> {
+        impl<N: Num + Clone> Dot<N> for $t<N> {
             #[inline]
             fn dot(&self, other: &$t<N>) -> N {
                 self.$comp0 * other.$comp0 $(+ self.$compN * other.$compN )*
@@ -380,7 +380,7 @@ macro_rules! translation_impl(
 
 macro_rules! norm_impl(
     ($t: ident) => (
-        impl<N: Clone + Num + Algebraic> AlgebraicVec<N> for $t<N> {
+        impl<N: Clone + Num + Algebraic> Norm<N> for $t<N> {
             #[inline]
             fn sqnorm(&self) -> N {
                 self.dot(self)

@@ -20,6 +20,8 @@ pub use traits::sample::UniformSphereSample;
 pub use traits::scalar_op::{ScalarAdd, ScalarSub};
 pub use traits::cross::{Cross, CrossMatrix};
 pub use traits::outer::Outer;
+pub use traits::dot::Dot;
+pub use traits::norm::Norm;
 
 // structs
 pub use dvec::DVec;

@@ -10,7 +10,7 @@ use traits::rotation::{Rotation, Rotate};
 use traits::transformation::{Transform}; // FIXME: implement Transformation and Transformable
 use traits::homogeneous::ToHomogeneous;
 use traits::indexable::Indexable;
-use traits::vector::AlgebraicVec;
+use traits::norm::Norm;
 use vec::Vec1;
 use mat::{Mat2, Mat3};
 use vec::Vec3;

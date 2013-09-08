@@ -3,7 +3,6 @@ use std::vec;
 use std::vec::{VecIterator, VecMutIterator};
 use std::cmp::ApproxEq;
 use std::iterator::FromIterator;
-use traits::vector::{Vec, AlgebraicVec};
 use traits::iterable::{Iterable, IterableMut};
 use traits::translation::Translation;
 use traits::scalar_op::{ScalarAdd, ScalarSub};

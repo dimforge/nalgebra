@@ -9,7 +9,8 @@ use traits::dim::Dim;
 use traits::translation::Translation;
 use traits::scalar_op::{ScalarAdd, ScalarSub};
 use traits::indexable::Indexable;
-use traits::vector::{Vec, AlgebraicVec};
+use traits::dot::Dot;
+use traits::norm::Norm;
 use vec;
 
 impl<N> vec::Vec0<N> {
@@ -95,7 +96,7 @@ impl<N: Neg<N>> Neg<vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Num + Clone> Vec<N> for vec::Vec0<N> {
+impl<N: Num + Clone> Dot<N> for vec::Vec0<N> {
     #[inline]
     fn dot(&self, _: &vec::Vec0<N>) -> N {
         Zero::zero()
@@ -167,7 +168,7 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Clone + Num + Algebraic> AlgebraicVec<N> for vec::Vec0<N> {
+impl<N: Clone + Num + Algebraic> Norm<N> for vec::Vec0<N> {
     #[inline]
     fn sqnorm(&self) -> N {
         self.dot(self)

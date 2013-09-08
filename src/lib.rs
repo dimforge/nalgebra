@@ -59,6 +59,8 @@ pub mod traits
     pub mod homogeneous;
     pub mod vec_cast;
     pub mod mat_cast;
+    pub mod norm;
+    pub mod dot;
 }
 
 #[cfg(test)]

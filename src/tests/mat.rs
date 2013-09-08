@@ -13,7 +13,7 @@ use traits::indexable::Indexable;
 #[test]
 use traits::transpose::Transpose;
 #[test]
-use traits::vector::AlgebraicVec;
+use traits::norm::Norm;
 #[test]
 use vec::{Vec1, Vec3};
 #[test]
