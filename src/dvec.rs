@@ -2,7 +2,7 @@ use std::num::{Zero, One, Algebraic};
 use std::vec;
 use std::vec::{VecIterator, VecMutIterator};
 use std::cmp::ApproxEq;
-use std::iterator::FromIterator;
+use std::iter::FromIterator;
 use traits::dot::Dot;
 use traits::norm::Norm;
 use traits::iterable::{Iterable, IterableMut};

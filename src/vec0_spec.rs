@@ -1,7 +1,7 @@
 use std::cast;
 use std::num::{Zero, One, Algebraic, Bounded};
 use std::vec::{VecIterator, VecMutIterator};
-use std::iterator::{Iterator, FromIterator};
+use std::iter::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
 use traits::iterable::{Iterable, IterableMut};
 use traits::basis::Basis;
