@@ -1,15 +1,8 @@
 use std::num::{Zero, One};
 use std::rand::{random};
 use std::cmp::ApproxEq;
-use vec::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
-use mat::Mat3;
-use traits::basis::Basis;
-use traits::cross::Cross;
-use traits::dot::Dot;
-use traits::norm::Norm;
-use traits::iterable::{Iterable, IterableMut};
-use traits::scalar_op::{ScalarAdd, ScalarSub};
-use traits::outer::Outer;
+use vec::*;
+use mat::*;
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (

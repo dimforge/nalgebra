@@ -1,13 +1,8 @@
 use std::num::{Real, One, abs};
 use std::rand::random;
 use std::cmp::ApproxEq;
-use traits::inv::Inv;
-use traits::rotation::Rotation;
-use traits::indexable::Indexable;
-use traits::transpose::Transpose;
-use traits::norm::Norm;
-use vec::{Vec1, Vec3};
-use mat::{Mat1, Mat2, Mat3, Mat4, Mat5, Mat6};
+use vec::*;
+use mat::*;
 use adaptors::rotmat::Rotmat;
 
 macro_rules! test_inv_mat_impl(

@@ -14,6 +14,24 @@ macro_rules! mat_impl(
   )
 )
 
+macro_rules! at_fast_impl(
+    ($t: ident, $dim: expr) => (
+        impl<N: Clone> $t<N> {
+            #[inline]
+            unsafe fn at_fast(&self, (i, j): (uint, uint)) -> N {
+                (*cast::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)
+                 .unsafe_ref(i * $dim + j)).clone()
+            }
+
+            #[inline]
+            unsafe fn set_fast(&mut self, (i, j): (uint, uint), val: N) {
+                (*cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
+                 .unsafe_mut_ref(i * $dim + j)) = val
+            }
+        }
+    )
+)
+
 macro_rules! mat_cast_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<Nin: NumCast + Clone, Nout: NumCast> MatCast<$t<Nout>> for $t<Nin> {
@@ -285,11 +303,13 @@ macro_rules! mul_impl(
                 for j in range(0u, $dim) {
                     let mut acc: N = Zero::zero();
 
-                    for k in range(0u, $dim) {
-                        acc = acc + self.at((i, k)) * other.at((k, j));
-                    }
+                    unsafe {
+                        for k in range(0u, $dim) {
+                            acc = acc + self.at_fast((i, k)) * other.at_fast((k, j));
+                        }
 
-                    res.set((i, j), acc);
+                        res.set_fast((i, j), acc);
+                    }
                 }
             }
 
@@ -308,8 +328,10 @@ macro_rules! rmul_impl(
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
-                    let val = res.at(i) + other.at(j) * self.at((i, j));
-                    res.set(i, val)
+                    unsafe {
+                        let val = res.at_fast(i) + other.at_fast(j) * self.at_fast((i, j));
+                        res.set_fast(i, val)
+                    }
                 }
             }
 
@@ -328,8 +350,10 @@ macro_rules! lmul_impl(
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
-                  let val = res.at(i) + other.at(j) * self.at((j, i));
-                  res.set(i, val)
+                    unsafe {
+                        let val = res.at_fast(i) + other.at_fast(j) * self.at_fast((j, i));
+                        res.set_fast(i, val)
+                    }
                 }
             }
 

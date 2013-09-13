@@ -76,5 +76,10 @@ pub mod traits {
 mod tests {
     mod mat;
     mod vec;
-    // mod bench;
+}
+
+#[cfg(test)]
+mod bench {
+    mod mat;
+    mod vec;
 }

@@ -15,6 +15,25 @@ macro_rules! new_impl(
     )
 )
 
+macro_rules! at_fast_impl(
+    ($t: ident, $dim: expr) => (
+        impl<N: Clone> $t<N> {
+            /// Unsafe read access to a vector element by index.
+            #[inline]
+            pub unsafe fn at_fast(&self, i: uint) -> N {
+                (*cast::transmute::<&$t<N>, &[N, ..$dim]>(self)
+                 .unsafe_ref(i)).clone()
+            }
+
+            /// Unsafe write access to a vector element by index.
+            #[inline]
+            pub unsafe fn set_fast(&mut self, i: uint, val: N) {
+                (*cast::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).unsafe_mut_ref(i)) = val
+            }
+        }
+    )
+)
+
 macro_rules! ord_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Ord> Ord for $t<N> {
