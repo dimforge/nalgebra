@@ -1,4 +1,6 @@
 use std::num::{Zero, One, Algebraic};
+use std::rand::Rand;
+use std::rand;
 use std::vec;
 use std::vec::{VecIterator, VecMutIterator};
 use std::cmp::ApproxEq;
@@ -44,6 +46,14 @@ impl<N: One + Clone> DVec<N> {
     }
 }
 
+impl<N: Rand> DVec<N> {
+    /// Builds a vector filled with random values.
+    #[inline]
+    pub fn new_random(dim: uint) -> DVec<N> {
+        DVec::from_fn(dim, |_| rand::random())
+    }
+}
+
 impl<N: Clone> DVec<N> {
     /// Builds a vector filled with a constant.
     #[inline]
@@ -52,7 +62,7 @@ impl<N: Clone> DVec<N> {
     }
 }
 
-impl<N: Clone> DVec<N> {
+impl<N> DVec<N> {
     /// Builds a vector filled with the result of a function.
     #[inline(always)]
     pub fn from_fn(dim: uint, f: &fn(uint) -> N) -> DVec<N> {

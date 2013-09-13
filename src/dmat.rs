@@ -1,3 +1,5 @@
+use std::rand::Rand;
+use std::rand;
 use std::num::{One, Zero};
 use std::vec;
 use std::cmp::ApproxEq;
@@ -30,6 +32,14 @@ impl<N: Zero + Clone> DMat<N> {
     #[inline]
     pub fn is_zero(&self) -> bool {
         self.mij.iter().all(|e| e.is_zero())
+    }
+}
+
+impl<N: Rand> DMat<N> {
+    /// Builds a matrix filled with random values.
+    #[inline]
+    pub fn new_random(nrows: uint, ncols: uint) -> DMat<N> {
+        DMat::from_fn(nrows, ncols, |_, _| rand::random())
     }
 }
 
