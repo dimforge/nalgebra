@@ -35,6 +35,13 @@ impl<N: Zero + Clone> DVec<N> {
     }
 }
 
+impl<N: Clone> DVec<N> {
+    /// Indexing without bounds checking.
+    pub unsafe fn at_fast(&self, i: uint) -> N {
+        vec::raw::get(self.at, i)
+    }
+}
+
 impl<N: One + Clone> DVec<N> {
     /// Builds a vector filled with ones.
     /// 

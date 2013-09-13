@@ -149,7 +149,14 @@ impl<N: Clone> DMat<N> {
     pub fn at(&self, row: uint, col: uint) -> N {
         assert!(row < self.nrows);
         assert!(col < self.ncols);
-        self.mij[self.offset(row, col)].clone()
+        unsafe { vec::raw::get(self.mij, self.offset(row, col)) }
+    }
+
+    // FIXME: put that on a `raw` module.
+    /// Just like `at` without bounds checking.
+    #[inline]
+    pub unsafe fn at_fast(&self, row: uint, col: uint) -> N {
+        vec::raw::get(self.mij, self.offset(row, col))
     }
 }
 
@@ -164,7 +171,9 @@ impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> 
                 let mut acc: N = Zero::zero();
 
                 for k in range(0u, self.ncols) {
-                    acc = acc + self.at(i, k) * other.at(k, j);
+                    unsafe {
+                        acc = acc + self.at_fast(i, k) * other.at_fast(k, j);
+                    }
                 }
 
                 res.set(i, j, acc);
@@ -186,7 +195,9 @@ RMul<DVec<N>> for DMat<N> {
             let mut acc: N = Zero::zero();
 
             for j in range(0u, self.ncols) {
-                acc = acc + other.at[j] * self.at(i, j);
+                unsafe {
+                    acc = acc + other.at_fast(j) * self.at_fast(i, j);
+                }
             }
 
             res.at[i] = acc;
@@ -207,7 +218,9 @@ LMul<DVec<N>> for DMat<N> {
             let mut acc: N = Zero::zero();
 
             for j in range(0u, self.nrows) {
-                acc = acc + other.at[j] * self.at(j, i);
+                unsafe {
+                    acc = acc + other.at_fast(j) * self.at_fast(j, i);
+                }
             }
 
             res.at[i] = acc;
