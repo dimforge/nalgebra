@@ -5,15 +5,18 @@ use traits::rlmul::{RMul, LMul};
 use traits::cross::Cross;
 use traits::dim::Dim;
 use traits::inv::Inv;
+use traits::row::Row;
+use traits::col::Col;
 use traits::transpose::Transpose;
-use traits::rotation::{Rotation, Rotate};
+use traits::absolute::Absolute;
+use traits::rotation::{Rotation, Rotate, RotationMatrix};
 use traits::transformation::{Transform}; // FIXME: implement Transformation and Transformable
 use traits::homogeneous::ToHomogeneous;
 use traits::indexable::Indexable;
 use traits::norm::Norm;
-use vec::Vec1;
+use traits::comp::absolute_rotate::AbsoluteRotate;
+use vec::{Vec1, Vec2, Vec3};
 use mat::{Mat2, Mat3};
-use vec::Vec3;
 
 /// Matrix wrapper representing rotation matrix. It is built uppon another matrix and ensures (at
 /// the type-level) that it will always represent a rotation. Rotation matrices have some
@@ -121,6 +124,14 @@ impl<N: Clone + Num + Algebraic> Rotmat<Mat3<N>> {
 }
 
 impl<N: Trigonometric + Num + Clone>
+RotationMatrix<Vec2<N>, Vec1<N>, Rotmat<Mat2<N>>> for Rotmat<Mat2<N>> {
+    #[inline]
+    fn to_rot_mat(&self) -> Rotmat<Mat2<N>> {
+        self.clone()
+    }
+}
+
+impl<N: Trigonometric + Num + Clone>
 Rotation<Vec1<N>> for Rotmat<Mat2<N>> {
     #[inline]
     fn rotation(&self) -> Vec1<N> {
@@ -145,6 +156,14 @@ Rotation<Vec1<N>> for Rotmat<Mat2<N>> {
     #[inline]
     fn set_rotation(&mut self, rot: Vec1<N>) {
         *self = Rotmat::from_angle(rot.x)
+    }
+}
+
+impl<N: NumCast + Algebraic + Trigonometric + Num + Clone>
+RotationMatrix<Vec3<N>, Vec3<N>, Rotmat<Mat3<N>>> for Rotmat<Mat3<N>> {
+    #[inline]
+    fn to_rot_mat(&self) -> Rotmat<Mat3<N>> {
+        self.clone()
     }
 }
 
@@ -304,8 +323,42 @@ Transpose for Rotmat<M> {
     }
 }
 
+impl<M: Row<R>, R> Row<R> for Rotmat<M> {
+    #[inline]
+    fn num_rows(&self) -> uint {
+        self.submat.num_rows()
+    }
+    #[inline]
+    fn row(&self, i: uint) -> R {
+        self.submat.row(i)
+    }
+
+    #[inline]
+    fn set_row(&mut self, i: uint, row: R) {
+        self.submat.set_row(i, row);
+    }
+}
+
+impl<M: Col<C>, C> Col<C> for Rotmat<M> {
+    #[inline]
+    fn num_cols(&self) -> uint {
+        self.submat.num_cols()
+    }
+
+    #[inline]
+    fn col(&self, i: uint) -> C {
+        self.submat.col(i)
+    }
+
+    #[inline]
+    fn set_col(&mut self, i: uint, col: C) {
+        self.submat.set_col(i, col);
+    }
+}
+
 // we loose the info that we are a rotation matrix
 impl<M: ToHomogeneous<M2>, M2> ToHomogeneous<M2> for Rotmat<M> {
+    #[inline]
     fn to_homogeneous(&self) -> M2 {
         self.submat.to_homogeneous()
     }
@@ -326,5 +379,35 @@ impl<N: ApproxEq<N>, M: ApproxEq<N>> ApproxEq<N> for Rotmat<M> {
     #[inline]
     fn approx_eq_eps(&self, other: &Rotmat<M>, epsilon: &N) -> bool {
         self.submat.approx_eq_eps(&other.submat, epsilon)
+    }
+}
+
+impl<M: Absolute<M2>, M2> Absolute<M2> for Rotmat<M> {
+    #[inline]
+    fn absolute(&self) -> M2 {
+        self.submat.absolute()
+    }
+}
+
+impl<N: Signed> AbsoluteRotate<Vec3<N>> for Rotmat<Mat3<N>> {
+    #[inline]
+    fn absolute_rotate(&self, v: &Vec3<N>) -> Vec3<N> {
+        Vec3::new(
+            self.submat.m11.abs() * v.x + self.submat.m12.abs() * v.y + self.submat.m13.abs() * v.z,
+            self.submat.m21.abs() * v.x + self.submat.m22.abs() * v.y + self.submat.m23.abs() * v.z,
+            self.submat.m31.abs() * v.x + self.submat.m32.abs() * v.y + self.submat.m33.abs() * v.z)
+    }
+}
+
+impl<N: Signed> AbsoluteRotate<Vec2<N>> for Rotmat<Mat2<N>> {
+    #[inline]
+    fn absolute_rotate(&self, v: &Vec2<N>) -> Vec2<N> {
+        // the matrix is skew-symetric, so we dont need to compute the absolute value of every
+        // component.
+        let m11 = self.submat.m11.abs();
+        let m12 = self.submat.m12.abs();
+        let m22 = self.submat.m22.abs();
+
+        Vec2::new(m11 * v.x + m12 * v.y, m12 * v.x + m22 * v.y)
     }
 }

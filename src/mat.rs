@@ -7,6 +7,8 @@ use std::vec::{VecIterator, VecMutIterator};
 use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Outer};
 
 // traits
+pub use traits::mat::Mat;
+pub use traits::absolute::Absolute;
 pub use traits::dim::Dim;
 pub use traits::indexable::Indexable;
 pub use traits::iterable::{Iterable, IterableMut};
@@ -15,12 +17,15 @@ pub use traits::mat_cast::MatCast;
 pub use traits::column::Column;
 pub use traits::inv::Inv;
 pub use traits::rlmul::{RMul, LMul};
-pub use traits::rotation::{Rotation, Rotate, RotationWithTranslation};
+pub use traits::rotation::{Rotation, RotationMatrix, Rotate};
 pub use traits::transformation::{Transformation, Transform};
 pub use traits::translation::{Translation, Translate};
 pub use traits::transpose::{Transpose};
 pub use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
 pub use traits::row::Row;
+pub use traits::col::Col;
+pub use traits::comp::rotation_with_translation::RotationWithTranslation;
+pub use traits::comp::absolute_rotate::AbsoluteRotate;
 
 // structs
 pub use dmat::DMat;
@@ -57,6 +62,7 @@ scalar_mul_impl!(Mat1, m11)
 scalar_div_impl!(Mat1, m11)
 scalar_add_impl!(Mat1, m11)
 scalar_sub_impl!(Mat1, m11)
+absolute_impl!(Mat1, m11)
 one_impl!(Mat1, One::one)
 iterable_impl!(Mat1, 1)
 iterable_mut_impl!(Mat1, 1)
@@ -71,6 +77,7 @@ transpose_impl!(Mat1, 1)
 approx_eq_impl!(Mat1)
 column_impl!(Mat1, Vec1, 1)
 row_impl!(Mat1, Vec1, 1)
+col_impl!(Mat1, Vec1, 1)
 to_homogeneous_impl!(Mat1, Mat2, 1, 2)
 from_homogeneous_impl!(Mat1, Mat2, 1, 2)
 outer_impl!(Vec1, Mat1)
@@ -98,6 +105,8 @@ scalar_add_impl!(Mat2, m11, m12,
                        m21, m22)
 scalar_sub_impl!(Mat2, m11, m12,
                        m21, m22)
+absolute_impl!(Mat2, m11, m12,
+                     m21, m22)
 one_impl!(Mat2, One::one,   Zero::zero,
                 Zero::zero, One::one)
 iterable_impl!(Mat2, 2)
@@ -113,6 +122,7 @@ transpose_impl!(Mat2, 2)
 approx_eq_impl!(Mat2)
 column_impl!(Mat2, Vec2, 2)
 row_impl!(Mat2, Vec2, 2)
+col_impl!(Mat2, Vec2, 2)
 to_homogeneous_impl!(Mat2, Mat3, 2, 3)
 from_homogeneous_impl!(Mat2, Mat3, 2, 3)
 outer_impl!(Vec2, Mat2)
@@ -149,6 +159,9 @@ scalar_add_impl!(Mat3, m11, m12, m13,
 scalar_sub_impl!(Mat3, m11, m12, m13,
                        m21, m22, m23,
                        m31, m32, m33)
+absolute_impl!(Mat3, m11, m12, m13,
+                     m21, m22, m23,
+                     m31, m32, m33)
 one_impl!(Mat3, One::one  , Zero::zero, Zero::zero,
                 Zero::zero, One::one  , Zero::zero,
                 Zero::zero, Zero::zero, One::one)
@@ -165,6 +178,7 @@ transpose_impl!(Mat3, 3)
 approx_eq_impl!(Mat3)
 column_impl!(Mat3, Vec3, 3)
 // (specialized) row_impl!(Mat3, Vec3, 3)
+// (specialized) col_impl!(Mat3, Vec3, 3)
 to_homogeneous_impl!(Mat3, Mat4, 3, 4)
 from_homogeneous_impl!(Mat3, Mat4, 3, 4)
 outer_impl!(Vec3, Mat3)
@@ -226,6 +240,12 @@ scalar_sub_impl!(Mat4,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 )
+absolute_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+)
 one_impl!(Mat4, One::one  , Zero::zero, Zero::zero, Zero::zero,
                 Zero::zero, One::one  , Zero::zero, Zero::zero,
                 Zero::zero, Zero::zero, One::one  , Zero::zero,
@@ -243,6 +263,7 @@ transpose_impl!(Mat4, 4)
 approx_eq_impl!(Mat4)
 column_impl!(Mat4, Vec4, 4)
 row_impl!(Mat4, Vec4, 4)
+col_impl!(Mat4, Vec4, 4)
 to_homogeneous_impl!(Mat4, Mat5, 4, 5)
 from_homogeneous_impl!(Mat4, Mat5, 4, 5)
 outer_impl!(Vec4, Mat4)
@@ -265,6 +286,13 @@ mat_impl!(Mat5,
   m51, m52, m53, m54, m55
 )
 mat_cast_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+)
+absolute_impl!(Mat5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
@@ -333,6 +361,7 @@ transpose_impl!(Mat5, 5)
 approx_eq_impl!(Mat5)
 column_impl!(Mat5, Vec5, 5)
 row_impl!(Mat5, Vec5, 5)
+col_impl!(Mat5, Vec5, 5)
 to_homogeneous_impl!(Mat5, Mat6, 5, 6)
 from_homogeneous_impl!(Mat5, Mat6, 5, 6)
 outer_impl!(Vec5, Mat5)
@@ -412,6 +441,14 @@ scalar_sub_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 )
+absolute_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+)
 one_impl!(Mat6,
   One::one  , Zero::zero, Zero::zero, Zero::zero, Zero::zero, Zero::zero,
   Zero::zero, One::one  , Zero::zero, Zero::zero, Zero::zero, Zero::zero,
@@ -433,4 +470,5 @@ transpose_impl!(Mat6, 6)
 approx_eq_impl!(Mat6)
 column_impl!(Mat6, Vec6, 6)
 row_impl!(Mat6, Vec6, 6)
+col_impl!(Mat6, Vec6, 6)
 outer_impl!(Vec6, Mat6)

@@ -2,14 +2,17 @@ use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
 use traits::dim::Dim;
+use traits::absolute::Absolute;
+use traits::mat::Mat;
 use traits::inv::Inv;
-use traits::rotation::{Rotation, Rotate};
+use traits::rotation::{Rotation, Rotate, RotationMatrix};
 use traits::translation::{Translation, Translate};
 use Ts = traits::transformation::Transform;
 use traits::transformation::{Transformation};
 use traits::rlmul::{RMul, LMul};
 use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
 use traits::column::Column;
+use traits::comp::absolute_rotate::AbsoluteRotate;
 use adaptors::rotmat::Rotmat;
 use vec::Vec3;
 use mat::Mat3;
@@ -50,6 +53,14 @@ impl<V: Clone, M: Clone> Transform<V, M> {
     #[inline]
     pub fn subtrans(&self) -> V {
         self.subtrans.clone()
+    }
+}
+
+impl<LV, AV, M: One + RMul<LV> + RotationMatrix<LV, AV, M2>, M2: Mat<LV, LV> + Rotation<AV>>
+RotationMatrix<LV, AV, M2> for Transform<LV, M> {
+    #[inline]
+    fn to_rot_mat(&self) -> M2 {
+        self.submat.to_rot_mat()
     }
 }
 
@@ -340,5 +351,20 @@ impl<M: Rand, V: Rand> Rand for Transform<V, M> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Transform<V, M> {
         Transform::new(rng.gen(), rng.gen())
+    }
+}
+
+impl<V: Absolute<V2>, M: Absolute<M2>, V2, M2>
+Absolute<Transform<V2, M2>> for Transform<V, M> {
+    #[inline]
+    fn absolute(&self) -> Transform<V2, M2> {
+        Transform::new(self.subtrans.absolute(), self.submat.absolute())
+    }
+}
+
+impl<V, M: AbsoluteRotate<V>> AbsoluteRotate<V> for Transform<V, M> {
+    #[inline]
+    fn absolute_rotate(&self, v: &V) -> V {
+        self.submat.absolute_rotate(v)
     }
 }

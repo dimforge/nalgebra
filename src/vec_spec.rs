@@ -42,6 +42,11 @@ impl<N: Neg<N> + Zero + Clone> CrossMatrix<Mat3<N>> for Vec3<N> {
 // FIXME: iplement this for all other vectors
 impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
     #[inline]
+    fn num_rows(&self) -> uint {
+        2
+    }
+
+    #[inline]
     fn row(&self, i: uint) -> Vec1<N> {
         match i {
             0 => Vec1::new(self.x.clone()),

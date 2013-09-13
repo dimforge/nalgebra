@@ -29,16 +29,14 @@ mod vec0_spec;
 mod identity_spec;
 
 /// Wrappers around raw matrices to restrict their behaviour.
-pub mod adaptors
-{
+pub mod adaptors {
     pub mod rotmat;
     pub mod transform;
 }
 
 pub mod types;
 
-pub mod traits
-{
+pub mod traits {
     pub mod vector;
     pub mod sample;
     pub mod indexable;
@@ -61,11 +59,21 @@ pub mod traits
     pub mod mat_cast;
     pub mod norm;
     pub mod dot;
+    pub mod mat;
+    pub mod absolute;
+    pub mod col;
+
+    /// Unusual traits which are composition of other primitive traits.
+    /// Those are mainly shortcuts to make some operation easier to use or faster.
+    /// Mathematics purists should really not go in there!
+    pub mod comp {
+        pub mod rotation_with_translation;
+        pub mod absolute_rotate;
+    }
 }
 
 #[cfg(test)]
-pub mod tests
-{
+pub mod tests {
     pub mod mat;
     pub mod vec;
 }

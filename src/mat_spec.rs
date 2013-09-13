@@ -1,6 +1,6 @@
 use std::num::{Zero, One};
 use vec::Vec3;
-use mat::{Mat1, Mat2, Mat3, Inv, Row};
+use mat::{Mat1, Mat2, Mat3, Inv, Row, Col};
 use mat;
 
 // some specializations:
@@ -111,6 +111,11 @@ Inv for Mat3<N> {
 
 impl<N: Clone> Row<Vec3<N>> for Mat3<N> {
     #[inline]
+    fn num_rows(&self) -> uint {
+        3
+    }
+
+    #[inline]
     fn row(&self, i: uint) -> Vec3<N> {
         match i {
             0 => Vec3::new(self.m11.clone(), self.m12.clone(), self.m13.clone()),
@@ -139,6 +144,46 @@ impl<N: Clone> Row<Vec3<N>> for Mat3<N> {
                 self.m33 = r.z;
             },
             _ => fail!("Index out of range: 3d matrices do not have " + i.to_str() + " rows.")
+
+        }
+    }
+}
+
+impl<N: Clone> Col<Vec3<N>> for Mat3<N> {
+    #[inline]
+    fn num_cols(&self) -> uint {
+        3
+    }
+
+    #[inline]
+    fn col(&self, i: uint) -> Vec3<N> {
+        match i {
+            0 => Vec3::new(self.m11.clone(), self.m21.clone(), self.m31.clone()),
+            1 => Vec3::new(self.m12.clone(), self.m22.clone(), self.m32.clone()),
+            2 => Vec3::new(self.m13.clone(), self.m23.clone(), self.m33.clone()),
+            _ => fail!("Index out of range: 3d matrices do not have " + i.to_str() + " cols.")
+        }
+    }
+
+    #[inline]
+    fn set_col(&mut self, i: uint, r: Vec3<N>) {
+        match i {
+            0 => {
+                self.m11 = r.x.clone();
+                self.m21 = r.y.clone();
+                self.m31 = r.z;
+            },
+            1 => {
+                self.m12 = r.x.clone();
+                self.m22 = r.y.clone();
+                self.m32 = r.z;
+            },
+            2 => {
+                self.m13 = r.x.clone();
+                self.m23 = r.y.clone();
+                self.m33 = r.z;
+            },
+            _ => fail!("Index out of range: 3d matrices do not have " + i.to_str() + " cols.")
 
         }
     }

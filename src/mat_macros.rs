@@ -105,6 +105,17 @@ macro_rules! scalar_sub_impl(
   )
 )
 
+macro_rules! absolute_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Signed> Absolute<$t<N>> for $t<N> {
+        #[inline]
+        fn absolute(&self) -> $t<N> {
+            $t::new(self.$comp0.abs() $(, self.$compN.abs() )*)
+        }
+    }
+  )
+)
+
 macro_rules! iterable_impl(
   ($t: ident, $dim: expr) => (
     impl<N> Iterable<N> for $t<N> {
@@ -209,6 +220,11 @@ macro_rules! row_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
     impl<N: Clone + Zero> Row<$tv<N>> for $t<N> {
         #[inline]
+        fn num_rows(&self) -> uint {
+            Dim::dim(None::<$t<N>>)
+        }
+
+        #[inline]
         fn set_row(&mut self, row: uint, v: $tv<N>) {
             for (i, e) in v.iter().enumerate() {
                 self.set((row, i), e.clone());
@@ -221,6 +237,35 @@ macro_rules! row_impl(
 
             for (i, e) in res.mut_iter().enumerate() {
                 *e = self.at((row, i));
+            }
+
+            res
+        }
+    }
+  )
+)
+
+macro_rules! col_impl(
+  ($t: ident, $tv: ident, $dim: expr) => (
+    impl<N: Clone + Zero> Col<$tv<N>> for $t<N> {
+        #[inline]
+        fn num_cols(&self) -> uint {
+            Dim::dim(None::<$t<N>>)
+        }
+
+        #[inline]
+        fn set_col(&mut self, col: uint, v: $tv<N>) {
+            for (i, e) in v.iter().enumerate() {
+                self.set((col, i), e.clone());
+            }
+        }
+
+        #[inline]
+        fn col(&self, col: uint) -> $tv<N> {
+            let mut res: $tv<N> = Zero::zero();
+
+            for (i, e) in res.mut_iter().enumerate() {
+                *e = self.at((i, col));
             }
 
             res
