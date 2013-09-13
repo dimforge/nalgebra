@@ -1,26 +1,14 @@
-#[test]
 use std::num::{Zero, One};
-#[test]
 use std::rand::{random};
-#[test]
 use std::cmp::ApproxEq;
-#[test]
 use vec::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
-#[test]
 use mat::Mat3;
-#[test]
 use traits::basis::Basis;
-#[test]
 use traits::cross::Cross;
-#[test]
 use traits::dot::Dot;
-#[test]
 use traits::norm::Norm;
-#[test]
 use traits::iterable::{Iterable, IterableMut};
-#[test]
 use traits::scalar_op::{ScalarAdd, ScalarSub};
-#[test]
 use traits::outer::Outer;
 
 macro_rules! test_iterator_impl(

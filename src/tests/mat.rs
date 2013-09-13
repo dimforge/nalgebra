@@ -1,24 +1,13 @@
-#[test]
 use std::num::{Real, One, abs};
-#[test]
 use std::rand::random;
-#[test]
 use std::cmp::ApproxEq;
-#[test]
 use traits::inv::Inv;
-#[test]
 use traits::rotation::Rotation;
-#[test]
 use traits::indexable::Indexable;
-#[test]
 use traits::transpose::Transpose;
-#[test]
 use traits::norm::Norm;
-#[test]
 use vec::{Vec1, Vec3};
-#[test]
 use mat::{Mat1, Mat2, Mat3, Mat4, Mat5, Mat6};
-#[test]
 use adaptors::rotmat::Rotmat;
 
 macro_rules! test_inv_mat_impl(
