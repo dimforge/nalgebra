@@ -54,6 +54,19 @@ impl<N: Rand> DVec<N> {
     }
 }
 
+impl<N> DVec<N> {
+    /// Creates an uninitialized vec.
+    #[inline]
+    pub unsafe fn new_uninitialized(dim: uint) -> DVec<N> {
+        let mut vec = vec::with_capacity(dim);
+        vec::raw::set_len(&mut vec, dim);
+
+        DVec {
+            at: vec
+        }
+    }
+}
+
 impl<N: Clone> DVec<N> {
     /// Builds a vector filled with a constant.
     #[inline]

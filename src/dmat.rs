@@ -17,6 +17,21 @@ pub struct DMat<N> {
     priv mij: ~[N]
 }
 
+impl<N> DMat<N> {
+    /// Creates an uninitialized matrix.
+    #[inline]
+    pub unsafe fn new_uninitialized(nrows: uint, ncols: uint) -> DMat<N> {
+        let mut vec = vec::with_capacity(nrows * ncols);
+        vec::raw::set_len(&mut vec, nrows * ncols);
+
+        DMat {
+            nrows: nrows,
+            ncols: ncols,
+            mij:   vec
+        }
+    }
+}
+
 impl<N: Zero + Clone> DMat<N> {
     /// Builds a matrix filled with zeros.
     /// 
@@ -95,7 +110,7 @@ impl<N: One + Zero + Clone> DMat<N> {
     ///   components.
     #[inline]
     pub fn new_identity(dim: uint) -> DMat<N> {
-        let mut res    = DMat::new_zeros(dim, dim);
+        let mut res = DMat::new_zeros(dim, dim);
 
         for i in range(0u, dim) {
             let _1: N  = One::one();
@@ -142,7 +157,7 @@ impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> 
     fn mul(&self, other: &DMat<N>) -> DMat<N> {
         assert!(self.ncols == other.nrows);
 
-        let mut res = DMat::new_zeros(self.nrows, other.ncols);
+        let mut res = unsafe { DMat::new_uninitialized(self.nrows, other.ncols) };
 
         for i in range(0u, self.nrows) {
             for j in range(0u, other.ncols) {
@@ -165,7 +180,7 @@ RMul<DVec<N>> for DMat<N> {
     fn rmul(&self, other: &DVec<N>) -> DVec<N> {
         assert!(self.ncols == other.at.len());
 
-        let mut res : DVec<N> = DVec::new_zeros(self.nrows);
+        let mut res : DVec<N> = unsafe { DVec::new_uninitialized(self.nrows) };
 
         for i in range(0u, self.nrows) {
             let mut acc: N = Zero::zero();
@@ -186,7 +201,7 @@ LMul<DVec<N>> for DMat<N> {
     fn lmul(&self, other: &DVec<N>) -> DVec<N> {
         assert!(self.nrows == other.at.len());
 
-        let mut res : DVec<N> = DVec::new_zeros(self.ncols);
+        let mut res : DVec<N> = unsafe { DVec::new_uninitialized(self.ncols) };
 
         for i in range(0u, self.ncols) {
             let mut acc: N = Zero::zero();
