@@ -3,7 +3,7 @@ nalgebra_lib_path=lib
 nalgebra_doc_path=doc
 all:
 	mkdir -p $(nalgebra_lib_path)
-	rust build src/lib.rs --out-dir $(nalgebra_lib_path) --opt-level 2
+	rust build src/lib.rs --out-dir $(nalgebra_lib_path) --opt-level 3
 
 test:
 	mkdir -p $(nalgebra_lib_path)
@@ -11,7 +11,7 @@ test:
 	rm libtest~
 
 bench:
-	rustc --test src/lib.rs --opt-level 2 -o bench~ && ./bench~ --bench
+	rustc --test src/lib.rs --opt-level 3 -o bench~ && ./bench~ --bench
 	rm bench~
 
 doc:

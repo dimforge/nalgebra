@@ -1,6 +1,6 @@
 use std::num::{Zero, One};
-use vec::Vec3;
-use mat::{Mat1, Mat2, Mat3, Inv, Row, Col};
+use vec::{Vec2, Vec3};
+use mat::{Mat1, Mat2, Mat3, Inv, Row, Col, RMul, LMul};
 use mat;
 
 // some specializations:
@@ -186,6 +186,80 @@ impl<N: Clone> Col<Vec3<N>> for Mat3<N> {
             _ => fail!("Index out of range: 3d matrices do not have " + i.to_str() + " cols.")
 
         }
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N> {
+    #[inline]
+    fn mul(&self, other: &Mat3<N>) -> Mat3<N> {
+        Mat3::new(
+            self.m11 * other.m11 + self.m12 * other.m21 + self.m13 * other.m31,
+            self.m11 * other.m12 + self.m12 * other.m22 + self.m13 * other.m32,
+            self.m11 * other.m13 + self.m12 * other.m23 + self.m13 * other.m33,
+
+            self.m21 * other.m11 + self.m22 * other.m21 + self.m23 * other.m31,
+            self.m21 * other.m12 + self.m22 * other.m22 + self.m23 * other.m32,
+            self.m21 * other.m13 + self.m22 * other.m23 + self.m23 * other.m33,
+
+            self.m31 * other.m11 + self.m32 * other.m21 + self.m33 * other.m31,
+            self.m31 * other.m12 + self.m32 * other.m22 + self.m33 * other.m32,
+            self.m31 * other.m13 + self.m32 * other.m23 + self.m33 * other.m33
+        )
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N> {
+    #[inline(always)]
+    fn mul(&self, other: &Mat2<N>) -> Mat2<N> {
+        Mat2::new(
+            self.m11 * other.m11 + self.m12 * other.m21,
+            self.m11 * other.m12 + self.m12 * other.m22,
+
+            self.m21 * other.m11 + self.m22 * other.m21,
+            self.m21 * other.m12 + self.m22 * other.m22
+        )
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> RMul<Vec3<N>> for Mat3<N> {
+    #[inline(always)]
+    fn rmul(&self, v: &Vec3<N>) -> Vec3<N> {
+        Vec3::new(
+            self.m11 * v.x + self.m12 * v.y + self.m13 * v.z,
+            self.m21 * v.x + self.m22 * v.y + self.m23 * v.z,
+            self.m31 * v.x + self.m32 * v.y + self.m33 * v.z
+        )
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> LMul<Vec3<N>> for Mat3<N> {
+    #[inline(always)]
+    fn lmul(&self, v: &Vec3<N>) -> Vec3<N> {
+        Vec3::new(
+            self.m11 * v.x + self.m21 * v.y + self.m31 * v.z,
+            self.m12 * v.x + self.m22 * v.y + self.m32 * v.z,
+            self.m13 * v.x + self.m23 * v.y + self.m33 * v.z
+        )
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> RMul<Vec2<N>> for Mat2<N> {
+    #[inline(always)]
+    fn rmul(&self, v: &Vec2<N>) -> Vec2<N> {
+        Vec2::new(
+            self.m11 * v.x + self.m12 * v.y,
+            self.m21 * v.x + self.m22 * v.y
+        )
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> LMul<Vec2<N>> for Mat2<N> {
+    #[inline(always)]
+    fn lmul(&self, v: &Vec2<N>) -> Vec2<N> {
+        Vec2::new(
+            self.m11 * v.x + self.m21 * v.y,
+            self.m12 * v.x + self.m22 * v.y
+        )
     }
 }
 

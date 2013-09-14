@@ -219,7 +219,9 @@ macro_rules! basis_impl(
                 for i in range(0u, $dim) {
                     let mut basis_element : $t<N> = Zero::zero();
 
-                    basis_element.set(i, One::one());
+                    unsafe {
+                        basis_element.set_fast(i, One::one());
+                    }
 
                     if !f(basis_element) { return }
                 }
@@ -234,7 +236,9 @@ macro_rules! basis_impl(
                 for i in range(0u, $dim) {
                     let mut basis_element : $t<N> = Zero::zero();
 
-                    basis_element.set(i, One::one());
+                    unsafe {
+                        basis_element.set_fast(i, One::one());
+                    }
 
                     if basis.len() == $dim - 1 {
                         break;

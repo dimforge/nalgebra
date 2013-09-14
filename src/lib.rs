@@ -12,7 +12,6 @@
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
 #[deny(missing_doc)];
-#[deny(warnings)];
 
 extern mod std;
 extern mod extra;
