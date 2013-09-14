@@ -9,7 +9,6 @@ use traits::dot::Dot;
 use traits::norm::Norm;
 use traits::iterable::{Iterable, IterableMut};
 use traits::translation::Translation;
-use traits::scalar_op::{ScalarAdd, ScalarSub};
 
 /// Vector with a dimension unknown at compile-time.
 #[deriving(Eq, ToStr, Clone)]
@@ -243,34 +242,6 @@ impl<N: Div<N, N>> Div<N, DVec<N>> for DVec<N> {
     #[inline]
     fn div(&self, s: &N) -> DVec<N> {
         DVec { at: self.at.iter().map(|a| a / *s).collect() }
-    }
-}
-
-impl<N: Add<N, N>> ScalarAdd<N> for DVec<N> {
-    #[inline]
-    fn scalar_add(&self, s: &N) -> DVec<N> {
-        DVec { at: self.at.iter().map(|a| a + *s).collect() }
-    }
-
-    #[inline]
-    fn scalar_add_inplace(&mut self, s: &N) {
-        for i in range(0u, self.at.len()) {
-            self.at[i] = self.at[i] + *s;
-        }
-    }
-}
-
-impl<N: Sub<N, N>> ScalarSub<N> for DVec<N> {
-    #[inline]
-    fn scalar_sub(&self, s: &N) -> DVec<N> {
-        DVec { at: self.at.iter().map(|a| a - *s).collect() }
-    }
-
-    #[inline]
-    fn scalar_sub_inplace(&mut self, s: &N) {
-        for i in range(0u, self.at.len()) {
-            self.at[i] = self.at[i] - *s;
-        }
     }
 }
 

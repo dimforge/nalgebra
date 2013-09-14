@@ -212,8 +212,8 @@ macro_rules! container_impl(
 )
 
 macro_rules! basis_impl(
-    ($t: ident, $dim: expr) => (
-        impl<N: Clone + Num + Algebraic + ApproxEq<N>> Basis for $t<N> {
+    ($t: ident, $trhs: ident, $dim: expr) => (
+        impl<N: Clone + Num + Algebraic + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
             #[inline]
             fn canonical_basis(f: &fn($t<N>) -> bool) {
                 for i in range(0u, $dim) {
@@ -266,10 +266,10 @@ macro_rules! basis_impl(
 )
 
 macro_rules! add_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
+    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Clone + Add<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
-            fn add(&self, other: &$t<N>) -> $t<N> {
+            fn $trhs(&self, other: &$t<N>) -> $t<N> {
                 $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN)*)
             }
         }
@@ -277,11 +277,11 @@ macro_rules! add_impl(
 )
 
 macro_rules! sub_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
+    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Clone + Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
-            fn sub(&self, other: &$t<N>) -> $t<N> {
-                $t::new(self.$comp0 - other.$comp0 $(, self.$compN - other.$compN)*)
+            fn $trhs(&self, other: &$t<N>) -> $t<N> {
+                $t::new(other.$comp0 - self.$comp0 $(, other.$compN - self.$compN)*)
             }
         }
     )
@@ -315,56 +315,44 @@ macro_rules! dot_impl(
 )
 
 macro_rules! scalar_mul_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Mul<N, N>> Mul<N, $t<N>> for $t<N> {
+    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn mul(&self, s: &N) -> $t<N> {
-                $t::new(self.$comp0 * *s $(, self.$compN * *s)*)
+            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
+                $t::new(s.$comp0 * *self $(, s.$compN * *self)*)
             }
         }
     )
 )
 
 macro_rules! scalar_div_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Div<N, N>> Div<N, $t<N>> for $t<N> {
+    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn div(&self, s: &N) -> $t<N> {
-                $t::new(self.$comp0 / *s $(, self.$compN / *s)*)
+            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
+                $t::new(s.$comp0 / *self $(, s.$compN / *self)*)
             }
         }
     )
 )
 
 macro_rules! scalar_add_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Add<N, N>> ScalarAdd<N> for $t<N> {
+    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn scalar_add(&self, s: &N) -> $t<N> {
-                $t::new(self.$comp0 + *s $(, self.$compN + *s)*)
-            }
-
-            #[inline]
-            fn scalar_add_inplace(&mut self, s: &N) {
-                self.$comp0   = self.$comp0 + *s;
-                $(self.$compN = self.$compN + *s;)*
+            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
+                $t::new(s.$comp0 + *self $(, s.$compN + *self)*)
             }
         }
     )
 )
 
 macro_rules! scalar_sub_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Sub<N, N>> ScalarSub<N> for $t<N> {
+    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn scalar_sub(&self, s: &N) -> $t<N> {
-                $t::new(self.$comp0 - *s $(, self.$compN - *s)*)
-            }
-
-            #[inline]
-            fn scalar_sub_inplace(&mut self, s: &N) {
-                self.$comp0   = self.$comp0 - *s;
-                $(self.$compN = self.$compN - *s;)*
+            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
+                $t::new(s.$comp0 - *self $(, s.$compN - *self)*)
             }
         }
     )
@@ -402,7 +390,7 @@ macro_rules! translation_impl(
 )
 
 macro_rules! norm_impl(
-    ($t: ident) => (
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + Num + Algebraic> Norm<N> for $t<N> {
             #[inline]
             fn sqnorm(&self) -> N {
@@ -427,7 +415,8 @@ macro_rules! norm_impl(
             fn normalize(&mut self) -> N {
                 let l = self.norm();
 
-                *self = *self / l;
+                self.$comp0 = self.$comp0 / l;
+                $(self.$compN = self.$compN / l;)*
 
                 l
             }
@@ -542,10 +531,8 @@ macro_rules! from_homogeneous_impl(
             fn from(v: &$t2<N>) -> $t<N> {
                 let mut res: $t<N> = Zero::zero();
 
-                res.$comp0    = v.$comp0.clone();
-                $( res.$compN = v.$compN.clone(); )*
-
-                res = res / v.$extra;
+                res.$comp0    = v.$comp0.clone() / v.$extra;
+                $( res.$compN = v.$compN.clone() / v.$extra; )*
 
                 res
             }

@@ -1,6 +1,6 @@
 use std::num::{Zero, One};
 use vec::{Vec2, Vec3};
-use mat::{Mat1, Mat2, Mat3, Inv, Row, Col, RMul, LMul};
+use mat::{Mat1, Mat2, Mat3, Inv, Row, Col, RMul, LMul, Mat3MulRhs, Mat2MulRhs};
 use mat;
 
 // some specializations:
@@ -189,34 +189,34 @@ impl<N: Clone> Col<Vec3<N>> for Mat3<N> {
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mat3MulRhs<N, Mat3<N>> for Mat3<N> {
     #[inline]
-    fn mul(&self, other: &Mat3<N>) -> Mat3<N> {
+    fn Mat3MulRhs(&self, other: &Mat3<N>) -> Mat3<N> {
         Mat3::new(
-            self.m11 * other.m11 + self.m12 * other.m21 + self.m13 * other.m31,
-            self.m11 * other.m12 + self.m12 * other.m22 + self.m13 * other.m32,
-            self.m11 * other.m13 + self.m12 * other.m23 + self.m13 * other.m33,
+            other.m11 * self.m11 + other.m12 * self.m21 + other.m13 * self.m31,
+            other.m11 * self.m12 + other.m12 * self.m22 + other.m13 * self.m32,
+            other.m11 * self.m13 + other.m12 * self.m23 + other.m13 * self.m33,
 
-            self.m21 * other.m11 + self.m22 * other.m21 + self.m23 * other.m31,
-            self.m21 * other.m12 + self.m22 * other.m22 + self.m23 * other.m32,
-            self.m21 * other.m13 + self.m22 * other.m23 + self.m23 * other.m33,
+            other.m21 * self.m11 + other.m22 * self.m21 + other.m23 * self.m31,
+            other.m21 * self.m12 + other.m22 * self.m22 + other.m23 * self.m32,
+            other.m21 * self.m13 + other.m22 * self.m23 + other.m23 * self.m33,
 
-            self.m31 * other.m11 + self.m32 * other.m21 + self.m33 * other.m31,
-            self.m31 * other.m12 + self.m32 * other.m22 + self.m33 * other.m32,
-            self.m31 * other.m13 + self.m32 * other.m23 + self.m33 * other.m33
+            other.m31 * self.m11 + other.m32 * self.m21 + other.m33 * self.m31,
+            other.m31 * self.m12 + other.m32 * self.m22 + other.m33 * self.m32,
+            other.m31 * self.m13 + other.m32 * self.m23 + other.m33 * self.m33
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mat2MulRhs<N, Mat2<N>> for Mat2<N> {
     #[inline(always)]
-    fn mul(&self, other: &Mat2<N>) -> Mat2<N> {
+    fn Mat2MulRhs(&self, other: &Mat2<N>) -> Mat2<N> {
         Mat2::new(
-            self.m11 * other.m11 + self.m12 * other.m21,
-            self.m11 * other.m12 + self.m12 * other.m22,
+            other.m11 * self.m11 + other.m12 * self.m21,
+            other.m11 * self.m12 + other.m12 * self.m22,
 
-            self.m21 * other.m11 + self.m22 * other.m21,
-            self.m21 * other.m12 + self.m22 * other.m22
+            other.m21 * self.m11 + other.m22 * self.m21,
+            other.m21 * self.m12 + other.m22 * self.m22
         )
     }
 }

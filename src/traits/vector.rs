@@ -8,6 +8,9 @@ use traits::scalar_op::{ScalarAdd, ScalarSub};
 use traits::dot::Dot;
 use traits::norm::Norm;
 
+// XXX: we keep ScalarAdd and ScalarSub here to avoid trait impl conflict (overriding) between the
+// different Add/Sub traits. This is _so_ unfortunate…
+
 // NOTE: cant call that `Vector` because it conflicts with std::Vector
 /// Trait grouping most common operations on vectors.
 pub trait Vec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + Eq + Mul<N, Self>

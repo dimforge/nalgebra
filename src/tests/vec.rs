@@ -41,8 +41,8 @@ macro_rules! test_scalar_op_impl(
         
             assert!(((v1 * n) / n).approx_eq(&v1));
             assert!(((v1 / n) * n).approx_eq(&v1));
-            assert!(v1.scalar_sub(&n).scalar_add(&n).approx_eq(&v1));
-            assert!(v1.scalar_add(&n).scalar_sub(&n).approx_eq(&v1));
+            assert!(((v1 - n) + n).approx_eq(&v1));
+            assert!(((v1 + n) - n).approx_eq(&v1));
 
             let mut v1 : $t = random();
             let v0 : $t = v1.clone();

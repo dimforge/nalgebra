@@ -7,7 +7,6 @@ use traits::iterable::{Iterable, IterableMut};
 use traits::basis::Basis;
 use traits::dim::Dim;
 use traits::translation::Translation;
-use traits::scalar_op::{ScalarAdd, ScalarSub};
 use traits::indexable::Indexable;
 use traits::dot::Dot;
 use traits::norm::Norm;
@@ -75,16 +74,16 @@ impl<N> Basis for vec::Vec0<N> {
     fn orthonormal_subspace_basis(&self, _: &fn(vec::Vec0<N>) -> bool) { }
 }
 
-impl<N: Clone + Add<N,N>> Add<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N> {
+impl<N, T> Add<T, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn add(&self, _: &vec::Vec0<N>) -> vec::Vec0<N> {
+    fn add(&self, _: &T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
 
-impl<N: Clone + Sub<N,N>> Sub<vec::Vec0<N>, vec::Vec0<N>> for vec::Vec0<N> {
+impl<N, T> Sub<T, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn sub(&self, _: &vec::Vec0<N>) -> vec::Vec0<N> { 
+    fn sub(&self, _: &T) -> vec::Vec0<N> { 
         vec::Vec0
     }
 }
@@ -108,38 +107,18 @@ impl<N: Num + Clone> Dot<N> for vec::Vec0<N> {
     } 
 }
 
-impl<N: Mul<N, N>> Mul<N, vec::Vec0<N>> for vec::Vec0<N> {
+impl<N, T> Mul<T, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn mul(&self, _: &N) -> vec::Vec0<N> {
+    fn mul(&self, _: &T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
 
-impl<N: Div<N, N>> Div<N, vec::Vec0<N>> for vec::Vec0<N> {
+impl<N, T> Div<T, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn div(&self, _: &N) -> vec::Vec0<N> {
+    fn div(&self, _: &T) -> vec::Vec0<N> {
         vec::Vec0
     }
-}
-
-impl<N: Add<N, N>> ScalarAdd<N> for vec::Vec0<N> {
-    #[inline]
-    fn scalar_add(&self, _: &N) -> vec::Vec0<N> {
-        vec::Vec0
-    }
-
-    #[inline]
-    fn scalar_add_inplace(&mut self, _: &N) { }
-}
-
-impl<N: Sub<N, N>> ScalarSub<N> for vec::Vec0<N> {
-    #[inline]
-    fn scalar_sub(&self, _: &N) -> vec::Vec0<N> {
-        vec::Vec0
-    }
-
-    #[inline]
-    fn scalar_sub_inplace(&mut self, _: &N) { }
 }
 
 impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {

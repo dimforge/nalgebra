@@ -44,83 +44,69 @@ macro_rules! mat_cast_impl(
 )
 
 macro_rules! add_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
-        #[inline]
-        fn add(&self, other: &$t<N>) -> $t<N> {
-            $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN )*)
+    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Clone + Add<N, N>> $trhs<N, $t<N>> for $t<N> {
+            #[inline]
+            fn $trhs(&self, other: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN)*)
+            }
         }
-    }
-  )
+    )
 )
 
 macro_rules! sub_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
-        #[inline]
-        fn sub(&self, other: &$t<N>) -> $t<N> {
-            $t::new(self.$comp0 - other.$comp0 $(, self.$compN - other.$compN )*)
+    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Clone + Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
+            #[inline]
+            fn $trhs(&self, other: &$t<N>) -> $t<N> {
+                $t::new(other.$comp0 - self.$comp0 $(, other.$compN - self.$compN)*)
+            }
         }
-    }
-  )
+    )
 )
 
 macro_rules! scalar_mul_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Mul<N, N>> $t<N> {
-        #[inline]
-        /// Scalar multiplication of each component of this matrix by a scalar.
-        pub fn scalar_mul(&self, other: &N) -> $t<N> {
-            $t::new(self.$comp0 * *other $(, self.$compN * *other )*)
+    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl $trhs<$n, $t<$n>> for $n {
+            #[inline]
+            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
+                $t::new(s.$comp0 * *self $(, s.$compN * *self)*)
+            }
         }
-    }
-  )
+    )
 )
 
 macro_rules! scalar_div_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Div<N, N>> $t<N> {
-        #[inline]
-        /// Scalar division of each component of this matrix by a scalar.
-        pub fn scalar_div(&self, other: &N) -> $t<N> {
-            $t::new(self.$comp0 / *other $(, self.$compN / *other )*)
+    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl $trhs<$n, $t<$n>> for $n {
+            #[inline]
+            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
+                $t::new(s.$comp0 / *self $(, s.$compN / *self)*)
+            }
         }
-    }
-  )
+    )
 )
 
 macro_rules! scalar_add_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Add<N, N>> ScalarAdd<N> for $t<N> {
-        #[inline]
-        fn scalar_add(&self, other: &N) -> $t<N> {
-            $t::new(self.$comp0 + *other $(, self.$compN + *other )*)
+    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl $trhs<$n, $t<$n>> for $n {
+            #[inline]
+            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
+                $t::new(s.$comp0 + *self $(, s.$compN + *self)*)
+            }
         }
-
-        #[inline]
-        fn scalar_add_inplace(&mut self, other: &N) {
-            self.$comp0 = self.$comp0 + *other;
-            $(self.$compN = self.$compN + *other; )*
-        }
-    }
-  )
+    )
 )
 
 macro_rules! scalar_sub_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Sub<N, N>> ScalarSub<N> for $t<N> {
-        #[inline]
-        fn scalar_sub(&self, other: &N) -> $t<N> {
-            $t::new(self.$comp0 - *other $(, self.$compN - *other )*)
+    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl $trhs<$n, $t<$n>> for $n {
+            #[inline]
+            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
+                $t::new(s.$comp0 - *self $(, s.$compN - *self)*)
+            }
         }
-
-        #[inline]
-        fn scalar_sub_inplace(&mut self, other: &N) {
-            self.$comp0 = self.$comp0 - *other;
-            $(self.$compN = self.$compN - *other; )*
-        }
-    }
-  )
+    )
 )
 
 macro_rules! absolute_impl(
@@ -292,28 +278,6 @@ macro_rules! col_impl(
   )
 )
 
-// Create the traits needed to do fancy operator oveloading.
-// This is a meta version of
-// http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/ 
-macro_rules! double_dispatch_binop_decl_trait(
-    ($t: ident, $trhs: ident) => (
-        pub trait $trhs<N, Res> {
-            fn $trhs(&self, other: &$t<N>) -> Res;
-        }
-     )
-)
-
-macro_rules! mul_redispatch_impl(
-  ($t: ident, $trhs: ident) => (
-    impl<N: Clone + Num, Rhs: $trhs<N, Res>, Res> Mul<Rhs, Res> for $t<N> {
-        #[inline]
-        fn mul(&self, other: &Rhs) -> Res {
-            other.$trhs(self)
-        }
-    }
-  )
-)
-
 macro_rules! mat_mul_mat_impl(
   ($t: ident, $trhs: ident, $dim: expr) => (
     impl<N: Clone + Num> $trhs<N, $t<N>> for $t<N> {
@@ -364,17 +328,17 @@ macro_rules! rmul_impl(
   )
 )
 
-macro_rules! lmul_impl(
-  ($t: ident, $v: ident, $dim: expr) => (
-    impl<N: Clone + Num> LMul<$v<N>> for $t<N> {
+macro_rules! vec_mul_mat_impl(
+  ($t: ident, $v: ident, $trhs: ident, $dim: expr) => (
+    impl<N: Clone + Num> $trhs<N, $v<N>> for $v<N> {
         #[inline]
-        fn lmul(&self, other: &$v<N>) -> $v<N> {
+        fn $trhs(&self, other: &$t<N>) -> $v<N> {
             let mut res : $v<N> = Zero::zero();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
                     unsafe {
-                        let val = res.at_fast(i) + other.at_fast(j) * self.at_fast((j, i));
+                        let val = self.at_fast(i) + self.at_fast(j) * other.at_fast((j, i));
                         res.set_fast(i, val)
                     }
                 }
