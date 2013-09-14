@@ -54,6 +54,7 @@ pub struct Mat1<N> {
     m11: N
 }
 
+double_dispatch_binop_decl_trait!(Mat1, Mat1MulRhs)
 mat_impl!(Mat1, m11)
 mat_cast_impl!(Mat1, m11)
 add_impl!(Mat1, m11)
@@ -69,7 +70,8 @@ iterable_mut_impl!(Mat1, 1)
 at_fast_impl!(Mat1, 1)
 dim_impl!(Mat1, 1)
 indexable_impl!(Mat1, 1)
-mul_impl!(Mat1, 1)
+mul_redispatch_impl!(Mat1, Mat1MulRhs)
+mat_mul_mat_impl!(Mat1, Mat1MulRhs, 1)
 rmul_impl!(Mat1, Vec1, 1)
 lmul_impl!(Mat1, Vec1, 1)
 transform_impl!(Mat1, Vec1)
@@ -195,6 +197,7 @@ pub struct Mat4<N> {
     m41: N, m42: N, m43: N, m44: N
 }
 
+double_dispatch_binop_decl_trait!(Mat4, Mat4MulRhs)
 mat_impl!(Mat4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
@@ -258,7 +261,8 @@ iterable_mut_impl!(Mat4, 4)
 dim_impl!(Mat4, 4)
 indexable_impl!(Mat4, 4)
 at_fast_impl!(Mat4, 4)
-mul_impl!(Mat4, 4)
+mul_redispatch_impl!(Mat4, Mat4MulRhs)
+mat_mul_mat_impl!(Mat4, Mat4MulRhs, 4)
 rmul_impl!(Mat4, Vec4, 4)
 lmul_impl!(Mat4, Vec4, 4)
 transform_impl!(Mat4, Vec4)
@@ -282,6 +286,7 @@ pub struct Mat5<N> {
     m51: N, m52: N, m53: N, m54: N, m55: N
 }
 
+double_dispatch_binop_decl_trait!(Mat5, Mat5MulRhs)
 mat_impl!(Mat5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
@@ -357,7 +362,8 @@ iterable_mut_impl!(Mat5, 5)
 dim_impl!(Mat5, 5)
 indexable_impl!(Mat5, 5)
 at_fast_impl!(Mat5, 5)
-mul_impl!(Mat5, 5)
+mul_redispatch_impl!(Mat5, Mat5MulRhs)
+mat_mul_mat_impl!(Mat5, Mat5MulRhs, 5)
 rmul_impl!(Mat5, Vec5, 5)
 lmul_impl!(Mat5, Vec5, 5)
 transform_impl!(Mat5, Vec5)
@@ -382,6 +388,7 @@ pub struct Mat6<N> {
     m61: N, m62: N, m63: N, m64: N, m65: N, m66: N
 }
 
+double_dispatch_binop_decl_trait!(Mat6, Mat6MulRhs)
 mat_impl!(Mat6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
@@ -467,7 +474,8 @@ iterable_mut_impl!(Mat6, 6)
 dim_impl!(Mat6, 6)
 indexable_impl!(Mat6, 6)
 at_fast_impl!(Mat6, 6)
-mul_impl!(Mat6, 6)
+mul_redispatch_impl!(Mat6, Mat6MulRhs)
+mat_mul_mat_impl!(Mat6, Mat6MulRhs, 6)
 rmul_impl!(Mat6, Vec6, 6)
 lmul_impl!(Mat6, Vec6, 6)
 transform_impl!(Mat6, Vec6)

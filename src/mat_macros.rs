@@ -292,11 +292,34 @@ macro_rules! col_impl(
   )
 )
 
-macro_rules! mul_impl(
-  ($t: ident, $dim: expr) => (
-    impl<N: Clone + Num> Mul<$t<N>, $t<N>> for $t<N> {
+// Create the traits needed to do fancy operator oveloading.
+// This is a meta version of
+// http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/ 
+macro_rules! double_dispatch_binop_decl_trait(
+    ($t: ident, $trhs: ident) => (
+        pub trait $trhs<N, Res> {
+            fn $trhs(&self, other: &$t<N>) -> Res;
+        }
+     )
+)
+
+macro_rules! mul_redispatch_impl(
+  ($t: ident, $trhs: ident) => (
+    impl<N: Clone + Num, Rhs: $trhs<N, Res>, Res> Mul<Rhs, Res> for $t<N> {
         #[inline]
-        fn mul(&self, other: &$t<N>) -> $t<N> {
+        fn mul(&self, other: &Rhs) -> Res {
+            other.$trhs(self)
+        }
+    }
+  )
+)
+
+macro_rules! mat_mul_mat_impl(
+  ($t: ident, $trhs: ident, $dim: expr) => (
+    impl<N: Clone + Num> $trhs<N, $t<N>> for $t<N> {
+        #[inline]
+        fn $trhs(&self, other: &$t<N>) -> $t<N> {
+            // careful! we need to comute other * self here (self is the rhs).
             let mut res: $t<N> = Zero::zero();
 
             for i in range(0u, $dim) {
@@ -305,7 +328,7 @@ macro_rules! mul_impl(
 
                     unsafe {
                         for k in range(0u, $dim) {
-                            acc = acc + self.at_fast((i, k)) * other.at_fast((k, j));
+                            acc = acc + other.at_fast((i, k)) * self.at_fast((k, j));
                         }
 
                         res.set_fast((i, j), acc);
