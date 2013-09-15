@@ -4,10 +4,9 @@ use std::num::{One, Zero};
 use std::vec;
 use std::cmp::ApproxEq;
 use std::util;
+use dvec::{DVec, DVecMulRhs};
 use traits::inv::Inv;
 use traits::transpose::Transpose;
-use traits::rlmul::{RMul, LMul};
-use dvec::DVec;
 
 /// Matrix with dimensions unknown at compile-time.
 #[deriving(Eq, ToStr, Clone)]
@@ -15,6 +14,19 @@ pub struct DMat<N> {
     priv nrows: uint,
     priv ncols: uint,
     priv mij: ~[N]
+}
+
+/// Trait of object `o` which can be multiplied by a `DMat` `d`: `d * o`.
+pub trait DMatMulRhs<N, Res> {
+    /// Multiplies a `DMat` by `Self`.
+    fn binop(left: &DMat<N>, right: &Self) -> Res;
+}
+
+impl<N, Rhs: DMatMulRhs<N, Res>, Res> Mul<Rhs, Res> for DMat<N> {
+    #[inline(always)]
+    fn mul(&self, other: &Rhs) -> Res {
+        DMatMulRhs::binop(self, other)
+    }
 }
 
 impl<N> DMat<N> {
@@ -160,19 +172,19 @@ impl<N: Clone> DMat<N> {
     }
 }
 
-impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> {
-    fn mul(&self, other: &DMat<N>) -> DMat<N> {
-        assert!(self.ncols == other.nrows);
+impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> DMatMulRhs<N, DMat<N>> for DMat<N> {
+    fn binop(left: &DMat<N>, right: &DMat<N>) -> DMat<N> {
+        assert!(left.ncols == right.nrows);
 
-        let mut res = unsafe { DMat::new_uninitialized(self.nrows, other.ncols) };
+        let mut res = unsafe { DMat::new_uninitialized(left.nrows, right.ncols) };
 
-        for i in range(0u, self.nrows) {
-            for j in range(0u, other.ncols) {
+        for i in range(0u, left.nrows) {
+            for j in range(0u, right.ncols) {
                 let mut acc: N = Zero::zero();
 
-                for k in range(0u, self.ncols) {
+                for k in range(0u, left.ncols) {
                     unsafe {
-                        acc = acc + self.at_fast(i, k) * other.at_fast(k, j);
+                        acc = acc + left.at_fast(i, k) * right.at_fast(k, j);
                     }
                 }
 
@@ -185,18 +197,18 @@ impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> 
 }
 
 impl<N: Clone + Add<N, N> + Mul<N, N> + Zero>
-RMul<DVec<N>> for DMat<N> {
-    fn rmul(&self, other: &DVec<N>) -> DVec<N> {
-        assert!(self.ncols == other.at.len());
+DMatMulRhs<N, DVec<N>> for DVec<N> {
+    fn binop(left: &DMat<N>, right: &DVec<N>) -> DVec<N> {
+        assert!(left.ncols == right.at.len());
 
-        let mut res : DVec<N> = unsafe { DVec::new_uninitialized(self.nrows) };
+        let mut res : DVec<N> = unsafe { DVec::new_uninitialized(left.nrows) };
 
-        for i in range(0u, self.nrows) {
+        for i in range(0u, left.nrows) {
             let mut acc: N = Zero::zero();
 
-            for j in range(0u, self.ncols) {
+            for j in range(0u, left.ncols) {
                 unsafe {
-                    acc = acc + other.at_fast(j) * self.at_fast(i, j);
+                    acc = acc + left.at_fast(i, j) * right.at_fast(j);
                 }
             }
 
@@ -207,19 +219,20 @@ RMul<DVec<N>> for DMat<N> {
     }
 }
 
+
 impl<N: Clone + Add<N, N> + Mul<N, N> + Zero>
-LMul<DVec<N>> for DMat<N> {
-    fn lmul(&self, other: &DVec<N>) -> DVec<N> {
-        assert!(self.nrows == other.at.len());
+DVecMulRhs<N, DVec<N>> for DMat<N> {
+    fn binop(left: &DVec<N>, right: &DMat<N>) -> DVec<N> {
+        assert!(right.nrows == left.at.len());
 
-        let mut res : DVec<N> = unsafe { DVec::new_uninitialized(self.ncols) };
+        let mut res : DVec<N> = unsafe { DVec::new_uninitialized(right.ncols) };
 
-        for i in range(0u, self.ncols) {
+        for i in range(0u, right.ncols) {
             let mut acc: N = Zero::zero();
 
-            for j in range(0u, self.nrows) {
+            for j in range(0u, right.nrows) {
                 unsafe {
-                    acc = acc + other.at_fast(j) * self.at_fast(j, i);
+                    acc = acc + left.at_fast(j) * right.at_fast(j, i);
                 }
             }
 

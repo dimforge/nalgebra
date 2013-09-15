@@ -1,6 +1,6 @@
 use std::num::{Zero, One};
-use vec::{Vec2, Vec3};
-use mat::{Mat1, Mat2, Mat3, Inv, Row, Col, RMul, LMul, Mat3MulRhs, Mat2MulRhs};
+use vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
+use mat::{Mat1, Mat2, Mat3, Inv, Row, Col, Mat3MulRhs, Mat2MulRhs};
 use mat;
 
 // some specializations:
@@ -191,74 +191,74 @@ impl<N: Clone> Col<Vec3<N>> for Mat3<N> {
 
 impl<N: Mul<N, N> + Add<N, N>> Mat3MulRhs<N, Mat3<N>> for Mat3<N> {
     #[inline]
-    fn Mat3MulRhs(&self, other: &Mat3<N>) -> Mat3<N> {
+    fn binop(left: &Mat3<N>, right: &Mat3<N>) -> Mat3<N> {
         Mat3::new(
-            other.m11 * self.m11 + other.m12 * self.m21 + other.m13 * self.m31,
-            other.m11 * self.m12 + other.m12 * self.m22 + other.m13 * self.m32,
-            other.m11 * self.m13 + other.m12 * self.m23 + other.m13 * self.m33,
+            left.m11 * right.m11 + left.m12 * right.m21 + left.m13 * right.m31,
+            left.m11 * right.m12 + left.m12 * right.m22 + left.m13 * right.m32,
+            left.m11 * right.m13 + left.m12 * right.m23 + left.m13 * right.m33,
 
-            other.m21 * self.m11 + other.m22 * self.m21 + other.m23 * self.m31,
-            other.m21 * self.m12 + other.m22 * self.m22 + other.m23 * self.m32,
-            other.m21 * self.m13 + other.m22 * self.m23 + other.m23 * self.m33,
+            left.m21 * right.m11 + left.m22 * right.m21 + left.m23 * right.m31,
+            left.m21 * right.m12 + left.m22 * right.m22 + left.m23 * right.m32,
+            left.m21 * right.m13 + left.m22 * right.m23 + left.m23 * right.m33,
 
-            other.m31 * self.m11 + other.m32 * self.m21 + other.m33 * self.m31,
-            other.m31 * self.m12 + other.m32 * self.m22 + other.m33 * self.m32,
-            other.m31 * self.m13 + other.m32 * self.m23 + other.m33 * self.m33
+            left.m31 * right.m11 + left.m32 * right.m21 + left.m33 * right.m31,
+            left.m31 * right.m12 + left.m32 * right.m22 + left.m33 * right.m32,
+            left.m31 * right.m13 + left.m32 * right.m23 + left.m33 * right.m33
         )
     }
 }
 
 impl<N: Mul<N, N> + Add<N, N>> Mat2MulRhs<N, Mat2<N>> for Mat2<N> {
     #[inline(always)]
-    fn Mat2MulRhs(&self, other: &Mat2<N>) -> Mat2<N> {
+    fn binop(left: &Mat2<N>, right: &Mat2<N>) -> Mat2<N> {
         Mat2::new(
-            other.m11 * self.m11 + other.m12 * self.m21,
-            other.m11 * self.m12 + other.m12 * self.m22,
+            left.m11 * right.m11 + left.m12 * right.m21,
+            left.m11 * right.m12 + left.m12 * right.m22,
 
-            other.m21 * self.m11 + other.m22 * self.m21,
-            other.m21 * self.m12 + other.m22 * self.m22
+            left.m21 * right.m11 + left.m22 * right.m21,
+            left.m21 * right.m12 + left.m22 * right.m22
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> RMul<Vec3<N>> for Mat3<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mat3MulRhs<N, Vec3<N>> for Vec3<N> {
     #[inline(always)]
-    fn rmul(&self, v: &Vec3<N>) -> Vec3<N> {
+    fn binop(left: &Mat3<N>, right: &Vec3<N>) -> Vec3<N> {
         Vec3::new(
-            self.m11 * v.x + self.m12 * v.y + self.m13 * v.z,
-            self.m21 * v.x + self.m22 * v.y + self.m23 * v.z,
-            self.m31 * v.x + self.m32 * v.y + self.m33 * v.z
+            left.m11 * right.x + left.m12 * right.y + left.m13 * right.z,
+            left.m21 * right.x + left.m22 * right.y + left.m23 * right.z,
+            left.m31 * right.x + left.m32 * right.y + left.m33 * right.z
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> LMul<Vec3<N>> for Mat3<N> {
+impl<N: Mul<N, N> + Add<N, N>> Vec3MulRhs<N, Vec3<N>> for Mat3<N> {
     #[inline(always)]
-    fn lmul(&self, v: &Vec3<N>) -> Vec3<N> {
+    fn binop(left: &Vec3<N>, right: &Mat3<N>) -> Vec3<N> {
         Vec3::new(
-            self.m11 * v.x + self.m21 * v.y + self.m31 * v.z,
-            self.m12 * v.x + self.m22 * v.y + self.m32 * v.z,
-            self.m13 * v.x + self.m23 * v.y + self.m33 * v.z
+            left.x * right.m11 + left.y * right.m21 + left.z * right.m31,
+            left.x * right.m12 + left.y * right.m22 + left.z * right.m32,
+            left.x * right.m13 + left.y * right.m23 + left.z * right.m33
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> RMul<Vec2<N>> for Mat2<N> {
+impl<N: Mul<N, N> + Add<N, N>> Vec2MulRhs<N, Vec2<N>> for Mat2<N> {
     #[inline(always)]
-    fn rmul(&self, v: &Vec2<N>) -> Vec2<N> {
+    fn binop(left: &Vec2<N>, right: &Mat2<N>) -> Vec2<N> {
         Vec2::new(
-            self.m11 * v.x + self.m12 * v.y,
-            self.m21 * v.x + self.m22 * v.y
+            left.x * right.m11 + left.y * right.m21,
+            left.x * right.m12 + left.y * right.m22
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> LMul<Vec2<N>> for Mat2<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mat2MulRhs<N, Vec2<N>> for Vec2<N> {
     #[inline(always)]
-    fn lmul(&self, v: &Vec2<N>) -> Vec2<N> {
+    fn binop(left: &Mat2<N>, right: &Vec2<N>) -> Vec2<N> {
         Vec2::new(
-            self.m11 * v.x + self.m21 * v.y,
-            self.m12 * v.x + self.m22 * v.y
+            left.m11 * right.x + left.m21 * right.y,
+            left.m12 * right.x + left.m22 * right.y
         )
     }
 }

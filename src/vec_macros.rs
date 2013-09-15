@@ -269,8 +269,8 @@ macro_rules! add_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + Add<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
-            fn $trhs(&self, other: &$t<N>) -> $t<N> {
-                $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN)*)
+            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
+                $t::new(left.$comp0 + right.$comp0 $(, left.$compN + right.$compN)*)
             }
         }
     )
@@ -280,8 +280,8 @@ macro_rules! sub_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
-            fn $trhs(&self, other: &$t<N>) -> $t<N> {
-                $t::new(other.$comp0 - self.$comp0 $(, other.$compN - self.$compN)*)
+            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
+                $t::new(left.$comp0 - right.$comp0 $(, left.$compN - right.$compN)*)
             }
         }
     )
@@ -318,8 +318,8 @@ macro_rules! scalar_mul_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
-                $t::new(s.$comp0 * *self $(, s.$compN * *self)*)
+            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
+                $t::new(left.$comp0 * *right $(, left.$compN * *right)*)
             }
         }
     )
@@ -329,8 +329,8 @@ macro_rules! scalar_div_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
-                $t::new(s.$comp0 / *self $(, s.$compN / *self)*)
+            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
+                $t::new(left.$comp0 / *right $(, left.$compN / *right)*)
             }
         }
     )
@@ -340,8 +340,8 @@ macro_rules! scalar_add_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
-                $t::new(s.$comp0 + *self $(, s.$compN + *self)*)
+            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
+                $t::new(left.$comp0 + *right $(, left.$compN + *right)*)
             }
         }
     )
@@ -351,8 +351,8 @@ macro_rules! scalar_sub_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
-                $t::new(s.$comp0 - *self $(, s.$compN - *self)*)
+            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
+                $t::new(left.$comp0 - *right $(, left.$compN - *right)*)
             }
         }
     )

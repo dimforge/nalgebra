@@ -4,7 +4,7 @@ use std::cast;
 use std::num::{One, Zero};
 use std::cmp::ApproxEq;
 use std::vec::{VecIterator, VecMutIterator};
-use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Outer};
+use vec::*;
 
 // traits
 pub use traits::mat::Mat;
@@ -16,7 +16,7 @@ pub use traits::scalar_op::{ScalarSub, ScalarAdd};
 pub use traits::mat_cast::MatCast;
 pub use traits::column::Column;
 pub use traits::inv::Inv;
-pub use traits::rlmul::{RMul, LMul};
+pub use traits::rlmul::RMul;
 pub use traits::rotation::{Rotation, RotationMatrix, Rotate};
 pub use traits::transformation::{Transformation, Transform};
 pub use traits::translation::{Translation, Translate};
@@ -132,8 +132,8 @@ at_fast_impl!(Mat1, 1)
 dim_impl!(Mat1, 1)
 indexable_impl!(Mat1, 1)
 mat_mul_mat_impl!(Mat1, Mat1MulRhs, 1)
-rmul_impl!(Mat1, Vec1, 1)
-vec_mul_mat_impl!(Mat1, Vec1, Mat1MulRhs, 1)
+mat_mul_vec_impl!(Mat1, Vec1, Mat1MulRhs, 1)
+vec_mul_mat_impl!(Mat1, Vec1, Vec1MulRhs, 1)
 transform_impl!(Mat1, Vec1)
 // (specialized) inv_impl!(Mat1, 1)
 transpose_impl!(Mat1, 1)
@@ -519,8 +519,8 @@ dim_impl!(Mat4, 4)
 indexable_impl!(Mat4, 4)
 at_fast_impl!(Mat4, 4)
 mat_mul_mat_impl!(Mat4, Mat4MulRhs, 4)
-rmul_impl!(Mat4, Vec4, 4)
-vec_mul_mat_impl!(Mat4, Vec4, Mat4MulRhs, 4)
+mat_mul_vec_impl!(Mat4, Vec4, Mat4MulRhs, 4)
+vec_mul_mat_impl!(Mat4, Vec4, Vec4MulRhs, 4)
 transform_impl!(Mat4, Vec4)
 inv_impl!(Mat4, 4)
 transpose_impl!(Mat4, 4)
@@ -706,8 +706,8 @@ dim_impl!(Mat5, 5)
 indexable_impl!(Mat5, 5)
 at_fast_impl!(Mat5, 5)
 mat_mul_mat_impl!(Mat5, Mat5MulRhs, 5)
-rmul_impl!(Mat5, Vec5, 5)
-vec_mul_mat_impl!(Mat5, Vec5, Mat5MulRhs, 5)
+mat_mul_vec_impl!(Mat5, Vec5, Mat5MulRhs, 5)
+vec_mul_mat_impl!(Mat5, Vec5, Vec5MulRhs, 5)
 transform_impl!(Mat5, Vec5)
 inv_impl!(Mat5, 5)
 transpose_impl!(Mat5, 5)
@@ -949,8 +949,8 @@ dim_impl!(Mat6, 6)
 indexable_impl!(Mat6, 6)
 at_fast_impl!(Mat6, 6)
 mat_mul_mat_impl!(Mat6, Mat6MulRhs, 6)
-rmul_impl!(Mat6, Vec6, 6)
-vec_mul_mat_impl!(Mat6, Vec6, Mat6MulRhs, 6)
+mat_mul_vec_impl!(Mat6, Vec6, Mat6MulRhs, 6)
+vec_mul_mat_impl!(Mat6, Vec6, Vec6MulRhs, 6)
 transform_impl!(Mat6, Vec6)
 inv_impl!(Mat6, 6)
 transpose_impl!(Mat6, 6)

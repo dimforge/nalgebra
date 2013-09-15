@@ -4,7 +4,7 @@
 // does not work properly, mainly because the way we are doing generalized operator overloading is
 // verry hacky.
 //
-// Hopefull, this will be fixed on the future.
+// Hopefully, this will be fixed on a future version of the language!
 
 /**
  * Trait of objects having an addition with a scalar.

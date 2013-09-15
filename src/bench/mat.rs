@@ -91,7 +91,7 @@ macro_rules! bench_mul_mat_vec(
 
             do $bh.iter {
                 do 1000.times {
-                    v = m.rmul(&v)
+                    v = m * v
                 }
             }
         }
@@ -131,7 +131,7 @@ macro_rules! bench_mul_dmat_dvec(
 
             do $bh.iter {
                 do 1000.times {
-                    v = m.rmul(&v)
+                    v = m * v
                 }
             }
         }

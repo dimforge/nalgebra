@@ -2,7 +2,6 @@ use std::num::{One, Zero};
 use mat;
 use traits::inv::Inv;
 use traits::transpose::Transpose;
-use traits::rlmul::{RMul, LMul};
 use traits::translation::{Translation, Translate};
 use traits::rotation::{Rotation, Rotate};
 use traits::transformation::{Transformation, Transform};
@@ -24,21 +23,9 @@ impl Inv for mat::Identity {
     }
 }
 
-impl<M: Clone> RMul<M> for mat::Identity {
-    fn rmul(&self, m: &M) -> M {
-        m.clone()
-    }
-}
-
-impl<M: Clone> LMul<M> for mat::Identity {
-    fn lmul(&self, m: &M) -> M {
-        m.clone()
-    }
-}
-
-impl<M: Clone> Mul<M, M> for mat::Identity {
+impl<T: Clone> Mul<T, T> for mat::Identity {
     #[inline]
-    fn mul(&self, other: &M) -> M {
+    fn mul(&self, other: &T) -> T {
         other.clone()
     }
 }

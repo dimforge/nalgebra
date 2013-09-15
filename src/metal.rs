@@ -8,55 +8,55 @@
 macro_rules! double_dispatch_binop_decl_trait(
     ($t: ident, $trhs: ident) => (
         pub trait $trhs<N, Res> {
-            fn $trhs(&self, other: &$t<N>) -> Res;
+            fn binop(left: &$t<N>, right: &Self) -> Res;
         }
      )
 )
 
 // Macro driving the `Mul` trait to use the related trait for double redispatch.
 macro_rules! mul_redispatch_impl(
-  ($t: ident, $trhs: ident) => (
-    impl<N, Rhs: $trhs<N, Res>, Res> Mul<Rhs, Res> for $t<N> {
-        #[inline(always)]
-        fn mul(&self, other: &Rhs) -> Res {
-            other.$trhs(self)
+    ($t: ident, $trhs: ident) => (
+        impl<N, Rhs: $trhs<N, Res>, Res> Mul<Rhs, Res> for $t<N> {
+            #[inline(always)]
+            fn mul(&self, other: &Rhs) -> Res {
+                $trhs::binop(self, other)
+            }
         }
-    }
-  )
+    )
 )
 
 // Macro driving the `Div` trait to use the related trait for double redispatch.
 macro_rules! div_redispatch_impl(
-  ($t: ident, $trhs: ident) => (
-    impl<N, Rhs: $trhs<N, Res>, Res> Div<Rhs, Res> for $t<N> {
-        #[inline(always)]
-        fn div(&self, other: &Rhs) -> Res {
-            other.$trhs(self)
+    ($t: ident, $trhs: ident) => (
+        impl<N, Rhs: $trhs<N, Res>, Res> Div<Rhs, Res> for $t<N> {
+            #[inline(always)]
+            fn div(&self, other: &Rhs) -> Res {
+                $trhs::binop(self, other)
+            }
         }
-    }
-  )
+    )
 )
 
-// Macro driving the `Div` trait to use the related trait for double redispatch.
+// Macro driving the `Add` trait to use the related trait for double redispatch.
 macro_rules! add_redispatch_impl(
-  ($t: ident, $trhs: ident) => (
-    impl<N, Rhs: $trhs<N, Res>, Res> Add<Rhs, Res> for $t<N> {
-        #[inline(always)]
-        fn add(&self, other: &Rhs) -> Res {
-            other.$trhs(self)
+    ($t: ident, $trhs: ident) => (
+        impl<N, Rhs: $trhs<N, Res>, Res> Add<Rhs, Res> for $t<N> {
+            #[inline(always)]
+            fn add(&self, other: &Rhs) -> Res {
+                $trhs::binop(self, other)
+            }
         }
-    }
-  )
+    )
 )
 
-// Macro driving the `Div` trait to use the related trait for double redispatch.
+// Macro driving the `Sub` trait to use the related trait for double redispatch.
 macro_rules! sub_redispatch_impl(
-  ($t: ident, $trhs: ident) => (
-    impl<N, Rhs: $trhs<N, Res>, Res> Sub<Rhs, Res> for $t<N> {
-        #[inline(always)]
-        fn sub(&self, other: &Rhs) -> Res {
-            other.$trhs(self)
+    ($t: ident, $trhs: ident) => (
+        impl<N, Rhs: $trhs<N, Res>, Res> Sub<Rhs, Res> for $t<N> {
+            #[inline(always)]
+            fn sub(&self, other: &Rhs) -> Res {
+                $trhs::binop(self, other)
+            }
         }
-    }
-  )
+    )
 )

@@ -47,8 +47,8 @@ macro_rules! add_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + Add<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
-            fn $trhs(&self, other: &$t<N>) -> $t<N> {
-                $t::new(self.$comp0 + other.$comp0 $(, self.$compN + other.$compN)*)
+            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
+                $t::new(left.$comp0 + right.$comp0 $(, left.$compN + right.$compN)*)
             }
         }
     )
@@ -58,8 +58,8 @@ macro_rules! sub_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
-            fn $trhs(&self, other: &$t<N>) -> $t<N> {
-                $t::new(other.$comp0 - self.$comp0 $(, other.$compN - self.$compN)*)
+            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
+                $t::new(left.$comp0 - right.$comp0 $(, left.$compN - right.$compN)*)
             }
         }
     )
@@ -69,8 +69,8 @@ macro_rules! scalar_mul_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
-                $t::new(s.$comp0 * *self $(, s.$compN * *self)*)
+            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
+                $t::new(left.$comp0 * *right $(, left.$compN * *right)*)
             }
         }
     )
@@ -80,8 +80,8 @@ macro_rules! scalar_div_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
-                $t::new(s.$comp0 / *self $(, s.$compN / *self)*)
+            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
+                $t::new(left.$comp0 / *right $(, left.$compN / *right)*)
             }
         }
     )
@@ -91,8 +91,8 @@ macro_rules! scalar_add_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
-                $t::new(s.$comp0 + *self $(, s.$compN + *self)*)
+            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
+                $t::new(left.$comp0 + *right $(, left.$compN + *right)*)
             }
         }
     )
@@ -102,8 +102,8 @@ macro_rules! scalar_sub_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
-            fn $trhs(&self, s: &$t<$n>) -> $t<$n> {
-                $t::new(s.$comp0 - *self $(, s.$compN - *self)*)
+            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
+                $t::new(left.$comp0 - *right $(, left.$compN - *right)*)
             }
         }
     )
@@ -282,7 +282,7 @@ macro_rules! mat_mul_mat_impl(
   ($t: ident, $trhs: ident, $dim: expr) => (
     impl<N: Clone + Num> $trhs<N, $t<N>> for $t<N> {
         #[inline]
-        fn $trhs(&self, other: &$t<N>) -> $t<N> {
+        fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
             // careful! we need to comute other * self here (self is the rhs).
             let mut res: $t<N> = Zero::zero();
 
@@ -292,7 +292,7 @@ macro_rules! mat_mul_mat_impl(
 
                     unsafe {
                         for k in range(0u, $dim) {
-                            acc = acc + other.at_fast((i, k)) * self.at_fast((k, j));
+                            acc = acc + left.at_fast((i, k)) * right.at_fast((k, j));
                         }
 
                         res.set_fast((i, j), acc);
@@ -306,17 +306,17 @@ macro_rules! mat_mul_mat_impl(
   )
 )
 
-macro_rules! rmul_impl(
-  ($t: ident, $v: ident, $dim: expr) => (
-    impl<N: Clone + Num> RMul<$v<N>> for $t<N> {
+macro_rules! vec_mul_mat_impl(
+  ($t: ident, $v: ident, $trhs: ident, $dim: expr) => (
+    impl<N: Clone + Num> $trhs<N, $v<N>> for $t<N> {
         #[inline]
-        fn rmul(&self, other: &$v<N>) -> $v<N> {
+        fn binop(left: &$v<N>, right: &$t<N>) -> $v<N> {
             let mut res : $v<N> = Zero::zero();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
                     unsafe {
-                        let val = res.at_fast(i) + other.at_fast(j) * self.at_fast((i, j));
+                        let val = res.at_fast(i) + left.at_fast(j) * right.at_fast((j, i));
                         res.set_fast(i, val)
                     }
                 }
@@ -328,17 +328,17 @@ macro_rules! rmul_impl(
   )
 )
 
-macro_rules! vec_mul_mat_impl(
+macro_rules! mat_mul_vec_impl(
   ($t: ident, $v: ident, $trhs: ident, $dim: expr) => (
     impl<N: Clone + Num> $trhs<N, $v<N>> for $v<N> {
         #[inline]
-        fn $trhs(&self, other: &$t<N>) -> $v<N> {
+        fn binop(left: &$t<N>, right: &$v<N>) -> $v<N> {
             let mut res : $v<N> = Zero::zero();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
                     unsafe {
-                        let val = self.at_fast(i) + self.at_fast(j) * other.at_fast((j, i));
+                        let val = res.at_fast(i) + left.at_fast((i, j)) * right.at_fast(j);
                         res.set_fast(i, val)
                     }
                 }

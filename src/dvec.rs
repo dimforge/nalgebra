@@ -1,3 +1,5 @@
+#[doc(hidden)]; // we hide doc to not have to document the $trhs double dispatch trait.
+
 use std::num::{Zero, One, Algebraic};
 use std::rand::Rand;
 use std::rand;
@@ -10,12 +12,24 @@ use traits::norm::Norm;
 use traits::iterable::{Iterable, IterableMut};
 use traits::translation::Translation;
 
+mod metal;
+
 /// Vector with a dimension unknown at compile-time.
 #[deriving(Eq, ToStr, Clone)]
 pub struct DVec<N> {
     /// Components of the vector. Contains as much elements as the vector dimension.
     at: ~[N]
 }
+
+double_dispatch_binop_decl_trait!(DVec, DVecMulRhs)
+double_dispatch_binop_decl_trait!(DVec, DVecDivRhs)
+double_dispatch_binop_decl_trait!(DVec, DVecAddRhs)
+double_dispatch_binop_decl_trait!(DVec, DVecSubRhs)
+
+mul_redispatch_impl!(DVec, DVecMulRhs)
+div_redispatch_impl!(DVec, DVecDivRhs)
+add_redispatch_impl!(DVec, DVecAddRhs)
+sub_redispatch_impl!(DVec, DVecSubRhs)
 
 impl<N: Zero + Clone> DVec<N> {
     /// Builds a vector filled with zeros.
@@ -123,7 +137,7 @@ impl<N> FromIterator<N> for DVec<N> {
     }
 }
 
-impl<N: Clone + Num + Algebraic + ApproxEq<N>> DVec<N> {
+impl<N: Clone + Num + Algebraic + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> {
     /// Computes the canonical basis for the given dimension. A canonical basis is a set of
     /// vectors, mutually orthogonal, with all its component equal to 0.0 exept one which is equal
     /// to 1.0.
@@ -177,22 +191,22 @@ impl<N: Clone + Num + Algebraic + ApproxEq<N>> DVec<N> {
     }
 }
 
-impl<N: Add<N,N>> Add<DVec<N>, DVec<N>> for DVec<N> {
+impl<N: Add<N, N>> DVecAddRhs<N, DVec<N>> for DVec<N> {
     #[inline]
-    fn add(&self, other: &DVec<N>) -> DVec<N> {
-        assert!(self.at.len() == other.at.len());
+    fn binop(left: &DVec<N>, right: &DVec<N>) -> DVec<N> {
+        assert!(left.at.len() == right.at.len());
         DVec {
-            at: self.at.iter().zip(other.at.iter()).map(|(a, b)| *a + *b).collect()
+            at: left.at.iter().zip(right.at.iter()).map(|(a, b)| *a + *b).collect()
         }
     }
 }
 
-impl<N: Sub<N,N>> Sub<DVec<N>, DVec<N>> for DVec<N> {
+impl<N: Sub<N, N>> DVecSubRhs<N, DVec<N>> for DVec<N> {
     #[inline]
-    fn sub(&self, other: &DVec<N>) -> DVec<N> {
-        assert!(self.at.len() == other.at.len());
+    fn binop(left: &DVec<N>, right: &DVec<N>) -> DVec<N> {
+        assert!(left.at.len() == right.at.len());
         DVec {
-            at: self.at.iter().zip(other.at.iter()).map(|(a, b)| *a - *b).collect()
+            at: left.at.iter().zip(right.at.iter()).map(|(a, b)| *a - *b).collect()
         }
     }
 }
@@ -228,21 +242,6 @@ impl<N: Num> Dot<N> for DVec<N> {
 
         res
     } 
-}
-
-impl<N: Mul<N, N>> Mul<N, DVec<N>> for DVec<N> {
-    #[inline]
-    fn mul(&self, s: &N) -> DVec<N> {
-        DVec { at: self.at.iter().map(|a| a * *s).collect() }
-    }
-}
-
-
-impl<N: Div<N, N>> Div<N, DVec<N>> for DVec<N> {
-    #[inline]
-    fn div(&self, s: &N) -> DVec<N> {
-        DVec { at: self.at.iter().map(|a| a / *s).collect() }
-    }
 }
 
 impl<N: Add<N, N> + Neg<N> + Clone> Translation<DVec<N>> for DVec<N> {
@@ -331,3 +330,103 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DVec<N> {
         }
     }
 }
+
+macro_rules! scalar_mul_impl (
+    ($n: ident) => (
+        impl DVecMulRhs<$n, DVec<$n>> for $n {
+            #[inline]
+            fn binop(left: &DVec<$n>, right: &$n) -> DVec<$n> {
+                DVec { at: left.at.iter().map(|a| a * *right).collect() }
+            }
+        }
+    )
+)
+
+macro_rules! scalar_div_impl (
+    ($n: ident) => (
+        impl DVecDivRhs<$n, DVec<$n>> for $n {
+            #[inline]
+            fn binop(left: &DVec<$n>, right: &$n) -> DVec<$n> {
+                DVec { at: left.at.iter().map(|a| a / *right).collect() }
+            }
+        }
+    )
+)
+
+macro_rules! scalar_add_impl (
+    ($n: ident) => (
+        impl DVecAddRhs<$n, DVec<$n>> for $n {
+            #[inline]
+            fn binop(left: &DVec<$n>, right: &$n) -> DVec<$n> {
+                DVec { at: left.at.iter().map(|a| a + *right).collect() }
+            }
+        }
+    )
+)
+
+macro_rules! scalar_sub_impl (
+    ($n: ident) => (
+        impl DVecSubRhs<$n, DVec<$n>> for $n {
+            #[inline]
+            fn binop(left: &DVec<$n>, right: &$n) -> DVec<$n> {
+                DVec { at: left.at.iter().map(|a| a - *right).collect() }
+            }
+        }
+    )
+)
+
+scalar_mul_impl!(f64)
+scalar_mul_impl!(f32)
+scalar_mul_impl!(u64)
+scalar_mul_impl!(u32)
+scalar_mul_impl!(u16)
+scalar_mul_impl!(u8)
+scalar_mul_impl!(i64)
+scalar_mul_impl!(i32)
+scalar_mul_impl!(i16)
+scalar_mul_impl!(i8)
+scalar_mul_impl!(float)
+scalar_mul_impl!(uint)
+scalar_mul_impl!(int)
+
+scalar_div_impl!(f64)
+scalar_div_impl!(f32)
+scalar_div_impl!(u64)
+scalar_div_impl!(u32)
+scalar_div_impl!(u16)
+scalar_div_impl!(u8)
+scalar_div_impl!(i64)
+scalar_div_impl!(i32)
+scalar_div_impl!(i16)
+scalar_div_impl!(i8)
+scalar_div_impl!(float)
+scalar_div_impl!(uint)
+scalar_div_impl!(int)
+
+scalar_add_impl!(f64)
+scalar_add_impl!(f32)
+scalar_add_impl!(u64)
+scalar_add_impl!(u32)
+scalar_add_impl!(u16)
+scalar_add_impl!(u8)
+scalar_add_impl!(i64)
+scalar_add_impl!(i32)
+scalar_add_impl!(i16)
+scalar_add_impl!(i8)
+scalar_add_impl!(float)
+scalar_add_impl!(uint)
+scalar_add_impl!(int)
+
+scalar_sub_impl!(f64)
+scalar_sub_impl!(f32)
+scalar_sub_impl!(u64)
+scalar_sub_impl!(u32)
+scalar_sub_impl!(u16)
+scalar_sub_impl!(u8)
+scalar_sub_impl!(i64)
+scalar_sub_impl!(i32)
+scalar_sub_impl!(i16)
+scalar_sub_impl!(i8)
+scalar_sub_impl!(float)
+scalar_sub_impl!(uint)
+scalar_sub_impl!(int)

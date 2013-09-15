@@ -9,12 +9,12 @@ use traits::rotation::{Rotation, Rotate, RotationMatrix};
 use traits::translation::{Translation, Translate};
 use Ts = traits::transformation::Transform;
 use traits::transformation::{Transformation};
-use traits::rlmul::{RMul, LMul};
+use traits::rlmul::RMul;
 use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
 use traits::column::Column;
 use traits::comp::absolute_rotate::AbsoluteRotate;
 use adaptors::rotmat::Rotmat;
-use vec::Vec3;
+use vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
 use mat::Mat3;
 
 /// Matrix-Vector wrapper used to represent a matrix multiplication followed by a translation.
@@ -39,6 +39,19 @@ impl<V, M> Transform<V, M> {
             submat:   mat,
             subtrans: trans
         }
+    }
+}
+
+/// Trait of object `o` which can be multiplied by a `Transform` `t`: `t * o`.
+pub trait TransformMulRhs<V, M, Res> {
+    /// Multiplies a transformation matrix by `Self`.
+    fn binop(left: &Transform<V, M>, right: &Self) -> Res;
+}
+
+impl<V, M, Rhs: TransformMulRhs<V, M, Res>, Res> Mul<Rhs, Res> for Transform<V, M> {
+    #[inline(always)]
+    fn mul(&self, other: &Rhs) -> Res {
+        TransformMulRhs::binop(self, other)
     }
 }
 
@@ -125,28 +138,45 @@ impl<M: Zero, V: Zero> Zero for Transform<V, M> {
     }
 }
 
-impl<M: RMul<V> + Mul<M, M>, V: Add<V, V>>
-Mul<Transform<V, M>, Transform<V, M>> for Transform<V, M> {
+impl<M: RMul<V> + Mul<M, M>, V: Add<V, V>> TransformMulRhs<V, M, Transform<V, M>> for Transform<V, M> {
     #[inline]
-    fn mul(&self, other: &Transform<V, M>) -> Transform<V, M> {
+    fn binop(left: &Transform<V, M>, right: &Transform<V, M>) -> Transform<V, M> {
         Transform {
-            submat:   self.submat * other.submat,
-            subtrans: self.subtrans + self.submat.rmul(&other.subtrans)
+            submat:   left.submat * right.submat,
+            subtrans: left.subtrans + left.submat.rmul(&right.subtrans)
         }
     }
 }
 
-impl<M: RMul<V>, V: Add<V, V>> RMul<V> for Transform<V, M> {
+impl<N: Clone + Add<N, N>, M: Mul<Vec2<N>, Vec2<N>>>
+TransformMulRhs<Vec2<N>, M, Vec2<N>> for Vec2<N> {
     #[inline]
-    fn rmul(&self, other: &V) -> V {
-        self.submat.rmul(other) + self.subtrans
+    fn binop(left: &Transform<Vec2<N>, M>, right: &Vec2<N>) -> Vec2<N> {
+        left.subtrans + left.submat * *right
     }
 }
 
-impl<M: LMul<V>, V: Add<V, V>> LMul<V> for Transform<V, M> {
+impl<N: Clone + Add<N, N>, M: Mul<Vec3<N>, Vec3<N>>>
+TransformMulRhs<Vec3<N>, M, Vec3<N>> for Vec3<N> {
     #[inline]
-    fn lmul(&self, other: &V) -> V {
-        self.submat.lmul(other) + self.subtrans
+    fn binop(left: &Transform<Vec3<N>, M>, right: &Vec3<N>) -> Vec3<N> {
+        left.subtrans + left.submat * *right
+    }
+}
+
+impl<N: Clone + Add<N, N>, M: Vec2MulRhs<N, Vec2<N>>>
+Vec2MulRhs<N, Vec2<N>> for Transform<Vec2<N>, M> {
+    #[inline]
+    fn binop(left: &Vec2<N>, right: &Transform<Vec2<N>, M>) -> Vec2<N> {
+        (left + right.subtrans) * right.submat
+    }
+}
+
+impl<N: Clone + Add<N, N>, M: Vec3MulRhs<N, Vec3<N>>>
+Vec3MulRhs<N, Vec3<N>> for Transform<Vec3<N>, M> {
+    #[inline]
+    fn binop(left: &Vec3<N>, right: &Transform<Vec3<N>, M>) -> Vec3<N> {
+        (left + right.subtrans) * right.submat
     }
 }
 

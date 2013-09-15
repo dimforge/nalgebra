@@ -1,7 +1,6 @@
 use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
-use traits::rlmul::{RMul, LMul};
 use traits::cross::Cross;
 use traits::dim::Dim;
 use traits::inv::Inv;
@@ -15,8 +14,11 @@ use traits::homogeneous::ToHomogeneous;
 use traits::indexable::Indexable;
 use traits::norm::Norm;
 use traits::comp::absolute_rotate::AbsoluteRotate;
-use vec::{Vec1, Vec2, Vec3};
+use vec::{Vec1, Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
 use mat::{Mat2, Mat3};
+
+#[path = "../metal.rs"]
+mod metal;
 
 /// Matrix wrapper representing rotation matrix. It is built uppon another matrix and ensures (at
 /// the type-level) that it will always represent a rotation. Rotation matrices have some
@@ -24,6 +26,19 @@ use mat::{Mat2, Mat3};
 #[deriving(Eq, ToStr, Clone)]
 pub struct Rotmat<M> {
     priv submat: M
+}
+
+/// Trait of object `o` which can be multiplied by a `Rotmat` `r`: `r * o`.
+pub trait RotmatMulRhs<M, Res> {
+    /// Multiplies a rotation matrix by `Self`.
+    fn binop(left: &Rotmat<M>, right: &Self) -> Res;
+}
+
+impl<M, Rhs: RotmatMulRhs<M, Res>, Res> Mul<Rhs, Res> for Rotmat<M> {
+    #[inline(always)]
+    fn mul(&self, other: &Rhs) -> Res {
+        RotmatMulRhs::binop(self, other)
+    }
 }
 
 impl<M: Clone> Rotmat<M> {
@@ -229,19 +244,19 @@ impl<N: Clone + Rand + Trigonometric + Neg<N>> Rand for Rotmat<Mat2<N>> {
     }
 }
 
-impl<M: RMul<V> + LMul<V>, V> Rotate<V> for Rotmat<M> {
+impl<M, V: RotmatMulRhs<M, V> + Mul<Rotmat<M>, V>> Rotate<V> for Rotmat<M> {
     #[inline]
     fn rotate(&self, v: &V) -> V {
-        self.rmul(v)
+        self * *v
     }
 
     #[inline]
     fn inv_rotate(&self, v: &V) -> V {
-        self.lmul(v)
+        v * *self
     }
 }
 
-impl<M: RMul<V> + LMul<V>, V> Transform<V> for Rotmat<M> {
+impl<M, V: RotmatMulRhs<M, V> + Mul<Rotmat<M>, V>> Transform<V> for Rotmat<M> {
     #[inline]
     fn transform(&self, v: &V) -> V {
         self.rotate(v)
@@ -275,24 +290,41 @@ impl<M: One + Zero> One for Rotmat<M> {
     }
 }
 
-impl<M: Mul<M, M>> Mul<Rotmat<M>, Rotmat<M>> for Rotmat<M> {
+impl<M: Mul<M, M>> RotmatMulRhs<M, Rotmat<M>> for Rotmat<M> {
     #[inline]
-    fn mul(&self, other: &Rotmat<M>) -> Rotmat<M> {
-        Rotmat { submat: self.submat.mul(&other.submat) }
+    fn binop(left: &Rotmat<M>, right: &Rotmat<M>) -> Rotmat<M> {
+        Rotmat { submat: left.submat * right.submat }
     }
 }
 
-impl<V, M: RMul<V>> RMul<V> for Rotmat<M> {
+/*
+ * Right/Left multiplication implementation for Vec3 and Vec2.
+ */
+impl<M: Mul<Vec3<N>, Vec3<N>>, N> RotmatMulRhs<M, Vec3<N>> for Vec3<N> {
     #[inline]
-    fn rmul(&self, other: &V) -> V {
-        self.submat.rmul(other)
+    fn binop(left: &Rotmat<M>, right: &Vec3<N>) -> Vec3<N> {
+        left.submat * *right 
     }
 }
 
-impl<V, M: LMul<V>> LMul<V> for Rotmat<M> {
+impl<M: Mul<Vec2<N>, Vec2<N>>, N> RotmatMulRhs<M, Vec2<N>> for Vec2<N> {
     #[inline]
-    fn lmul(&self, other: &V) -> V {
-        self.submat.lmul(other)
+    fn binop(left: &Rotmat<M>, right: &Vec2<N>) -> Vec2<N> {
+        left.submat * *right 
+    }
+}
+
+impl<N, M: Vec3MulRhs<N, Vec3<N>>> Vec3MulRhs<N, Vec3<N>> for Rotmat<M> {
+    #[inline]
+    fn binop(left: &Vec3<N>, right: &Rotmat<M>) -> Vec3<N> {
+        *left * right.submat
+    }
+}
+
+impl<N, M: Vec2MulRhs<N, Vec2<N>>> Vec2MulRhs<N, Vec2<N>> for Rotmat<M> {
+    #[inline]
+    fn binop(left: &Vec2<N>, right: &Rotmat<M>) -> Vec2<N> {
+        *left * right.submat
     }
 }
 
