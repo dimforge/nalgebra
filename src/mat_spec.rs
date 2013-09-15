@@ -257,8 +257,8 @@ impl<N: Mul<N, N> + Add<N, N>> Mat2MulRhs<N, Vec2<N>> for Vec2<N> {
     #[inline(always)]
     fn binop(left: &Mat2<N>, right: &Vec2<N>) -> Vec2<N> {
         Vec2::new(
-            left.m11 * right.x + left.m21 * right.y,
-            left.m12 * right.x + left.m22 * right.y
+            left.m11 * right.x + left.m12 * right.y,
+            left.m21 * right.x + left.m22 * right.y
         )
     }
 }
