@@ -26,6 +26,8 @@ mod mat_spec;
 mod vec_spec;
 mod vec0_spec;
 mod identity_spec;
+// mod lower_triangular;
+// mod chol;
 
 /// Wrappers around raw matrices to restrict their behaviour.
 pub mod adaptors {
@@ -39,7 +41,6 @@ pub mod traits {
     pub mod vector;
     pub mod sample;
     pub mod indexable;
-    pub mod column;
     pub mod row;
     pub mod iterable;
     pub mod outer;

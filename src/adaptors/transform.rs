@@ -11,7 +11,7 @@ use Ts = traits::transformation::Transform;
 use traits::transformation::{Transformation};
 use traits::rlmul::RMul;
 use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
-use traits::column::Column;
+use traits::col::Col;
 use traits::comp::absolute_rotate::AbsoluteRotate;
 use adaptors::rotmat::Rotmat;
 use vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
@@ -335,7 +335,7 @@ Inv for Transform<V, M> {
     }
 }
 
-impl<M: ToHomogeneous<M2>, M2: Dim + Column<V2>, V: ToHomogeneous<V2> + Clone, V2>
+impl<M: ToHomogeneous<M2>, M2: Dim + Col<V2>, V: ToHomogeneous<V2> + Clone, V2>
 ToHomogeneous<M2> for Transform<V, M> {
     fn to_homogeneous(&self) -> M2 {
         let mut res = self.submat.to_homogeneous();
@@ -343,16 +343,16 @@ ToHomogeneous<M2> for Transform<V, M> {
         // copy the translation
         let dim = Dim::dim(None::<M2>);
 
-        res.set_column(dim - 1, self.subtrans.to_homogeneous());
+        res.set_col(dim - 1, self.subtrans.to_homogeneous());
 
         res
     }
 }
 
-impl<M: Column<V> + Dim, M2: FromHomogeneous<M>, V>
+impl<M: Col<V> + Dim, M2: FromHomogeneous<M>, V>
 FromHomogeneous<M> for Transform<V, M2> {
     fn from(m: &M) -> Transform<V, M2> {
-        Transform::new(m.column(Dim::dim(None::<M>) - 1), FromHomogeneous::from(m))
+        Transform::new(m.col(Dim::dim(None::<M>) - 1), FromHomogeneous::from(m))
     }
 }
 

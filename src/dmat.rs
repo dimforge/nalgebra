@@ -102,13 +102,21 @@ impl<N> DMat<N> {
     }
 
     /// The number of row on the matrix.
+    #[inline]
     pub fn nrows(&self) -> uint {
         self.nrows
     }
 
     /// The number of columns on the matrix.
+    #[inline]
     pub fn ncols(&self) -> uint {
         self.ncols
+    }
+
+    /// Transforms this matrix into an array. This consumes the matrix and is O(1).
+    #[inline]
+    pub fn to_array(self) -> ~[N] {
+        self.mij
     }
 }
 
@@ -152,6 +160,13 @@ impl<N: Clone> DMat<N> {
         self.mij[self.offset(row, col)] = val
     }
 
+    /// Just like `set` without bounds checking.
+    #[inline]
+    pub unsafe fn set_fast(&mut self, row: uint, col: uint, val: N) {
+        let off = self.offset(row, col);
+        *self.mij.unsafe_mut_ref(off) = val
+    }
+
     /// Reads the value of a component of the matrix.
     ///
     /// # Arguments
@@ -161,10 +176,9 @@ impl<N: Clone> DMat<N> {
     pub fn at(&self, row: uint, col: uint) -> N {
         assert!(row < self.nrows);
         assert!(col < self.ncols);
-        unsafe { vec::raw::get(self.mij, self.offset(row, col)) }
+        unsafe { self.at_fast(row, col) }
     }
 
-    // FIXME: put that on a `raw` module.
     /// Just like `at` without bounds checking.
     #[inline]
     pub unsafe fn at_fast(&self, row: uint, col: uint) -> N {
@@ -182,13 +196,13 @@ impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> DMatMulRhs<N, DMat<N>> for DMat<N>
             for j in range(0u, right.ncols) {
                 let mut acc: N = Zero::zero();
 
-                for k in range(0u, left.ncols) {
-                    unsafe {
+                unsafe {
+                    for k in range(0u, left.ncols) {
                         acc = acc + left.at_fast(i, k) * right.at_fast(k, j);
                     }
-                }
 
-                res.set(i, j, acc);
+                    res.set_fast(i, j, acc);
+                }
             }
         }
 
@@ -273,7 +287,7 @@ Inv for DMat<N> {
             let mut n0 = k; // index of a non-zero entry
 
             while (n0 != dim) {
-                if self.at(n0, k) != _0T {
+                if unsafe { self.at_fast(n0, k) } != _0T {
                     break;
                 }
 
@@ -295,30 +309,32 @@ Inv for DMat<N> {
                 }
             }
 
-            let pivot = self.at(k, k);
+            unsafe {
+                let pivot = self.at_fast(k, k);
 
-            for j in range(k, dim) {
-                let selfval = self.at(k, j) / pivot;
-                self.set(k, j, selfval);
-            }
+                for j in range(k, dim) {
+                    let selfval = self.at_fast(k, j) / pivot;
+                    self.set_fast(k, j, selfval);
+                }
 
-            for j in range(0u, dim) {
-                let resval = res.at(k, j) / pivot;
-                res.set(k, j, resval);
-            }
+                for j in range(0u, dim) {
+                    let resval = res.at_fast(k, j) / pivot;
+                    res.set_fast(k, j, resval);
+                }
 
-            for l in range(0u, dim) {
-                if l != k {
-                    let normalizer = self.at(l, k);
+                for l in range(0u, dim) {
+                    if l != k {
+                        let normalizer = self.at_fast(l, k);
 
-                    for j in range(k, dim) {
-                        let selfval = self.at(l, j) - self.at(k, j) * normalizer;
-                        self.set(l, j, selfval);
-                    }
+                        for j in range(k, dim) {
+                            let selfval = self.at_fast(l, j) - self.at_fast(k, j) * normalizer;
+                            self.set_fast(l, j, selfval);
+                        }
 
-                    for j in range(0u, dim) {
-                        let resval = res.at(l, j) - res.at(k, j) * normalizer;
-                        res.set(l, j, resval);
+                        for j in range(0u, dim) {
+                            let resval = res.at_fast(l, j) - res.at_fast(k, j) * normalizer;
+                            res.set_fast(l, j, resval);
+                        }
                     }
                 }
             }

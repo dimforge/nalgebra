@@ -196,30 +196,6 @@ macro_rules! indexable_impl(
   )
 )
 
-macro_rules! column_impl(
-  ($t: ident, $tv: ident, $dim: expr) => (
-    impl<N: Clone + Zero> Column<$tv<N>> for $t<N> {
-        #[inline]
-        fn set_column(&mut self, col: uint, v: $tv<N>) {
-            for (i, e) in v.iter().enumerate() {
-                self.set((i, col), e.clone());
-            }
-        }
-
-        #[inline]
-        fn column(&self, col: uint) -> $tv<N> {
-            let mut res: $tv<N> = Zero::zero();
-
-            for (i, e) in res.mut_iter().enumerate() {
-                *e = self.at((i, col));
-            }
-
-            res
-        }
-    }
-  )
-)
-
 macro_rules! row_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
     impl<N: Clone + Zero> Row<$tv<N>> for $t<N> {
@@ -260,7 +236,7 @@ macro_rules! col_impl(
         #[inline]
         fn set_col(&mut self, col: uint, v: $tv<N>) {
             for (i, e) in v.iter().enumerate() {
-                self.set((col, i), e.clone());
+                self.set((i, col), e.clone());
             }
         }
 
