@@ -1,18 +1,11 @@
 use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
-use traits::dim::Dim;
-use traits::absolute::Absolute;
-use traits::mat::Mat;
-use traits::inv::Inv;
-use traits::rotation::{Rotation, Rotate, RotationMatrix};
-use traits::translation::{Translation, Translate};
-use Ts = traits::transformation::Transform;
-use traits::transformation::{Transformation};
-use traits::rlmul::RMul;
-use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
-use traits::col::Col;
-use traits::comp::absolute_rotate::AbsoluteRotate;
+use traits::structure::{Dim, Mat, Col};
+use traits::operations::{Absolute, Inv, RMul};
+use traits::geometry::{Rotation, Rotate, RotationMatrix, Translation, Translate, Transformation,
+                       ToHomogeneous, FromHomogeneous, AbsoluteRotate};
+use Ts = traits::geometry::Transform;
 use adaptors::rotmat::Rotmat;
 use vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
 use mat::Mat3;

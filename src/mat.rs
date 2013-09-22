@@ -1,3 +1,5 @@
+//! Matrices with dimensions known at compile-time.
+
 #[allow(missing_doc)]; // we allow missing to avoid having to document the mij components.
 
 use std::cast;
@@ -7,24 +9,11 @@ use std::vec::{VecIterator, VecMutIterator};
 use vec::*;
 
 // traits
-pub use traits::mat::Mat;
-pub use traits::absolute::Absolute;
-pub use traits::dim::Dim;
-pub use traits::indexable::Indexable;
-pub use traits::iterable::{Iterable, IterableMut};
-pub use traits::scalar_op::{ScalarSub, ScalarAdd};
-pub use traits::mat_cast::MatCast;
-pub use traits::inv::Inv;
-pub use traits::rlmul::RMul;
-pub use traits::rotation::{Rotation, RotationMatrix, Rotate};
-pub use traits::transformation::{Transformation, Transform};
-pub use traits::translation::{Translation, Translate};
-pub use traits::transpose::{Transpose};
-pub use traits::homogeneous::{ToHomogeneous, FromHomogeneous};
-pub use traits::row::Row;
-pub use traits::col::Col;
-pub use traits::comp::rotation_with_translation::RotationWithTranslation;
-pub use traits::comp::absolute_rotate::AbsoluteRotate;
+pub use traits::structure::{Mat, Dim, Indexable, Iterable, IterableMut, MatCast, Row, Col};
+pub use traits::operations::{Absolute, ScalarSub, ScalarAdd, Inv, RMul, Transpose};
+pub use traits::geometry::{Rotation, RotationMatrix, Rotate, Transformation, Transform,
+                           Translation, Translate, ToHomogeneous, FromHomogeneous,
+                           RotationWithTranslation, AbsoluteRotate};
 
 // structs
 pub use dmat::DMat;

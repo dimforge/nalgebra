@@ -1,3 +1,5 @@
+//! Vectors with dimensions known at compile-time.
+
 #[doc(hidden)]; // we hide doc to not have to document the $trhs double dispatch trait.
 
 use std::cast;
@@ -7,23 +9,13 @@ use std::vec::{VecIterator, VecMutIterator};
 use std::iter::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
 
-use traits::translation::{Translation, Translate};
-use traits::transformation::Transform;
-use traits::rotation::Rotate;
+use traits::geometry::{Transform, Rotate};
 
-pub use traits::homogeneous::{FromHomogeneous, ToHomogeneous};
-pub use traits::vec_cast::VecCast;
-pub use traits::vector::{Vec, VecExt, AlgebraicVec, AlgebraicVecExt};
-pub use traits::basis::Basis;
-pub use traits::dim::Dim;
-pub use traits::indexable::Indexable;
-pub use traits::iterable::{Iterable, IterableMut};
-pub use traits::sample::UniformSphereSample;
-pub use traits::scalar_op::{ScalarAdd, ScalarSub};
-pub use traits::cross::{Cross, CrossMatrix};
-pub use traits::outer::Outer;
-pub use traits::dot::Dot;
-pub use traits::norm::Norm;
+pub use traits::geometry::{FromHomogeneous, ToHomogeneous, Dot, Norm, Cross, CrossMatrix,
+                           Translation, Translate, UniformSphereSample};
+pub use traits::structure::{VecCast, Vec, VecExt, AlgebraicVec, AlgebraicVecExt, Basis, Dim,
+                            Indexable, Iterable, IterableMut};
+pub use traits::operations::{Outer, ScalarAdd, ScalarSub};
 
 // structs
 pub use dvec::DVec;

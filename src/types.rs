@@ -1,3 +1,5 @@
+//! Useful type aliases.
+
 use vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use mat::{Mat1, Mat2, Mat3, Mat4, Mat5, Mat6};
 use adaptors::rotmat::Rotmat;

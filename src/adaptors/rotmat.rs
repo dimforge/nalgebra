@@ -1,19 +1,10 @@
 use std::num::{One, Zero};
 use std::rand::{Rand, Rng, RngUtil};
 use std::cmp::ApproxEq;
-use traits::cross::Cross;
-use traits::dim::Dim;
-use traits::inv::Inv;
-use traits::row::Row;
-use traits::col::Col;
-use traits::transpose::Transpose;
-use traits::absolute::Absolute;
-use traits::rotation::{Rotation, Rotate, RotationMatrix};
-use traits::transformation::{Transform}; // FIXME: implement Transformation and Transformable
-use traits::homogeneous::ToHomogeneous;
-use traits::indexable::Indexable;
-use traits::norm::Norm;
-use traits::comp::absolute_rotate::AbsoluteRotate;
+use traits::geometry::{Cross, Rotation, Rotate, RotationMatrix, AbsoluteRotate, Transform,
+                       ToHomogeneous, Norm};
+use traits::structure::{Dim, Row, Col, Indexable};
+use traits::operations::{Inv, Transpose, Absolute};
 use vec::{Vec1, Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
 use mat::{Mat2, Mat3};
 

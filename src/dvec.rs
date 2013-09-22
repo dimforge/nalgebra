@@ -1,3 +1,5 @@
+//! Vector with dimensions unknown at compile-time.
+
 #[doc(hidden)]; // we hide doc to not have to document the $trhs double dispatch trait.
 
 use std::num::{Zero, One, Algebraic};
@@ -7,10 +9,8 @@ use std::vec;
 use std::vec::{VecIterator, VecMutIterator};
 use std::cmp::ApproxEq;
 use std::iter::FromIterator;
-use traits::dot::Dot;
-use traits::norm::Norm;
-use traits::iterable::{Iterable, IterableMut};
-use traits::translation::Translation;
+use traits::geometry::{Dot, Norm, Translation};
+use traits::structure::{Iterable, IterableMut};
 
 mod metal;
 

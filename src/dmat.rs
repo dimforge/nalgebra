@@ -1,3 +1,5 @@
+//! Matrix with dimensions unknown at compile-time.
+
 use std::rand::Rand;
 use std::rand;
 use std::num::{One, Zero};
@@ -5,8 +7,7 @@ use std::vec;
 use std::cmp::ApproxEq;
 use std::util;
 use dvec::{DVec, DVecMulRhs};
-use traits::inv::Inv;
-use traits::transpose::Transpose;
+use traits::operations::{Inv, Transpose};
 
 /// Matrix with dimensions unknown at compile-time.
 #[deriving(Eq, ToStr, Clone)]

@@ -1,10 +1,7 @@
 use std::num::{One, Zero};
 use mat;
-use traits::inv::Inv;
-use traits::transpose::Transpose;
-use traits::translation::{Translation, Translate};
-use traits::rotation::{Rotation, Rotate};
-use traits::transformation::{Transformation, Transform};
+use traits::operations::{Inv, Transpose};
+use traits::geometry::{Translation, Translate, Rotation, Rotate, Transformation, Transform};
 
 impl One for mat::Identity {
     #[inline]

@@ -3,13 +3,8 @@ use std::num::{Zero, One, Algebraic, Bounded};
 use std::vec::{VecIterator, VecMutIterator};
 use std::iter::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
-use traits::iterable::{Iterable, IterableMut};
-use traits::basis::Basis;
-use traits::dim::Dim;
-use traits::translation::Translation;
-use traits::indexable::Indexable;
-use traits::dot::Dot;
-use traits::norm::Norm;
+use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim};
+use traits::geometry::{Translation, Dot, Norm};
 use vec;
 
 impl<N> vec::Vec0<N> {
