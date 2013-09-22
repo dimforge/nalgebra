@@ -16,7 +16,7 @@ bench:
 
 doc:
 	mkdir -p $(nalgebra_doc_path)
-	rustdoc_ng html src/lib.rs
+	rustdoc html src/lib.rs
 
 distcheck:
 	rm -rf $(tmp)

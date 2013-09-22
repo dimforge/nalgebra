@@ -1,5 +1,5 @@
 use std::num::{One, Zero};
-use std::rand::{Rand, Rng, RngUtil};
+use std::rand::{Rand, Rng};
 use std::cmp::ApproxEq;
 use traits::structure::{Dim, Mat, Col};
 use traits::operations::{Absolute, Inv, RMul};

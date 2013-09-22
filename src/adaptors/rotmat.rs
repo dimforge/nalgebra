@@ -1,5 +1,5 @@
 use std::num::{One, Zero};
-use std::rand::{Rand, Rng, RngUtil};
+use std::rand::{Rand, Rng};
 use std::cmp::ApproxEq;
 use traits::geometry::{Cross, Rotation, Rotate, RotationMatrix, AbsoluteRotate, Transform,
                        ToHomogeneous, Norm};
