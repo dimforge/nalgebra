@@ -105,16 +105,24 @@ pub trait Row<R> {
     fn row(&self, i: uint) -> R;
     /// Writes the `i`-th row of `self`.
     fn set_row(&mut self, i: uint, R);
+
+    // FIXME: add iterators on rows: this could be a very good way to generalize _and_ optimize
+    // a lot of operations.
 }
 
 /// Trait to access columns of a matrix or vector.
 pub trait Col<C> {
     /// The number of column of this matrix or vector.
     fn num_cols(&self) -> uint;
+
     /// Reads the `i`-th column of `self`.
     fn col(&self, i: uint) -> C;
+
     /// Writes the `i`-th column of `self`.
     fn set_col(&mut self, i: uint, C);
+
+    // FIXME: add iterators on columns: this could be a very good way to generalize _and_ optimize
+    // a lot of operations.
 }
 
 /// Trait of objects having a spacial dimension known at compile time.

@@ -12,6 +12,7 @@ use std::iter::FromIterator;
 use traits::geometry::{Dot, Norm, Translation};
 use traits::structure::{Iterable, IterableMut};
 
+#[doc(hidden)]
 mod metal;
 
 /// Vector with a dimension unknown at compile-time.
@@ -85,6 +86,16 @@ impl<N> DVec<N> {
             at: vec
         }
     }
+
+    #[inline]
+    pub unsafe fn set_fast(&mut self, i: uint, val: N) {
+        *self.at.unsafe_mut_ref(i) = val
+    }
+
+    #[inline]
+    pub fn to_vec(self) -> ~[N] {
+        self.at
+    }
 }
 
 impl<N: Clone> DVec<N> {
@@ -92,6 +103,18 @@ impl<N: Clone> DVec<N> {
     #[inline]
     pub fn from_elem(dim: uint, elem: N) -> DVec<N> {
         DVec { at: vec::from_elem(dim, elem) }
+    }
+
+    /// Builds a vector filled with the components provided by a vector.
+    ///
+    /// The vector must have at least `dim` elements.
+    #[inline]
+    pub fn from_vec(dim: uint, vec: &[N]) -> DVec<N> {
+        assert!(dim <= vec.len());
+
+        DVec {
+            at: vec.slice_to(dim).to_owned()
+        }
     }
 }
 

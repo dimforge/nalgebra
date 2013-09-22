@@ -10,7 +10,7 @@ use vec::*;
 
 // traits
 pub use traits::structure::{Mat, Dim, Indexable, Iterable, IterableMut, MatCast, Row, Col};
-pub use traits::operations::{Absolute, ScalarSub, ScalarAdd, Inv, RMul, Transpose};
+pub use traits::operations::{Absolute, ScalarSub, ScalarAdd, Inv, RMul, Transpose, Mean, Cov};
 pub use traits::geometry::{Rotation, RotationMatrix, Rotate, Transformation, Transform,
                            Translation, Translate, ToHomogeneous, FromHomogeneous,
                            RotationWithTranslation, AbsoluteRotate};

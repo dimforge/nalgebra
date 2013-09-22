@@ -1,5 +1,7 @@
 //! Matrix with dimensions unknown at compile-time.
 
+#[doc(hidden)]; // we hide doc to not have to document the $trhs double dispatch trait.
+
 use std::rand::Rand;
 use std::rand;
 use std::num::{One, Zero};
@@ -7,28 +9,28 @@ use std::vec;
 use std::cmp::ApproxEq;
 use std::util;
 use dvec::{DVec, DVecMulRhs};
-use traits::operations::{Inv, Transpose};
+use traits::operations::{Inv, Transpose, Mean, Cov};
+
+#[doc(hidden)]
+mod metal;
 
 /// Matrix with dimensions unknown at compile-time.
-#[deriving(Eq, ToStr, Clone)]
+#[deriving(Eq, Clone)]
 pub struct DMat<N> {
     priv nrows: uint,
     priv ncols: uint,
     priv mij: ~[N]
 }
 
-/// Trait of object `o` which can be multiplied by a `DMat` `d`: `d * o`.
-pub trait DMatMulRhs<N, Res> {
-    /// Multiplies a `DMat` by `Self`.
-    fn binop(left: &DMat<N>, right: &Self) -> Res;
-}
+double_dispatch_binop_decl_trait!(DMat, DMatMulRhs)
+double_dispatch_binop_decl_trait!(DMat, DMatDivRhs)
+double_dispatch_binop_decl_trait!(DMat, DMatAddRhs)
+double_dispatch_binop_decl_trait!(DMat, DMatSubRhs)
 
-impl<N, Rhs: DMatMulRhs<N, Res>, Res> Mul<Rhs, Res> for DMat<N> {
-    #[inline(always)]
-    fn mul(&self, other: &Rhs) -> Res {
-        DMatMulRhs::binop(self, other)
-    }
-}
+mul_redispatch_impl!(DMat, DMatMulRhs)
+div_redispatch_impl!(DMat, DMatDivRhs)
+add_redispatch_impl!(DMat, DMatAddRhs)
+sub_redispatch_impl!(DMat, DMatSubRhs)
 
 impl<N> DMat<N> {
     /// Creates an uninitialized matrix.
@@ -89,6 +91,20 @@ impl<N: Clone> DMat<N> {
             mij:   vec::from_elem(nrows * ncols, val)
         }
     }
+
+    /// Builds a matrix filled with the components provided by a vector.
+    ///
+    /// The vector must have at least `nrows * ncols` elements.
+    #[inline]
+    pub fn from_vec(nrows: uint, ncols: uint, vec: &[N]) -> DMat<N> {
+        assert!(nrows * ncols <= vec.len());
+
+        DMat {
+            nrows: nrows,
+            ncols: ncols,
+            mij:   vec.slice_to(nrows * ncols).to_owned()
+        }
+    }
 }
 
 impl<N> DMat<N> {
@@ -116,7 +132,7 @@ impl<N> DMat<N> {
 
     /// Transforms this matrix into an array. This consumes the matrix and is O(1).
     #[inline]
-    pub fn to_array(self) -> ~[N] {
+    pub fn to_vec(self) -> ~[N] {
         self.mij
     }
 }
@@ -350,24 +366,88 @@ Inv for DMat<N> {
 impl<N: Clone> Transpose for DMat<N> {
     #[inline]
     fn transposed(&self) -> DMat<N> {
-        let mut res = self.clone();
+        if self.nrows == self.ncols {
+            let mut res = self.clone();
 
-        res.transpose();
+            res.transpose();
 
-        res
+            res
+        }
+        else {
+            let mut res = unsafe { DMat::new_uninitialized(self.ncols, self.nrows) };
+
+            for i in range(0u, self.nrows) {
+                for j in range(0u, self.ncols) {
+                    unsafe {
+                        res.set_fast(j, i, self.at_fast(i, j))
+                    }
+                }
+            }
+
+            res
+        }
     }
 
+    #[inline]
     fn transpose(&mut self) {
-        for i in range(1u, self.nrows) {
-            for j in range(0u, self.ncols - 1) {
-                let off_i_j = self.offset(i, j);
-                let off_j_i = self.offset(j, i);
+        if self.nrows == self.ncols {
+            for i in range(1u, self.nrows) {
+                for j in range(0u, self.ncols - 1) {
+                    let off_i_j = self.offset(i, j);
+                    let off_j_i = self.offset(j, i);
 
-                self.mij.swap(off_i_j, off_j_i);
+                    self.mij.swap(off_i_j, off_j_i);
+                }
+            }
+
+            util::swap(&mut self.nrows, &mut self.ncols);
+        }
+        else {
+            // FIXME: implement a better algorithm which does that in-place.
+            *self = self.transposed();
+        }
+    }
+}
+
+impl<N: Num + NumCast + Clone> Mean<DVec<N>> for DMat<N> {
+    fn mean(&self) -> DVec<N> {
+        let mut res: DVec<N> = DVec::new_zeros(self.ncols);
+        let normalizer: N    = NumCast::from(1.0f64 / NumCast::from(self.nrows));
+
+        for i in range(0u, self.nrows) {
+            for j in range(0u, self.ncols) {
+                unsafe {
+                    let acc = res.at_fast(j) + self.at_fast(i, j) * normalizer;
+                    res.set_fast(j, acc);
+                }
             }
         }
 
-        util::swap(&mut self.nrows, &mut self.ncols);
+        res
+    }
+}
+
+impl<N: Clone + Num + NumCast + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> for DMat<N> {
+    // FIXME: this could be heavily optimized, removing all temporaries by merging loops.
+    fn cov(&self) -> DMat<N> {
+        assert!(self.nrows > 1);
+
+        let mut centered = unsafe { DMat::new_uninitialized(self.nrows, self.ncols) };
+        let mean = self.mean();
+
+        // FIXME: use the rows iterator when available
+        for i in range(0u, self.nrows) {
+            for j in range(0u, self.ncols) {
+                unsafe {
+                    centered.set_fast(i, j, self.at_fast(i, j) - mean.at_fast(j));
+                }
+            }
+        }
+
+        // FIXME: return a triangular matrix?
+        let normalizer: N = NumCast::from(self.nrows() - 1);
+        // FIXME: this will do 2 allocations for temporaries!
+        (centered.transposed() * centered) / normalizer
     }
 }
 
@@ -396,5 +476,139 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
         do zip.all |(a, b)| {
             a.approx_eq_eps(b, epsilon)
         }
+    }
+}
+
+macro_rules! scalar_mul_impl (
+    ($n: ident) => (
+        impl DMatMulRhs<$n, DMat<$n>> for $n {
+            #[inline]
+            fn binop(left: &DMat<$n>, right: &$n) -> DMat<$n> {
+                DMat {
+                    nrows: left.nrows,
+                    ncols: left.ncols,
+                    mij:   left.mij.iter().map(|a| a * *right).collect()
+                }
+            }
+        }
+    )
+)
+
+macro_rules! scalar_div_impl (
+    ($n: ident) => (
+        impl DMatDivRhs<$n, DMat<$n>> for $n {
+            #[inline]
+            fn binop(left: &DMat<$n>, right: &$n) -> DMat<$n> {
+                DMat {
+                    nrows: left.nrows,
+                    ncols: left.ncols,
+                    mij:   left.mij.iter().map(|a| a / *right).collect()
+                }
+            }
+        }
+    )
+)
+
+macro_rules! scalar_add_impl (
+    ($n: ident) => (
+        impl DMatAddRhs<$n, DMat<$n>> for $n {
+            #[inline]
+            fn binop(left: &DMat<$n>, right: &$n) -> DMat<$n> {
+                DMat {
+                    nrows: left.nrows,
+                    ncols: left.ncols,
+                    mij:   left.mij.iter().map(|a| a + *right).collect()
+                }
+            }
+        }
+    )
+)
+
+macro_rules! scalar_sub_impl (
+    ($n: ident) => (
+        impl DMatSubRhs<$n, DMat<$n>> for $n {
+            #[inline]
+            fn binop(left: &DMat<$n>, right: &$n) -> DMat<$n> {
+                DMat {
+                    nrows: left.nrows,
+                    ncols: left.ncols,
+                    mij:   left.mij.iter().map(|a| a - *right).collect()
+                }
+            }
+        }
+    )
+)
+
+scalar_mul_impl!(f64)
+scalar_mul_impl!(f32)
+scalar_mul_impl!(u64)
+scalar_mul_impl!(u32)
+scalar_mul_impl!(u16)
+scalar_mul_impl!(u8)
+scalar_mul_impl!(i64)
+scalar_mul_impl!(i32)
+scalar_mul_impl!(i16)
+scalar_mul_impl!(i8)
+scalar_mul_impl!(float)
+scalar_mul_impl!(uint)
+scalar_mul_impl!(int)
+
+scalar_div_impl!(f64)
+scalar_div_impl!(f32)
+scalar_div_impl!(u64)
+scalar_div_impl!(u32)
+scalar_div_impl!(u16)
+scalar_div_impl!(u8)
+scalar_div_impl!(i64)
+scalar_div_impl!(i32)
+scalar_div_impl!(i16)
+scalar_div_impl!(i8)
+scalar_div_impl!(float)
+scalar_div_impl!(uint)
+scalar_div_impl!(int)
+
+scalar_add_impl!(f64)
+scalar_add_impl!(f32)
+scalar_add_impl!(u64)
+scalar_add_impl!(u32)
+scalar_add_impl!(u16)
+scalar_add_impl!(u8)
+scalar_add_impl!(i64)
+scalar_add_impl!(i32)
+scalar_add_impl!(i16)
+scalar_add_impl!(i8)
+scalar_add_impl!(float)
+scalar_add_impl!(uint)
+scalar_add_impl!(int)
+
+scalar_sub_impl!(f64)
+scalar_sub_impl!(f32)
+scalar_sub_impl!(u64)
+scalar_sub_impl!(u32)
+scalar_sub_impl!(u16)
+scalar_sub_impl!(u8)
+scalar_sub_impl!(i64)
+scalar_sub_impl!(i32)
+scalar_sub_impl!(i16)
+scalar_sub_impl!(i8)
+scalar_sub_impl!(float)
+scalar_sub_impl!(uint)
+scalar_sub_impl!(int)
+
+impl<N: ToStr + Clone> ToStr for DMat<N> {
+    fn to_str(&self) -> ~str {
+        let mut res = ~"DMat ";
+        res = res + self.nrows.to_str() + " " + self.ncols.to_str() + " {\n";
+
+        for i in range(0u, self.nrows) {
+            for j in range(0u, self.ncols) {
+                res = res + " " + unsafe { self.at_fast(i, j).to_str() };
+            }
+
+            res = res + "\n";
+        }
+        res = res + "}";
+
+        res
     }
 }

@@ -31,6 +31,22 @@ pub trait Outer<V, M> {
     fn outer(&self, other: &V) -> M;
 }
 
+/// Trait for computing the covariance of a set of data.
+pub trait Cov<M> {
+    /// Computes the covariance of the obsevations stored by `self`:
+    ///     * for matrices, observations are stored in its rows.
+    ///     * for vectors, observations are stored in its components (thus are 1-dimensional).
+    fn cov(&self) -> M;
+}
+
+/// Trait for computing the covariance of a set of data.
+pub trait Mean<N> {
+    /// Computes the mean of the observations stored by `self`.
+    ///     * for matrices, observations are stored in its rows.
+    ///     * for vectors, observations are stored in its components (thus are 1-dimensional).
+    fn mean(&self) -> N;
+}
+
 // XXX: those two traits should not exist since there is generalized operator overloading of Add
 // and Sub.
 // However, using the same trait multiple time as a trait bound (ex: impl<T: Add<N, V> + Add<V, V>)
