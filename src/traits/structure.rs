@@ -8,7 +8,8 @@ use traits::geometry::{Dot, Norm, UniformSphereSample};
 /// A matrix has rows and columns and are able to multiply them.
 pub trait Mat<R, C> : Row<R> + Col<C> + RMul<R> + LMul<C> { }
 
-impl<M: Row<R> + Col<C> + RMul<R> + LMul<C>, R, C> Mat<R, C> for M;
+impl<M: Row<R> + Col<C> + RMul<R> + LMul<C>, R, C> Mat<R, C> for M {
+}
 
 /// Trait of matrices which can be converted to another matrix.
 ///
@@ -39,20 +40,19 @@ pub trait VecExt<N>: Vec<N> + Basis + Indexable<uint, N> + Iterable<N> + Round +
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
-pub trait AlgebraicVecExt<N: Algebraic>: AlgebraicVec<N> + VecExt<N>
-{ }
+pub trait AlgebraicVecExt<N: Algebraic>: AlgebraicVec<N> + VecExt<N> { }
 
 impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + Eq + Mul<N, V> + Div<N, V> + Dot<N>>
-Vec<N> for V;
+Vec<N> for V { }
 
-impl<N: Algebraic, V: Vec<N> + Norm<N>> AlgebraicVec<N> for V;
+impl<N: Algebraic, V: Vec<N> + Norm<N>> AlgebraicVec<N> for V { }
 
 impl<N,
      V: Vec<N> + Basis + Indexable<uint, N> + Iterable<N> + Round +
         UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded + Orderable>
-VecExt<N> for V;
+VecExt<N> for V { }
 
-impl<N: Algebraic, V: AlgebraicVec<N> + VecExt<N>> AlgebraicVecExt<N> for V;
+impl<N: Algebraic, V: AlgebraicVec<N> + VecExt<N>> AlgebraicVecExt<N> for V { }
 
 /// Trait of vectors which can be converted to another vector. Used to change the type of a vector
 /// components.

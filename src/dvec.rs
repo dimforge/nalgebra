@@ -241,7 +241,7 @@ impl<N: Neg<N>> Neg<DVec<N>> for DVec<N> {
     }
 }
 
-impl<N: Num> Dot<N> for DVec<N> {
+impl<N: Num + Clone> Dot<N> for DVec<N> {
     #[inline]
     fn dot(&self, other: &DVec<N>) -> N {
         assert!(self.at.len() == other.at.len());
@@ -249,7 +249,7 @@ impl<N: Num> Dot<N> for DVec<N> {
         let mut res: N = Zero::zero();
 
         for i in range(0u, self.at.len()) {
-            res = res + self.at[i] * other.at[i];
+            res = res + unsafe { self.at_fast(i) * other.at_fast(i) };
         }
 
         res
@@ -260,7 +260,7 @@ impl<N: Num> Dot<N> for DVec<N> {
         let mut res: N = Zero::zero();
 
         for i in range(0u, self.at.len()) {
-            res = res + (self.at[i] - a.at[i]) * b.at[i];
+            res = res + unsafe { (self.at_fast(i) - a.at_fast(i)) * b.at_fast(i) };
         }
 
         res

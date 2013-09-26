@@ -254,4 +254,5 @@ pub trait RotationWithTranslation<LV: Neg<LV>, AV>: Rotation<AV> + Translation<L
     }
 }
 
-impl<LV: Neg<LV>, AV, M: Rotation<AV> + Translation<LV>> RotationWithTranslation<LV, AV> for M;
+impl<LV: Neg<LV>, AV, M: Rotation<AV> + Translation<LV>> RotationWithTranslation<LV, AV> for M {
+}
