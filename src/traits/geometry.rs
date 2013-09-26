@@ -1,3 +1,6 @@
+//! Traits of operations having a well-known or explicit geometric meaning.
+
+
 use traits::structure::Mat;
 
 /// Trait of object which represent a translation, and to wich new translation
@@ -105,9 +108,11 @@ pub trait Dot<N> {
     /**
      * Short-cut to compute the projection of a point on a vector, but without
      * computing intermediate vectors.
-     * This must be equivalent to:
+     * The following equation must be verified:
      *
-     *   (a - b).dot(c)
+     * ~~~{.rust}
+     *   a.sub_dot(b, c) == (a - b).dot(c)
+     * ~~~
      *
      */
     #[inline]

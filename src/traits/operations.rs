@@ -1,3 +1,6 @@
+//! Low level operations on vectors and matrices.
+
+
 /// Trait of objects having an absolute value.
 /// This is useful if the object does not have the same type as its absolute value.
 pub trait Absolute<A> {
@@ -34,16 +37,18 @@ pub trait Outer<V, M> {
 /// Trait for computing the covariance of a set of data.
 pub trait Cov<M> {
     /// Computes the covariance of the obsevations stored by `self`:
-    ///     * for matrices, observations are stored in its rows.
-    ///     * for vectors, observations are stored in its components (thus are 1-dimensional).
+    ///
+    ///   * For matrices, observations are stored in its rows.
+    ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
     fn cov(&self) -> M;
 }
 
 /// Trait for computing the covariance of a set of data.
 pub trait Mean<N> {
     /// Computes the mean of the observations stored by `self`.
-    ///     * for matrices, observations are stored in its rows.
-    ///     * for vectors, observations are stored in its components (thus are 1-dimensional).
+    /// 
+    ///   * For matrices, observations are stored in its rows.
+    ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
     fn mean(&self) -> N;
 }
 

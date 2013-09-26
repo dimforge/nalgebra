@@ -1,3 +1,5 @@
+//! Traits giving structural informations on linear algebra objects or the space they live in.
+
 use std::num::Zero;
 use std::vec::{VecIterator, VecMutIterator};
 use traits::operations::{RMul, LMul, ScalarAdd, ScalarSub};

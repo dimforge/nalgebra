@@ -28,18 +28,10 @@ pub mod adaptors {
     pub mod transform;
 }
 
-/// Traits implemented by matrices and vectors.
-/// 
-/// They should not be imported from here since all of them are re-exported by the `mat` or the
-/// `vec` module.
+/// Traits implemented by matrices and vectors. Re-exported by the `mat` or the `vec` module.
 pub mod traits {
-    /// Traits of operations having a well-known or explicit geometric meaning.
     pub mod geometry;
-
-    /// Traits giving structural informations on linear algebra objects or the space they live in.
     pub mod structure;
-
-    /// Low level operations on vectors and matrices.
     pub mod operations;
 }
 

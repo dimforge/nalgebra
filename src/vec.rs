@@ -1,6 +1,6 @@
 //! Vectors with dimensions known at compile-time.
 
-#[doc(hidden)]; // we hide doc to not have to document the $trhs double dispatch trait.
+#[allow(missing_doc)]; // we allow missing to avoid having to document the vector components.
 
 use std::cast;
 use std::num::{Zero, One, Algebraic, Bounded};
