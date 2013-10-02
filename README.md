@@ -46,6 +46,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 * [nphysics](https://github.com/sebcrozet/nphysics): a real-time physics engine.
 * [ncollide](https://github.com/sebcrozet/ncollide): a collision detection library.
 * [kiss3d](https://github.com/sebcrozet/kiss3d): a minimalistic graphics engine.
+* [frog](https://github.com/natal/frog): a machine learning library.
 
 ## Design note
 
