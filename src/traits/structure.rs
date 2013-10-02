@@ -36,13 +36,13 @@ pub trait AlgebraicVec<N: Algebraic>: Vec<N> + Norm<N> {
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
-pub trait VecExt<N>: Vec<N> + Basis + Indexable<uint, N> + Iterable<N> + Round +
+pub trait VecExt<N>: Vec<N> + Indexable<uint, N> + Iterable<N> + Round +
                      UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded + Orderable
 { }
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
-pub trait AlgebraicVecExt<N: Algebraic>: AlgebraicVec<N> + VecExt<N> { }
+pub trait AlgebraicVecExt<N: Algebraic>: AlgebraicVec<N> + VecExt<N> + Basis { }
 
 impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + Eq + Mul<N, V> + Div<N, V> + Dot<N>>
 Vec<N> for V { }
@@ -50,11 +50,11 @@ Vec<N> for V { }
 impl<N: Algebraic, V: Vec<N> + Norm<N>> AlgebraicVec<N> for V { }
 
 impl<N,
-     V: Vec<N> + Basis + Indexable<uint, N> + Iterable<N> + Round +
+     V: Vec<N> + Indexable<uint, N> + Iterable<N> + Round +
         UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded + Orderable>
 VecExt<N> for V { }
 
-impl<N: Algebraic, V: AlgebraicVec<N> + VecExt<N>> AlgebraicVecExt<N> for V { }
+impl<N: Algebraic, V: AlgebraicVec<N> + VecExt<N> + Basis> AlgebraicVecExt<N> for V { }
 
 /// Trait of vectors which can be converted to another vector. Used to change the type of a vector
 /// components.
