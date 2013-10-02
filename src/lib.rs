@@ -42,6 +42,7 @@ mod spec {
     mod mat;
     mod vec0;
     mod vec;
+    // mod complex;
 }
 // mod lower_triangular;
 // mod chol;

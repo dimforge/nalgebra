@@ -11,6 +11,7 @@ use vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
 use mat::Mat3;
 
 /// Matrix-Vector wrapper used to represent a matrix multiplication followed by a translation.
+///
 /// Usually, a matrix in homogeneous coordinate is used to be able to apply an affine transform with
 /// a translation to a vector. This is weird because it makes a `n`-dimentional transformation be
 /// an `n + 1`-matrix. Using the `Transform` wrapper avoid homogeneous coordinates by having the
@@ -78,8 +79,8 @@ impl<N: Clone + Num + Algebraic> Transform<Vec3<N>, Rotmat<Mat3<N>>> {
     /// # Arguments
     ///   * eye - The new translation of the transformation.
     ///   * at - The point to look at. `at - eye` is the direction the matrix `x` axis will be
-    ///   aligned with
-    ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
+    ///   aligned with.
+    ///   * up - Vector pointing up. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at(&mut self, eye: &Vec3<N>, at: &Vec3<N>, up: &Vec3<N>) {
         self.submat.look_at(&(*at - *eye), up);

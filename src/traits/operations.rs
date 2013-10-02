@@ -17,9 +17,7 @@ pub trait Inv {
     fn inplace_inverse(&mut self) -> bool;
 }
 
-/// Trait of objects which can be transposed. Note that, for the moment, this
-/// does not allow the implementation by non-square matrix (or anything which
-/// is not stable by transposition).
+/// Trait of objects which can be transposed.
 pub trait Transpose {
     /// Computes the transpose of a matrix.
     fn transposed(&self) -> Self;

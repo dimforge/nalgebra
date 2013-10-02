@@ -11,9 +11,11 @@ use mat::{Mat2, Mat3};
 #[path = "../metal.rs"]
 mod metal;
 
-/// Matrix wrapper representing rotation matrix. It is built uppon another matrix and ensures (at
-/// the type-level) that it will always represent a rotation. Rotation matrices have some
-/// properties useful for performances, like the fact that the inversion is simply a transposition.
+/// Matrix wrapper representing rotation matrix.
+///
+/// It is built uppon another matrix and ensures (at the type-level) that it will always represent
+/// a rotation. Rotation matrices have some properties useful for performances, like the fact that
+/// the inversion is simply a transposition.
 #[deriving(Eq, ToStr, Clone)]
 pub struct Rotmat<M> {
     priv submat: M
