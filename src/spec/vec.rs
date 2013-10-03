@@ -1,5 +1,5 @@
 use std::num::{Zero, One};
-use vec::{Vec1, Vec2, Vec3, Norm, VecCast, UniformSphereSample, Cross, CrossMatrix, Basis};
+use vec::{Vec1, Vec2, Vec3, Vec4, Norm, VecCast, UniformSphereSample, Cross, CrossMatrix, Basis};
 use mat::{Mat3, Row};
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
@@ -205,5 +205,15 @@ impl<N: NumCast + Clone> UniformSphereSample for Vec3<N> {
         for sample in SAMPLES_3_F64.iter() {
             f(VecCast::from(*sample))
         }
+    }
+}
+
+impl<N: NumCast + Clone> UniformSphereSample for Vec4<N> {
+    #[inline(always)]
+    fn sample(_: &fn(Vec4<N>)) {
+        fail!("UniformSphereSample::<Vec4<N>>::sample : Not yet implemented.")
+        // for sample in SAMPLES_3_F64.iter() {
+        //     f(VecCast::from(*sample))
+        // }
     }
 }

@@ -5,8 +5,8 @@ use traits::geometry::{Cross, Rotation, Rotate, RotationMatrix, AbsoluteRotate, 
                        ToHomogeneous, Norm};
 use traits::structure::{Dim, Row, Col, Indexable};
 use traits::operations::{Inv, Transpose, Absolute};
-use vec::{Vec1, Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
-use mat::{Mat2, Mat3};
+use vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
+use mat::{Mat2, Mat3, Mat4};
 
 #[path = "../metal.rs"]
 mod metal;
@@ -293,6 +293,13 @@ impl<M: Mul<M, M>> RotmatMulRhs<M, Rotmat<M>> for Rotmat<M> {
 /*
  * Right/Left multiplication implementation for Vec3 and Vec2.
  */
+impl<M: Mul<Vec4<N>, Vec4<N>>, N> RotmatMulRhs<M, Vec4<N>> for Vec4<N> {
+    #[inline]
+    fn binop(left: &Rotmat<M>, right: &Vec4<N>) -> Vec4<N> {
+        left.submat * *right 
+    }
+}
+
 impl<M: Mul<Vec3<N>, Vec3<N>>, N> RotmatMulRhs<M, Vec3<N>> for Vec3<N> {
     #[inline]
     fn binop(left: &Rotmat<M>, right: &Vec3<N>) -> Vec3<N> {
@@ -304,6 +311,13 @@ impl<M: Mul<Vec2<N>, Vec2<N>>, N> RotmatMulRhs<M, Vec2<N>> for Vec2<N> {
     #[inline]
     fn binop(left: &Rotmat<M>, right: &Vec2<N>) -> Vec2<N> {
         left.submat * *right 
+    }
+}
+
+impl<N, M: Vec4MulRhs<N, Vec4<N>>> Vec4MulRhs<N, Vec4<N>> for Rotmat<M> {
+    #[inline]
+    fn binop(left: &Vec4<N>, right: &Rotmat<M>) -> Vec4<N> {
+        *left * right.submat
     }
 }
 
@@ -411,6 +425,32 @@ impl<M: Absolute<M2>, M2> Absolute<M2> for Rotmat<M> {
     #[inline]
     fn absolute(&self) -> M2 {
         self.submat.absolute()
+    }
+}
+
+impl<N: Signed> AbsoluteRotate<Vec4<N>> for Rotmat<Mat4<N>> {
+    #[inline]
+    fn absolute_rotate(&self, v: &Vec4<N>) -> Vec4<N> {
+        Vec4::new(
+            self.submat.m11.abs() * v.x +
+            self.submat.m12.abs() * v.y +
+            self.submat.m13.abs() * v.z +
+            self.submat.m14.abs() * v.w,
+
+            self.submat.m21.abs() * v.x +
+            self.submat.m22.abs() * v.y +
+            self.submat.m23.abs() * v.z +
+            self.submat.m24.abs() * v.w,
+
+            self.submat.m31.abs() * v.x +
+            self.submat.m32.abs() * v.y +
+            self.submat.m33.abs() * v.z +
+            self.submat.m34.abs() * v.w,
+
+            self.submat.m41.abs() * v.x +
+            self.submat.m42.abs() * v.y +
+            self.submat.m43.abs() * v.z +
+            self.submat.m44.abs() * v.w)
     }
 }
 

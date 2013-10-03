@@ -94,15 +94,15 @@ pub type Mat4f64 = Mat4<f64>;
 /// 4-dimensional `f32`-valued matrix.
 pub type Mat4f32 = Mat4<f32>;
 
-// /// 4-dimensional `f64`-valued rotation matrix.
-// pub type Rot4f64 = Rotmat<Mat4<f64>>;
-// /// 4-dimensional `f32`-valued rotation matrix.
-// pub type Rot4f32 = Rotmat<Mat4<f32>>;
-// 
-// /// 4-dimensional `f64`-valued isometric transform.
-// pub type Iso4f64 = Transform<Rot4f64, Vec4f64>;
-// /// 4-dimensional `f32`-valued isometric transform.
-// pub type Iso4f32 = Transform<Rot4f32, Vec4f32>;
+/// 4-dimensional `f64`-valued rotation matrix.
+pub type Rot4f64 = Rotmat<Mat4<f64>>;
+/// 4-dimensional `f32`-valued rotation matrix.
+pub type Rot4f32 = Rotmat<Mat4<f32>>;
+
+/// 4-dimensional `f64`-valued isometric transform.
+pub type Iso4f64 = Transform<Vec4f64, Mat4f64>;
+/// 4-dimensional `f32`-valued isometric transform.
+pub type Iso4f32 = Transform<Vec4f32, Mat4f32>;
 
 /// 4-dimensional `f64`-valued general transform.
 pub type Aff4f64 = Transform<Vec4f64, Mat4f64>;
