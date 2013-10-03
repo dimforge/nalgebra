@@ -287,6 +287,28 @@ macro_rules! sub_impl(
     )
 )
 
+macro_rules! mul_impl(
+    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Clone + Mul<N, N>> $trhs<N, $t<N>> for $t<N> {
+            #[inline]
+            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
+                $t::new(left.$comp0 * right.$comp0 $(, left.$compN * right.$compN)*)
+            }
+        }
+    )
+)
+
+macro_rules! div_impl(
+    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Clone + Div<N, N>> $trhs<N, $t<N>> for $t<N> {
+            #[inline]
+            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
+                $t::new(left.$comp0 / right.$comp0 $(, left.$compN / right.$compN)*)
+            }
+        }
+    )
+)
+
 macro_rules! neg_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + Neg<N>> Neg<$t<N>> for $t<N> {
