@@ -200,7 +200,7 @@ macro_rules! row_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
     impl<N: Clone + Zero> Row<$tv<N>> for $t<N> {
         #[inline]
-        fn num_rows(&self) -> uint {
+        fn nrows(&self) -> uint {
             Dim::dim(None::<$t<N>>)
         }
 
@@ -229,7 +229,7 @@ macro_rules! col_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
     impl<N: Clone + Zero> Col<$tv<N>> for $t<N> {
         #[inline]
-        fn num_cols(&self) -> uint {
+        fn ncols(&self) -> uint {
             Dim::dim(None::<$t<N>>)
         }
 
@@ -326,35 +326,15 @@ macro_rules! mat_mul_vec_impl(
   )
 )
 
-macro_rules! transform_impl(
-  ($t: ident, $v: ident) => (
-    impl<N: Clone + Num + Eq>
-    Transform<$v<N>> for $t<N> {
-        #[inline]
-        fn transform(&self, v: &$v<N>) -> $v<N> {
-            self.rmul(v)
-        }
-
-        #[inline]
-        fn inv_transform(&self, v: &$v<N>) -> $v<N> {
-            match self.inverse() {
-                Some(t) => t.transform(v),
-                None    => fail!("Cannot use inv_transform on a non-inversible matrix.")
-            }
-        }
-    }
-  )
-)
-
 macro_rules! inv_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Clone + Eq + Num>
     Inv for $t<N> {
         #[inline]
-        fn inverse(&self) -> Option<$t<N>> {
+        fn inverted(&self) -> Option<$t<N>> {
             let mut res : $t<N> = self.clone();
 
-            if res.inplace_inverse() {
+            if res.invert() {
                 Some(res)
             }
             else {
@@ -362,7 +342,7 @@ macro_rules! inv_impl(
             }
         }
 
-        fn inplace_inverse(&mut self) -> bool {
+        fn invert(&mut self) -> bool {
             let mut res: $t<N> = One::one();
             let     _0N: N     = Zero::zero();
 
@@ -528,7 +508,7 @@ macro_rules! from_homogeneous_impl(
 
 macro_rules! outer_impl(
     ($t: ident, $m: ident) => (
-        impl<N: Mul<N, N> + Zero + Clone> Outer<$t<N>, $m<N>> for $t<N> {
+        impl<N: Mul<N, N> + Zero + Clone> Outer<$m<N>> for $t<N> {
             #[inline]
             fn outer(&self, other: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = Zero::zero();

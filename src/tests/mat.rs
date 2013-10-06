@@ -1,16 +1,14 @@
 use std::num::{Real, One, abs};
 use std::rand::random;
 use std::cmp::ApproxEq;
-use vec::*;
-use mat::*;
-use adaptors::rotmat::Rotmat;
+use na::*;
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
     do 10000.times {
       let randmat : $t = random();
 
-      assert!((randmat.inverse().unwrap() * randmat).approx_eq(&One::one()));
+      assert!((randmat.inverted().unwrap() * randmat).approx_eq(&One::one()));
     }
   );
 )
@@ -88,7 +86,7 @@ fn test_inv_mat6() {
 #[test]
 fn test_rotation2() {
     do 10000.times {
-        let randmat: Rotmat<Mat2<f64>> = One::one();
+        let randmat: Rot2<f64> = One::one();
         let ang     = &Vec1::new(abs::<f64>(random()) % Real::pi());
 
         assert!(randmat.rotated(ang).rotation().approx_eq(ang));
@@ -105,7 +103,7 @@ fn test_index_mat2() {
 #[test]
 fn test_inv_rotation3() {
     do 10000.times {
-        let randmat: Rotmat<Mat3<f64>> = One::one();
+        let randmat: Rot3<f64> = One::one();
         let dir: Vec3<f64> = random();
         let ang            = &(dir.normalized() * (abs::<f64>(random()) % Real::pi()));
         let rot            = randmat.rotated(ang);

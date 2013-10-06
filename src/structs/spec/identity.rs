@@ -1,5 +1,5 @@
 use std::num::{One, Zero};
-use mat;
+use structs::mat;
 use traits::operations::{Inv, Transpose};
 use traits::geometry::{Translation, Translate, Rotation, Rotate, Transformation, Transform};
 
@@ -11,11 +11,11 @@ impl One for mat::Identity {
 }
 
 impl Inv for mat::Identity {
-    fn inverse(&self) -> Option<mat::Identity> {
+    fn inverted(&self) -> Option<mat::Identity> {
         Some(mat::Identity::new())
     }
 
-    fn inplace_inverse(&mut self) -> bool {
+    fn invert(&mut self) -> bool {
         true
     }
 }

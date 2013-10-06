@@ -6,17 +6,12 @@ use std::cast;
 use std::num::{One, Zero};
 use std::cmp::ApproxEq;
 use std::vec::{VecIterator, VecMutIterator};
-use vec::*;
+use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Vec1MulRhs, Vec4MulRhs,
+                   Vec5MulRhs, Vec6MulRhs};
 
-// traits
-pub use traits::structure::{Mat, Dim, Indexable, Iterable, IterableMut, MatCast, Row, Col};
-pub use traits::operations::{Absolute, ScalarSub, ScalarAdd, Inv, RMul, Transpose, Mean, Cov};
-pub use traits::geometry::{Rotation, RotationMatrix, Rotate, Transformation, Transform,
-                           Translation, Translate, ToHomogeneous, FromHomogeneous,
-                           RotationWithTranslation, AbsoluteRotate};
-
-// structs
-pub use dmat::DMat;
+use traits::structure::{MatCast, Row, Col, Iterable, IterableMut, Dim, Indexable};
+use traits::operations::{Absolute, Transpose, Inv, Outer};
+use traits::geometry::{ToHomogeneous, FromHomogeneous};
 
 mod metal;
 mod mat_macros;
@@ -118,7 +113,6 @@ indexable_impl!(Mat1, 1)
 mat_mul_mat_impl!(Mat1, Mat1MulRhs, 1)
 mat_mul_vec_impl!(Mat1, Vec1, Mat1MulRhs, 1)
 vec_mul_mat_impl!(Mat1, Vec1, Vec1MulRhs, 1)
-transform_impl!(Mat1, Vec1)
 // (specialized) inv_impl!(Mat1, 1)
 transpose_impl!(Mat1, 1)
 approx_eq_impl!(Mat1)
@@ -214,7 +208,6 @@ at_fast_impl!(Mat2, 2)
 // (specialized) mul_impl!(Mat2, 2)
 // (specialized) rmul_impl!(Mat2, Vec2, 2)
 // (specialized) lmul_impl!(Mat2, Vec2, 2)
-transform_impl!(Mat2, Vec2)
 // (specialized) inv_impl!(Mat2, 2)
 transpose_impl!(Mat2, 2)
 approx_eq_impl!(Mat2)
@@ -324,7 +317,6 @@ at_fast_impl!(Mat3, 3)
 // (specialized) mul_impl!(Mat3, 3)
 // (specialized) rmul_impl!(Mat3, Vec3, 3)
 // (specialized) lmul_impl!(Mat3, Vec3, 3)
-transform_impl!(Mat3, Vec3)
 // (specialized) inv_impl!(Mat3, 3)
 transpose_impl!(Mat3, 3)
 approx_eq_impl!(Mat3)
@@ -486,7 +478,6 @@ at_fast_impl!(Mat4, 4)
 mat_mul_mat_impl!(Mat4, Mat4MulRhs, 4)
 mat_mul_vec_impl!(Mat4, Vec4, Mat4MulRhs, 4)
 vec_mul_mat_impl!(Mat4, Vec4, Vec4MulRhs, 4)
-transform_impl!(Mat4, Vec4)
 inv_impl!(Mat4, 4)
 transpose_impl!(Mat4, 4)
 approx_eq_impl!(Mat4)
@@ -664,7 +655,6 @@ at_fast_impl!(Mat5, 5)
 mat_mul_mat_impl!(Mat5, Mat5MulRhs, 5)
 mat_mul_vec_impl!(Mat5, Vec5, Mat5MulRhs, 5)
 vec_mul_mat_impl!(Mat5, Vec5, Vec5MulRhs, 5)
-transform_impl!(Mat5, Vec5)
 inv_impl!(Mat5, 5)
 transpose_impl!(Mat5, 5)
 approx_eq_impl!(Mat5)
@@ -894,7 +884,6 @@ at_fast_impl!(Mat6, 6)
 mat_mul_mat_impl!(Mat6, Mat6MulRhs, 6)
 mat_mul_vec_impl!(Mat6, Vec6, Mat6MulRhs, 6)
 vec_mul_mat_impl!(Mat6, Vec6, Vec6MulRhs, 6)
-transform_impl!(Mat6, Vec6)
 inv_impl!(Mat6, 6)
 transpose_impl!(Mat6, 6)
 approx_eq_impl!(Mat6)

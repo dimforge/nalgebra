@@ -9,16 +9,9 @@ use std::vec::{VecIterator, VecMutIterator};
 use std::iter::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
 
-use traits::geometry::{Transform, Rotate};
-
-pub use traits::geometry::{FromHomogeneous, ToHomogeneous, Dot, Norm, Cross, CrossMatrix,
-                           Translation, Translate, UniformSphereSample};
-pub use traits::structure::{VecCast, Vec, VecExt, AlgebraicVec, AlgebraicVecExt, Basis, Dim,
-                            Indexable, Iterable, IterableMut};
-pub use traits::operations::{Outer, ScalarAdd, ScalarSub};
-
-// structs
-pub use dvec::DVec;
+use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
+                       Translation, Translate};
+use traits::structure::{VecCast, Basis, Dim, Indexable, Iterable, IterableMut};
 
 mod metal;
 mod vec_macros;

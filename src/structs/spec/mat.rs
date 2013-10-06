@@ -1,16 +1,18 @@
 use std::num::{Zero, One};
-use vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
-use mat::{Mat1, Mat2, Mat3, Inv, Row, Col, Mat3MulRhs, Mat2MulRhs};
-use mat;
+use structs::vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
+use structs::mat::{Mat1, Mat2, Mat3, Mat3MulRhs, Mat2MulRhs};
+use structs::mat;
+use traits::operations::{Inv};
+use traits::structure::{Row, Col};
 
 // some specializations:
 impl<N: Num + Clone>
 Inv for Mat1<N> {
     #[inline]
-    fn inverse(&self) -> Option<Mat1<N>> {
+    fn inverted(&self) -> Option<Mat1<N>> {
         let mut res : Mat1<N> = self.clone();
 
-        if res.inplace_inverse() {
+        if res.invert() {
             Some(res)
         }
         else {
@@ -19,7 +21,7 @@ Inv for Mat1<N> {
     }
 
     #[inline]
-    fn inplace_inverse(&mut self) -> bool {
+    fn invert(&mut self) -> bool {
         if self.m11.is_zero() {
             false
         }
@@ -34,10 +36,10 @@ Inv for Mat1<N> {
 impl<N: Num + Clone>
 Inv for Mat2<N> {
     #[inline]
-    fn inverse(&self) -> Option<Mat2<N>> {
+    fn inverted(&self) -> Option<Mat2<N>> {
         let mut res : Mat2<N> = self.clone();
 
-        if res.inplace_inverse() {
+        if res.invert() {
             Some(res)
         }
         else {
@@ -46,7 +48,7 @@ Inv for Mat2<N> {
     }
 
     #[inline]
-    fn inplace_inverse(&mut self) -> bool {
+    fn invert(&mut self) -> bool {
         let det = self.m11 * self.m22 - self.m21 * self.m12;
 
         if det.is_zero() {
@@ -65,10 +67,10 @@ Inv for Mat2<N> {
 impl<N: Num + Clone>
 Inv for Mat3<N> {
     #[inline]
-    fn inverse(&self) -> Option<Mat3<N>> {
+    fn inverted(&self) -> Option<Mat3<N>> {
         let mut res = self.clone();
 
-        if res.inplace_inverse() {
+        if res.invert() {
             Some(res)
         }
         else {
@@ -77,7 +79,7 @@ Inv for Mat3<N> {
     }
 
     #[inline]
-    fn inplace_inverse(&mut self) -> bool {
+    fn invert(&mut self) -> bool {
         let minor_m12_m23 = self.m22 * self.m33 - self.m32 * self.m23;
         let minor_m11_m23 = self.m21 * self.m33 - self.m31 * self.m23;
         let minor_m11_m22 = self.m21 * self.m32 - self.m31 * self.m22;
@@ -111,7 +113,7 @@ Inv for Mat3<N> {
 
 impl<N: Clone> Row<Vec3<N>> for Mat3<N> {
     #[inline]
-    fn num_rows(&self) -> uint {
+    fn nrows(&self) -> uint {
         3
     }
 
@@ -151,7 +153,7 @@ impl<N: Clone> Row<Vec3<N>> for Mat3<N> {
 
 impl<N: Clone> Col<Vec3<N>> for Mat3<N> {
     #[inline]
-    fn num_cols(&self) -> uint {
+    fn ncols(&self) -> uint {
         3
     }
 

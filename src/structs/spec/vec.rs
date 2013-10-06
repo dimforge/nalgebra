@@ -1,6 +1,8 @@
 use std::num::{Zero, One};
-use vec::{Vec1, Vec2, Vec3, Vec4, Norm, VecCast, UniformSphereSample, Cross, CrossMatrix, Basis};
-use mat::{Mat3, Row};
+use traits::structure::{VecCast, Row, Basis};
+use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
+use structs::vec::{Vec1, Vec2, Vec3, Vec4};
+use structs::mat::Mat3;
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
     #[inline]
@@ -39,10 +41,10 @@ impl<N: Neg<N> + Zero + Clone> CrossMatrix<Mat3<N>> for Vec3<N> {
     }
 }
 
-// FIXME: iplement this for all other vectors
+// FIXME: implement this for all other vectors
 impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
     #[inline]
-    fn num_rows(&self) -> uint {
+    fn nrows(&self) -> uint {
         2
     }
 

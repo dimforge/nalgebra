@@ -70,38 +70,12 @@ pub trait Basis {
 
     /// Iterates through a basis of the subspace orthogonal to `self`.
     fn orthonormal_subspace_basis(&self, &fn(Self) -> bool);
-
-    /// Creates the canonical basis of the space in which this object lives.
-    fn canonical_basis_list() -> ~[Self] {
-        let mut res = ~[];
-
-        do Basis::canonical_basis |elem| {
-            res.push(elem);
-
-            true
-        }
-
-        res
-    }
-
-    /// Creates a basis of the subspace orthogonal to `self`.
-    fn orthonormal_subspace_basis_list(&self) -> ~[Self] {
-        let mut res = ~[];
-
-        do self.orthonormal_subspace_basis |elem| {
-            res.push(elem);
-
-            true
-        }
-
-        res
-    }
 }
 
 /// Trait to access rows of a matrix or a vector.
 pub trait Row<R> {
     /// The number of column of `self`.
-    fn num_rows(&self) -> uint;
+    fn nrows(&self) -> uint;
     /// Reads the `i`-th row of `self`.
     fn row(&self, i: uint) -> R;
     /// Writes the `i`-th row of `self`.
@@ -114,7 +88,7 @@ pub trait Row<R> {
 /// Trait to access columns of a matrix or vector.
 pub trait Col<C> {
     /// The number of column of this matrix or vector.
-    fn num_cols(&self) -> uint;
+    fn ncols(&self) -> uint;
 
     /// Reads the `i`-th column of `self`.
     fn col(&self, i: uint) -> C;

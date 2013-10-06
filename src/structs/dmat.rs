@@ -1,6 +1,6 @@
 //! Matrix with dimensions unknown at compile-time.
 
-#[doc(hidden)]; // we hide doc to not have to document the $trhs double dispatch trait.
+#[allow(missing_doc)]; // we hide doc to not have to document the $trhs double dispatch trait.
 
 use std::rand::Rand;
 use std::rand;
@@ -8,7 +8,7 @@ use std::num::{One, Zero};
 use std::vec;
 use std::cmp::ApproxEq;
 use std::util;
-use dvec::{DVec, DVecMulRhs};
+use structs::dvec::{DVec, DVecMulRhs};
 use traits::operations::{Inv, Transpose, Mean, Cov};
 
 #[doc(hidden)]
@@ -277,10 +277,10 @@ DVecMulRhs<N, DVec<N>> for DMat<N> {
 impl<N: Clone + Num>
 Inv for DMat<N> {
     #[inline]
-    fn inverse(&self) -> Option<DMat<N>> {
+    fn inverted(&self) -> Option<DMat<N>> {
         let mut res : DMat<N> = self.clone();
 
-        if res.inplace_inverse() {
+        if res.invert() {
             Some(res)
         }
         else {
@@ -288,7 +288,7 @@ Inv for DMat<N> {
         }
     }
 
-    fn inplace_inverse(&mut self) -> bool {
+    fn invert(&mut self) -> bool {
         assert!(self.nrows == self.ncols);
 
         let dim              = self.nrows;

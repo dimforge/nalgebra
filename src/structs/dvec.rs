@@ -1,6 +1,6 @@
 //! Vector with dimensions unknown at compile-time.
 
-#[doc(hidden)]; // we hide doc to not have to document the $trhs double dispatch trait.
+#[allow(missing_doc)]; // we hide doc to not have to document the $trhs double dispatch trait.
 
 use std::num::{Zero, One, Algebraic};
 use std::rand::Rand;

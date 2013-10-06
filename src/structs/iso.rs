@@ -1,0 +1,115 @@
+//! Isometric transformations.
+
+#[allow(missing_doc)];
+
+use std::num::{Zero, One};
+use std::rand::{Rand, Rng};
+use structs::mat::{Mat3, Mat4, Mat5};
+use traits::structure::{Dim, Col};
+use traits::operations::{Inv};
+use traits::geometry::{RotationMatrix, Rotation, Rotate, AbsoluteRotate, Transform, Transformation,
+                       Translate, Translation, ToHomogeneous};
+
+use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
+use structs::rot::{Rot2, Rot3, Rot4};
+
+mod metal;
+mod iso_macros;
+
+/// Two dimensional isometry.
+///
+/// This is the composition of a rotation followed by a translation.
+/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr)]
+pub struct Iso2<N> {
+    /// The rotation applicable by this isometry.
+    rotation:    Rot2<N>,
+    /// The translation applicable by this isometry.
+    translation: Vec2<N>
+}
+
+/// Three dimensional isometry.
+///
+/// This is the composition of a rotation followed by a translation.
+/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr)]
+pub struct Iso3<N> {
+    /// The rotation applicable by this isometry.
+    rotation:    Rot3<N>,
+    /// The translation applicable by this isometry.
+    translation: Vec3<N>
+}
+
+/// Four dimensional isometry.
+///
+/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr)]
+pub struct Iso4<N> {
+    /// The rotation applicable by this isometry.
+    rotation:    Rot4<N>,
+    /// The translation applicable by this isometry.
+    translation: Vec4<N>
+}
+
+iso_impl!(Iso2, Rot2, Vec2)
+double_dispatch_binop_decl_trait!(Iso2, Iso2MulRhs)
+mul_redispatch_impl!(Iso2, Iso2MulRhs)
+rotation_matrix_impl!(Iso2, Rot2, Vec2, Vec1)
+rotation_impl!(Iso2, Rot2, Vec1)
+dim_impl!(Iso2, 2)
+one_impl!(Iso2)
+absolute_rotate_impl!(Iso2, Vec2)
+rand_impl!(Iso2)
+approx_eq_impl!(Iso2)
+to_homogeneous_impl!(Iso2, Mat3)
+inv_impl!(Iso2)
+transform_impl!(Iso2, Vec2)
+transformation_impl!(Iso2)
+rotate_impl!(Iso2, Vec2)
+translation_impl!(Iso2, Vec2)
+translate_impl!(Iso2, Vec2)
+iso_mul_iso_impl!(Iso2, Iso2MulRhs)
+iso_mul_vec_impl!(Iso2, Vec2, Iso2MulRhs)
+vec_mul_iso_impl!(Iso2, Vec2, Vec2MulRhs)
+
+iso_impl!(Iso3, Rot3, Vec3)
+double_dispatch_binop_decl_trait!(Iso3, Iso3MulRhs)
+mul_redispatch_impl!(Iso3, Iso3MulRhs)
+rotation_matrix_impl!(Iso3, Rot3, Vec3, Vec3)
+rotation_impl!(Iso3, Rot3, Vec3)
+dim_impl!(Iso3, 3)
+one_impl!(Iso3)
+absolute_rotate_impl!(Iso3, Vec3)
+rand_impl!(Iso3)
+approx_eq_impl!(Iso3)
+to_homogeneous_impl!(Iso3, Mat4)
+inv_impl!(Iso3)
+transform_impl!(Iso3, Vec3)
+transformation_impl!(Iso3)
+rotate_impl!(Iso3, Vec3)
+translation_impl!(Iso3, Vec3)
+translate_impl!(Iso3, Vec3)
+iso_mul_iso_impl!(Iso3, Iso3MulRhs)
+iso_mul_vec_impl!(Iso3, Vec3, Iso3MulRhs)
+vec_mul_iso_impl!(Iso3, Vec3, Vec3MulRhs)
+
+iso_impl!(Iso4, Rot4, Vec4)
+double_dispatch_binop_decl_trait!(Iso4, Iso4MulRhs)
+mul_redispatch_impl!(Iso4, Iso4MulRhs)
+// rotation_matrix_impl!(Iso4, Rot4, Vec4, Vec4)
+// rotation_impl!(Iso4, Rot4, Vec4)
+dim_impl!(Iso4, 4)
+one_impl!(Iso4)
+// absolute_rotate_impl!(Iso4, Vec4)
+// rand_impl!(Iso4)
+approx_eq_impl!(Iso4)
+to_homogeneous_impl!(Iso4, Mat5)
+inv_impl!(Iso4)
+transform_impl!(Iso4, Vec4)
+transformation_impl!(Iso4)
+// rotate_impl!(Iso4, Vec4)
+translation_impl!(Iso4, Vec4)
+translate_impl!(Iso4, Vec4)
+iso_mul_iso_impl!(Iso4, Iso4MulRhs)
+iso_mul_vec_impl!(Iso4, Vec4, Iso4MulRhs)
+vec_mul_iso_impl!(Iso4, Vec4, Vec4MulRhs)

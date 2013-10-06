@@ -12,9 +12,9 @@ pub trait Absolute<A> {
 /// Trait of objects having an inverse. Typically used to implement matrix inverse.
 pub trait Inv {
     /// Returns the inverse of `self`.
-    fn inverse(&self) -> Option<Self>;
+    fn inverted(&self) -> Option<Self>;
     /// In-place version of `inverse`.
-    fn inplace_inverse(&mut self) -> bool;
+    fn invert(&mut self) -> bool;
 }
 
 /// Trait of objects which can be transposed.
@@ -27,9 +27,9 @@ pub trait Transpose {
 }
 
 /// Traits of objects having an outer product.
-pub trait Outer<V, M> {
+pub trait Outer<M> {
     /// Computes the outer product: `self * other`
-    fn outer(&self, other: &V) -> M;
+    fn outer(&self, other: &Self) -> M;
 }
 
 /// Trait for computing the covariance of a set of data.

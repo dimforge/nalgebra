@@ -1,8 +1,7 @@
 use std::num::{Zero, One};
 use std::rand::{random};
 use std::cmp::ApproxEq;
-use vec::*;
-use mat::*;
+use na::*;
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (

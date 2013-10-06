@@ -1,8 +1,36 @@
-nalgebra
-========
+# nalgebra
 
-**nalgebra** is a _n_-dimensional linear algebra library written with the rust
-programming language.
+**nalgebra** is a linear algebra library written for Rust targeting:
+
+* general-purpose linear algebra (still misses a lot of features…).
+* real time computer graphics.
+* real time computer physics.
+
+## Using nalgebra
+All the functionalities of **nalgebra** are grouped in one place: the `na` module.
+This module re-exports everything and includes free functions for all traits methods.
+Free functions are useful if you prefer doing something like: `na::dot(v1, v2)` instead of
+`v1.dot(v2)`.
+
+* You can import the whole prelude, including free functions, using:
+
+```.rust
+pub use nalgebra::na::*;
+```
+
+* If you dont want to import everything but only every trait:
+
+```.rust
+pub use nalgebra::traits::*;
+```
+
+* If you dont want to import everything but only every structure:
+
+```.rust
+pub use nalgebra::structs::*;
+```
+Of course, you can still import `nalgebra::na` alone, and get anything you want using the `na`
+prefix.
 
 ## Features
 **nalgebra** is meant to be a general-purpose linear algebra library (but is very far from that…),
@@ -10,24 +38,29 @@ and keeps an optimized set of tools for computational graphics and physics. Thos
 
 * Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, ..., `Vec6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, ..., `Mat6 `.
+* Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
+* Isometries: `Iso2`, `Iso3`, `Iso4`.
 * Dynamically sized vector: `DVec`.
 * Dynamically sized (square or rectangular) matrix: `DMat`.
-* Geometry-specific matrix wrapper to ensure at compile-time some properties: `Rotmat`, `Transform`.
-* Most well-known geometric functions.
-* A few methods for data analysis: `Cov` (covariance), `Mean` (mean).
-* Operator overloading using the double trait dispatch [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/).
-This allows using operators for both matrix/matrix multiplication and matrix/vector
-multiplication for example.
-* Almost one trait per functionality. This is very useful for generic programming.
-
-Since there is almost one trait per functionality, one might end up importing a lot of traits. To
-lighten your `use` prelude, all trait are re-exported by the `nalgebra::vec` and `nalgebra::mat`
-modules. Thus, to bring every functionalities of `nalgebra` in scope, you can do:
+* A few methods for data analysis: `Cov`, `Mean`.
+* Operator overloading using the double trait dispatch [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/). For example, the following work:
 
 ```rust
-use nalgebra::vec::*;
-use nalgebra::mat::*;
+extern mod nalgebra;
+use nalgebra::na::{Vec3, Mat3};
+
+fn main() {
+    let v: Vec3<f64> = Zero::zero();
+    let m: Mat3<f64> = One::one();
+
+    let _ = m * v;   // matrix-vector multiplication.
+    let _ = v * m;   // vector-matrix multiplication.
+    let _ = m * m;   // matrix-matrix multiplication.
+    let _ = v * 2.0; // vector-scalar multiplication.
+}
 ```
+
+* Almost one trait per functionality: useful for generic programming.
 
 ## Compilation
 You will need the last rust compiler from the master branch.
@@ -37,21 +70,8 @@ If you encounter problems, make sure you have the last version before creating a
     cd nalgebra
     make
 
-There is also a light, but existing, documentation for most functionalities. Use `make doc` to
-generate it on the `doc` folder.
+You can build the documentation on the `doc` folder using:
 
-## nalgebra in use
-Feel free to add your project to this list if you happen to use **nalgebra**!
-
-* [nphysics](https://github.com/sebcrozet/nphysics): a real-time physics engine.
-* [ncollide](https://github.com/sebcrozet/ncollide): a collision detection library.
-* [kiss3d](https://github.com/sebcrozet/kiss3d): a minimalistic graphics engine.
-* [frog](https://github.com/natal/frog): a machine learning library.
-
-## Design note
-
-**nalgebra** is mostly written with non-idiomatic rust code. This is mostly because of limitations
-of the trait system not allowing (easy) multiple overloading. Those overloading problems ares
-worked around by this
-[hack](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/)
-(section _What if I want overloading_).
+```.rust
+make doc
+```

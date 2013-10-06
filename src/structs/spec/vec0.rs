@@ -5,7 +5,7 @@ use std::iter::{Iterator, FromIterator};
 use std::cmp::ApproxEq;
 use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim};
 use traits::geometry::{Translation, Dot, Norm};
-use vec;
+use structs::vec;
 
 impl<N> vec::Vec0<N> {
     /// Creates a new vector.

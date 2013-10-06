@@ -1,6 +1,6 @@
 use std::rand::random;
 use extra::test::BenchHarness;
-use vec::*;
+use na::*;
 
 macro_rules! bench_dot_vec(
     ($bh: expr, $t: ty) => {
