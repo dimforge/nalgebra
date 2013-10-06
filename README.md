@@ -9,25 +9,25 @@
 ## Using **nalgebra**
 All the functionalities of **nalgebra** are grouped in one place: the `na` module.
 This module re-exports everything and includes free functions for all traits methods.
-Free functions are useful if you prefer doing something like: `na::dot(v1, v2)` instead of
+Free functions are useful if you prefer doing something like `na::dot(v1, v2)` instead of
 `v1.dot(v2)`.
 
 * You can import the whole prelude, including free functions, using:
 
 ```.rust
-pub use nalgebra::na::*;
+use nalgebra::na::*;
 ```
 
 * If you dont want to import everything but only every trait:
 
 ```.rust
-pub use nalgebra::traits::*;
+use nalgebra::traits::*;
 ```
 
 * If you dont want to import everything but only every structure:
 
 ```.rust
-pub use nalgebra::structs::*;
+use nalgebra::structs::*;
 ```
 Of course, you can still import `nalgebra::na` alone, and get anything you want using the `na`
 prefix.
