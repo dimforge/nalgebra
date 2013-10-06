@@ -6,7 +6,7 @@
 * real time computer graphics.
 * real time computer physics.
 
-## Using nalgebra
+## Using **nalgebra**
 All the functionalities of **nalgebra** are grouped in one place: the `na` module.
 This module re-exports everything and includes free functions for all traits methods.
 Free functions are useful if you prefer doing something like: `na::dot(v1, v2)` instead of
@@ -36,15 +36,17 @@ prefix.
 **nalgebra** is meant to be a general-purpose linear algebra library (but is very far from that…),
 and keeps an optimized set of tools for computational graphics and physics. Those features include:
 
-* Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
-* Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
+* Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, ..., `Vec6`.
+* Square matrices with static sizes: `Mat1`, `Mat2`, ..., `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
 * Isometries: `Iso2`, `Iso3`, `Iso4`.
 * Dynamically sized vector: `DVec`.
 * Dynamically sized (square or rectangular) matrix: `DMat`.
-* A few methods for data analysis: `Cov`, `Mean`.
+* A few methods for data analysis: `Cov`, `Mean`.
 * Almost one trait per functionality: useful for generic programming.
-* Operator overloading using the double trait dispatch [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/). For example, the following works:
+* Operator overloading using the double trait dispatch
+  [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/).
+  For example, the following work:
 
 ```rust
 extern mod nalgebra;
@@ -75,3 +77,12 @@ You can build the documentation on the `doc` folder using:
 ```.rust
 make doc
 ```
+
+## **nalgebra** in use
+Here are some projects using **nalgebra**.
+Feel free to add your project to this list if you happen to use **nalgebra**!
+
+* [nphysics](https://github.com/sebcrozet/nphysics): a real-time physics engine.
+* [ncollide](https://github.com/sebcrozet/ncollide): a collision detection library.
+* [kiss3d](https://github.com/sebcrozet/kiss3d): a minimalistic graphics engine.
+* [frog](https://github.com/natal/frog): a machine learning library.

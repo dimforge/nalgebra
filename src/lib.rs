@@ -44,6 +44,7 @@ and keeps an optimized set of tools for computational graphics and physics. Thos
 * Dynamically sized vector: `DVec`.
 * Dynamically sized (square or rectangular) matrix: `DMat`.
 * A few methods for data analysis: `Cov`, `Mean`.
+* Almost one trait per functionality: useful for generic programming.
 * Operator overloading using the double trait dispatch
   [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/).
   For example, the following work:
@@ -63,8 +64,6 @@ fn main() {
     let _ = v * 2.0; // vector-scalar multiplication.
 }
 ```
-
-* Almost one trait per functionality: useful for generic programming.
 
 ## Compilation
 You will need the last rust compiler from the master branch.
