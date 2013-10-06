@@ -36,14 +36,15 @@ prefix.
 **nalgebra** is meant to be a general-purpose linear algebra library (but is very far from that…),
 and keeps an optimized set of tools for computational graphics and physics. Those features include:
 
-* Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, ..., `Vec6`.
-* Square matrices with static sizes: `Mat1`, `Mat2`, ..., `Mat6 `.
+* Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
+* Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
 * Isometries: `Iso2`, `Iso3`, `Iso4`.
 * Dynamically sized vector: `DVec`.
 * Dynamically sized (square or rectangular) matrix: `DMat`.
 * A few methods for data analysis: `Cov`, `Mean`.
-* Operator overloading using the double trait dispatch [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/). For example, the following work:
+* Almost one trait per functionality: useful for generic programming.
+* Operator overloading using the double trait dispatch [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/). For example, the following works:
 
 ```rust
 extern mod nalgebra;
@@ -59,8 +60,6 @@ fn main() {
     let _ = v * 2.0; // vector-scalar multiplication.
 }
 ```
-
-* Almost one trait per functionality: useful for generic programming.
 
 ## Compilation
 You will need the last rust compiler from the master branch.
