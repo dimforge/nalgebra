@@ -43,18 +43,19 @@ and keeps an optimized set of tools for computational graphics and physics. Thos
 * Isometries: `Iso2`, `Iso3`, `Iso4`.
 * Dynamically sized vector: `DVec`.
 * Dynamically sized (square or rectangular) matrix: `DMat`.
-* A few methods for data analysis: `Cov`, `Mean`.
+* A few methods for data analysis: `Cov`, `Mean`.
 * Operator overloading using the double trait dispatch
   [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/).
   For example, the following work:
 
 ```rust
 extern mod nalgebra;
+use std::num::{Zero, One};
 use nalgebra::na::{Vec3, Mat3};
 
 fn main() {
-    let v: Vec3<f64> = Zero::zero();
-    let m: Mat3<f64> = One::one();
+    let v: Vec3<f64> = Zero::zero();
+    let m: Mat3<f64> = One::one();
 
     let _ = m * v;   // matrix-vector multiplication.
     let _ = v * m;   // vector-matrix multiplication.
