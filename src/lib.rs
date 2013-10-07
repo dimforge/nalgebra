@@ -51,12 +51,12 @@ and keeps an optimized set of tools for computational graphics and physics. Thos
 
 ```rust
 extern mod nalgebra;
-use std::num::{Zero, One};
 use nalgebra::na::{Vec3, Mat3};
+use nalgebra::na;
 
 fn main() {
-    let v: Vec3<f64> = Zero::zero();
-    let m: Mat3<f64> = One::one();
+    let v: Vec3<f64> = na::zero();
+    let m: Mat3<f64> = na::one();
 
     let _ = m * v;   // matrix-vector multiplication.
     let _ = v * m;   // vector-matrix multiplication.

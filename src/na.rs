@@ -217,13 +217,40 @@ pub fn set_translation<V, M: Translation<V>>(m: &mut M, v: V) {
  * Translate<V>
  */
 
-/// FIXME
+/// Applies a translation to a vector.
+///
+/// ```rust
+/// extern mod nalgebra;
+/// use nalgebra::na;
+///
+/// pub main() {
+///     let t  = na::translation3d(1.0, 1.0, 1.0);
+///     let v  = na::vec3(2.0, 2.0, 2.0);
+///
+///     let tv = na::translate(&t, &v);
+///
+///     assert!(tv == na::vec3(3.0, 3.0, 3.0))
+/// }
+/// ```
 #[inline(always)]
 pub fn translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
     m.translate(v)
 }
 
-/// FIXME
+/// Applies an inverse translation to a vector.
+///
+/// ```rust
+/// extern mod nalgebra;
+/// use nalgebra::na;
+///
+/// pub main() {
+///     let t  = na::translation3d(1.0, 1.0, 1.0);
+///     let v  = na::vec3(2.0, 2.0, 2.0);
+///
+///     let tv = na::translate(&t, &v);
+///
+///     assert!(tv == na::vec3(1.0, 1.0, 1.0))
+/// }
 #[inline(always)]
 pub fn inv_translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
     m.inv_translate(v)
@@ -240,7 +267,7 @@ pub fn inv_translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t = na::rotation3d(1.0, 1.0, 1.0);
+///     let t = na::rot3(1.0, 1.0, 1.0);
 ///
 ///     assert!(na::rotation(t) == na::vec3(1.0, 1.0, 1.0));
 /// }
@@ -258,7 +285,7 @@ pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t = na::rotation3d(1.0, 1.0, 1.0);
+///     let t = na::rot3(1.0, 1.0, 1.0);
 ///
 ///     assert!(na::inv_rotation(t) == na::vec3(-1.0, -1.0, -1.0));
 /// }
@@ -268,19 +295,60 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
     m.inv_rotation()
 }
 
-/// FIXME
+/// Rotates an object in-place.
+///
+/// ```rust
+/// extern mod nalgebra;
+/// use nalgebra::na;
+///
+/// pub main() {
+///     let mut t = na::rot3(0.0, 0.0, 0.0);
+///     let v     = na::vec3(1.0, 1.0, 1.0);
+///
+///     na::rotate_by(&mut t, &v);
+///
+///     assert!(na::rotation(&t) == na::vec3(1.0, 1.0, 1.0))
+/// }
+/// ```
 #[inline(always)]
 pub fn rotate_by<V, M: Rotation<V>>(m: &mut M, v: &V) {
     m.rotate_by(v)
 }
 
-/// FIXME
+/// Creates a rotated copy of an object.
+///
+/// ```rust
+/// extern mod nalgebra;
+/// use nalgebra::na;
+///
+/// pub main() {
+///     let t  = na::rot3(0.0, 0.0, 0.0);
+///     let v  = na::vec3(1.0, 1.0, 1.0);
+///     let rt = na::rotated(&mut t, &v);
+///
+///     assert!(na::rotation(&rt) == na::vec3(1.0, 1.0, 1.0))
+/// }
+/// ```
 #[inline(always)]
 pub fn rotated<V, M: Rotation<V>>(m: &M, v: &V) -> M {
     m.rotated(v)
 }
 
-/// FIXME
+/// Sets the rotation of an object.
+///
+/// ```rust
+/// extern mod nalgebra;
+/// use nalgebra::na;
+///
+/// pub main() {
+///     let mut t = na::rot3(1.0, 0.5, 0.2);
+///     let v     = na::vec3(1.0, 1.0, 1.0);
+///
+///     na::set_rotation(&mut t, &v);
+///
+///     assert!(na::rotation(&t) == na::vec3(1.0, 1.0, 1.0))
+/// }
+/// ```
 #[inline(always)]
 pub fn set_rotation<V, M: Rotation<V>>(m: &mut M, v: V) {
     m.set_rotation(v)
@@ -290,13 +358,42 @@ pub fn set_rotation<V, M: Rotation<V>>(m: &mut M, v: V) {
  * Rotate<V>
  */
 
-/// FIXME
+/// Applies a rotation to a vector.
+///
+/// ```rust
+/// extern mod nalgebra;
+/// use nalgebra::na;
+///
+/// pub main() {
+///     let t  = na::rot3(1.0, 0.0, 0.0);
+///     let v  = na::vec3(0.0, 0.0, na::pi() / 2.0);
+///
+///     let tv = na::rotate(&t, &v);
+///
+///     assert!(tv == na::vec3(0.0, 1.0, 0.0))
+/// }
+/// ```
 #[inline(always)]
 pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
     m.rotate(v)
 }
 
-/// FIXME
+
+/// Applies an inverse rotation to a vector.
+///
+/// ```rust
+/// extern mod nalgebra;
+/// use nalgebra::na;
+///
+/// pub main() {
+///     let t  = na::rot3(1.0, 0.0, 0.0);
+///     let v  = na::vec3(0.0, 0.0, na::pi() / 2.0);
+///
+///     let tv = na::rotate(&t, &v);
+///
+///     assert!(tv == na::vec3(0.0, -1.0, 0.0))
+/// }
+/// ```
 #[inline(always)]
 pub fn inv_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
     m.inv_rotate(v)
@@ -306,7 +403,7 @@ pub fn inv_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
  * RotationWithTranslation<LV, AV>
  */
 
-/// FIXME
+/// Creates a rotated copy of an object using a specific center of rotation.
 #[inline(always)]
 pub fn rotated_wrt_point<LV: Neg<LV>,
                          AV,
@@ -317,7 +414,7 @@ pub fn rotated_wrt_point<LV: Neg<LV>,
     m.rotated_wrt_point(amount, center)
 }
 
-/// FIXME
+/// In-place version of `rotated_wrt_point`.
 #[inline(always)]
 pub fn rotate_wrt_point<LV: Neg<LV>,
                         AV,
@@ -328,7 +425,7 @@ pub fn rotate_wrt_point<LV: Neg<LV>,
     m.rotate_wrt_point(amount, center)
 }
 
-/// FIXME
+/// Creates a rotated copy of an object using its own translation as the center of rotation.
 #[inline(always)]
 pub fn rotated_wrt_center<LV: Neg<LV>,
                           AV,
@@ -338,7 +435,7 @@ pub fn rotated_wrt_center<LV: Neg<LV>,
     m.rotated_wrt_center(amount)
 }
 
-/// FIXME
+/// In-place version of `rotate_wrt_center`.
 #[inline(always)]
 pub fn rotate_wrt_center<LV: Neg<LV>,
                          AV,
@@ -352,7 +449,7 @@ pub fn rotate_wrt_center<LV: Neg<LV>,
  * RotationMatrix<LV, AV, R>
  */
 
-/// FIXME
+/// Builds a rotation matrix from a rotation-capable object.
 #[inline(always)]
 pub fn to_rot_mat<LV, AV, M: Mat<LV, LV> + Rotation<AV>, R: RotationMatrix<LV, AV, M>>(r: &R) -> M {
     r.to_rot_mat()
@@ -362,57 +459,57 @@ pub fn to_rot_mat<LV, AV, M: Mat<LV, LV> + Rotation<AV>, R: RotationMatrix<LV, A
  * AbsoluteRotate<V>
  */
 
-/// FIXME
+/// Applies a rotation using the absolute values of its components.
 #[inline(always)]
 pub fn absolute_rotate<V, M: AbsoluteRotate<V>>(m: &M, v: &V) -> V {
     m.absolute_rotate(v)
 }
 
 /*
- * Transformation<V>
+ * Transformation<T>
  */
 
-/// FIXME
+/// Gets the transformation applicable by the given object.
 #[inline(always)]
-pub fn transformation<V, M: Transformation<V>>(m: &M) -> V {
+pub fn transformation<T, M: Transformation<T>>(m: &M) -> T {
     m.transformation()
 }
 
-/// FIXME
+/// Gets the inverse transformation applicable by the given object.
 #[inline(always)]
-pub fn inv_transformation<V, M: Transformation<V>>(m: &M) -> V {
+pub fn inv_transformation<T, M: Transformation<T>>(m: &M) -> T {
     m.inv_transformation()
 }
 
-/// FIXME
+/// In-place version of `transformed`.
 #[inline(always)]
-pub fn transform_by<V, M: Transformation<V>>(m: &mut M, v: &V) {
-    m.transform_by(v)
+pub fn transform_by<T, M: Transformation<T>>(m: &mut M, t: &T) {
+    m.transform_by(t)
 }
 
-/// FIXME
+/// Gets a transformed copy of an object.
 #[inline(always)]
-pub fn transformed<V, M: Transformation<V>>(m: &M, v: &V) -> M {
-    m.transformed(v)
+pub fn transformed<T, M: Transformation<T>>(m: &M, t: &T) -> M {
+    m.transformed(t)
 }
 
-/// FIXME
+/// Sets the transformation of an object.
 #[inline(always)]
-pub fn set_transformation<V, M: Transformation<V>>(m: &mut M, v: V) {
-    m.set_transformation(v)
+pub fn set_transformation<T, M: Transformation<T>>(m: &mut M, t: T) {
+    m.set_transformation(t)
 }
 
 /*
  * Transform<V>
  */
 
-/// FIXME
+/// Applies a transformation to a vector.
 #[inline(always)]
 pub fn transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
     m.transform(v)
 }
 
-/// FIXME
+/// Applies an inverse transformation to a vector.
 #[inline(always)]
 pub fn inv_transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
     m.inv_transform(v)
@@ -422,13 +519,13 @@ pub fn inv_transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
  * Dot<N>
  */
 
-/// FIXME
+/// Computes the dot product of two vectors.
 #[inline(always)]
 pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
     a.dot(b)
 }
 
-/// FIXME
+/// Computes a subtraction followed by a dot product.
 #[inline(always)]
 pub fn sub_dot<V: Dot<N>, N>(a: &V, b: &V, c: &V) -> N {
     a.sub_dot(b, c)
@@ -438,25 +535,25 @@ pub fn sub_dot<V: Dot<N>, N>(a: &V, b: &V, c: &V) -> N {
  * Norm<N>
  */
 
-/// FIXME
+/// Computes the L2 norm of a vector.
 #[inline(always)]
 pub fn norm<V: Norm<N>, N: Algebraic>(v: &V) -> N {
     v.norm()
 }
 
-/// FIXME
+/// Computes the squared L2 norm of a vector.
 #[inline(always)]
 pub fn sqnorm<V: Norm<N>, N: Algebraic>(v: &V) -> N {
     v.sqnorm()
 }
 
-/// FIXME
+/// Gets the normalized version of a vector.
 #[inline(always)]
 pub fn normalized<V: Norm<N>, N: Algebraic>(v: &V) -> V {
     v.normalized()
 }
 
-/// FIXME
+/// In-place version of `normalized`.
 #[inline(always)]
 pub fn normalize<V: Norm<N>, N: Algebraic>(v: &mut V) -> N {
     v.normalize()
@@ -466,7 +563,7 @@ pub fn normalize<V: Norm<N>, N: Algebraic>(v: &mut V) -> N {
  * Cross<V>
  */
 
-/// FIXME
+/// Computes the cross product of two vectors.
 #[inline(always)]
 pub fn cross<LV: Cross<AV>, AV>(a: &LV, b: &LV) -> AV {
     a.cross(b)
@@ -476,7 +573,8 @@ pub fn cross<LV: Cross<AV>, AV>(a: &LV, b: &LV) -> AV {
  * CrossMatrix<M>
  */
 
-/// FIXME
+/// Given a vector, computes the matrix which, when multiplied by another vector, computes a cross
+/// product.
 #[inline(always)]
 pub fn cross_matrix<V: CrossMatrix<M>, M>(v: &V) -> M {
     v.cross_matrix()
@@ -486,7 +584,7 @@ pub fn cross_matrix<V: CrossMatrix<M>, M>(v: &V) -> M {
  * ToHomogeneous<U>
  */
 
-/// FIXME
+/// Converts a matrix or vector to homogoneous coordinates.
 #[inline(always)]
 pub fn to_homogeneous<M: ToHomogeneous<Res>, Res>(m: &M) -> Res {
     m.to_homogeneous()
@@ -496,7 +594,9 @@ pub fn to_homogeneous<M: ToHomogeneous<Res>, Res>(m: &M) -> Res {
  * FromHomogeneous<U>
  */
 
-/// FIXME
+/// Converts a matrix or vector from homogoneous coordinates.
+///
+/// w-normalization is appied.
 #[inline(always)]
 pub fn from_homogeneous<M, Res: FromHomogeneous<M>>(m: &M) -> Res {
     FromHomogeneous::from(m)
@@ -506,7 +606,9 @@ pub fn from_homogeneous<M, Res: FromHomogeneous<M>>(m: &M) -> Res {
  * UniformSphereSample
  */
 
-/// FIXME
+/// Samples the unit sphere living on the dimension as the samples types.
+///
+/// The number of sampling point is implementation-specific. It is always uniform.
 #[inline(always)]
 pub fn sample_sphere<V: UniformSphereSample>(f: &fn(V)) {
     UniformSphereSample::sample(f)
@@ -523,7 +625,7 @@ pub fn sample_sphere<V: UniformSphereSample>(f: &fn(V)) {
  * Absolute<A>
  */
 
-/// FIXME
+/// Computes a component-wise absolute value.
 #[inline(always)]
 pub fn absolute<M: Absolute<Res>, Res>(m: &M) -> Res {
     m.absolute()
@@ -533,13 +635,13 @@ pub fn absolute<M: Absolute<Res>, Res>(m: &M) -> Res {
  * Inv
  */
 
-/// FIXME
+/// Gets an inverted copy of a matrix.
 #[inline(always)]
 pub fn inverted<M: Inv>(m: &M) -> Option<M> {
     m.inverted()
 }
 
-/// FIXME
+/// In-place version of `inverted`.
 #[inline(always)]
 pub fn invert<M: Inv>(m: &mut M) -> bool {
     m.invert()
@@ -549,13 +651,13 @@ pub fn invert<M: Inv>(m: &mut M) -> bool {
  * Transpose
  */
 
-/// FIXME
+/// Gets a transposed copy of a matrix.
 #[inline(always)]
 pub fn transposed<M: Transpose>(m: &M) -> M {
     m.transposed()
 }
 
-/// FIXME
+/// In-place version of `transposed`.
 #[inline(always)]
 pub fn transpose<M: Transpose>(m: &mut M) {
     m.transpose()
@@ -565,7 +667,7 @@ pub fn transpose<M: Transpose>(m: &mut M) {
  * Outer<M>
  */
 
-/// FIXME
+/// Computes the outer product of two vectors.
 #[inline(always)]
 pub fn outer<V: Outer<M>, M>(a: &V, b: &V) -> M {
     a.outer(b)
@@ -575,7 +677,7 @@ pub fn outer<V: Outer<M>, M>(a: &V, b: &V) -> M {
  * Cov<M>
  */
 
-/// FIXME
+/// Computes the covariance of a set of observations.
 #[inline(always)]
 pub fn cov<M: Cov<Res>, Res>(observations: &M) -> Res {
     observations.cov()
@@ -585,7 +687,7 @@ pub fn cov<M: Cov<Res>, Res>(observations: &M) -> Res {
  * Mean<N>
  */
 
-/// FIXME
+/// Computes the mean of a set of observations.
 #[inline(always)]
 pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
     observations.mean()
@@ -601,7 +703,7 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
  * MatCast<M>
  */
 
-/// FIXME
+/// Converts a matrix to a matrix with different value type.
 #[inline(always)]
 pub fn cast_mat<M: MatCast<Res>, Res>(m: M) -> Res {
     MatCast::from(m)
@@ -611,7 +713,7 @@ pub fn cast_mat<M: MatCast<Res>, Res>(m: M) -> Res {
  * VecCast<M>
  */
 
-/// FIXME
+/// Converts a matrix to a matrix with different value type.
 #[inline(always)]
 pub fn cast_vec<V: VecCast<Res>, Res>(v: V) -> Res {
     VecCast::from(v)
@@ -621,13 +723,13 @@ pub fn cast_vec<V: VecCast<Res>, Res>(v: V) -> Res {
  * Basis
  */
 
-/// FIXME
+/// Computes the canonical basis for a given dimension.
 #[inline(always)]
 pub fn canonical_basis<V: Basis>(f: &fn(V) -> bool) {
     Basis::canonical_basis(f)
 }
 
-/// FIXME
+/// Computes the basis of the orthonormal subspace of a given vector.
 #[inline(always)]
 pub fn orthonormal_subspace_basis<V: Basis>(v: &V, f: &fn(V) -> bool) {
     v.orthonormal_subspace_basis(f)
