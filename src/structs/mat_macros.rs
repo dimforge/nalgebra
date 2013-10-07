@@ -37,7 +37,7 @@ macro_rules! mat_cast_impl(
     impl<Nin: NumCast + Clone, Nout: NumCast> MatCast<$t<Nout>> for $t<Nin> {
         #[inline]
         fn from(m: $t<Nin>) -> $t<Nout> {
-            $t::new(NumCast::from(m.$comp0.clone()) $(, NumCast::from(m.$compN.clone()) )*)
+            $t::new(NumCast::from(m.$comp0.clone()).unwrap() $(, NumCast::from(m.$compN.clone()).unwrap() )*)
         }
     }
   )

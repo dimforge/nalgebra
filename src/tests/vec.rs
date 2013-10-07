@@ -1,7 +1,8 @@
-use std::num::{Zero, One};
 use std::rand::{random};
 use std::cmp::ApproxEq;
-use na::*;
+use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
+use na::{Iterable, IterableMut}; // FIXME: get rid of that
+use na;
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
@@ -27,7 +28,7 @@ macro_rules! test_commut_dot_impl(
             let v1 : $t = random();
             let v2 : $t = random();
         
-            assert!(v1.dot(&v2).approx_eq(&v2.dot(&v1)));
+            assert!(na::dot(&v1, &v2).approx_eq(&na::dot(&v2, &v1)));
         }
     );
 )
@@ -58,14 +59,14 @@ macro_rules! test_scalar_op_impl(
 macro_rules! test_basis_impl(
     ($t: ty) => (
         do 10000.times {
-            do Basis::canonical_basis |e1: $t| {
-                do Basis::canonical_basis |e2: $t| {
-                    assert!(e1 == e2 || e1.dot(&e2).approx_eq(&Zero::zero()));
+            do na::canonical_basis |e1: $t| {
+                do na::canonical_basis |e2: $t| {
+                    assert!(e1 == e2 || na::dot(&e1, &e2).approx_eq(&na::zero()));
 
                     true
                 }
 
-                assert!(e1.norm().approx_eq(&One::one()));
+                assert!(na::norm(&e1).approx_eq(&na::one()));
 
                 true
             }
@@ -77,16 +78,16 @@ macro_rules! test_subspace_basis_impl(
     ($t: ty) => (
         do 10000.times {
             let v : $t = random();
-            let v1     = v.normalized();
+            let v1     = na::normalized(&v);
 
-            do v1.orthonormal_subspace_basis() |e1| {
+            do na::orthonormal_subspace_basis(&v1) |e1| {
                 // check vectors are orthogonal to v1
-                assert!(v1.dot(&e1).approx_eq(&Zero::zero()));
+                assert!(na::dot(&v1, &e1).approx_eq(&na::zero()));
                 // check vectors form an orthonormal basis
-                assert!(e1.norm().approx_eq(&One::one()));
+                assert!(na::norm(&e1).approx_eq(&na::one()));
                 // check vectors form an ortogonal basis
-                do v1.orthonormal_subspace_basis() |e2| {
-                    assert!(e1 == e2 || e1.dot(&e2).approx_eq(&Zero::zero()));
+                do na::orthonormal_subspace_basis(&v1) |e2| {
+                    assert!(e1 == e2 || na::dot(&e1, &e2).approx_eq(&na::zero()));
 
                     true
                 }
@@ -102,10 +103,10 @@ fn test_cross_vec3() {
     do 10000.times {
         let v1 : Vec3<f64> = random();
         let v2 : Vec3<f64> = random();
-        let v3 : Vec3<f64> = v1.cross(&v2);
+        let v3 : Vec3<f64> = na::cross(&v1, &v2);
 
-        assert!(v3.dot(&v2).approx_eq(&Zero::zero()));
-        assert!(v3.dot(&v1).approx_eq(&Zero::zero()));
+        assert!(na::dot(&v3, &v2).approx_eq(&na::zero()));
+        assert!(na::dot(&v3, &v1).approx_eq(&na::zero()));
     }
 }
 
@@ -287,39 +288,35 @@ fn test_iterator_vec6() {
 #[test]
 fn test_ord_vec3() {
     // equality
-    assert!(Vec3::new(0.5, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5));
-    assert!(!(Vec3::new(1.5, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5)));
-    assert!(Vec3::new(1.5, 0.5, 0.5) != Vec3::new(0.5, 0.5, 0.5));
+    assert!(na::vec3(0.5, 0.5, 0.5) == na::vec3(0.5, 0.5, 0.5));
+    assert!(!(na::vec3(1.5, 0.5, 0.5) == na::vec3(0.5, 0.5, 0.5)));
+    assert!(na::vec3(1.5, 0.5, 0.5) != na::vec3(0.5, 0.5, 0.5));
 
     // comparable
-    assert!(Vec3::new(0.5, 0.3, 0.3) < Vec3::new(1.0, 2.0, 1.0));
-    assert!(Vec3::new(0.5, 0.3, 0.3) <= Vec3::new(1.0, 2.0, 1.0));
-    assert!(Vec3::new(2.0, 4.0, 2.0) > Vec3::new(1.0, 2.0, 1.0));
-    assert!(Vec3::new(2.0, 4.0, 2.0) >= Vec3::new(1.0, 2.0, 1.0));
+    assert!(na::vec3(0.5, 0.3, 0.3) < na::vec3(1.0, 2.0, 1.0));
+    assert!(na::vec3(0.5, 0.3, 0.3) <= na::vec3(1.0, 2.0, 1.0));
+    assert!(na::vec3(2.0, 4.0, 2.0) > na::vec3(1.0, 2.0, 1.0));
+    assert!(na::vec3(2.0, 4.0, 2.0) >= na::vec3(1.0, 2.0, 1.0));
 
     // not comparable
-    assert!(!(Vec3::new(0.0, 3.0, 0.0) < Vec3::new(1.0, 2.0, 1.0)));
-    assert!(!(Vec3::new(0.0, 3.0, 0.0) > Vec3::new(1.0, 2.0, 1.0)));
-    assert!(!(Vec3::new(0.0, 3.0, 0.0) <= Vec3::new(1.0, 2.0, 1.0)));
-    assert!(!(Vec3::new(0.0, 3.0, 0.0) >= Vec3::new(1.0, 2.0, 1.0)));
+    assert!(!(na::vec3(0.0, 3.0, 0.0) < na::vec3(1.0, 2.0, 1.0)));
+    assert!(!(na::vec3(0.0, 3.0, 0.0) > na::vec3(1.0, 2.0, 1.0)));
+    assert!(!(na::vec3(0.0, 3.0, 0.0) <= na::vec3(1.0, 2.0, 1.0)));
+    assert!(!(na::vec3(0.0, 3.0, 0.0) >= na::vec3(1.0, 2.0, 1.0)));
 }
 
 #[test]
 fn test_min_max_vec3() {
-    assert_eq!(Vec3::new(1, 2, 3).max(&Vec3::new(3, 2, 1)), Vec3::new(3, 2, 3));
-    assert_eq!(Vec3::new(1, 2, 3).min(&Vec3::new(3, 2, 1)), Vec3::new(1, 2, 1));
-    assert_eq!(
-        Vec3::new(0, 2, 4).clamp(
-            &Vec3::new(1, 1, 1), &Vec3::new(3, 3, 3)
-        ), Vec3::new(1, 2, 3)
-    );
+    assert_eq!(na::vec3(1, 2, 3).max(&na::vec3(3, 2, 1)), na::vec3(3, 2, 3));
+    assert_eq!(na::vec3(1, 2, 3).min(&na::vec3(3, 2, 1)), na::vec3(1, 2, 1));
+    assert_eq!(na::vec3(0, 2, 4).clamp(&na::vec3(1, 1, 1), &na::vec3(3, 3, 3)), na::vec3(1, 2, 3));
 }
 
 #[test]
 fn test_outer_vec3() {
     assert_eq!(
-        Vec3::new(1, 2, 3).outer(&Vec3::new(4, 5, 6)),
-        Mat3::new(
+        na::outer(&na::vec3(1, 2, 3), &na::vec3(4, 5, 6)),
+        na::mat3(
             4, 5, 6,
             8, 10, 12,
             12, 15, 18));

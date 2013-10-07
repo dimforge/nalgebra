@@ -1,6 +1,6 @@
 use std::rand::random;
 use extra::test::BenchHarness;
-use na::*;
+use na::{Vec2, Vec3, Vec4, Vec5, Vec6, DVec, Mat2, Mat3, Mat4, Mat5, Mat6, DMat};
 
 macro_rules! bench_mul_mat(
     ($bh: expr, $t: ty) => {

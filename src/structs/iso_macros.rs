@@ -17,7 +17,7 @@ macro_rules! iso_impl(
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $trot: ident, $tlv: ident, $tav: ident) => (
-        impl<N: NumCast + Algebraic + Trigonometric + Num + Clone>
+        impl<N: FromPrimitive + Algebraic + Trigonometric + Num + Clone>
         RotationMatrix<$tlv<N>, $tav<N>, $trot<N>> for $t<N> {
             #[inline]
             fn to_rot_mat(&self) -> $trot<N> {
@@ -132,7 +132,7 @@ macro_rules! translate_impl(
 
 macro_rules! rotation_impl(
     ($t: ident, $trot: ident, $tav: ident) => (
-        impl<N: Num + Trigonometric + Algebraic + NumCast + Clone> Rotation<$tav<N>> for $t<N> {
+        impl<N: Num + Trigonometric + Algebraic + FromPrimitive + Clone> Rotation<$tav<N>> for $t<N> {
             #[inline]
             fn rotation(&self) -> $tav<N> {
                 self.rotation.rotation()

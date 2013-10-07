@@ -56,7 +56,7 @@ macro_rules! dim_impl(
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $tlv: ident, $tav: ident) => (
-        impl<N: NumCast + Algebraic + Trigonometric + Num + Clone>
+        impl<N: FromPrimitive + Algebraic + Trigonometric + Num + Clone>
         RotationMatrix<$tlv<N>, $tav<N>, $t<N>> for $t<N> {
             #[inline]
             fn to_rot_mat(&self) -> $t<N> {

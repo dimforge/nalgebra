@@ -1,14 +1,16 @@
-use std::num::{Real, One, abs};
+use std::num::{Real, abs};
 use std::rand::random;
 use std::cmp::ApproxEq;
-use na::*;
+use na::{DMat, DVec};
+use na::Indexable; // FIXME: get rid of that
+use na;
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
     do 10000.times {
       let randmat : $t = random();
 
-      assert!((randmat.inverted().unwrap() * randmat).approx_eq(&One::one()));
+      assert!((na::inverted(&randmat).unwrap() * randmat).approx_eq(&na::one()));
     }
   );
 )
@@ -18,97 +20,97 @@ macro_rules! test_transpose_mat_impl(
     do 10000.times {
       let randmat : $t = random();
 
-      assert!(randmat.transposed().transposed().eq(&randmat));
+      assert!(na::transposed(&na::transposed(&randmat)) == randmat);
     }
   );
 )
 
 #[test]
 fn test_transpose_mat1() {
-    test_transpose_mat_impl!(Mat1<f64>);
+    test_transpose_mat_impl!(na::Mat1<f64>);
 }
 
 #[test]
 fn test_transpose_mat2() {
-    test_transpose_mat_impl!(Mat2<f64>);
+    test_transpose_mat_impl!(na::Mat2<f64>);
 }
 
 #[test]
 fn test_transpose_mat3() {
-    test_transpose_mat_impl!(Mat3<f64>);
+    test_transpose_mat_impl!(na::Mat3<f64>);
 }
 
 #[test]
 fn test_transpose_mat4() {
-    test_transpose_mat_impl!(Mat4<f64>);
+    test_transpose_mat_impl!(na::Mat4<f64>);
 }
 
 #[test]
 fn test_transpose_mat5() {
-    test_transpose_mat_impl!(Mat5<f64>);
+    test_transpose_mat_impl!(na::Mat5<f64>);
 }
 
 #[test]
 fn test_transpose_mat6() {
-    test_transpose_mat_impl!(Mat6<f64>);
+    test_transpose_mat_impl!(na::Mat6<f64>);
 }
 
 #[test]
 fn test_inv_mat1() {
-    test_inv_mat_impl!(Mat1<f64>);
+    test_inv_mat_impl!(na::Mat1<f64>);
 }
 
 #[test]
 fn test_inv_mat2() {
-    test_inv_mat_impl!(Mat2<f64>);
+    test_inv_mat_impl!(na::Mat2<f64>);
 }
 
 #[test]
 fn test_inv_mat3() {
-    test_inv_mat_impl!(Mat3<f64>);
+    test_inv_mat_impl!(na::Mat3<f64>);
 }
 
 #[test]
 fn test_inv_mat4() {
-    test_inv_mat_impl!(Mat4<f64>);
+    test_inv_mat_impl!(na::Mat4<f64>);
 }
 
 #[test]
 fn test_inv_mat5() {
-    test_inv_mat_impl!(Mat5<f64>);
+    test_inv_mat_impl!(na::Mat5<f64>);
 }
 
 #[test]
 fn test_inv_mat6() {
-    test_inv_mat_impl!(Mat6<f64>);
+    test_inv_mat_impl!(na::Mat6<f64>);
 }
 
 #[test]
 fn test_rotation2() {
     do 10000.times {
-        let randmat: Rot2<f64> = One::one();
-        let ang     = &Vec1::new(abs::<f64>(random()) % Real::pi());
+        let randmat: na::Rot2<f64> = na::one();
+        let ang    = na::vec1(abs::<f64>(random()) % Real::pi());
 
-        assert!(randmat.rotated(ang).rotation().approx_eq(ang));
+        assert!(na::rotation(&na::rotated(&randmat, &ang)).approx_eq(&ang));
     }
 }
 
 #[test]
 fn test_index_mat2() {
-  let mat: Mat2<f64> = random();
+  let mat: na::Mat2<f64> = random();
 
-  assert!(mat.at((0, 1)) == mat.transposed().at((1, 0)));
+  assert!(mat.at((0, 1)) == na::transposed(&mat).at((1, 0)));
 }
 
 #[test]
 fn test_inv_rotation3() {
     do 10000.times {
-        let randmat: Rot3<f64> = One::one();
-        let dir: Vec3<f64> = random();
-        let ang            = &(dir.normalized() * (abs::<f64>(random()) % Real::pi()));
-        let rot            = randmat.rotated(ang);
+        let randmat: na::Rot3<f64> = na::one();
+        let dir:     na::Vec3<f64> = random();
+        let ang            = na::normalized(&dir) * (abs::<f64>(random()) % Real::pi());
+        let rot            = na::rotated(&randmat, &ang);
 
-        assert!((rot.transposed() * rot).approx_eq(&One::one()));
+        assert!((na::transposed(&rot) * rot).approx_eq(&na::one()));
     }
 }
 
@@ -124,7 +126,7 @@ fn test_mean_dmat() {
         ]
     );
 
-    assert!(mat.mean().approx_eq(&DVec::from_vec(3, [4.0f64, 5.0, 6.0])));
+    assert!(na::mean(&mat).approx_eq(&DVec::from_vec(3, [4.0f64, 5.0, 6.0])));
 }
 
 #[test]
@@ -151,5 +153,5 @@ fn test_cov_dmat() {
         ]
     );
 
-    assert!(mat.cov().approx_eq(&expected));
+    assert!(na::cov(&mat).approx_eq(&expected));
 }

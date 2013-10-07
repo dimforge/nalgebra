@@ -30,15 +30,15 @@ use nalgebra::traits::*;
 ```.rust
 use nalgebra::structs::*;
 ```
-Of course, you can still import `nalgebra::na` alone, and get anything you want using the `na`
-prefix.
+Of course, you can still import `nalgebra::na` alone, and get anything you want using the prefix
+`na`.
 
 ## Features
 **nalgebra** is meant to be a general-purpose linear algebra library (but is very far from that…),
 and keeps an optimized set of tools for computational graphics and physics. Those features include:
 
-* Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, ..., `Vec6`.
-* Square matrices with static sizes: `Mat1`, `Mat2`, ..., `Mat6 `.
+* Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
+* Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
 * Isometries: `Iso2`, `Iso3`, `Iso4`.
 * Dynamically sized vector: `DVec`.
@@ -47,7 +47,7 @@ and keeps an optimized set of tools for computational graphics and physics. Thos
 * Almost one trait per functionality: useful for generic programming.
 * Operator overloading using the double trait dispatch
   [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/).
-  For example, the following work:
+  For example, the following works:
 
 ```rust
 extern mod nalgebra;
@@ -98,6 +98,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
 #[deny(missing_doc)];
+#[feature(macro_rules)];
 
 extern mod std;
 extern mod extra;

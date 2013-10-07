@@ -4,7 +4,7 @@
 
 use std::rand::Rand;
 use std::rand;
-use std::num::{One, Zero};
+use std::num::{One, Zero, from_f32, from_uint};
 use std::vec;
 use std::cmp::ApproxEq;
 use std::util;
@@ -409,10 +409,10 @@ impl<N: Clone> Transpose for DMat<N> {
     }
 }
 
-impl<N: Num + NumCast + Clone> Mean<DVec<N>> for DMat<N> {
+impl<N: Num + FromPrimitive + Clone> Mean<DVec<N>> for DMat<N> {
     fn mean(&self) -> DVec<N> {
         let mut res: DVec<N> = DVec::new_zeros(self.ncols);
-        let normalizer: N    = NumCast::from(1.0f64 / NumCast::from(self.nrows));
+        let normalizer: N    = from_f32(1.0f32 / from_uint(self.nrows).unwrap()).unwrap();
 
         for i in range(0u, self.nrows) {
             for j in range(0u, self.ncols) {
@@ -427,7 +427,7 @@ impl<N: Num + NumCast + Clone> Mean<DVec<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone + Num + NumCast + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> for DMat<N> {
+impl<N: Clone + Num + FromPrimitive + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> for DMat<N> {
     // FIXME: this could be heavily optimized, removing all temporaries by merging loops.
     fn cov(&self) -> DMat<N> {
         assert!(self.nrows > 1);
@@ -445,7 +445,7 @@ impl<N: Clone + Num + NumCast + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> fo
         }
 
         // FIXME: return a triangular matrix?
-        let normalizer: N = NumCast::from(self.nrows() - 1);
+        let normalizer: N = from_uint(self.nrows() - 1).unwrap();
         // FIXME: this will do 2 allocations for temporaries!
         (centered.transposed() * centered) / normalizer
     }

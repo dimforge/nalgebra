@@ -1,5 +1,6 @@
 //! **nalgebra** prelude.
 
+pub use std::num::{Zero, One};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
@@ -45,6 +46,106 @@ pub use structs::{
     Rot2, Rot3, Rot4,
     Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6
 };
+
+//
+//
+// Constructors
+//
+//
+/// Create a zero-valued value.
+///
+/// This is the same as `std::num::Zero::zero()`.
+#[inline(always)]
+pub fn zero<T: Zero>() -> T {
+    Zero::zero()
+}
+
+/// Create a one-valued value.
+///
+/// This is the same as `std::num::One::one()`.
+#[inline(always)]
+pub fn one<T: One>() -> T {
+    One::one()
+}
+
+/// Creates a new 1d vector.
+///
+/// This is the same as `Vec1::new(x)`.
+#[inline(always)]
+pub fn vec1<N>(x: N) -> Vec1<N> {
+    Vec1::new(x)
+}
+
+/// Creates a new 2d vector.
+///
+/// This is the same as `Vec2::new(x, y)`.
+#[inline(always)]
+pub fn vec2<N>(x: N, y: N) -> Vec2<N> {
+    Vec2::new(x, y)
+}
+
+/// Creates a new 3d vector.
+///
+/// This is the same as `Vec3::new(x, y, z)`.
+#[inline(always)]
+pub fn vec3<N>(x: N, y: N, z: N) -> Vec3<N> {
+    Vec3::new(x, y, z)
+}
+
+/// Creates a new 4d vector.
+///
+/// This is the same as `Vec4::new(x, y, z, w)`.
+#[inline(always)]
+pub fn vec4<N>(x: N, y: N, z: N, w: N) -> Vec4<N> {
+    Vec4::new(x, y, z, w)
+}
+
+/// Creates a new 1d matrix.
+///
+/// This is the same as `Mat1::new(...)`.
+#[inline(always)]
+pub fn mat1<N>(m11: N) -> Mat1<N> {
+    Mat1::new(m11)
+}
+
+/// Creates a new 2d matrix.
+///
+/// This is the same as `Mat2::new(...)`.
+#[inline(always)]
+pub fn mat2<N>(m11: N, m12: N,
+               m21: N, m22: N) -> Mat2<N> {
+    Mat2::new(
+        m11, m12,
+        m21, m22)
+}
+
+/// Creates a new 3d matrix.
+///
+/// This is the same as `Mat3::new(...)`.
+#[inline(always)]
+pub fn mat3<N>(m11: N, m12: N, m13: N,
+               m21: N, m22: N, m23: N,
+               m31: N, m32: N, m33: N) -> Mat3<N> {
+    Mat3::new(
+        m11, m12, m13,
+        m21, m22, m23,
+        m31, m32, m33)
+}
+
+/// Creates a new 4d matrix.
+///
+/// This is the same as `Mat4::new(...)`.
+#[inline(always)]
+pub fn mat4<N>(m11: N, m12: N, m13: N, m14: N,
+               m21: N, m22: N, m23: N, m24: N,
+               m31: N, m32: N, m33: N, m34: N,
+               m41: N, m42: N, m43: N, m44: N) -> Mat4<N> {
+    Mat4::new(
+        m11, m12, m13, m14,
+        m21, m22, m23, m24,
+        m31, m32, m33, m34,
+        m41, m42, m43, m44)
+}
 
 //
 //

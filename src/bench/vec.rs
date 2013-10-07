@@ -1,6 +1,7 @@
 use std::rand::random;
 use extra::test::BenchHarness;
-use na::*;
+use na::{Vec2, Vec3, Vec4, Vec5, Vec6};
+use na;
 
 macro_rules! bench_dot_vec(
     ($bh: expr, $t: ty) => {
@@ -11,7 +12,7 @@ macro_rules! bench_dot_vec(
 
             do $bh.iter {
                 do 1000.times {
-                    d = d + a.dot(&b);
+                    d = d + na::dot(&a, &b);
                 }
             }
         }

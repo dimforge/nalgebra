@@ -115,7 +115,7 @@ macro_rules! vec_cast_impl(
         impl<Nin: NumCast + Clone, Nout: Clone + NumCast> VecCast<$t<Nout>> for $t<Nin> {
             #[inline]
             fn from(v: $t<Nin>) -> $t<Nout> {
-                $t::new(NumCast::from(v.$comp0.clone()) $(, NumCast::from(v.$compN.clone()))*)
+                $t::new(NumCast::from(v.$comp0.clone()).unwrap() $(, NumCast::from(v.$compN.clone()).unwrap())*)
             }
         }
     )
