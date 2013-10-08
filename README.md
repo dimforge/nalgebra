@@ -1,4 +1,3 @@
-/*!
 # nalgebra
 
 **nalgebra** is a linear algebra library written for Rust targeting:
@@ -6,6 +5,8 @@
 * general-purpose linear algebra (still misses a lot of features…).
 * real time computer graphics.
 * real time computer physics.
+
+An on-line version of this documentation is available [here](http://crozet.re/nalgebra/index.html).
 
 ## Using **nalgebra**
 All the functionalities of **nalgebra** are grouped in one place: the `na` module.
