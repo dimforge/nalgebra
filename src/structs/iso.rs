@@ -51,6 +51,37 @@ pub struct Iso4<N> {
     translation: Vec4<N>
 }
 
+impl<N: Clone + Num + Algebraic> Iso3<N> {
+    /// Reorient and translate this transformation such that its local `x` axis points to a given
+    /// direction.  Note that the usually known `look_at` function does the same thing but with the
+    /// `z` axis. See `look_at_z` for that.
+    ///
+    /// # Arguments
+    ///   * eye - The new translation of the transformation.
+    ///   * at - The point to look at. `at - eye` is the direction the matrix `x` axis will be
+    ///   aligned with.
+    ///   * up - Vector pointing up. The only requirement of this parameter is to not be colinear
+    ///   with `at`. Non-colinearity is not checked.
+    pub fn look_at(&mut self, eye: &Vec3<N>, at: &Vec3<N>, up: &Vec3<N>) {
+        self.rotation.look_at(&(*at - *eye), up);
+        self.translation = eye.clone();
+    }
+
+    /// Reorient and translate this transformation such that its local `z` axis points to a given
+    /// direction. 
+    ///
+    /// # Arguments
+    ///   * eye - The new translation of the transformation.
+    ///   * at - The point to look at. `at - eye` is the direction the matrix `x` axis will be
+    ///   aligned with
+    ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
+    ///   with `at`. Non-colinearity is not checked.
+    pub fn look_at_z(&mut self, eye: &Vec3<N>, at: &Vec3<N>, up: &Vec3<N>) {
+        self.rotation.look_at_z(&(*at - *eye), up);
+        self.translation = eye.clone();
+    }
+}
+
 iso_impl!(Iso2, Rot2, Vec2)
 double_dispatch_binop_decl_trait!(Iso2, Iso2MulRhs)
 mul_redispatch_impl!(Iso2, Iso2MulRhs)
