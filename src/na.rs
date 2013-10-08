@@ -39,6 +39,7 @@ pub use traits::{
 };
 
 pub use structs::{
+    Identity,
     DMat, DVec,
     Iso2, Iso3, Iso4,
     Mat1, Mat2, Mat3, Mat4,
@@ -52,6 +53,15 @@ pub use structs::{
 // Constructors
 //
 //
+
+/// Create a special identity object.
+///
+/// Same as `Identity::new()`.
+#[inline(always)]
+pub fn identity() -> Identity {
+    Identity::new()
+}
+
 /// Create a zero-valued value.
 ///
 /// This is the same as `std::num::Zero::zero()`.
@@ -746,6 +756,13 @@ pub fn orthonormal_subspace_basis<V: Basis>(v: &V, f: &fn(V) -> bool) {
 /*
  * Dim
  */
+/// Gets the dimension an object lives in.
+///
+/// Same as `Dim::dim::(None::<V>)`.
+#[inline(always)]
+pub fn dim<V: Dim>() -> uint {
+    Dim::dim(None::<V>)
+}
 
 /*
  * Indexable
