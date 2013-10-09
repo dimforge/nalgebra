@@ -1,6 +1,6 @@
 //! **nalgebra** prelude.
 
-pub use std::num::{Zero, One};
+use std::num::{Zero, One};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
