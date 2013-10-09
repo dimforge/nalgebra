@@ -9,7 +9,7 @@ use std::vec::{VecIterator, VecMutIterator};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Vec1MulRhs, Vec4MulRhs,
                    Vec5MulRhs, Vec6MulRhs};
 
-use traits::structure::{MatCast, Row, Col, Iterable, IterableMut, Dim, Indexable};
+use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable};
 use traits::operations::{Absolute, Transpose, Inv, Outer};
 use traits::geometry::{ToHomogeneous, FromHomogeneous};
 
@@ -42,12 +42,14 @@ double_dispatch_binop_decl_trait!(Mat1, Mat1MulRhs)
 double_dispatch_binop_decl_trait!(Mat1, Mat1DivRhs)
 double_dispatch_binop_decl_trait!(Mat1, Mat1AddRhs)
 double_dispatch_binop_decl_trait!(Mat1, Mat1SubRhs)
+double_dispatch_cast_decl_trait!(Mat1, Mat1Cast)
 mul_redispatch_impl!(Mat1, Mat1MulRhs)
 div_redispatch_impl!(Mat1, Mat1DivRhs)
 add_redispatch_impl!(Mat1, Mat1AddRhs)
 sub_redispatch_impl!(Mat1, Mat1SubRhs)
+cast_redispatch_impl!(Mat1, Mat1Cast)
 mat_impl!(Mat1, m11)
-mat_cast_impl!(Mat1, m11)
+mat_cast_impl!(Mat1, Mat1Cast, m11)
 add_impl!(Mat1, Mat1AddRhs, m11)
 sub_impl!(Mat1, Mat1SubRhs, m11)
 
@@ -133,14 +135,16 @@ double_dispatch_binop_decl_trait!(Mat2, Mat2MulRhs)
 double_dispatch_binop_decl_trait!(Mat2, Mat2DivRhs)
 double_dispatch_binop_decl_trait!(Mat2, Mat2AddRhs)
 double_dispatch_binop_decl_trait!(Mat2, Mat2SubRhs)
+double_dispatch_cast_decl_trait!(Mat2, Mat2Cast)
 mul_redispatch_impl!(Mat2, Mat2MulRhs)
 div_redispatch_impl!(Mat2, Mat2DivRhs)
 add_redispatch_impl!(Mat2, Mat2AddRhs)
 sub_redispatch_impl!(Mat2, Mat2SubRhs)
+cast_redispatch_impl!(Mat2, Mat2Cast)
 mat_impl!(Mat2, m11, m12,
                 m21, m22)
-mat_cast_impl!(Mat2, m11, m12,
-                     m21, m22)
+mat_cast_impl!(Mat2, Mat2Cast, m11, m12,
+                               m21, m22)
 add_impl!(Mat2, Mat2AddRhs, m11, m12, m21, m22)
 sub_impl!(Mat2, Mat2SubRhs, m11, m12, m21, m22)
 
@@ -229,16 +233,18 @@ double_dispatch_binop_decl_trait!(Mat3, Mat3MulRhs)
 double_dispatch_binop_decl_trait!(Mat3, Mat3DivRhs)
 double_dispatch_binop_decl_trait!(Mat3, Mat3AddRhs)
 double_dispatch_binop_decl_trait!(Mat3, Mat3SubRhs)
+double_dispatch_cast_decl_trait!(Mat3, Mat3Cast)
 mul_redispatch_impl!(Mat3, Mat3MulRhs)
 div_redispatch_impl!(Mat3, Mat3DivRhs)
 add_redispatch_impl!(Mat3, Mat3AddRhs)
 sub_redispatch_impl!(Mat3, Mat3SubRhs)
+cast_redispatch_impl!(Mat3, Mat3Cast)
 mat_impl!(Mat3, m11, m12, m13,
                 m21, m22, m23,
                 m31, m32, m33)
-mat_cast_impl!(Mat3, m11, m12, m13,
-                     m21, m22, m23,
-                     m31, m32, m33)
+mat_cast_impl!(Mat3, Mat3Cast, m11, m12, m13,
+                               m21, m22, m23,
+                               m31, m32, m33)
 add_impl!(Mat3, Mat3AddRhs,
     m11, m12, m13,
     m21, m22, m23,
@@ -339,17 +345,19 @@ double_dispatch_binop_decl_trait!(Mat4, Mat4MulRhs)
 double_dispatch_binop_decl_trait!(Mat4, Mat4DivRhs)
 double_dispatch_binop_decl_trait!(Mat4, Mat4AddRhs)
 double_dispatch_binop_decl_trait!(Mat4, Mat4SubRhs)
+double_dispatch_cast_decl_trait!(Mat4, Mat4Cast)
 mul_redispatch_impl!(Mat4, Mat4MulRhs)
 div_redispatch_impl!(Mat4, Mat4DivRhs)
 add_redispatch_impl!(Mat4, Mat4AddRhs)
 sub_redispatch_impl!(Mat4, Mat4SubRhs)
+cast_redispatch_impl!(Mat4, Mat4Cast)
 mat_impl!(Mat4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 )
-mat_cast_impl!(Mat4,
+mat_cast_impl!(Mat4, Mat4Cast,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
@@ -501,10 +509,12 @@ double_dispatch_binop_decl_trait!(Mat5, Mat5MulRhs)
 double_dispatch_binop_decl_trait!(Mat5, Mat5DivRhs)
 double_dispatch_binop_decl_trait!(Mat5, Mat5AddRhs)
 double_dispatch_binop_decl_trait!(Mat5, Mat5SubRhs)
+double_dispatch_cast_decl_trait!(Mat5, Mat5Cast)
 mul_redispatch_impl!(Mat5, Mat5MulRhs)
 div_redispatch_impl!(Mat5, Mat5DivRhs)
 add_redispatch_impl!(Mat5, Mat5AddRhs)
 sub_redispatch_impl!(Mat5, Mat5SubRhs)
+cast_redispatch_impl!(Mat5, Mat5Cast)
 mat_impl!(Mat5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
@@ -512,7 +522,7 @@ mat_impl!(Mat5,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 )
-mat_cast_impl!(Mat5,
+mat_cast_impl!(Mat5, Mat5Cast,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
@@ -679,10 +689,12 @@ double_dispatch_binop_decl_trait!(Mat6, Mat6MulRhs)
 double_dispatch_binop_decl_trait!(Mat6, Mat6DivRhs)
 double_dispatch_binop_decl_trait!(Mat6, Mat6AddRhs)
 double_dispatch_binop_decl_trait!(Mat6, Mat6SubRhs)
+double_dispatch_cast_decl_trait!(Mat6, Mat6Cast)
 mul_redispatch_impl!(Mat6, Mat6MulRhs)
 div_redispatch_impl!(Mat6, Mat6DivRhs)
 add_redispatch_impl!(Mat6, Mat6AddRhs)
 sub_redispatch_impl!(Mat6, Mat6SubRhs)
+cast_redispatch_impl!(Mat6, Mat6Cast)
 mat_impl!(Mat6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
@@ -691,7 +703,7 @@ mat_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 )
-mat_cast_impl!(Mat6,
+mat_cast_impl!(Mat6, Mat6Cast,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,

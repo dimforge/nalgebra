@@ -21,5 +21,6 @@ mod spec {
     mod mat;
     mod vec0;
     mod vec;
+    mod primitives;
     // mod complex;
 }

@@ -1,5 +1,5 @@
 use std::num::{Zero, One};
-use traits::structure::{VecCast, Row, Basis};
+use traits::structure::{Cast, Row, Basis};
 use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::mat::Mat3;
@@ -115,7 +115,7 @@ impl<N: Clone + Ord + Algebraic + Signed> Basis for Vec3<N> {
 }
 
 // FIXME: this bad: this fixes definitly the number of samples…
-static SAMPLES_2_F64: [Vec2<f64>, ..21] = [
+static SAMPLES_2_F32: [Vec2<f32>, ..21] = [
     Vec2 { x: 1.0,         y: 0.0         },
     Vec2 { x: 0.95557281,  y: 0.29475517  },
     Vec2 { x: 0.82623877,  y: 0.56332006  },
@@ -140,7 +140,7 @@ static SAMPLES_2_F64: [Vec2<f64>, ..21] = [
 ];
 
 // Those vectors come from bullet 3d
-static SAMPLES_3_F64: [Vec3<f64>, ..42] = [
+static SAMPLES_3_F32: [Vec3<f32>, ..42] = [
     Vec3 { x: 0.000000 , y: -0.000000, z: -1.000000 },
     Vec3 { x: 0.723608 , y: -0.525725, z: -0.447219 },
     Vec3 { x: -0.276388, y: -0.850649, z: -0.447219 },
@@ -192,30 +192,30 @@ impl<N: One + Clone> UniformSphereSample for Vec1<N> {
      }
 }
 
-impl<N: NumCast + Clone> UniformSphereSample for Vec2<N> {
+impl<N: Cast<f32> + Clone> UniformSphereSample for Vec2<N> {
     #[inline(always)]
     fn sample(f: &fn(Vec2<N>)) {
-         for sample in SAMPLES_2_F64.iter() {
-             f(VecCast::from(*sample))
+         for sample in SAMPLES_2_F32.iter() {
+             f(Cast::from(*sample))
          }
      }
 }
 
-impl<N: NumCast + Clone> UniformSphereSample for Vec3<N> {
+impl<N: Cast<f32> + Clone> UniformSphereSample for Vec3<N> {
     #[inline(always)]
     fn sample(f: &fn(Vec3<N>)) {
-        for sample in SAMPLES_3_F64.iter() {
-            f(VecCast::from(*sample))
+        for sample in SAMPLES_3_F32.iter() {
+            f(Cast::from(*sample))
         }
     }
 }
 
-impl<N: NumCast + Clone> UniformSphereSample for Vec4<N> {
+impl<N: Cast<f32> + Clone> UniformSphereSample for Vec4<N> {
     #[inline(always)]
     fn sample(_: &fn(Vec4<N>)) {
         fail!("UniformSphereSample::<Vec4<N>>::sample : Not yet implemented.")
-        // for sample in SAMPLES_3_F64.iter() {
-        //     f(VecCast::from(*sample))
+        // for sample in SAMPLES_3_F32.iter() {
+        //     f(Cast::from(*sample))
         // }
     }
 }

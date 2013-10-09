@@ -7,6 +7,7 @@ pub use traits::{
     AlgebraicVec,
     AlgebraicVecExt,
     Basis,
+    Cast,
     Col,
     Cov,
     Cross,
@@ -20,7 +21,6 @@ pub use traits::{
     IterableMut,
     LMul,
     Mat,
-    MatCast,
     Mean,
     Norm,
     Outer,
@@ -34,7 +34,6 @@ pub use traits::{
     Transpose,
     UniformSphereSample,
     Vec,
-    VecCast,
     VecExt
 };
 
@@ -710,26 +709,6 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
 //
 
 /*
- * MatCast<M>
- */
-
-/// Converts a matrix to a matrix with different value type.
-#[inline(always)]
-pub fn cast_mat<M: MatCast<Res>, Res>(m: M) -> Res {
-    MatCast::from(m)
-}
-
-/*
- * VecCast<M>
- */
-
-/// Converts a matrix to a matrix with different value type.
-#[inline(always)]
-pub fn cast_vec<V: VecCast<Res>, Res>(v: V) -> Res {
-    VecCast::from(v)
-}
-
-/*
  * Basis
  */
 
@@ -762,6 +741,28 @@ pub fn orthonormal_subspace_basis<V: Basis>(v: &V, f: &fn(V) -> bool) {
 #[inline(always)]
 pub fn dim<V: Dim>() -> uint {
     Dim::dim(None::<V>)
+}
+
+/*
+ * Cast<T>
+ */
+/// Converts an object from one type to another.
+///
+/// For primitive types, this is the same as the `as` keywords.
+/// Those properties are preserved by a cast:
+///     * Type-level geometric invariants cannot be broken (eg. a cast from Rot3<f64> to Rot3<i64>
+///     is not possible)
+///     * A cast to a type with more type-level invariants cannot be done (eg. a cast from
+///     Mat<f64> to Rot3<f64> is not possible)
+///     * For primitive types an unbounded cast is done using the `as` keyword (this is different
+///     from the standard library which makes bound-checking to ensure eg. that a i64 is not out of
+///     the range of an i32 when a cast from i64 to i32 is done).
+///     * A cast does not affect the dimension of an algebraic object. Note that this prevents an
+///     isometric transform to be cast to a raw matrix. Use `to_homogeneous` for that special
+///     purpose.
+#[inline(always)]
+pub fn cast<T, U: Cast<T>>(t: T) -> U {
+    Cast::from(t)
 }
 
 /*

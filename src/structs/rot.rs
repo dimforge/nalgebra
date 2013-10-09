@@ -2,11 +2,11 @@
 
 #[allow(missing_doc)];
 
-use std::num::{Zero, One, from_f32};
+use std::num::{Zero, One};
 use std::rand::{Rand, Rng};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
                        Norm, Cross};
-use traits::structure::{Dim, Indexable, Row, Col};
+use traits::structure::{Cast, Dim, Indexable, Row, Col};
 use traits::operations::{Absolute, Inv, Transpose};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
 use structs::mat::{Mat2, Mat3, Mat4, Mat5};
@@ -168,11 +168,11 @@ impl<N: Clone + Num + Algebraic> Rot3<N> {
     }
 }
 
-impl<N: Clone + Trigonometric + Num + Algebraic + FromPrimitive>
+impl<N: Clone + Trigonometric + Num + Algebraic + Cast<f32>>
 Rotation<Vec3<N>> for Rot3<N> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {
-        let angle = ((self.submat.m11 + self.submat.m22 + self.submat.m33 - One::one()) / from_f32(2.0).unwrap()).acos();
+        let angle = ((self.submat.m11 + self.submat.m22 + self.submat.m33 - One::one()) / Cast::from(2.0)).acos();
 
         if angle != angle {
             // FIXME: handle that correctly

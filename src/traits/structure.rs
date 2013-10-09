@@ -5,20 +5,18 @@ use std::vec::{VecIterator, VecMutIterator};
 use traits::operations::{RMul, LMul, ScalarAdd, ScalarSub};
 use traits::geometry::{Dot, Norm, UniformSphereSample};
 
+/// Traits of objects which can be created from an object of type `T`.
+pub trait Cast<T> {
+    /// Converts an element of type `T` to an element of type `Self`.
+    fn from(t: T) -> Self;
+}
+
 /// Trait of matrices.
 ///
 /// A matrix has rows and columns and are able to multiply them.
 pub trait Mat<R, C> : Row<R> + Col<C> + RMul<R> + LMul<C> { }
 
 impl<M: Row<R> + Col<C> + RMul<R> + LMul<C>, R, C> Mat<R, C> for M {
-}
-
-/// Trait of matrices which can be converted to another matrix.
-///
-/// Use this to change easily the type of a matrix components.
-pub trait MatCast<M> {
-    /// Converts `m` to have the type `M`.
-    fn from(m: Self) -> M;
 }
 
 // XXX: we keep ScalarAdd and ScalarSub here to avoid trait impl conflict (overriding) between the
@@ -54,13 +52,6 @@ impl<N,
 VecExt<N> for V { }
 
 impl<N: Algebraic, V: AlgebraicVec<N> + VecExt<N> + Basis + Round> AlgebraicVecExt<N> for V { }
-
-/// Trait of vectors which can be converted to another vector. Used to change the type of a vector
-/// components.
-pub trait VecCast<V> {
-    /// Converts `v` to have the type `V`.
-    fn from(v: Self) -> V;
-}
 
 // FIXME: return an iterator instead
 /// Traits of objects which can form a basis (typically vectors).

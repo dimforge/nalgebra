@@ -62,3 +62,23 @@ macro_rules! sub_redispatch_impl(
         }
     )
 )
+
+// Double dispatch traits to drive the Cast method for structured types with one type parameter.
+macro_rules! double_dispatch_cast_decl_trait(
+    ($t: ident, $tcast: ident) => (
+        pub trait $tcast<N> {
+            fn to(Self) -> $t<N>;
+        }
+    )
+)
+
+macro_rules! cast_redispatch_impl(
+    ($t:ident, $tcast: ident) => (
+        impl<T: $tcast<N>, N> Cast<T> for $t<N> {
+            #[inline(always)]
+            fn from(t: T) -> $t<N> {
+                $tcast::to(t)
+            }
+        }
+    )
+)

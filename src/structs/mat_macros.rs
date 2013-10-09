@@ -33,14 +33,14 @@ macro_rules! at_fast_impl(
 )
 
 macro_rules! mat_cast_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<Nin: NumCast + Clone, Nout: NumCast> MatCast<$t<Nout>> for $t<Nin> {
-        #[inline]
-        fn from(m: $t<Nin>) -> $t<Nout> {
-            $t::new(NumCast::from(m.$comp0.clone()).unwrap() $(, NumCast::from(m.$compN.clone()).unwrap() )*)
+    ($t: ident, $tcast: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<Nin: Clone, Nout: Clone + Cast<Nin>> $tcast<Nout> for $t<Nin> {
+            #[inline]
+            fn to(v: $t<Nin>) -> $t<Nout> {
+                $t::new(Cast::from(v.$comp0.clone()) $(, Cast::from(v.$compN.clone()))*)
+            }
         }
-    }
-  )
+    )
 )
 
 macro_rules! add_impl(
