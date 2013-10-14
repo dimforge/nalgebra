@@ -93,6 +93,20 @@ impl<N> DVec<N> {
     }
 
     #[inline]
+    pub fn as_vec<'r>(&'r self) -> &'r [N] {
+        let data: &'r [N] = self.at;
+
+        data
+    }
+
+    #[inline]
+    pub fn as_mut_vec<'r>(&'r mut self) -> &'r mut [N] {
+        let data: &'r mut [N] = self.at;
+
+        data
+    }
+
+    #[inline]
     pub fn to_vec(self) -> ~[N] {
         self.at
     }
