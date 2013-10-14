@@ -13,11 +13,17 @@ pub trait Translation<V> {
     /// Gets the inverse translation associated with this object.
     fn inv_translation(&self) -> V;
 
-    /// In-place version of `translated`.
-    fn translate_by(&mut self, &V);
+    /// Appends a translation to this object.
+    fn append_translation(&mut self, &V);
 
-    /// Appends a translation.
-    fn translated(&self, &V) -> Self;
+    /// Appends the translation `amount` to a copy of `t`.
+    fn append_translation_cpy(t: &Self, amount: &V) -> Self;
+
+    /// Prepends a translation to this object.
+    fn prepend_translation(&mut self, &V);
+
+    /// Prepends the translation `amount` to a copy of `t`.
+    fn prepend_translation_cpy(t: &Self, amount: &V) -> Self;
 
     /// Sets the translation.
     fn set_translation(&mut self, V);
@@ -27,7 +33,8 @@ pub trait Translation<V> {
 /// rotate vectors.
 pub trait Translate<V> {
     /// Apply a translation to an object.
-    fn translate(&self, &V)     -> V;
+    fn translate(&self, &V) -> V;
+
     /// Apply an inverse translation to an object.
     fn inv_translate(&self, &V) -> V;
 }
@@ -41,11 +48,17 @@ pub trait Rotation<V> {
     /// Gets the inverse rotation associated with `self`.
     fn inv_rotation(&self) -> V;
 
-    /// In-place version of `rotated`.
-    fn rotate_by(&mut self, &V);
+    /// Appends a rotation to this object.
+    fn append_rotation(&mut self, &V);
 
-    /// Appends a rotation to `self`.
-    fn rotated(&self, &V) -> Self;
+    /// Appends the rotation `amount` to a copy of `t`.
+    fn append_rotation_cpy(t: &Self, amount: &V) -> Self;
+
+    /// Prepends a rotation to this object.
+    fn prepend_rotation(&mut self, &V);
+
+    /// Prepends the rotation `amount` to a copy of `t`.
+    fn prepend_rotation_cpy(t: &Self, amount: &V) -> Self;
 
     /// Sets the rotation of `self`.
     fn set_rotation(&mut self, V);
@@ -57,6 +70,7 @@ pub trait Rotation<V> {
 pub trait Rotate<V> {
     /// Applies a rotation to `v`.
     fn rotate(&self, v: &V) -> V;
+
     /// Applies an inverse rotation to `v`.
     fn inv_rotate(&self, v: &V) -> V;
 }
@@ -72,15 +86,15 @@ pub trait RotationWithTranslation<LV: Neg<LV>, AV>: Rotation<AV> + Translation<L
     /// Applies a rotation centered on a specific point.
     ///
     /// # Arguments
-    ///   * `m` - the object to be rotated.
+    ///   * `t` - the object to be rotated.
     ///   * `amount` - the rotation to apply.
     ///   * `point` - the center of rotation.
     #[inline]
-    fn rotated_wrt_point(&self, amount: &AV, center: &LV) -> Self {
-        let mut res = self.translated(&-center);
+    fn append_rotation_wrt_point_cpy(t: &Self, amount: &AV, center: &LV) -> Self {
+        let mut res = Translation::append_translation_cpy(t, &-center);
 
-        res.rotate_by(amount);
-        res.translate_by(center);
+        res.append_rotation(amount);
+        res.append_translation(center);
 
         res
     }
@@ -90,24 +104,23 @@ pub trait RotationWithTranslation<LV: Neg<LV>, AV>: Rotation<AV> + Translation<L
     /// The rotation is applied in-place.
     ///
     /// # Arguments
-    ///   * `m` - the object to be rotated
     ///   * `amount` - the rotation to be applied
     ///   * `center` - the new center of rotation
     #[inline]
-    fn rotate_wrt_point(&mut self, amount: &AV, center: &LV) {
-        self.translate_by(&-center);
-        self.rotate_by(amount);
-        self.translate_by(center);
+    fn append_rotation_wrt_point(&mut self, amount: &AV, center: &LV) {
+        self.append_translation(&-center);
+        self.append_rotation(amount);
+        self.append_translation(center);
     }
 
     /// Applies a rotation centered on the translation of `m`.
     /// 
     /// # Arguments
-    ///   * `m` - the object to be rotated.
+    ///   * `t` - the object to be rotated.
     ///   * `amount` - the rotation to apply.
     #[inline]
-    fn rotated_wrt_center(&self, amount: &AV) -> Self {
-        self.rotated_wrt_point(amount, &self.translation())
+    fn append_rotation_wrt_center_cpy(t: &Self, amount: &AV) -> Self {
+        RotationWithTranslation::append_rotation_wrt_point_cpy(t, amount, &t.translation())
     }
 
     /// Applies a rotation centered on the translation of `m`.
@@ -115,12 +128,11 @@ pub trait RotationWithTranslation<LV: Neg<LV>, AV>: Rotation<AV> + Translation<L
     /// The rotation os applied on-place.
     ///
     /// # Arguments
-    ///   * `m` - the object to be rotated.
     ///   * `amount` - the rotation to apply.
     #[inline]
-    fn rotate_wrt_center(&mut self, amount: &AV) {
+    fn append_rotation_wrt_center(&mut self, amount: &AV) {
         let center = self.translation();
-        self.rotate_wrt_point(amount, &center)
+        self.append_rotation_wrt_point(amount, &center)
     }
 }
 
@@ -158,11 +170,17 @@ pub trait Transformation<M> {
     /// Gets the inverse transformation of `self`.
     fn inv_transformation(&self) -> M;
 
-    /// In-place version of `transformed`.
-    fn transform_by(&mut self, &M);
+    /// Appends a transformation to this object.
+    fn append_transformation(&mut self, &M);
 
-    /// Appends a transformation to `self`.
-    fn transformed(&self, &M) -> Self;
+    /// Appends the transformation `amount` to a copy of `t`.
+    fn append_transformation_cpy(t: &Self, amount: &M) -> Self;
+
+    /// Prepends a transformation to this object.
+    fn prepend_transformation(&mut self, &M);
+
+    /// Prepends the transformation `amount` to a copy of `t`.
+    fn prepend_transformation_cpy(t: &Self, amount: &M) -> Self;
 
     /// Sets the transformation of `self`.
     fn set_transformation(&mut self, M);
@@ -174,6 +192,7 @@ pub trait Transformation<M> {
 pub trait Transform<V> {
     /// Applies a transformation to `v`.
     fn transform(&self, &V) -> V;
+
     /// Applies an inverse transformation to `v`.
     fn inv_transform(&self, &V) -> V;
 }
@@ -212,11 +231,11 @@ pub trait Norm<N: Algebraic> {
     #[inline]
     fn sqnorm(&self) -> N;
 
-    /// Gets the normalized version of `self`.
+    /// Gets the normalized version of a copy of `v`.
     #[inline]
-    fn normalized(&self) -> Self;
+    fn normalize_cpy(v: &Self) -> Self;
 
-    /// In-place version of `normalized`.
+    /// Normalizes `self`.
     #[inline]
     fn normalize(&mut self) -> N;
 }

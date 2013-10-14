@@ -166,7 +166,7 @@ pub fn mat4<N>(m11: N, m12: N, m13: N, m14: N,
  * Translation<V>
  */
 
-/// Gets the translation applicable by the given object.
+/// Gets the translation applicable by `m`.
 ///
 /// ```rust
 /// extern mod nalgebra;
@@ -185,7 +185,7 @@ pub fn translation<V, M: Translation<V>>(m: &M) -> V {
     m.translation()
 }
 
-/// Gets the inverse translation applicable by the given object.
+/// Gets the inverse translation applicable by `m`.
 ///
 /// ```rust
 /// extern mod nalgebra;
@@ -204,22 +204,10 @@ pub fn inv_translation<V, M: Translation<V>>(m: &M) -> V {
     m.inv_translation()
 }
 
-/// In-place version of `translated`.
+/// Appied the translation `v` to a copy of `m`.
 #[inline(always)]
-pub fn translate_by<V, M: Translation<V>>(m: &mut M, v: &V) {
-    m.translate_by(v)
-}
-
-/// Gets a translated copy of the given object.
-#[inline(always)]
-pub fn translated<V, M: Translation<V>>(m: &M, v: &V) -> M {
-    m.translated(v)
-}
-
-/// Sets the translation of the given object.
-#[inline(always)]
-pub fn set_translation<V, M: Translation<V>>(m: &mut M, v: V) {
-    m.set_translation(v)
+pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
+    Translation::append_translation_cpy(m, v)
 }
 
 /*
@@ -269,7 +257,7 @@ pub fn inv_translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
  * Rotation<V>
  */
 
-/// Gets the rotation applicable by the given object.
+/// Gets the rotation applicable by `m`.
 ///
 /// ```rust
 /// extern mod nalgebra;
@@ -287,7 +275,7 @@ pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
 }
 
 
-/// Gets the rotation applicable by the given object.
+/// Gets the inverse rotation applicable by `m`.
 ///
 /// ```rust
 /// extern mod nalgebra;
@@ -304,27 +292,7 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
     m.inv_rotation()
 }
 
-/// Rotates an object in-place.
-///
-/// ```rust
-/// extern mod nalgebra;
-/// use nalgebra::na;
-///
-/// pub main() {
-///     let mut t = na::rot3(0.0, 0.0, 0.0);
-///     let v     = na::vec3(1.0, 1.0, 1.0);
-///
-///     na::rotate_by(&mut t, &v);
-///
-///     assert!(na::rotation(&t) == na::vec3(1.0, 1.0, 1.0))
-/// }
-/// ```
-#[inline(always)]
-pub fn rotate_by<V, M: Rotation<V>>(m: &mut M, v: &V) {
-    m.rotate_by(v)
-}
-
-/// Creates a rotated copy of an object.
+/// Applies the rotation `v` to a copy of `m`.
 ///
 /// ```rust
 /// extern mod nalgebra;
@@ -333,34 +301,14 @@ pub fn rotate_by<V, M: Rotation<V>>(m: &mut M, v: &V) {
 /// pub main() {
 ///     let t  = na::rot3(0.0, 0.0, 0.0);
 ///     let v  = na::vec3(1.0, 1.0, 1.0);
-///     let rt = na::rotated(&mut t, &v);
+///     let rt = na::append_rotation(&t, &v);
 ///
 ///     assert!(na::rotation(&rt) == na::vec3(1.0, 1.0, 1.0))
 /// }
 /// ```
 #[inline(always)]
-pub fn rotated<V, M: Rotation<V>>(m: &M, v: &V) -> M {
-    m.rotated(v)
-}
-
-/// Sets the rotation of an object.
-///
-/// ```rust
-/// extern mod nalgebra;
-/// use nalgebra::na;
-///
-/// pub main() {
-///     let mut t = na::rot3(1.0, 0.5, 0.2);
-///     let v     = na::vec3(1.0, 1.0, 1.0);
-///
-///     na::set_rotation(&mut t, &v);
-///
-///     assert!(na::rotation(&t) == na::vec3(1.0, 1.0, 1.0))
-/// }
-/// ```
-#[inline(always)]
-pub fn set_rotation<V, M: Rotation<V>>(m: &mut M, v: V) {
-    m.set_rotation(v)
+pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
+    Rotation::append_rotation_cpy(m, v)
 }
 
 /*
@@ -395,7 +343,7 @@ pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t  = na::rot3(1.0, 0.0, 0.0);
+///     let t  = na::rot3(na::vec3(1.0, 0.0, 0.0));
 ///     let v  = na::vec3(0.0, 0.0, na::pi() / 2.0);
 ///
 ///     let tv = na::rotate(&t, &v);
@@ -412,53 +360,32 @@ pub fn inv_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
  * RotationWithTranslation<LV, AV>
  */
 
-/// Creates a rotated copy of an object using a specific center of rotation.
+/// Rotates a copy of `m` by `amount` using `center` ase the pivot point.
 #[inline(always)]
-pub fn rotated_wrt_point<LV: Neg<LV>,
-                         AV,
-                         M: RotationWithTranslation<LV, AV>>(
-                         m:      &M,
-                         amount: &AV,
-                         center: &LV) -> M {
-    m.rotated_wrt_point(amount, center)
+pub fn append_rotation_wrt_point<LV: Neg<LV>,
+                                 AV,
+                                 M: RotationWithTranslation<LV, AV>>(
+                                 m:      &M,
+                                 amount: &AV,
+                                 center: &LV) -> M {
+    RotationWithTranslation::append_rotation_wrt_point_cpy(m, amount, center)
 }
 
-/// In-place version of `rotated_wrt_point`.
-#[inline(always)]
-pub fn rotate_wrt_point<LV: Neg<LV>,
-                        AV,
-                        M: RotationWithTranslation<LV, AV>>(
-                        m:      &mut M,
-                        amount: &AV,
-                        center: &LV) {
-    m.rotate_wrt_point(amount, center)
-}
-
-/// Creates a rotated copy of an object using its own translation as the center of rotation.
-#[inline(always)]
-pub fn rotated_wrt_center<LV: Neg<LV>,
-                          AV,
-                          M: RotationWithTranslation<LV, AV>>(
-                          m:      &M,
-                          amount: &AV) -> M {
-    m.rotated_wrt_center(amount)
-}
-
-/// In-place version of `rotate_wrt_center`.
+/// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
 #[inline(always)]
 pub fn rotate_wrt_center<LV: Neg<LV>,
                          AV,
                          M: RotationWithTranslation<LV, AV>>(
-                         m:      &mut M,
-                         amount: &AV) {
-    m.rotate_wrt_center(amount)
+                         m:      &M,
+                         amount: &AV) -> M {
+    RotationWithTranslation::append_rotation_wrt_center_cpy(m, amount)
 }
 
 /*
  * RotationMatrix<LV, AV, R>
  */
 
-/// Builds a rotation matrix from a rotation-capable object.
+/// Builds a rotation matrix from `r`.
 #[inline(always)]
 pub fn to_rot_mat<LV, AV, M: Mat<LV, LV> + Rotation<AV>, R: RotationMatrix<LV, AV, M>>(r: &R) -> M {
     r.to_rot_mat()
@@ -478,34 +405,22 @@ pub fn absolute_rotate<V, M: AbsoluteRotate<V>>(m: &M, v: &V) -> V {
  * Transformation<T>
  */
 
-/// Gets the transformation applicable by the given object.
+/// Gets the transformation applicable by `m`.
 #[inline(always)]
 pub fn transformation<T, M: Transformation<T>>(m: &M) -> T {
     m.transformation()
 }
 
-/// Gets the inverse transformation applicable by the given object.
+/// Gets the inverse transformation applicable by `m`.
 #[inline(always)]
 pub fn inv_transformation<T, M: Transformation<T>>(m: &M) -> T {
     m.inv_transformation()
 }
 
-/// In-place version of `transformed`.
+/// Gets a transformed copy of `m`.
 #[inline(always)]
-pub fn transform_by<T, M: Transformation<T>>(m: &mut M, t: &T) {
-    m.transform_by(t)
-}
-
-/// Gets a transformed copy of an object.
-#[inline(always)]
-pub fn transformed<T, M: Transformation<T>>(m: &M, t: &T) -> M {
-    m.transformed(t)
-}
-
-/// Sets the transformation of an object.
-#[inline(always)]
-pub fn set_transformation<T, M: Transformation<T>>(m: &mut M, t: T) {
-    m.set_transformation(t)
+pub fn append_transformation<T, M: Transformation<T>>(m: &M, t: &T) -> M {
+    Transformation::append_transformation_cpy(m, t)
 }
 
 /*
@@ -558,14 +473,8 @@ pub fn sqnorm<V: Norm<N>, N: Algebraic>(v: &V) -> N {
 
 /// Gets the normalized version of a vector.
 #[inline(always)]
-pub fn normalized<V: Norm<N>, N: Algebraic>(v: &V) -> V {
-    v.normalized()
-}
-
-/// In-place version of `normalized`.
-#[inline(always)]
-pub fn normalize<V: Norm<N>, N: Algebraic>(v: &mut V) -> N {
-    v.normalize()
+pub fn normalize<V: Norm<N>, N: Algebraic>(v: &V) -> V {
+    Norm::normalize_cpy(v)
 }
 
 /*
@@ -646,14 +555,8 @@ pub fn absolute<M: Absolute<Res>, Res>(m: &M) -> Res {
 
 /// Gets an inverted copy of a matrix.
 #[inline(always)]
-pub fn inverted<M: Inv>(m: &M) -> Option<M> {
-    m.inverted()
-}
-
-/// In-place version of `inverted`.
-#[inline(always)]
-pub fn invert<M: Inv>(m: &mut M) -> bool {
-    m.invert()
+pub fn inv<M: Inv>(m: &M) -> Option<M> {
+    Inv::inv_cpy(m)
 }
 
 /*
@@ -662,14 +565,8 @@ pub fn invert<M: Inv>(m: &mut M) -> bool {
 
 /// Gets a transposed copy of a matrix.
 #[inline(always)]
-pub fn transposed<M: Transpose>(m: &M) -> M {
-    m.transposed()
-}
-
-/// In-place version of `transposed`.
-#[inline(always)]
-pub fn transpose<M: Transpose>(m: &mut M) {
-    m.transpose()
+pub fn transpose<M: Transpose>(m: &M) -> M {
+    Transpose::transpose_cpy(m)
 }
 
 /*
@@ -749,17 +646,17 @@ pub fn dim<V: Dim>() -> uint {
 /// Converts an object from one type to another.
 ///
 /// For primitive types, this is the same as the `as` keywords.
-/// Those properties are preserved by a cast:
-///     * Type-level geometric invariants cannot be broken (eg. a cast from Rot3<f64> to Rot3<i64>
-///     is not possible)
-///     * A cast to a type with more type-level invariants cannot be done (eg. a cast from
-///     Mat<f64> to Rot3<f64> is not possible)
-///     * For primitive types an unbounded cast is done using the `as` keyword (this is different
-///     from the standard library which makes bound-checking to ensure eg. that a i64 is not out of
-///     the range of an i32 when a cast from i64 to i32 is done).
-///     * A cast does not affect the dimension of an algebraic object. Note that this prevents an
-///     isometric transform to be cast to a raw matrix. Use `to_homogeneous` for that special
-///     purpose.
+/// The following properties are preserved by a cast:
+///
+/// * Type-level geometric invariants cannot be broken (eg. a cast from Rot3<f64> to Rot3<i64> is
+/// not possible)
+/// * A cast to a type with more type-level invariants cannot be done (eg. a cast from Mat<f64> to
+/// Rot3<f64> is not possible)
+/// * For primitive types an unbounded cast is done using the `as` keyword (this is different from
+/// the standard library which makes bound-checking to ensure eg. that a i64 is not out of the
+/// range of an i32 when a cast from i64 to i32 is done).
+/// * A cast does not affect the dimension of an algebraic object. Note that this prevents an
+/// isometric transform to be cast to a raw matrix. Use `to_homogeneous` for that special purpose.
 #[inline(always)]
 pub fn cast<T, U: Cast<T>>(t: T) -> U {
     Cast::from(t)

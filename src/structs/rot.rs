@@ -22,8 +22,8 @@ pub struct Rot2<N> {
 
 impl<N: Clone + Trigonometric + Neg<N>> Rot2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
-    pub fn from_angle(angle: N) -> Rot2<N> {
-        let (sia, coa) = angle.sin_cos();
+    pub fn new(angle: Vec1<N>) -> Rot2<N> {
+        let (sia, coa) = angle.x.sin_cos();
 
         Rot2 {
             submat: Mat2::new(coa.clone(), -sia, sia.clone(), coa)
@@ -44,25 +44,35 @@ Rotation<Vec1<N>> for Rot2<N> {
     }
 
     #[inline]
-    fn rotate_by(&mut self, rot: &Vec1<N>) {
-        *self = self.rotated(rot)
+    fn append_rotation(&mut self, rot: &Vec1<N>) {
+        *self = Rotation::append_rotation_cpy(self, rot)
     }
 
     #[inline]
-    fn rotated(&self, rot: &Vec1<N>) -> Rot2<N> {
-        Rot2::from_angle(rot.x.clone()) * *self
+    fn append_rotation_cpy(t: &Rot2<N>, rot: &Vec1<N>) -> Rot2<N> {
+        Rot2::new(rot.clone()) * *t
+    }
+
+    #[inline]
+    fn prepend_rotation(&mut self, rot: &Vec1<N>) {
+        *self = Rotation::prepend_rotation_cpy(self, rot)
+    }
+
+    #[inline]
+    fn prepend_rotation_cpy(t: &Rot2<N>, rot: &Vec1<N>) -> Rot2<N> {
+        *t * Rot2::new(rot.clone())
     }
 
     #[inline]
     fn set_rotation(&mut self, rot: Vec1<N>) {
-        *self = Rot2::from_angle(rot.x)
+        *self = Rot2::new(rot)
     }
 }
 
 impl<N: Clone + Rand + Trigonometric + Neg<N>> Rand for Rot2<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rot2<N> {
-        Rot2::from_angle(rng.gen())
+        Rot2::new(rng.gen())
     }
 }
 
@@ -95,7 +105,7 @@ impl<N: Clone + Trigonometric + Num + Algebraic> Rot3<N> {
     /// # Arguments
     ///   * `axisangle` - A vector representing the rotation. Its magnitude is the amount of rotation
     ///   in radian. Its direction is the axis of rotation.
-    pub fn from_axis_angle(axisangle: Vec3<N>) -> Rot3<N> {
+    pub fn new(axisangle: Vec3<N>) -> Rot3<N> {
         if axisangle.sqnorm().is_zero() {
             One::one()
         }
@@ -141,13 +151,14 @@ impl<N: Clone + Num + Algebraic> Rot3<N> {
     ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
-        let xaxis = at.normalized();
-        let zaxis = up.cross(&xaxis).normalized();
+        let xaxis = Norm::normalize_cpy(at);
+        let zaxis = Norm::normalize_cpy(&up.cross(&xaxis));
         let yaxis = zaxis.cross(&xaxis);
 
-        self.submat = Mat3::new(xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
-        xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
-        xaxis.z        , yaxis.z        , zaxis.z)
+        self.submat = Mat3::new(
+            xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
+            xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
+            xaxis.z        , yaxis.z        , zaxis.z)
     }
 
     /// Reorient this matrix such that its local `z` axis points to a given point. 
@@ -158,13 +169,14 @@ impl<N: Clone + Num + Algebraic> Rot3<N> {
     ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at_z(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
-        let zaxis = at.normalized();
-        let xaxis = up.cross(&zaxis).normalized();
+        let zaxis = Norm::normalize_cpy(at);
+        let xaxis = Norm::normalize_cpy(&up.cross(&zaxis));
         let yaxis = zaxis.cross(&xaxis);
 
-        self.submat = Mat3::new(xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
-        xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
-        xaxis.z        , yaxis.z        , zaxis.z)
+        self.submat = Mat3::new(
+            xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
+            xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
+            xaxis.z        , yaxis.z        , zaxis.z)
     }
 }
 
@@ -208,18 +220,28 @@ Rotation<Vec3<N>> for Rot3<N> {
 
 
     #[inline]
-    fn rotate_by(&mut self, rot: &Vec3<N>) {
-        *self = self.rotated(rot)
+    fn append_rotation(&mut self, rot: &Vec3<N>) {
+        *self = Rotation::append_rotation_cpy(self, rot)
     }
 
     #[inline]
-    fn rotated(&self, axisangle: &Vec3<N>) -> Rot3<N> {
-        Rot3::from_axis_angle(axisangle.clone()) * *self
+    fn append_rotation_cpy(t: &Rot3<N>, axisangle: &Vec3<N>) -> Rot3<N> {
+        Rot3::new(axisangle.clone()) * *t
+    }
+
+    #[inline]
+    fn prepend_rotation(&mut self, rot: &Vec3<N>) {
+        *self = Rotation::prepend_rotation_cpy(self, rot)
+    }
+
+    #[inline]
+    fn prepend_rotation_cpy(t: &Rot3<N>, axisangle: &Vec3<N>) -> Rot3<N> {
+        *t * Rot3::new(axisangle.clone())
     }
 
     #[inline]
     fn set_rotation(&mut self, axisangle: Vec3<N>) {
-        *self = Rot3::from_axis_angle(axisangle)
+        *self = Rot3::new(axisangle)
     }
 }
 
@@ -227,7 +249,7 @@ impl<N: Clone + Rand + Trigonometric + Num + Algebraic>
 Rand for Rot3<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rot3<N> {
-        Rot3::from_axis_angle(rng.gen())
+        Rot3::new(rng.gen())
     }
 }
 

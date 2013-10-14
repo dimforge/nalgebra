@@ -12,15 +12,16 @@ pub trait Absolute<A> {
 /// Trait of objects having an inverse. Typically used to implement matrix inverse.
 pub trait Inv {
     /// Returns the inverse of `self`.
-    fn inverted(&self) -> Option<Self>;
+    fn inv_cpy(m: &Self) -> Option<Self>;
+
     /// In-place version of `inverse`.
-    fn invert(&mut self) -> bool;
+    fn inv(&mut self) -> bool;
 }
 
 /// Trait of objects which can be transposed.
 pub trait Transpose {
     /// Computes the transpose of a matrix.
-    fn transposed(&self) -> Self;
+    fn transpose_cpy(m: &Self) -> Self;
 
     /// In-place version of `transposed`.
     fn transpose(&mut self);
@@ -39,6 +40,14 @@ pub trait Cov<M> {
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
     fn cov(&self) -> M;
+
+    /// Computes the covariance of the obsevations stored by `self`:
+    ///
+    ///   * For matrices, observations are stored in its rows.
+    ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
+    fn cov_to(&self, out: &mut M) {
+        *out = self.cov()
+    }
 }
 
 /// Trait for computing the covariance of a set of data.
@@ -49,6 +58,26 @@ pub trait Mean<N> {
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
     fn mean(&self) -> N;
 }
+
+// /// Cholesky decomposition.
+// pub trait Chol {
+//     /// Performs the cholesky decomposition on `self`. The resulting upper-triangular matrix is
+//     /// returned. Returns `None` if the matrix is not symetric positive-definite.
+//     fn chol(self) -> Option<Self>;
+// 
+//     /// Performs the cholesky decomposition on `self`. The resulting upper-triangular matrix is
+//     /// written to a given parameter. If the decomposition fails `false` is returned; the state of
+//     /// the output parameter is undefined.
+//     fn chol_to(&self, out: &mut Self) -> bool {
+//         match self.chol() {
+//             None => false,
+//             Some(decomp) => {
+//                 *out = decomp;
+//                 true
+//             }
+//         }
+//     }
+// }
 
 // XXX: those two traits should not exist since there is generalized operator overloading of Add
 // and Sub.

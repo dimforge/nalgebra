@@ -9,10 +9,10 @@ use traits::structure::{Cast, Row, Col};
 impl<N: Num + Clone>
 Inv for Mat1<N> {
     #[inline]
-    fn inverted(&self) -> Option<Mat1<N>> {
-        let mut res : Mat1<N> = self.clone();
+    fn inv_cpy(m: &Mat1<N>) -> Option<Mat1<N>> {
+        let mut res = m.clone();
 
-        if res.invert() {
+        if res.inv() {
             Some(res)
         }
         else {
@@ -21,7 +21,7 @@ Inv for Mat1<N> {
     }
 
     #[inline]
-    fn invert(&mut self) -> bool {
+    fn inv(&mut self) -> bool {
         if self.m11.is_zero() {
             false
         }
@@ -36,10 +36,10 @@ Inv for Mat1<N> {
 impl<N: Num + Clone>
 Inv for Mat2<N> {
     #[inline]
-    fn inverted(&self) -> Option<Mat2<N>> {
-        let mut res : Mat2<N> = self.clone();
+    fn inv_cpy(m: &Mat2<N>) -> Option<Mat2<N>> {
+        let mut res = m.clone();
 
-        if res.invert() {
+        if res.inv() {
             Some(res)
         }
         else {
@@ -48,7 +48,7 @@ Inv for Mat2<N> {
     }
 
     #[inline]
-    fn invert(&mut self) -> bool {
+    fn inv(&mut self) -> bool {
         let det = self.m11 * self.m22 - self.m21 * self.m12;
 
         if det.is_zero() {
@@ -67,10 +67,10 @@ Inv for Mat2<N> {
 impl<N: Num + Clone>
 Inv for Mat3<N> {
     #[inline]
-    fn inverted(&self) -> Option<Mat3<N>> {
-        let mut res = self.clone();
+    fn inv_cpy(m: &Mat3<N>) -> Option<Mat3<N>> {
+        let mut res = m.clone();
 
-        if res.invert() {
+        if res.inv() {
             Some(res)
         }
         else {
@@ -79,7 +79,7 @@ Inv for Mat3<N> {
     }
 
     #[inline]
-    fn invert(&mut self) -> bool {
+    fn inv(&mut self) -> bool {
         let minor_m12_m23 = self.m22 * self.m33 - self.m32 * self.m23;
         let minor_m11_m23 = self.m21 * self.m33 - self.m31 * self.m23;
         let minor_m11_m22 = self.m21 * self.m32 - self.m31 * self.m22;

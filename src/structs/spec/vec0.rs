@@ -128,13 +128,23 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     }
 
     #[inline]
-    fn translate_by(&mut self, t: &vec::Vec0<N>) {
+    fn append_translation(&mut self, t: &vec::Vec0<N>) {
+        *self = *t + *self;
+    }
+
+    #[inline]
+    fn append_translation_cpy(vec: &vec::Vec0<N>, t: &vec::Vec0<N>) -> vec::Vec0<N> {
+        *t + vec
+    }
+
+    #[inline]
+    fn prepend_translation(&mut self, t: &vec::Vec0<N>) {
         *self = *self + *t;
     }
 
     #[inline]
-    fn translated(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
-        self + *t
+    fn prepend_translation_cpy(vec: &vec::Vec0<N>, t: &vec::Vec0<N>) -> vec::Vec0<N> {
+        vec + *t
     }
 
     #[inline]
@@ -154,21 +164,13 @@ impl<N: Clone + Num + Algebraic> Norm<N> for vec::Vec0<N> {
     }
 
     #[inline]
-    fn normalized(&self) -> vec::Vec0<N> {
-        let mut res : vec::Vec0<N> = self.clone();
-
-        res.normalize();
-
-        res
+    fn normalize_cpy(v: &vec::Vec0<N>) -> vec::Vec0<N> {
+        v.clone()
     }
 
     #[inline]
     fn normalize(&mut self) -> N {
-        let l = self.norm();
-
-        *self = *self / l;
-
-        l
+        Zero::zero()
     }
 }
 

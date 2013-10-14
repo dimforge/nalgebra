@@ -78,7 +78,7 @@ macro_rules! test_subspace_basis_impl(
     ($t: ty) => (
         do 10000.times {
             let v : $t = random();
-            let v1     = na::normalized(&v);
+            let v1     = na::normalize(&v);
 
             do na::orthonormal_subspace_basis(&v1) |e1| {
                 // check vectors are orthogonal to v1

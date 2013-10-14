@@ -64,6 +64,12 @@ impl<N: Zero + Clone> DMat<N> {
     pub fn is_zero(&self) -> bool {
         self.mij.iter().all(|e| e.is_zero())
     }
+
+    pub fn reset(&mut self) {
+        for mij in self.mij.mut_iter() {
+            *mij = Zero::zero();
+        }
+    }
 }
 
 impl<N: Rand> DMat<N> {
@@ -158,7 +164,6 @@ impl<N: One + Zero + Clone> DMat<N> {
         res
     }
 }
-
 
 impl<N: Clone> DMat<N> {
     #[inline]
@@ -278,10 +283,10 @@ DVecMulRhs<N, DVec<N>> for DMat<N> {
 impl<N: Clone + Num>
 Inv for DMat<N> {
     #[inline]
-    fn inverted(&self) -> Option<DMat<N>> {
-        let mut res : DMat<N> = self.clone();
+    fn inv_cpy(m: &DMat<N>) -> Option<DMat<N>> {
+        let mut res : DMat<N> = m.clone();
 
-        if res.invert() {
+        if res.inv() {
             Some(res)
         }
         else {
@@ -289,7 +294,7 @@ Inv for DMat<N> {
         }
     }
 
-    fn invert(&mut self) -> bool {
+    fn inv(&mut self) -> bool {
         assert!(self.nrows == self.ncols);
 
         let dim              = self.nrows;
@@ -366,21 +371,21 @@ Inv for DMat<N> {
 
 impl<N: Clone> Transpose for DMat<N> {
     #[inline]
-    fn transposed(&self) -> DMat<N> {
-        if self.nrows == self.ncols {
-            let mut res = self.clone();
+    fn transpose_cpy(m: &DMat<N>) -> DMat<N> {
+        if m.nrows == m.ncols {
+            let mut res = m.clone();
 
             res.transpose();
 
             res
         }
         else {
-            let mut res = unsafe { DMat::new_uninitialized(self.ncols, self.nrows) };
+            let mut res = unsafe { DMat::new_uninitialized(m.ncols, m.nrows) };
 
-            for i in range(0u, self.nrows) {
-                for j in range(0u, self.ncols) {
+            for i in range(0u, m.nrows) {
+                for j in range(0u, m.ncols) {
                     unsafe {
-                        res.set_fast(j, i, self.at_fast(i, j))
+                        res.set_fast(j, i, m.at_fast(i, j))
                     }
                 }
             }
@@ -405,7 +410,7 @@ impl<N: Clone> Transpose for DMat<N> {
         }
         else {
             // FIXME: implement a better algorithm which does that in-place.
-            *self = self.transposed();
+            *self = Transpose::transpose_cpy(self);
         }
     }
 }
@@ -449,7 +454,7 @@ impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> 
         let fnormalizer: f32 = Cast::from(self.nrows() - 1);
         let normalizer: N    = Cast::from(fnormalizer);
         // FIXME: this will do 2 allocations for temporaries!
-        (centered.transposed() * centered) / normalizer
+        (Transpose::transpose_cpy(&centered) * centered) / normalizer
     }
 }
 

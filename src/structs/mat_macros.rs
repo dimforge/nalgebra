@@ -331,10 +331,10 @@ macro_rules! inv_impl(
     impl<N: Clone + Eq + Num>
     Inv for $t<N> {
         #[inline]
-        fn inverted(&self) -> Option<$t<N>> {
-            let mut res : $t<N> = self.clone();
+        fn inv_cpy(m: &$t<N>) -> Option<$t<N>> {
+            let mut res : $t<N> = m.clone();
 
-            if res.invert() {
+            if res.inv() {
                 Some(res)
             }
             else {
@@ -342,7 +342,7 @@ macro_rules! inv_impl(
             }
         }
 
-        fn invert(&mut self) -> bool {
+        fn inv(&mut self) -> bool {
             let mut res: $t<N> = One::one();
             let     _0N: N     = Zero::zero();
 
@@ -415,8 +415,8 @@ macro_rules! transpose_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Clone> Transpose for $t<N> {
         #[inline]
-        fn transposed(&self) -> $t<N> {
-            let mut res = self.clone();
+        fn transpose_cpy(m: &$t<N>) -> $t<N> {
+            let mut res = m.clone();
 
             res.transpose();
 

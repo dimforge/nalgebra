@@ -253,7 +253,7 @@ macro_rules! basis_impl(
                     };
 
                     if !elt.sqnorm().approx_eq(&Zero::zero()) {
-                        let new_element = elt.normalized();
+                        let new_element = Norm::normalize_cpy(&elt);
 
                         if !f(new_element.clone()) { return };
 
@@ -394,13 +394,23 @@ macro_rules! translation_impl(
             }
 
             #[inline]
-            fn translate_by(&mut self, t: &$t<N>) {
+            fn append_translation(&mut self, t: &$t<N>) {
+                *self = *t + *self;
+            }
+
+            #[inline]
+            fn append_translation_cpy(transform: &$t<N>, t: &$t<N>) -> $t<N> {
+                *t + *transform
+            }
+
+            #[inline]
+            fn prepend_translation(&mut self, t: &$t<N>) {
                 *self = *self + *t;
             }
 
             #[inline]
-            fn translated(&self, t: &$t<N>) -> $t<N> {
-                self + *t
+            fn prepend_translation_cpy(transform: &$t<N>, t: &$t<N>) -> $t<N> {
+                transform + *t
             }
 
             #[inline]
@@ -425,8 +435,8 @@ macro_rules! norm_impl(
             }
 
             #[inline]
-            fn normalized(&self) -> $t<N> {
-                let mut res : $t<N> = self.clone();
+            fn normalize_cpy(v: &$t<N>) -> $t<N> {
+                let mut res : $t<N> = v.clone();
 
                 res.normalize();
 

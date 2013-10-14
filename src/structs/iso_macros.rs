@@ -85,7 +85,7 @@ macro_rules! vec_mul_iso_impl(
 
 macro_rules! translation_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: Neg<N> + Add<N, N> + Clone> Translation<$tv<N>> for $t<N> {
+        impl<N: Neg<N> + Add<N, N> + Num + Clone> Translation<$tv<N>> for $t<N> {
             #[inline]
             fn translation(&self) -> $tv<N> {
                 self.translation.clone()
@@ -97,13 +97,23 @@ macro_rules! translation_impl(
             }
 
             #[inline]
-            fn translate_by(&mut self, t: &$tv<N>) {
-                self.translation = self.translation + *t
+            fn append_translation(&mut self, t: &$tv<N>) {
+                self.translation = *t + self.translation
             }
 
             #[inline]
-            fn translated(&self, t: &$tv<N>) -> $t<N> {
-                $t::new(self.translation + *t, self.rotation.clone())
+            fn append_translation_cpy(iso: &$t<N>, t: &$tv<N>) -> $t<N> {
+                $t::new(*t + iso.translation, iso.rotation.clone())
+            }
+
+            #[inline]
+            fn prepend_translation(&mut self, t: &$tv<N>) {
+                self.translation = self.translation + self.rotation * *t
+            }
+
+            #[inline]
+            fn prepend_translation_cpy(iso: &$t<N>, t: &$tv<N>) -> $t<N> {
+                $t::new(iso.translation + iso.rotation * *t, iso.rotation.clone())
             }
 
             #[inline]
@@ -143,23 +153,33 @@ macro_rules! rotation_impl(
                 self.rotation.inv_rotation()
             }
 
-
             #[inline]
-            fn rotate_by(&mut self, rot: &$tav<N>) {
-                // FIXME: this does not seem opitmal
-                let mut delta: $trot<N> = One::one();
-                delta.rotate_by(rot);
-                self.rotation.rotate_by(rot);
+            fn append_rotation(&mut self, rot: &$tav<N>) {
+                let delta = $trot::new(rot.clone());
+
+                self.rotation    = delta * self.rotation;
                 self.translation = delta * self.translation;
             }
 
             #[inline]
-            fn rotated(&self, rot: &$tav<N>) -> $t<N> {
-                // FIXME: this does not seem opitmal
-                let _1: $trot<N> = One::one();
-                let delta = _1.rotated(rot);
+            fn append_rotation_cpy(t: &$t<N>, rot: &$tav<N>) -> $t<N> {
+                let delta = $trot::new(rot.clone());
 
-                $t::new(delta * self.translation, self.rotation.rotated(rot))
+                $t::new(delta * t.translation, delta * t.rotation)
+            }
+
+            #[inline]
+            fn prepend_rotation(&mut self, rot: &$tav<N>) {
+                let delta = $trot::new(rot.clone());
+
+                self.rotation    = self.rotation * delta;
+            }
+
+            #[inline]
+            fn prepend_rotation_cpy(t: &$t<N>, rot: &$tav<N>) -> $t<N> {
+                let delta = $trot::new(rot.clone());
+
+                $t::new(t.translation.clone(), t.rotation * delta)
             }
 
             #[inline]
@@ -196,15 +216,23 @@ macro_rules! transformation_impl(
 
             fn inv_transformation(&self) -> $t<N> {
                 // inversion will never fails
-                self.inverted().unwrap()
+                Inv::inv_cpy(self).unwrap()
             }
 
-            fn transform_by(&mut self, other: &$t<N>) {
-                *self = other * *self
+            fn append_transformation(&mut self, t: &$t<N>) {
+                *self = *t * *self
             }
 
-            fn transformed(&self, t: &$t<N>) -> $t<N> {
-                t * *self
+            fn append_transformation_cpy(iso: &$t<N>, t: &$t<N>) -> $t<N> {
+                t * *iso
+            }
+
+            fn prepend_transformation(&mut self, t: &$t<N>) {
+                *self = *self * *t
+            }
+
+            fn prepend_transformation_cpy(iso: &$t<N>, t: &$t<N>) -> $t<N> {
+                *iso * *t
             }
 
             fn set_transformation(&mut self, t: $t<N>) {
@@ -234,19 +262,19 @@ macro_rules! inv_impl(
     ($t: ident) => (
         impl<N: Clone + Num> Inv for $t<N> {
             #[inline]
-            fn invert(&mut self) -> bool {
-                self.rotation.invert();
-                self.translation = self.rotation  * -self.translation;
+            fn inv(&mut self) -> bool {
+                self.rotation.inv();
+                self.translation = self.rotation * -self.translation;
 
                 // always succeed
                 true
             }
 
             #[inline]
-            fn inverted(&self) -> Option<$t<N>> {
-                let mut res = self.clone();
+            fn inv_cpy(m: &$t<N>) -> Option<$t<N>> {
+                let mut res = m.clone();
 
-                res.invert();
+                res.inv();
 
                 // always succeed
                 Some(res)

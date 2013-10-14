@@ -9,7 +9,7 @@ use std::vec;
 use std::vec::{VecIterator, VecMutIterator};
 use std::cmp::ApproxEq;
 use std::iter::FromIterator;
-use traits::geometry::{Dot, Norm, Translation};
+use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut};
 
 #[doc(hidden)]
@@ -204,7 +204,7 @@ impl<N: Clone + Num + Algebraic + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> 
             };
 
             if !elt.sqnorm().approx_eq(&Zero::zero()) {
-                res.push(elt.normalized());
+                res.push(Norm::normalize_cpy(&elt));
             }
         }
 
@@ -267,33 +267,6 @@ impl<N: Num + Clone> Dot<N> for DVec<N> {
     } 
 }
 
-impl<N: Add<N, N> + Neg<N> + Clone> Translation<DVec<N>> for DVec<N> {
-    #[inline]
-    fn translation(&self) -> DVec<N> {
-        self.clone()
-    }
-
-    #[inline]
-    fn inv_translation(&self) -> DVec<N> {
-        -self
-    }
-
-    #[inline]
-    fn translate_by(&mut self, t: &DVec<N>) {
-        *self = *self + *t;
-    }
-
-    #[inline]
-    fn translated(&self, t: &DVec<N>) -> DVec<N> {
-        self + *t
-    }
-
-    #[inline]
-    fn set_translation(&mut self, t: DVec<N>) {
-        *self = t
-    }
-}
-
 impl<N: Num + Algebraic + Clone> Norm<N> for DVec<N> {
     #[inline]
     fn sqnorm(&self) -> N {
@@ -306,8 +279,8 @@ impl<N: Num + Algebraic + Clone> Norm<N> for DVec<N> {
     }
 
     #[inline]
-    fn normalized(&self) -> DVec<N> {
-        let mut res : DVec<N> = self.clone();
+    fn normalize_cpy(v: &DVec<N>) -> DVec<N> {
+        let mut res : DVec<N> = v.clone();
 
         res.normalize();
 

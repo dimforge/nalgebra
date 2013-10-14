@@ -103,10 +103,10 @@ impl<N: Clone + Ord + Algebraic + Signed> Basis for Vec3<N> {
     fn orthonormal_subspace_basis(&self, f: &fn(Vec3<N>) -> bool) {
         let a = 
             if self.x.clone().abs() > self.y.clone().abs() {
-                Vec3::new(self.z.clone(), Zero::zero(), -self.x).normalized()
+                Norm::normalize_cpy(&Vec3::new(self.z.clone(), Zero::zero(), -self.x))
             }
             else {
-                Vec3::new(Zero::zero(), -self.z, self.y.clone()).normalized()
+                Norm::normalize_cpy(&Vec3::new(Zero::zero(), -self.z, self.y.clone()))
             };
 
         if !f(a.cross(self)) { return };

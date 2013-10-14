@@ -10,7 +10,7 @@ macro_rules! test_inv_mat_impl(
     do 10000.times {
       let randmat : $t = random();
 
-      assert!((na::inverted(&randmat).unwrap() * randmat).approx_eq(&na::one()));
+      assert!((na::inv(&randmat).unwrap() * randmat).approx_eq(&na::one()));
     }
   );
 )
@@ -20,7 +20,7 @@ macro_rules! test_transpose_mat_impl(
     do 10000.times {
       let randmat : $t = random();
 
-      assert!(na::transposed(&na::transposed(&randmat)) == randmat);
+      assert!(na::transpose(&na::transpose(&randmat)) == randmat);
     }
   );
 )
@@ -91,7 +91,7 @@ fn test_rotation2() {
         let randmat: na::Rot2<f64> = na::one();
         let ang    = na::vec1(abs::<f64>(random()) % Real::pi());
 
-        assert!(na::rotation(&na::rotated(&randmat, &ang)).approx_eq(&ang));
+        assert!(na::rotation(&na::append_rotation(&randmat, &ang)).approx_eq(&ang));
     }
 }
 
@@ -99,7 +99,7 @@ fn test_rotation2() {
 fn test_index_mat2() {
   let mat: na::Mat2<f64> = random();
 
-  assert!(mat.at((0, 1)) == na::transposed(&mat).at((1, 0)));
+  assert!(mat.at((0, 1)) == na::transpose(&mat).at((1, 0)));
 }
 
 #[test]
@@ -107,10 +107,10 @@ fn test_inv_rotation3() {
     do 10000.times {
         let randmat: na::Rot3<f64> = na::one();
         let dir:     na::Vec3<f64> = random();
-        let ang            = na::normalized(&dir) * (abs::<f64>(random()) % Real::pi());
-        let rot            = na::rotated(&randmat, &ang);
+        let ang            = na::normalize(&dir) * (abs::<f64>(random()) % Real::pi());
+        let rot            = na::append_rotation(&randmat, &ang);
 
-        assert!((na::transposed(&rot) * rot).approx_eq(&na::one()));
+        assert!((na::transpose(&rot) * rot).approx_eq(&na::one()));
     }
 }
 
