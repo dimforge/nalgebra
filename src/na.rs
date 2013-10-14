@@ -77,85 +77,6 @@ pub fn one<T: One>() -> T {
     One::one()
 }
 
-/// Creates a new 1d vector.
-///
-/// This is the same as `Vec1::new(x)`.
-#[inline(always)]
-pub fn vec1<N>(x: N) -> Vec1<N> {
-    Vec1::new(x)
-}
-
-/// Creates a new 2d vector.
-///
-/// This is the same as `Vec2::new(x, y)`.
-#[inline(always)]
-pub fn vec2<N>(x: N, y: N) -> Vec2<N> {
-    Vec2::new(x, y)
-}
-
-/// Creates a new 3d vector.
-///
-/// This is the same as `Vec3::new(x, y, z)`.
-#[inline(always)]
-pub fn vec3<N>(x: N, y: N, z: N) -> Vec3<N> {
-    Vec3::new(x, y, z)
-}
-
-/// Creates a new 4d vector.
-///
-/// This is the same as `Vec4::new(x, y, z, w)`.
-#[inline(always)]
-pub fn vec4<N>(x: N, y: N, z: N, w: N) -> Vec4<N> {
-    Vec4::new(x, y, z, w)
-}
-
-/// Creates a new 1d matrix.
-///
-/// This is the same as `Mat1::new(...)`.
-#[inline(always)]
-pub fn mat1<N>(m11: N) -> Mat1<N> {
-    Mat1::new(m11)
-}
-
-/// Creates a new 2d matrix.
-///
-/// This is the same as `Mat2::new(...)`.
-#[inline(always)]
-pub fn mat2<N>(m11: N, m12: N,
-               m21: N, m22: N) -> Mat2<N> {
-    Mat2::new(
-        m11, m12,
-        m21, m22)
-}
-
-/// Creates a new 3d matrix.
-///
-/// This is the same as `Mat3::new(...)`.
-#[inline(always)]
-pub fn mat3<N>(m11: N, m12: N, m13: N,
-               m21: N, m22: N, m23: N,
-               m31: N, m32: N, m33: N) -> Mat3<N> {
-    Mat3::new(
-        m11, m12, m13,
-        m21, m22, m23,
-        m31, m32, m33)
-}
-
-/// Creates a new 4d matrix.
-///
-/// This is the same as `Mat4::new(...)`.
-#[inline(always)]
-pub fn mat4<N>(m11: N, m12: N, m13: N, m14: N,
-               m21: N, m22: N, m23: N, m24: N,
-               m31: N, m32: N, m33: N, m34: N,
-               m41: N, m42: N, m43: N, m44: N) -> Mat4<N> {
-    Mat4::new(
-        m11, m12, m13, m14,
-        m21, m22, m23, m24,
-        m31, m32, m33, m34,
-        m41, m42, m43, m44)
-}
-
 //
 //
 // Geometry
@@ -170,11 +91,11 @@ pub fn mat4<N>(m11: N, m12: N, m13: N, m14: N,
 ///
 /// ```rust
 /// extern mod nalgebra;
-/// use nalgebra::types::{Vec3, Affmat};
+/// use nalgebra::types::{Vec3, Iso3};
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t     = Affmat::new_translation3d(1.0, 1.0, 1.0);
+///     let t     = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
 ///     let trans = na::translation(t);
 ///
 ///     assert!(trans == Vec3::new(1.0, 1.0, 1.0));
@@ -189,11 +110,11 @@ pub fn translation<V, M: Translation<V>>(m: &M) -> V {
 ///
 /// ```rust
 /// extern mod nalgebra;
-/// use nalgebra::types::{Vec3, Affmat};
+/// use nalgebra::types::{Vec3, Iso3};
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t      = Affmat::new_translation3d(1.0, 1.0, 1.0);
+///     let t      = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
 ///     let itrans = na::inv_translation(t);
 ///
 ///     assert!(itrans == Vec3::new(-1.0, -1.0, -1.0));
@@ -218,15 +139,16 @@ pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
 ///
 /// ```rust
 /// extern mod nalgebra;
+/// use nalgebra::na::{Vec3, Iso3};
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t  = na::translation3d(1.0, 1.0, 1.0);
-///     let v  = na::vec3(2.0, 2.0, 2.0);
+///     let t  = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
+///     let v  = Vec3::new(2.0, 2.0, 2.0);
 ///
 ///     let tv = na::translate(&t, &v);
 ///
-///     assert!(tv == na::vec3(3.0, 3.0, 3.0))
+///     assert!(tv == Vec3::new(3.0, 3.0, 3.0))
 /// }
 /// ```
 #[inline(always)]
@@ -238,15 +160,16 @@ pub fn translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
 ///
 /// ```rust
 /// extern mod nalgebra;
+/// use nalgebra::na::{Vec3, Iso3};
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t  = na::translation3d(1.0, 1.0, 1.0);
-///     let v  = na::vec3(2.0, 2.0, 2.0);
+///     let t  = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
+///     let v  = Vec3::new(2.0, 2.0, 2.0);
 ///
 ///     let tv = na::translate(&t, &v);
 ///
-///     assert!(tv == na::vec3(1.0, 1.0, 1.0))
+///     assert!(tv == Vec3::new(1.0, 1.0, 1.0))
 /// }
 #[inline(always)]
 pub fn inv_translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
@@ -261,12 +184,13 @@ pub fn inv_translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
 ///
 /// ```rust
 /// extern mod nalgebra;
+/// use nalgebra::na::{Vec3, Rot3};
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t = na::rot3(1.0, 1.0, 1.0);
+///     let t = Rot3::new(Vec3::new(1.0, 1.0, 1.0));
 ///
-///     assert!(na::rotation(t) == na::vec3(1.0, 1.0, 1.0));
+///     assert!(na::rotation(t) == Vec3::new(1.0, 1.0, 1.0));
 /// }
 /// ```
 #[inline(always)]
@@ -279,12 +203,13 @@ pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
 ///
 /// ```rust
 /// extern mod nalgebra;
+/// use nalgebra::na::{Vec3, Rot3};
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t = na::rot3(1.0, 1.0, 1.0);
+///     let t = Rot3::new(Vec3::new(1.0, 1.0, 1.0));
 ///
-///     assert!(na::inv_rotation(t) == na::vec3(-1.0, -1.0, -1.0));
+///     assert!(na::inv_rotation(t) == Vec3::new(-1.0, -1.0, -1.0));
 /// }
 /// ```
 #[inline(always)]
@@ -296,14 +221,15 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
 ///
 /// ```rust
 /// extern mod nalgebra;
+/// use nalgebra::na::{Vec3, Rot3};
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t  = na::rot3(0.0, 0.0, 0.0);
-///     let v  = na::vec3(1.0, 1.0, 1.0);
+///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.0));
+///     let v  = Vec3::new(1.0, 1.0, 1.0);
 ///     let rt = na::append_rotation(&t, &v);
 ///
-///     assert!(na::rotation(&rt) == na::vec3(1.0, 1.0, 1.0))
+///     assert!(na::rotation(&rt) == Vec3::new(1.0, 1.0, 1.0))
 /// }
 /// ```
 #[inline(always)]
@@ -319,15 +245,16 @@ pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 ///
 /// ```rust
 /// extern mod nalgebra;
+/// use nalgebra::na::{Rot3, Vec3};
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t  = na::rot3(1.0, 0.0, 0.0);
-///     let v  = na::vec3(0.0, 0.0, na::pi() / 2.0);
+///     let t  = Rot3::new(Vec3::new(1.0, 0.0, 0.0));
+///     let v  = Vec3::new(0.0, 0.0, na::pi() / 2.0);
 ///
 ///     let tv = na::rotate(&t, &v);
 ///
-///     assert!(tv == na::vec3(0.0, 1.0, 0.0))
+///     assert!(tv == Vec3::new(0.0, 1.0, 0.0))
 /// }
 /// ```
 #[inline(always)]
@@ -343,12 +270,12 @@ pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 /// use nalgebra::na;
 ///
 /// pub main() {
-///     let t  = na::rot3(na::vec3(1.0, 0.0, 0.0));
-///     let v  = na::vec3(0.0, 0.0, na::pi() / 2.0);
+///     let t  = Rot3::new(Vec3::new(1.0, 0.0, 0.0));
+///     let v  = Vec3::new(0.0, 0.0, na::pi() / 2.0);
 ///
 ///     let tv = na::rotate(&t, &v);
 ///
-///     assert!(tv == na::vec3(0.0, -1.0, 0.0))
+///     assert!(tv == Vec3::new(0.0, -1.0, 0.0))
 /// }
 /// ```
 #[inline(always)]

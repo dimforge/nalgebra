@@ -36,12 +36,12 @@ free-functions using the `na::` prefix:
 
 ```.rust
 extern mod nalgebra;
-use nalgebra::na::{Rot3, Rotation};
+use nalgebra::na::{Vec3, Rot3, Rotation};
 use nalgebra::na;
 
 fn main() {
-    let a                = na::vec3(1.0f64, 1.0, 1.0);
-    let mut b: Rot3<f64> = na::one();
+    let     a = Vec3::new(1.0f64, 1.0, 1.0);
+    let mut b = Rot3::new(na::zero());
 
     b.append_rotation(&a);
 

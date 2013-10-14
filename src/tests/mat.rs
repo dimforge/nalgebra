@@ -1,7 +1,7 @@
 use std::num::{Real, abs};
 use std::rand::random;
 use std::cmp::ApproxEq;
-use na::{DMat, DVec};
+use na::{Vec1, DMat, DVec};
 use na::Indexable; // FIXME: get rid of that
 use na;
 
@@ -89,7 +89,7 @@ fn test_inv_mat6() {
 fn test_rotation2() {
     do 10000.times {
         let randmat: na::Rot2<f64> = na::one();
-        let ang    = na::vec1(abs::<f64>(random()) % Real::pi());
+        let ang    = Vec1::new(abs::<f64>(random()) % Real::pi());
 
         assert!(na::rotation(&na::append_rotation(&randmat, &ang)).approx_eq(&ang));
     }

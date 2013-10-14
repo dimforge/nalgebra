@@ -4,13 +4,13 @@
 
 use std::num::{Zero, One};
 use std::rand::{Rand, Rng};
-use structs::mat::{Mat3, Mat4, Mat5};
+use structs::mat::{Mat3, Mat4};
 use traits::structure::{Cast, Dim, Col};
 use traits::operations::{Inv};
 use traits::geometry::{RotationMatrix, Rotation, Rotate, AbsoluteRotate, Transform, Transformation,
                        Translate, Translation, ToHomogeneous};
 
-use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
+use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs};
 use structs::rot::{Rot2, Rot3, Rot4};
 
 mod metal;
@@ -82,7 +82,7 @@ impl<N: Clone + Num + Algebraic> Iso3<N> {
     }
 }
 
-iso_impl!(Iso2, Rot2, Vec2)
+iso_impl!(Iso2, Rot2, Vec2, Vec1)
 double_dispatch_binop_decl_trait!(Iso2, Iso2MulRhs)
 mul_redispatch_impl!(Iso2, Iso2MulRhs)
 rotation_matrix_impl!(Iso2, Rot2, Vec2, Vec1)
@@ -103,7 +103,7 @@ iso_mul_iso_impl!(Iso2, Iso2MulRhs)
 iso_mul_vec_impl!(Iso2, Vec2, Iso2MulRhs)
 vec_mul_iso_impl!(Iso2, Vec2, Vec2MulRhs)
 
-iso_impl!(Iso3, Rot3, Vec3)
+iso_impl!(Iso3, Rot3, Vec3, Vec3)
 double_dispatch_binop_decl_trait!(Iso3, Iso3MulRhs)
 mul_redispatch_impl!(Iso3, Iso3MulRhs)
 rotation_matrix_impl!(Iso3, Rot3, Vec3, Vec3)
@@ -124,7 +124,8 @@ iso_mul_iso_impl!(Iso3, Iso3MulRhs)
 iso_mul_vec_impl!(Iso3, Vec3, Iso3MulRhs)
 vec_mul_iso_impl!(Iso3, Vec3, Vec3MulRhs)
 
-iso_impl!(Iso4, Rot4, Vec4)
+/*
+iso_impl!(Iso4, Rot4, Vec4, Vec4)
 double_dispatch_binop_decl_trait!(Iso4, Iso4MulRhs)
 mul_redispatch_impl!(Iso4, Iso4MulRhs)
 // rotation_matrix_impl!(Iso4, Rot4, Vec4, Vec4)
@@ -144,3 +145,4 @@ translate_impl!(Iso4, Vec4)
 iso_mul_iso_impl!(Iso4, Iso4MulRhs)
 iso_mul_vec_impl!(Iso4, Vec4, Iso4MulRhs)
 vec_mul_iso_impl!(Iso4, Vec4, Vec4MulRhs)
+*/

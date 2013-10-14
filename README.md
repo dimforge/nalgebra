@@ -10,9 +10,8 @@ An on-line version of this documentation is available [here](http://crozet.re/na
 
 ## Using **nalgebra**
 All the functionalities of **nalgebra** are grouped in one place: the `na` module.
-This module re-exports everything and includes free functions for all traits methods.
-Free functions are useful if you prefer doing something like `na::dot(v1, v2)` instead of
-`v1.dot(v2)`.
+This module re-exports everything and includes free functions for all traits methods doing
+out-of-place modifications.
 
 * You can import the whole prelude, including free functions, using:
 
@@ -31,8 +30,23 @@ use nalgebra::traits::*;
 ```.rust
 use nalgebra::structs::*;
 ```
-Of course, you can still import `nalgebra::na` alone, and get anything you want using the prefix
-`na`.
+The preffered way to use **nalgebra** is to import types and traits explicitly, and call
+free-functions using the `na::` prefix:
+
+```.rust
+extern mod nalgebra;
+use nalgebra::na::{Vec3, Rot3, Rotation};
+use nalgebra::na;
+
+fn main() {
+    let     a = Vec3::new(1.0f64, 1.0, 1.0);
+    let mut b = Rot3::new(na::zero());
+
+    b.append_rotation(&a);
+
+    assert!(na::rotation(&b).approx_eq(&a));
+}
+```
 
 ## Features
 **nalgebra** is meant to be a general-purpose linear algebra library (but is very far from that…),

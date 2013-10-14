@@ -1,7 +1,7 @@
 use std::rand::{random};
 use std::cmp::ApproxEq;
 use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
-use na::{Iterable, IterableMut}; // FIXME: get rid of that
+use na::{Mat3, Iterable, IterableMut}; // FIXME: get rid of that
 use na;
 
 macro_rules! test_iterator_impl(
@@ -288,35 +288,35 @@ fn test_iterator_vec6() {
 #[test]
 fn test_ord_vec3() {
     // equality
-    assert!(na::vec3(0.5, 0.5, 0.5) == na::vec3(0.5, 0.5, 0.5));
-    assert!(!(na::vec3(1.5, 0.5, 0.5) == na::vec3(0.5, 0.5, 0.5)));
-    assert!(na::vec3(1.5, 0.5, 0.5) != na::vec3(0.5, 0.5, 0.5));
+    assert!(Vec3::new(0.5, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5));
+    assert!(!(Vec3::new(1.5, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5)));
+    assert!(Vec3::new(1.5, 0.5, 0.5) != Vec3::new(0.5, 0.5, 0.5));
 
     // comparable
-    assert!(na::vec3(0.5, 0.3, 0.3) < na::vec3(1.0, 2.0, 1.0));
-    assert!(na::vec3(0.5, 0.3, 0.3) <= na::vec3(1.0, 2.0, 1.0));
-    assert!(na::vec3(2.0, 4.0, 2.0) > na::vec3(1.0, 2.0, 1.0));
-    assert!(na::vec3(2.0, 4.0, 2.0) >= na::vec3(1.0, 2.0, 1.0));
+    assert!(Vec3::new(0.5, 0.3, 0.3) < Vec3::new(1.0, 2.0, 1.0));
+    assert!(Vec3::new(0.5, 0.3, 0.3) <= Vec3::new(1.0, 2.0, 1.0));
+    assert!(Vec3::new(2.0, 4.0, 2.0) > Vec3::new(1.0, 2.0, 1.0));
+    assert!(Vec3::new(2.0, 4.0, 2.0) >= Vec3::new(1.0, 2.0, 1.0));
 
     // not comparable
-    assert!(!(na::vec3(0.0, 3.0, 0.0) < na::vec3(1.0, 2.0, 1.0)));
-    assert!(!(na::vec3(0.0, 3.0, 0.0) > na::vec3(1.0, 2.0, 1.0)));
-    assert!(!(na::vec3(0.0, 3.0, 0.0) <= na::vec3(1.0, 2.0, 1.0)));
-    assert!(!(na::vec3(0.0, 3.0, 0.0) >= na::vec3(1.0, 2.0, 1.0)));
+    assert!(!(Vec3::new(0.0, 3.0, 0.0) < Vec3::new(1.0, 2.0, 1.0)));
+    assert!(!(Vec3::new(0.0, 3.0, 0.0) > Vec3::new(1.0, 2.0, 1.0)));
+    assert!(!(Vec3::new(0.0, 3.0, 0.0) <= Vec3::new(1.0, 2.0, 1.0)));
+    assert!(!(Vec3::new(0.0, 3.0, 0.0) >= Vec3::new(1.0, 2.0, 1.0)));
 }
 
 #[test]
 fn test_min_max_vec3() {
-    assert_eq!(na::vec3(1, 2, 3).max(&na::vec3(3, 2, 1)), na::vec3(3, 2, 3));
-    assert_eq!(na::vec3(1, 2, 3).min(&na::vec3(3, 2, 1)), na::vec3(1, 2, 1));
-    assert_eq!(na::vec3(0, 2, 4).clamp(&na::vec3(1, 1, 1), &na::vec3(3, 3, 3)), na::vec3(1, 2, 3));
+    assert_eq!(Vec3::new(1, 2, 3).max(&Vec3::new(3, 2, 1)), Vec3::new(3, 2, 3));
+    assert_eq!(Vec3::new(1, 2, 3).min(&Vec3::new(3, 2, 1)), Vec3::new(1, 2, 1));
+    assert_eq!(Vec3::new(0, 2, 4).clamp(&Vec3::new(1, 1, 1), &Vec3::new(3, 3, 3)), Vec3::new(1, 2, 3));
 }
 
 #[test]
 fn test_outer_vec3() {
     assert_eq!(
-        na::outer(&na::vec3(1, 2, 3), &na::vec3(4, 5, 6)),
-        na::mat3(
+        na::outer(&Vec3::new(1, 2, 3), &Vec3::new(4, 5, 6)),
+        Mat3::new(
             4, 5, 6,
             8, 10, 12,
             12, 15, 18));

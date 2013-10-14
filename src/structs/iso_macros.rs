@@ -1,11 +1,20 @@
 #[macro_escape];
 
 macro_rules! iso_impl(
-    ($t: ident, $submat: ident, $subvec: ident) => (
-        impl<N> $t<N> {
+    ($t: ident, $submat: ident, $subvec: ident, $subrotvec: ident) => (
+        impl<N: Clone + Trigonometric + Algebraic + Num> $t<N> {
             /// Creates a new isometry from a rotation matrix and a vector.
             #[inline]
-            pub fn new(translation: $subvec<N>, rotation: $submat<N>) -> $t<N> {
+            pub fn new(translation: $subvec<N>, rotation: $subrotvec<N>) -> $t<N> {
+                $t {
+                    rotation:    $submat::new(rotation),
+                    translation: translation
+                }
+            }
+
+            /// Creates a new isometry from a rotation matrix and a vector.
+            #[inline]
+            pub fn new_with_rotmat(translation: $subvec<N>, rotation: $submat<N>) -> $t<N> {
                 $t {
                     rotation:    rotation,
                     translation: translation
@@ -41,10 +50,10 @@ macro_rules! dim_impl(
 
 macro_rules! one_impl(
     ($t: ident) => (
-        impl<N: One + Zero + Clone> One for $t<N> {
+        impl<N: Trigonometric + Algebraic + Num + Clone> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
-                $t::new(Zero::zero(), One::one())
+                $t::new_with_rotmat(Zero::zero(), One::one())
             }
         }
     )
@@ -52,10 +61,12 @@ macro_rules! one_impl(
 
 macro_rules! iso_mul_iso_impl(
     ($t: ident, $tmul: ident) => (
-        impl<N: Num + Clone> $tmul<N, $t<N>> for $t<N> {
+        impl<N: Num + Trigonometric + Algebraic + Clone> $tmul<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
-                $t::new(left.translation + left.rotation * right.translation, left.rotation * right.rotation)
+                $t::new_with_rotmat(
+                    left.translation + left.rotation * right.translation,
+                    left.rotation * right.rotation)
             }
         }
     )
@@ -85,7 +96,7 @@ macro_rules! vec_mul_iso_impl(
 
 macro_rules! translation_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: Neg<N> + Add<N, N> + Num + Clone> Translation<$tv<N>> for $t<N> {
+        impl<N: Trigonometric + Num + Algebraic + Clone> Translation<$tv<N>> for $t<N> {
             #[inline]
             fn translation(&self) -> $tv<N> {
                 self.translation.clone()
@@ -103,7 +114,7 @@ macro_rules! translation_impl(
 
             #[inline]
             fn append_translation_cpy(iso: &$t<N>, t: &$tv<N>) -> $t<N> {
-                $t::new(*t + iso.translation, iso.rotation.clone())
+                $t::new_with_rotmat(*t + iso.translation, iso.rotation.clone())
             }
 
             #[inline]
@@ -113,7 +124,7 @@ macro_rules! translation_impl(
 
             #[inline]
             fn prepend_translation_cpy(iso: &$t<N>, t: &$tv<N>) -> $t<N> {
-                $t::new(iso.translation + iso.rotation * *t, iso.rotation.clone())
+                $t::new_with_rotmat(iso.translation + iso.rotation * *t, iso.rotation.clone())
             }
 
             #[inline]
@@ -165,7 +176,7 @@ macro_rules! rotation_impl(
             fn append_rotation_cpy(t: &$t<N>, rot: &$tav<N>) -> $t<N> {
                 let delta = $trot::new(rot.clone());
 
-                $t::new(delta * t.translation, delta * t.rotation)
+                $t::new_with_rotmat(delta * t.translation, delta * t.rotation)
             }
 
             #[inline]
@@ -179,7 +190,7 @@ macro_rules! rotation_impl(
             fn prepend_rotation_cpy(t: &$t<N>, rot: &$tav<N>) -> $t<N> {
                 let delta = $trot::new(rot.clone());
 
-                $t::new(t.translation.clone(), t.rotation * delta)
+                $t::new_with_rotmat(t.translation.clone(), t.rotation * delta)
             }
 
             #[inline]
@@ -209,7 +220,7 @@ macro_rules! rotate_impl(
 
 macro_rules! transformation_impl(
     ($t: ident) => (
-        impl<N: Num + Clone> Transformation<$t<N>> for $t<N> {
+        impl<N: Num + Trigonometric + Algebraic + Clone> Transformation<$t<N>> for $t<N> {
             fn transformation(&self) -> $t<N> {
                 self.clone()
             }
