@@ -113,7 +113,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
-#[deny(missing_doc)];
+#[warn(missing_doc)];
 #[feature(macro_rules)];
 
 extern mod std;

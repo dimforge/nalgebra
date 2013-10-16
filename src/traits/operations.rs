@@ -6,7 +6,7 @@
 pub trait Absolute<A> {
     /// Computes some absolute value of this object.
     /// Typically, this will make all component of a matrix or vector positive.
-    fn absolute(&self) -> A;
+    fn abs(&Self) -> A;
 }
 
 /// Trait of objects having an inverse. Typically used to implement matrix inverse.
@@ -30,7 +30,7 @@ pub trait Transpose {
 /// Traits of objects having an outer product.
 pub trait Outer<M> {
     /// Computes the outer product: `self * other`
-    fn outer(&self, other: &Self) -> M;
+    fn outer(a: &Self, b: &Self) -> M;
 }
 
 /// Trait for computing the covariance of a set of data.
@@ -39,14 +39,14 @@ pub trait Cov<M> {
     ///
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn cov(&self) -> M;
+    fn cov(&Self) -> M;
 
     /// Computes the covariance of the obsevations stored by `self`:
     ///
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn cov_to(&self, out: &mut M) {
-        *out = self.cov()
+    fn cov_to(m: &Self, out: &mut M) {
+        *out = Cov::cov(m)
     }
 }
 
@@ -56,7 +56,7 @@ pub trait Mean<N> {
     /// 
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn mean(&self) -> N;
+    fn mean(&Self) -> N;
 }
 
 // /// Cholesky decomposition.

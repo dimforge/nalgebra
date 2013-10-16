@@ -113,8 +113,8 @@ macro_rules! absolute_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
     impl<N: Signed> Absolute<$t<N>> for $t<N> {
         #[inline]
-        fn absolute(&self) -> $t<N> {
-            $t::new(self.$comp0.abs() $(, self.$compN.abs() )*)
+        fn abs(m: &$t<N>) -> $t<N> {
+            $t::new(m.$comp0.abs() $(, m.$compN.abs() )*)
         }
     }
   )
@@ -469,12 +469,12 @@ macro_rules! to_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
     impl<N: One + Zero + Clone> ToHomogeneous<$t2<N>> for $t<N> {
         #[inline]
-        fn to_homogeneous(&self) -> $t2<N> {
+        fn to_homogeneous(m: &$t<N>) -> $t2<N> {
             let mut res: $t2<N> = One::one();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
-                    res.set((i, j), self.at((i, j)))
+                    res.set((i, j), m.at((i, j)))
                 }
             }
 
@@ -510,12 +510,12 @@ macro_rules! outer_impl(
     ($t: ident, $m: ident) => (
         impl<N: Mul<N, N> + Zero + Clone> Outer<$m<N>> for $t<N> {
             #[inline]
-            fn outer(&self, other: &$t<N>) -> $m<N> {
+            fn outer(a: &$t<N>, b: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = Zero::zero();
 
                 for i in range(0u, Dim::dim(None::<$t<N>>)) {
                     for j in range(0u, Dim::dim(None::<$t<N>>)) {
-                        res.set((i, j), self.at(i) * other.at(j))
+                        res.set((i, j), a.at(i) * b.at(j))
                     }
                 }
 

@@ -92,6 +92,7 @@ impl<N> DVec<N> {
         *self.at.unsafe_mut_ref(i) = val
     }
 
+    /// Gets a reference to of this vector datas.
     #[inline]
     pub fn as_vec<'r>(&'r self) -> &'r [N] {
         let data: &'r [N] = self.at;
@@ -99,6 +100,7 @@ impl<N> DVec<N> {
         data
     }
 
+    /// Gets a mutable reference to of this vector datas.
     #[inline]
     pub fn as_mut_vec<'r>(&'r mut self) -> &'r mut [N] {
         let data: &'r mut [N] = self.at;
@@ -106,6 +108,7 @@ impl<N> DVec<N> {
         data
     }
 
+    /// Extracts this vector datas.
     #[inline]
     pub fn to_vec(self) -> ~[N] {
         self.at
@@ -211,13 +214,13 @@ impl<N: Clone + Num + Algebraic + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> 
 
             let mut elt = basis_element.clone();
 
-            elt = elt - self * basis_element.dot(self);
+            elt = elt - self * Dot::dot(&basis_element, self);
 
             for v in res.iter() {
-                elt = elt - v * elt.dot(v)
+                elt = elt - v * Dot::dot(&elt, v)
             };
 
-            if !elt.sqnorm().approx_eq(&Zero::zero()) {
+            if !Norm::sqnorm(&elt).approx_eq(&Zero::zero()) {
                 res.push(Norm::normalize_cpy(&elt));
             }
         }
@@ -257,24 +260,24 @@ impl<N: Neg<N>> Neg<DVec<N>> for DVec<N> {
 
 impl<N: Num + Clone> Dot<N> for DVec<N> {
     #[inline]
-    fn dot(&self, other: &DVec<N>) -> N {
-        assert!(self.at.len() == other.at.len());
+    fn dot(a: &DVec<N>, b: &DVec<N>) -> N {
+        assert!(a.at.len() == b.at.len());
 
         let mut res: N = Zero::zero();
 
-        for i in range(0u, self.at.len()) {
-            res = res + unsafe { self.at_fast(i) * other.at_fast(i) };
+        for i in range(0u, a.at.len()) {
+            res = res + unsafe { a.at_fast(i) * b.at_fast(i) };
         }
 
         res
     } 
 
     #[inline]
-    fn sub_dot(&self, a: &DVec<N>, b: &DVec<N>) -> N {
+    fn sub_dot(a: &DVec<N>, b: &DVec<N>, c: &DVec<N>) -> N {
         let mut res: N = Zero::zero();
 
-        for i in range(0u, self.at.len()) {
-            res = res + unsafe { (self.at_fast(i) - a.at_fast(i)) * b.at_fast(i) };
+        for i in range(0u, a.at.len()) {
+            res = res + unsafe { (a.at_fast(i) - b.at_fast(i)) * c.at_fast(i) };
         }
 
         res
@@ -283,13 +286,13 @@ impl<N: Num + Clone> Dot<N> for DVec<N> {
 
 impl<N: Num + Algebraic + Clone> Norm<N> for DVec<N> {
     #[inline]
-    fn sqnorm(&self) -> N {
-        self.dot(self)
+    fn sqnorm(v: &DVec<N>) -> N {
+        Dot::dot(v, v)
     }
 
     #[inline]
-    fn norm(&self) -> N {
-        self.sqnorm().sqrt()
+    fn norm(v: &DVec<N>) -> N {
+        Norm::sqnorm(v).sqrt()
     }
 
     #[inline]
@@ -303,7 +306,7 @@ impl<N: Num + Algebraic + Clone> Norm<N> for DVec<N> {
 
     #[inline]
     fn normalize(&mut self) -> N {
-        let l = self.norm();
+        let l = Norm::norm(self);
 
         for i in range(0u, self.at.len()) {
             self.at[i] = self.at[i] / l;

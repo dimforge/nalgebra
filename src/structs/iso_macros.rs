@@ -297,13 +297,13 @@ macro_rules! inv_impl(
 macro_rules! to_homogeneous_impl(
     ($t: ident, $th: ident) => (
         impl<N: One + Zero + Clone> ToHomogeneous<$th<N>> for $t<N> {
-            fn to_homogeneous(&self) -> $th<N> {
-                let mut res = self.rotation.to_homogeneous();
+            fn to_homogeneous(m: &$t<N>) -> $th<N> {
+                let mut res = ToHomogeneous::to_homogeneous(&m.rotation);
 
                 // copy the translation
                 let dim = Dim::dim(None::<$th<N>>);
 
-                res.set_col(dim - 1, self.translation.to_homogeneous());
+                res.set_col(dim - 1, ToHomogeneous::to_homogeneous(&m.translation));
 
                 res
             }

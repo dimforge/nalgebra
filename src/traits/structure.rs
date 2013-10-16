@@ -60,7 +60,7 @@ pub trait Basis {
     fn canonical_basis(&fn(Self) -> bool);
 
     /// Iterates through a basis of the subspace orthogonal to `self`.
-    fn orthonormal_subspace_basis(&self, &fn(Self) -> bool);
+    fn orthonormal_subspace_basis(&Self, &fn(Self) -> bool);
 }
 
 /// Trait to access rows of a matrix or a vector.

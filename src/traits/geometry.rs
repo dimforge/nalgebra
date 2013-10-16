@@ -201,7 +201,7 @@ pub trait Transform<V> {
 pub trait Dot<N> {
     /// Computes the dot (inner) product of two vectors.
     #[inline]
-    fn dot(&self, &Self) -> N;
+    fn dot(&Self, &Self) -> N;
 
     /**
      * Short-cut to compute the projection of a point on a vector, but without
@@ -214,22 +214,22 @@ pub trait Dot<N> {
      *
      */
     #[inline]
-    fn sub_dot(&self, b: &Self, c: &Self) -> N;
+    fn sub_dot(a: &Self, b: &Self, c: &Self) -> N;
 }
 
 /// Traits of objects having an euclidian norm.
 pub trait Norm<N: Algebraic> {
     /// Computes the norm of `self`.
     #[inline]
-    fn norm(&self) -> N {
-        self.sqnorm().sqrt()
+    fn norm(v: &Self) -> N {
+        Norm::sqnorm(v).sqrt()
     }
 
     /// Computes the squared norm of `self`.
     ///
     /// This is usually faster than computing the norm itself.
     #[inline]
-    fn sqnorm(&self) -> N;
+    fn sqnorm(&Self) -> N;
 
     /// Gets the normalized version of a copy of `v`.
     #[inline]
@@ -245,7 +245,7 @@ pub trait Norm<N: Algebraic> {
  */
 pub trait Cross<V> {
     /// Computes the cross product between two elements (usually vectors).
-    fn cross(&self, other: &Self) -> V;
+    fn cross(&Self, other: &Self) -> V;
 }
 
 /**
@@ -254,13 +254,13 @@ pub trait Cross<V> {
 pub trait CrossMatrix<M> {
     /// The matrix associated to any cross product with this vector. I.e. `v.cross(anything)` =
     /// `v.cross_matrix().rmul(anything)`.
-    fn cross_matrix(&self) -> M;
+    fn cross_matrix(&Self) -> M;
 }
 
 /// Traits of objects which can be put in homogeneous coordinates form.
 pub trait ToHomogeneous<U> {
     /// Gets the homogeneous coordinates form of this object.
-    fn to_homogeneous(&self) -> U;
+    fn to_homogeneous(&Self) -> U;
 }
 
 /// Traits of objects which can be build from an homogeneous coordinate form.

@@ -228,7 +228,7 @@ macro_rules! basis_impl(
             }
 
             #[inline]
-            fn orthonormal_subspace_basis(&self, f: &fn($t<N>) -> bool) {
+            fn orthonormal_subspace_basis(n: &$t<N>, f: &fn($t<N>) -> bool) {
                 // compute the basis of the orthogonal subspace using Gram-Schmidt
                 // orthogonalization algorithm
                 let mut basis: ~[$t<N>] = ~[];
@@ -246,13 +246,13 @@ macro_rules! basis_impl(
 
                     let mut elt = basis_element.clone();
 
-                    elt = elt - *self * basis_element.dot(self);
+                    elt = elt - *n * Dot::dot(&basis_element, n);
 
                     for v in basis.iter() {
-                        elt = elt - v * elt.dot(v)
+                        elt = elt - v * Dot::dot(&elt, v)
                     };
 
-                    if !elt.sqnorm().approx_eq(&Zero::zero()) {
+                    if !Norm::sqnorm(&elt).approx_eq(&Zero::zero()) {
                         let new_element = Norm::normalize_cpy(&elt);
 
                         if !f(new_element.clone()) { return };
@@ -324,13 +324,13 @@ macro_rules! dot_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Num + Clone> Dot<N> for $t<N> {
             #[inline]
-            fn dot(&self, other: &$t<N>) -> N {
-                self.$comp0 * other.$comp0 $(+ self.$compN * other.$compN )*
+            fn dot(a: &$t<N>, b: &$t<N>) -> N {
+                a.$comp0 * b.$comp0 $(+ a.$compN * b.$compN )*
             }
 
             #[inline]
-            fn sub_dot(&self, a: &$t<N>, b: &$t<N>) -> N {
-                (self.$comp0 - a.$comp0) * b.$comp0 $(+ (self.$compN - a.$compN) * b.$compN )*
+            fn sub_dot(a: &$t<N>, b: &$t<N>, c: &$t<N>) -> N {
+                (a.$comp0 - b.$comp0) * c.$comp0 $(+ (a.$compN - b.$compN) * c.$compN )*
             }
         }
     )
@@ -425,13 +425,13 @@ macro_rules! norm_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + Num + Algebraic> Norm<N> for $t<N> {
             #[inline]
-            fn sqnorm(&self) -> N {
-                self.dot(self)
+            fn sqnorm(v: &$t<N>) -> N {
+                Dot::dot(v, v)
             }
 
             #[inline]
-            fn norm(&self) -> N {
-                self.sqnorm().sqrt()
+            fn norm(v: &$t<N>) -> N {
+                Norm::sqnorm(v).sqrt()
             }
 
             #[inline]
@@ -445,7 +445,7 @@ macro_rules! norm_impl(
 
             #[inline]
             fn normalize(&mut self) -> N {
-                let l = self.norm();
+                let l = Norm::norm(self);
 
                 self.$comp0 = self.$comp0 / l;
                 $(self.$compN = self.$compN / l;)*
@@ -545,11 +545,11 @@ macro_rules! bounded_impl(
 macro_rules! to_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + One + Zero> ToHomogeneous<$t2<N>> for $t<N> {
-            fn to_homogeneous(&self) -> $t2<N> {
+            fn to_homogeneous(v: &$t<N>) -> $t2<N> {
                 let mut res: $t2<N> = One::one();
 
-                res.$comp0    = self.$comp0.clone();
-                $( res.$compN = self.$compN.clone(); )*
+                res.$comp0    = v.$comp0.clone();
+                $( res.$compN = v.$compN.clone(); )*
 
                 res
             }

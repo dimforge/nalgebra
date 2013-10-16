@@ -106,7 +106,7 @@ impl<N: Clone + Trigonometric + Num + Algebraic> Rot3<N> {
     ///   * `axisangle` - A vector representing the rotation. Its magnitude is the amount of rotation
     ///   in radian. Its direction is the axis of rotation.
     pub fn new(axisangle: Vec3<N>) -> Rot3<N> {
-        if axisangle.sqnorm().is_zero() {
+        if Norm::sqnorm(&axisangle).is_zero() {
             One::one()
         }
         else {
@@ -152,8 +152,8 @@ impl<N: Clone + Num + Algebraic> Rot3<N> {
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
         let xaxis = Norm::normalize_cpy(at);
-        let zaxis = Norm::normalize_cpy(&up.cross(&xaxis));
-        let yaxis = zaxis.cross(&xaxis);
+        let zaxis = Norm::normalize_cpy(&Cross::cross(up, &xaxis));
+        let yaxis = Cross::cross(&zaxis, &xaxis);
 
         self.submat = Mat3::new(
             xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
@@ -170,8 +170,8 @@ impl<N: Clone + Num + Algebraic> Rot3<N> {
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at_z(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
         let zaxis = Norm::normalize_cpy(at);
-        let xaxis = Norm::normalize_cpy(&up.cross(&zaxis));
-        let yaxis = zaxis.cross(&xaxis);
+        let xaxis = Norm::normalize_cpy(&Cross::cross(up, &zaxis));
+        let yaxis = Cross::cross(&zaxis, &xaxis);
 
         self.submat = Mat3::new(
             xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),

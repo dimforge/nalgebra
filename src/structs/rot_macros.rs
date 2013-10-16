@@ -190,8 +190,8 @@ macro_rules! to_homogeneous_impl(
     ($t: ident, $tm: ident) => (
         impl<N: One + Zero + Clone> ToHomogeneous<$tm<N>> for $t<N> {
             #[inline]
-            fn to_homogeneous(&self) -> $tm<N> {
-                self.submat.to_homogeneous()
+            fn to_homogeneous(m: &$t<N>) -> $tm<N> {
+                ToHomogeneous::to_homogeneous(&m.submat)
             }
         }
     )
@@ -223,8 +223,8 @@ macro_rules! absolute_impl(
     ($t: ident, $tm: ident) => (
         impl<N: Signed> Absolute<$tm<N>> for $t<N> {
             #[inline]
-            fn absolute(&self) -> $tm<N> {
-                self.submat.absolute()
+            fn abs(m: &$t<N>) -> $tm<N> {
+                Absolute::abs(&m.submat)
             }
         }
     )

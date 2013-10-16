@@ -300,11 +300,11 @@ pub fn append_rotation_wrt_point<LV: Neg<LV>,
 
 /// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
 #[inline(always)]
-pub fn rotate_wrt_center<LV: Neg<LV>,
-                         AV,
-                         M: RotationWithTranslation<LV, AV>>(
-                         m:      &M,
-                         amount: &AV) -> M {
+pub fn append_rotation_wrt_center<LV: Neg<LV>,
+                                  AV,
+                                  M: RotationWithTranslation<LV, AV>>(
+                                  m:      &M,
+                                  amount: &AV) -> M {
     RotationWithTranslation::append_rotation_wrt_center_cpy(m, amount)
 }
 
@@ -373,13 +373,13 @@ pub fn inv_transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
 /// Computes the dot product of two vectors.
 #[inline(always)]
 pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
-    a.dot(b)
+    Dot::dot(a, b)
 }
 
 /// Computes a subtraction followed by a dot product.
 #[inline(always)]
 pub fn sub_dot<V: Dot<N>, N>(a: &V, b: &V, c: &V) -> N {
-    a.sub_dot(b, c)
+    Dot::sub_dot(a, b, c)
 }
 
 /*
@@ -389,13 +389,13 @@ pub fn sub_dot<V: Dot<N>, N>(a: &V, b: &V, c: &V) -> N {
 /// Computes the L2 norm of a vector.
 #[inline(always)]
 pub fn norm<V: Norm<N>, N: Algebraic>(v: &V) -> N {
-    v.norm()
+    Norm::norm(v)
 }
 
 /// Computes the squared L2 norm of a vector.
 #[inline(always)]
 pub fn sqnorm<V: Norm<N>, N: Algebraic>(v: &V) -> N {
-    v.sqnorm()
+    Norm::sqnorm(v)
 }
 
 /// Gets the normalized version of a vector.
@@ -411,7 +411,7 @@ pub fn normalize<V: Norm<N>, N: Algebraic>(v: &V) -> V {
 /// Computes the cross product of two vectors.
 #[inline(always)]
 pub fn cross<LV: Cross<AV>, AV>(a: &LV, b: &LV) -> AV {
-    a.cross(b)
+    Cross::cross(a, b)
 }
 
 /*
@@ -422,7 +422,7 @@ pub fn cross<LV: Cross<AV>, AV>(a: &LV, b: &LV) -> AV {
 /// product.
 #[inline(always)]
 pub fn cross_matrix<V: CrossMatrix<M>, M>(v: &V) -> M {
-    v.cross_matrix()
+    CrossMatrix::cross_matrix(v)
 }
 
 /*
@@ -432,7 +432,7 @@ pub fn cross_matrix<V: CrossMatrix<M>, M>(v: &V) -> M {
 /// Converts a matrix or vector to homogoneous coordinates.
 #[inline(always)]
 pub fn to_homogeneous<M: ToHomogeneous<Res>, Res>(m: &M) -> Res {
-    m.to_homogeneous()
+    ToHomogeneous::to_homogeneous(m)
 }
 
 /*
@@ -472,8 +472,8 @@ pub fn sample_sphere<V: UniformSphereSample>(f: &fn(V)) {
 
 /// Computes a component-wise absolute value.
 #[inline(always)]
-pub fn absolute<M: Absolute<Res>, Res>(m: &M) -> Res {
-    m.absolute()
+pub fn abs<M: Absolute<Res>, Res>(m: &M) -> Res {
+    Absolute::abs(m)
 }
 
 /*
@@ -503,7 +503,7 @@ pub fn transpose<M: Transpose>(m: &M) -> M {
 /// Computes the outer product of two vectors.
 #[inline(always)]
 pub fn outer<V: Outer<M>, M>(a: &V, b: &V) -> M {
-    a.outer(b)
+    Outer::outer(a, b)
 }
 
 /*
@@ -513,7 +513,7 @@ pub fn outer<V: Outer<M>, M>(a: &V, b: &V) -> M {
 /// Computes the covariance of a set of observations.
 #[inline(always)]
 pub fn cov<M: Cov<Res>, Res>(observations: &M) -> Res {
-    observations.cov()
+    Cov::cov(observations)
 }
 
 /*
@@ -523,7 +523,7 @@ pub fn cov<M: Cov<Res>, Res>(observations: &M) -> Res {
 /// Computes the mean of a set of observations.
 #[inline(always)]
 pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
-    observations.mean()
+    Mean::mean(observations)
 }
 
 //
@@ -545,7 +545,7 @@ pub fn canonical_basis<V: Basis>(f: &fn(V) -> bool) {
 /// Computes the basis of the orthonormal subspace of a given vector.
 #[inline(always)]
 pub fn orthonormal_subspace_basis<V: Basis>(v: &V, f: &fn(V) -> bool) {
-    v.orthonormal_subspace_basis(f)
+    Basis::orthonormal_subspace_basis(v, f)
 }
 
 /*

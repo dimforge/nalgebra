@@ -6,37 +6,37 @@ use structs::mat::Mat3;
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
     #[inline]
-    fn cross(&self, other : &Vec2<N>) -> Vec1<N> {
-        Vec1::new(self.x * other.y - self.y * other.x)
+    fn cross(a: &Vec2<N>, b: &Vec2<N>) -> Vec1<N> {
+        Vec1::new(a.x * b.y - a.y * b.x)
     }
 }
 
 // FIXME: instead of returning a Vec2, define a Mat2x1 matrix?
 impl<N: Neg<N> + Clone> CrossMatrix<Vec2<N>> for Vec2<N> {
     #[inline]
-    fn cross_matrix(&self) -> Vec2<N> {
-        Vec2::new(-self.y, self.x.clone())
+    fn cross_matrix(v: &Vec2<N>) -> Vec2<N> {
+        Vec2::new(-v.y, v.x.clone())
     }
 }
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
     #[inline]
-    fn cross(&self, other : &Vec3<N>) -> Vec3<N> {
+    fn cross(a: &Vec3<N>, b: &Vec3<N>) -> Vec3<N> {
         Vec3::new(
-            self.y * other.z - self.z * other.y,
-            self.z * other.x - self.x * other.z,
-            self.x * other.y - self.y * other.x
+            a.y * b.z - a.z * b.y,
+            a.z * b.x - a.x * b.z,
+            a.x * b.y - a.y * b.x
         )
     }
 }
 
 impl<N: Neg<N> + Zero + Clone> CrossMatrix<Mat3<N>> for Vec3<N> {
     #[inline]
-    fn cross_matrix(&self) -> Mat3<N> {
+    fn cross_matrix(v: &Vec3<N>) -> Mat3<N> {
         Mat3::new(
-            Zero::zero()  , -self.z,        self.y.clone(),
-            self.z.clone(), Zero::zero(),   -self.x,
-            -self.y       , self.x.clone(), Zero::zero()
+            Zero::zero(), -v.z        , v.y.clone(),
+            v.z.clone() , Zero::zero(), -v.x,
+            -v.y        , v.x.clone() , Zero::zero()
         )
     }
 }
@@ -75,7 +75,7 @@ impl<N: One> Basis for Vec1<N> {
     }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(&self, _: &fn(Vec1<N>) -> bool ) { }
+    fn orthonormal_subspace_basis(_: &Vec1<N>, _: &fn(Vec1<N>) -> bool ) { }
 }
 
 impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
@@ -86,8 +86,8 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
     }
 
     #[inline]
-    fn orthonormal_subspace_basis(&self, f: &fn(Vec2<N>) -> bool) {
-        f(Vec2::new(-self.y, self.x.clone()));
+    fn orthonormal_subspace_basis(n: &Vec2<N>, f: &fn(Vec2<N>) -> bool) {
+        f(Vec2::new(-n.y, n.x.clone()));
     }
 }
 
@@ -100,16 +100,16 @@ impl<N: Clone + Ord + Algebraic + Signed> Basis for Vec3<N> {
     }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(&self, f: &fn(Vec3<N>) -> bool) {
+    fn orthonormal_subspace_basis(n: &Vec3<N>, f: &fn(Vec3<N>) -> bool) {
         let a = 
-            if self.x.clone().abs() > self.y.clone().abs() {
-                Norm::normalize_cpy(&Vec3::new(self.z.clone(), Zero::zero(), -self.x))
+            if n.x.clone().abs() > n.y.clone().abs() {
+                Norm::normalize_cpy(&Vec3::new(n.z.clone(), Zero::zero(), -n.x))
             }
             else {
-                Norm::normalize_cpy(&Vec3::new(Zero::zero(), -self.z, self.y.clone()))
+                Norm::normalize_cpy(&Vec3::new(Zero::zero(), -n.z, n.y.clone()))
             };
 
-        if !f(a.cross(self)) { return };
+        if !f(Cross::cross(&a, n)) { return };
         f(a);
     }
 }

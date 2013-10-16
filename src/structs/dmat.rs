@@ -65,6 +65,7 @@ impl<N: Zero + Clone> DMat<N> {
         self.mij.iter().all(|e| e.is_zero())
     }
 
+    #[inline]
     pub fn reset(&mut self) {
         for mij in self.mij.mut_iter() {
             *mij = Zero::zero();
@@ -416,14 +417,14 @@ impl<N: Clone> Transpose for DMat<N> {
 }
 
 impl<N: Num + Cast<f32> + Clone> Mean<DVec<N>> for DMat<N> {
-    fn mean(&self) -> DVec<N> {
-        let mut res: DVec<N> = DVec::new_zeros(self.ncols);
-        let normalizer: N    = Cast::from(1.0f32 / Cast::from(self.nrows));
+    fn mean(m: &DMat<N>) -> DVec<N> {
+        let mut res: DVec<N> = DVec::new_zeros(m.ncols);
+        let normalizer: N    = Cast::from(1.0f32 / Cast::from(m.nrows));
 
-        for i in range(0u, self.nrows) {
-            for j in range(0u, self.ncols) {
+        for i in range(0u, m.nrows) {
+            for j in range(0u, m.ncols) {
                 unsafe {
-                    let acc = res.at_fast(j) + self.at_fast(i, j) * normalizer;
+                    let acc = res.at_fast(j) + m.at_fast(i, j) * normalizer;
                     res.set_fast(j, acc);
                 }
             }
@@ -435,23 +436,23 @@ impl<N: Num + Cast<f32> + Clone> Mean<DVec<N>> for DMat<N> {
 
 impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> for DMat<N> {
     // FIXME: this could be heavily optimized, removing all temporaries by merging loops.
-    fn cov(&self) -> DMat<N> {
-        assert!(self.nrows > 1);
+    fn cov(m: &DMat<N>) -> DMat<N> {
+        assert!(m.nrows > 1);
 
-        let mut centered = unsafe { DMat::new_uninitialized(self.nrows, self.ncols) };
-        let mean = self.mean();
+        let mut centered = unsafe { DMat::new_uninitialized(m.nrows, m.ncols) };
+        let mean = Mean::mean(m);
 
         // FIXME: use the rows iterator when available
-        for i in range(0u, self.nrows) {
-            for j in range(0u, self.ncols) {
+        for i in range(0u, m.nrows) {
+            for j in range(0u, m.ncols) {
                 unsafe {
-                    centered.set_fast(i, j, self.at_fast(i, j) - mean.at_fast(j));
+                    centered.set_fast(i, j, m.at_fast(i, j) - mean.at_fast(j));
                 }
             }
         }
 
         // FIXME: return a triangular matrix?
-        let fnormalizer: f32 = Cast::from(self.nrows() - 1);
+        let fnormalizer: f32 = Cast::from(m.nrows() - 1);
         let normalizer: N    = Cast::from(fnormalizer);
         // FIXME: this will do 2 allocations for temporaries!
         (Transpose::transpose_cpy(&centered) * centered) / normalizer

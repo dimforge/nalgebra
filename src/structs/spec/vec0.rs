@@ -66,7 +66,7 @@ impl<N> Basis for vec::Vec0<N> {
     fn canonical_basis(_: &fn(vec::Vec0<N>) -> bool) { }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(&self, _: &fn(vec::Vec0<N>) -> bool) { }
+    fn orthonormal_subspace_basis(_: &vec::Vec0<N>, _: &fn(vec::Vec0<N>) -> bool) { }
 }
 
 impl<N, T> Add<T, vec::Vec0<N>> for vec::Vec0<N> {
@@ -92,12 +92,12 @@ impl<N: Neg<N>> Neg<vec::Vec0<N>> for vec::Vec0<N> {
 
 impl<N: Num + Clone> Dot<N> for vec::Vec0<N> {
     #[inline]
-    fn dot(&self, _: &vec::Vec0<N>) -> N {
+    fn dot(_: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
         Zero::zero()
     }
 
     #[inline]
-    fn sub_dot(&self, _: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
+    fn sub_dot(_: &vec::Vec0<N>, _: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
         Zero::zero()
     } 
 }
@@ -154,18 +154,18 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
 
 impl<N: Clone + Num + Algebraic> Norm<N> for vec::Vec0<N> {
     #[inline]
-    fn sqnorm(&self) -> N {
-        self.dot(self)
+    fn sqnorm(_: &vec::Vec0<N>) -> N {
+        Zero::zero()
     }
 
     #[inline]
-    fn norm(&self) -> N {
-        self.sqnorm().sqrt()
+    fn norm(_: &vec::Vec0<N>) -> N {
+        Zero::zero()
     }
 
     #[inline]
-    fn normalize_cpy(v: &vec::Vec0<N>) -> vec::Vec0<N> {
-        v.clone()
+    fn normalize_cpy(_: &vec::Vec0<N>) -> vec::Vec0<N> {
+        Zero::zero()
     }
 
     #[inline]
