@@ -6,7 +6,7 @@ use std::num::{Zero, One};
 use std::rand::{Rand, Rng};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
                        Norm, Cross};
-use traits::structure::{Cast, Dim, Indexable, Row, Col};
+use traits::structure::{Cast, Dim, Row, Col};
 use traits::operations::{Absolute, Inv, Transpose};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
 use structs::mat::{Mat2, Mat3, Mat4, Mat5};
@@ -15,7 +15,7 @@ mod metal;
 mod rot_macros;
 
 /// Two dimensional rotation matrix.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr, IterBytes)]
 pub struct Rot2<N> {
     priv submat: Mat2<N>
 }
@@ -35,7 +35,7 @@ impl<N: Trigonometric + Num + Clone>
 Rotation<Vec1<N>> for Rot2<N> {
     #[inline]
     fn rotation(&self) -> Vec1<N> {
-        Vec1::new((-self.submat.at((0, 1))).atan2(&self.submat.at((0, 0))))
+        Vec1::new((-self.submat.m12).atan2(&self.submat.m11))
     }
 
     #[inline]
@@ -93,7 +93,7 @@ impl<N: Signed> AbsoluteRotate<Vec2<N>> for Rot2<N> {
  * 3d rotation
  */
 /// Three dimensional rotation matrix.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr, IterBytes)]
 pub struct Rot3<N> {
     priv submat: Mat3<N>
 }
@@ -264,7 +264,7 @@ impl<N: Signed> AbsoluteRotate<Vec3<N>> for Rot3<N> {
 }
 
 /// Four dimensional rotation matrix.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr, IterBytes)]
 pub struct Rot4<N> {
     priv submat: Mat4<N>
 }

@@ -1,8 +1,7 @@
 use std::num::{Real, abs};
 use std::rand::random;
 use std::cmp::ApproxEq;
-use na::{Vec1, DMat, DVec};
-use na::Indexable; // FIXME: get rid of that
+use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable};
 use na;
 
 macro_rules! test_inv_mat_impl(
@@ -27,62 +26,62 @@ macro_rules! test_transpose_mat_impl(
 
 #[test]
 fn test_transpose_mat1() {
-    test_transpose_mat_impl!(na::Mat1<f64>);
+    test_transpose_mat_impl!(Mat1<f64>);
 }
 
 #[test]
 fn test_transpose_mat2() {
-    test_transpose_mat_impl!(na::Mat2<f64>);
+    test_transpose_mat_impl!(Mat2<f64>);
 }
 
 #[test]
 fn test_transpose_mat3() {
-    test_transpose_mat_impl!(na::Mat3<f64>);
+    test_transpose_mat_impl!(Mat3<f64>);
 }
 
 #[test]
 fn test_transpose_mat4() {
-    test_transpose_mat_impl!(na::Mat4<f64>);
+    test_transpose_mat_impl!(Mat4<f64>);
 }
 
 #[test]
 fn test_transpose_mat5() {
-    test_transpose_mat_impl!(na::Mat5<f64>);
+    test_transpose_mat_impl!(Mat5<f64>);
 }
 
 #[test]
 fn test_transpose_mat6() {
-    test_transpose_mat_impl!(na::Mat6<f64>);
+    test_transpose_mat_impl!(Mat6<f64>);
 }
 
 #[test]
 fn test_inv_mat1() {
-    test_inv_mat_impl!(na::Mat1<f64>);
+    test_inv_mat_impl!(Mat1<f64>);
 }
 
 #[test]
 fn test_inv_mat2() {
-    test_inv_mat_impl!(na::Mat2<f64>);
+    test_inv_mat_impl!(Mat2<f64>);
 }
 
 #[test]
 fn test_inv_mat3() {
-    test_inv_mat_impl!(na::Mat3<f64>);
+    test_inv_mat_impl!(Mat3<f64>);
 }
 
 #[test]
 fn test_inv_mat4() {
-    test_inv_mat_impl!(na::Mat4<f64>);
+    test_inv_mat_impl!(Mat4<f64>);
 }
 
 #[test]
 fn test_inv_mat5() {
-    test_inv_mat_impl!(na::Mat5<f64>);
+    test_inv_mat_impl!(Mat5<f64>);
 }
 
 #[test]
 fn test_inv_mat6() {
-    test_inv_mat_impl!(na::Mat6<f64>);
+    test_inv_mat_impl!(Mat6<f64>);
 }
 
 #[test]
@@ -97,7 +96,7 @@ fn test_rotation2() {
 
 #[test]
 fn test_index_mat2() {
-  let mat: na::Mat2<f64> = random();
+  let mat: Mat2<f64> = random();
 
   assert!(mat.at((0, 1)) == na::transpose(&mat).at((1, 0)));
 }
@@ -105,8 +104,8 @@ fn test_index_mat2() {
 #[test]
 fn test_inv_rotation3() {
     do 10000.times {
-        let randmat: na::Rot3<f64> = na::one();
-        let dir:     na::Vec3<f64> = random();
+        let randmat: Rot3<f64> = na::one();
+        let dir:     Vec3<f64> = random();
         let ang            = na::normalize(&dir) * (abs::<f64>(random()) % Real::pi());
         let rot            = na::append_rotation(&randmat, &ang);
 
@@ -116,7 +115,7 @@ fn test_inv_rotation3() {
 
 #[test]
 fn test_mean_dmat() {
-    let mat = DMat::from_vec(
+    let mat = DMat::from_row_vec(
         3,
         3,
         [
@@ -131,7 +130,7 @@ fn test_mean_dmat() {
 
 #[test]
 fn test_cov_dmat() {
-    let mat = DMat::from_vec(
+    let mat = DMat::from_row_vec(
         5,
         3,
         [
@@ -143,7 +142,7 @@ fn test_cov_dmat() {
         ]
     );
 
-    let expected = DMat::from_vec(
+    let expected = DMat::from_row_vec(
         3,
         3,
         [
@@ -154,4 +153,57 @@ fn test_cov_dmat() {
     );
 
     assert!(na::cov(&mat).approx_eq(&expected));
+}
+
+#[test]
+fn test_transpose_dmat() {
+    let mat = DMat::from_row_vec(
+        8,
+        4,
+        [
+            1,  2,  3,  4,
+            5,  6,  7,  8,
+            9,  10, 11, 12,
+            13, 14, 15, 16,
+            17, 18, 19, 20,
+            21, 22, 23, 24,
+            25, 26, 27, 28,
+            29, 30, 31, 32
+        ]
+    );
+
+    assert!(na::transpose(&na::transpose(&mat)) == mat);
+}
+
+#[test]
+fn test_dmat_from_vec() {
+    let mat1 = DMat::from_row_vec(
+        8,
+        4,
+        [
+            1,  2,  3,  4,
+            5,  6,  7,  8,
+            9,  10, 11, 12,
+            13, 14, 15, 16,
+            17, 18, 19, 20,
+            21, 22, 23, 24,
+            25, 26, 27, 28,
+            29, 30, 31, 32
+        ]
+    );
+
+    let mat2 = DMat::from_col_vec(
+        8,
+        4,
+        [
+            1, 5, 9,  13, 17, 21, 25, 29, 
+            2, 6, 10, 14, 18, 22, 26, 30,
+            3, 7, 11, 15, 19, 23, 27, 31, 
+            4, 8, 12, 16, 20, 24, 28, 32
+        ]
+    );
+
+    println!("mat1: {:?}, mat2: {:?}", mat1, mat2);
+
+    assert!(mat1 == mat2);
 }

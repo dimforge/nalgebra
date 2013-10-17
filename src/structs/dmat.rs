@@ -101,16 +101,35 @@ impl<N: Clone> DMat<N> {
     }
 
     /// Builds a matrix filled with the components provided by a vector.
+    /// The vector contains the matrix data in row-major order.
+    /// Note that `from_col_vec` is a lot faster than `from_row_vec` since a `DMat` stores its data
+    /// in column-major order.
     ///
     /// The vector must have at least `nrows * ncols` elements.
     #[inline]
-    pub fn from_vec(nrows: uint, ncols: uint, vec: &[N]) -> DMat<N> {
-        assert!(nrows * ncols <= vec.len());
+    pub fn from_row_vec(nrows: uint, ncols: uint, vec: &[N]) -> DMat<N> {
+        let mut res = DMat::from_col_vec(ncols, nrows, vec);
+
+        // we transpose because the buffer is row_major
+        res.transpose();
+
+        res
+    }
+
+    /// Builds a matrix filled with the components provided by a vector.
+    /// The vector contains the matrix data in column-major order.
+    /// Note that `from_col_vec` is a lot faster than `from_row_vec` since a `DMat` stores its data
+    /// in column-major order.
+    ///
+    /// The vector must have at least `nrows * ncols` elements.
+    #[inline]
+    pub fn from_col_vec(nrows: uint, ncols: uint, vec: &[N]) -> DMat<N> {
+        assert!(nrows * ncols == vec.len());
 
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   vec.slice_to(nrows * ncols).to_owned()
+            mij:   vec.to_owned()
         }
     }
 }
@@ -139,9 +158,28 @@ impl<N> DMat<N> {
     }
 
     /// Transforms this matrix into an array. This consumes the matrix and is O(1).
+    /// The returned vector contains the matrix data in column-major order.
     #[inline]
     pub fn to_vec(self) -> ~[N] {
         self.mij
+    }
+
+    /// Gets a reference to this matrix data.
+    /// The returned vector contains the matrix data in column-major order.
+    #[inline]
+    pub fn as_vec<'r>(&'r self) -> &'r [N] {
+        let res: &'r [N] = self.mij;
+
+        res
+    }
+
+    /// Gets a mutable reference to this matrix data.
+    /// The returned vector contains the matrix data in column-major order.
+    #[inline]
+    pub fn as_mut_vec<'r>(&'r mut self) -> &'r mut [N] {
+        let res: &'r mut [N] = self.mij;
+
+        res
     }
 }
 
@@ -167,9 +205,9 @@ impl<N: One + Zero + Clone> DMat<N> {
 }
 
 impl<N: Clone> DMat<N> {
-    #[inline]
+    #[inline(always)]
     fn offset(&self, i: uint, j: uint) -> uint {
-        i * self.ncols + j
+        i + j * self.nrows
     }
 
     /// Changes the value of a component of the matrix.
