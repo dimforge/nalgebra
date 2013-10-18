@@ -63,7 +63,7 @@ pub fn identity() -> Identity {
 
 /// Create a zero-valued value.
 ///
-/// This is the same as `std::num::Zero::zero()`.
+/// This is the same as `std::num::zero()`.
 #[inline(always)]
 pub fn zero<T: Zero>() -> T {
     Zero::zero()
@@ -71,7 +71,7 @@ pub fn zero<T: Zero>() -> T {
 
 /// Create a one-valued value.
 ///
-/// This is the same as `std::num::One::one()`.
+/// This is the same as `std::num::one()`.
 #[inline(always)]
 pub fn one<T: One>() -> T {
     One::one()
