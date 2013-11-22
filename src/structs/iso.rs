@@ -4,13 +4,13 @@
 
 use std::num::{Zero, One};
 use std::rand::{Rand, Rng};
-use structs::mat::{Mat3, Mat4};
+use structs::mat::{Mat3, Mat4, Mat5};
 use traits::structure::{Cast, Dim, Col};
 use traits::operations::{Inv};
 use traits::geometry::{RotationMatrix, Rotation, Rotate, AbsoluteRotate, Transform, Transformation,
                        Translate, Translation, ToHomogeneous};
 
-use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs};
+use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
 use structs::rot::{Rot2, Rot3, Rot4};
 
 mod metal;
@@ -82,6 +82,18 @@ impl<N: Clone + Num + Algebraic> Iso3<N> {
     }
 }
 
+impl<N> Iso4<N> {
+    // XXX remove that when iso_impl works for Iso4
+    /// Creates a new isometry from a rotation matrix and a vector.
+    #[inline]
+    pub fn new_with_rotmat(translation: Vec4<N>, rotation: Rot4<N>) -> Iso4<N> {
+        Iso4 {
+            rotation:    rotation,
+            translation: translation
+        }
+    }
+}
+
 iso_impl!(Iso2, Rot2, Vec2, Vec1)
 double_dispatch_binop_decl_trait!(Iso2, Iso2MulRhs)
 mul_redispatch_impl!(Iso2, Iso2MulRhs)
@@ -124,25 +136,23 @@ iso_mul_iso_impl!(Iso3, Iso3MulRhs)
 iso_mul_vec_impl!(Iso3, Vec3, Iso3MulRhs)
 vec_mul_iso_impl!(Iso3, Vec3, Vec3MulRhs)
 
-/*
-iso_impl!(Iso4, Rot4, Vec4, Vec4)
+// iso_impl!(Iso4, Rot4, Vec4, Vec4)
 double_dispatch_binop_decl_trait!(Iso4, Iso4MulRhs)
 mul_redispatch_impl!(Iso4, Iso4MulRhs)
 // rotation_matrix_impl!(Iso4, Rot4, Vec4, Vec4)
 // rotation_impl!(Iso4, Rot4, Vec4)
 dim_impl!(Iso4, 4)
 one_impl!(Iso4)
-// absolute_rotate_impl!(Iso4, Vec4)
+absolute_rotate_impl!(Iso4, Vec4)
 // rand_impl!(Iso4)
 approx_eq_impl!(Iso4)
 to_homogeneous_impl!(Iso4, Mat5)
 inv_impl!(Iso4)
 transform_impl!(Iso4, Vec4)
 transformation_impl!(Iso4)
-// rotate_impl!(Iso4, Vec4)
+rotate_impl!(Iso4, Vec4)
 translation_impl!(Iso4, Vec4)
 translate_impl!(Iso4, Vec4)
 iso_mul_iso_impl!(Iso4, Iso4MulRhs)
 iso_mul_vec_impl!(Iso4, Vec4, Iso4MulRhs)
 vec_mul_iso_impl!(Iso4, Vec4, Vec4MulRhs)
-*/

@@ -269,6 +269,28 @@ pub struct Rot4<N> {
     priv submat: Mat4<N>
 }
 
+// impl<N> Rot4<N> {
+//     pub fn new(left_iso: Quat<N>, right_iso: Quat<N>) -> Rot4<N> {
+//         assert!(left_iso.is_unit());
+//         assert!(right_iso.is_unright);
+// 
+//         let mat_left_iso = Mat4::new(
+//             left_iso.x, -left_iso.y, -left_iso.z, -left_iso.w,
+//             left_iso.y,  left_iso.x, -left_iso.w,  left_iso.z,
+//             left_iso.z,  left_iso.w,  left_iso.x, -left_iso.y,
+//             left_iso.w, -left_iso.z,  left_iso.y,  left_iso.x);
+//         let mat_right_iso = Mat4::new(
+//             right_iso.x, -right_iso.y, -right_iso.z, -right_iso.w,
+//             right_iso.y,  right_iso.x,  right_iso.w, -right_iso.z,
+//             right_iso.z, -right_iso.w,  right_iso.x,  right_iso.y,
+//             right_iso.w,  right_iso.z, -right_iso.y,  right_iso.x);
+// 
+//         Rot4 {
+//             submat: mat_left_iso * mat_right_iso
+//         }
+//     }
+// }
+
 impl<N: Signed> AbsoluteRotate<Vec4<N>> for Rot4<N> {
     #[inline]
     fn absolute_rotate(&self, v: &Vec4<N>) -> Vec4<N> {
@@ -284,6 +306,44 @@ impl<N: Signed> AbsoluteRotate<Vec4<N>> for Rot4<N> {
 
             self.submat.m41.abs() * v.x + self.submat.m42.abs() * v.y +
             self.submat.m43.abs() * v.z + self.submat.m44.abs() * v.w)
+    }
+}
+
+impl<N: Trigonometric + Num + Clone>
+Rotation<Vec4<N>> for Rot4<N> {
+    #[inline]
+    fn rotation(&self) -> Vec4<N> {
+        fail!("Not yet implemented")
+    }
+
+    #[inline]
+    fn inv_rotation(&self) -> Vec4<N> {
+        fail!("Not yet implemented")
+    }
+
+    #[inline]
+    fn append_rotation(&mut self, _: &Vec4<N>) {
+        fail!("Not yet implemented")
+    }
+
+    #[inline]
+    fn append_rotation_cpy(_: &Rot4<N>, _: &Vec4<N>) -> Rot4<N> {
+        fail!("Not yet implemented")
+    }
+
+    #[inline]
+    fn prepend_rotation(&mut self, _: &Vec4<N>) {
+        fail!("Not yet implemented")
+    }
+
+    #[inline]
+    fn prepend_rotation_cpy(_: &Rot4<N>, _: &Vec4<N>) -> Rot4<N> {
+        fail!("Not yet implemented")
+    }
+
+    #[inline]
+    fn set_rotation(&mut self, _: Vec4<N>) {
+        fail!("Not yet implemented")
     }
 }
 
@@ -340,7 +400,7 @@ rot_mul_rot_impl!(Rot4, Rot4MulRhs)
 rot_mul_vec_impl!(Rot4, Vec4, Rot4MulRhs)
 vec_mul_rot_impl!(Rot4, Vec4, Vec4MulRhs)
 one_impl!(Rot4)
-// rotation_matrix_impl!(Rot4, Vec4, Vec4)
+rotation_matrix_impl!(Rot4, Vec4, Vec4)
 col_impl!(Rot4, Vec4)
 row_impl!(Rot4, Vec4)
 absolute_impl!(Rot4, Mat4)
