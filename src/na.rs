@@ -217,6 +217,7 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
     m.inv_rotation()
 }
 
+// FIXME: this example is a bit shity
 /// Applies the rotation `v` to a copy of `m`.
 ///
 /// ```rust
@@ -235,6 +236,27 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
 #[inline(always)]
 pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
     Rotation::append_rotation_cpy(m, v)
+}
+
+// FIXME: this example is a bit shity
+/// Pre-applies the rotation `v` to a copy of `m`.
+///
+/// ```rust
+/// extern mod nalgebra;
+/// use nalgebra::na::{Vec3, Rot3};
+/// use nalgebra::na;
+///
+/// pub main() {
+///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.0));
+///     let v  = Vec3::new(1.0, 1.0, 1.0);
+///     let rt = na::preend_rotation(&t, &v);
+///
+///     assert!(na::rotation(&rt) == Vec3::new(1.0, 1.0, 1.0))
+/// }
+/// ```
+#[inline(always)]
+pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
+    Rotation::prepend_rotation_cpy(m, v)
 }
 
 /*
