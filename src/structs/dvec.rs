@@ -138,7 +138,7 @@ impl<N: Clone> DVec<N> {
 impl<N> DVec<N> {
     /// Builds a vector filled with the result of a function.
     #[inline(always)]
-    pub fn from_fn(dim: uint, f: &fn(uint) -> N) -> DVec<N> {
+    pub fn from_fn(dim: uint, f: |uint| -> N) -> DVec<N> {
         DVec { at: vec::from_fn(dim, |i| f(i)) }
     }
 }
@@ -329,18 +329,14 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DVec<N> {
     fn approx_eq(&self, other: &DVec<N>) -> bool {
         let mut zip = self.at.iter().zip(other.at.iter());
 
-        do zip.all |(a, b)| {
-            a.approx_eq(b)
-        }
+        zip.all(|(a, b)| a.approx_eq(b))
     }
 
     #[inline]
     fn approx_eq_eps(&self, other: &DVec<N>, epsilon: &N) -> bool {
         let mut zip = self.at.iter().zip(other.at.iter());
 
-        do zip.all |(a, b)| {
-            a.approx_eq_eps(b, epsilon)
-        }
+        zip.all(|(a, b)| a.approx_eq_eps(b, epsilon))
     }
 }
 

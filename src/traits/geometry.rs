@@ -278,5 +278,5 @@ pub trait FromHomogeneous<U> {
 /// function.
 pub trait UniformSphereSample {
     /// Iterate through the samples.
-    fn sample(&fn(Self));
+    fn sample(|Self| -> ());
 }

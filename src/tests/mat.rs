@@ -6,21 +6,21 @@ use na;
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
-    do 10000.times {
+    10000.times(|| {
       let randmat : $t = random();
 
       assert!((na::inv(&randmat).unwrap() * randmat).approx_eq(&na::one()));
-    }
+    })
   );
 )
 
 macro_rules! test_transpose_mat_impl(
   ($t: ty) => (
-    do 10000.times {
+    10000.times(|| {
       let randmat : $t = random();
 
       assert!(na::transpose(&na::transpose(&randmat)) == randmat);
-    }
+    })
   );
 )
 
@@ -86,12 +86,12 @@ fn test_inv_mat6() {
 
 #[test]
 fn test_rotation2() {
-    do 10000.times {
+    10000.times(|| {
         let randmat: na::Rot2<f64> = na::one();
         let ang    = Vec1::new(abs::<f64>(random()) % Real::pi());
 
         assert!(na::rotation(&na::append_rotation(&randmat, &ang)).approx_eq(&ang));
-    }
+    })
 }
 
 #[test]
@@ -103,14 +103,14 @@ fn test_index_mat2() {
 
 #[test]
 fn test_inv_rotation3() {
-    do 10000.times {
+    10000.times(|| {
         let randmat: Rot3<f64> = na::one();
         let dir:     Vec3<f64> = random();
         let ang            = na::normalize(&dir) * (abs::<f64>(random()) % Real::pi());
         let rot            = na::append_rotation(&randmat, &ang);
 
         assert!((na::transpose(&rot) * rot).approx_eq(&na::one()));
-    }
+    })
 }
 
 #[test]

@@ -10,11 +10,11 @@ macro_rules! bench_dot_vec(
             let b: $t = random();
             let mut d = 0.0;
 
-            do $bh.iter {
-                do 1000.times {
+            $bh.iter(|| {
+                1000.times(|| {
                     d = d + na::dot(&a, &b);
-                }
-            }
+                })
+            })
         }
     }
 )

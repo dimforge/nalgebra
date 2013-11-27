@@ -6,7 +6,7 @@ use na;
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
-        do 10000.times {
+        10000.times(|| {
             let v: $t      = random();
             let mut mv: $t = v.clone();
             let n: $n      = random();
@@ -18,24 +18,24 @@ macro_rules! test_iterator_impl(
             }
 
             assert!(nv == mv && nv == v * n);
-        }
+        })
     )
 )
 
 macro_rules! test_commut_dot_impl(
     ($t: ty) => (
-        do 10000.times {
+        10000.times(|| {
             let v1 : $t = random();
             let v2 : $t = random();
         
             assert!(na::dot(&v1, &v2).approx_eq(&na::dot(&v2, &v1)));
-        }
+        })
     );
 )
 
 macro_rules! test_scalar_op_impl(
     ($t: ty, $n: ty) => (
-        do 10000.times {
+        10000.times(|| {
             let v1 : $t = random();
             let n  : $n = random();
         
@@ -52,62 +52,62 @@ macro_rules! test_scalar_op_impl(
             v1 = v1 / n;
         
             assert!(v1.approx_eq(&v0));
-        }
+        })
     );
 )
 
 macro_rules! test_basis_impl(
     ($t: ty) => (
-        do 10000.times {
-            do na::canonical_basis |e1: $t| {
-                do na::canonical_basis |e2: $t| {
+        10000.times(|| {
+            na::canonical_basis(|e1: $t| {
+                na::canonical_basis(|e2: $t| {
                     assert!(e1 == e2 || na::dot(&e1, &e2).approx_eq(&na::zero()));
 
                     true
-                }
+                });
 
                 assert!(na::norm(&e1).approx_eq(&na::one()));
 
                 true
-            }
-        }
+            })
+        })
     );
 )
 
 macro_rules! test_subspace_basis_impl(
     ($t: ty) => (
-        do 10000.times {
+        10000.times(|| {
             let v : $t = random();
             let v1     = na::normalize(&v);
 
-            do na::orthonormal_subspace_basis(&v1) |e1| {
+            na::orthonormal_subspace_basis(&v1, |e1| {
                 // check vectors are orthogonal to v1
                 assert!(na::dot(&v1, &e1).approx_eq(&na::zero()));
                 // check vectors form an orthonormal basis
                 assert!(na::norm(&e1).approx_eq(&na::one()));
                 // check vectors form an ortogonal basis
-                do na::orthonormal_subspace_basis(&v1) |e2| {
+                na::orthonormal_subspace_basis(&v1, |e2| {
                     assert!(e1 == e2 || na::dot(&e1, &e2).approx_eq(&na::zero()));
 
                     true
-                }
+                });
 
                 true
-            }
-        }
+            })
+        })
     );
 )
 
 #[test]
 fn test_cross_vec3() {
-    do 10000.times {
+    10000.times(|| {
         let v1 : Vec3<f64> = random();
         let v2 : Vec3<f64> = random();
         let v3 : Vec3<f64> = na::cross(&v1, &v2);
 
         assert!(na::dot(&v3, &v2).approx_eq(&na::zero()));
         assert!(na::dot(&v3, &v1).approx_eq(&na::zero()));
-    }
+    })
 }
 
 #[test]

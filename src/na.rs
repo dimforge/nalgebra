@@ -477,7 +477,7 @@ pub fn from_homogeneous<M, Res: FromHomogeneous<M>>(m: &M) -> Res {
 ///
 /// The number of sampling point is implementation-specific. It is always uniform.
 #[inline(always)]
-pub fn sample_sphere<V: UniformSphereSample>(f: &fn(V)) {
+pub fn sample_sphere<V: UniformSphereSample>(f: |V| -> ()) {
     UniformSphereSample::sample(f)
 }
 
@@ -560,13 +560,13 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
 
 /// Computes the canonical basis for a given dimension.
 #[inline(always)]
-pub fn canonical_basis<V: Basis>(f: &fn(V) -> bool) {
+pub fn canonical_basis<V: Basis>(f: |V| -> bool) {
     Basis::canonical_basis(f)
 }
 
 /// Computes the basis of the orthonormal subspace of a given vector.
 #[inline(always)]
-pub fn orthonormal_subspace_basis<V: Basis>(v: &V, f: &fn(V) -> bool) {
+pub fn orthonormal_subspace_basis<V: Basis>(v: &V, f: |V| -> bool) {
     Basis::orthonormal_subspace_basis(v, f)
 }
 

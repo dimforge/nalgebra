@@ -8,11 +8,11 @@ macro_rules! bench_mul_mat(
             let a: $t     = random();
             let mut b: $t = random();
 
-            do $bh.iter {
-                do 1000.times {
+            $bh.iter(|| {
+                1000.times(|| {
                     b = a * b;
-                }
-            }
+                })
+            })
         }
     }
 )
@@ -48,11 +48,11 @@ macro_rules! bench_mul_dmat(
             let a:     DMat<f64> = DMat::new_random($nrows, $ncols);
             let mut b: DMat<f64> = DMat::new_random($nrows, $ncols);
 
-            do $bh.iter {
-                do 1000.times {
+            $bh.iter(|| {
+                1000.times(|| {
                     b = a * b;
-                }
-            }
+                })
+            })
         }
     }
 )
@@ -88,11 +88,11 @@ macro_rules! bench_mul_mat_vec(
             let m : $tm     = random();
             let mut v : $tv = random();
 
-            do $bh.iter {
-                do 1000.times {
+            $bh.iter(|| {
+                1000.times(|| {
                     v = m * v
-                }
-            }
+                })
+            })
         }
     }
 )
@@ -128,11 +128,11 @@ macro_rules! bench_mul_dmat_dvec(
             let m : DMat<f64>     = DMat::new_random($nrows, $ncols);
             let mut v : DVec<f64> = DVec::new_random($ncols);
 
-            do $bh.iter {
-                do 1000.times {
+            $bh.iter(|| {
+                1000.times(|| {
                     v = m * v
-                }
-            }
+                })
+            })
         }
     }
 )

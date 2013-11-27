@@ -63,10 +63,10 @@ impl<N> Dim for vec::Vec0<N> {
 
 impl<N> Basis for vec::Vec0<N> {
     #[inline(always)]
-    fn canonical_basis(_: &fn(vec::Vec0<N>) -> bool) { }
+    fn canonical_basis(_: |vec::Vec0<N>| -> bool) { }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(_: &vec::Vec0<N>, _: &fn(vec::Vec0<N>) -> bool) { }
+    fn orthonormal_subspace_basis(_: &vec::Vec0<N>, _: |vec::Vec0<N>| -> bool) { }
 }
 
 impl<N, T> Add<T, vec::Vec0<N>> for vec::Vec0<N> {

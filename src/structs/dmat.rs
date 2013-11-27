@@ -137,7 +137,7 @@ impl<N: Clone> DMat<N> {
 impl<N> DMat<N> {
     /// Builds a matrix filled with a given constant.
     #[inline(always)]
-    pub fn from_fn(nrows: uint, ncols: uint, f: &fn(uint, uint) -> N) -> DMat<N> {
+    pub fn from_fn(nrows: uint, ncols: uint, f: |uint, uint| -> N) -> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
@@ -510,18 +510,14 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     fn approx_eq(&self, other: &DMat<N>) -> bool {
         let mut zip = self.mij.iter().zip(other.mij.iter());
 
-        do zip.all |(a, b)| {
-            a.approx_eq(b)
-        }
+        zip.all(|(a, b)| a.approx_eq(b))
     }
 
     #[inline]
     fn approx_eq_eps(&self, other: &DMat<N>, epsilon: &N) -> bool {
         let mut zip = self.mij.iter().zip(other.mij.iter());
 
-        do zip.all |(a, b)| {
-            a.approx_eq_eps(b, epsilon)
-        }
+        zip.all(|(a, b)| a.approx_eq_eps(b, epsilon))
     }
 }
 

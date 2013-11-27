@@ -57,10 +57,10 @@ impl<N: Algebraic, V: AlgebraicVec<N> + VecExt<N> + Basis + Round> AlgebraicVecE
 /// Traits of objects which can form a basis (typically vectors).
 pub trait Basis {
     /// Iterates through the canonical basis of the space in which this object lives.
-    fn canonical_basis(&fn(Self) -> bool);
+    fn canonical_basis(|Self| -> bool);
 
     /// Iterates through a basis of the subspace orthogonal to `self`.
-    fn orthonormal_subspace_basis(&Self, &fn(Self) -> bool);
+    fn orthonormal_subspace_basis(&Self, |Self| -> bool);
 }
 
 /// Trait to access rows of a matrix or a vector.
