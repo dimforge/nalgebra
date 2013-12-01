@@ -192,6 +192,16 @@ macro_rules! indexable_impl(
                 .swap(i1 + j1 * $dim, i2 + j2 * $dim)
             }
         }
+
+        #[inline]
+        unsafe fn unsafe_at(&self, (i, j): (uint, uint)) -> N {
+            (*cast::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self).unsafe_ref(i + j * $dim)).clone()
+        }
+
+        #[inline]
+        unsafe fn unsafe_set(&mut self, (i, j): (uint, uint), val: N) {
+            (*cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self).unsafe_mut_ref(i + j * $dim)) = val
+        }
     }
   )
 )

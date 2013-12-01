@@ -113,6 +113,15 @@ pub trait Indexable<Index, Res> {
     fn set(&mut self, i: Index, Res);
     /// Swaps the `i`-th element of `self` with its `j`-th element.
     fn swap(&mut self, i: Index, j: Index);
+
+    /// Reads the `i`-th element of `self`.
+    ///
+    /// `i` is not checked.
+    unsafe fn unsafe_at(&self, i: Index) -> Res;
+    /// Writes to the `i`-th element of `self`.
+    ///
+    /// `i` is not checked.
+    unsafe fn unsafe_set(&mut self, i: Index, Res);
 }
 
 /// This is a workaround of current Rust limitations.

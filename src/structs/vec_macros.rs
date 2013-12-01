@@ -144,6 +144,16 @@ macro_rules! indexable_impl(
                     cast::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).swap(i1, i2)
                 }
             }
+
+            #[inline]
+            unsafe fn unsafe_at(&self, i: uint) -> N {
+                (*cast::transmute::<&$t<N>, &[N, ..$dim]>(self).unsafe_ref(i)).clone()
+            }
+
+            #[inline]
+            unsafe fn unsafe_set(&mut self, i: uint, val: N) {
+                (*cast::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).unsafe_mut_ref(i)) = val
+            }
         }
     )
 )

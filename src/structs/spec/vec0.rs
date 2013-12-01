@@ -23,12 +23,19 @@ impl<N> Indexable<uint, N> for vec::Vec0<N> {
 
     #[inline]
     fn set(&mut self, _: uint, _: N) {
-
     }
 
     #[inline]
     fn swap(&mut self, _: uint, _: uint) {
+    }
 
+    #[inline]
+    unsafe fn unsafe_at(&self, _: uint) -> N {
+        fail!("Cannot index a Vec0.")
+    }
+
+    #[inline]
+    unsafe fn unsafe_set(&mut self, _: uint, _: N) {
     }
 }
 
