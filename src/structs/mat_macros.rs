@@ -18,13 +18,13 @@ macro_rules! at_fast_impl(
     ($t: ident, $dim: expr) => (
         impl<N: Clone> $t<N> {
             #[inline]
-            unsafe fn at_fast(&self, (i, j): (uint, uint)) -> N {
+            pub unsafe fn at_fast(&self, (i, j): (uint, uint)) -> N {
                 (*cast::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)
                  .unsafe_ref(i + j * $dim)).clone()
             }
 
             #[inline]
-            unsafe fn set_fast(&mut self, (i, j): (uint, uint), val: N) {
+            pub unsafe fn set_fast(&mut self, (i, j): (uint, uint), val: N) {
                 (*cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
                  .unsafe_mut_ref(i + j * $dim)) = val
             }
