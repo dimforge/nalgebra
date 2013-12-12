@@ -3,20 +3,20 @@ nalgebra_lib_path=lib
 nalgebra_doc_path=doc
 all:
 	mkdir -p $(nalgebra_lib_path)
-	rustc src/nalgebra.rs --out-dir $(nalgebra_lib_path) --opt-level 3
+	rustc src/lib.rs --out-dir $(nalgebra_lib_path) --opt-level 3
 
 test:
 	mkdir -p $(nalgebra_lib_path)
-	rustc --test src/nalgebra.rs --opt-level 3 -o test~ && ./test~
+	rustc --test src/lib.rs --opt-level 3 -o test~ && ./test~
 	rm test~
 
 bench:
-	rustc --test src/nalgebra.rs --opt-level 3 -o bench~ && ./bench~ --bench
+	rustc --test src/lib.rs --opt-level 3 -o bench~ && ./bench~ --bench
 	rm bench~
 
 doc:
 	mkdir -p $(nalgebra_doc_path)
-	rustdoc src/nalgebra.rs
+	rustdoc src/lib.rs
 
 distcheck:
 	rm -rf $(tmp)
