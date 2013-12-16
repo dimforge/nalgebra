@@ -52,7 +52,7 @@ impl<N: Zero + Clone> DVec<N> {
 impl<N: Clone> DVec<N> {
     /// Indexing without bounds checking.
     pub unsafe fn at_fast(&self, i: uint) -> N {
-        vec::raw::get(self.at, i)
+        (*self.at.unsafe_ref(i)).clone()
     }
 }
 
@@ -80,7 +80,7 @@ impl<N> DVec<N> {
     #[inline]
     pub unsafe fn new_uninitialized(dim: uint) -> DVec<N> {
         let mut vec = vec::with_capacity(dim);
-        vec::raw::set_len(&mut vec, dim);
+        vec.set_len(dim);
 
         DVec {
             at: vec
