@@ -38,7 +38,7 @@ impl<N> DMat<N> {
     #[inline]
     pub unsafe fn new_uninitialized(nrows: uint, ncols: uint) -> DMat<N> {
         let mut vec = vec::with_capacity(nrows * ncols);
-        vec::raw::set_len(&mut vec, nrows * ncols);
+        vec.set_len(nrows * ncols);
 
         DMat {
             nrows: nrows,
@@ -244,7 +244,7 @@ impl<N: Clone> DMat<N> {
     /// Just like `at` without bounds checking.
     #[inline]
     pub unsafe fn at_fast(&self, row: uint, col: uint) -> N {
-        vec::raw::get(self.mij, self.offset(row, col))
+        (*self.mij.unsafe_ref(self.offset(row, col))).clone()
     }
 }
 
