@@ -112,7 +112,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
        , author = "Sébastien Crozet"
        , uuid = "1e96070f-4778-4ec1-b080-bf69f7048216"
        , url = "https://gitub.com/sebcrozet/nalgebra.git")];
-#[pkgid = "github.com/sebcrozet/nalgebra"];
+#[crate_id = "github.com/sebcrozet/nalgebra"];
 #[crate_type = "lib"];
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];
