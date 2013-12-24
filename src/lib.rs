@@ -105,14 +105,9 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 * [ncollide](https://github.com/sebcrozet/ncollide): a collision detection library.
 * [kiss3d](https://github.com/sebcrozet/kiss3d): a minimalistic graphics engine.
 * [frog](https://github.com/natal/frog): a machine learning library.
-
 */
-#[link(name = "nalgebra"
-       , vers = "0.1"
-       , author = "Sébastien Crozet"
-       , uuid = "1e96070f-4778-4ec1-b080-bf69f7048216"
-       , url = "https://gitub.com/sebcrozet/nalgebra.git")];
-#[crate_id = "github.com/sebcrozet/nalgebra"];
+
+#[crate_id = "nalgebra#0.1"];
 #[crate_type = "lib"];
 #[deny(non_camel_case_types)];
 #[deny(non_uppercase_statics)];
