@@ -84,6 +84,27 @@ pub fn one<T: One>() -> T {
 //
 
 /*
+ * Perspective
+ */
+/// Computes a projection matrix given the frustrum near plane width, height, the field of
+/// view, and the distance to the clipping planes (`znear` and `zfar`).
+pub fn perspective3d<N: Real + Cast<f32> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
+    let aspect = width / height;
+
+    let _1: N = one();
+    let sy    = _1 / (fov * cast(0.5)).tan();
+    let sx    = -sy / aspect;
+    let sz    = -(zfar + znear) / (znear - zfar);
+    let tz    = zfar * znear * cast(2.0) / (znear - zfar);
+
+    Mat4::new(
+        sx,     zero(), zero(), zero(),
+        zero(), sy,     zero(), zero(),
+        zero(), zero(), sz,     tz,
+        zero(), zero(), one(),  zero())
+}
+
+/*
  * Translation<V>
  */
 
