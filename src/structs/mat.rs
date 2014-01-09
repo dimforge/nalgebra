@@ -4,7 +4,7 @@
 
 use std::cast;
 use std::num::{One, Zero};
-use std::cmp::ApproxEq;
+use traits::operations::ApproxEq;
 use std::vec::{VecIterator, VecMutIterator};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Vec1MulRhs, Vec4MulRhs,
                    Vec5MulRhs, Vec6MulRhs};

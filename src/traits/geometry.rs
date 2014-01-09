@@ -218,7 +218,7 @@ pub trait Dot<N> {
 }
 
 /// Traits of objects having an euclidian norm.
-pub trait Norm<N: Algebraic> {
+pub trait Norm<N: Real> {
     /// Computes the norm of `self`.
     #[inline]
     fn norm(v: &Self) -> N {

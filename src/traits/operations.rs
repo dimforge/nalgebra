@@ -1,5 +1,42 @@
 //! Low level operations on vectors and matrices.
 
+/// Trait for testing approximate equality
+pub trait ApproxEq<Eps> {
+    /// Default epsilon for approximation.
+    fn approx_epsilon(unused_self: Option<Self>) -> Eps;
+
+    /// Tests approximate equality using a custom epsilon.
+    fn approx_eq_eps(a: &Self, other: &Self, epsilon: &Eps) -> bool;
+
+    /// Tests approximate equality.
+    fn approx_eq(a: &Self, b: &Self) -> bool {
+        ApproxEq::approx_eq_eps(a, b, &ApproxEq::approx_epsilon(None::<Self>))
+    }
+}
+
+impl ApproxEq<f32> for f32 {
+    #[inline]
+    fn approx_epsilon(_: Option<f32>) -> f32 {
+        1.0e-6
+    }
+
+    #[inline]
+    fn approx_eq_eps(a: &f32, b: &f32, epsilon: &f32) -> bool {
+        (*a - *b).abs() < *epsilon
+    }
+}
+
+impl ApproxEq<f64> for f64 {
+    #[inline]
+    fn approx_epsilon(_: Option<f64>) -> f64 {
+        1.0e-6
+    }
+
+    #[inline]
+    fn approx_eq_eps(a: &f64, b: &f64, approx_epsilon: &f64) -> bool {
+        (*a - *b).abs() < *approx_epsilon
+    }
+}
 
 /// Trait of objects having an absolute value.
 /// This is useful if the object does not have the same type as its absolute value.

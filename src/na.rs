@@ -4,8 +4,9 @@ use std::num::{Zero, One};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
-    AlgebraicVec,
-    AlgebraicVecExt,
+    ApproxEq,
+    RealVec,
+    RealVecExt,
     Basis,
     Cast,
     Col,
@@ -431,19 +432,19 @@ pub fn sub_dot<V: Dot<N>, N>(a: &V, b: &V, c: &V) -> N {
 
 /// Computes the L2 norm of a vector.
 #[inline(always)]
-pub fn norm<V: Norm<N>, N: Algebraic>(v: &V) -> N {
+pub fn norm<V: Norm<N>, N: Real>(v: &V) -> N {
     Norm::norm(v)
 }
 
 /// Computes the squared L2 norm of a vector.
 #[inline(always)]
-pub fn sqnorm<V: Norm<N>, N: Algebraic>(v: &V) -> N {
+pub fn sqnorm<V: Norm<N>, N: Real>(v: &V) -> N {
     Norm::sqnorm(v)
 }
 
 /// Gets the normalized version of a vector.
 #[inline(always)]
-pub fn normalize<V: Norm<N>, N: Algebraic>(v: &V) -> V {
+pub fn normalize<V: Norm<N>, N: Real>(v: &V) -> V {
     Norm::normalize_cpy(v)
 }
 
@@ -507,6 +508,21 @@ pub fn sample_sphere<V: UniformSphereSample>(f: |V| -> ()) {
 // Operations
 //
 //
+
+/*
+ * AproxEq<N>
+ */
+/// Tests approximate equality.
+#[inline(always)]
+pub fn approx_eq<T: ApproxEq<N>, N>(a: &T, b: &T) -> bool {
+    ApproxEq::approx_eq(a, b)
+}
+
+/// Tests approximate equality using a custom epsilon.
+#[inline(always)]
+pub fn approx_eq_eps<T: ApproxEq<N>, N>(a: &T, b: &T, eps: &N) -> bool {
+    ApproxEq::approx_eq_eps(a, b, eps)
+}
 
 
 /*

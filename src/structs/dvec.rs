@@ -2,12 +2,12 @@
 
 #[allow(missing_doc)]; // we hide doc to not have to document the $trhs double dispatch trait.
 
-use std::num::{Zero, One, Algebraic};
+use std::num::{Zero, One, Real};
 use std::rand::Rand;
 use std::rand;
 use std::vec;
 use std::vec::{VecIterator, VecMutIterator};
-use std::cmp::ApproxEq;
+use traits::operations::ApproxEq;
 use std::iter::FromIterator;
 use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut};
@@ -177,7 +177,7 @@ impl<N> FromIterator<N> for DVec<N> {
     }
 }
 
-impl<N: Clone + Num + Algebraic + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> {
+impl<N: Clone + Num + Real + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> {
     /// Computes the canonical basis for the given dimension. A canonical basis is a set of
     /// vectors, mutually orthogonal, with all its component equal to 0.0 exept one which is equal
     /// to 1.0.
@@ -220,7 +220,7 @@ impl<N: Clone + Num + Algebraic + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> 
                 elt = elt - v * Dot::dot(&elt, v)
             };
 
-            if !Norm::sqnorm(&elt).approx_eq(&Zero::zero()) {
+            if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &Zero::zero()) {
                 res.push(Norm::normalize_cpy(&elt));
             }
         }
@@ -284,7 +284,7 @@ impl<N: Num + Clone> Dot<N> for DVec<N> {
     } 
 }
 
-impl<N: Num + Algebraic + Clone> Norm<N> for DVec<N> {
+impl<N: Num + Real + Clone> Norm<N> for DVec<N> {
     #[inline]
     fn sqnorm(v: &DVec<N>) -> N {
         Dot::dot(v, v)
@@ -318,25 +318,22 @@ impl<N: Num + Algebraic + Clone> Norm<N> for DVec<N> {
 
 impl<N: ApproxEq<N>> ApproxEq<N> for DVec<N> {
     #[inline]
-    fn approx_epsilon() -> N {
-        fail!("Fix me.")
-        // let res: N = ApproxEq::<N>::approx_epsilon();
-
-        // res
+    fn approx_epsilon(_: Option<DVec<N>>) -> N {
+        ApproxEq::approx_epsilon(None::<N>)
     }
 
     #[inline]
-    fn approx_eq(&self, other: &DVec<N>) -> bool {
-        let mut zip = self.at.iter().zip(other.at.iter());
+    fn approx_eq(a: &DVec<N>, b: &DVec<N>) -> bool {
+        let mut zip = a.at.iter().zip(b.at.iter());
 
-        zip.all(|(a, b)| a.approx_eq(b))
+        zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
     }
 
     #[inline]
-    fn approx_eq_eps(&self, other: &DVec<N>, epsilon: &N) -> bool {
-        let mut zip = self.at.iter().zip(other.at.iter());
+    fn approx_eq_eps(a: &DVec<N>, b: &DVec<N>, epsilon: &N) -> bool {
+        let mut zip = a.at.iter().zip(b.at.iter());
 
-        zip.all(|(a, b)| a.approx_eq_eps(b, epsilon))
+        zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
     }
 }
 

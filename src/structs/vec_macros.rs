@@ -223,7 +223,7 @@ macro_rules! container_impl(
 
 macro_rules! basis_impl(
     ($t: ident, $trhs: ident, $dim: expr) => (
-        impl<N: Clone + Num + Algebraic + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
+        impl<N: Clone + Num + Real + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
             #[inline]
             fn canonical_basis(f: |$t<N>| -> bool) {
                 for i in range(0u, $dim) {
@@ -262,7 +262,7 @@ macro_rules! basis_impl(
                         elt = elt - v * Dot::dot(&elt, v)
                     };
 
-                    if !Norm::sqnorm(&elt).approx_eq(&Zero::zero()) {
+                    if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &Zero::zero()) {
                         let new_element = Norm::normalize_cpy(&elt);
 
                         if !f(new_element.clone()) { return };
@@ -433,7 +433,7 @@ macro_rules! translation_impl(
 
 macro_rules! norm_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Num + Algebraic> Norm<N> for $t<N> {
+        impl<N: Clone + Num + Real> Norm<N> for $t<N> {
             #[inline]
             fn sqnorm(v: &$t<N>) -> N {
                 Dot::dot(v, v)
@@ -496,19 +496,20 @@ macro_rules! approx_eq_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {
             #[inline]
-            fn approx_epsilon() -> N {
-                fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
-                // ApproxEq::<N>::approx_epsilon()
+            fn approx_epsilon(_: Option<$t<N>>) -> N {
+                ApproxEq::approx_epsilon(None::<N>)
             }
 
             #[inline]
-            fn approx_eq(&self, other: &$t<N>) -> bool {
-                self.$comp0.approx_eq(&other.$comp0) $(&& self.$compN.approx_eq(&other.$compN))*
+            fn approx_eq(a: &$t<N>, b: &$t<N>) -> bool {
+                ApproxEq::approx_eq(&a.$comp0, &b.$comp0)
+                $(&& ApproxEq::approx_eq(&a.$compN, &b.$compN))*
             }
 
             #[inline]
-            fn approx_eq_eps(&self, other: &$t<N>, eps: &N) -> bool {
-                self.$comp0.approx_eq_eps(&other.$comp0, eps) $(&& self.$compN.approx_eq_eps(&other.$compN, eps))*
+            fn approx_eq_eps(a: &$t<N>, b: &$t<N>, eps: &N) -> bool {
+                ApproxEq::approx_eq_eps(&a.$comp0, &b.$comp0, eps)
+                $(&& ApproxEq::approx_eq_eps(&a.$compN, &b.$compN, eps))*
             }
         }
     )

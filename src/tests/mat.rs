@@ -1,6 +1,5 @@
 use std::num::{Real, abs};
 use std::rand::random;
-use std::cmp::ApproxEq;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable};
 use na;
 
@@ -9,7 +8,7 @@ macro_rules! test_inv_mat_impl(
     10000.times(|| {
       let randmat : $t = random();
 
-      assert!((na::inv(&randmat).unwrap() * randmat).approx_eq(&na::one()));
+      assert!(na::approx_eq(&(na::inv(&randmat).unwrap() * randmat), &na::one()));
     })
   );
 )
@@ -90,7 +89,7 @@ fn test_rotation2() {
         let randmat: na::Rot2<f64> = na::one();
         let ang    = Vec1::new(abs::<f64>(random()) % Real::pi());
 
-        assert!(na::rotation(&na::append_rotation(&randmat, &ang)).approx_eq(&ang));
+        assert!(na::approx_eq(&na::rotation(&na::append_rotation(&randmat, &ang)), &ang));
     })
 }
 
@@ -109,7 +108,7 @@ fn test_inv_rotation3() {
         let ang            = na::normalize(&dir) * (abs::<f64>(random()) % Real::pi());
         let rot            = na::append_rotation(&randmat, &ang);
 
-        assert!((na::transpose(&rot) * rot).approx_eq(&na::one()));
+        assert!(na::approx_eq(&(na::transpose(&rot) * rot), &na::one()));
     })
 }
 
@@ -125,7 +124,7 @@ fn test_mean_dmat() {
         ]
     );
 
-    assert!(na::mean(&mat).approx_eq(&DVec::from_vec(3, [4.0f64, 5.0, 6.0])));
+    assert!(na::approx_eq(&na::mean(&mat), &DVec::from_vec(3, [4.0f64, 5.0, 6.0])));
 }
 
 #[test]
@@ -152,7 +151,7 @@ fn test_cov_dmat() {
         ]
     );
 
-    assert!(na::cov(&mat).approx_eq(&expected));
+    assert!(na::approx_eq(&na::cov(&mat), &expected));
 }
 
 #[test]

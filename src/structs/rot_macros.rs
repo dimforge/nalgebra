@@ -56,7 +56,7 @@ macro_rules! dim_impl(
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $tlv: ident, $tav: ident) => (
-        impl<N: Cast<f32> + Algebraic + Trigonometric + Num + Clone>
+        impl<N: Cast<f32> + Real + Real + Num + Clone>
         RotationMatrix<$tlv<N>, $tav<N>, $t<N>> for $t<N> {
             #[inline]
             fn to_rot_mat(&self) -> $t<N> {
@@ -201,19 +201,18 @@ macro_rules! approx_eq_impl(
     ($t: ident) => (
         impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {
             #[inline]
-            fn approx_epsilon() -> N {
-                // ApproxEq::<N>::approx_epsilon()
-                fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
+            fn approx_epsilon(_: Option<$t<N>>) -> N {
+                ApproxEq::approx_epsilon(None::<N>)
             }
 
             #[inline]
-            fn approx_eq(&self, other: &$t<N>) -> bool {
-                self.submat.approx_eq(&other.submat)
+            fn approx_eq(a: &$t<N>, b: &$t<N>) -> bool {
+                ApproxEq::approx_eq(&a.submat, &b.submat)
             }
 
             #[inline]
-            fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
-                self.submat.approx_eq_eps(&other.submat, epsilon)
+            fn approx_eq_eps(a: &$t<N>, b: &$t<N>, epsilon: &N) -> bool {
+                ApproxEq::approx_eq_eps(&a.submat, &b.submat, epsilon)
             }
         }
     )

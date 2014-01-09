@@ -6,7 +6,7 @@ use std::rand::Rand;
 use std::rand;
 use std::num::{One, Zero};
 use std::vec;
-use std::cmp::ApproxEq;
+use traits::operations::ApproxEq;
 use std::util;
 use structs::dvec::{DVec, DVecMulRhs};
 use traits::operations::{Inv, Transpose, Mean, Cov};
@@ -499,25 +499,22 @@ impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> 
 
 impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     #[inline]
-    fn approx_epsilon() -> N {
-        fail!("This function cannot work due to a compiler bug.")
-        // let res: N = ApproxEq::<N>::approx_epsilon();
-
-        // res
+    fn approx_epsilon(_: Option<DMat<N>>) -> N {
+        ApproxEq::approx_epsilon(None::<N>)
     }
 
     #[inline]
-    fn approx_eq(&self, other: &DMat<N>) -> bool {
-        let mut zip = self.mij.iter().zip(other.mij.iter());
+    fn approx_eq(a: &DMat<N>, b: &DMat<N>) -> bool {
+        let mut zip = a.mij.iter().zip(b.mij.iter());
 
-        zip.all(|(a, b)| a.approx_eq(b))
+        zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
     }
 
     #[inline]
-    fn approx_eq_eps(&self, other: &DMat<N>, epsilon: &N) -> bool {
-        let mut zip = self.mij.iter().zip(other.mij.iter());
+    fn approx_eq_eps(a: &DMat<N>, b: &DMat<N>, epsilon: &N) -> bool {
+        let mut zip = a.mij.iter().zip(b.mij.iter());
 
-        zip.all(|(a, b)| a.approx_eq_eps(b, epsilon))
+        zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
     }
 }
 

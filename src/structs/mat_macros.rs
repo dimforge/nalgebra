@@ -449,23 +449,22 @@ macro_rules! approx_eq_impl(
   ($t: ident) => (
     impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {
         #[inline]
-        fn approx_epsilon() -> N {
-            fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
-            // ApproxEq::<N>::approx_epsilon()
+        fn approx_epsilon(_: Option<$t<N>>) -> N {
+            ApproxEq::approx_epsilon(None::<N>)
         }
 
         #[inline]
-        fn approx_eq(&self, other: &$t<N>) -> bool {
-            let mut zip = self.iter().zip(other.iter());
+        fn approx_eq(a: &$t<N>, b: &$t<N>) -> bool {
+            let mut zip = a.iter().zip(b.iter());
 
-            zip.all(|(a, b)| a.approx_eq(b))
+            zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
         }
 
         #[inline]
-        fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
-            let mut zip = self.iter().zip(other.iter());
+        fn approx_eq_eps(a: &$t<N>, b: &$t<N>, epsilon: &N) -> bool {
+            let mut zip = a.iter().zip(b.iter());
 
-            zip.all(|(a, b)| a.approx_eq_eps(b, epsilon))
+            zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
         }
     }
   )

@@ -1,8 +1,8 @@
 use std::cast;
-use std::num::{Zero, One, Algebraic, Bounded};
+use std::num::{Zero, One, Real, Bounded};
 use std::vec::{VecIterator, VecMutIterator};
 use std::iter::{Iterator, FromIterator};
-use std::cmp::ApproxEq;
+use traits::operations::ApproxEq;
 use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim};
 use traits::geometry::{Translation, Dot, Norm};
 use structs::vec;
@@ -159,7 +159,7 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Clone + Num + Algebraic> Norm<N> for vec::Vec0<N> {
+impl<N: Clone + Num + Real> Norm<N> for vec::Vec0<N> {
     #[inline]
     fn sqnorm(_: &vec::Vec0<N>) -> N {
         Zero::zero()
@@ -183,18 +183,17 @@ impl<N: Clone + Num + Algebraic> Norm<N> for vec::Vec0<N> {
 
 impl<N: ApproxEq<N>> ApproxEq<N> for vec::Vec0<N> {
     #[inline]
-    fn approx_epsilon() -> N {
-        fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
-        // ApproxEq::<N>::approx_epsilon()
+    fn approx_epsilon(_: Option<vec::Vec0<N>>) -> N {
+        ApproxEq::approx_epsilon(None::<N>)
     }
 
     #[inline]
-    fn approx_eq(&self, _: &vec::Vec0<N>) -> bool {
+    fn approx_eq(_: &vec::Vec0<N>, _: &vec::Vec0<N>) -> bool {
         true
     }
 
     #[inline]
-    fn approx_eq_eps(&self, _: &vec::Vec0<N>, _: &N) -> bool {
+    fn approx_eq_eps(_: &vec::Vec0<N>, _: &vec::Vec0<N>, _: &N) -> bool {
         true
     }
 }

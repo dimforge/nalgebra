@@ -3,10 +3,10 @@
 #[allow(missing_doc)]; // we allow missing to avoid having to document the vector components.
 
 use std::cast;
-use std::num::{Zero, One, Algebraic, Bounded};
+use std::num::{Zero, One, Real, Bounded};
 use std::vec::{VecIterator, VecMutIterator};
 use std::iter::{Iterator, FromIterator};
-use std::cmp::ApproxEq;
+use traits::operations::ApproxEq;
 
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};

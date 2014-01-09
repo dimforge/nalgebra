@@ -2,7 +2,7 @@
 
 macro_rules! iso_impl(
     ($t: ident, $submat: ident, $subvec: ident, $subrotvec: ident) => (
-        impl<N: Clone + Trigonometric + Algebraic + Num> $t<N> {
+        impl<N: Clone + Real + Real + Num> $t<N> {
             /// Creates a new isometry from a rotation matrix and a vector.
             #[inline]
             pub fn new(translation: $subvec<N>, rotation: $subrotvec<N>) -> $t<N> {
@@ -26,7 +26,7 @@ macro_rules! iso_impl(
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $trot: ident, $tlv: ident, $tav: ident) => (
-        impl<N: Cast<f32> + Algebraic + Trigonometric + Num + Clone>
+        impl<N: Cast<f32> + Real + Real + Num + Clone>
         RotationMatrix<$tlv<N>, $tav<N>, $trot<N>> for $t<N> {
             #[inline]
             fn to_rot_mat(&self) -> $trot<N> {
@@ -50,7 +50,7 @@ macro_rules! dim_impl(
 
 macro_rules! one_impl(
     ($t: ident) => (
-        impl<N: Trigonometric + Algebraic + Num + Clone> One for $t<N> {
+        impl<N: Real + Real + Num + Clone> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
                 $t::new_with_rotmat(Zero::zero(), One::one())
@@ -61,7 +61,7 @@ macro_rules! one_impl(
 
 macro_rules! iso_mul_iso_impl(
     ($t: ident, $tmul: ident) => (
-        impl<N: Num + Trigonometric + Algebraic + Clone> $tmul<N, $t<N>> for $t<N> {
+        impl<N: Num + Real + Real + Clone> $tmul<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
                 $t::new_with_rotmat(
@@ -96,7 +96,7 @@ macro_rules! vec_mul_iso_impl(
 
 macro_rules! translation_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: Trigonometric + Num + Algebraic + Clone> Translation<$tv<N>> for $t<N> {
+        impl<N: Real + Num + Real + Clone> Translation<$tv<N>> for $t<N> {
             #[inline]
             fn translation(&self) -> $tv<N> {
                 self.translation.clone()
@@ -153,7 +153,7 @@ macro_rules! translate_impl(
 
 macro_rules! rotation_impl(
     ($t: ident, $trot: ident, $tav: ident) => (
-        impl<N: Cast<f32> + Num + Trigonometric + Algebraic + Clone> Rotation<$tav<N>> for $t<N> {
+        impl<N: Cast<f32> + Num + Real + Real + Clone> Rotation<$tav<N>> for $t<N> {
             #[inline]
             fn rotation(&self) -> $tav<N> {
                 self.rotation.rotation()
@@ -220,7 +220,7 @@ macro_rules! rotate_impl(
 
 macro_rules! transformation_impl(
     ($t: ident) => (
-        impl<N: Num + Trigonometric + Algebraic + Clone> Transformation<$t<N>> for $t<N> {
+        impl<N: Num + Real + Real + Clone> Transformation<$t<N>> for $t<N> {
             fn transformation(&self) -> $t<N> {
                 self.clone()
             }
@@ -315,21 +315,20 @@ macro_rules! approx_eq_impl(
     ($t: ident) => (
         impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {
             #[inline]
-            fn approx_epsilon() -> N {
-                fail!("approx_epsilon is broken since rust revision 8693943676487c01fa09f5f3daf0df6a1f71e24d.")
-                // ApproxEq::<N>::approx_epsilon()
+            fn approx_epsilon(_: Option<$t<N>>) -> N {
+                ApproxEq::approx_epsilon(None::<N>)
             }
 
             #[inline]
-            fn approx_eq(&self, other: &$t<N>) -> bool {
-                self.rotation.approx_eq(&other.rotation) &&
-                    self.translation.approx_eq(&other.translation)
+            fn approx_eq(a: &$t<N>, b: &$t<N>) -> bool {
+                ApproxEq::approx_eq(&a.rotation, &b.rotation) &&
+                    ApproxEq::approx_eq(&a.translation, &b.translation)
             }
 
             #[inline]
-            fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
-                self.rotation.approx_eq_eps(&other.rotation, epsilon) &&
-                    self.translation.approx_eq_eps(&other.translation, epsilon)
+            fn approx_eq_eps(a: &$t<N>, b: &$t<N>, epsilon: &N) -> bool {
+                ApproxEq::approx_eq_eps(&a.rotation, &b.rotation, epsilon) &&
+                    ApproxEq::approx_eq_eps(&a.translation, &b.translation, epsilon)
             }
         }
     )
@@ -337,7 +336,7 @@ macro_rules! approx_eq_impl(
 
 macro_rules! rand_impl(
     ($t: ident) => (
-        impl<N: Rand + Clone + Trigonometric + Algebraic + Num> Rand for $t<N> {
+        impl<N: Rand + Clone + Real + Real + Num> Rand for $t<N> {
             #[inline]
             fn rand<R: Rng>(rng: &mut R) -> $t<N> {
                 $t::new(rng.gen(), rng.gen())
