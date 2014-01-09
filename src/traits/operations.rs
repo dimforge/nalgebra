@@ -9,6 +9,7 @@ pub trait ApproxEq<Eps> {
     fn approx_eq_eps(a: &Self, other: &Self, epsilon: &Eps) -> bool;
 
     /// Tests approximate equality.
+    #[inline]
     fn approx_eq(a: &Self, b: &Self) -> bool {
         ApproxEq::approx_eq_eps(a, b, &ApproxEq::approx_epsilon(None::<Self>))
     }
