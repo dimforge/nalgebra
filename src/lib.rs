@@ -119,8 +119,8 @@ extern mod std;
 extern mod extra;
 
 pub mod na;
-pub mod structs;
-pub mod traits;
+mod structs;
+mod traits;
 
 // mod lower_triangular;
 // mod chol;
