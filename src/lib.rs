@@ -16,24 +16,13 @@ All the functionalities of **nalgebra** are grouped in one place: the `na` modul
 This module re-exports everything and includes free functions for all traits methods doing
 out-of-place modifications.
 
-* You can import the whole prelude, including free functions, using:
+* You can import the whole prelude using:
 
 ```.rust
 use nalgebra::na::*;
 ```
 
-* If you dont want to import everything but only every trait:
-
-```.rust
-use nalgebra::traits::*;
-```
-
-* If you dont want to import everything but only every structure:
-
-```.rust
-use nalgebra::structs::*;
-```
-The preffered way to use **nalgebra** is to import types and traits explicitly, and call
+The preferred way to use **nalgebra** is to import types and traits explicitly, and call
 free-functions using the `na::` prefix:
 
 ```.rust
@@ -47,7 +36,7 @@ fn main() {
 
     b.append_rotation(&a);
 
-    assert!(na::rotation(&b).approx_eq(&a));
+    assert!(na::approx_eq(&na::rotation(&b), &a));
 }
 ```
 
