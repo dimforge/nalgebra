@@ -1,6 +1,6 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
-use std::num::Zero;
+use std::num::{Zero, Bounded};
 use std::vec::{VecIterator, VecMutIterator};
 use traits::operations::{RMul, LMul, ScalarAdd, ScalarSub};
 use traits::geometry::{Dot, Norm, UniformSphereSample};
