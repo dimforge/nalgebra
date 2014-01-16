@@ -33,8 +33,8 @@ pub trait RealVec<N: Real>: Vec<N> + Norm<N> {
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
-pub trait VecExt<N>: Vec<N> + Indexable<uint, N> + Iterable<N> +
-                     UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded + Orderable
+pub trait VecExt<N>: Vec<N> + Indexable<uint, N> + Iterable<N> + UniformSphereSample + ScalarAdd<N>
+                     + ScalarSub<N> + Orderable
 { }
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
@@ -47,8 +47,8 @@ Vec<N> for V { }
 impl<N: Real, V: Vec<N> + Norm<N>> RealVec<N> for V { }
 
 impl<N,
-     V: Vec<N> + Indexable<uint, N> + Iterable<N> +
-        UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded + Orderable>
+     V: Vec<N> + Indexable<uint, N> + Iterable<N> + UniformSphereSample + ScalarAdd<N> +
+        ScalarSub<N> + Orderable>
 VecExt<N> for V { }
 
 impl<N: Real, V: RealVec<N> + VecExt<N> + Basis + Round> RealVecExt<N> for V { }
