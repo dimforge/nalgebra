@@ -103,6 +103,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #[deny(unnecessary_qualification)];
 #[warn(missing_doc)];
 #[feature(macro_rules)];
+#[doc(html_root_url = "http://crozet.re/nalgebra/doc")];
 
 extern mod std;
 extern mod extra;
