@@ -6,7 +6,7 @@ use std::num::{Zero, One, Real};
 use std::rand::Rand;
 use std::rand;
 use std::vec;
-use std::vec::{VecIterator, VecMutIterator};
+use std::vec::{Items, MutItems};
 use traits::operations::ApproxEq;
 use std::iter::FromIterator;
 use traits::geometry::{Dot, Norm};
@@ -152,14 +152,14 @@ impl<N> Container for DVec<N> {
 
 impl<N> Iterable<N> for DVec<N> {
     #[inline]
-    fn iter<'l>(&'l self) -> VecIterator<'l, N> {
+    fn iter<'l>(&'l self) -> Items<'l, N> {
         self.at.iter()
     }
 }
 
 impl<N> IterableMut<N> for DVec<N> {
     #[inline]
-    fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N> {
+    fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
         self.at.mut_iter()
     }
 }

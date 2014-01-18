@@ -1,6 +1,6 @@
 use std::cast;
 use std::num::{Zero, One, Real, Bounded};
-use std::vec::{VecIterator, VecMutIterator};
+use std::vec::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::ApproxEq;
 use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim};
@@ -49,14 +49,14 @@ impl<N> vec::Vec0<N> {
 
 impl<N> Iterable<N> for vec::Vec0<N> {
     #[inline]
-    fn iter<'l>(&'l self) -> VecIterator<'l, N> {
+    fn iter<'l>(&'l self) -> Items<'l, N> {
         unsafe { cast::transmute::<&'l vec::Vec0<N>, &'l [N, ..0]>(self).iter() }
     }
 }
 
 impl<N> IterableMut<N> for vec::Vec0<N> {
     #[inline]
-    fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N> {
+    fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
         unsafe { cast::transmute::<&'l mut vec::Vec0<N>, &'l mut [N, ..0]>(self).mut_iter() }
     }
 }

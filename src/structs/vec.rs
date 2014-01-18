@@ -4,7 +4,7 @@
 
 use std::cast;
 use std::num::{Zero, One, Real, Bounded};
-use std::vec::{VecIterator, VecMutIterator};
+use std::vec::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::ApproxEq;
 

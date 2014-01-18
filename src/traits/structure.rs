@@ -1,7 +1,7 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
 use std::num::{Zero, Bounded};
-use std::vec::{VecIterator, VecMutIterator};
+use std::vec::{Items, MutItems};
 use traits::operations::{RMul, LMul, ScalarAdd, ScalarSub};
 use traits::geometry::{Dot, Norm, UniformSphereSample};
 
@@ -129,7 +129,7 @@ pub trait Indexable<Index, Res> {
 /// Traits of objects which can be iterated through like a vector.
 pub trait Iterable<N> {
     /// Gets a vector-like read-only iterator.
-    fn iter<'l>(&'l self) -> VecIterator<'l, N>;
+    fn iter<'l>(&'l self) -> Items<'l, N>;
 }
 
 /// This is a workaround of current Rust limitations.
@@ -137,5 +137,5 @@ pub trait Iterable<N> {
 /// Traits of mutable objects which can be iterated through like a vector.
 pub trait IterableMut<N> {
     /// Gets a vector-like read-write iterator.
-    fn mut_iter<'l>(&'l mut self) -> VecMutIterator<'l, N>;
+    fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N>;
 }
