@@ -18,7 +18,7 @@ out-of-place modifications.
 
 * You can import the whole prelude using:
 
-```.rust
+```
 use nalgebra::na::*;
 ```
 
@@ -82,7 +82,7 @@ If you encounter problems, make sure you have the last version before creating a
 
 You can build the documentation on the `doc` folder using:
 
-```.rust
+```
 make doc
 ```
 
