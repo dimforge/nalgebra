@@ -189,9 +189,9 @@ pub fn translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
 ///     let t  = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
 ///     let v  = Vec3::new(2.0, 2.0, 2.0);
 ///
-///     let tv = na::translate(&t, &v);
+///     let tv = na::inv_translate(&t, &v);
 ///
-///     assert!(tv == Vec3::new(3.0, 3.0, 3.0))
+///     assert!(na::approx_eq(&tv, &Vec3::new(1.0, 1.0, 1.0)))
 /// }
 #[inline(always)]
 pub fn inv_translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
