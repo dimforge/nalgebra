@@ -271,7 +271,7 @@ pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 /// pub main() {
 ///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.0));
 ///     let v  = Vec3::new(1.0, 1.0, 1.0);
-///     let rt = na::preend_rotation(&t, &v);
+///     let rt = na::prepend_rotation(&t, &v);
 ///
 ///     assert!(na::rotation(&rt) == Vec3::new(1.0, 1.0, 1.0))
 /// }
@@ -331,7 +331,7 @@ pub fn inv_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
  * RotationWithTranslation<LV, AV>
  */
 
-/// Rotates a copy of `m` by `amount` using `center` ase the pivot point.
+/// Rotates a copy of `m` by `amount` using `center` as the pivot point.
 #[inline(always)]
 pub fn append_rotation_wrt_point<LV: Neg<LV>,
                                  AV,
@@ -473,7 +473,7 @@ pub fn cross_matrix<V: CrossMatrix<M>, M>(v: &V) -> M {
  * ToHomogeneous<U>
  */
 
-/// Converts a matrix or vector to homogoneous coordinates.
+/// Converts a matrix or vector to homogeneous coordinates.
 #[inline(always)]
 pub fn to_homogeneous<M: ToHomogeneous<Res>, Res>(m: &M) -> Res {
     ToHomogeneous::to_homogeneous(m)
@@ -483,7 +483,7 @@ pub fn to_homogeneous<M: ToHomogeneous<Res>, Res>(m: &M) -> Res {
  * FromHomogeneous<U>
  */
 
-/// Converts a matrix or vector from homogoneous coordinates.
+/// Converts a matrix or vector from homogeneous coordinates.
 ///
 /// w-normalization is appied.
 #[inline(always)]

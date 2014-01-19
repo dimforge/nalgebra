@@ -153,7 +153,7 @@ pub trait RotationMatrix<LV, AV, M: Mat<LV, LV> + Rotation<AV>> : Rotation<AV> {
 pub trait AbsoluteRotate<V> {
     /// This is the same as:
     ///
-    /// ~~~{.rust}
+    /// ~~~
     ///     self.rotation_matrix().absolute().rmul(v)
     /// ~~~
     fn absolute_rotate(&self, v: &V) -> V;
@@ -208,7 +208,7 @@ pub trait Dot<N> {
      * computing intermediate vectors.
      * The following equation must be verified:
      *
-     * ~~~{.rust}
+     * ~~~
      *   a.sub_dot(b, c) == (a - b).dot(c)
      * ~~~
      *

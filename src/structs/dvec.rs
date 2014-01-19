@@ -36,7 +36,7 @@ impl<N: Zero + Clone> DVec<N> {
     /// Builds a vector filled with zeros.
     /// 
     /// # Arguments
-    ///   * `dim` - The dimension of the vector.
+    /// * `dim` - The dimension of the vector.
     #[inline]
     pub fn new_zeros(dim: uint) -> DVec<N> {
         DVec::from_elem(dim, Zero::zero())
@@ -60,7 +60,7 @@ impl<N: One + Clone> DVec<N> {
     /// Builds a vector filled with ones.
     /// 
     /// # Arguments
-    ///   * `dim` - The dimension of the vector.
+    /// * `dim` - The dimension of the vector.
     #[inline]
     pub fn new_ones(dim: uint) -> DVec<N> {
         DVec::from_elem(dim, One::one())
@@ -92,7 +92,7 @@ impl<N> DVec<N> {
         *self.at.unsafe_mut_ref(i) = val
     }
 
-    /// Gets a reference to of this vector datas.
+    /// Gets a reference to of this vector data.
     #[inline]
     pub fn as_vec<'r>(&'r self) -> &'r [N] {
         let data: &'r [N] = self.at;
@@ -100,7 +100,7 @@ impl<N> DVec<N> {
         data
     }
 
-    /// Gets a mutable reference to of this vector datas.
+    /// Gets a mutable reference to of this vector data.
     #[inline]
     pub fn as_mut_vec<'r>(&'r mut self) -> &'r mut [N] {
         let data: &'r mut [N] = self.at;
@@ -108,7 +108,7 @@ impl<N> DVec<N> {
         data
     }
 
-    /// Extracts this vector datas.
+    /// Extracts this vector data.
     #[inline]
     pub fn to_vec(self) -> ~[N] {
         self.at
@@ -179,7 +179,7 @@ impl<N> FromIterator<N> for DVec<N> {
 
 impl<N: Clone + Num + Real + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> {
     /// Computes the canonical basis for the given dimension. A canonical basis is a set of
-    /// vectors, mutually orthogonal, with all its component equal to 0.0 exept one which is equal
+    /// vectors, mutually orthogonal, with all its component equal to 0.0 except one which is equal
     /// to 1.0.
     pub fn canonical_basis_with_dim(dim: uint) -> ~[DVec<N>] {
         let mut res : ~[DVec<N>] = ~[];

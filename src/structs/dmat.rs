@@ -189,8 +189,8 @@ impl<N: One + Zero + Clone> DMat<N> {
     /// Builds an identity matrix.
     /// 
     /// # Arguments
-    ///   * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
-    ///   components.
+    /// * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
+    /// components.
     #[inline]
     pub fn new_identity(dim: uint) -> DMat<N> {
         let mut res = DMat::new_zeros(dim, dim);
@@ -232,8 +232,8 @@ impl<N: Clone> DMat<N> {
     /// Reads the value of a component of the matrix.
     ///
     /// # Arguments
-    ///   * `row` - 0-based index of the line to be read
-    ///   * `col` - 0-based index of the column to be read
+    /// * `row` - 0-based index of the line to be read
+    /// * `col` - 0-based index of the column to be read
     #[inline]
     pub fn at(&self, row: uint, col: uint) -> N {
         assert!(row < self.nrows);
