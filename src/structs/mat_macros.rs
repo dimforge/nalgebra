@@ -45,7 +45,7 @@ macro_rules! mat_cast_impl(
 
 macro_rules! add_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Add<N, N>> $trhs<N, $t<N>> for $t<N> {
+        impl<N: Add<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
                 $t::new(left.$comp0 + right.$comp0 $(, left.$compN + right.$compN)*)
@@ -56,7 +56,7 @@ macro_rules! add_impl(
 
 macro_rules! sub_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
+        impl<N: Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
                 $t::new(left.$comp0 - right.$comp0 $(, left.$compN - right.$compN)*)
@@ -148,7 +148,7 @@ macro_rules! iterable_mut_impl(
 
 macro_rules! one_impl(
   ($t: ident, $value0: expr $(, $valueN: expr)* ) => (
-    impl<N: Clone + One + Zero> One for $t<N> {
+    impl<N: Clone + Num> One for $t<N> {
         #[inline]
         fn one() -> $t<N> {
             $t::new($value0() $(, $valueN() )*)
@@ -472,7 +472,7 @@ macro_rules! approx_eq_impl(
 
 macro_rules! to_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
-    impl<N: One + Zero + Clone> ToHomogeneous<$t2<N>> for $t<N> {
+    impl<N: Num + Clone> ToHomogeneous<$t2<N>> for $t<N> {
         #[inline]
         fn to_homogeneous(m: &$t<N>) -> $t2<N> {
             let mut res: $t2<N> = One::one();
@@ -491,7 +491,7 @@ macro_rules! to_homogeneous_impl(
 
 macro_rules! from_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
-    impl<N: One + Zero + Clone> FromHomogeneous<$t2<N>> for $t<N> {
+    impl<N: Num + Clone> FromHomogeneous<$t2<N>> for $t<N> {
         #[inline]
         fn from(m: &$t2<N>) -> $t<N> {
             let mut res: $t<N> = One::one();
@@ -513,7 +513,7 @@ macro_rules! from_homogeneous_impl(
 
 macro_rules! outer_impl(
     ($t: ident, $m: ident) => (
-        impl<N: Mul<N, N> + Zero + Clone> Outer<$m<N>> for $t<N> {
+        impl<N: Clone + Mul<N, N> + Zero> Outer<$m<N>> for $t<N> {
             #[inline]
             fn outer(a: &$t<N>, b: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = Zero::zero();

@@ -17,7 +17,7 @@ mod metal;
 mod mat_macros;
 
 /// Special identity matrix. All its operation are no-ops.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Rand, Zero, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Rand, ToStr)]
 pub struct Identity;
 
 impl Identity {

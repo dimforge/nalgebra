@@ -97,7 +97,7 @@ impl<N: Neg<N>> Neg<vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Num + Clone> Dot<N> for vec::Vec0<N> {
+impl<N: Num> Dot<N> for vec::Vec0<N> {
     #[inline]
     fn dot(_: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
         Zero::zero()
@@ -159,7 +159,7 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Clone + Num + Real> Norm<N> for vec::Vec0<N> {
+impl<N: Num + Real> Norm<N> for vec::Vec0<N> {
     #[inline]
     fn sqnorm(_: &vec::Vec0<N>) -> N {
         Zero::zero()
@@ -198,7 +198,7 @@ impl<N: ApproxEq<N>> ApproxEq<N> for vec::Vec0<N> {
     }
 }
 
-impl<N: Clone + One> One for vec::Vec0<N> {
+impl<N: One> One for vec::Vec0<N> {
     #[inline]
     fn one() -> vec::Vec0<N> {
         vec::Vec0
@@ -212,7 +212,7 @@ impl<N> FromIterator<N> for vec::Vec0<N> {
     }
 }
 
-impl<N: Bounded + Clone> Bounded for vec::Vec0<N> {
+impl<N: Bounded> Bounded for vec::Vec0<N> {
     #[inline]
     fn max_value() -> vec::Vec0<N> {
         vec::Vec0

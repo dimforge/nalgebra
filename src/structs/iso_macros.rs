@@ -296,7 +296,7 @@ macro_rules! inv_impl(
 
 macro_rules! to_homogeneous_impl(
     ($t: ident, $th: ident) => (
-        impl<N: One + Zero + Clone> ToHomogeneous<$th<N>> for $t<N> {
+        impl<N: Num + Clone> ToHomogeneous<$th<N>> for $t<N> {
             fn to_homogeneous(m: &$t<N>) -> $th<N> {
                 let mut res = ToHomogeneous::to_homogeneous(&m.rotation);
 

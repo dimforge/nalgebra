@@ -45,7 +45,7 @@ pub use structs::{
     Mat1, Mat2, Mat3, Mat4,
     Mat5, Mat6,
     Rot2, Rot3, Rot4,
-    Vec0, Vec1, Vec2, Vec3, PVec3, Vec4, Vec5, Vec6
+    Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6
 };
 
 //

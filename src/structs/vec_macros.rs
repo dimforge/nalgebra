@@ -277,7 +277,7 @@ macro_rules! basis_impl(
 
 macro_rules! add_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Add<N, N>> $trhs<N, $t<N>> for $t<N> {
+        impl<N: Add<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
                 $t::new(left.$comp0 + right.$comp0 $(, left.$compN + right.$compN)*)
@@ -288,7 +288,7 @@ macro_rules! add_impl(
 
 macro_rules! sub_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
+        impl<N: Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
                 $t::new(left.$comp0 - right.$comp0 $(, left.$compN - right.$compN)*)
@@ -299,7 +299,7 @@ macro_rules! sub_impl(
 
 macro_rules! mul_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Mul<N, N>> $trhs<N, $t<N>> for $t<N> {
+        impl<N: Mul<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
                 $t::new(left.$comp0 * right.$comp0 $(, left.$compN * right.$compN)*)
@@ -310,7 +310,7 @@ macro_rules! mul_impl(
 
 macro_rules! div_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Div<N, N>> $trhs<N, $t<N>> for $t<N> {
+        impl<N: Div<N, N>> $trhs<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
                 $t::new(left.$comp0 / right.$comp0 $(, left.$compN / right.$compN)*)
@@ -321,7 +321,7 @@ macro_rules! div_impl(
 
 macro_rules! neg_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Neg<N>> Neg<$t<N>> for $t<N> {
+        impl<N: Neg<N>> Neg<$t<N>> for $t<N> {
             #[inline]
             fn neg(&self) -> $t<N> {
                 $t::new(-self.$comp0 $(, -self.$compN )*)
@@ -332,7 +332,7 @@ macro_rules! neg_impl(
 
 macro_rules! dot_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Num + Clone> Dot<N> for $t<N> {
+        impl<N: Num> Dot<N> for $t<N> {
             #[inline]
             fn dot(a: &$t<N>, b: &$t<N>) -> N {
                 a.$comp0 * b.$comp0 $(+ a.$compN * b.$compN )*
@@ -468,7 +468,7 @@ macro_rules! norm_impl(
 
 macro_rules! round_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Round> Round for $t<N> {
+        impl<N: Round> Round for $t<N> {
             fn floor(&self) -> $t<N> {
                 $t::new(self.$comp0.floor() $(, self.$compN.floor())*)
             }
@@ -516,11 +516,14 @@ macro_rules! approx_eq_impl(
 )
 
 macro_rules! one_impl(
-    ($t: ident) => (
-        impl<N: Clone + One> One for $t<N> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: One> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
-                $t::new_repeat(One::one())
+                $t {
+                    $comp0: One::one()
+                    $(, $compN: One::one() )*
+                }
             }
         }
     )
@@ -528,7 +531,7 @@ macro_rules! one_impl(
 
 macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident $(, $paramN: ident)*) => (
-        impl<N: Clone> FromIterator<N> for $t<N> {
+        impl<N> FromIterator<N> for $t<N> {
             #[inline]
             fn from_iterator<I: Iterator<N>>($param0: &mut I) -> $t<N> {
                 $t::new($param0.next().unwrap() $(, $paramN.next().unwrap())*)
@@ -538,16 +541,22 @@ macro_rules! from_iterator_impl(
 )
 
 macro_rules! bounded_impl(
-    ($t: ident) => (
-        impl<N: Bounded + Clone> Bounded for $t<N> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Bounded> Bounded for $t<N> {
             #[inline]
             fn max_value() -> $t<N> {
-                $t::new_repeat(Bounded::max_value())
+                $t {
+                    $comp0: Bounded::max_value()
+                    $(, $compN: Bounded::max_value() )*
+                }
             }
 
             #[inline]
             fn min_value() -> $t<N> {
-                $t::new_repeat(Bounded::min_value())
+                $t {
+                    $comp0: Bounded::min_value()
+                    $(, $compN: Bounded::min_value() )*
+                }
             }
         }
     )
@@ -585,7 +594,7 @@ macro_rules! from_homogeneous_impl(
 
 macro_rules! translate_impl(
     ($t: ident) => (
-        impl<N: Clone + Add<N, N> + Sub<N, N>> Translate<$t<N>> for $t<N> {
+        impl<N: Add<N, N> + Sub<N, N>> Translate<$t<N>> for $t<N> {
             fn translate(&self, other: &$t<N>) -> $t<N> {
                 *other + *self
             }

@@ -68,7 +68,7 @@ macro_rules! rotation_matrix_impl(
 
 macro_rules! one_impl(
     ($t: ident) => (
-        impl<N: One + Zero + Clone> One for $t<N> {
+        impl<N: Num + Clone> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
                 $t { submat: One::one() }
@@ -188,7 +188,7 @@ macro_rules! col_impl(
 
 macro_rules! to_homogeneous_impl(
     ($t: ident, $tm: ident) => (
-        impl<N: One + Zero + Clone> ToHomogeneous<$tm<N>> for $t<N> {
+        impl<N: Num + Clone> ToHomogeneous<$tm<N>> for $t<N> {
             #[inline]
             fn to_homogeneous(m: &$t<N>) -> $tm<N> {
                 ToHomogeneous::to_homogeneous(&m.submat)
