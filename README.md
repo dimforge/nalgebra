@@ -8,7 +8,7 @@
 * real time computer graphics.
 * real time computer physics.
 
-An on-line version of this documentation is available [here](http://crozet.re/nalgebra/doc/nalgebra/index.html).
+An on-line version of this documentation is available [here](http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/index.html).
 
 ## Using **nalgebra**
 All the functionalities of **nalgebra** are grouped in one place: the `na` module.
