@@ -348,7 +348,7 @@ Inv for DMat<N> {
 
             let mut n0 = k; // index of a non-zero entry
 
-            while (n0 != dim) {
+            while n0 != dim {
                 if unsafe { self.at_fast(n0, k) } != _0T {
                     break;
                 }

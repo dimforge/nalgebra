@@ -364,7 +364,7 @@ macro_rules! inv_impl(
 
                 let mut n0 = k; // index of a non-zero entry
 
-                while (n0 != $dim) {
+                while n0 != $dim {
                     if self.at((n0, k)) != _0N {
                         break;
                     }

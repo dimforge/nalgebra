@@ -99,6 +99,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #[crate_id = "nalgebra#0.1"];
 #[crate_type = "lib"];
 #[deny(non_camel_case_types)];
+#[deny(unnecessary_parens)];
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
 #[warn(missing_doc)];
