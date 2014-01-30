@@ -5,7 +5,7 @@ use na;
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
-        10000.times(|| {
+        for _ in range(0, 10000) {
             let v: $t      = random();
             let mut mv: $t = v.clone();
             let n: $n      = random();
@@ -17,24 +17,24 @@ macro_rules! test_iterator_impl(
             }
 
             assert!(nv == mv && nv == v * n);
-        })
+        }
     )
 )
 
 macro_rules! test_commut_dot_impl(
     ($t: ty) => (
-        10000.times(|| {
+        for _ in range(0, 10000) {
             let v1 : $t = random();
             let v2 : $t = random();
         
             assert!(na::approx_eq(&na::dot(&v1, &v2), &na::dot(&v2, &v1)));
-        })
+        }
     );
 )
 
 macro_rules! test_scalar_op_impl(
     ($t: ty, $n: ty) => (
-        10000.times(|| {
+        for _ in range(0, 10000) {
             let v1 : $t = random();
             let n  : $n = random();
         
@@ -51,13 +51,13 @@ macro_rules! test_scalar_op_impl(
             v1 = v1 / n;
         
             assert!(na::approx_eq(&v1, &v0));
-        })
+        }
     );
 )
 
 macro_rules! test_basis_impl(
     ($t: ty) => (
-        10000.times(|| {
+        for _ in range(0, 10000) {
             na::canonical_basis(|e1: $t| {
                 na::canonical_basis(|e2: $t| {
                     assert!(e1 == e2 || na::approx_eq(&na::dot(&e1, &e2), &na::zero()));
@@ -69,13 +69,13 @@ macro_rules! test_basis_impl(
 
                 true
             })
-        })
+        }
     );
 )
 
 macro_rules! test_subspace_basis_impl(
     ($t: ty) => (
-        10000.times(|| {
+        for _ in range(0, 10000) {
             let v : $t = random();
             let v1     = na::normalize(&v);
 
@@ -93,20 +93,20 @@ macro_rules! test_subspace_basis_impl(
 
                 true
             })
-        })
+        }
     );
 )
 
 #[test]
 fn test_cross_vec3() {
-    10000.times(|| {
+    for _ in range(0, 10000) {
         let v1 : Vec3<f64> = random();
         let v2 : Vec3<f64> = random();
         let v3 : Vec3<f64> = na::cross(&v1, &v2);
 
         assert!(na::approx_eq(&na::dot(&v3, &v2), &na::zero()));
         assert!(na::approx_eq(&na::dot(&v3, &v1), &na::zero()));
-    })
+    }
 }
 
 #[test]

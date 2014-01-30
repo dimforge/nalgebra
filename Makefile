@@ -9,7 +9,8 @@ test:
 	mkdir -p $(nalgebra_lib_path)
 	rustc --test src/lib.rs --opt-level 3 -o test~ && ./test~
 	rm test~
-	rustdoc --test -L lib src/lib.rs
+	# FIXME:
+	# rustdoc --test -L lib src/lib.rs
 
 bench:
 	rustc --test src/lib.rs --opt-level 3 -o bench~ && ./bench~ --bench
