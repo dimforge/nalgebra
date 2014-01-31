@@ -448,7 +448,7 @@ macro_rules! norm_impl(
             fn normalize_cpy(v: &$t<N>) -> $t<N> {
                 let mut res : $t<N> = v.clone();
 
-                res.normalize();
+                let _ = res.normalize();
 
                 res
             }

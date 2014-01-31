@@ -299,7 +299,7 @@ impl<N: Num + Real + Clone> Norm<N> for DVec<N> {
     fn normalize_cpy(v: &DVec<N>) -> DVec<N> {
         let mut res : DVec<N> = v.clone();
 
-        res.normalize();
+        let _ = res.normalize();
 
         res
     }

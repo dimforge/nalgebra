@@ -102,6 +102,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #[deny(unnecessary_parens)];
 #[deny(non_uppercase_statics)];
 #[deny(unnecessary_qualification)];
+#[deny(unused_result)];
 #[warn(missing_doc)];
 #[feature(macro_rules)];
 #[doc(html_root_url = "http://www.rust-ci.org/sebcrozet/nalgebra/doc")];
