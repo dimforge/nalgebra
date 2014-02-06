@@ -109,6 +109,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 extern mod std;
 extern mod extra;
+extern mod serialize;
 
 pub mod na;
 mod structs;
