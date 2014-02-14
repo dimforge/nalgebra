@@ -7,7 +7,7 @@ use std::rand;
 use std::num::{One, Zero};
 use std::vec;
 use traits::operations::ApproxEq;
-use std::util;
+use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
 use traits::operations::{Inv, Transpose, Mean, Cov};
 use traits::structure::Cast;
@@ -445,7 +445,7 @@ impl<N: Clone> Transpose for DMat<N> {
                 }
             }
 
-            util::swap(&mut self.nrows, &mut self.ncols);
+            mem::swap(&mut self.nrows, &mut self.ncols);
         }
         else {
             // FIXME: implement a better algorithm which does that in-place.
