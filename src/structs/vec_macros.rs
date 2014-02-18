@@ -36,47 +36,52 @@ macro_rules! at_fast_impl(
 
 macro_rules! ord_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Ord> Ord for $t<N> {
+        impl<N: Ord + Eq + Clone> PartialOrd for $t<N> {
             #[inline]
-            fn lt(&self, other: &$t<N>) -> bool {
-                self.$comp0 < other.$comp0 $(&& self.$compN < other.$compN)*
+            fn inf(a: &$t<N>, b: &$t<N>) -> $t<N> {
+                $t::new(cmp::min(a.$comp0.clone(), b.$comp0.clone())
+                        $(, cmp::min(a.$compN.clone(), b.$compN.clone()))*)
             }
 
             #[inline]
-            fn le(&self, other: &$t<N>) -> bool {
-                self.$comp0 <= other.$comp0 $(&& self.$compN <= other.$compN)*
+            fn sup(a: &$t<N>, b: &$t<N>) -> $t<N> {
+                $t::new(cmp::max(a.$comp0.clone(), b.$comp0.clone())
+                        $(, cmp::max(a.$compN.clone(), b.$compN.clone()))*)
             }
 
             #[inline]
-            fn gt(&self, other: &$t<N>) -> bool {
-                self.$comp0 > other.$comp0 $(&& self.$compN > other.$compN)*
-            }
+            #[allow(unused_mut)] // otherwise there will be a warning for is_eq or Vec1.
+            fn partial_cmp(a: &$t<N>, b: &$t<N>) -> PartialOrdering {
+                let is_lt     = a.$comp0 <  b.$comp0;
+                let mut is_eq = a.$comp0 == b.$comp0;
 
-            #[inline]
-            fn ge(&self, other: &$t<N>) -> bool {
-                self.$comp0 >= other.$comp0 $(&& self.$compN >= other.$compN)*
-            }
-        }
-    )
-)
+                if is_lt { // <
+                    $(
+                        if a.$compN > b.$compN {
+                            return NotComparable
+                        }
+                     )*
 
-macro_rules! orderable_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Orderable> Orderable for $t<N> {
-            #[inline]
-            fn max(&self, other: &$t<N>) -> $t<N> {
-                $t::new(self.$comp0.max(&other.$comp0) $(, self.$compN.max(&other.$compN))*)
-            }
+                    Less
+                }
+                else { // >=
+                    $(
+                        if a.$compN < b.$compN {
+                            return NotComparable
+                        }
+                        else if a.$compN > b.$compN {
+                            is_eq = false;
+                        }
 
-            #[inline]
-            fn min(&self, other: &$t<N>) -> $t<N> {
-                $t::new(self.$comp0.min(&other.$comp0) $(, self.$compN.min(&other.$compN))*)
-            }
+                     )*
 
-            #[inline]
-            fn clamp(&self, min: &$t<N>, max: &$t<N>) -> $t<N> {
-                $t::new(self.$comp0.clamp(&min.$comp0, &max.$comp0)
-                        $(, self.$compN.clamp(&min.$comp0, &max.$comp0))*)
+                    if is_eq {
+                        Equal
+                    }
+                    else {
+                        Greater
+                    }
+                }
             }
         }
     )
@@ -223,7 +228,7 @@ macro_rules! container_impl(
 
 macro_rules! basis_impl(
     ($t: ident, $trhs: ident, $dim: expr) => (
-        impl<N: Clone + Num + Real + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
+        impl<N: Clone + Num + Float + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
             #[inline]
             fn canonical_basis(f: |$t<N>| -> bool) {
                 for i in range(0u, $dim) {
@@ -433,7 +438,7 @@ macro_rules! translation_impl(
 
 macro_rules! norm_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Num + Real> Norm<N> for $t<N> {
+        impl<N: Clone + Num + Float> Norm<N> for $t<N> {
             #[inline]
             fn sqnorm(v: &$t<N>) -> N {
                 Dot::dot(v, v)

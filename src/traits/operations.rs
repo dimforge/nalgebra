@@ -1,5 +1,129 @@
 //! Low level operations on vectors and matrices.
 
+use std::cmp;
+
+
+/// Result of a partial ordering.
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr, Show)]
+pub enum PartialOrdering {
+    /// Result of a strict comparison.
+    Less,
+    /// Equality relationship.
+    Equal,
+    /// Result of a strict comparison.
+    Greater,
+    /// Result of a comparison between two objects that are not comparable.
+    NotComparable
+}
+
+impl PartialOrdering {
+    /// Returns `true` if `self` is equal to `Equal`.
+    pub fn is_eq(&self) -> bool {
+        *self == Equal
+    }
+
+    /// Returns `true` if `self` is equal to `Less`.
+    pub fn is_lt(&self) -> bool {
+        *self == Less
+    }
+
+    /// Returns `true` if `self` is equal to `Less` or `Equal`.
+    pub fn is_le(&self) -> bool {
+        *self == Less || *self == Equal
+    }
+
+    /// Returns `true` if `self` is equal to `Greater`.
+    pub fn is_gt(&self) -> bool {
+        *self == Greater
+    }
+
+    /// Returns `true` if `self` is equal to `Greater` or `Equal`.
+    pub fn is_ge(&self) -> bool {
+        *self == Greater || *self == Equal
+    }
+
+    /// Returns `true` if `self` is equal to `NotComparable`.
+    pub fn is_not_comparable(&self) -> bool {
+        *self == NotComparable
+    }
+
+    /// Creates a `PartialOrdering` from an `Ordering`.
+    pub fn from_ordering(ord: Ordering) -> PartialOrdering {
+        match ord {
+            cmp::Less    => Less,
+            cmp::Equal   => Equal,
+            cmp::Greater => Greater
+        }
+    }
+
+    /// Converts this `PartialOrdering` to an `Ordering`.
+    ///
+    /// Returns `None` if `self` is `NotComparable`.
+    pub fn to_ordering(self) -> Option<Ordering> {
+        match self {
+            Less          => Some(cmp::Less),
+            Equal         => Some(cmp::Equal),
+            Greater       => Some(cmp::Greater),
+            NotComparable => None
+        }
+    }
+}
+
+/// Pointwise ordering operations.
+pub trait PartialOrd {
+    /// Returns the infimum of `a` and `b`.
+    fn inf(a: &Self, b: &Self) -> Self;
+
+    /// Returns the supremum of `a` and `b`.
+    fn sup(a: &Self, b: &Self) -> Self;
+
+    /// Compare `a` and `b` using a partial ordering relation.
+    fn partial_cmp(a: &Self, b: &Self) -> PartialOrdering;
+
+    /// Return the minimum of `a` and `b` if they are comparable.
+    #[inline]
+    fn partial_min<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
+        match PartialOrd::partial_cmp(a, b) {
+            Less | Equal  => Some(a),
+            Greater       => Some(b),
+            NotComparable => None
+        }
+    }
+
+    /// Return the maximum of `a` and `b` if they are comparable.
+    #[inline]
+    fn partial_max<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
+        match PartialOrd::partial_cmp(a, b) {
+            Greater | Equal => Some(a),
+            Less            => Some(b),
+            NotComparable   => None
+        }
+    }
+
+    /// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to
+    /// `min` or `max`.
+    #[inline]
+    fn partial_clamp<'a>(value: &'a Self, min: &'a Self, max: &'a Self) -> Option<&'a Self> {
+        let v_min = PartialOrd::partial_cmp(value, min);
+        let v_max = PartialOrd::partial_cmp(value, max);
+
+        if v_min.is_not_comparable() || v_max.is_not_comparable() {
+            None
+        }
+        else {
+            if v_min.is_lt() {
+                Some(min)
+            }
+            else if v_max.is_gt() {
+                Some(max)
+            }
+            else {
+                Some(value)
+            }
+        }
+    }
+}
+
 /// Trait for testing approximate equality
 pub trait ApproxEq<Eps> {
     /// Default epsilon for approximation.

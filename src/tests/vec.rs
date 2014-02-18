@@ -292,23 +292,19 @@ fn test_ord_vec3() {
     assert!(Vec3::new(1.5, 0.5, 0.5) != Vec3::new(0.5, 0.5, 0.5));
 
     // comparable
-    assert!(Vec3::new(0.5, 0.3, 0.3) < Vec3::new(1.0, 2.0, 1.0));
-    assert!(Vec3::new(0.5, 0.3, 0.3) <= Vec3::new(1.0, 2.0, 1.0));
-    assert!(Vec3::new(2.0, 4.0, 2.0) > Vec3::new(1.0, 2.0, 1.0));
-    assert!(Vec3::new(2.0, 4.0, 2.0) >= Vec3::new(1.0, 2.0, 1.0));
+    assert!(na::partial_cmp(&Vec3::new(0.5, 0.3, 0.3), &Vec3::new(1.0, 2.0, 1.0)).is_le());
+    assert!(na::partial_cmp(&Vec3::new(0.5, 0.3, 0.3), &Vec3::new(1.0, 2.0, 1.0)).is_lt());
+    assert!(na::partial_cmp(&Vec3::new(2.0, 4.0, 2.0), &Vec3::new(1.0, 2.0, 1.0)).is_ge());
+    assert!(na::partial_cmp(&Vec3::new(2.0, 4.0, 2.0), &Vec3::new(1.0, 2.0, 1.0)).is_gt());
 
     // not comparable
-    assert!(!(Vec3::new(0.0, 3.0, 0.0) < Vec3::new(1.0, 2.0, 1.0)));
-    assert!(!(Vec3::new(0.0, 3.0, 0.0) > Vec3::new(1.0, 2.0, 1.0)));
-    assert!(!(Vec3::new(0.0, 3.0, 0.0) <= Vec3::new(1.0, 2.0, 1.0)));
-    assert!(!(Vec3::new(0.0, 3.0, 0.0) >= Vec3::new(1.0, 2.0, 1.0)));
+    assert!(na::partial_cmp(&Vec3::new(0.0, 3.0, 0.0), &Vec3::new(1.0, 2.0, 1.0)).is_not_comparable());
 }
 
 #[test]
 fn test_min_max_vec3() {
-    assert_eq!(Vec3::new(1, 2, 3).max(&Vec3::new(3, 2, 1)), Vec3::new(3, 2, 3));
-    assert_eq!(Vec3::new(1, 2, 3).min(&Vec3::new(3, 2, 1)), Vec3::new(1, 2, 1));
-    assert_eq!(Vec3::new(0, 2, 4).clamp(&Vec3::new(1, 1, 1), &Vec3::new(3, 3, 3)), Vec3::new(1, 2, 3));
+    assert_eq!(na::sup(&Vec3::new(1, 2, 3), &Vec3::new(3, 2, 1)), Vec3::new(3, 2, 3));
+    assert_eq!(na::inf(&Vec3::new(1, 2, 3), &Vec3::new(3, 2, 1)), Vec3::new(1, 2, 1));
 }
 
 #[test]

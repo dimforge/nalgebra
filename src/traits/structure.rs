@@ -27,31 +27,31 @@ pub trait Vec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + E
                   + Div<N, Self> + Dot<N> {
 }
 
-/// Trait of vector with components implementing the `Real` trait.
-pub trait RealVec<N: Real>: Vec<N> + Norm<N> {
+/// Trait of vector with components implementing the `Float` trait.
+pub trait FloatVec<N: Float>: Vec<N> + Norm<N> {
 }
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
 pub trait VecExt<N>: Vec<N> + Indexable<uint, N> + Iterable<N> +
-                     UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded + Orderable
+                     UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded
 { }
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
-pub trait RealVecExt<N: Real>: RealVec<N> + VecExt<N> + Basis + Round { }
+pub trait FloatVecExt<N: Float>: FloatVec<N> + VecExt<N> + Basis + Round { }
 
 impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + Eq + Mul<N, V> + Div<N, V> + Dot<N>>
 Vec<N> for V { }
 
-impl<N: Real, V: Vec<N> + Norm<N>> RealVec<N> for V { }
+impl<N: Float, V: Vec<N> + Norm<N>> FloatVec<N> for V { }
 
 impl<N,
      V: Vec<N> + Indexable<uint, N> + Iterable<N> +
-        UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded + Orderable>
+        UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded>
 VecExt<N> for V { }
 
-impl<N: Real, V: RealVec<N> + VecExt<N> + Basis + Round> RealVecExt<N> for V { }
+impl<N: Float, V: FloatVec<N> + VecExt<N> + Basis + Round> FloatVecExt<N> for V { }
 
 // FIXME: return an iterator instead
 /// Traits of objects which can form a basis (typically vectors).

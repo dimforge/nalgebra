@@ -153,9 +153,9 @@ pub trait RotationMatrix<LV, AV, M: Mat<LV, LV> + Rotation<AV>> : Rotation<AV> {
 pub trait AbsoluteRotate<V> {
     /// This is the same as:
     ///
-    /// ~~~
+    /// ```.ignore
     ///     self.rotation_matrix().absolute().rmul(v)
-    /// ~~~
+    /// ```
     fn absolute_rotate(&self, v: &V) -> V;
 }
 
@@ -208,9 +208,9 @@ pub trait Dot<N> {
      * computing intermediate vectors.
      * The following equation must be verified:
      *
-     * ~~~
+     * ```.ignore
      *   a.sub_dot(b, c) == (a - b).dot(c)
-     * ~~~
+     * ```
      *
      */
     #[inline]
@@ -218,7 +218,7 @@ pub trait Dot<N> {
 }
 
 /// Traits of objects having an euclidian norm.
-pub trait Norm<N: Real> {
+pub trait Norm<N: Float> {
     /// Computes the norm of `self`.
     #[inline]
     fn norm(v: &Self) -> N {

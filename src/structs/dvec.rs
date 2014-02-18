@@ -2,7 +2,7 @@
 
 #[allow(missing_doc)]; // we hide doc to not have to document the $trhs double dispatch trait.
 
-use std::num::{Zero, One, Real};
+use std::num::{Zero, One, Float};
 use std::rand::Rand;
 use std::rand;
 use std::vec;
@@ -177,7 +177,7 @@ impl<N> FromIterator<N> for DVec<N> {
     }
 }
 
-impl<N: Clone + Num + Real + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> {
+impl<N: Clone + Num + Float + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> {
     /// Computes the canonical basis for the given dimension. A canonical basis is a set of
     /// vectors, mutually orthogonal, with all its component equal to 0.0 except one which is equal
     /// to 1.0.
@@ -284,7 +284,7 @@ impl<N: Num + Clone> Dot<N> for DVec<N> {
     } 
 }
 
-impl<N: Num + Real + Clone> Norm<N> for DVec<N> {
+impl<N: Num + Float + Clone> Norm<N> for DVec<N> {
     #[inline]
     fn sqnorm(v: &DVec<N>) -> N {
         Dot::dot(v, v)

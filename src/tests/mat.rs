@@ -1,4 +1,4 @@
-use std::num::{Real, abs};
+use std::num::{Float, abs};
 use std::rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable};
 use na;
@@ -87,7 +87,7 @@ fn test_inv_mat6() {
 fn test_rotation2() {
     for _ in range(0, 10000) {
         let randmat: na::Rot2<f64> = na::one();
-        let ang    = Vec1::new(abs::<f64>(random()) % Real::pi());
+        let ang    = Vec1::new(abs::<f64>(random()) % Float::pi());
 
         assert!(na::approx_eq(&na::rotation(&na::append_rotation(&randmat, &ang)), &ang));
     }
@@ -105,7 +105,7 @@ fn test_inv_rotation3() {
     for _ in range(0, 10000) {
         let randmat: Rot3<f64> = na::one();
         let dir:     Vec3<f64> = random();
-        let ang            = na::normalize(&dir) * (abs::<f64>(random()) % Real::pi());
+        let ang            = na::normalize(&dir) * (abs::<f64>(random()) % Float::pi());
         let rot            = na::append_rotation(&randmat, &ang);
 
         assert!(na::approx_eq(&(na::transpose(&rot) * rot), &na::one()));

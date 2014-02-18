@@ -4,13 +4,13 @@ nalgebra_doc_path=doc
 all:
 	mkdir -p $(nalgebra_lib_path)
 	rustc src/lib.rs --out-dir $(nalgebra_lib_path) --opt-level 3
+	rustc src/lib.rs --out-dir $(nalgebra_lib_path) --crate-type dylib --opt-level 3
 
 test:
 	mkdir -p $(nalgebra_lib_path)
 	rustc --test src/lib.rs --opt-level 3 -o test~ && ./test~
 	rm test~
-	# FIXME:
-	# rustdoc --test -L lib src/lib.rs
+	rustdoc --test -L lib src/lib.rs
 
 bench:
 	rustc --test src/lib.rs --opt-level 3 -o bench~ && ./bench~ --bench

@@ -18,7 +18,7 @@ out-of-place modifications.
 
 * You can import the whole prelude using:
 
-```
+```.ignore
 use nalgebra::na::*;
 ```
 
@@ -26,7 +26,7 @@ The preferred way to use **nalgebra** is to import types and traits explicitly, 
 free-functions using the `na::` prefix:
 
 ```.rust
-extern mod nalgebra;
+extern crate nalgebra;
 use nalgebra::na::{Vec3, Rot3, Rotation};
 use nalgebra::na;
 
@@ -57,7 +57,7 @@ and keeps an optimized set of tools for computational graphics and physics. Thos
   For example, the following works:
 
 ```rust
-extern mod nalgebra;
+extern crate nalgebra;
 use nalgebra::na::{Vec3, Mat3};
 use nalgebra::na;
 
@@ -76,13 +76,15 @@ fn main() {
 You will need the last rust compiler from the master branch.
 If you encounter problems, make sure you have the last version before creating an issue.
 
-    git clone git://github.com/sebcrozet/nalgebra.git
-    cd nalgebra
-    make
+```.ignore
+git clone git://github.com/sebcrozet/nalgebra.git
+cd nalgebra
+make
+```
 
 You can build the documentation on the `doc` folder using:
 
-```
+```.ignore
 make doc
 ```
 
@@ -107,9 +109,9 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #[feature(macro_rules)];
 #[doc(html_root_url = "http://www.rust-ci.org/sebcrozet/nalgebra/doc")];
 
-extern mod std;
-extern mod extra;
-extern mod serialize;
+extern crate std;
+extern crate extra;
+extern crate serialize;
 
 pub mod na;
 mod structs;

@@ -1,12 +1,14 @@
 //! **nalgebra** prelude.
 
 use std::num::{Zero, One};
+use std::cmp;
+pub use traits::{Less, Equal, Greater, NotComparable};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
     ApproxEq,
-    RealVec,
-    RealVecExt,
+    FloatVec,
+    FloatVecExt,
     Basis,
     Cast,
     Col,
@@ -25,6 +27,8 @@ pub use traits::{
     Mean,
     Norm,
     Outer,
+    PartialOrd,
+    PartialOrdering,
     RMul,
     Rotate, Rotation, RotationMatrix, RotationWithTranslation,
     Row,
@@ -47,6 +51,71 @@ pub use structs::{
     Rot2, Rot3, Rot4,
     Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6
 };
+
+/// Change the input value to ensure it is on the range `[min, max]`.
+#[inline(always)]
+pub fn clamp<T: Ord>(val: T, min: T, max: T) -> T {
+    if val > min {
+        if val < max {
+            val
+        }
+        else {
+            max
+        }
+    }
+    else {
+        min
+    }
+}
+
+/// Same as `cmp::max`.
+#[inline(always)]
+pub fn max<T: Ord>(a: T, b: T) -> T {
+    cmp::max(a, b)
+}
+
+/// Same as `cmp::min`.
+#[inline(always)]
+pub fn min<T: Ord>(a: T, b: T) -> T {
+    cmp::min(a, b)
+}
+
+/// Returns the infimum of `a` and `b`.
+#[inline(always)]
+pub fn inf<T: PartialOrd>(a: &T, b: &T) -> T {
+    PartialOrd::inf(a, b)
+}
+
+/// Returns the supremum of `a` and `b`.
+#[inline(always)]
+pub fn sup<T: PartialOrd>(a: &T, b: &T) -> T {
+    PartialOrd::sup(a, b)
+}
+
+/// Compare `a` and `b` using a partial ordering relation.
+#[inline(always)]
+pub fn partial_cmp<T: PartialOrd>(a: &T, b: &T) -> PartialOrdering {
+    PartialOrd::partial_cmp(a, b)
+}
+
+/// Return the minimum of `a` and `b` if they are comparable.
+#[inline(always)]
+pub fn partial_min<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
+    PartialOrd::partial_min(a, b)
+}
+
+/// Return the maximum of `a` and `b` if they are comparable.
+#[inline(always)]
+pub fn partial_max<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
+    PartialOrd::partial_max(a, b)
+}
+
+/// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to
+/// `min` or `max`.
+#[inline(always)]
+pub fn partial_clamp<'a, T: PartialOrd>(value: &'a T, min: &'a T, max: &'a T) -> Option<&'a T> {
+    PartialOrd::partial_clamp(value, min, max)
+}
 
 //
 //
@@ -89,7 +158,7 @@ pub fn one<T: One>() -> T {
  */
 /// Computes a projection matrix given the frustrum near plane width, height, the field of
 /// view, and the distance to the clipping planes (`znear` and `zfar`).
-pub fn perspective3d<N: Real + Cast<f32> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
+pub fn perspective3d<N: Float + Cast<f32> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
     let aspect = width / height;
 
     let _1: N = one();
@@ -112,7 +181,7 @@ pub fn perspective3d<N: Real + Cast<f32> + Zero + One>(width: N, height: N, fov:
 /// Gets the translation applicable by `m`.
 ///
 /// ```rust
-/// extern mod nalgebra;
+/// extern crate nalgebra;
 /// use nalgebra::na::{Vec3, Iso3};
 /// use nalgebra::na;
 ///
@@ -131,7 +200,7 @@ pub fn translation<V, M: Translation<V>>(m: &M) -> V {
 /// Gets the inverse translation applicable by `m`.
 ///
 /// ```rust
-/// extern mod nalgebra;
+/// extern crate nalgebra;
 /// use nalgebra::na::{Vec3, Iso3};
 /// use nalgebra::na;
 ///
@@ -160,7 +229,7 @@ pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
 /// Applies a translation to a vector.
 ///
 /// ```rust
-/// extern mod nalgebra;
+/// extern crate nalgebra;
 /// use nalgebra::na::{Vec3, Iso3};
 /// use nalgebra::na;
 ///
@@ -181,7 +250,7 @@ pub fn translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
 /// Applies an inverse translation to a vector.
 ///
 /// ```rust
-/// extern mod nalgebra;
+/// extern crate nalgebra;
 /// use nalgebra::na::{Vec3, Iso3};
 /// use nalgebra::na;
 ///
@@ -205,7 +274,7 @@ pub fn inv_translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
 /// Gets the rotation applicable by `m`.
 ///
 /// ```rust
-/// extern mod nalgebra;
+/// extern crate nalgebra;
 /// use nalgebra::na::{Vec3, Rot3};
 /// use nalgebra::na;
 ///
@@ -224,7 +293,7 @@ pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
 /// Gets the inverse rotation applicable by `m`.
 ///
 /// ```rust
-/// extern mod nalgebra;
+/// extern crate nalgebra;
 /// use nalgebra::na::{Vec3, Rot3};
 /// use nalgebra::na;
 ///
@@ -243,7 +312,7 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
 /// Applies the rotation `v` to a copy of `m`.
 ///
 /// ```rust
-/// extern mod nalgebra;
+/// extern crate nalgebra;
 /// use nalgebra::na::{Vec3, Rot3};
 /// use nalgebra::na;
 ///
@@ -264,7 +333,7 @@ pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 /// Pre-applies the rotation `v` to a copy of `m`.
 ///
 /// ```rust
-/// extern mod nalgebra;
+/// extern crate nalgebra;
 /// use nalgebra::na::{Vec3, Rot3};
 /// use nalgebra::na;
 ///
@@ -288,13 +357,13 @@ pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 /// Applies a rotation to a vector.
 ///
 /// ```rust
-/// extern mod nalgebra;
-/// use std::num::Real;
+/// extern crate nalgebra;
+/// use std::num::Float;
 /// use nalgebra::na::{Rot3, Vec3};
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.5 * Real::pi()));
+///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.5 * Float::pi()));
 ///     let v  = Vec3::new(1.0, 0.0, 0.0);
 ///
 ///     let tv = na::rotate(&t, &v);
@@ -311,13 +380,13 @@ pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 /// Applies an inverse rotation to a vector.
 ///
 /// ```rust
-/// extern mod nalgebra;
-/// use std::num::Real;
+/// extern crate nalgebra;
+/// use std::num::Float;
 /// use nalgebra::na::{Rot3, Vec3};
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.5 * Real::pi()));
+///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.5 * Float::pi()));
 ///     let v  = Vec3::new(1.0, 0.0, 0.0);
 ///
 ///     let tv = na::inv_rotate(&t, &v);
@@ -435,19 +504,19 @@ pub fn sub_dot<V: Dot<N>, N>(a: &V, b: &V, c: &V) -> N {
 
 /// Computes the L2 norm of a vector.
 #[inline(always)]
-pub fn norm<V: Norm<N>, N: Real>(v: &V) -> N {
+pub fn norm<V: Norm<N>, N: Float>(v: &V) -> N {
     Norm::norm(v)
 }
 
 /// Computes the squared L2 norm of a vector.
 #[inline(always)]
-pub fn sqnorm<V: Norm<N>, N: Real>(v: &V) -> N {
+pub fn sqnorm<V: Norm<N>, N: Float>(v: &V) -> N {
     Norm::sqnorm(v)
 }
 
 /// Gets the normalized version of a vector.
 #[inline(always)]
-pub fn normalize<V: Norm<N>, N: Real>(v: &V) -> V {
+pub fn normalize<V: Norm<N>, N: Float>(v: &V) -> V {
     Norm::normalize_cpy(v)
 }
 
