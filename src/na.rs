@@ -98,6 +98,30 @@ pub fn partial_cmp<T: PartialOrd>(a: &T, b: &T) -> PartialOrdering {
     PartialOrd::partial_cmp(a, b)
 }
 
+/// Returns `true` iff `a` and `b` are comparable and `a < b`.
+#[inline(always)]
+pub fn partial_lt<T: PartialOrd>(a: &T, b: &T) -> bool {
+    PartialOrd::partial_lt(a, b)
+}
+
+/// Returns `true` iff `a` and `b` are comparable and `a <= b`.
+#[inline(always)]
+pub fn partial_le<T: PartialOrd>(a: &T, b: &T) -> bool {
+    PartialOrd::partial_le(a, b)
+}
+
+/// Returns `true` iff `a` and `b` are comparable and `a > b`.
+#[inline(always)]
+pub fn partial_gt<T: PartialOrd>(a: &T, b: &T) -> bool {
+    PartialOrd::partial_gt(a, b)
+}
+
+/// Returns `true` iff `a` and `b` are comparable and `a >= b`.
+#[inline(always)]
+pub fn partial_ge<T: PartialOrd>(a: &T, b: &T) -> bool {
+    PartialOrd::partial_ge(a, b)
+}
+
 /// Return the minimum of `a` and `b` if they are comparable.
 #[inline(always)]
 pub fn partial_min<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
