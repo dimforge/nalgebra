@@ -83,6 +83,26 @@ macro_rules! ord_impl(
                     }
                 }
             }
+
+            #[inline]
+            fn partial_lt(a: &$t<N>, b: &$t<N>) -> bool {
+                a.$comp0 < b.$comp0 $(&& a.$compN < b.$compN)*
+            }
+
+            #[inline]
+            fn partial_le(a: &$t<N>, b: &$t<N>) -> bool {
+                a.$comp0 <= b.$comp0 $(&& a.$compN <= b.$compN)*
+            }
+
+            #[inline]
+            fn partial_gt(a: &$t<N>, b: &$t<N>) -> bool {
+                a.$comp0 > b.$comp0 $(&& a.$compN > b.$compN)*
+            }
+
+            #[inline]
+            fn partial_ge(a: &$t<N>, b: &$t<N>) -> bool {
+                a.$comp0 >= b.$comp0 $(&& a.$compN >= b.$compN)*
+            }
         }
     )
 )

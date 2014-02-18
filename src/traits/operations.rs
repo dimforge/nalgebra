@@ -80,6 +80,30 @@ pub trait PartialOrd {
     /// Compare `a` and `b` using a partial ordering relation.
     fn partial_cmp(a: &Self, b: &Self) -> PartialOrdering;
 
+    /// Returns `true` iff `a` and `b` are comparable and `a <= b`.
+    #[inline]
+    fn partial_le(a: &Self, b: &Self) -> bool {
+        PartialOrd::partial_cmp(a, b).is_le()
+    }
+
+    /// Returns `true` iff `a` and `b` are comparable and `a < b`.
+    #[inline]
+    fn partial_lt(a: &Self, b: &Self) -> bool {
+        PartialOrd::partial_cmp(a, b).is_lt()
+    }
+
+    /// Returns `true` iff `a` and `b` are comparable and `a >= b`.
+    #[inline]
+    fn partial_ge(a: &Self, b: &Self) -> bool {
+        PartialOrd::partial_cmp(a, b).is_ge()
+    }
+
+    /// Returns `true` iff `a` and `b` are comparable and `a > b`.
+    #[inline]
+    fn partial_gt(a: &Self, b: &Self) -> bool {
+        PartialOrd::partial_cmp(a, b).is_gt()
+    }
+
     /// Return the minimum of `a` and `b` if they are comparable.
     #[inline]
     fn partial_min<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
