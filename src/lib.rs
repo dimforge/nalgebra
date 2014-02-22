@@ -113,6 +113,9 @@ extern crate std;
 extern crate extra;
 extern crate serialize;
 
+#[cfg(test)]
+extern crate test;
+
 pub mod na;
 mod structs;
 mod traits;
