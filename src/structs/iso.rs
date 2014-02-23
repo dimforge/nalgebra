@@ -20,7 +20,7 @@ mod iso_macros;
 ///
 /// This is the composition of a rotation followed by a translation.
 /// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr, IterBytes)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Show, ToStr, IterBytes)]
 pub struct Iso2<N> {
     /// The rotation applicable by this isometry.
     rotation:    Rot2<N>,
@@ -32,7 +32,7 @@ pub struct Iso2<N> {
 ///
 /// This is the composition of a rotation followed by a translation.
 /// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr, IterBytes)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Show, ToStr, IterBytes)]
 pub struct Iso3<N> {
     /// The rotation applicable by this isometry.
     rotation:    Rot3<N>,
@@ -43,7 +43,7 @@ pub struct Iso3<N> {
 /// Four dimensional isometry.
 ///
 /// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, ToStr, IterBytes)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Show, ToStr, IterBytes)]
 pub struct Iso4<N> {
     /// The rotation applicable by this isometry.
     rotation:    Rot4<N>,
