@@ -17,11 +17,11 @@ mod metal;
 mod vec_macros;
 
 /// Vector of dimension 0.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Rand, Zero, Show)]
 pub struct Vec0<N>;
 
 /// Vector of dimension 1.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Vec1<N> {
     /// First component of the vector.
     x: N
@@ -117,7 +117,7 @@ rotate_impl!(Vec1)
 transform_impl!(Vec1)
 
 /// Vector of dimension 2.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Vec2<N> {
     /// First component of the vector.
     x: N,
@@ -215,7 +215,7 @@ rotate_impl!(Vec2)
 transform_impl!(Vec2)
 
 /// Vector of dimension 3.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Vec3<N> {
     /// First component of the vector.
     x: N,
@@ -319,7 +319,7 @@ transform_impl!(Vec3)
 
 
 /// Vector of dimension 4.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Vec4<N> {
     /// First component of the vector.
     x: N,
@@ -421,7 +421,7 @@ rotate_impl!(Vec4)
 transform_impl!(Vec4)
 
 /// Vector of dimension 5.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Vec5<N> {
     /// First component of the vector.
     x: N,
@@ -525,7 +525,7 @@ rotate_impl!(Vec5)
 transform_impl!(Vec5)
 
 /// Vector of dimension 6.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Vec6<N> {
     /// First component of the vector.
     x: N,

@@ -629,21 +629,3 @@ scalar_sub_impl!(i16)
 scalar_sub_impl!(i8)
 scalar_sub_impl!(uint)
 scalar_sub_impl!(int)
-
-impl<N: ToStr + Clone> ToStr for DMat<N> {
-    fn to_str(&self) -> ~str {
-        let mut res = ~"DMat ";
-        res = res + self.nrows.to_str() + " " + self.ncols.to_str() + " {\n";
-
-        for i in range(0u, self.nrows) {
-            for j in range(0u, self.ncols) {
-                res = res + " " + unsafe { self.at_fast(i, j).to_str() };
-            }
-
-            res = res + "\n";
-        }
-        res = res + "}";
-
-        res
-    }
-}

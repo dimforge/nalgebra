@@ -17,7 +17,7 @@ mod metal;
 mod mat_macros;
 
 /// Special identity matrix. All its operation are no-ops.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Rand, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Rand, Show)]
 pub struct Identity;
 
 impl Identity {
@@ -29,7 +29,7 @@ impl Identity {
 }
 
 /// Square matrix of dimension 1.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Mat1<N> {
     m11: N
 }
@@ -121,7 +121,7 @@ from_homogeneous_impl!(Mat1, Mat2, 1, 2)
 outer_impl!(Vec1, Mat1)
 
 /// Square matrix of dimension 2.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Mat2<N> {
     m11: N, m21: N,
     m12: N, m22: N
@@ -218,7 +218,7 @@ from_homogeneous_impl!(Mat2, Mat3, 2, 3)
 outer_impl!(Vec2, Mat2)
 
 /// Square matrix of dimension 3.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Mat3<N> {
     m11: N, m21: N, m31: N,
     m12: N, m22: N, m32: N,
@@ -329,7 +329,7 @@ from_homogeneous_impl!(Mat3, Mat4, 3, 4)
 outer_impl!(Vec3, Mat3)
 
 /// Square matrix of dimension 4.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Mat4<N> {
     m11: N, m21: N, m31: N, m41: N,
     m12: N, m22: N, m32: N, m42: N,
@@ -492,7 +492,7 @@ from_homogeneous_impl!(Mat4, Mat5, 4, 5)
 outer_impl!(Vec4, Mat4)
 
 /// Square matrix of dimension 5.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Mat5<N> {
     m11: N, m21: N, m31: N, m41: N, m51: N,
     m12: N, m22: N, m32: N, m42: N, m52: N,
@@ -671,7 +671,7 @@ from_homogeneous_impl!(Mat5, Mat6, 5, 6)
 outer_impl!(Vec5, Mat5)
 
 /// Square matrix of dimension 6.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show, ToStr)]
+#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Hash, Rand, Zero, Show)]
 pub struct Mat6<N> {
     m11: N, m21: N, m31: N, m41: N, m51: N, m61: N,
     m12: N, m22: N, m32: N, m42: N, m52: N, m62: N,
