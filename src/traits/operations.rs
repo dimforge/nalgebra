@@ -4,7 +4,7 @@ use std::cmp;
 
 
 /// Result of a partial ordering.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Show)]
+#[deriving(Eq, Encodable, Decodable, Clone, Show)]
 pub enum PartialOrdering {
     /// Result of a strict comparison.
     Less,

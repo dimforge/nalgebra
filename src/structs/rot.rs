@@ -15,7 +15,7 @@ mod metal;
 mod rot_macros;
 
 /// Two dimensional rotation matrix.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Show, Hash)]
+#[deriving(Eq, Encodable, Decodable, Clone, Show, Hash)]
 pub struct Rot2<N> {
     priv submat: Mat2<N>
 }
@@ -93,7 +93,7 @@ impl<N: Signed> AbsoluteRotate<Vec2<N>> for Rot2<N> {
  * 3d rotation
  */
 /// Three dimensional rotation matrix.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Show, Hash)]
+#[deriving(Eq, Encodable, Decodable, Clone, Show, Hash)]
 pub struct Rot3<N> {
     priv submat: Mat3<N>
 }
@@ -264,7 +264,7 @@ impl<N: Signed> AbsoluteRotate<Vec3<N>> for Rot3<N> {
 }
 
 /// Four dimensional rotation matrix.
-#[deriving(Eq, Encodable, Decodable, Clone, DeepClone, Show, Hash)]
+#[deriving(Eq, Encodable, Decodable, Clone, Show, Hash)]
 pub struct Rot4<N> {
     priv submat: Mat4<N>
 }
