@@ -1,5 +1,5 @@
 use std::num::{Float, abs};
-use std::rand::random;
+use rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable};
 use na;
 
