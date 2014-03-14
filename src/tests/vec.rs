@@ -1,4 +1,4 @@
-use std::rand::{random};
+use rand::random;
 use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use na::{Mat3, Iterable, IterableMut}; // FIXME: get rid of that
 use na;

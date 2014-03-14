@@ -111,6 +111,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 extern crate std;
 extern crate extra;
+extern crate rand;
 extern crate serialize;
 
 #[cfg(test)]

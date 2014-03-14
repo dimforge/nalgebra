@@ -1,5 +1,5 @@
-use std::rand::Rand;
-use std::rand;
+use rand::Rand;
+use rand;
 use std::num::{One, Zero};
 use std::vec;
 
