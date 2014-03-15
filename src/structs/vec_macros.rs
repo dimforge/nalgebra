@@ -34,19 +34,21 @@ macro_rules! at_fast_impl(
     )
 )
 
+// FIXME: N should be bounded by TotalOrd instead of Float…
+// However, f32/f64 does not implement TotalOrd…
 macro_rules! ord_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Ord + Eq + Clone> PartialOrd for $t<N> {
+        impl<N: Float + Eq + Clone> PartialOrd for $t<N> {
             #[inline]
             fn inf(a: &$t<N>, b: &$t<N>) -> $t<N> {
-                $t::new(cmp::min(a.$comp0.clone(), b.$comp0.clone())
-                        $(, cmp::min(a.$compN.clone(), b.$compN.clone()))*)
+                $t::new(a.$comp0.min(b.$comp0.clone())
+                        $(, a.$compN.min(b.$compN))*)
             }
 
             #[inline]
             fn sup(a: &$t<N>, b: &$t<N>) -> $t<N> {
-                $t::new(cmp::max(a.$comp0.clone(), b.$comp0.clone())
-                        $(, cmp::max(a.$compN.clone(), b.$compN.clone()))*)
+                $t::new(a.$comp0.max(b.$comp0.clone())
+                        $(, a.$compN.max(b.$compN.clone()))*)
             }
 
             #[inline]
@@ -266,7 +268,7 @@ macro_rules! basis_impl(
             fn orthonormal_subspace_basis(n: &$t<N>, f: |$t<N>| -> bool) {
                 // compute the basis of the orthogonal subspace using Gram-Schmidt
                 // orthogonalization algorithm
-                let mut basis: ~[$t<N>] = ~[];
+                let mut basis: Vec<$t<N>> = Vec::new();
 
                 for i in range(0u, $dim) {
                     let mut basis_element : $t<N> = Zero::zero();

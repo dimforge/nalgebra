@@ -91,7 +91,7 @@ pub trait RotationWithTranslation<LV: Neg<LV>, AV>: Rotation<AV> + Translation<L
     ///   * `point` - the center of rotation.
     #[inline]
     fn append_rotation_wrt_point_cpy(t: &Self, amount: &AV, center: &LV) -> Self {
-        let mut res = Translation::append_translation_cpy(t, &-center);
+        let mut res = Translation::append_translation_cpy(t, &-*center);
 
         res.append_rotation(amount);
         res.append_translation(center);
@@ -108,7 +108,7 @@ pub trait RotationWithTranslation<LV: Neg<LV>, AV>: Rotation<AV> + Translation<L
     ///   * `center` - the new center of rotation
     #[inline]
     fn append_rotation_wrt_point(&mut self, amount: &AV, center: &LV) {
-        self.append_translation(&-center);
+        self.append_translation(&-*center);
         self.append_rotation(amount);
         self.append_translation(center);
     }

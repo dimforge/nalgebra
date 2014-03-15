@@ -5,7 +5,7 @@
 use std::num::{Zero, One, Float};
 use rand::Rand;
 use rand;
-use std::vec;
+use std::vec_ng::Vec;
 use std::vec::{Items, MutItems};
 use traits::operations::ApproxEq;
 use std::iter::FromIterator;
@@ -19,7 +19,7 @@ mod metal;
 #[deriving(Eq, Show, Clone)]
 pub struct DVec<N> {
     /// Components of the vector. Contains as much elements as the vector dimension.
-    at: ~[N]
+    at: Vec<N>
 }
 
 double_dispatch_binop_decl_trait!(DVec, DVecMulRhs)
@@ -52,7 +52,7 @@ impl<N: Zero + Clone> DVec<N> {
 impl<N: Clone> DVec<N> {
     /// Indexing without bounds checking.
     pub unsafe fn at_fast(&self, i: uint) -> N {
-        (*self.at.unsafe_ref(i)).clone()
+        (*self.at.as_slice().unsafe_ref(i)).clone()
     }
 }
 
@@ -79,7 +79,7 @@ impl<N> DVec<N> {
     /// Creates an uninitialized vec.
     #[inline]
     pub unsafe fn new_uninitialized(dim: uint) -> DVec<N> {
-        let mut vec = vec::with_capacity(dim);
+        let mut vec = Vec::with_capacity(dim);
         vec.set_len(dim);
 
         DVec {
@@ -89,28 +89,24 @@ impl<N> DVec<N> {
 
     #[inline]
     pub unsafe fn set_fast(&mut self, i: uint, val: N) {
-        *self.at.unsafe_mut_ref(i) = val
+        *self.at.as_mut_slice().unsafe_mut_ref(i) = val
     }
 
     /// Gets a reference to of this vector data.
     #[inline]
     pub fn as_vec<'r>(&'r self) -> &'r [N] {
-        let data: &'r [N] = self.at;
-
-        data
+        self.at.as_slice()
     }
 
     /// Gets a mutable reference to of this vector data.
     #[inline]
     pub fn as_mut_vec<'r>(&'r mut self) -> &'r mut [N] {
-        let data: &'r mut [N] = self.at;
-
-        data
+        self.at.as_mut_slice()
     }
 
     /// Extracts this vector data.
     #[inline]
-    pub fn to_vec(self) -> ~[N] {
+    pub fn to_vec(self) -> Vec<N> {
         self.at
     }
 }
@@ -119,7 +115,7 @@ impl<N: Clone> DVec<N> {
     /// Builds a vector filled with a constant.
     #[inline]
     pub fn from_elem(dim: uint, elem: N) -> DVec<N> {
-        DVec { at: vec::from_elem(dim, elem) }
+        DVec { at: Vec::from_elem(dim, elem) }
     }
 
     /// Builds a vector filled with the components provided by a vector.
@@ -130,7 +126,7 @@ impl<N: Clone> DVec<N> {
         assert!(dim <= vec.len());
 
         DVec {
-            at: vec.slice_to(dim).to_owned()
+            at: Vec::from_slice(vec.slice_to(dim))
         }
     }
 }
@@ -139,7 +135,7 @@ impl<N> DVec<N> {
     /// Builds a vector filled with the result of a function.
     #[inline(always)]
     pub fn from_fn(dim: uint, f: |uint| -> N) -> DVec<N> {
-        DVec { at: vec::from_fn(dim, |i| f(i)) }
+        DVec { at: Vec::from_fn(dim, |i| f(i)) }
     }
 }
 
@@ -167,7 +163,7 @@ impl<N> IterableMut<N> for DVec<N> {
 impl<N> FromIterator<N> for DVec<N> {
     #[inline]
     fn from_iterator<I: Iterator<N>>(mut param: &mut I) -> DVec<N> {
-        let mut res = DVec { at: ~[] };
+        let mut res = DVec { at: Vec::new() };
 
         for e in param {
             res.at.push(e)
@@ -181,13 +177,13 @@ impl<N: Clone + Num + Float + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> {
     /// Computes the canonical basis for the given dimension. A canonical basis is a set of
     /// vectors, mutually orthogonal, with all its component equal to 0.0 except one which is equal
     /// to 1.0.
-    pub fn canonical_basis_with_dim(dim: uint) -> ~[DVec<N>] {
-        let mut res : ~[DVec<N>] = ~[];
+    pub fn canonical_basis_with_dim(dim: uint) -> Vec<DVec<N>> {
+        let mut res : Vec<DVec<N>> = Vec::new();
 
         for i in range(0u, dim) {
             let mut basis_element : DVec<N> = DVec::new_zeros(dim);
 
-            basis_element.at[i] = One::one();
+            *basis_element.at.get_mut(i) = One::one();
 
             res.push(basis_element);
         }
@@ -197,16 +193,16 @@ impl<N: Clone + Num + Float + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> {
 
     /// Computes a basis of the space orthogonal to the vector. If the input vector is of dimension
     /// `n`, this will return `n - 1` vectors.
-    pub fn orthogonal_subspace_basis(&self) -> ~[DVec<N>] {
+    pub fn orthogonal_subspace_basis(&self) -> Vec<DVec<N>> {
         // compute the basis of the orthogonal subspace using Gram-Schmidt
         // orthogonalization algorithm
-        let     dim              = self.at.len();
-        let mut res : ~[DVec<N>] = ~[];
+        let     dim                = self.at.len();
+        let mut res : Vec<DVec<N>> = Vec::new();
 
         for i in range(0u, dim) {
             let mut basis_element : DVec<N> = DVec::new_zeros(self.at.len());
 
-            basis_element.at[i] = One::one();
+            *basis_element.at.get_mut(i) = One::one();
 
             if res.len() == dim - 1 {
                 break;
@@ -254,7 +250,7 @@ impl<N: Sub<N, N>> DVecSubRhs<N, DVec<N>> for DVec<N> {
 impl<N: Neg<N>> Neg<DVec<N>> for DVec<N> {
     #[inline]
     fn neg(&self) -> DVec<N> {
-        DVec { at: self.at.iter().map(|a| -a).collect() }
+        DVec { at: self.at.iter().map(|a| -*a).collect() }
     }
 }
 
@@ -309,7 +305,7 @@ impl<N: Num + Float + Clone> Norm<N> for DVec<N> {
         let l = Norm::norm(self);
 
         for i in range(0u, self.at.len()) {
-            self.at[i] = self.at[i] / l;
+            *self.at.get_mut(i) = *self.at.get(i) / l;
         }
 
         l

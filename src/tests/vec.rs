@@ -303,16 +303,16 @@ fn test_ord_vec3() {
 
 #[test]
 fn test_min_max_vec3() {
-    assert_eq!(na::sup(&Vec3::new(1, 2, 3), &Vec3::new(3, 2, 1)), Vec3::new(3, 2, 3));
-    assert_eq!(na::inf(&Vec3::new(1, 2, 3), &Vec3::new(3, 2, 1)), Vec3::new(1, 2, 1));
+    assert_eq!(na::sup(&Vec3::new(1.0, 2.0, 3.0), &Vec3::new(3.0, 2.0, 1.0)), Vec3::new(3.0, 2.0, 3.0));
+    assert_eq!(na::inf(&Vec3::new(1.0, 2.0, 3.0), &Vec3::new(3.0, 2.0, 1.0)), Vec3::new(1.0, 2.0, 1.0));
 }
 
 #[test]
 fn test_outer_vec3() {
     assert_eq!(
-        na::outer(&Vec3::new(1, 2, 3), &Vec3::new(4, 5, 6)),
+        na::outer(&Vec3::new(1.0, 2.0, 3.0), &Vec3::new(4.0, 5.0, 6.0)),
         Mat3::new(
-            4, 5, 6,
-            8, 10, 12,
-            12, 15, 18));
+            4.0, 5.0, 6.0,
+            8.0, 10.0, 12.0,
+            12.0, 15.0, 18.0));
 }

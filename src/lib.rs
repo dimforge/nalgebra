@@ -110,7 +110,6 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #[doc(html_root_url = "http://www.rust-ci.org/sebcrozet/nalgebra/doc")];
 
 extern crate std;
-extern crate extra;
 extern crate rand;
 extern crate serialize;
 

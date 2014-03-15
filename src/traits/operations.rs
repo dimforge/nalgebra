@@ -280,7 +280,7 @@ pub trait RMul<V> {
 
 impl<M: Mul<T, T>, T> RMul<T> for M {
     fn rmul(&self, v: &T) -> T {
-        self * *v
+        *self * *v
     }
 }
 
@@ -292,7 +292,7 @@ pub trait LMul<V> {
 
 impl<T: Mul<M, T>, M> LMul<T> for M {
     fn lmul(&self, v: &T) -> T {
-        v * *self
+        *v * *self
     }
 }
 

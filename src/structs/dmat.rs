@@ -5,7 +5,7 @@
 use rand::Rand;
 use rand;
 use std::num::{One, Zero};
-use std::vec;
+use std::vec_ng::Vec;
 use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
@@ -20,7 +20,7 @@ mod metal;
 pub struct DMat<N> {
     priv nrows: uint,
     priv ncols: uint,
-    priv mij: ~[N]
+    priv mij:   Vec<N>
 }
 
 double_dispatch_binop_decl_trait!(DMat, DMatMulRhs)
@@ -37,7 +37,7 @@ impl<N> DMat<N> {
     /// Creates an uninitialized matrix.
     #[inline]
     pub unsafe fn new_uninitialized(nrows: uint, ncols: uint) -> DMat<N> {
-        let mut vec = vec::with_capacity(nrows * ncols);
+        let mut vec = Vec::with_capacity(nrows * ncols);
         vec.set_len(nrows * ncols);
 
         DMat {
@@ -96,7 +96,7 @@ impl<N: Clone> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   vec::from_elem(nrows * ncols, val)
+            mij:   Vec::from_elem(nrows * ncols, val)
         }
     }
 
@@ -129,7 +129,7 @@ impl<N: Clone> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   vec.to_owned()
+            mij:   Vec::from_slice(vec)
         }
     }
 }
@@ -141,7 +141,7 @@ impl<N> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   vec::from_fn(nrows * ncols, |i| { let m = i % ncols; f(m, m - i * ncols) })
+            mij:   Vec::from_fn(nrows * ncols, |i| { let m = i % ncols; f(m, m - i * ncols) })
         }
     }
 
@@ -160,7 +160,7 @@ impl<N> DMat<N> {
     /// Transforms this matrix into an array. This consumes the matrix and is O(1).
     /// The returned vector contains the matrix data in column-major order.
     #[inline]
-    pub fn to_vec(self) -> ~[N] {
+    pub fn to_vec(self) -> Vec<N> {
         self.mij
     }
 
@@ -168,18 +168,14 @@ impl<N> DMat<N> {
     /// The returned vector contains the matrix data in column-major order.
     #[inline]
     pub fn as_vec<'r>(&'r self) -> &'r [N] {
-        let res: &'r [N] = self.mij;
-
-        res
+        self.mij.as_slice()
     }
 
     /// Gets a mutable reference to this matrix data.
     /// The returned vector contains the matrix data in column-major order.
     #[inline]
     pub fn as_mut_vec<'r>(&'r mut self) -> &'r mut [N] {
-        let res: &'r mut [N] = self.mij;
-
-        res
+         self.mij.as_mut_slice()
     }
 }
 
@@ -219,14 +215,16 @@ impl<N: Clone> DMat<N> {
     pub fn set(&mut self, row: uint, col: uint, val: N) {
         assert!(row < self.nrows);
         assert!(col < self.ncols);
-        self.mij[self.offset(row, col)] = val
+
+        let offset = self.offset(row, col);
+        *self.mij.get_mut(offset) = val
     }
 
     /// Just like `set` without bounds checking.
     #[inline]
     pub unsafe fn set_fast(&mut self, row: uint, col: uint, val: N) {
-        let off = self.offset(row, col);
-        *self.mij.unsafe_mut_ref(off) = val
+        let offset = self.offset(row, col);
+        *self.mij.as_mut_slice().unsafe_mut_ref(offset) = val
     }
 
     /// Reads the value of a component of the matrix.
@@ -244,7 +242,7 @@ impl<N: Clone> DMat<N> {
     /// Just like `at` without bounds checking.
     #[inline]
     pub unsafe fn at_fast(&self, row: uint, col: uint) -> N {
-        (*self.mij.unsafe_ref(self.offset(row, col))).clone()
+        (*self.mij.as_slice().unsafe_ref(self.offset(row, col))).clone()
     }
 }
 
@@ -288,7 +286,7 @@ DMatMulRhs<N, DVec<N>> for DVec<N> {
                 }
             }
 
-            res.at[i] = acc;
+            *res.at.get_mut(i) = acc;
         }
 
         res
@@ -312,7 +310,7 @@ DVecMulRhs<N, DVec<N>> for DMat<N> {
                 }
             }
 
-            res.at[i] = acc;
+            *res.at.get_mut(i) = acc;
         }
 
         res
@@ -366,8 +364,8 @@ Inv for DMat<N> {
                     let off_n0_j = self.offset(n0, j);
                     let off_k_j  = self.offset(k, j);
 
-                    self.mij.swap(off_n0_j, off_k_j);
-                    res.mij.swap(off_n0_j, off_k_j);
+                    self.mij.as_mut_slice().swap(off_n0_j, off_k_j);
+                    res.mij.as_mut_slice().swap(off_n0_j, off_k_j);
                 }
             }
 
@@ -441,7 +439,7 @@ impl<N: Clone> Transpose for DMat<N> {
                     let off_i_j = self.offset(i, j);
                     let off_j_i = self.offset(j, i);
 
-                    self.mij.swap(off_i_j, off_j_i);
+                    self.mij.as_mut_slice().swap(off_i_j, off_j_i);
                 }
             }
 
