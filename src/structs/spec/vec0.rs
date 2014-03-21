@@ -1,6 +1,6 @@
 use std::cast;
 use std::num::{Zero, One, Float, Bounded};
-use std::vec::{Items, MutItems};
+use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::ApproxEq;
 use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim};

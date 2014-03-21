@@ -5,7 +5,7 @@
 use rand::Rand;
 use rand;
 use std::num::{One, Zero};
-use std::vec_ng::Vec;
+use std::vec::Vec;
 use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
