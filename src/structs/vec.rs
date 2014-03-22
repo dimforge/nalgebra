@@ -4,7 +4,6 @@
 
 use std::cast;
 use std::num::{Zero, One, Float, Bounded};
-use std::vec::Vec;
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::{ApproxEq, PartialOrd, PartialOrdering, Less, Equal, Greater, NotComparable};

@@ -5,7 +5,6 @@
 use std::num::{Zero, One, Float};
 use rand::Rand;
 use rand;
-use std::vec::Vec;
 use std::slice::{Items, MutItems};
 use traits::operations::ApproxEq;
 use std::iter::FromIterator;
