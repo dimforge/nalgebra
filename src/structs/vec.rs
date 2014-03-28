@@ -16,7 +16,7 @@ mod metal;
 mod vec_macros;
 
 /// Vector of dimension 0.
-#[deriving(Eq, Encodable, Decodable, Clone, Rand, Zero, Show)]
+#[deriving(Eq, Decodable, Clone, Rand, Zero, Show)]
 pub struct Vec0<N>;
 
 /// Vector of dimension 1.

@@ -161,7 +161,7 @@ impl<N> IterableMut<N> for DVec<N> {
 
 impl<N> FromIterator<N> for DVec<N> {
     #[inline]
-    fn from_iterator<I: Iterator<N>>(mut param: &mut I) -> DVec<N> {
+    fn from_iterator<I: Iterator<N>>(mut param: I) -> DVec<N> {
         let mut res = DVec { at: Vec::new() };
 
         for e in param {
