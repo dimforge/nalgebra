@@ -15,7 +15,7 @@ use traits::structure::Cast;
 mod metal;
 
 /// Matrix with dimensions unknown at compile-time.
-#[deriving(Eq, Clone)]
+#[deriving(TotalEq, Eq, Clone)]
 pub struct DMat<N> {
     priv nrows: uint,
     priv ncols: uint,

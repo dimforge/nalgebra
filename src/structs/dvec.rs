@@ -15,7 +15,7 @@ use traits::structure::{Iterable, IterableMut};
 mod metal;
 
 /// Vector with a dimension unknown at compile-time.
-#[deriving(Eq, Show, Clone)]
+#[deriving(TotalEq, Eq, Show, Clone)]
 pub struct DVec<N> {
     /// Components of the vector. Contains as much elements as the vector dimension.
     at: Vec<N>
