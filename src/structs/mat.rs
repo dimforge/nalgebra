@@ -1,6 +1,6 @@
 //! Matrices with dimensions known at compile-time.
 
-#[allow(missing_doc)]; // we allow missing to avoid having to document the mij components.
+#![allow(missing_doc)] // we allow missing to avoid having to document the mij components.
 
 use std::cast;
 use std::num::{One, Zero};
@@ -31,7 +31,7 @@ impl Identity {
 /// Square matrix of dimension 1.
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Mat1<N> {
-    m11: N
+    pub m11: N
 }
 
 double_dispatch_binop_decl_trait!(Mat1, Mat1MulRhs)
@@ -123,8 +123,8 @@ outer_impl!(Vec1, Mat1)
 /// Square matrix of dimension 2.
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Mat2<N> {
-    m11: N, m21: N,
-    m12: N, m22: N
+    pub m11: N, pub m21: N,
+    pub m12: N, pub m22: N
 }
 
 double_dispatch_binop_decl_trait!(Mat2, Mat2MulRhs)
@@ -220,9 +220,9 @@ outer_impl!(Vec2, Mat2)
 /// Square matrix of dimension 3.
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Mat3<N> {
-    m11: N, m21: N, m31: N,
-    m12: N, m22: N, m32: N,
-    m13: N, m23: N, m33: N
+    pub m11: N, pub m21: N, pub m31: N,
+    pub m12: N, pub m22: N, pub m32: N,
+    pub m13: N, pub m23: N, pub m33: N
 }
 
 double_dispatch_binop_decl_trait!(Mat3, Mat3MulRhs)
@@ -331,10 +331,10 @@ outer_impl!(Vec3, Mat3)
 /// Square matrix of dimension 4.
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Mat4<N> {
-    m11: N, m21: N, m31: N, m41: N,
-    m12: N, m22: N, m32: N, m42: N,
-    m13: N, m23: N, m33: N, m43: N,
-    m14: N, m24: N, m34: N, m44: N
+    pub m11: N, pub m21: N, pub m31: N, pub m41: N,
+    pub m12: N, pub m22: N, pub m32: N, pub m42: N,
+    pub m13: N, pub m23: N, pub m33: N, pub m43: N,
+    pub m14: N, pub m24: N, pub m34: N, pub m44: N
 }
 
 double_dispatch_binop_decl_trait!(Mat4, Mat4MulRhs)
@@ -494,11 +494,11 @@ outer_impl!(Vec4, Mat4)
 /// Square matrix of dimension 5.
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Mat5<N> {
-    m11: N, m21: N, m31: N, m41: N, m51: N,
-    m12: N, m22: N, m32: N, m42: N, m52: N,
-    m13: N, m23: N, m33: N, m43: N, m53: N,
-    m14: N, m24: N, m34: N, m44: N, m54: N,
-    m15: N, m25: N, m35: N, m45: N, m55: N
+    pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N,
+    pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N,
+    pub m13: N, pub m23: N, pub m33: N, pub m43: N, pub m53: N,
+    pub m14: N, pub m24: N, pub m34: N, pub m44: N, pub m54: N,
+    pub m15: N, pub m25: N, pub m35: N, pub m45: N, pub m55: N
 }
 
 double_dispatch_binop_decl_trait!(Mat5, Mat5MulRhs)
@@ -673,12 +673,12 @@ outer_impl!(Vec5, Mat5)
 /// Square matrix of dimension 6.
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Mat6<N> {
-    m11: N, m21: N, m31: N, m41: N, m51: N, m61: N,
-    m12: N, m22: N, m32: N, m42: N, m52: N, m62: N,
-    m13: N, m23: N, m33: N, m43: N, m53: N, m63: N,
-    m14: N, m24: N, m34: N, m44: N, m54: N, m64: N,
-    m15: N, m25: N, m35: N, m45: N, m55: N, m65: N,
-    m16: N, m26: N, m36: N, m46: N, m56: N, m66: N
+    pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N, pub m61: N,
+    pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N, pub m62: N,
+    pub m13: N, pub m23: N, pub m33: N, pub m43: N, pub m53: N, pub m63: N,
+    pub m14: N, pub m24: N, pub m34: N, pub m44: N, pub m54: N, pub m64: N,
+    pub m15: N, pub m25: N, pub m35: N, pub m45: N, pub m55: N, pub m65: N,
+    pub m16: N, pub m26: N, pub m36: N, pub m46: N, pub m56: N, pub m66: N
 }
 
 double_dispatch_binop_decl_trait!(Mat6, Mat6MulRhs)

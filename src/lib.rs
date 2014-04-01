@@ -98,16 +98,16 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 * [frog](https://github.com/natal/frog): a machine learning library.
 */
 
-#[crate_id = "nalgebra#0.1"];
-#[crate_type = "lib"];
-#[deny(non_camel_case_types)];
-#[deny(unnecessary_parens)];
-#[deny(non_uppercase_statics)];
-#[deny(unnecessary_qualification)];
-#[deny(unused_result)];
-#[warn(missing_doc)];
-#[feature(macro_rules)];
-#[doc(html_root_url = "http://www.rust-ci.org/sebcrozet/nalgebra/doc")];
+#![crate_id = "nalgebra#0.1"]
+#![crate_type = "lib"]
+#![deny(non_camel_case_types)]
+#![deny(unnecessary_parens)]
+#![deny(non_uppercase_statics)]
+#![deny(unnecessary_qualification)]
+#![deny(unused_result)]
+#![warn(missing_doc)]
+#![feature(macro_rules)]
+#![doc(html_root_url = "http://www.rust-ci.org/sebcrozet/nalgebra/doc")]
 
 extern crate std;
 extern crate rand;

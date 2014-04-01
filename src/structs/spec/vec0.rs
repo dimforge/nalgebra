@@ -207,7 +207,7 @@ impl<N: One> One for vec::Vec0<N> {
 
 impl<N> FromIterator<N> for vec::Vec0<N> {
     #[inline]
-    fn from_iterator<I: Iterator<N>>(_: I) -> vec::Vec0<N> {
+    fn from_iter<I: Iterator<N>>(_: I) -> vec::Vec0<N> {
         vec::Vec0
     }
 }

@@ -1,6 +1,6 @@
 //! Vectors with dimensions known at compile-time.
 
-#[allow(missing_doc)]; // we allow missing to avoid having to document the vector components.
+#![allow(missing_doc)] // we allow missing to avoid having to document the vector components.
 
 use std::cast;
 use std::num::{Zero, One, Float, Bounded};
@@ -23,7 +23,7 @@ pub struct Vec0<N>;
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec1<N> {
     /// First component of the vector.
-    x: N
+    pub x: N
 }
 
 double_dispatch_binop_decl_trait!(Vec1, Vec1MulRhs)
@@ -119,9 +119,9 @@ transform_impl!(Vec1)
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec2<N> {
     /// First component of the vector.
-    x: N,
+    pub x: N,
     /// Second component of the vector.
-    y: N
+    pub y: N
 }
 
 double_dispatch_binop_decl_trait!(Vec2, Vec2MulRhs)
@@ -217,11 +217,11 @@ transform_impl!(Vec2)
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec3<N> {
     /// First component of the vector.
-    x: N,
+    pub x: N,
     /// Second component of the vector.
-    y: N,
+    pub y: N,
     /// Third component of the vector.
-    z: N
+    pub z: N
 }
 
 double_dispatch_binop_decl_trait!(Vec3, Vec3MulRhs)
@@ -321,13 +321,13 @@ transform_impl!(Vec3)
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec4<N> {
     /// First component of the vector.
-    x: N,
+    pub x: N,
     /// Second component of the vector.
-    y: N,
+    pub y: N,
     /// Third component of the vector.
-    z: N,
+    pub z: N,
     /// Fourth component of the vector.
-    w: N
+    pub w: N
 }
 
 double_dispatch_binop_decl_trait!(Vec4, Vec4MulRhs)
@@ -423,15 +423,15 @@ transform_impl!(Vec4)
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec5<N> {
     /// First component of the vector.
-    x: N,
+    pub x: N,
     /// Second component of the vector.
-    y: N,
+    pub y: N,
     /// Third component of the vector.
-    z: N,
+    pub z: N,
     /// Fourth component of the vector.
-    w: N,
+    pub w: N,
     /// Fifth of the vector.
-    a: N
+    pub a: N
 }
 
 double_dispatch_binop_decl_trait!(Vec5, Vec5MulRhs)
@@ -527,17 +527,17 @@ transform_impl!(Vec5)
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec6<N> {
     /// First component of the vector.
-    x: N,
+    pub x: N,
     /// Second component of the vector.
-    y: N,
+    pub y: N,
     /// Third component of the vector.
-    z: N,
+    pub z: N,
     /// Fourth component of the vector.
-    w: N,
+    pub w: N,
     /// Fifth of the vector.
-    a: N,
+    pub a: N,
     /// Sixth component of the vector.
-    b: N
+    pub b: N
 }
 
 double_dispatch_binop_decl_trait!(Vec6, Vec6MulRhs)

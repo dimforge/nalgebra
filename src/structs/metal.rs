@@ -1,6 +1,6 @@
-#[macro_escape];
+#![macro_escape]
 
-#[doc(hidden)]; // we hide doc to not have to document the $trhs double dispatch trait.
+#![doc(hidden)] // we hide doc to not have to document the $trhs double dispatch trait.
 
 // Create the traits needed to do fancy operator oveloading.
 // This is a meta version of

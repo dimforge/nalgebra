@@ -1,6 +1,6 @@
 //! Vector with dimensions unknown at compile-time.
 
-#[allow(missing_doc)]; // we hide doc to not have to document the $trhs double dispatch trait.
+#![allow(missing_doc)] // we hide doc to not have to document the $trhs double dispatch trait.
 
 use std::num::{Zero, One, Float};
 use rand::Rand;
@@ -18,7 +18,7 @@ mod metal;
 #[deriving(TotalEq, Eq, Show, Clone)]
 pub struct DVec<N> {
     /// Components of the vector. Contains as much elements as the vector dimension.
-    at: Vec<N>
+    pub at: Vec<N>
 }
 
 double_dispatch_binop_decl_trait!(DVec, DVecMulRhs)
@@ -161,7 +161,7 @@ impl<N> IterableMut<N> for DVec<N> {
 
 impl<N> FromIterator<N> for DVec<N> {
     #[inline]
-    fn from_iterator<I: Iterator<N>>(mut param: I) -> DVec<N> {
+    fn from_iter<I: Iterator<N>>(mut param: I) -> DVec<N> {
         let mut res = DVec { at: Vec::new() };
 
         for e in param {

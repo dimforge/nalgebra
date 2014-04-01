@@ -1,6 +1,6 @@
 //! Matrix with dimensions unknown at compile-time.
 
-#[allow(missing_doc)]; // we hide doc to not have to document the $trhs double dispatch trait.
+#![allow(missing_doc)] // we hide doc to not have to document the $trhs double dispatch trait.
 
 use rand::Rand;
 use rand;
@@ -17,9 +17,9 @@ mod metal;
 /// Matrix with dimensions unknown at compile-time.
 #[deriving(TotalEq, Eq, Clone)]
 pub struct DMat<N> {
-    priv nrows: uint,
-    priv ncols: uint,
-    priv mij:   Vec<N>
+    nrows: uint,
+    ncols: uint,
+    mij:   Vec<N>
 }
 
 double_dispatch_binop_decl_trait!(DMat, DMatMulRhs)

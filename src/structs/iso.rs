@@ -1,6 +1,6 @@
 //! Isometric transformations.
 
-#[allow(missing_doc)];
+#![allow(missing_doc)]
 
 use std::num::{Zero, One};
 use rand::{Rand, Rng};

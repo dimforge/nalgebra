@@ -1,4 +1,4 @@
-#[macro_escape];
+#![macro_escape]
 
 macro_rules! iso_impl(
     ($t: ident, $submat: ident, $subvec: ident, $subrotvec: ident) => (

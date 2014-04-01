@@ -1,4 +1,4 @@
-#[macro_escape];
+#![macro_escape]
 
 macro_rules! new_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -560,7 +560,7 @@ macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident $(, $paramN: ident)*) => (
         impl<N> FromIterator<N> for $t<N> {
             #[inline]
-            fn from_iterator<I: Iterator<N>>(mut $param0: I) -> $t<N> {
+            fn from_iter<I: Iterator<N>>(mut $param0: I) -> $t<N> {
                 $t::new($param0.next().unwrap() $(, $paramN.next().unwrap())*)
             }
         }
