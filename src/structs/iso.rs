@@ -23,9 +23,9 @@ mod iso_macros;
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Show)]
 pub struct Iso2<N> {
     /// The rotation applicable by this isometry.
-    rotation:    Rot2<N>,
+    pub rotation:    Rot2<N>,
     /// The translation applicable by this isometry.
-    translation: Vec2<N>
+    pub translation: Vec2<N>
 }
 
 /// Three dimensional isometry.
@@ -35,9 +35,9 @@ pub struct Iso2<N> {
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Show)]
 pub struct Iso3<N> {
     /// The rotation applicable by this isometry.
-    rotation:    Rot3<N>,
+    pub rotation:    Rot3<N>,
     /// The translation applicable by this isometry.
-    translation: Vec3<N>
+    pub translation: Vec3<N>
 }
 
 /// Four dimensional isometry.
@@ -46,9 +46,9 @@ pub struct Iso3<N> {
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Show)]
 pub struct Iso4<N> {
     /// The rotation applicable by this isometry.
-    rotation:    Rot4<N>,
+    pub rotation:    Rot4<N>,
     /// The translation applicable by this isometry.
-    translation: Vec4<N>
+    pub translation: Vec4<N>
 }
 
 impl<N: Clone + Num + Float> Iso3<N> {
