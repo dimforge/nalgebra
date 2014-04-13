@@ -1,5 +1,5 @@
 use rand::random;
-use test::BenchHarness;
+use test::Bencher;
 use na::{Vec2, Vec3, Vec4, Vec5, Vec6};
 use na;
 
@@ -20,26 +20,26 @@ macro_rules! bench_dot_vec(
 )
 
 #[bench]
-fn bench_dot_vec2(bh: &mut BenchHarness) {
+fn bench_dot_vec2(bh: &mut Bencher) {
     bench_dot_vec!(bh, Vec2<f64>)
 }
 
 #[bench]
-fn bench_dot_vec3(bh: &mut BenchHarness) {
+fn bench_dot_vec3(bh: &mut Bencher) {
     bench_dot_vec!(bh, Vec3<f64>)
 }
 
 #[bench]
-fn bench_dot_vec4(bh: &mut BenchHarness) {
+fn bench_dot_vec4(bh: &mut Bencher) {
     bench_dot_vec!(bh, Vec4<f64>)
 }
 
 #[bench]
-fn bench_dot_vec5(bh: &mut BenchHarness) {
+fn bench_dot_vec5(bh: &mut Bencher) {
     bench_dot_vec!(bh, Vec5<f64>)
 }
 
 #[bench]
-fn bench_dot_vec6(bh: &mut BenchHarness) {
+fn bench_dot_vec6(bh: &mut Bencher) {
     bench_dot_vec!(bh, Vec6<f64>)
 }

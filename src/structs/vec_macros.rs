@@ -64,7 +64,7 @@ macro_rules! ord_impl(
                         }
                      )*
 
-                    Less
+                    PartialLess
                 }
                 else { // >=
                     $(
@@ -78,10 +78,10 @@ macro_rules! ord_impl(
                      )*
 
                     if is_eq {
-                        Equal
+                        PartialEqual
                     }
                     else {
-                        Greater
+                        PartialGreater
                     }
                 }
             }

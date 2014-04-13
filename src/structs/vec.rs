@@ -6,8 +6,8 @@ use std::cast;
 use std::num::{Zero, One, Float, Bounded};
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
-use traits::operations::{ApproxEq, PartialOrd, PartialOrdering, Less, Equal, Greater, NotComparable};
-
+use traits::operations::{ApproxEq, PartialOrd, PartialOrdering, PartialLess, PartialEqual,
+                         PartialGreater, NotComparable};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
 use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut};

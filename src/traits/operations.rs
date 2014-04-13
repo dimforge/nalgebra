@@ -1,17 +1,16 @@
 //! Low level operations on vectors and matrices.
 
-use std::cmp;
 
 
 /// Result of a partial ordering.
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Show)]
 pub enum PartialOrdering {
     /// Result of a strict comparison.
-    Less,
+    PartialLess,
     /// Equality relationship.
-    Equal,
+    PartialEqual,
     /// Result of a strict comparison.
-    Greater,
+    PartialGreater,
     /// Result of a comparison between two objects that are not comparable.
     NotComparable
 }
@@ -19,27 +18,27 @@ pub enum PartialOrdering {
 impl PartialOrdering {
     /// Returns `true` if `self` is equal to `Equal`.
     pub fn is_eq(&self) -> bool {
-        *self == Equal
+        *self == PartialEqual
     }
 
     /// Returns `true` if `self` is equal to `Less`.
     pub fn is_lt(&self) -> bool {
-        *self == Less
+        *self == PartialLess
     }
 
     /// Returns `true` if `self` is equal to `Less` or `Equal`.
     pub fn is_le(&self) -> bool {
-        *self == Less || *self == Equal
+        *self == PartialLess || *self == PartialEqual
     }
 
     /// Returns `true` if `self` is equal to `Greater`.
     pub fn is_gt(&self) -> bool {
-        *self == Greater
+        *self == PartialGreater
     }
 
     /// Returns `true` if `self` is equal to `Greater` or `Equal`.
     pub fn is_ge(&self) -> bool {
-        *self == Greater || *self == Equal
+        *self == PartialGreater || *self == PartialEqual
     }
 
     /// Returns `true` if `self` is equal to `NotComparable`.
@@ -50,9 +49,9 @@ impl PartialOrdering {
     /// Creates a `PartialOrdering` from an `Ordering`.
     pub fn from_ordering(ord: Ordering) -> PartialOrdering {
         match ord {
-            cmp::Less    => Less,
-            cmp::Equal   => Equal,
-            cmp::Greater => Greater
+            Less    => PartialLess,
+            Equal   => PartialEqual,
+            Greater => PartialGreater
         }
     }
 
@@ -61,10 +60,10 @@ impl PartialOrdering {
     /// Returns `None` if `self` is `NotComparable`.
     pub fn to_ordering(self) -> Option<Ordering> {
         match self {
-            Less          => Some(cmp::Less),
-            Equal         => Some(cmp::Equal),
-            Greater       => Some(cmp::Greater),
-            NotComparable => None
+            PartialLess    => Some(Less),
+            PartialEqual   => Some(Equal),
+            PartialGreater => Some(Greater),
+            NotComparable  => None
         }
     }
 }
@@ -108,9 +107,9 @@ pub trait PartialOrd {
     #[inline]
     fn partial_min<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
         match PartialOrd::partial_cmp(a, b) {
-            Less | Equal  => Some(a),
-            Greater       => Some(b),
-            NotComparable => None
+            PartialLess | PartialEqual => Some(a),
+            PartialGreater             => Some(b),
+            NotComparable              => None
         }
     }
 
@@ -118,9 +117,9 @@ pub trait PartialOrd {
     #[inline]
     fn partial_max<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
         match PartialOrd::partial_cmp(a, b) {
-            Greater | Equal => Some(a),
-            Less            => Some(b),
-            NotComparable   => None
+            PartialGreater | PartialEqual => Some(a),
+            PartialLess                   => Some(b),
+            NotComparable                 => None
         }
     }
 

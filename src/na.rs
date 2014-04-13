@@ -2,7 +2,7 @@
 
 use std::num::{Zero, One};
 use std::cmp;
-pub use traits::{Less, Equal, Greater, NotComparable};
+pub use traits::{PartialLess, PartialEqual, PartialGreater, NotComparable};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
@@ -38,7 +38,7 @@ pub use traits::{
     Translate, Translation,
     Transpose,
     UniformSphereSample,
-    Vec,
+    AnyVec,
     VecExt
 };
 
