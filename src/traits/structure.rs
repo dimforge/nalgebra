@@ -39,7 +39,7 @@ pub trait VecExt<N>: AnyVec<N> + Indexable<uint, N> + Iterable<N> +
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
-pub trait FloatVecExt<N: Float>: FloatVec<N> + VecExt<N> + Basis + Round { }
+pub trait FloatVecExt<N: Float>: FloatVec<N> + VecExt<N> + Basis { }
 
 impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + Eq + Mul<N, V> + Div<N, V> + Dot<N>>
 AnyVec<N> for V { }
@@ -51,7 +51,7 @@ impl<N,
         UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded>
 VecExt<N> for V { }
 
-impl<N: Float, V: FloatVec<N> + VecExt<N> + Basis + Round> FloatVecExt<N> for V { }
+impl<N: Float, V: FloatVec<N> + VecExt<N> + Basis> FloatVecExt<N> for V { }
 
 // FIXME: return an iterator instead
 /// Traits of objects which can form a basis (typically vectors).

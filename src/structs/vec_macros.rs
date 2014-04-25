@@ -493,32 +493,6 @@ macro_rules! norm_impl(
     )
 )
 
-macro_rules! round_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Round> Round for $t<N> {
-            fn floor(&self) -> $t<N> {
-                $t::new(self.$comp0.floor() $(, self.$compN.floor())*)
-            }
-
-            fn ceil(&self) -> $t<N> {
-                $t::new(self.$comp0.ceil() $(, self.$compN.ceil())*)
-            }
-
-            fn round(&self) -> $t<N> {
-                $t::new(self.$comp0.round() $(, self.$compN.round())*)
-            }
-
-            fn trunc(&self) -> $t<N> {
-                $t::new(self.$comp0.trunc() $(, self.$compN.trunc())*)
-            }
-
-            fn fract(&self) -> $t<N> {
-                $t::new(self.$comp0.fract() $(, self.$compN.fract())*)
-            }
-        }
-    )
-)
-
 macro_rules! approx_eq_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {

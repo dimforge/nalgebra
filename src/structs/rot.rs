@@ -35,7 +35,7 @@ impl<N: Float + Num + Clone>
 Rotation<Vec1<N>> for Rot2<N> {
     #[inline]
     fn rotation(&self) -> Vec1<N> {
-        Vec1::new((-self.submat.m12).atan2(&self.submat.m11))
+        Vec1::new((-self.submat.m12).atan2(self.submat.m11.clone()))
     }
 
     #[inline]
