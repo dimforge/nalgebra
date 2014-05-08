@@ -10,6 +10,10 @@
 macro_rules! double_dispatch_binop_decl_trait(
     ($t: ident, $trhs: ident) => (
         pub trait $trhs<N, Res> {
+            /// Applies the binary operation represented by this trait.
+            ///
+            /// In infix notation, assuming the operation is noted `*`, the following is computed:
+            /// `right * left`.
             fn binop(left: &$t<N>, right: &Self) -> Res;
         }
      )

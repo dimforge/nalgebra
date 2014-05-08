@@ -52,6 +52,34 @@ pub use structs::{
     Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6
 };
 
+/// Traits to work around the language limitations related to operator overloading.
+///
+/// The trait names are formed by:
+///
+/// * a type name (eg. Vec1, Vec2, Mat3, Mat4, etc.).
+/// * the name of a binary operation (eg. Mul, Div, Add, Sub, etc.). 
+/// * the word `Rhs`.
+///
+/// When implemented by the type `T`, the trait makes it possible to overload the binary operator
+/// between `T` and the type name given by the trait.
+///
+/// # Examples:
+///
+/// * `Vec3MulRhs` will allow the overload of the `*` operator between the implementor type and
+/// `Vec3`. The `Vec3` being the first argument of the multiplication.
+/// * `Mat4DivRhs` will allow the overload of the `/` operator between the implementor type and
+/// `Mat4`. The `Mat4` being the first argument of the division.
+pub mod overload {
+    pub use structs::{Vec1SubRhs, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs, Vec5MulRhs, Vec6MulRhs,
+                      Vec1DivRhs, Vec2DivRhs, Vec3DivRhs, Vec4DivRhs, Vec5DivRhs, Vec6DivRhs,
+                      Vec1AddRhs, Vec2AddRhs, Vec3AddRhs, Vec4AddRhs, Vec5AddRhs, Vec6AddRhs,
+                      Vec1SubRhs, Vec2SubRhs, Vec3SubRhs, Vec4SubRhs, Vec5SubRhs, Vec6SubRhs,
+                      Mat1MulRhs, Mat2MulRhs, Mat3MulRhs, Mat4MulRhs, Mat5MulRhs, Mat6MulRhs,
+                      Mat1DivRhs, Mat2DivRhs, Mat3DivRhs, Mat4DivRhs, Mat5DivRhs, Mat6DivRhs,
+                      Mat1AddRhs, Mat2AddRhs, Mat3AddRhs, Mat4AddRhs, Mat5AddRhs, Mat6AddRhs,
+                      Mat1SubRhs, Mat2SubRhs, Mat3SubRhs, Mat4SubRhs, Mat5SubRhs, Mat6SubRhs};
+}
+
 /// Change the input value to ensure it is on the range `[min, max]`.
 #[inline(always)]
 pub fn clamp<T: Ord>(val: T, min: T, max: T) -> T {
