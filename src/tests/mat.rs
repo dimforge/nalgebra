@@ -2,6 +2,7 @@ use std::num::{Float, abs};
 use rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable};
 use na;
+use na::decomp_qr;
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -205,4 +206,24 @@ fn test_dmat_from_vec() {
     println!("mat1: {:?}, mat2: {:?}", mat1, mat2);
 
     assert!(mat1 == mat2);
+}
+
+#[test]
+fn test_decomp_qr() {
+    let mat = DMat::from_row_vec(
+        5,
+        3,
+        [
+            4.0, 2.0, 0.60,
+            4.2, 2.1, 0.59,
+            3.9, 2.0, 0.58,
+            4.3, 2.1, 0.62,
+            4.1, 2.2, 0.63
+        ]
+    );
+
+    let (q, r) = decomp_qr(&mat);
+    let mat_ = q * r;
+
+    assert!(na::approx_eq(&mat_,  &mat));
 }

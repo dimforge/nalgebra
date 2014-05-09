@@ -44,6 +44,7 @@ pub use traits::{
 
 pub use structs::{
     Identity,
+    decomp_qr,
     DMat, DVec,
     Iso2, Iso3, Iso4,
     Mat1, Mat2, Mat3, Mat4,
