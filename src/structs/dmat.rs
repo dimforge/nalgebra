@@ -4,14 +4,12 @@
 
 use rand::Rand;
 use rand;
-use std::num::{One, Zero, Float};
+use std::num::{One, Zero};
 use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
-use traits::operations::{Inv, Transpose, Mean, Cov};
+use traits::operations::{Inv, Transpose, Mean, Cov, ColSlice, RowSlice};
 use traits::structure::Cast;
-use traits::geometry::Norm;
-use std::cmp::min;
 use std::fmt::{Show, Formatter, Result};
 
 #[doc(hidden)]
@@ -497,61 +495,38 @@ impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> 
     }
 }
 
-
-/// QR decomposition using Householder reflections
-/// # Arguments
-/// * `m` matrix to decompose
-pub fn decomp_qr<N: Clone + Num + Float + Show>(m: &DMat<N>) -> (DMat<N>, DMat<N>) {
-  let rows = m.nrows();
-  let cols = m.ncols();
-  assert!(rows >= cols);
-  let mut q : DMat<N> = DMat::new_identity(rows);
-  let mut r = m.clone();
-
-  let subtract_reflection = |vec: DVec<N>| -> DMat<N> {
-      // FIXME: we don't handle the complex case here
-      let mut qk : DMat<N> = DMat::new_identity(rows);
-      let start = rows - vec.at.len();
-      for j in range(start, rows) {
-          for i in range(start, rows) {
-              unsafe {
-                  let vv = vec.at_fast(i-start)*vec.at_fast(j-start);
-                  let qkij = qk.at_fast(i,j);
-                  qk.set_fast(i, j, qkij - vv - vv);
-              }
-          }
-      }
-      qk
-  };
-
-  let iterations = min(rows-1, cols);
-
-  for ite in range(0u, iterations) {
-      // we get the ite-th column truncated from its first ite elements,
-      // this is fast thanks to the matrix being column major
-      let start= m.offset(ite, ite);
-      let stop = m.offset(rows, ite);
-      let mut v = DVec::from_vec(rows - ite, r.mij.slice(start, stop));
-      let alpha =
-          if unsafe { v.at_fast(ite) } >= Zero::zero() {
-              -Norm::norm(&v)
-          }
-          else {
-              Norm::norm(&v)
-          };
-      unsafe {
-          let x = v.at_fast(0);
-          v.set_fast(0, x - alpha);
-      }
-      let _ = v.normalize();
-      let qk = subtract_reflection(v);
-      r = qk * r;
-      q = q * Transpose::transpose_cpy(&qk);
-  }
-
-  (q, r)
+impl<N: Clone> ColSlice<DVec<N>> for DMat<N> {
+    fn col_slice(&self, col_id :uint, row_start: uint, row_end: uint) -> DVec<N> {
+        assert!(col_id < self.ncols);
+        assert!(row_start < row_end);
+        assert!(row_end <= self.nrows);
+        // we can init from slice thanks to the matrix being column major
+        let start= self.offset(row_start, col_id);
+        let stop = self.offset(row_end, col_id);
+        let slice = DVec::from_vec(
+            row_end - row_start, self.mij.slice(start, stop));
+        slice
+    }
 }
 
+impl<N: Clone> RowSlice<DVec<N>> for DMat<N> {
+    fn row_slice(&self, row_id :uint, col_start: uint, col_end: uint) -> DVec<N> {
+        assert!(row_id < self.nrows);
+        assert!(col_start < col_end);
+        assert!(col_end <= self.ncols);
+        let mut slice : DVec<N> = unsafe {
+            DVec::new_uninitialized(self.nrows)
+        };
+        let mut slice_idx = 0u;
+        for col_id in range(col_start, col_end) {
+            unsafe {
+                slice.set_fast(slice_idx, self.at_fast(row_id, col_id));
+            }
+            slice_idx += 1;
+        }
+        slice
+    }
+}
 
 impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     #[inline]
@@ -578,9 +553,9 @@ impl<N: Show + Clone> Show for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
         for i in range(0u, self.nrows()) {
             for j in range(0u, self.ncols()) {
-                write!(form.buf, "{} ", self.at(i, j));
+                let _ = write!(form.buf, "{} ", self.at(i, j));
             }
-            write!(form.buf, "\n");
+            let _ = write!(form.buf, "\n");
         }
         write!(form.buf, "\n")
     }

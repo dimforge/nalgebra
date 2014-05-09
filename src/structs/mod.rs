@@ -1,7 +1,6 @@
 //! Data structures and implementations.
 
 pub use self::dmat::DMat;
-pub use self::dmat::decomp_qr;
 pub use self::dvec::DVec;
 pub use self::vec::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 pub use self::mat::{Identity, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6};

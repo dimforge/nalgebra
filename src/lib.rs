@@ -119,6 +119,7 @@ extern crate test;
 pub mod na;
 mod structs;
 mod traits;
+mod linalg;
 
 // mod lower_triangular;
 // mod chol;

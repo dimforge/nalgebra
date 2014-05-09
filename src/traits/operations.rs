@@ -244,6 +244,18 @@ pub trait Mean<N> {
     fn mean(&Self) -> N;
 }
 
+/// Trait for objects that support column slicing
+pub trait ColSlice<VecLike> {
+    /// Returns a view to a slice of a column of a matrix.
+    fn col_slice(&self, col_id :uint, row_start: uint, row_end: uint) -> VecLike;
+}
+
+/// Trait for objects that support column slicing
+pub trait RowSlice<VecLike> {
+    /// Returns a view to a slice of a row of a matrix.
+    fn row_slice(&self, row_id :uint, col_start: uint, col_end: uint) -> VecLike;
+}
+
 // /// Cholesky decomposition.
 // pub trait Chol {
 //     /// Performs the cholesky decomposition on `self`. The resulting upper-triangular matrix is
