@@ -8,8 +8,8 @@ use std::num::{One, Zero};
 use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
-use traits::operations::{Inv, Transpose, Mean, Cov, ColSlice, RowSlice};
-use traits::structure::Cast;
+use traits::operations::{Inv, Transpose, Mean, Cov};
+use traits::structure::{Cast, ColSlice, RowSlice};
 use std::fmt::{Show, Formatter, Result};
 
 #[doc(hidden)]

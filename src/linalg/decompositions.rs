@@ -1,7 +1,8 @@
 use std::num::{Zero, Float};
 use na::DVec;
 use na::DMat;
-use traits::operations::{Transpose, ColSlice};
+use traits::operations::Transpose;
+use traits::structure::ColSlice;
 use traits::geometry::Norm;
 use std::cmp::min;
 

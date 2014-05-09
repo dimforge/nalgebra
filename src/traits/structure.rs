@@ -91,6 +91,18 @@ pub trait Col<C> {
     // a lot of operations.
 }
 
+/// Trait to access part of a column of a matrix
+pub trait ColSlice<C> {
+    /// Returns a view to a slice of a column of a matrix.
+    fn col_slice(&self, col_id :uint, row_start: uint, row_end: uint) -> C;
+}
+
+/// Trait to access part of a row of a matrix
+pub trait RowSlice<R> {
+    /// Returns a view to a slice of a row of a matrix.
+    fn row_slice(&self, row_id :uint, col_start: uint, col_end: uint) -> R;
+}
+
 /// Trait of objects having a spacial dimension known at compile time.
 pub trait Dim {
     /// The dimension of the object.
