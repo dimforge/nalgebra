@@ -39,7 +39,8 @@ pub use traits::{
     Transpose,
     UniformSphereSample,
     AnyVec,
-    VecExt
+    VecExt,
+    ColSlice, RowSlice
 };
 
 pub use structs::{
@@ -50,6 +51,10 @@ pub use structs::{
     Mat5, Mat6,
     Rot2, Rot3, Rot4,
     Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6
+};
+
+pub use linalg::{
+    decomp_qr
 };
 
 /// Traits to work around the language limitations related to operator overloading.

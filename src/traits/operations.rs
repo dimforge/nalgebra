@@ -244,6 +244,7 @@ pub trait Mean<N> {
     fn mean(&Self) -> N;
 }
 
+
 // /// Cholesky decomposition.
 // pub trait Chol {
 //     /// Performs the cholesky decomposition on `self`. The resulting upper-triangular matrix is

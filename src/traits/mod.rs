@@ -5,7 +5,8 @@ pub use self::geometry::{AbsoluteRotate, Cross, CrossMatrix, Dot, FromHomogeneou
                          Transform, Transformation, Translate, Translation, UniformSphereSample};
 
 pub use self::structure::{FloatVec, FloatVecExt, Basis, Cast, Col, Dim, Indexable,
-                          Iterable, IterableMut, Mat, Row, AnyVec, VecExt};
+                          Iterable, IterableMut, Mat, Row, AnyVec, VecExt,
+                          ColSlice, RowSlice};
 
 pub use self::operations::{Absolute, ApproxEq, Cov, Inv, LMul, Mean, Outer, PartialOrd, RMul,
                            ScalarAdd, ScalarSub, Transpose};

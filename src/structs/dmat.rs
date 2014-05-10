@@ -9,7 +9,8 @@ use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
 use traits::operations::{Inv, Transpose, Mean, Cov};
-use traits::structure::Cast;
+use traits::structure::{Cast, ColSlice, RowSlice};
+use std::fmt::{Show, Formatter, Result};
 
 #[doc(hidden)]
 mod metal;
@@ -494,6 +495,39 @@ impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> 
     }
 }
 
+impl<N: Clone> ColSlice<DVec<N>> for DMat<N> {
+    fn col_slice(&self, col_id :uint, row_start: uint, row_end: uint) -> DVec<N> {
+        assert!(col_id < self.ncols);
+        assert!(row_start < row_end);
+        assert!(row_end <= self.nrows);
+        // we can init from slice thanks to the matrix being column major
+        let start= self.offset(row_start, col_id);
+        let stop = self.offset(row_end, col_id);
+        let slice = DVec::from_vec(
+            row_end - row_start, self.mij.slice(start, stop));
+        slice
+    }
+}
+
+impl<N: Clone> RowSlice<DVec<N>> for DMat<N> {
+    fn row_slice(&self, row_id :uint, col_start: uint, col_end: uint) -> DVec<N> {
+        assert!(row_id < self.nrows);
+        assert!(col_start < col_end);
+        assert!(col_end <= self.ncols);
+        let mut slice : DVec<N> = unsafe {
+            DVec::new_uninitialized(self.nrows)
+        };
+        let mut slice_idx = 0u;
+        for col_id in range(col_start, col_end) {
+            unsafe {
+                slice.set_fast(slice_idx, self.at_fast(row_id, col_id));
+            }
+            slice_idx += 1;
+        }
+        slice
+    }
+}
+
 impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     #[inline]
     fn approx_epsilon(_: Option<DMat<N>>) -> N {
@@ -512,6 +546,18 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
         let mut zip = a.mij.iter().zip(b.mij.iter());
 
         zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
+    }
+}
+
+impl<N: Show + Clone> Show for DMat<N> {
+    fn fmt(&self, form:&mut Formatter) -> Result {
+        for i in range(0u, self.nrows()) {
+            for j in range(0u, self.ncols()) {
+                let _ = write!(form.buf, "{} ", self.at(i, j));
+            }
+            let _ = write!(form.buf, "\n");
+        }
+        write!(form.buf, "\n")
     }
 }
 
