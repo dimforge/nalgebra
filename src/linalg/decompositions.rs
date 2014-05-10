@@ -8,8 +8,8 @@ use std::cmp::min;
 
 /// QR decomposition using Householder reflections
 /// # Arguments
-/// * `m` matrix to decompose
-pub fn decomp_qr<N: Clone + Num + Float>(m: &DMat<N>) -> (DMat<N>, DMat<N>) {
+/// * `m` - matrix to decompose
+pub fn decomp_qr<N: Clone + Float>(m: &DMat<N>) -> (DMat<N>, DMat<N>) {
     let rows = m.nrows();
     let cols = m.ncols();
     assert!(rows >= cols);
@@ -23,8 +23,8 @@ pub fn decomp_qr<N: Clone + Num + Float>(m: &DMat<N>) -> (DMat<N>, DMat<N>) {
         for j in range(start, rows) {
             for i in range(start, rows) {
                 unsafe {
-                    let vv = vec.at_fast(i-start)*vec.at_fast(j-start);
-                    let qkij = qk.at_fast(i,j);
+                    let vv = vec.at_fast(i - start) * vec.at_fast(j - start);
+                    let qkij = qk.at_fast(i, j);
                     qk.set_fast(i, j, qkij - vv - vv);
                 }
             }
@@ -32,11 +32,10 @@ pub fn decomp_qr<N: Clone + Num + Float>(m: &DMat<N>) -> (DMat<N>, DMat<N>) {
         qk
     };
 
-    let iterations = min(rows-1, cols);
+    let iterations = min(rows - 1, cols);
 
     for ite in range(0u, iterations) {
         let mut v = r.col_slice(ite, ite, rows);
-        //let mut v = r.col_slice<DVec<N>>(ite, rows-ite, rows);
         let alpha =
             if unsafe { v.at_fast(ite) } >= Zero::zero() {
                 -Norm::norm(&v)
