@@ -9,7 +9,8 @@ use std::slice::{Items, MutItems};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Vec1MulRhs, Vec4MulRhs,
                    Vec5MulRhs, Vec6MulRhs};
 
-use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable};
+use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
+                        Eye};
 use traits::operations::{Absolute, Transpose, Inv, Outer};
 use traits::geometry::{ToHomogeneous, FromHomogeneous};
 
@@ -33,6 +34,8 @@ impl Identity {
 pub struct Mat1<N> {
     pub m11: N
 }
+
+eye_impl!(Mat1, 1, m11)
 
 double_dispatch_binop_decl_trait!(Mat1, Mat1MulRhs)
 double_dispatch_binop_decl_trait!(Mat1, Mat1DivRhs)
@@ -126,6 +129,8 @@ pub struct Mat2<N> {
     pub m11: N, pub m21: N,
     pub m12: N, pub m22: N
 }
+
+eye_impl!(Mat2, 2, m11, m22)
 
 double_dispatch_binop_decl_trait!(Mat2, Mat2MulRhs)
 double_dispatch_binop_decl_trait!(Mat2, Mat2DivRhs)
@@ -224,6 +229,8 @@ pub struct Mat3<N> {
     pub m12: N, pub m22: N, pub m32: N,
     pub m13: N, pub m23: N, pub m33: N
 }
+
+eye_impl!(Mat3, 3, m11, m22, m33)
 
 double_dispatch_binop_decl_trait!(Mat3, Mat3MulRhs)
 double_dispatch_binop_decl_trait!(Mat3, Mat3DivRhs)
@@ -336,6 +343,8 @@ pub struct Mat4<N> {
     pub m13: N, pub m23: N, pub m33: N, pub m43: N,
     pub m14: N, pub m24: N, pub m34: N, pub m44: N
 }
+
+eye_impl!(Mat4, 4, m11, m22, m33, m44)
 
 double_dispatch_binop_decl_trait!(Mat4, Mat4MulRhs)
 double_dispatch_binop_decl_trait!(Mat4, Mat4DivRhs)
@@ -500,6 +509,8 @@ pub struct Mat5<N> {
     pub m14: N, pub m24: N, pub m34: N, pub m44: N, pub m54: N,
     pub m15: N, pub m25: N, pub m35: N, pub m45: N, pub m55: N
 }
+
+eye_impl!(Mat5, 5, m11, m22, m33, m44, m55)
 
 double_dispatch_binop_decl_trait!(Mat5, Mat5MulRhs)
 double_dispatch_binop_decl_trait!(Mat5, Mat5DivRhs)
@@ -680,6 +691,8 @@ pub struct Mat6<N> {
     pub m15: N, pub m25: N, pub m35: N, pub m45: N, pub m55: N, pub m65: N,
     pub m16: N, pub m26: N, pub m36: N, pub m46: N, pub m56: N, pub m66: N
 }
+
+eye_impl!(Mat6, 6, m11, m22, m33, m44, m55, m66)
 
 double_dispatch_binop_decl_trait!(Mat6, Mat6MulRhs)
 double_dispatch_binop_decl_trait!(Mat6, Mat6DivRhs)

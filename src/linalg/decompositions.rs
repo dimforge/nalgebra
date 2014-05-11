@@ -1,10 +1,35 @@
 use std::num::{Zero, Float};
-use na::DVec;
 use na::DMat;
 use traits::operations::Transpose;
-use traits::structure::ColSlice;
+use traits::structure::{ColSlice, Eye, Indexable};
 use traits::geometry::Norm;
 use std::cmp::min;
+
+/// Get the householder matrix corresponding to a reflexion to the hyperplane
+/// defined by `vec̀ . It can be a reflexion contained in a subspace.
+///
+/// # Arguments
+/// * `dim` - the dimension of the space the resulting matrix operates in
+/// * `start` - the starting dimension of the subspace of the reflexion
+/// * `vec` - the vector defining the reflection.
+fn householder_matrix<N: Float,
+                      Mat: Eye + Indexable<(uint, uint), N>,
+                      V: Indexable<uint, N>>
+                      (dim: uint, start: uint, vec: V) -> Mat {
+    let mut qk : Mat = Eye::new_identity(dim);
+    let stop = start + vec.shape();
+    assert!(stop <= dim);
+    for j in range(start, stop) {
+        for i in range(start, stop) {
+            unsafe {
+                let vv = vec.unsafe_at(i) * vec.unsafe_at(j);
+                let qkij = qk.unsafe_at((i, j));
+                qk.unsafe_set((i, j), qkij - vv - vv);
+            }
+        }
+    }
+    qk
+}
 
 /// QR decomposition using Householder reflections
 /// # Arguments
@@ -13,42 +38,26 @@ pub fn decomp_qr<N: Clone + Float>(m: &DMat<N>) -> (DMat<N>, DMat<N>) {
     let rows = m.nrows();
     let cols = m.ncols();
     assert!(rows >= cols);
-    let mut q : DMat<N> = DMat::new_identity(rows);
+    let mut q : DMat<N> = Eye::new_identity(rows);
     let mut r = m.clone();
-
-    let subtract_reflection = |vec: DVec<N>| -> DMat<N> {
-        // FIXME: we don't handle the complex case here
-        let mut qk : DMat<N> = DMat::new_identity(rows);
-        let start = rows - vec.at.len();
-        for j in range(start, rows) {
-            for i in range(start, rows) {
-                unsafe {
-                    let vv = vec.at_fast(i - start) * vec.at_fast(j - start);
-                    let qkij = qk.at_fast(i, j);
-                    qk.set_fast(i, j, qkij - vv - vv);
-                }
-            }
-        }
-        qk
-    };
 
     let iterations = min(rows - 1, cols);
 
     for ite in range(0u, iterations) {
         let mut v = r.col_slice(ite, ite, rows);
         let alpha =
-            if unsafe { v.at_fast(ite) } >= Zero::zero() {
+            if unsafe { v.unsafe_at(ite) } >= Zero::zero() {
                 -Norm::norm(&v)
             }
             else {
                 Norm::norm(&v)
             };
         unsafe {
-            let x = v.at_fast(0);
-            v.set_fast(0, x - alpha);
+            let x = v.unsafe_at(0);
+            v.unsafe_set(0, x - alpha);
         }
         let _ = v.normalize();
-        let qk = subtract_reflection(v);
+        let qk: DMat<N> = householder_matrix(rows, 0, v);
         r = qk * r;
         q = q * Transpose::transpose_cpy(&qk);
     }

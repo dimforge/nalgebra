@@ -26,6 +26,11 @@ impl<N> Indexable<uint, N> for vec::Vec0<N> {
     }
 
     #[inline]
+    fn shape(&self) -> uint {
+        0
+    }
+
+    #[inline]
     fn swap(&mut self, _: uint, _: uint) {
     }
 

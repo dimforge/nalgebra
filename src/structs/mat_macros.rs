@@ -98,6 +98,20 @@ macro_rules! scalar_add_impl(
     )
 )
 
+
+macro_rules! eye_impl(
+    ($t: ident, $ndim: expr, $($comp_diagN: ident),+) => (
+        impl<N: Zero + One> Eye for $t<N> {
+            fn new_identity(dim: uint) -> $t<N> {
+                assert!(dim == $ndim);
+                let mut eye: $t<N> = Zero::zero();
+                $(eye.$comp_diagN = One::one();)+
+                eye
+            }
+        }
+    )
+)
+
 macro_rules! scalar_sub_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
@@ -191,6 +205,11 @@ macro_rules! indexable_impl(
               cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
                 .swap(i1 + j1 * $dim, i2 + j2 * $dim)
             }
+        }
+
+        #[inline]
+        fn shape(&self) -> (uint, uint) {
+            ($dim, $dim)
         }
 
         #[inline]

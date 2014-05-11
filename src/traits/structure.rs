@@ -19,6 +19,12 @@ pub trait Mat<R, C> : Row<R> + Col<C> + RMul<R> + LMul<C> { }
 impl<M: Row<R> + Col<C> + RMul<R> + LMul<C>, R, C> Mat<R, C> for M {
 }
 
+/// Trait for constructing the identity matrix
+pub trait Eye {
+    /// Return the identity matrix of specified dimension
+    fn new_identity(dim: uint) -> Self;
+}
+
 // XXX: we keep ScalarAdd and ScalarSub here to avoid trait impl conflict (overriding) between the
 // different Add/Sub traits. This is _so_ unfortunate…
 
@@ -125,6 +131,9 @@ pub trait Indexable<Index, Res> {
     fn set(&mut self, i: Index, Res);
     /// Swaps the `i`-th element of `self` with its `j`-th element.
     fn swap(&mut self, i: Index, j: Index);
+
+    /// Returns the shape of the iterable range
+    fn shape(&self) -> Index;
 
     /// Reads the `i`-th element of `self`.
     ///

@@ -9,7 +9,7 @@ use std::slice::{Items, MutItems};
 use traits::operations::ApproxEq;
 use std::iter::FromIterator;
 use traits::geometry::{Dot, Norm};
-use traits::structure::{Iterable, IterableMut};
+use traits::structure::{Iterable, IterableMut, Indexable};
 
 #[doc(hidden)]
 mod metal;
@@ -48,11 +48,42 @@ impl<N: Zero + Clone> DVec<N> {
     }
 }
 
-impl<N: Clone> DVec<N> {
-    /// Indexing without bounds checking.
-    pub unsafe fn at_fast(&self, i: uint) -> N {
+impl<N: Clone> Indexable<uint, N> for DVec<N> {
+
+    fn at(&self, i: uint) -> N {
+        assert!(i < self.at.len());
+        unsafe {
+            self.unsafe_at(i)
+        }
+    }
+
+    fn set(&mut self, i: uint, val: N) {
+        assert!(i < self.at.len());
+        unsafe {
+            self.unsafe_set(i, val);
+        }
+    }
+
+    fn swap(&mut self, i: uint, j: uint) {
+        assert!(i < self.at.len());
+        assert!(j < self.at.len());
+        self.at.as_mut_slice().swap(i, j);
+    }
+
+    fn shape(&self) -> uint {
+        self.at.len()
+    }
+
+    #[inline]
+    unsafe fn unsafe_at(&self, i: uint) -> N {
         (*self.at.as_slice().unsafe_ref(i)).clone()
     }
+
+    #[inline]
+    unsafe fn unsafe_set(&mut self, i: uint, val: N) {
+        *self.at.as_mut_slice().unsafe_mut_ref(i) = val
+    }
+
 }
 
 impl<N: One + Clone> DVec<N> {
@@ -84,11 +115,6 @@ impl<N> DVec<N> {
         DVec {
             at: vec
         }
-    }
-
-    #[inline]
-    pub unsafe fn set_fast(&mut self, i: uint, val: N) {
-        *self.at.as_mut_slice().unsafe_mut_ref(i) = val
     }
 
     /// Gets a reference to of this vector data.
@@ -261,7 +287,7 @@ impl<N: Num + Clone> Dot<N> for DVec<N> {
         let mut res: N = Zero::zero();
 
         for i in range(0u, a.at.len()) {
-            res = res + unsafe { a.at_fast(i) * b.at_fast(i) };
+            res = res + unsafe { a.unsafe_at(i) * b.unsafe_at(i) };
         }
 
         res
@@ -272,7 +298,7 @@ impl<N: Num + Clone> Dot<N> for DVec<N> {
         let mut res: N = Zero::zero();
 
         for i in range(0u, a.at.len()) {
-            res = res + unsafe { (a.at_fast(i) - b.at_fast(i)) * c.at_fast(i) };
+            res = res + unsafe { (a.unsafe_at(i) - b.unsafe_at(i)) * c.unsafe_at(i) };
         }
 
         res

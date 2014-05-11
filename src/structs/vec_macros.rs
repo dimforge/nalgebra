@@ -166,6 +166,11 @@ macro_rules! indexable_impl(
             }
 
             #[inline]
+            fn shape(&self) -> uint {
+                $dim
+            }
+
+            #[inline]
             fn swap(&mut self, i1: uint, i2: uint) {
                 unsafe {
                     cast::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).swap(i1, i2)

@@ -9,7 +9,7 @@ use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
 use traits::operations::{Inv, Transpose, Mean, Cov};
-use traits::structure::{Cast, ColSlice, RowSlice};
+use traits::structure::{Cast, ColSlice, RowSlice, Eye, Indexable};
 use std::fmt::{Show, Formatter, Result};
 
 #[doc(hidden)]
@@ -181,19 +181,19 @@ impl<N> DMat<N> {
 
 // FIXME: add a function to modify the dimension (to avoid useless allocations)?
 
-impl<N: One + Zero + Clone> DMat<N> {
+impl<N: One + Zero + Clone> Eye for DMat<N> {
     /// Builds an identity matrix.
     /// 
     /// # Arguments
     /// * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
     /// components.
     #[inline]
-    pub fn new_identity(dim: uint) -> DMat<N> {
+    fn new_identity(dim: uint) -> DMat<N> {
         let mut res = DMat::new_zeros(dim, dim);
 
         for i in range(0u, dim) {
             let _1: N  = One::one();
-            res.set(i, i, _1);
+            res.set((i, i), _1);
         }
 
         res
@@ -206,13 +206,16 @@ impl<N: Clone> DMat<N> {
         i + j * self.nrows
     }
 
+}
+
+impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
     /// Changes the value of a component of the matrix.
     ///
     /// # Arguments
-    ///   * `row` - 0-based index of the line to be changed
-    ///   * `col` - 0-based index of the column to be changed
+    /// * `rowcol` - 0-based tuple (row, col)  to be changed
     #[inline]
-    pub fn set(&mut self, row: uint, col: uint, val: N) {
+    fn set(&mut self, rowcol: (uint,  uint), val: N) {
+        let (row, col) = rowcol;
         assert!(row < self.nrows);
         assert!(col < self.ncols);
 
@@ -222,7 +225,8 @@ impl<N: Clone> DMat<N> {
 
     /// Just like `set` without bounds checking.
     #[inline]
-    pub unsafe fn set_fast(&mut self, row: uint, col: uint, val: N) {
+    unsafe fn unsafe_set(&mut self, rowcol: (uint, uint), val: N) {
+        let (row, col) = rowcol;
         let offset = self.offset(row, col);
         *self.mij.as_mut_slice().unsafe_mut_ref(offset) = val
     }
@@ -230,20 +234,38 @@ impl<N: Clone> DMat<N> {
     /// Reads the value of a component of the matrix.
     ///
     /// # Arguments
-    /// * `row` - 0-based index of the line to be read
-    /// * `col` - 0-based index of the column to be read
+    /// * `rowcol` - 0-based tuple (row, col)  to be read
     #[inline]
-    pub fn at(&self, row: uint, col: uint) -> N {
+    fn at(&self, rowcol: (uint, uint)) -> N {
+        let (row, col) = rowcol;
         assert!(row < self.nrows);
         assert!(col < self.ncols);
-        unsafe { self.at_fast(row, col) }
+        unsafe { self.unsafe_at((row, col)) }
     }
 
     /// Just like `at` without bounds checking.
     #[inline]
-    pub unsafe fn at_fast(&self, row: uint, col: uint) -> N {
+    unsafe fn unsafe_at(&self, rowcol: (uint,  uint)) -> N {
+        let (row, col) = rowcol;
         (*self.mij.as_slice().unsafe_ref(self.offset(row, col))).clone()
     }
+
+    #[inline]
+    fn swap(&mut self, rowcol1: (uint, uint), rowcol2: (uint, uint)) {
+        let (row1, col1) = rowcol1;
+        let (row2, col2) = rowcol2;
+        let offset1 = self.offset(row1, col1);
+        let offset2 = self.offset(row2, col2);
+        let count = self.mij.len();
+        assert!(offset1 < count);
+        assert!(offset1 < count);
+        self.mij.as_mut_slice().swap(offset1, offset2);
+    }
+
+    fn shape(&self) -> (uint, uint) {
+        (self.nrows, self.ncols)
+    }
+
 }
 
 impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> DMatMulRhs<N, DMat<N>> for DMat<N> {
@@ -258,10 +280,11 @@ impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> DMatMulRhs<N, DMat<N>> for DMat<N>
 
                 unsafe {
                     for k in range(0u, left.ncols) {
-                        acc = acc + left.at_fast(i, k) * right.at_fast(k, j);
+                        acc = acc
+                            + left.unsafe_at((i, k)) * right.unsafe_at((k, j));
                     }
 
-                    res.set_fast(i, j, acc);
+                    res.unsafe_set((i, j), acc);
                 }
             }
         }
@@ -282,7 +305,7 @@ DMatMulRhs<N, DVec<N>> for DVec<N> {
 
             for j in range(0u, left.ncols) {
                 unsafe {
-                    acc = acc + left.at_fast(i, j) * right.at_fast(j);
+                    acc = acc + left.unsafe_at((i, j)) * right.unsafe_at(j);
                 }
             }
 
@@ -306,7 +329,7 @@ DVecMulRhs<N, DVec<N>> for DMat<N> {
 
             for j in range(0u, right.nrows) {
                 unsafe {
-                    acc = acc + left.at_fast(j) * right.at_fast(j, i);
+                    acc = acc + left.unsafe_at(j) * right.unsafe_at((j, i));
                 }
             }
 
@@ -335,7 +358,7 @@ Inv for DMat<N> {
         assert!(self.nrows == self.ncols);
 
         let dim              = self.nrows;
-        let mut res: DMat<N> = DMat::new_identity(dim);
+        let mut res: DMat<N> = Eye::new_identity(dim);
         let     _0T: N       = Zero::zero();
 
         // inversion using Gauss-Jordan elimination
@@ -347,7 +370,7 @@ Inv for DMat<N> {
             let mut n0 = k; // index of a non-zero entry
 
             while n0 != dim {
-                if unsafe { self.at_fast(n0, k) } != _0T {
+                if unsafe { self.unsafe_at((n0, k)) } != _0T {
                     break;
                 }
 
@@ -370,30 +393,30 @@ Inv for DMat<N> {
             }
 
             unsafe {
-                let pivot = self.at_fast(k, k);
+                let pivot = self.unsafe_at((k, k));
 
                 for j in range(k, dim) {
-                    let selfval = self.at_fast(k, j) / pivot;
-                    self.set_fast(k, j, selfval);
+                    let selfval = self.unsafe_at((k, j)) / pivot;
+                    self.unsafe_set((k, j), selfval);
                 }
 
                 for j in range(0u, dim) {
-                    let resval = res.at_fast(k, j) / pivot;
-                    res.set_fast(k, j, resval);
+                    let resval = res.unsafe_at((k, j)) / pivot;
+                    res.unsafe_set((k, j), resval);
                 }
 
                 for l in range(0u, dim) {
                     if l != k {
-                        let normalizer = self.at_fast(l, k);
+                        let normalizer = self.unsafe_at((l, k));
 
                         for j in range(k, dim) {
-                            let selfval = self.at_fast(l, j) - self.at_fast(k, j) * normalizer;
-                            self.set_fast(l, j, selfval);
+                            let selfval = self.unsafe_at((l, j)) - self.unsafe_at((k, j)) * normalizer;
+                            self.unsafe_set((l, j), selfval);
                         }
 
                         for j in range(0u, dim) {
-                            let resval = res.at_fast(l, j) - res.at_fast(k, j) * normalizer;
-                            res.set_fast(l, j, resval);
+                            let resval = res.unsafe_at((l, j)) - res.unsafe_at((k, j)) * normalizer;
+                            res.unsafe_set((l, j), resval);
                         }
                     }
                 }
@@ -422,7 +445,7 @@ impl<N: Clone> Transpose for DMat<N> {
             for i in range(0u, m.nrows) {
                 for j in range(0u, m.ncols) {
                     unsafe {
-                        res.set_fast(j, i, m.at_fast(i, j))
+                        res.unsafe_set((j, i), m.unsafe_at((i, j)))
                     }
                 }
             }
@@ -460,8 +483,8 @@ impl<N: Num + Cast<f32> + Clone> Mean<DVec<N>> for DMat<N> {
         for i in range(0u, m.nrows) {
             for j in range(0u, m.ncols) {
                 unsafe {
-                    let acc = res.at_fast(j) + m.at_fast(i, j) * normalizer;
-                    res.set_fast(j, acc);
+                    let acc = res.unsafe_at(j) + m.unsafe_at((i, j)) * normalizer;
+                    res.unsafe_set(j, acc);
                 }
             }
         }
@@ -482,7 +505,7 @@ impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> 
         for i in range(0u, m.nrows) {
             for j in range(0u, m.ncols) {
                 unsafe {
-                    centered.set_fast(i, j, m.at_fast(i, j) - mean.at_fast(j));
+                    centered.unsafe_set((i, j), m.unsafe_at((i, j)) - mean.unsafe_at(j));
                 }
             }
         }
@@ -520,7 +543,7 @@ impl<N: Clone> RowSlice<DVec<N>> for DMat<N> {
         let mut slice_idx = 0u;
         for col_id in range(col_start, col_end) {
             unsafe {
-                slice.set_fast(slice_idx, self.at_fast(row_id, col_id));
+                slice.unsafe_set(slice_idx, self.unsafe_at((row_id, col_id)));
             }
             slice_idx += 1;
         }
@@ -553,7 +576,7 @@ impl<N: Show + Clone> Show for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
         for i in range(0u, self.nrows()) {
             for j in range(0u, self.ncols()) {
-                let _ = write!(form.buf, "{} ", self.at(i, j));
+                let _ = write!(form.buf, "{} ", self.at((i, j)));
             }
             let _ = write!(form.buf, "\n");
         }

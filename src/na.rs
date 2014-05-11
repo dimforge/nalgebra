@@ -40,7 +40,8 @@ pub use traits::{
     UniformSphereSample,
     AnyVec,
     VecExt,
-    ColSlice, RowSlice
+    ColSlice, RowSlice,
+    Eye
 };
 
 pub use structs::{
