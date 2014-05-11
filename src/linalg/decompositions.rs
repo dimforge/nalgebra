@@ -1,5 +1,4 @@
 use std::num::{Zero, Float};
-use na::DMat;
 use traits::operations::Transpose;
 use traits::structure::{ColSlice, Eye, Indexable};
 use traits::geometry::Norm;
@@ -34,11 +33,14 @@ fn householder_matrix<N: Float,
 /// QR decomposition using Householder reflections
 /// # Arguments
 /// * `m` - matrix to decompose
-pub fn decomp_qr<N: Clone + Float>(m: &DMat<N>) -> (DMat<N>, DMat<N>) {
-    let rows = m.nrows();
-    let cols = m.ncols();
+pub fn decomp_qr<N: Float,
+                 V: Indexable<uint, N> + Norm<N>,
+                 Mat: Clone + Eye + ColSlice<V> + Transpose
+                    + Indexable<(uint, uint), N> + Mul<Mat, Mat>>
+                 (m: &Mat) -> (Mat, Mat) {
+    let (rows, cols) = m.shape();
     assert!(rows >= cols);
-    let mut q : DMat<N> = Eye::new_identity(rows);
+    let mut q : Mat = Eye::new_identity(rows);
     let mut r = m.clone();
 
     let iterations = min(rows - 1, cols);
@@ -57,7 +59,7 @@ pub fn decomp_qr<N: Clone + Float>(m: &DMat<N>) -> (DMat<N>, DMat<N>) {
             v.unsafe_set(0, x - alpha);
         }
         let _ = v.normalize();
-        let qk: DMat<N> = householder_matrix(rows, 0, v);
+        let qk: Mat = householder_matrix(rows, 0, v);
         r = qk * r;
         q = q * Transpose::transpose_cpy(&qk);
     }
