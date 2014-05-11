@@ -2,7 +2,7 @@
 
 #![allow(missing_doc)] // we allow missing to avoid having to document the vector components.
 
-use std::cast;
+use std::mem;
 use std::num::{Zero, One, Float, Bounded};
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
