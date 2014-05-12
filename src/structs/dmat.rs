@@ -258,7 +258,7 @@ impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
         let offset2 = self.offset(row2, col2);
         let count = self.mij.len();
         assert!(offset1 < count);
-        assert!(offset1 < count);
+        assert!(offset2 < count);
         self.mij.as_mut_slice().swap(offset1, offset2);
     }
 
