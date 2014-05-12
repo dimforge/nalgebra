@@ -8,9 +8,10 @@ use traits::operations::ApproxEq;
 use std::slice::{Items, MutItems};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Vec1MulRhs, Vec4MulRhs,
                    Vec5MulRhs, Vec6MulRhs};
+use structs::dvec::DVec;
 
 use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
-                        Eye};
+                        Eye, ColSlice, RowSlice};
 use traits::operations::{Absolute, Transpose, Inv, Outer};
 use traits::geometry::{ToHomogeneous, FromHomogeneous};
 
@@ -119,6 +120,8 @@ transpose_impl!(Mat1, 1)
 approx_eq_impl!(Mat1)
 row_impl!(Mat1, Vec1, 1)
 col_impl!(Mat1, Vec1, 1)
+col_slice_impl!(Mat1, Vec1, 1)
+row_slice_impl!(Mat1, Vec1, 1)
 to_homogeneous_impl!(Mat1, Mat2, 1, 2)
 from_homogeneous_impl!(Mat1, Mat2, 1, 2)
 outer_impl!(Vec1, Mat1)
@@ -218,6 +221,8 @@ transpose_impl!(Mat2, 2)
 approx_eq_impl!(Mat2)
 row_impl!(Mat2, Vec2, 2)
 col_impl!(Mat2, Vec2, 2)
+col_slice_impl!(Mat2, Vec2, 2)
+row_slice_impl!(Mat2, Vec2, 2)
 to_homogeneous_impl!(Mat2, Mat3, 2, 3)
 from_homogeneous_impl!(Mat2, Mat3, 2, 3)
 outer_impl!(Vec2, Mat2)
@@ -331,6 +336,8 @@ transpose_impl!(Mat3, 3)
 approx_eq_impl!(Mat3)
 // (specialized) row_impl!(Mat3, Vec3, 3)
 // (specialized) col_impl!(Mat3, Vec3, 3)
+col_slice_impl!(Mat3, Vec3, 3)
+row_slice_impl!(Mat3, Vec3, 3)
 to_homogeneous_impl!(Mat3, Mat4, 3, 4)
 from_homogeneous_impl!(Mat3, Mat4, 3, 4)
 outer_impl!(Vec3, Mat3)
@@ -496,6 +503,8 @@ transpose_impl!(Mat4, 4)
 approx_eq_impl!(Mat4)
 row_impl!(Mat4, Vec4, 4)
 col_impl!(Mat4, Vec4, 4)
+col_slice_impl!(Mat4, Vec4, 4)
+row_slice_impl!(Mat4, Vec4, 4)
 to_homogeneous_impl!(Mat4, Mat5, 4, 5)
 from_homogeneous_impl!(Mat4, Mat5, 4, 5)
 outer_impl!(Vec4, Mat4)
@@ -677,6 +686,8 @@ transpose_impl!(Mat5, 5)
 approx_eq_impl!(Mat5)
 row_impl!(Mat5, Vec5, 5)
 col_impl!(Mat5, Vec5, 5)
+col_slice_impl!(Mat5, Vec5, 5)
+row_slice_impl!(Mat5, Vec5, 5)
 to_homogeneous_impl!(Mat5, Mat6, 5, 6)
 from_homogeneous_impl!(Mat5, Mat6, 5, 6)
 outer_impl!(Vec5, Mat5)
@@ -910,4 +921,6 @@ transpose_impl!(Mat6, 6)
 approx_eq_impl!(Mat6)
 row_impl!(Mat6, Vec6, 6)
 col_impl!(Mat6, Vec6, 6)
+col_slice_impl!(Mat6, Vec6, 6)
+row_slice_impl!(Mat6, Vec6, 6)
 outer_impl!(Vec6, Mat6)

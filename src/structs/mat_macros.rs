@@ -225,6 +225,26 @@ macro_rules! indexable_impl(
   )
 )
 
+macro_rules! col_slice_impl(
+    ($t: ident, $tv: ident, $dim: expr) => (
+        impl<N: Clone + Zero> ColSlice<DVec<N>> for $t<N> {
+            fn col_slice(& self, cid: uint, rstart: uint, rend: uint) -> DVec<N> {
+                assert!(cid < $dim);
+                assert!(rstart < rend);
+                assert!(rend <= $dim);
+                let col = self.col(cid);
+                let res  = DVec::from_vec(
+                    rend - rstart,
+                    unsafe {
+                        cast::transmute::<&$tv<N>, & [N, ..$dim]>
+                        (&col).slice(rstart, rend)
+                    });
+                res
+            }
+        }
+    )
+)
+
 macro_rules! row_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
     impl<N: Clone + Zero> Row<$tv<N>> for $t<N> {
@@ -252,6 +272,26 @@ macro_rules! row_impl(
         }
     }
   )
+)
+
+macro_rules! row_slice_impl(
+    ($t: ident, $tv: ident, $dim: expr) => (
+        impl<N: Clone + Zero> RowSlice<DVec<N>> for $t<N> {
+            fn row_slice(& self, rid: uint, cstart: uint, cend: uint) -> DVec<N> {
+                assert!(rid < $dim);
+                assert!(cstart < cend);
+                assert!(cend <= $dim);
+                let row = self.row(rid);
+                let res  = DVec::from_vec(
+                    cend - cstart,
+                    unsafe {
+                        cast::transmute::<&$tv<N>, & [N, ..$dim]>
+                        (&row).slice(cstart, cend)
+                    });
+                res
+            }
+        }
+    )
 )
 
 macro_rules! col_impl(
