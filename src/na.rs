@@ -55,7 +55,8 @@ pub use structs::{
 };
 
 pub use linalg::{
-    decomp_qr
+    decomp_qr,
+    householder_matrix
 };
 
 /// Traits to work around the language limitations related to operator overloading.
@@ -720,6 +721,10 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
 // Structure
 //
 //
+
+/// Construct the identity matrix for a given dimension
+#[inline(always)]
+pub fn new_identity<M: Eye>(dim: uint) -> M { Eye::new_identity(dim) }
 
 /*
  * Basis

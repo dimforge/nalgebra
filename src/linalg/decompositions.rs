@@ -11,11 +11,11 @@ use std::cmp::min;
 /// * `dim` - the dimension of the space the resulting matrix operates in
 /// * `start` - the starting dimension of the subspace of the reflexion
 /// * `vec` - the vector defining the reflection.
-fn householder_matrix<N: Float,
-                      Mat: Eye + Indexable<(uint, uint), N>,
+pub fn householder_matrix<N: Float,
+                      M: Eye + Indexable<(uint, uint), N>,
                       V: Indexable<uint, N>>
-                      (dim: uint, start: uint, vec: V) -> Mat {
-    let mut qk : Mat = Eye::new_identity(dim);
+                      (dim: uint, start: uint, vec: V) -> M {
+    let mut qk : M = Eye::new_identity(dim);
     let stop = start + vec.shape();
     assert!(stop <= dim);
     for j in range(start, stop) {
@@ -35,12 +35,12 @@ fn householder_matrix<N: Float,
 /// * `m` - matrix to decompose
 pub fn decomp_qr<N: Float,
                  V: Indexable<uint, N> + Norm<N>,
-                 Mat: Clone + Eye + ColSlice<V> + Transpose
-                    + Indexable<(uint, uint), N> + Mul<Mat, Mat>>
-                 (m: &Mat) -> (Mat, Mat) {
+                 M: Clone + Eye + ColSlice<V> + Transpose
+                    + Indexable<(uint, uint), N> + Mul<M, M>>
+                 (m: &M) -> (M, M) {
     let (rows, cols) = m.shape();
     assert!(rows >= cols);
-    let mut q : Mat = Eye::new_identity(rows);
+    let mut q : M = Eye::new_identity(rows);
     let mut r = m.clone();
 
     let iterations = min(rows - 1, cols);
@@ -59,7 +59,7 @@ pub fn decomp_qr<N: Float,
             v.unsafe_set(0, x - alpha);
         }
         let _ = v.normalize();
-        let qk: Mat = householder_matrix(rows, 0, v);
+        let qk: M = householder_matrix(rows, 0, v);
         r = qk * r;
         q = q * Transpose::transpose_cpy(&qk);
     }
