@@ -236,7 +236,7 @@ macro_rules! col_slice_impl(
                 let res  = DVec::from_vec(
                     rend - rstart,
                     unsafe {
-                        cast::transmute::<&$tv<N>, & [N, ..$dim]>
+                        mem::transmute::<&$tv<N>, & [N, ..$dim]>
                         (&col).slice(rstart, rend)
                     });
                 res
@@ -285,7 +285,7 @@ macro_rules! row_slice_impl(
                 let res  = DVec::from_vec(
                     cend - cstart,
                     unsafe {
-                        cast::transmute::<&$tv<N>, & [N, ..$dim]>
+                        mem::transmute::<&$tv<N>, & [N, ..$dim]>
                         (&row).slice(cstart, cend)
                     });
                 res
