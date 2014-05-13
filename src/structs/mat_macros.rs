@@ -19,13 +19,13 @@ macro_rules! at_fast_impl(
         impl<N: Clone> $t<N> {
             #[inline]
             pub unsafe fn at_fast(&self, (i, j): (uint, uint)) -> N {
-                (*cast::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)
+                (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)
                  .unsafe_ref(i + j * $dim)).clone()
             }
 
             #[inline]
             pub unsafe fn set_fast(&mut self, (i, j): (uint, uint), val: N) {
-                (*cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
+                (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
                  .unsafe_mut_ref(i + j * $dim)) = val
             }
         }
@@ -140,7 +140,7 @@ macro_rules! iterable_impl(
         #[inline]
         fn iter<'l>(&'l self) -> Items<'l, N> {
             unsafe {
-                cast::transmute::<&'l $t<N>, &'l [N, ..$dim * $dim]>(self).iter()
+                mem::transmute::<&'l $t<N>, &'l [N, ..$dim * $dim]>(self).iter()
             }
         }
     }
@@ -153,7 +153,7 @@ macro_rules! iterable_mut_impl(
         #[inline]
         fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
             unsafe {
-                cast::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim * $dim]>(self).mut_iter()
+                mem::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim * $dim]>(self).mut_iter()
             }
         }
     }
@@ -188,21 +188,21 @@ macro_rules! indexable_impl(
         #[inline]
         fn at(&self, (i, j): (uint, uint)) -> N {
             unsafe {
-                cast::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)[i + j * $dim].clone()
+                mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)[i + j * $dim].clone()
             }
         }
 
         #[inline]
         fn set(&mut self, (i, j): (uint, uint), val: N) {
             unsafe {
-                cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)[i + j * $dim] = val
+                mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)[i + j * $dim] = val
             }
         }
 
         #[inline]
         fn swap(&mut self, (i1, j1): (uint, uint), (i2, j2): (uint, uint)) {
             unsafe {
-              cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
+              mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
                 .swap(i1 + j1 * $dim, i2 + j2 * $dim)
             }
         }
@@ -214,12 +214,12 @@ macro_rules! indexable_impl(
 
         #[inline]
         unsafe fn unsafe_at(&self, (i, j): (uint, uint)) -> N {
-            (*cast::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self).unsafe_ref(i + j * $dim)).clone()
+            (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self).unsafe_ref(i + j * $dim)).clone()
         }
 
         #[inline]
         unsafe fn unsafe_set(&mut self, (i, j): (uint, uint), val: N) {
-            (*cast::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self).unsafe_mut_ref(i + j * $dim)) = val
+            (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self).unsafe_mut_ref(i + j * $dim)) = val
         }
     }
   )

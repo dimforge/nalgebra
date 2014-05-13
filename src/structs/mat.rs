@@ -2,7 +2,7 @@
 
 #![allow(missing_doc)] // we allow missing to avoid having to document the mij components.
 
-use std::cast;
+use std::mem;
 use std::num::{One, Zero};
 use traits::operations::ApproxEq;
 use std::slice::{Items, MutItems};
