@@ -50,6 +50,7 @@ and keeps an optimized set of tools for computational graphics and physics. Thos
 * Dynamically sized vector: `DVec`.
 * Dynamically sized (square or rectangular) matrix: `DMat`.
 * A few methods for data analysis: `Cov`, `Mean`.
+* Some matrix factorization algorithms: QR decomposition, ...
 * Almost one trait per functionality: useful for generic programming.
 * Operator overloading using the double trait dispatch
   [trick](http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/).

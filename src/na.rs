@@ -1,6 +1,6 @@
 //! **nalgebra** prelude.
 
-use std::num::{Zero, One};
+use std::num::{Zero, One, FloatMath};
 use std::cmp;
 pub use traits::{PartialLess, PartialEqual, PartialGreater, NotComparable};
 pub use traits::{
@@ -40,7 +40,8 @@ pub use traits::{
     UniformSphereSample,
     AnyVec,
     VecExt,
-    ColSlice, RowSlice
+    ColSlice, RowSlice,
+    Eye
 };
 
 pub use structs::{
@@ -54,7 +55,8 @@ pub use structs::{
 };
 
 pub use linalg::{
-    decomp_qr
+    decomp_qr,
+    householder_matrix
 };
 
 /// Traits to work around the language limitations related to operator overloading.
@@ -215,7 +217,7 @@ pub fn one<T: One>() -> T {
  */
 /// Computes a projection matrix given the frustrum near plane width, height, the field of
 /// view, and the distance to the clipping planes (`znear` and `zfar`).
-pub fn perspective3d<N: Float + Cast<f32> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
+pub fn perspective3d<N: FloatMath + Cast<f32> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
     let aspect = width / height;
 
     let _1: N = one();
@@ -719,6 +721,10 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
 // Structure
 //
 //
+
+/// Construct the identity matrix for a given dimension
+#[inline(always)]
+pub fn new_identity<M: Eye>(dim: uint) -> M { Eye::new_identity(dim) }
 
 /*
  * Basis

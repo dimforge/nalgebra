@@ -8,8 +8,10 @@ use traits::operations::ApproxEq;
 use std::slice::{Items, MutItems};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Vec1MulRhs, Vec4MulRhs,
                    Vec5MulRhs, Vec6MulRhs};
+use structs::dvec::DVec;
 
-use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable};
+use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
+                        Eye, ColSlice, RowSlice};
 use traits::operations::{Absolute, Transpose, Inv, Outer};
 use traits::geometry::{ToHomogeneous, FromHomogeneous};
 
@@ -33,6 +35,8 @@ impl Identity {
 pub struct Mat1<N> {
     pub m11: N
 }
+
+eye_impl!(Mat1, 1, m11)
 
 double_dispatch_binop_decl_trait!(Mat1, Mat1MulRhs)
 double_dispatch_binop_decl_trait!(Mat1, Mat1DivRhs)
@@ -116,6 +120,8 @@ transpose_impl!(Mat1, 1)
 approx_eq_impl!(Mat1)
 row_impl!(Mat1, Vec1, 1)
 col_impl!(Mat1, Vec1, 1)
+col_slice_impl!(Mat1, Vec1, 1)
+row_slice_impl!(Mat1, Vec1, 1)
 to_homogeneous_impl!(Mat1, Mat2, 1, 2)
 from_homogeneous_impl!(Mat1, Mat2, 1, 2)
 outer_impl!(Vec1, Mat1)
@@ -126,6 +132,8 @@ pub struct Mat2<N> {
     pub m11: N, pub m21: N,
     pub m12: N, pub m22: N
 }
+
+eye_impl!(Mat2, 2, m11, m22)
 
 double_dispatch_binop_decl_trait!(Mat2, Mat2MulRhs)
 double_dispatch_binop_decl_trait!(Mat2, Mat2DivRhs)
@@ -213,6 +221,8 @@ transpose_impl!(Mat2, 2)
 approx_eq_impl!(Mat2)
 row_impl!(Mat2, Vec2, 2)
 col_impl!(Mat2, Vec2, 2)
+col_slice_impl!(Mat2, Vec2, 2)
+row_slice_impl!(Mat2, Vec2, 2)
 to_homogeneous_impl!(Mat2, Mat3, 2, 3)
 from_homogeneous_impl!(Mat2, Mat3, 2, 3)
 outer_impl!(Vec2, Mat2)
@@ -224,6 +234,8 @@ pub struct Mat3<N> {
     pub m12: N, pub m22: N, pub m32: N,
     pub m13: N, pub m23: N, pub m33: N
 }
+
+eye_impl!(Mat3, 3, m11, m22, m33)
 
 double_dispatch_binop_decl_trait!(Mat3, Mat3MulRhs)
 double_dispatch_binop_decl_trait!(Mat3, Mat3DivRhs)
@@ -324,6 +336,8 @@ transpose_impl!(Mat3, 3)
 approx_eq_impl!(Mat3)
 // (specialized) row_impl!(Mat3, Vec3, 3)
 // (specialized) col_impl!(Mat3, Vec3, 3)
+col_slice_impl!(Mat3, Vec3, 3)
+row_slice_impl!(Mat3, Vec3, 3)
 to_homogeneous_impl!(Mat3, Mat4, 3, 4)
 from_homogeneous_impl!(Mat3, Mat4, 3, 4)
 outer_impl!(Vec3, Mat3)
@@ -336,6 +350,8 @@ pub struct Mat4<N> {
     pub m13: N, pub m23: N, pub m33: N, pub m43: N,
     pub m14: N, pub m24: N, pub m34: N, pub m44: N
 }
+
+eye_impl!(Mat4, 4, m11, m22, m33, m44)
 
 double_dispatch_binop_decl_trait!(Mat4, Mat4MulRhs)
 double_dispatch_binop_decl_trait!(Mat4, Mat4DivRhs)
@@ -487,6 +503,8 @@ transpose_impl!(Mat4, 4)
 approx_eq_impl!(Mat4)
 row_impl!(Mat4, Vec4, 4)
 col_impl!(Mat4, Vec4, 4)
+col_slice_impl!(Mat4, Vec4, 4)
+row_slice_impl!(Mat4, Vec4, 4)
 to_homogeneous_impl!(Mat4, Mat5, 4, 5)
 from_homogeneous_impl!(Mat4, Mat5, 4, 5)
 outer_impl!(Vec4, Mat4)
@@ -500,6 +518,8 @@ pub struct Mat5<N> {
     pub m14: N, pub m24: N, pub m34: N, pub m44: N, pub m54: N,
     pub m15: N, pub m25: N, pub m35: N, pub m45: N, pub m55: N
 }
+
+eye_impl!(Mat5, 5, m11, m22, m33, m44, m55)
 
 double_dispatch_binop_decl_trait!(Mat5, Mat5MulRhs)
 double_dispatch_binop_decl_trait!(Mat5, Mat5DivRhs)
@@ -666,6 +686,8 @@ transpose_impl!(Mat5, 5)
 approx_eq_impl!(Mat5)
 row_impl!(Mat5, Vec5, 5)
 col_impl!(Mat5, Vec5, 5)
+col_slice_impl!(Mat5, Vec5, 5)
+row_slice_impl!(Mat5, Vec5, 5)
 to_homogeneous_impl!(Mat5, Mat6, 5, 6)
 from_homogeneous_impl!(Mat5, Mat6, 5, 6)
 outer_impl!(Vec5, Mat5)
@@ -680,6 +702,8 @@ pub struct Mat6<N> {
     pub m15: N, pub m25: N, pub m35: N, pub m45: N, pub m55: N, pub m65: N,
     pub m16: N, pub m26: N, pub m36: N, pub m46: N, pub m56: N, pub m66: N
 }
+
+eye_impl!(Mat6, 6, m11, m22, m33, m44, m55, m66)
 
 double_dispatch_binop_decl_trait!(Mat6, Mat6MulRhs)
 double_dispatch_binop_decl_trait!(Mat6, Mat6DivRhs)
@@ -897,4 +921,6 @@ transpose_impl!(Mat6, 6)
 approx_eq_impl!(Mat6)
 row_impl!(Mat6, Vec6, 6)
 col_impl!(Mat6, Vec6, 6)
+col_slice_impl!(Mat6, Vec6, 6)
+row_slice_impl!(Mat6, Vec6, 6)
 outer_impl!(Vec6, Mat6)

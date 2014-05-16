@@ -38,7 +38,7 @@ macro_rules! at_fast_impl(
 // However, f32/f64 does not implement TotalOrd…
 macro_rules! ord_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Float + Eq + Clone> PartialOrd for $t<N> {
+        impl<N: FloatMath + Eq + Clone> PartialOrd for $t<N> {
             #[inline]
             fn inf(a: &$t<N>, b: &$t<N>) -> $t<N> {
                 $t::new(a.$comp0.min(b.$comp0.clone())
@@ -166,6 +166,11 @@ macro_rules! indexable_impl(
             }
 
             #[inline]
+            fn shape(&self) -> uint {
+                $dim
+            }
+
+            #[inline]
             fn swap(&mut self, i1: uint, i2: uint) {
                 unsafe {
                     mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).swap(i1, i2)
@@ -250,7 +255,7 @@ macro_rules! container_impl(
 
 macro_rules! basis_impl(
     ($t: ident, $trhs: ident, $dim: expr) => (
-        impl<N: Clone + Num + Float + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
+        impl<N: Clone + Float + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
             #[inline]
             fn canonical_basis(f: |$t<N>| -> bool) {
                 for i in range(0u, $dim) {
@@ -460,7 +465,7 @@ macro_rules! translation_impl(
 
 macro_rules! norm_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Num + Float> Norm<N> for $t<N> {
+        impl<N: Clone + Float> Norm<N> for $t<N> {
             #[inline]
             fn sqnorm(v: &$t<N>) -> N {
                 Dot::dot(v, v)

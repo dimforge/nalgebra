@@ -20,7 +20,7 @@ pub struct Rot2<N> {
     submat: Mat2<N>
 }
 
-impl<N: Clone + Float + Neg<N>> Rot2<N> {
+impl<N: Clone + FloatMath + Neg<N>> Rot2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
     pub fn new(angle: Vec1<N>) -> Rot2<N> {
         let (sia, coa) = angle.x.sin_cos();
@@ -31,7 +31,7 @@ impl<N: Clone + Float + Neg<N>> Rot2<N> {
     }
 }
 
-impl<N: Float + Num + Clone>
+impl<N: FloatMath + Clone>
 Rotation<Vec1<N>> for Rot2<N> {
     #[inline]
     fn rotation(&self) -> Vec1<N> {
@@ -69,7 +69,7 @@ Rotation<Vec1<N>> for Rot2<N> {
     }
 }
 
-impl<N: Clone + Rand + Float + Neg<N>> Rand for Rot2<N> {
+impl<N: Clone + Rand + FloatMath + Neg<N>> Rand for Rot2<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rot2<N> {
         Rot2::new(rng.gen())
@@ -99,7 +99,7 @@ pub struct Rot3<N> {
 }
 
 
-impl<N: Clone + Float + Num + Float> Rot3<N> {
+impl<N: Clone + FloatMath> Rot3<N> {
     /// Builds a 3 dimensional rotation matrix from an axis and an angle.
     ///
     /// # Arguments
@@ -140,7 +140,7 @@ impl<N: Clone + Float + Num + Float> Rot3<N> {
     }
 }
 
-impl<N: Clone + Num + Float> Rot3<N> {
+impl<N: Clone + Float> Rot3<N> {
     /// Reorient this matrix such that its local `x` axis points to a given point. Note that the
     /// usually known `look_at` function does the same thing but with the `z` axis. See `look_at_z`
     /// for that.
@@ -180,7 +180,7 @@ impl<N: Clone + Num + Float> Rot3<N> {
     }
 }
 
-impl<N: Clone + Float + Num + Float + Cast<f32>>
+impl<N: Clone + FloatMath + Cast<f32>>
 Rotation<Vec3<N>> for Rot3<N> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {
@@ -245,7 +245,7 @@ Rotation<Vec3<N>> for Rot3<N> {
     }
 }
 
-impl<N: Clone + Rand + Float + Num + Float>
+impl<N: Clone + Rand + FloatMath>
 Rand for Rot3<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rot3<N> {
@@ -309,7 +309,7 @@ impl<N: Signed> AbsoluteRotate<Vec4<N>> for Rot4<N> {
     }
 }
 
-impl<N: Float + Num + Clone>
+impl<N: Float + Clone>
 Rotation<Vec4<N>> for Rot4<N> {
     #[inline]
     fn rotation(&self) -> Vec4<N> {

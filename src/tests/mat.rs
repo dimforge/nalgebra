@@ -3,6 +3,7 @@ use rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable};
 use na;
 use na::decomp_qr;
+use std::cmp::{min, max};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -20,6 +21,19 @@ macro_rules! test_transpose_mat_impl(
       let randmat : $t = random();
 
       assert!(na::transpose(&na::transpose(&randmat)) == randmat);
+    }
+  );
+)
+
+macro_rules! test_decomp_qr_impl(
+  ($t: ty) => (
+    for _ in range(0, 10000) {
+      let randmat : $t = random();
+
+      let (q, r) = decomp_qr(&randmat);
+      let recomp = q * r;
+
+      assert!(na::approx_eq(&randmat,  &recomp));
     }
   );
 )
@@ -210,20 +224,45 @@ fn test_dmat_from_vec() {
 
 #[test]
 fn test_decomp_qr() {
-    let mat = DMat::from_row_vec(
-        5,
-        3,
-        [
-            4.0, 2.0, 0.60,
-            4.2, 2.1, 0.59,
-            3.9, 2.0, 0.58,
-            4.3, 2.1, 0.62,
-            4.1, 2.2, 0.63
-        ]
-    );
+    for _ in range(0, 10) {
+        let dim1: uint = random();
+        let dim2: uint = random();
+        let rows = min(40, max(dim1, dim2));
+        let cols = min(40, min(dim1, dim2));
+        let randmat: DMat<f64> = DMat::new_random(rows, cols);
+        let (q, r) = decomp_qr(&randmat);
+        let recomp = q * r;
 
-    let (q, r) = decomp_qr(&mat);
-    let mat_ = q * r;
+        assert!(na::approx_eq(&randmat,  &recomp));
+    }
+}
 
-    assert!(na::approx_eq(&mat_,  &mat));
+#[test]
+fn test_decomp_qr_mat1() {
+    test_decomp_qr_impl!(Mat1<f64>);
+}
+
+#[test]
+fn test_decomp_qr_mat2() {
+    test_decomp_qr_impl!(Mat2<f64>);
+}
+
+#[test]
+fn test_decomp_qr_mat3() {
+    test_decomp_qr_impl!(Mat3<f64>);
+}
+
+#[test]
+fn test_decomp_qr_mat4() {
+    test_decomp_qr_impl!(Mat4<f64>);
+}
+
+#[test]
+fn test_decomp_qr_mat5() {
+    test_decomp_qr_impl!(Mat5<f64>);
+}
+
+#[test]
+fn test_decomp_qr_mat6() {
+    test_decomp_qr_impl!(Mat6<f64>);
 }

@@ -98,6 +98,20 @@ macro_rules! scalar_add_impl(
     )
 )
 
+
+macro_rules! eye_impl(
+    ($t: ident, $ndim: expr, $($comp_diagN: ident),+) => (
+        impl<N: Zero + One> Eye for $t<N> {
+            fn new_identity(dim: uint) -> $t<N> {
+                assert!(dim == $ndim);
+                let mut eye: $t<N> = Zero::zero();
+                $(eye.$comp_diagN = One::one();)+
+                eye
+            }
+        }
+    )
+)
+
 macro_rules! scalar_sub_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
@@ -194,6 +208,11 @@ macro_rules! indexable_impl(
         }
 
         #[inline]
+        fn shape(&self) -> (uint, uint) {
+            ($dim, $dim)
+        }
+
+        #[inline]
         unsafe fn unsafe_at(&self, (i, j): (uint, uint)) -> N {
             (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self).unsafe_ref(i + j * $dim)).clone()
         }
@@ -204,6 +223,26 @@ macro_rules! indexable_impl(
         }
     }
   )
+)
+
+macro_rules! col_slice_impl(
+    ($t: ident, $tv: ident, $dim: expr) => (
+        impl<N: Clone + Zero> ColSlice<DVec<N>> for $t<N> {
+            fn col_slice(& self, cid: uint, rstart: uint, rend: uint) -> DVec<N> {
+                assert!(cid < $dim);
+                assert!(rstart < rend);
+                assert!(rend <= $dim);
+                let col = self.col(cid);
+                let res  = DVec::from_vec(
+                    rend - rstart,
+                    unsafe {
+                        mem::transmute::<&$tv<N>, & [N, ..$dim]>
+                        (&col).slice(rstart, rend)
+                    });
+                res
+            }
+        }
+    )
 )
 
 macro_rules! row_impl(
@@ -233,6 +272,26 @@ macro_rules! row_impl(
         }
     }
   )
+)
+
+macro_rules! row_slice_impl(
+    ($t: ident, $tv: ident, $dim: expr) => (
+        impl<N: Clone + Zero> RowSlice<DVec<N>> for $t<N> {
+            fn row_slice(& self, rid: uint, cstart: uint, cend: uint) -> DVec<N> {
+                assert!(rid < $dim);
+                assert!(cstart < cend);
+                assert!(cend <= $dim);
+                let row = self.row(rid);
+                let res  = DVec::from_vec(
+                    cend - cstart,
+                    unsafe {
+                        mem::transmute::<&$tv<N>, & [N, ..$dim]>
+                        (&row).slice(cstart, cend)
+                    });
+                res
+            }
+        }
+    )
 )
 
 macro_rules! col_impl(
