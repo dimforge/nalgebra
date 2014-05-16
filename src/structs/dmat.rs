@@ -576,11 +576,11 @@ impl<N: Show + Clone> Show for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
         for i in range(0u, self.nrows()) {
             for j in range(0u, self.ncols()) {
-                let _ = write!(form.buf, "{} ", self.at((i, j)));
+                let _ = write!(form, "{} ", self.at((i, j)));
             }
-            let _ = write!(form.buf, "\n");
+            let _ = write!(form, "\n");
         }
-        write!(form.buf, "\n")
+        write!(form, "\n")
     }
 }
 

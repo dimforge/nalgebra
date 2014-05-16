@@ -1,6 +1,6 @@
 //! **nalgebra** prelude.
 
-use std::num::{Zero, One};
+use std::num::{Zero, One, FloatMath};
 use std::cmp;
 pub use traits::{PartialLess, PartialEqual, PartialGreater, NotComparable};
 pub use traits::{
@@ -217,7 +217,7 @@ pub fn one<T: One>() -> T {
  */
 /// Computes a projection matrix given the frustrum near plane width, height, the field of
 /// view, and the distance to the clipping planes (`znear` and `zfar`).
-pub fn perspective3d<N: Float + Cast<f32> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
+pub fn perspective3d<N: FloatMath + Cast<f32> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
     let aspect = width / height;
 
     let _1: N = one();

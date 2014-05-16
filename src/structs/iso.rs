@@ -51,7 +51,7 @@ pub struct Iso4<N> {
     pub translation: Vec4<N>
 }
 
-impl<N: Clone + Num + Float> Iso3<N> {
+impl<N: Clone + Float> Iso3<N> {
     /// Reorient and translate this transformation such that its local `x` axis points to a given
     /// direction.  Note that the usually known `look_at` function does the same thing but with the
     /// `z` axis. See `look_at_z` for that.

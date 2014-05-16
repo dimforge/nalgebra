@@ -164,7 +164,7 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Num + Float> Norm<N> for vec::Vec0<N> {
+impl<N: Float> Norm<N> for vec::Vec0<N> {
     #[inline]
     fn sqnorm(_: &vec::Vec0<N>) -> N {
         Zero::zero()
