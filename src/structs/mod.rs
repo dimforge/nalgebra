@@ -16,11 +16,16 @@ pub use self::mat::{Mat1MulRhs, Mat2MulRhs, Mat3MulRhs, Mat4MulRhs, Mat5MulRhs, 
                     Mat1AddRhs, Mat2AddRhs, Mat3AddRhs, Mat4AddRhs, Mat5AddRhs, Mat6AddRhs,
                     Mat1SubRhs, Mat2SubRhs, Mat3SubRhs, Mat4SubRhs, Mat5SubRhs, Mat6SubRhs};
 
+mod metal;
 mod dmat;
 mod dvec;
+mod vec_macros;
 mod vec;
+mod mat_macros;
 mod mat;
+mod rot_macros;
 mod rot;
+mod iso_macros;
 mod iso;
 
 // specialization for some 1d, 2d and 3d operations

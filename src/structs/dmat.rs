@@ -12,8 +12,6 @@ use traits::operations::{Inv, Transpose, Mean, Cov};
 use traits::structure::{Cast, ColSlice, RowSlice, Eye, Indexable};
 use std::fmt::{Show, Formatter, Result};
 
-#[doc(hidden)]
-mod metal;
 
 /// Matrix with dimensions unknown at compile-time.
 #[deriving(TotalEq, Eq, Clone)]
@@ -50,7 +48,7 @@ impl<N> DMat<N> {
 
 impl<N: Zero + Clone> DMat<N> {
     /// Builds a matrix filled with zeros.
-    /// 
+    ///
     /// # Arguments
     ///   * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
     ///   components.
@@ -183,7 +181,7 @@ impl<N> DMat<N> {
 
 impl<N: One + Zero + Clone> Eye for DMat<N> {
     /// Builds an identity matrix.
-    /// 
+    ///
     /// # Arguments
     /// * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
     /// components.
@@ -377,7 +375,7 @@ Inv for DMat<N> {
                 n0 = n0 + 1;
             }
 
-            if n0 == dim { 
+            if n0 == dim {
                 return false
             }
 

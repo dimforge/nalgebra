@@ -11,8 +11,6 @@ use traits::operations::{Absolute, Inv, Transpose, ApproxEq};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
 use structs::mat::{Mat2, Mat3, Mat4, Mat5};
 
-mod metal;
-mod rot_macros;
 
 /// Two dimensional rotation matrix.
 #[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Show, Hash)]
@@ -161,7 +159,7 @@ impl<N: Clone + Float> Rot3<N> {
             xaxis.z        , yaxis.z        , zaxis.z)
     }
 
-    /// Reorient this matrix such that its local `z` axis points to a given point. 
+    /// Reorient this matrix such that its local `z` axis points to a given point.
     ///
     /// # Arguments
     ///   * at - The point to look at. It is also the direction the matrix `y` axis will be aligned
@@ -273,7 +271,7 @@ pub struct Rot4<N> {
 //     pub fn new(left_iso: Quat<N>, right_iso: Quat<N>) -> Rot4<N> {
 //         assert!(left_iso.is_unit());
 //         assert!(right_iso.is_unright);
-// 
+//
 //         let mat_left_iso = Mat4::new(
 //             left_iso.x, -left_iso.y, -left_iso.z, -left_iso.w,
 //             left_iso.y,  left_iso.x, -left_iso.w,  left_iso.z,
@@ -284,7 +282,7 @@ pub struct Rot4<N> {
 //             right_iso.y,  right_iso.x,  right_iso.w, -right_iso.z,
 //             right_iso.z, -right_iso.w,  right_iso.x,  right_iso.y,
 //             right_iso.w,  right_iso.z, -right_iso.y,  right_iso.x);
-// 
+//
 //         Rot4 {
 //             submat: mat_left_iso * mat_right_iso
 //         }

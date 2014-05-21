@@ -11,9 +11,6 @@ use std::iter::FromIterator;
 use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut, Indexable};
 
-#[doc(hidden)]
-mod metal;
-
 /// Vector with a dimension unknown at compile-time.
 #[deriving(TotalEq, Eq, Show, Clone)]
 pub struct DVec<N> {
@@ -33,7 +30,7 @@ sub_redispatch_impl!(DVec, DVecSubRhs)
 
 impl<N: Zero + Clone> DVec<N> {
     /// Builds a vector filled with zeros.
-    /// 
+    ///
     /// # Arguments
     /// * `dim` - The dimension of the vector.
     #[inline]
@@ -88,7 +85,7 @@ impl<N: Clone> Indexable<uint, N> for DVec<N> {
 
 impl<N: One + Clone> DVec<N> {
     /// Builds a vector filled with ones.
-    /// 
+    ///
     /// # Arguments
     /// * `dim` - The dimension of the vector.
     #[inline]
@@ -291,7 +288,7 @@ impl<N: Num + Clone> Dot<N> for DVec<N> {
         }
 
         res
-    } 
+    }
 
     #[inline]
     fn sub_dot(a: &DVec<N>, b: &DVec<N>, c: &DVec<N>) -> N {
@@ -302,7 +299,7 @@ impl<N: Num + Clone> Dot<N> for DVec<N> {
         }
 
         res
-    } 
+    }
 }
 
 impl<N: Float + Clone> Norm<N> for DVec<N> {
