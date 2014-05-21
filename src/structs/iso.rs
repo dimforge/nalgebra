@@ -13,8 +13,6 @@ use traits::geometry::{RotationMatrix, Rotation, Rotate, AbsoluteRotate, Transfo
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
 use structs::rot::{Rot2, Rot3, Rot4};
 
-mod metal;
-mod iso_macros;
 
 /// Two dimensional isometry.
 ///
@@ -68,7 +66,7 @@ impl<N: Clone + Float> Iso3<N> {
     }
 
     /// Reorient and translate this transformation such that its local `z` axis points to a given
-    /// direction. 
+    /// direction.
     ///
     /// # Arguments
     ///   * eye - The new translation of the transformation.

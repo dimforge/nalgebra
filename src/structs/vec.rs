@@ -12,8 +12,6 @@ use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, N
                        Translation, Translate};
 use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut};
 
-mod metal;
-mod vec_macros;
 
 /// Vector of dimension 0.
 #[deriving(TotalEq, Eq, Decodable, Clone, Rand, Zero, Show)]

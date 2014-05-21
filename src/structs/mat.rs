@@ -15,8 +15,6 @@ use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
 use traits::operations::{Absolute, Transpose, Inv, Outer};
 use traits::geometry::{ToHomogeneous, FromHomogeneous};
 
-mod metal;
-mod mat_macros;
 
 /// Special identity matrix. All its operation are no-ops.
 #[deriving(TotalEq, Eq, Decodable, Clone, Rand, Show)]
