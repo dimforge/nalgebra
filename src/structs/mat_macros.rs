@@ -65,7 +65,7 @@ macro_rules! sub_impl(
     )
 )
 
-macro_rules! scalar_mul_impl(
+macro_rules! mat_mul_scalar_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
@@ -76,7 +76,7 @@ macro_rules! scalar_mul_impl(
     )
 )
 
-macro_rules! scalar_div_impl(
+macro_rules! mat_div_scalar_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
@@ -87,7 +87,7 @@ macro_rules! scalar_div_impl(
     )
 )
 
-macro_rules! scalar_add_impl(
+macro_rules! mat_add_scalar_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]
@@ -112,7 +112,7 @@ macro_rules! eye_impl(
     )
 )
 
-macro_rules! scalar_sub_impl(
+macro_rules! mat_sub_scalar_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
             #[inline]

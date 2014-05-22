@@ -51,57 +51,57 @@ mat_cast_impl!(Mat1, Mat1Cast, m11)
 add_impl!(Mat1, Mat1AddRhs, m11)
 sub_impl!(Mat1, Mat1SubRhs, m11)
 
-scalar_mul_impl!(Mat1, f64, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, f32, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, i64, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, i32, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, i16, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, i8, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, u64, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, u32, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, u16, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, u8, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, uint, Mat1MulRhs, m11)
-scalar_mul_impl!(Mat1, int, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, f64, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, f32, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, i64, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, i32, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, i16, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, i8, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, u64, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, u32, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, u16, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, u8, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, uint, Mat1MulRhs, m11)
+mat_mul_scalar_impl!(Mat1, int, Mat1MulRhs, m11)
 
-scalar_div_impl!(Mat1, f64, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, f32, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, i64, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, i32, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, i16, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, i8, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, u64, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, u32, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, u16, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, u8, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, uint, Mat1DivRhs, m11)
-scalar_div_impl!(Mat1, int, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, f64, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, f32, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, i64, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, i32, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, i16, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, i8, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, u64, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, u32, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, u16, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, u8, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, uint, Mat1DivRhs, m11)
+mat_div_scalar_impl!(Mat1, int, Mat1DivRhs, m11)
 
-scalar_add_impl!(Mat1, f64, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, f32, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, i64, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, i32, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, i16, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, i8, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, u64, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, u32, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, u16, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, u8, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, uint, Mat1AddRhs, m11)
-scalar_add_impl!(Mat1, int, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, f64, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, f32, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, i64, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, i32, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, i16, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, i8, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, u64, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, u32, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, u16, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, u8, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, uint, Mat1AddRhs, m11)
+mat_add_scalar_impl!(Mat1, int, Mat1AddRhs, m11)
 
-scalar_sub_impl!(Mat1, f64, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, f32, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, i64, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, i32, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, i16, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, i8, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, u64, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, u32, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, u16, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, u8, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, uint, Mat1SubRhs, m11)
-scalar_sub_impl!(Mat1, int, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, f64, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, f32, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, i64, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, i32, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, i16, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, i8, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, u64, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, u32, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, u16, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, u8, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, uint, Mat1SubRhs, m11)
+mat_sub_scalar_impl!(Mat1, int, Mat1SubRhs, m11)
 
 absolute_impl!(Mat1, m11)
 one_impl!(Mat1, One::one)
@@ -150,57 +150,57 @@ mat_cast_impl!(Mat2, Mat2Cast, m11, m12,
 add_impl!(Mat2, Mat2AddRhs, m11, m12, m21, m22)
 sub_impl!(Mat2, Mat2SubRhs, m11, m12, m21, m22)
 
-scalar_mul_impl!(Mat2, f64, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, f32, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, i64, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, i32, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, i16, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, i8, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, u64, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, u32, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, u16, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, u8, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, uint, Mat2MulRhs, m11, m12, m21, m22)
-scalar_mul_impl!(Mat2, int, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, f64, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, f32, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, i64, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, i32, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, i16, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, i8, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, u64, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, u32, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, u16, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, u8, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, uint, Mat2MulRhs, m11, m12, m21, m22)
+mat_mul_scalar_impl!(Mat2, int, Mat2MulRhs, m11, m12, m21, m22)
 
-scalar_div_impl!(Mat2, f64, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, f32, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, i64, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, i32, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, i16, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, i8, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, u64, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, u32, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, u16, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, u8, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, uint, Mat2DivRhs, m11, m12, m21, m22)
-scalar_div_impl!(Mat2, int, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, f64, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, f32, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, i64, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, i32, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, i16, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, i8, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, u64, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, u32, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, u16, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, u8, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, uint, Mat2DivRhs, m11, m12, m21, m22)
+mat_div_scalar_impl!(Mat2, int, Mat2DivRhs, m11, m12, m21, m22)
 
-scalar_add_impl!(Mat2, f64, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, f32, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, i64, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, i32, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, i16, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, i8, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, u64, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, u32, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, u16, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, u8, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, uint, Mat2AddRhs, m11, m12, m21, m22)
-scalar_add_impl!(Mat2, int, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, f64, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, f32, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, i64, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, i32, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, i16, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, i8, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, u64, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, u32, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, u16, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, u8, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, uint, Mat2AddRhs, m11, m12, m21, m22)
+mat_add_scalar_impl!(Mat2, int, Mat2AddRhs, m11, m12, m21, m22)
 
-scalar_sub_impl!(Mat2, f64, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, f32, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, i64, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, i32, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, i16, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, i8, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, u64, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, u32, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, u16, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, u8, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, uint, Mat2SubRhs, m11, m12, m21, m22)
-scalar_sub_impl!(Mat2, int, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, f64, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, f32, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, i64, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, i32, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, i16, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, i8, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, u64, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, u32, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, u16, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, u8, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, uint, Mat2SubRhs, m11, m12, m21, m22)
+mat_sub_scalar_impl!(Mat2, int, Mat2SubRhs, m11, m12, m21, m22)
 
 absolute_impl!(Mat2, m11, m12,
                      m21, m22)
@@ -261,57 +261,57 @@ sub_impl!(Mat3, Mat3SubRhs,
     m21, m22, m23,
     m31, m32, m33
 )
-scalar_mul_impl!(Mat3, f64, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, f32, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, i64, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, i32, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, i16, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, i8, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, u64, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, u32, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, u16, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, u8, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, uint, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_mul_impl!(Mat3, int, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, f64, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, f32, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, i64, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, i32, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, i16, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, i8, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, u64, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, u32, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, u16, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, u8, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, uint, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_mul_scalar_impl!(Mat3, int, Mat3MulRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
 
-scalar_div_impl!(Mat3, f64, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, f32, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, i64, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, i32, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, i16, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, i8, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, u64, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, u32, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, u16, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, u8, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, uint, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_div_impl!(Mat3, int, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, f64, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, f32, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, i64, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, i32, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, i16, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, i8, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, u64, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, u32, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, u16, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, u8, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, uint, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_div_scalar_impl!(Mat3, int, Mat3DivRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
 
-scalar_add_impl!(Mat3, f64, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, f32, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, i64, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, i32, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, i16, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, i8, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, u64, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, u32, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, u16, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, u8, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, uint, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_add_impl!(Mat3, int, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, f64, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, f32, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, i64, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, i32, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, i16, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, i8, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, u64, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, u32, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, u16, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, u8, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, uint, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_add_scalar_impl!(Mat3, int, Mat3AddRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
 
-scalar_sub_impl!(Mat3, f64, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, f32, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, i64, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, i32, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, i16, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, i8, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, u64, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, u32, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, u16, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, u8, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, uint, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
-scalar_sub_impl!(Mat3, int, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, f64, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, f32, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, i64, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, i32, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, i16, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, i8, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, u64, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, u32, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, u16, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, u8, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, uint, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
+mat_sub_scalar_impl!(Mat3, int, Mat3SubRhs, m11, m12, m13, m21, m22, m23, m31, m32, m33)
 
 absolute_impl!(Mat3,
     m11, m12, m13,
@@ -386,96 +386,96 @@ sub_impl!(Mat4, Mat4SubRhs,
   m41, m42, m43, m44
 )
 
-scalar_mul_impl!(Mat4, f64, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, f64, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, f32, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, f32, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, i64, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, i64, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, i32, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, i32, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, i16, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, i16, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, i8, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, i8, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, u32, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, u32, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, u16, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, u16, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, u8, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, u8, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, uint, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, uint, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_mul_impl!(Mat4, int, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-
-scalar_div_impl!(Mat4, f64, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, f32, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, i64, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, i32, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, i16, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, i8, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, u32, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, u16, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, u8, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, uint, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
-  m41, m42, m43, m44)
-scalar_div_impl!(Mat4, int, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_mul_scalar_impl!(Mat4, int, Mat4MulRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
 
-scalar_add_impl!(Mat4, f64, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, f64, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, f32, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, f32, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, i64, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, i64, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, i32, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, i32, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, i16, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, i16, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, i8, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, i8, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, u32, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, u32, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, u16, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, u16, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, u8, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, u8, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, uint, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, uint, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_add_impl!(Mat4, int, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_div_scalar_impl!(Mat4, int, Mat4DivRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
 
-scalar_sub_impl!(Mat4, f64, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, f64, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, f32, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, f32, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, i64, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, i64, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, i32, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, i32, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, i16, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, i16, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, i8, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, i8, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, u32, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, u32, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, u16, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, u16, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, u8, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, u8, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, uint, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, uint, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
-scalar_sub_impl!(Mat4, int, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+mat_add_scalar_impl!(Mat4, int, Mat4AddRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+
+mat_sub_scalar_impl!(Mat4, f64, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, f32, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, i64, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, i32, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, i16, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, i8, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, u32, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, u16, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, u8, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, uint, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
+  m41, m42, m43, m44)
+mat_sub_scalar_impl!(Mat4, int, Mat4SubRhs, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34,
   m41, m42, m43, m44)
 
 absolute_impl!(Mat4,
@@ -571,104 +571,104 @@ sub_impl!(Mat5, Mat5SubRhs,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 )
-scalar_mul_impl!(Mat5, f64, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, f64, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, f32, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, f32, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, i64, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, i64, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, i32, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, i32, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, i16, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, i16, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, i8, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, i8, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, u64, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, u64, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, u32, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, u32, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, u16, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, u16, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, u8, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, u8, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, uint, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, uint, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_mul_impl!(Mat5, int, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-
-scalar_div_impl!(Mat5, f64, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, f32, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, i64, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, i32, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, i16, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, i8, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, u64, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, u32, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, u16, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, u8, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, uint, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
-  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_div_impl!(Mat5, int, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_mul_scalar_impl!(Mat5, int, Mat5MulRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
 
-scalar_add_impl!(Mat5, f64, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, f64, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, f32, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, f32, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, i64, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, i64, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, i32, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, i32, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, i16, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, i16, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, i8, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, i8, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, u64, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, u64, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, u32, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, u32, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, u16, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, u16, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, u8, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, u8, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, uint, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, uint, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_add_impl!(Mat5, int, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_div_scalar_impl!(Mat5, int, Mat5DivRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
 
-scalar_sub_impl!(Mat5, f64, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, f64, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, f32, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, f32, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, i64, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, i64, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, i32, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, i32, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, i16, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, i16, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, i8, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, i8, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, u64, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, u64, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, u32, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, u32, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, u16, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, u16, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, u8, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, u8, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, uint, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, uint, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
-scalar_sub_impl!(Mat5, int, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+mat_add_scalar_impl!(Mat5, int, Mat5AddRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+
+mat_sub_scalar_impl!(Mat5, f64, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, f32, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, i64, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, i32, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, i16, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, i8, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, u64, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, u32, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, u16, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, u8, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, uint, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
+mat_sub_scalar_impl!(Mat5, int, Mat5SubRhs, m11, m12, m13, m14, m15, m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35, m41, m42, m43, m44, m45, m51, m52, m53, m54, m55)
 
 iterable_impl!(Mat5, 5)
@@ -746,151 +746,151 @@ sub_impl!(Mat6, Mat6SubRhs,
   m61, m62, m63, m64, m65, m66
 )
 
-scalar_mul_impl!(Mat6, f64, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, f64, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, f32, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, f32, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, i64, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, i64, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, i32, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, i32, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, i16, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, i16, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, i8, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, i8, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, u64, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, u64, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, u32, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, u32, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, u16, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, u16, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, u8, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, u8, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, uint, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, uint, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_mul_impl!(Mat6, int, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-
-scalar_div_impl!(Mat6, f64, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, f32, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, i64, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, i32, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, i16, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, i8, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, u64, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, u32, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, u16, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, u8, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, uint, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
-  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
-  m61, m62, m63, m64, m65, m66)
-scalar_div_impl!(Mat6, int, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_mul_scalar_impl!(Mat6, int, Mat6MulRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
 
-scalar_add_impl!(Mat6, f64, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, f64, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, f32, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, f32, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, i64, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, i64, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, i32, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, i32, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, i16, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, i16, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, i8, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, i8, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, u64, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, u64, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, u32, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, u32, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, u16, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, u16, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, u8, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, u8, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, uint, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, uint, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_add_impl!(Mat6, int, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_div_scalar_impl!(Mat6, int, Mat6DivRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
 
-scalar_sub_impl!(Mat6, f64, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, f64, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, f32, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, f32, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, i64, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, i64, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, i32, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, i32, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, i16, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, i16, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, i8, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, i8, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, u64, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, u64, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, u32, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, u32, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, u16, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, u16, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, u8, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, u8, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, uint, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, uint, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
-scalar_sub_impl!(Mat6, int, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+mat_add_scalar_impl!(Mat6, int, Mat6AddRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+
+mat_sub_scalar_impl!(Mat6, f64, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, f32, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, i64, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, i32, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, i16, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, i8, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, u64, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, u32, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, u16, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, u8, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, uint, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66)
+mat_sub_scalar_impl!(Mat6, int, Mat6SubRhs, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66)
 
