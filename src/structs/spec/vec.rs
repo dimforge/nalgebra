@@ -53,7 +53,7 @@ impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
         match i {
             0 => Vec1::new(self.x.clone()),
             1 => Vec1::new(self.y.clone()),
-            _ => fail!("Index out of range: 2d vectors do not have " + i.to_str() + " rows.")
+            _ => fail!("Index out of range: 2d vectors do not have {} rows. ", i.to_str())
         }
     }
 
@@ -62,7 +62,7 @@ impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
         match i {
             0 => self.x = r.x,
             1 => self.y = r.x,
-            _ => fail!("Index out of range: 2d vectors do not have " + i.to_str() + " rows.")
+            _ => fail!("Index out of range: 2d vectors do not have {} rows.", i.to_str())
 
         }
     }

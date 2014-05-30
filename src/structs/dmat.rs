@@ -2,8 +2,8 @@
 
 #![allow(missing_doc)] // we hide doc to not have to document the $trhs double dispatch trait.
 
-use rand::Rand;
-use rand;
+use std::rand::Rand;
+use std::rand;
 use std::num::{One, Zero};
 use traits::operations::ApproxEq;
 use std::mem;
