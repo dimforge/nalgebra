@@ -13,7 +13,7 @@ use structs::mat::{Mat2, Mat3, Mat4, Mat5};
 
 
 /// Two dimensional rotation matrix.
-#[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Show, Hash)]
+#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Show, Hash)]
 pub struct Rot2<N> {
     submat: Mat2<N>
 }
@@ -91,7 +91,7 @@ impl<N: Signed> AbsoluteRotate<Vec2<N>> for Rot2<N> {
  * 3d rotation
  */
 /// Three dimensional rotation matrix.
-#[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Show, Hash)]
+#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Show, Hash)]
 pub struct Rot3<N> {
     submat: Mat3<N>
 }
@@ -262,7 +262,7 @@ impl<N: Signed> AbsoluteRotate<Vec3<N>> for Rot3<N> {
 }
 
 /// Four dimensional rotation matrix.
-#[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Show, Hash)]
+#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Show, Hash)]
 pub struct Rot4<N> {
     submat: Mat4<N>
 }

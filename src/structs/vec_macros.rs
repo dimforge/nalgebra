@@ -38,7 +38,7 @@ macro_rules! at_fast_impl(
 // However, f32/f64 does not implement TotalOrd…
 macro_rules! ord_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: FloatMath + Eq + Clone> PartialOrd for $t<N> {
+        impl<N: FloatMath + Clone> PartialOrd for $t<N> {
             #[inline]
             fn inf(a: &$t<N>, b: &$t<N>) -> $t<N> {
                 $t::new(a.$comp0.min(b.$comp0.clone())

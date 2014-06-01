@@ -1,4 +1,4 @@
-use rand::random;
+use std::rand::random;
 use test::Bencher;
 use na::{Vec2, Vec3, Vec4, Vec5, Vec6};
 use na;

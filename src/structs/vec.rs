@@ -14,11 +14,11 @@ use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut};
 
 
 /// Vector of dimension 0.
-#[deriving(TotalEq, Eq, Decodable, Clone, Rand, Zero, Show)]
+#[deriving(TotalEq, PartialEq, Decodable, Clone, Rand, Zero, Show)]
 pub struct Vec0<N>;
 
 /// Vector of dimension 1.
-#[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
+#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec1<N> {
     /// First component of the vector.
     pub x: N
@@ -113,7 +113,7 @@ rotate_impl!(Vec1)
 transform_impl!(Vec1)
 
 /// Vector of dimension 2.
-#[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
+#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec2<N> {
     /// First component of the vector.
     pub x: N,
@@ -210,7 +210,7 @@ rotate_impl!(Vec2)
 transform_impl!(Vec2)
 
 /// Vector of dimension 3.
-#[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
+#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec3<N> {
     /// First component of the vector.
     pub x: N,
@@ -313,7 +313,7 @@ transform_impl!(Vec3)
 
 
 /// Vector of dimension 4.
-#[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
+#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec4<N> {
     /// First component of the vector.
     pub x: N,
@@ -414,7 +414,7 @@ rotate_impl!(Vec4)
 transform_impl!(Vec4)
 
 /// Vector of dimension 5.
-#[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
+#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec5<N> {
     /// First component of the vector.
     pub x: N,
@@ -517,7 +517,7 @@ rotate_impl!(Vec5)
 transform_impl!(Vec5)
 
 /// Vector of dimension 6.
-#[deriving(TotalEq, Eq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
+#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec6<N> {
     /// First component of the vector.
     pub x: N,

@@ -397,7 +397,7 @@ macro_rules! mat_mul_vec_impl(
 
 macro_rules! inv_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Clone + Eq + Num>
+    impl<N: Clone + Num>
     Inv for $t<N> {
         #[inline]
         fn inv_cpy(m: &$t<N>) -> Option<$t<N>> {

@@ -89,7 +89,7 @@ pub mod overload {
 
 /// Change the input value to ensure it is on the range `[min, max]`.
 #[inline(always)]
-pub fn clamp<T: Ord>(val: T, min: T, max: T) -> T {
+pub fn clamp<T: cmp::PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {
         if val < max {
             val

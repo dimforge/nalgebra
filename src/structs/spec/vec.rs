@@ -91,7 +91,7 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
     }
 }
 
-impl<N: Clone + Ord + Float + Signed> Basis for Vec3<N> {
+impl<N: Clone + PartialOrd + Float + Signed> Basis for Vec3<N> {
     #[inline(always)]
     fn canonical_basis(f: |Vec3<N>| -> bool) {
         if !f(Vec3::new(One::one(), Zero::zero(), Zero::zero())) { return };

@@ -29,7 +29,7 @@ pub trait Eye {
 // different Add/Sub traits. This is _so_ unfortunate…
 
 /// Trait grouping most common operations on vectors.
-pub trait AnyVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + Eq + Mul<N, Self>
+pub trait AnyVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + PartialEq + Mul<N, Self>
                      + Div<N, Self> + Dot<N> {
 }
 
@@ -47,7 +47,7 @@ pub trait VecExt<N>: AnyVec<N> + Indexable<uint, N> + Iterable<N> +
 /// operations on vectors.
 pub trait FloatVecExt<N: Float>: FloatVec<N> + VecExt<N> + Basis { }
 
-impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + Eq + Mul<N, V> + Div<N, V> + Dot<N>>
+impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + PartialEq + Mul<N, V> + Div<N, V> + Dot<N>>
 AnyVec<N> for V { }
 
 impl<N: Float, V: AnyVec<N> + Norm<N>> FloatVec<N> for V { }

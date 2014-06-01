@@ -115,6 +115,8 @@ extern crate serialize;
 
 #[cfg(test)]
 extern crate test;
+#[cfg(test)]
+extern crate debug;
 
 pub mod na;
 mod structs;
