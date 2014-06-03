@@ -12,7 +12,7 @@ use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut, Indexable};
 
 /// Vector with a dimension unknown at compile-time.
-#[deriving(TotalEq, PartialEq, Show, Clone)]
+#[deriving(Eq, PartialEq, Show, Clone)]
 pub struct DVec<N> {
     /// Components of the vector. Contains as much elements as the vector dimension.
     pub at: Vec<N>

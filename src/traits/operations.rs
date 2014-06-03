@@ -3,7 +3,7 @@
 
 
 /// Result of a partial ordering.
-#[deriving(TotalEq, PartialEq, Encodable, Decodable, Clone, Show)]
+#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Show)]
 pub enum PartialOrdering {
     /// Result of a strict comparison.
     PartialLess,

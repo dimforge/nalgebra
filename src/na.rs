@@ -105,13 +105,13 @@ pub fn clamp<T: cmp::PartialOrd>(val: T, min: T, max: T) -> T {
 
 /// Same as `cmp::max`.
 #[inline(always)]
-pub fn max<T: TotalOrd>(a: T, b: T) -> T {
+pub fn max<T: Ord>(a: T, b: T) -> T {
     cmp::max(a, b)
 }
 
 /// Same as `cmp::min`.
 #[inline(always)]
-pub fn min<T: TotalOrd>(a: T, b: T) -> T {
+pub fn min<T: Ord>(a: T, b: T) -> T {
     cmp::min(a, b)
 }
 
