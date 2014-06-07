@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The nalgebra library documentation.">
+
+    <title>nalgebra::na::overload::Mat1AddRhs - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>nalgebra</a>&#8203;::<a href='../index.html'>na</a>&#8203;::<a href='index.html'>overload</a></p><div class='block trait'><h2>Traits</h2><a class='trait current' href='trait.Mat1AddRhs.html'>Mat1AddRhs</a><br/><a class='trait ' href='trait.Mat1DivRhs.html'>Mat1DivRhs</a><br/><a class='trait ' href='trait.Mat1MulRhs.html'>Mat1MulRhs</a><br/><a class='trait ' href='trait.Mat1SubRhs.html'>Mat1SubRhs</a><br/><a class='trait ' href='trait.Mat2AddRhs.html'>Mat2AddRhs</a><br/><a class='trait ' href='trait.Mat2DivRhs.html'>Mat2DivRhs</a><br/><a class='trait ' href='trait.Mat2MulRhs.html'>Mat2MulRhs</a><br/><a class='trait ' href='trait.Mat2SubRhs.html'>Mat2SubRhs</a><br/><a class='trait ' href='trait.Mat3AddRhs.html'>Mat3AddRhs</a><br/><a class='trait ' href='trait.Mat3DivRhs.html'>Mat3DivRhs</a><br/><a class='trait ' href='trait.Mat3MulRhs.html'>Mat3MulRhs</a><br/><a class='trait ' href='trait.Mat3SubRhs.html'>Mat3SubRhs</a><br/><a class='trait ' href='trait.Mat4AddRhs.html'>Mat4AddRhs</a><br/><a class='trait ' href='trait.Mat4DivRhs.html'>Mat4DivRhs</a><br/><a class='trait ' href='trait.Mat4MulRhs.html'>Mat4MulRhs</a><br/><a class='trait ' href='trait.Mat4SubRhs.html'>Mat4SubRhs</a><br/><a class='trait ' href='trait.Mat5AddRhs.html'>Mat5AddRhs</a><br/><a class='trait ' href='trait.Mat5DivRhs.html'>Mat5DivRhs</a><br/><a class='trait ' href='trait.Mat5MulRhs.html'>Mat5MulRhs</a><br/><a class='trait ' href='trait.Mat5SubRhs.html'>Mat5SubRhs</a><br/><a class='trait ' href='trait.Mat6AddRhs.html'>Mat6AddRhs</a><br/><a class='trait ' href='trait.Mat6DivRhs.html'>Mat6DivRhs</a><br/><a class='trait ' href='trait.Mat6MulRhs.html'>Mat6MulRhs</a><br/><a class='trait ' href='trait.Mat6SubRhs.html'>Mat6SubRhs</a><br/><a class='trait ' href='trait.Vec1AddRhs.html'>Vec1AddRhs</a><br/><a class='trait ' href='trait.Vec1DivRhs.html'>Vec1DivRhs</a><br/><a class='trait ' href='trait.Vec1SubRhs.html'>Vec1SubRhs</a><br/><a class='trait ' href='trait.Vec1SubRhs.html'>Vec1SubRhs</a><br/><a class='trait ' href='trait.Vec2AddRhs.html'>Vec2AddRhs</a><br/><a class='trait ' href='trait.Vec2DivRhs.html'>Vec2DivRhs</a><br/><a class='trait ' href='trait.Vec2MulRhs.html'>Vec2MulRhs</a><br/><a class='trait ' href='trait.Vec2SubRhs.html'>Vec2SubRhs</a><br/><a class='trait ' href='trait.Vec3AddRhs.html'>Vec3AddRhs</a><br/><a class='trait ' href='trait.Vec3DivRhs.html'>Vec3DivRhs</a><br/><a class='trait ' href='trait.Vec3MulRhs.html'>Vec3MulRhs</a><br/><a class='trait ' href='trait.Vec3SubRhs.html'>Vec3SubRhs</a><br/><a class='trait ' href='trait.Vec4AddRhs.html'>Vec4AddRhs</a><br/><a class='trait ' href='trait.Vec4DivRhs.html'>Vec4DivRhs</a><br/><a class='trait ' href='trait.Vec4MulRhs.html'>Vec4MulRhs</a><br/><a class='trait ' href='trait.Vec4SubRhs.html'>Vec4SubRhs</a><br/><a class='trait ' href='trait.Vec5AddRhs.html'>Vec5AddRhs</a><br/><a class='trait ' href='trait.Vec5DivRhs.html'>Vec5DivRhs</a><br/><a class='trait ' href='trait.Vec5MulRhs.html'>Vec5MulRhs</a><br/><a class='trait ' href='trait.Vec5SubRhs.html'>Vec5SubRhs</a><br/><a class='trait ' href='trait.Vec6AddRhs.html'>Vec6AddRhs</a><br/><a class='trait ' href='trait.Vec6DivRhs.html'>Vec6DivRhs</a><br/><a class='trait ' href='trait.Vec6MulRhs.html'>Vec6MulRhs</a><br/><a class='trait ' href='trait.Vec6SubRhs.html'>Vec6SubRhs</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'>Trait <a href='../../index.html'>nalgebra</a>::<a href='../index.html'>na</a>::<a href='index.html'>overload</a>::<a class='trait' href=''>Mat1AddRhs</a><a class='source' id='src-46989' href='../../../src/nalgebra/src/structs/metal.rs.html#12-18'>[src]</a></h1>
+<pre class='rust trait'>pub trait Mat1AddRhs&lt;N, Res&gt; {
+    fn <a href='#tymethod.binop' class='fnname'>binop</a>(left: &amp;<a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;N&gt;, right: &amp;Self) -&gt; Res;
+}</pre>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.binop' class='method'><code>fn <a href='#tymethod.binop' class='fnname'>binop</a>(left: &amp;<a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;N&gt;, right: &amp;Self) -&gt; Res</code></h3><div class='docblock'><p>Applies the binary operation represented by this trait.</p>
+
+<p>In infix notation, assuming the operation is noted <code>*</code>, the following is computed:
+<code>right * left</code>.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, N&gt;&gt; <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;N, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;N&gt;&gt; for <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;N&gt;</code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.f64.html'>f64</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.f64.html'>f64</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.f64.html'>f64</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.f32.html'>f32</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.f32.html'>f32</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.f32.html'>f32</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.i64.html'>i64</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.i64.html'>i64</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.i64.html'>i64</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.i32.html'>i32</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.i32.html'>i32</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.i32.html'>i32</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.i16.html'>i16</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.i16.html'>i16</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.i16.html'>i16</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.i8.html'>i8</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.i8.html'>i8</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.i8.html'>i8</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.u64.html'>u64</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.u64.html'>u64</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.u64.html'>u64</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.u32.html'>u32</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.u32.html'>u32</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.u32.html'>u32</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.u16.html'>u16</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.u16.html'>u16</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.u16.html'>u16</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.u8.html'>u8</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.u8.html'>u8</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.u8.html'>u8</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.uint.html'>uint</a></code></li>
+<li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Mat1AddRhs.html' title='nalgebra::na::overload::Mat1AddRhs'>Mat1AddRhs</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.int.html'>int</a>, <a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;<a href='http://doc.rust-lang.org/std/primitive.int.html'>int</a>&gt;&gt; for <a href='http://doc.rust-lang.org/std/primitive.int.html'>int</a></code></li>
+</ul><script type="text/javascript" async
+                              src="../../../implementors/nalgebra/na/overload/trait.Mat1AddRhs.js">
+                      </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+
+    <script>
+        var rootPath = "../../../";
+        var currentCrate = "nalgebra";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script async src="../../../search-index.js"></script>
+</body>
+</html>

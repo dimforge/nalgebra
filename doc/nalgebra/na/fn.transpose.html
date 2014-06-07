@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The nalgebra library documentation.">
+
+    <title>nalgebra::na::transpose - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../index.html'>nalgebra</a>&#8203;::<a href='index.html'>na</a></p><div class='block mod'><h2>Modules</h2><a class='mod ' href='overload/index.html'>overload</a><br/></div><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.DMat.html'>DMat</a><br/><a class='struct ' href='struct.DVec.html'>DVec</a><br/><a class='struct ' href='struct.Identity.html'>Identity</a><br/><a class='struct ' href='struct.Iso2.html'>Iso2</a><br/><a class='struct ' href='struct.Iso3.html'>Iso3</a><br/><a class='struct ' href='struct.Iso4.html'>Iso4</a><br/><a class='struct ' href='struct.Mat1.html'>Mat1</a><br/><a class='struct ' href='struct.Mat2.html'>Mat2</a><br/><a class='struct ' href='struct.Mat3.html'>Mat3</a><br/><a class='struct ' href='struct.Mat4.html'>Mat4</a><br/><a class='struct ' href='struct.Mat5.html'>Mat5</a><br/><a class='struct ' href='struct.Mat6.html'>Mat6</a><br/><a class='struct ' href='struct.Rot2.html'>Rot2</a><br/><a class='struct ' href='struct.Rot3.html'>Rot3</a><br/><a class='struct ' href='struct.Rot4.html'>Rot4</a><br/><a class='struct ' href='struct.Vec0.html'>Vec0</a><br/><a class='struct ' href='struct.Vec1.html'>Vec1</a><br/><a class='struct ' href='struct.Vec2.html'>Vec2</a><br/><a class='struct ' href='struct.Vec3.html'>Vec3</a><br/><a class='struct ' href='struct.Vec4.html'>Vec4</a><br/><a class='struct ' href='struct.Vec5.html'>Vec5</a><br/><a class='struct ' href='struct.Vec6.html'>Vec6</a><br/></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.Absolute.html'>Absolute</a><br/><a class='trait ' href='trait.AbsoluteRotate.html'>AbsoluteRotate</a><br/><a class='trait ' href='trait.AnyVec.html'>AnyVec</a><br/><a class='trait ' href='trait.ApproxEq.html'>ApproxEq</a><br/><a class='trait ' href='trait.Basis.html'>Basis</a><br/><a class='trait ' href='trait.Cast.html'>Cast</a><br/><a class='trait ' href='trait.Col.html'>Col</a><br/><a class='trait ' href='trait.ColSlice.html'>ColSlice</a><br/><a class='trait ' href='trait.Cov.html'>Cov</a><br/><a class='trait ' href='trait.Cross.html'>Cross</a><br/><a class='trait ' href='trait.CrossMatrix.html'>CrossMatrix</a><br/><a class='trait ' href='trait.Dim.html'>Dim</a><br/><a class='trait ' href='trait.Dot.html'>Dot</a><br/><a class='trait ' href='trait.Eye.html'>Eye</a><br/><a class='trait ' href='trait.FloatVec.html'>FloatVec</a><br/><a class='trait ' href='trait.FloatVecExt.html'>FloatVecExt</a><br/><a class='trait ' href='trait.FromHomogeneous.html'>FromHomogeneous</a><br/><a class='trait ' href='trait.Indexable.html'>Indexable</a><br/><a class='trait ' href='trait.Inv.html'>Inv</a><br/><a class='trait ' href='trait.Iterable.html'>Iterable</a><br/><a class='trait ' href='trait.IterableMut.html'>IterableMut</a><br/><a class='trait ' href='trait.LMul.html'>LMul</a><br/><a class='trait ' href='trait.Mat.html'>Mat</a><br/><a class='trait ' href='trait.Mean.html'>Mean</a><br/><a class='trait ' href='trait.Norm.html'>Norm</a><br/><a class='trait ' href='trait.Outer.html'>Outer</a><br/><a class='trait ' href='trait.PartialOrd.html'>PartialOrd</a><br/><a class='trait ' href='trait.RMul.html'>RMul</a><br/><a class='trait ' href='trait.Rotate.html'>Rotate</a><br/><a class='trait ' href='trait.Rotation.html'>Rotation</a><br/><a class='trait ' href='trait.RotationMatrix.html'>RotationMatrix</a><br/><a class='trait ' href='trait.RotationWithTranslation.html'>RotationWithTranslation</a><br/><a class='trait ' href='trait.Row.html'>Row</a><br/><a class='trait ' href='trait.RowSlice.html'>RowSlice</a><br/><a class='trait ' href='trait.ScalarAdd.html'>ScalarAdd</a><br/><a class='trait ' href='trait.ScalarSub.html'>ScalarSub</a><br/><a class='trait ' href='trait.ToHomogeneous.html'>ToHomogeneous</a><br/><a class='trait ' href='trait.Transform.html'>Transform</a><br/><a class='trait ' href='trait.Transformation.html'>Transformation</a><br/><a class='trait ' href='trait.Translate.html'>Translate</a><br/><a class='trait ' href='trait.Translation.html'>Translation</a><br/><a class='trait ' href='trait.Transpose.html'>Transpose</a><br/><a class='trait ' href='trait.UniformSphereSample.html'>UniformSphereSample</a><br/><a class='trait ' href='trait.VecExt.html'>VecExt</a><br/></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.abs.html'>abs</a><br/><a class='fn ' href='fn.absolute_rotate.html'>absolute_rotate</a><br/><a class='fn ' href='fn.append_rotation.html'>append_rotation</a><br/><a class='fn ' href='fn.append_rotation_wrt_center.html'>append_rotation_wrt_center</a><br/><a class='fn ' href='fn.append_rotation_wrt_point.html'>append_rotation_wrt_point</a><br/><a class='fn ' href='fn.append_transformation.html'>append_transformation</a><br/><a class='fn ' href='fn.append_translation.html'>append_translation</a><br/><a class='fn ' href='fn.approx_eq.html'>approx_eq</a><br/><a class='fn ' href='fn.approx_eq_eps.html'>approx_eq_eps</a><br/><a class='fn ' href='fn.canonical_basis.html'>canonical_basis</a><br/><a class='fn ' href='fn.cast.html'>cast</a><br/><a class='fn ' href='fn.clamp.html'>clamp</a><br/><a class='fn ' href='fn.cov.html'>cov</a><br/><a class='fn ' href='fn.cross.html'>cross</a><br/><a class='fn ' href='fn.cross_matrix.html'>cross_matrix</a><br/><a class='fn ' href='fn.decomp_qr.html'>decomp_qr</a><br/><a class='fn ' href='fn.dim.html'>dim</a><br/><a class='fn ' href='fn.dot.html'>dot</a><br/><a class='fn ' href='fn.from_homogeneous.html'>from_homogeneous</a><br/><a class='fn ' href='fn.householder_matrix.html'>householder_matrix</a><br/><a class='fn ' href='fn.identity.html'>identity</a><br/><a class='fn ' href='fn.inf.html'>inf</a><br/><a class='fn ' href='fn.inv.html'>inv</a><br/><a class='fn ' href='fn.inv_rotate.html'>inv_rotate</a><br/><a class='fn ' href='fn.inv_rotation.html'>inv_rotation</a><br/><a class='fn ' href='fn.inv_transform.html'>inv_transform</a><br/><a class='fn ' href='fn.inv_transformation.html'>inv_transformation</a><br/><a class='fn ' href='fn.inv_translate.html'>inv_translate</a><br/><a class='fn ' href='fn.inv_translation.html'>inv_translation</a><br/><a class='fn ' href='fn.max.html'>max</a><br/><a class='fn ' href='fn.mean.html'>mean</a><br/><a class='fn ' href='fn.min.html'>min</a><br/><a class='fn ' href='fn.new_identity.html'>new_identity</a><br/><a class='fn ' href='fn.norm.html'>norm</a><br/><a class='fn ' href='fn.normalize.html'>normalize</a><br/><a class='fn ' href='fn.one.html'>one</a><br/><a class='fn ' href='fn.orthonormal_subspace_basis.html'>orthonormal_subspace_basis</a><br/><a class='fn ' href='fn.outer.html'>outer</a><br/><a class='fn ' href='fn.partial_clamp.html'>partial_clamp</a><br/><a class='fn ' href='fn.partial_cmp.html'>partial_cmp</a><br/><a class='fn ' href='fn.partial_ge.html'>partial_ge</a><br/><a class='fn ' href='fn.partial_gt.html'>partial_gt</a><br/><a class='fn ' href='fn.partial_le.html'>partial_le</a><br/><a class='fn ' href='fn.partial_lt.html'>partial_lt</a><br/><a class='fn ' href='fn.partial_max.html'>partial_max</a><br/><a class='fn ' href='fn.partial_min.html'>partial_min</a><br/><a class='fn ' href='fn.perspective3d.html'>perspective3d</a><br/><a class='fn ' href='fn.prepend_rotation.html'>prepend_rotation</a><br/><a class='fn ' href='fn.rotate.html'>rotate</a><br/><a class='fn ' href='fn.rotation.html'>rotation</a><br/><a class='fn ' href='fn.sample_sphere.html'>sample_sphere</a><br/><a class='fn ' href='fn.sqnorm.html'>sqnorm</a><br/><a class='fn ' href='fn.sub_dot.html'>sub_dot</a><br/><a class='fn ' href='fn.sup.html'>sup</a><br/><a class='fn ' href='fn.to_homogeneous.html'>to_homogeneous</a><br/><a class='fn ' href='fn.to_rot_mat.html'>to_rot_mat</a><br/><a class='fn ' href='fn.transform.html'>transform</a><br/><a class='fn ' href='fn.transformation.html'>transformation</a><br/><a class='fn ' href='fn.translate.html'>translate</a><br/><a class='fn ' href='fn.translation.html'>translation</a><br/><a class='fn current' href='fn.transpose.html'>transpose</a><br/><a class='fn ' href='fn.zero.html'>zero</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content fn">
+<h1 class='fqn'>Function <a href='../index.html'>nalgebra</a>::<a href='index.html'>na</a>::<a class='fn' href=''>transpose</a><a class='source' id='src-1307' href='../../src/nalgebra/src/na.rs.html#685-687'>[src]</a></h1>
+<pre class='rust fn'>pub fn transpose&lt;M: <a class='trait' href='../../nalgebra/na/trait.Transpose.html' title='nalgebra::na::Transpose'>Transpose</a>&gt;(m: &amp;M) -&gt; M</pre><div class='docblock'><p>Gets a transposed copy of a matrix.</p>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+
+    <script>
+        var rootPath = "../../";
+        var currentCrate = "nalgebra";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    <script async src="../../search-index.js"></script>
+</body>
+</html>

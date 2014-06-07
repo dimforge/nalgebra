@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The nalgebra library documentation.">
+
+    <title>nalgebra::na::overload::Vec1MulRhs - Rust</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+</head>
+<body>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    <section class="sidebar">
+        
+
+        <p class='location'><a href='../../index.html'>nalgebra</a>&#8203;::<a href='../index.html'>na</a>&#8203;::<a href='index.html'>overload</a></p><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.Mat1MulRhs.html'>Mat1MulRhs</a><br/><a class='trait ' href='trait.Mat2MulRhs.html'>Mat2MulRhs</a><br/><a class='trait ' href='trait.Mat3MulRhs.html'>Mat3MulRhs</a><br/><a class='trait ' href='trait.Mat4MulRhs.html'>Mat4MulRhs</a><br/><a class='trait ' href='trait.Mat5MulRhs.html'>Mat5MulRhs</a><br/><a class='trait ' href='trait.Mat6MulRhs.html'>Mat6MulRhs</a><br/><a class='trait current' href='trait.Vec1MulRhs.html'>Vec1MulRhs</a><br/><a class='trait ' href='trait.Vec2MulRhs.html'>Vec2MulRhs</a><br/><a class='trait ' href='trait.Vec3MulRhs.html'>Vec3MulRhs</a><br/><a class='trait ' href='trait.Vec4MulRhs.html'>Vec4MulRhs</a><br/><a class='trait ' href='trait.Vec5MulRhs.html'>Vec5MulRhs</a><br/><a class='trait ' href='trait.Vec6MulRhs.html'>Vec6MulRhs</a><br/></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Search documentation..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'>Trait <a href='../../index.html'>nalgebra</a>::<a href='../index.html'>na</a>::<a href='index.html'>overload</a>::<a class='trait' href=''>Vec1MulRhs</a><a class='source' href='../../../src/nalgebra/src/structs/metal.rs.html#13-19'>[src]</a></h1>
+<pre class='rust trait'>pub trait Vec1MulRhs&lt;N, Res&gt; {
+    fn <a href='#tymethod.binop' class='fnname'>binop</a>(left: &amp;<a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;N&gt;, right: &amp;Self) -&gt; Res;
+}</pre><div class='docblock'><p>Trait needed to right-multiply with a scalar.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.binop' class='method'><code>fn <a href='#tymethod.binop' class='fnname'>binop</a>(left: &amp;<a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;N&gt;, right: &amp;Self) -&gt; Res</code></h3><div class='docblock'><p>Applies the binary operation represented by this trait.</p>
+
+<p>In infix notation, assuming the operation is noted <code>*</code>, the following is computed:
+<code>right * left</code>.</p>
+</div></div>
+                <h2 id='implementors'>Implementors</h2>
+                <ul class='item-list'>
+            <li><code><a class='struct' href='../../../nalgebra/na/struct.Mat1.html' title='nalgebra::na::Mat1'>Mat1</a>&lt;N&gt;</code></li><li><code><a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;N&gt;</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;f64, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;f64&gt;&gt; for f64</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;f32, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;f32&gt;&gt; for f32</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;u64, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;u64&gt;&gt; for u64</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;u32, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;u32&gt;&gt; for u32</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;u16, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;u16&gt;&gt; for u16</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;u8, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;u8&gt;&gt; for u8</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;i64, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;i64&gt;&gt; for i64</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;i32, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;i32&gt;&gt; for i32</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;i16, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;i16&gt;&gt; for i16</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;i8, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;i8&gt;&gt; for i8</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;uint, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;uint&gt;&gt; for uint</code></li><li><code>impl <a class='trait' href='../../../nalgebra/na/overload/trait.Vec1MulRhs.html' title='nalgebra::na::overload::Vec1MulRhs'>Vec1MulRhs</a>&lt;int, <a class='struct' href='../../../nalgebra/na/struct.Vec1.html' title='nalgebra::na::Vec1'>Vec1</a>&lt;int&gt;&gt; for int</code></li></ul></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&uarr;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&darr;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+
+    <script>
+        var rootPath = "../../../";
+        var currentCrate = "nalgebra";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script async src="../../../search-index.js"></script>
+</body>
+</html>
