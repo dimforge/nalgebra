@@ -25,7 +25,7 @@ The preferred way to use **nalgebra** is to import types and traits explicitly, 
 free-functions using the `na::` prefix:
 
 ```.rust
-extern mod nalgebra;
+extern crate nalgebra;
 use nalgebra::na::{Vec3, Rot3, Rotation};
 use nalgebra::na;
 
@@ -57,7 +57,7 @@ and keeps an optimized set of tools for computational graphics and physics. Thos
   For example, the following works:
 
 ```rust
-extern mod nalgebra;
+extern crate nalgebra;
 use nalgebra::na::{Vec3, Mat3};
 use nalgebra::na;
 
