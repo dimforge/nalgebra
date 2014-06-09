@@ -107,6 +107,7 @@
 <span id='67'>67</span>
 <span id='68'>68</span>
 <span id='69'>69</span>
+<span id='70'>70</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>Float</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::<span class='ident'>Transpose</span>;
@@ -140,7 +141,8 @@
     <span class='ident'>qk</span>
 }
 
-<span class='doccomment'>/// QR decomposition using Householder reflections
+<span class='doccomment'>/// QR decomposition using Householder reflections.
+</span><span class='doccomment'>///
 </span><span class='doccomment'>/// # Arguments
 </span><span class='doccomment'>/// * `m` - matrix to decompose
 </span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>decomp_qr</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Float</span>,
@@ -215,11 +217,13 @@
     </div>
 
     <script>
-        var rootPath = "../../../../";
-        var currentCrate = "nalgebra";
+        window.rootPath = "../../../../";
+        window.currentCrate = "nalgebra";
+        window.playgroundUrl = "";
     </script>
     <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
+    
     <script async src="../../../../search-index.js"></script>
 </body>
 </html>

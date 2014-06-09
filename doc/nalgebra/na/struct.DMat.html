@@ -143,7 +143,7 @@ components.</li>
 <h4 id='method.approx_eq_eps' class='method'><code>fn <a href='#method.approx_eq_eps' class='fnname'>approx_eq_eps</a>(a: &amp;<a class='struct' href='../../nalgebra/na/struct.DMat.html' title='nalgebra::na::DMat'>DMat</a>&lt;N&gt;, b: &amp;<a class='struct' href='../../nalgebra/na/struct.DMat.html' title='nalgebra::na::DMat'>DMat</a>&lt;N&gt;, epsilon: &amp;N) -&gt; <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a></code></h4>
 </div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/core/fmt/trait.Show.html' title='core::fmt::Show'>Show</a> + <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://doc.rust-lang.org/core/fmt/trait.Show.html' title='core::fmt::Show'>Show</a> for <a class='struct' href='../../nalgebra/na/struct.DMat.html' title='nalgebra::na::DMat'>DMat</a>&lt;N&gt;</code></h3><div class='methods'><h4 id='method.fmt' class='method'><code>fn <a href='#method.fmt' class='fnname'>fmt</a>(&amp;self, form: &amp;mut <a class='struct' href='http://doc.rust-lang.org/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='http://doc.rust-lang.org/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
 </div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='http://doc.rust-lang.org/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../nalgebra/na/struct.DMat.html' title='nalgebra::na::DMat'>DMat</a>&lt;N&gt;</code></h3><div class='methods'><h4 id='method.clone' class='method'><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../nalgebra/na/struct.DMat.html' title='nalgebra::na::DMat'>DMat</a>&lt;N&gt;</code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, &amp;Self)</code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='#tymethod.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
 </div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a>&gt; <a class='trait' href='http://doc.rust-lang.org/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../../nalgebra/na/struct.DMat.html' title='nalgebra::na::DMat'>DMat</a>&lt;N&gt;</code></h3><div class='methods'><h4 id='method.eq' class='method'><code>fn <a href='#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../nalgebra/na/struct.DMat.html' title='nalgebra::na::DMat'>DMat</a>&lt;N&gt;) -&gt; <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a></code></h4>
 <h4 id='method.ne' class='method'><code>fn <a href='#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../nalgebra/na/struct.DMat.html' title='nalgebra::na::DMat'>DMat</a>&lt;N&gt;) -&gt; <a href='http://doc.rust-lang.org/std/primitive.bool.html'>bool</a></code></h4>
 </div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a>&gt; <a class='trait' href='http://doc.rust-lang.org/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='struct' href='../../nalgebra/na/struct.DMat.html' title='nalgebra::na::DMat'>DMat</a>&lt;N&gt;</code></h3><div class='methods'><h4 id='method.assert_receiver_is_total_eq' class='method'><code>fn <a href='#tymethod.assert_receiver_is_total_eq' class='fnname'>assert_receiver_is_total_eq</a>(&amp;self)</code></h4>
@@ -184,11 +184,13 @@ components.</li>
     </div>
 
     <script>
-        var rootPath = "../../";
-        var currentCrate = "nalgebra";
+        window.rootPath = "../../";
+        window.currentCrate = "nalgebra";
+        window.playgroundUrl = "";
     </script>
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
+    
     <script async src="../../search-index.js"></script>
 </body>
 </html>
