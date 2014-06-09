@@ -30,7 +30,8 @@ pub fn householder_matrix<N: Float,
     qk
 }
 
-/// QR decomposition using Householder reflections
+/// QR decomposition using Householder reflections.
+///
 /// # Arguments
 /// * `m` - matrix to decompose
 pub fn decomp_qr<N: Float,

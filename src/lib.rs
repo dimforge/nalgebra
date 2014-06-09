@@ -1,15 +1,13 @@
 /*!
 # nalgebra
 
-[![Build Status](https://travis-ci.org/sebcrozet/nalgebra.png?branch=master)](https://travis-ci.org/sebcrozet/nalgebra)
-
 **nalgebra** is a linear algebra library written for Rust targeting:
 
-* general-purpose linear algebra (still misses a lot of features…).
+* general-purpose linear algebra (still lacks a lot of features…).
 * real time computer graphics.
 * real time computer physics.
 
-An on-line version of this documentation is available [here](http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/index.html).
+An on-line version of this documentation is available [here](http://nalgebra.org).
 
 ## Using **nalgebra**
 All the functionalities of **nalgebra** are grouped in one place: the `na` module.
@@ -107,7 +105,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![deny(unused_result)]
 #![warn(missing_doc)]
 #![feature(macro_rules)]
-#![doc(html_root_url = "http://www.rust-ci.org/sebcrozet/nalgebra/doc")]
+#![doc(html_root_url = "http://nalgebra.org/doc")]
 
 extern crate std;
 extern crate rand;

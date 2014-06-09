@@ -1,14 +1,12 @@
 # nalgebra
 
-[![Build Status](https://travis-ci.org/sebcrozet/nalgebra.png?branch=master)](https://travis-ci.org/sebcrozet/nalgebra)
-
 **nalgebra** is a linear algebra library written for Rust targeting:
 
 * general-purpose linear algebra (still misses a lot of features…).
 * real time computer graphics.
 * real time computer physics.
 
-An on-line version of this documentation is available [here](http://www.rust-ci.org/sebcrozet/nalgebra/doc/nalgebra/index.html).
+An on-line version of this documentation is available [here](http://nalgebra.org).
 
 ## Using **nalgebra**
 All the functionalities of **nalgebra** are grouped in one place: the `na` module.
@@ -90,7 +88,6 @@ make doc
 Here are some projects using **nalgebra**.
 Feel free to add your project to this list if you happen to use **nalgebra**!
 
-* [nphysics](https://github.com/sebcrozet/nphysics): a real-time physics engine.
-* [ncollide](https://github.com/sebcrozet/ncollide): a collision detection library.
-* [kiss3d](https://github.com/sebcrozet/kiss3d): a minimalistic graphics engine.
-* [frog](https://github.com/natal/frog): a machine learning library.
+* [nphysics](http://nphysics-dev.org): a real-time physics engine.
+* [ncollide](http://ncollide.org): a collision detection library.
+* [kiss3d](https://kiss3d.org): a minimalistic graphics engine.
