@@ -244,7 +244,7 @@ macro_rules! dim_impl(
 
 macro_rules! container_impl(
     ($t: ident) => (
-        impl<N> Container for $t<N> {
+        impl<N> Collection for $t<N> {
             #[inline]
             fn len(&self) -> uint {
                 Dim::dim(None::<$t<N>>)

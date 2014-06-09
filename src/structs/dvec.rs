@@ -161,7 +161,7 @@ impl<N> DVec<N> {
     }
 }
 
-impl<N> Container for DVec<N> {
+impl<N> Collection for DVec<N> {
     #[inline]
     fn len(&self) -> uint {
         self.at.len()
