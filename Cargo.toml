@@ -1,0 +1,11 @@
+[package]
+
+name    = "nalgebra"
+version = "0.1.0"
+authors = [ "developer@crozet.re" ]
+
+[[lib]]
+
+name       = "nalgebra"
+crate_type = [ "dylib", "staticlib" ]
+path       = "src/lib.rs"
