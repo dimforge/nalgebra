@@ -2,7 +2,7 @@
 
 name    = "nalgebra"
 version = "0.1.0"
-authors = [ "developer@crozet.re" ]
+authors = [ "Sébastien Crozet <developer@crozet.re>" ] # FIXME: add the contributors.
 
 [[lib]]
 

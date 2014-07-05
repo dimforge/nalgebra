@@ -245,7 +245,7 @@ pub fn perspective3d<N: FloatMath + Cast<f32> + Zero + One>(width: N, height: N,
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t     = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
+///     let t     = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
 ///     let trans = na::translation(&t);
 ///
 ///     assert!(trans == Vec3::new(1.0, 1.0, 1.0));
@@ -264,7 +264,7 @@ pub fn translation<V, M: Translation<V>>(m: &M) -> V {
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t      = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
+///     let t      = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
 ///     let itrans = na::inv_translation(&t);
 ///
 ///     assert!(itrans == Vec3::new(-1.0, -1.0, -1.0));
@@ -293,7 +293,7 @@ pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t  = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
+///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
 ///     let v  = Vec3::new(2.0, 2.0, 2.0);
 ///
 ///     let tv = na::translate(&t, &v);
@@ -314,7 +314,7 @@ pub fn translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t  = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
+///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
 ///     let v  = Vec3::new(2.0, 2.0, 2.0);
 ///
 ///     let tv = na::inv_translate(&t, &v);
@@ -338,7 +338,7 @@ pub fn inv_translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t = Rot3::new(Vec3::new(1.0, 1.0, 1.0));
+///     let t = Rot3::new(Vec3::new(1.0f64, 1.0, 1.0));
 ///
 ///     assert!(na::approx_eq(&na::rotation(&t), &Vec3::new(1.0, 1.0, 1.0)));
 /// }
@@ -357,7 +357,7 @@ pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t = Rot3::new(Vec3::new(1.0, 1.0, 1.0));
+///     let t = Rot3::new(Vec3::new(1.0f64, 1.0, 1.0));
 ///
 ///     assert!(na::approx_eq(&na::inv_rotation(&t), &Vec3::new(-1.0, -1.0, -1.0)));
 /// }
@@ -376,7 +376,7 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.0));
+///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.0));
 ///     let v  = Vec3::new(1.0, 1.0, 1.0);
 ///     let rt = na::append_rotation(&t, &v);
 ///
@@ -397,7 +397,7 @@ pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.0));
+///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.0));
 ///     let v  = Vec3::new(1.0, 1.0, 1.0);
 ///     let rt = na::prepend_rotation(&t, &v);
 ///
@@ -422,7 +422,7 @@ pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.5 * Float::pi()));
+///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * Float::pi()));
 ///     let v  = Vec3::new(1.0, 0.0, 0.0);
 ///
 ///     let tv = na::rotate(&t, &v);
@@ -445,7 +445,7 @@ pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 /// use nalgebra::na;
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.5 * Float::pi()));
+///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * Float::pi()));
 ///     let v  = Vec3::new(1.0, 0.0, 0.0);
 ///
 ///     let tv = na::inv_rotate(&t, &v);

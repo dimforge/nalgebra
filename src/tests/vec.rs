@@ -5,7 +5,7 @@ use na;
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
-        for _ in range(0, 10000) {
+        for _ in range(0u, 10000) {
             let v: $t      = random();
             let mut mv: $t = v.clone();
             let n: $n      = random();
@@ -23,7 +23,7 @@ macro_rules! test_iterator_impl(
 
 macro_rules! test_commut_dot_impl(
     ($t: ty) => (
-        for _ in range(0, 10000) {
+        for _ in range(0u, 10000) {
             let v1 : $t = random();
             let v2 : $t = random();
         
@@ -34,7 +34,7 @@ macro_rules! test_commut_dot_impl(
 
 macro_rules! test_scalar_op_impl(
     ($t: ty, $n: ty) => (
-        for _ in range(0, 10000) {
+        for _ in range(0u, 10000) {
             let v1 : $t = random();
             let n  : $n = random();
         
@@ -57,7 +57,7 @@ macro_rules! test_scalar_op_impl(
 
 macro_rules! test_basis_impl(
     ($t: ty) => (
-        for _ in range(0, 10000) {
+        for _ in range(0u, 10000) {
             na::canonical_basis(|e1: $t| {
                 na::canonical_basis(|e2: $t| {
                     assert!(e1 == e2 || na::approx_eq(&na::dot(&e1, &e2), &na::zero()));
@@ -75,7 +75,7 @@ macro_rules! test_basis_impl(
 
 macro_rules! test_subspace_basis_impl(
     ($t: ty) => (
-        for _ in range(0, 10000) {
+        for _ in range(0u, 10000) {
             let v : $t = random();
             let v1     = na::normalize(&v);
 
@@ -99,7 +99,7 @@ macro_rules! test_subspace_basis_impl(
 
 #[test]
 fn test_cross_vec3() {
-    for _ in range(0, 10000) {
+    for _ in range(0u, 10000) {
         let v1 : Vec3<f64> = random();
         let v2 : Vec3<f64> = random();
         let v3 : Vec3<f64> = na::cross(&v1, &v2);
@@ -287,30 +287,30 @@ fn test_iterator_vec6() {
 #[test]
 fn test_ord_vec3() {
     // equality
-    assert!(Vec3::new(0.5, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5));
-    assert!(!(Vec3::new(1.5, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5)));
-    assert!(Vec3::new(1.5, 0.5, 0.5) != Vec3::new(0.5, 0.5, 0.5));
+    assert!(Vec3::new(0.5f64, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5));
+    assert!(!(Vec3::new(1.5f64, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5)));
+    assert!(Vec3::new(1.5f64, 0.5, 0.5) != Vec3::new(0.5, 0.5, 0.5));
 
     // comparable
-    assert!(na::partial_cmp(&Vec3::new(0.5, 0.3, 0.3), &Vec3::new(1.0, 2.0, 1.0)).is_le());
-    assert!(na::partial_cmp(&Vec3::new(0.5, 0.3, 0.3), &Vec3::new(1.0, 2.0, 1.0)).is_lt());
-    assert!(na::partial_cmp(&Vec3::new(2.0, 4.0, 2.0), &Vec3::new(1.0, 2.0, 1.0)).is_ge());
-    assert!(na::partial_cmp(&Vec3::new(2.0, 4.0, 2.0), &Vec3::new(1.0, 2.0, 1.0)).is_gt());
+    assert!(na::partial_cmp(&Vec3::new(0.5f64, 0.3, 0.3), &Vec3::new(1.0, 2.0, 1.0)).is_le());
+    assert!(na::partial_cmp(&Vec3::new(0.5f64, 0.3, 0.3), &Vec3::new(1.0, 2.0, 1.0)).is_lt());
+    assert!(na::partial_cmp(&Vec3::new(2.0f64, 4.0, 2.0), &Vec3::new(1.0, 2.0, 1.0)).is_ge());
+    assert!(na::partial_cmp(&Vec3::new(2.0f64, 4.0, 2.0), &Vec3::new(1.0, 2.0, 1.0)).is_gt());
 
     // not comparable
-    assert!(na::partial_cmp(&Vec3::new(0.0, 3.0, 0.0), &Vec3::new(1.0, 2.0, 1.0)).is_not_comparable());
+    assert!(na::partial_cmp(&Vec3::new(0.0f64, 3.0, 0.0), &Vec3::new(1.0, 2.0, 1.0)).is_not_comparable());
 }
 
 #[test]
 fn test_min_max_vec3() {
-    assert_eq!(na::sup(&Vec3::new(1.0, 2.0, 3.0), &Vec3::new(3.0, 2.0, 1.0)), Vec3::new(3.0, 2.0, 3.0));
-    assert_eq!(na::inf(&Vec3::new(1.0, 2.0, 3.0), &Vec3::new(3.0, 2.0, 1.0)), Vec3::new(1.0, 2.0, 1.0));
+    assert_eq!(na::sup(&Vec3::new(1.0f64, 2.0, 3.0), &Vec3::new(3.0, 2.0, 1.0)), Vec3::new(3.0, 2.0, 3.0));
+    assert_eq!(na::inf(&Vec3::new(1.0f64, 2.0, 3.0), &Vec3::new(3.0, 2.0, 1.0)), Vec3::new(1.0, 2.0, 1.0));
 }
 
 #[test]
 fn test_outer_vec3() {
     assert_eq!(
-        na::outer(&Vec3::new(1.0, 2.0, 3.0), &Vec3::new(4.0, 5.0, 6.0)),
+        na::outer(&Vec3::new(1.0f64, 2.0, 3.0), &Vec3::new(4.0, 5.0, 6.0)),
         Mat3::new(
             4.0, 5.0, 6.0,
             8.0, 10.0, 12.0,

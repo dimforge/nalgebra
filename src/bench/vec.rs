@@ -11,7 +11,7 @@ macro_rules! bench_dot_vec(
             let mut d = 0.0;
 
             $bh.iter(|| {
-                for _ in range(0, 1000) {
+                for _ in range(0u, 1000) {
                     d = d + na::dot(&a, &b);
                 }
             })

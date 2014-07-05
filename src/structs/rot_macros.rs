@@ -5,7 +5,7 @@ macro_rules! submat_impl(
         impl<N> $t<N> {
             #[inline]
             pub fn submat<'r>(&'r self) -> &'r $submat<N> {
-                &'r self.submat
+                &self.submat
             }
         }
     )

@@ -63,10 +63,10 @@ fn main() {
     let v: Vec3<f64> = na::zero();
     let m: Mat3<f64> = na::one();
 
-    let _ = m * v;   // matrix-vector multiplication.
-    let _ = v * m;   // vector-matrix multiplication.
-    let _ = m * m;   // matrix-matrix multiplication.
-    let _ = v * 2.0; // vector-scalar multiplication.
+    let _ = m * v;      // matrix-vector multiplication.
+    let _ = v * m;      // vector-matrix multiplication.
+    let _ = m * m;      // matrix-matrix multiplication.
+    let _ = v * 2.0f64; // vector-scalar multiplication.
 }
 ```
 

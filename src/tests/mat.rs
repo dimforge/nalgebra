@@ -7,7 +7,7 @@ use std::cmp::{min, max};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
-    for _ in range(0, 10000) {
+    for _ in range(0u, 10000) {
       let randmat : $t = random();
 
       assert!(na::approx_eq(&(na::inv(&randmat).unwrap() * randmat), &na::one()));
@@ -17,7 +17,7 @@ macro_rules! test_inv_mat_impl(
 
 macro_rules! test_transpose_mat_impl(
   ($t: ty) => (
-    for _ in range(0, 10000) {
+    for _ in range(0u, 10000) {
       let randmat : $t = random();
 
       assert!(na::transpose(&na::transpose(&randmat)) == randmat);
@@ -27,7 +27,7 @@ macro_rules! test_transpose_mat_impl(
 
 macro_rules! test_decomp_qr_impl(
   ($t: ty) => (
-    for _ in range(0, 10000) {
+    for _ in range(0u, 10000) {
       let randmat : $t = random();
 
       let (q, r) = decomp_qr(&randmat);
@@ -100,7 +100,7 @@ fn test_inv_mat6() {
 
 #[test]
 fn test_rotation2() {
-    for _ in range(0, 10000) {
+    for _ in range(0u, 10000) {
         let randmat: na::Rot2<f64> = na::one();
         let ang    = Vec1::new(abs::<f64>(random()) % Float::pi());
 
@@ -117,7 +117,7 @@ fn test_index_mat2() {
 
 #[test]
 fn test_inv_rotation3() {
-    for _ in range(0, 10000) {
+    for _ in range(0u, 10000) {
         let randmat: Rot3<f64> = na::one();
         let dir:     Vec3<f64> = random();
         let ang            = na::normalize(&dir) * (abs::<f64>(random()) % Float::pi());
@@ -148,11 +148,11 @@ fn test_cov_dmat() {
         5,
         3,
         [
-            4.0, 2.0, 0.60,
-            4.2, 2.1, 0.59,
-            3.9, 2.0, 0.58,
-            4.3, 2.1, 0.62,
-            4.1, 2.2, 0.63
+            4.0f64, 2.0, 0.60,
+            4.2f64, 2.1, 0.59,
+            3.9f64, 2.0, 0.58,
+            4.3f64, 2.1, 0.62,
+            4.1f64, 2.2, 0.63
         ]
     );
 
@@ -160,9 +160,9 @@ fn test_cov_dmat() {
         3,
         3,
         [
-            0.025,   0.0075,  0.00175,
-            0.0075,  0.007,   0.00135,
-            0.00175, 0.00135, 0.00043
+            0.025f64,   0.0075,  0.00175,
+            0.0075f64,  0.007,   0.00135,
+            0.00175f64, 0.00135, 0.00043
         ]
     );
 
@@ -175,14 +175,14 @@ fn test_transpose_dmat() {
         8,
         4,
         [
-            1,  2,  3,  4,
-            5,  6,  7,  8,
-            9,  10, 11, 12,
-            13, 14, 15, 16,
-            17, 18, 19, 20,
-            21, 22, 23, 24,
-            25, 26, 27, 28,
-            29, 30, 31, 32
+            1u32,2,  3,  4,
+            5,   6,  7,  8,
+            9,   10, 11, 12,
+            13,  14, 15, 16,
+            17,  18, 19, 20,
+            21,  22, 23, 24,
+            25,  26, 27, 28,
+            29,  30, 31, 32
         ]
     );
 
@@ -195,14 +195,14 @@ fn test_dmat_from_vec() {
         8,
         4,
         [
-            1,  2,  3,  4,
-            5,  6,  7,  8,
-            9,  10, 11, 12,
-            13, 14, 15, 16,
-            17, 18, 19, 20,
-            21, 22, 23, 24,
-            25, 26, 27, 28,
-            29, 30, 31, 32
+            1i32, 2,  3,  4,
+            5,    6,  7,  8,
+            9,    10, 11, 12,
+            13,   14, 15, 16,
+            17,   18, 19, 20,
+            21,   22, 23, 24,
+            25,   26, 27, 28,
+            29,   30, 31, 32
         ]
     );
 
@@ -210,10 +210,10 @@ fn test_dmat_from_vec() {
         8,
         4,
         [
-            1, 5, 9,  13, 17, 21, 25, 29, 
-            2, 6, 10, 14, 18, 22, 26, 30,
-            3, 7, 11, 15, 19, 23, 27, 31, 
-            4, 8, 12, 16, 20, 24, 28, 32
+            1i32, 5, 9,  13, 17, 21, 25, 29, 
+            2i32, 6, 10, 14, 18, 22, 26, 30,
+            3i32, 7, 11, 15, 19, 23, 27, 31, 
+            4i32, 8, 12, 16, 20, 24, 28, 32
         ]
     );
 
@@ -224,7 +224,7 @@ fn test_dmat_from_vec() {
 
 #[test]
 fn test_decomp_qr() {
-    for _ in range(0, 10) {
+    for _ in range(0u, 10) {
         let dim1: uint = random();
         let dim2: uint = random();
         let rows = min(40, max(dim1, dim2));
