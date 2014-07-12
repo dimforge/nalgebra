@@ -96,7 +96,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 * [frog](https://github.com/natal/frog): a machine learning library.
 */
 
-#![crate_id = "nalgebra#0.1"]
+#![crate_name = "nalgebra"]
 #![crate_type = "lib"]
 #![deny(non_camel_case_types)]
 #![deny(unnecessary_parens)]

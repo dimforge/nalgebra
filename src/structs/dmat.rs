@@ -491,7 +491,7 @@ impl<N: Num + Cast<f32> + Clone> Mean<DVec<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>> + ToStr > Cov<DMat<N>> for DMat<N> {
+impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>>> Cov<DMat<N>> for DMat<N> {
     // FIXME: this could be heavily optimized, removing all temporaries by merging loops.
     fn cov(m: &DMat<N>) -> DMat<N> {
         assert!(m.nrows > 1);

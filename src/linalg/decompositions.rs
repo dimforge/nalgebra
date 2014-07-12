@@ -5,16 +5,16 @@ use traits::geometry::Norm;
 use std::cmp::min;
 
 /// Get the householder matrix corresponding to a reflexion to the hyperplane
-/// defined by `vec̀ . It can be a reflexion contained in a subspace.
+/// defined by `vec`. It can be a reflexion contained in a subspace.
 ///
 /// # Arguments
 /// * `dim` - the dimension of the space the resulting matrix operates in
 /// * `start` - the starting dimension of the subspace of the reflexion
 /// * `vec` - the vector defining the reflection.
 pub fn householder_matrix<N: Float,
-                      M: Eye + Indexable<(uint, uint), N>,
-                      V: Indexable<uint, N>>
-                      (dim: uint, start: uint, vec: V) -> M {
+                          M: Eye + Indexable<(uint, uint), N>,
+                          V: Indexable<uint, N>>
+                          (dim: uint, start: uint, vec: V) -> M {
     let mut qk : M = Eye::new_identity(dim);
     let stop = start + vec.shape();
     assert!(stop <= dim);

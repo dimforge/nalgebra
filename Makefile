@@ -3,8 +3,7 @@ nalgebra_lib_path=lib
 nalgebra_doc_path=doc
 all:
 	mkdir -p $(nalgebra_lib_path)
-	rustc src/lib.rs --out-dir $(nalgebra_lib_path) --opt-level 3
-	rustc src/lib.rs --out-dir $(nalgebra_lib_path) --crate-type dylib --opt-level 3
+	rustc src/lib.rs --out-dir $(nalgebra_lib_path) --crate-type dylib --crate-type rlib --opt-level 3
 
 test:
 	mkdir -p $(nalgebra_lib_path)
