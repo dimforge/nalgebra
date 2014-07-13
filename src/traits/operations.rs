@@ -316,9 +316,7 @@ impl<N, T: Add<N, T>> ScalarAdd<N> for T {
     }
 }
 
-/**
- * Trait of objects having a subtraction with a scalar.
- */
+/// Trait of objects having a subtraction with a scalar.
 pub trait ScalarSub<N> {
     /// Gets the result of `self - n`.
     fn sub_s(&self, n: &N) -> Self;
@@ -328,5 +326,31 @@ impl<N, T: Sub<N, T>> ScalarSub<N> for T {
     /// Gets the result of `self - n`.
     fn sub_s(&self, n: &N) -> T {
         *self - *n
+    }
+}
+
+/// Trait of objects having a multiplication with a scalar.
+pub trait ScalarMul<N> {
+    /// Gets the result of `self * n`.
+    fn mul_s(&self, n: &N) -> Self;
+}
+
+impl<N, T: Mul<N, T>> ScalarMul<N> for T {
+    /// Gets the result of `self * n`.
+    fn mul_s(&self, n: &N) -> T {
+        *self * *n
+    }
+}
+
+/// Trait of objects having a division by a scalar.
+pub trait ScalarDiv<N> {
+    /// Gets the result of `self / n`.
+    fn div_s(&self, n: &N) -> Self;
+}
+
+impl<N, T: Div<N, T>> ScalarDiv<N> for T {
+    /// Gets the result of `self / n`.
+    fn div_s(&self, n: &N) -> T {
+        *self / *n
     }
 }

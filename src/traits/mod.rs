@@ -9,7 +9,7 @@ pub use self::structure::{FloatVec, FloatVecExt, Basis, Cast, Col, Dim, Indexabl
                           ColSlice, RowSlice, Eye};
 
 pub use self::operations::{Absolute, ApproxEq, Cov, Inv, LMul, Mean, Outer, PartialOrd, RMul,
-                           ScalarAdd, ScalarSub, Transpose};
+                           ScalarAdd, ScalarSub, ScalarMul, ScalarDiv, Transpose};
 pub use self::operations::{PartialOrdering, PartialLess, PartialEqual, PartialGreater, NotComparable};
 
 pub mod geometry;

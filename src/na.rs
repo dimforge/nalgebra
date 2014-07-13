@@ -33,6 +33,7 @@ pub use traits::{
     Rotate, Rotation, RotationMatrix, RotationWithTranslation,
     Row,
     ScalarAdd, ScalarSub,
+    ScalarMul, ScalarAdd,
     ToHomogeneous,
     Transform, Transformation,
     Translate, Translation,
