@@ -71,18 +71,16 @@ fn main() {
 ```
 
 ## Compilation
-You will need the last rust compiler from the master branch.
-If you encounter problems, make sure you have the last version before creating an issue.
+You will need the last nightly build of the [rust compiler](http://www.rust-lang.org)
+and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
-    git clone git://github.com/sebcrozet/nalgebra.git
-    cd nalgebra
-    make
-
-You can build the documentation on the `doc` folder using:
+Simply add the following to your `Cargo.toml` file:
 
 ```
-make doc
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"
 ```
+
 
 ## **nalgebra** in use
 Here are some projects using **nalgebra**.
@@ -90,4 +88,4 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 * [nphysics](http://nphysics-dev.org): a real-time physics engine.
 * [ncollide](http://ncollide.org): a collision detection library.
-* [kiss3d](https://kiss3d.org): a minimalistic graphics engine.
+* [kiss3d](http://kiss3d.org): a minimalistic graphics engine.

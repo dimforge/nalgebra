@@ -71,20 +71,16 @@ fn main() {
 ```
 
 ## Compilation
-You will need the last rust compiler from the master branch.
-If you encounter problems, make sure you have the last version before creating an issue.
+You will need the last nightly build of the [rust compiler](http://www.rust-lang.org)
+and the official package manager: [cargo](https://github.com/rust-lang/cargo).
+
+Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
-git clone git://github.com/sebcrozet/nalgebra.git
-cd nalgebra
-make
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra"
 ```
 
-You can build the documentation on the `doc` folder using:
-
-```.ignore
-make doc
-```
 
 ## **nalgebra** in use
 Here are some projects using **nalgebra**.
