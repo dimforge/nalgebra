@@ -97,7 +97,6 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 */
 
 #![crate_name = "nalgebra"]
-#![crate_type = "lib"]
 #![deny(non_camel_case_types)]
 #![deny(unnecessary_parens)]
 #![deny(non_uppercase_statics)]
