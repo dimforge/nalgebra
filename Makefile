@@ -1,15 +1,11 @@
 tmp=_git_distcheck
-nalgebra_lib_path=lib
 nalgebra_doc_path=doc
+
 all:
-	mkdir -p $(nalgebra_lib_path)
-	rustc src/lib.rs --out-dir $(nalgebra_lib_path) --crate-type dylib --crate-type rlib --opt-level 3
+	cargo build --release
 
 test:
-	mkdir -p $(nalgebra_lib_path)
-	rustc --test src/lib.rs --opt-level 3 -o test~ && ./test~
-	rm test~
-	rustdoc --test -L lib src/lib.rs
+	cargo test
 
 bench:
 	rustc --test src/lib.rs --opt-level 3 -o bench~ && ./bench~ --bench
