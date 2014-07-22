@@ -4,6 +4,5 @@ version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ] # FIXME: add the contributors.
 
 [[lib]]
-name       = "nalgebra"
-crate_type = [ "dylib", "staticlib", "rlib" ]
-path       = "src/lib.rs"
+name = "nalgebra"
+path = "src/lib.rs"
