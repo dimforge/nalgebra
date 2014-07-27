@@ -266,3 +266,16 @@ fn test_decomp_qr_mat5() {
 fn test_decomp_qr_mat6() {
     test_decomp_qr_impl!(Mat6<f64>);
 }
+
+
+#[test]
+fn test_from_fn() {
+    let actual: DMat<uint> = DMat::from_fn( 3, 4, 
+                                           |i,j| 10*i + j);
+    let expected: DMat<uint> = DMat::from_row_vec(3, 4, 
+                                                  [0_0, 0_1, 0_2, 0_3,
+                                                   1_0, 1_1, 1_2, 1_3,
+                                                   2_0, 2_1, 2_2, 2_3 ]);
+
+    assert_eq!(actual, expected);
+}
