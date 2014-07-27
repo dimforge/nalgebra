@@ -139,7 +139,7 @@ impl<N> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   Vec::from_fn(nrows * ncols, |i| { let m = i % ncols; f(m, m - i * ncols) })
+            mij:   Vec::from_fn(nrows * ncols, |i| f(i % nrows, i / nrows))
         }
     }
 
