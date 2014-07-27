@@ -15,6 +15,9 @@ doc:
 	mkdir -p $(nalgebra_doc_path)
 	rustdoc src/lib.rs
 
+clean:
+	cargo clean
+
 distcheck:
 	rm -rf $(tmp)
 	git clone --recursive . $(tmp)
