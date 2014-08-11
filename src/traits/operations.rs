@@ -196,11 +196,17 @@ pub trait Absolute<A> {
 
 /// Trait of objects having an inverse. Typically used to implement matrix inverse.
 pub trait Inv {
-    /// Returns the inverse of `self`.
+    /// Returns the inverse of `m`.
     fn inv_cpy(m: &Self) -> Option<Self>;
 
     /// In-place version of `inverse`.
     fn inv(&mut self) -> bool;
+}
+
+/// Trait of objects having a determinant. Typically used by square matrices.
+pub trait Det<N> {
+    /// Returns the determinant of `m`.
+    fn det(m: &Self) -> N;
 }
 
 /// Trait of objects which can be transposed.
@@ -214,19 +220,19 @@ pub trait Transpose {
 
 /// Traits of objects having an outer product.
 pub trait Outer<M> {
-    /// Computes the outer product: `self * other`
+    /// Computes the outer product: `a * b`
     fn outer(a: &Self, b: &Self) -> M;
 }
 
 /// Trait for computing the covariance of a set of data.
 pub trait Cov<M> {
-    /// Computes the covariance of the obsevations stored by `self`:
+    /// Computes the covariance of the obsevations stored by `m`:
     ///
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn cov(&Self) -> M;
+    fn cov(m: &Self) -> M;
 
-    /// Computes the covariance of the obsevations stored by `self`:
+    /// Computes the covariance of the obsevations stored by `m`:
     ///
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
@@ -237,11 +243,11 @@ pub trait Cov<M> {
 
 /// Trait for computing the covariance of a set of data.
 pub trait Mean<N> {
-    /// Computes the mean of the observations stored by `self`.
+    /// Computes the mean of the observations stored by `v`.
     /// 
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn mean(&Self) -> N;
+    fn mean(v: &Self) -> N;
 }
 
 

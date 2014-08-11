@@ -327,7 +327,7 @@ impl<N: Float + Clone> Norm<N> for DVec<N> {
         let l = Norm::norm(self);
 
         for i in range(0u, self.at.len()) {
-            *self.at.get_mut(i) = *self.at.get(i) / l;
+            *self.at.get_mut(i) = self.at[i] / l;
         }
 
         l

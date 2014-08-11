@@ -1,12 +1,11 @@
 use std::num::{Zero, One};
 use structs::vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
 use structs::mat::{Mat1, Mat2, Mat3, Mat3MulRhs, Mat2MulRhs};
-use traits::operations::Inv;
+use traits::operations::{Inv, Det};
 use traits::structure::{Row, Col};
 
 // some specializations:
-impl<N: Num + Clone>
-Inv for Mat1<N> {
+impl<N: Num + Clone> Inv for Mat1<N> {
     #[inline]
     fn inv_cpy(m: &Mat1<N>) -> Option<Mat1<N>> {
         let mut res = m.clone();
@@ -26,14 +25,14 @@ Inv for Mat1<N> {
         }
         else {
             let _1: N = One::one();
-            self.m11 = _1 / self.m11;
+
+            self.m11 = _1 / Det::det(self);
             true
         }
     }
 }
 
-impl<N: Num + Clone>
-Inv for Mat2<N> {
+impl<N: Num + Clone> Inv for Mat2<N> {
     #[inline]
     fn inv_cpy(m: &Mat2<N>) -> Option<Mat2<N>> {
         let mut res = m.clone();
@@ -48,7 +47,7 @@ Inv for Mat2<N> {
 
     #[inline]
     fn inv(&mut self) -> bool {
-        let det = self.m11 * self.m22 - self.m21 * self.m12;
+        let det = Det::det(self);
 
         if det.is_zero() {
             false
@@ -63,8 +62,7 @@ Inv for Mat2<N> {
     }
 }
 
-impl<N: Num + Clone>
-Inv for Mat3<N> {
+impl<N: Num + Clone> Inv for Mat3<N> {
     #[inline]
     fn inv_cpy(m: &Mat3<N>) -> Option<Mat3<N>> {
         let mut res = m.clone();
@@ -83,9 +81,7 @@ Inv for Mat3<N> {
         let minor_m11_m23 = self.m21 * self.m33 - self.m31 * self.m23;
         let minor_m11_m22 = self.m21 * self.m32 - self.m31 * self.m22;
 
-        let det = self.m11 * minor_m12_m23
-                  - self.m12 * minor_m11_m23
-                  + self.m13 * minor_m11_m22;
+        let det = self.m11 * minor_m12_m23 - self.m12 * minor_m11_m23 + self.m13 * minor_m11_m22;
 
         if det.is_zero() {
             false
@@ -107,6 +103,31 @@ Inv for Mat3<N> {
 
             true
         }
+    }
+}
+
+impl<N: Num + Clone> Det<N> for Mat1<N> {
+    #[inline]
+    fn det(m: &Mat1<N>) -> N {
+        m.m11.clone()
+    }
+}
+
+impl<N: Num> Det<N> for Mat2<N> {
+    #[inline]
+    fn det(m: &Mat2<N>) -> N {
+        m.m11 * m.m22 - m.m21 * m.m12
+    }
+}
+
+impl<N: Num> Det<N> for Mat3<N> {
+    #[inline]
+    fn det(m: &Mat3<N>) -> N {
+        let minor_m12_m23 = m.m22 * m.m33 - m.m32 * m.m23;
+        let minor_m11_m23 = m.m21 * m.m33 - m.m31 * m.m23;
+        let minor_m11_m22 = m.m21 * m.m32 - m.m31 * m.m22;
+
+        m.m11 * minor_m12_m23 - m.m12 * minor_m11_m23 + m.m13 * minor_m11_m22
     }
 }
 

@@ -15,6 +15,7 @@ pub use traits::{
     Cov,
     Cross,
     CrossMatrix,
+    Det,
     Dim,
     Dot,
     FromHomogeneous,
@@ -578,6 +579,15 @@ pub fn sqnorm<V: Norm<N>, N: Float>(v: &V) -> N {
 #[inline(always)]
 pub fn normalize<V: Norm<N>, N: Float>(v: &V) -> V {
     Norm::normalize_cpy(v)
+}
+
+/*
+ * Det<N>
+ */
+/// Computes the determinant of a square matrix.
+#[inline(always)]
+pub fn det<M: Det<N>, N>(m: &M) -> N {
+    Det::det(m)
 }
 
 /*

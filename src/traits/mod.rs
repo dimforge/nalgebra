@@ -8,7 +8,7 @@ pub use self::structure::{FloatVec, FloatVecExt, Basis, Cast, Col, Dim, Indexabl
                           Iterable, IterableMut, Mat, Row, AnyVec, VecExt,
                           ColSlice, RowSlice, Eye};
 
-pub use self::operations::{Absolute, ApproxEq, Cov, Inv, LMul, Mean, Outer, PartialOrd, RMul,
+pub use self::operations::{Absolute, ApproxEq, Cov, Det, Inv, LMul, Mean, Outer, PartialOrd, RMul,
                            ScalarAdd, ScalarSub, ScalarMul, ScalarDiv, Transpose};
 pub use self::operations::{PartialOrdering, PartialLess, PartialEqual, PartialGreater, NotComparable};
 
