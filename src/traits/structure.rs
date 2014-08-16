@@ -144,7 +144,7 @@ pub trait Indexable<Index, Res> {
     /// Swaps the `i`-th element of `self` with its `j`-th element.
     fn swap(&mut self, i: Index, j: Index);
 
-    /// Returns the shape of the iterable range
+    /// Returns the shape of the iterable range.
     fn shape(&self) -> Index;
 
     /// Reads the `i`-th element of `self`.

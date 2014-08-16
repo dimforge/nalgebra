@@ -1,6 +1,6 @@
 use std::num::{Zero, Float};
-use traits::operations::Transpose;
-use traits::structure::{ColSlice, Eye, Indexable};
+use traits::operations::{Transpose, ApproxEq};
+use traits::structure::{ColSlice, Eye, Indexable, Diag};
 use traits::geometry::Norm;
 use std::cmp::min;
 
@@ -16,12 +16,16 @@ pub fn householder_matrix<N: Float,
                           V: Indexable<uint, N>>
                           (dim: uint, start: uint, vec: V) -> M {
     let mut qk : M = Eye::new_identity(dim);
-    let stop = start + vec.shape();
-    assert!(stop <= dim);
+    let subdim = vec.shape();
+
+    let stop = subdim + start;
+
+    assert!(dim >= stop);
+
     for j in range(start, stop) {
         for i in range(start, stop) {
             unsafe {
-                let vv = vec.unsafe_at(i) * vec.unsafe_at(j);
+                let vv = vec.unsafe_at(i - start) * vec.unsafe_at(j - start);
                 let qkij = qk.unsafe_at((i, j));
                 qk.unsafe_set((i, j), qkij - vv - vv);
             }
@@ -60,11 +64,70 @@ pub fn qr<N: Float,
             let x = v.unsafe_at(0);
             v.unsafe_set(0, x - alpha);
         }
-        let _ = v.normalize();
-        let qk: M = householder_matrix(rows, 0, v);
-        r = qk * r;
-        q = q * Transpose::transpose_cpy(&qk);
+        if !v.normalize().is_zero() {
+            let qk: M = householder_matrix(rows, ite, v);
+            r = qk * r;
+            q = q * Transpose::transpose_cpy(&qk);
+        }
     }
 
     (q, r)
+}
+
+/// Eigendecomposition of a square matrix using the qr algorithm.
+pub fn eigen_qr<N:  Float,
+                V:  Indexable<uint, N> + Norm<N>,
+                V2: Zero,
+                M:  Clone + Eye + ColSlice<V> + Transpose
+                    + Indexable<(uint, uint), N> + Mul<M, M>
+                    + Diag<V2> + ApproxEq<N> + Add<M, M>
+                    + Sub<M, M>>
+                (m: &M, eps: &N, niter: uint) -> (M, V2) {
+    let (rows, cols) = m.shape();
+
+    assert!(rows == cols, "The matrix being decomposed must be square.");
+
+    let mut eigenvectors: M = Eye::new_identity(rows);
+    let mut eigenvalues = m.clone();
+    let mut shifter: M = Eye::new_identity(rows);
+
+    let mut iter = 0u;
+    for _ in range(0, niter) {
+        let mut stop = true;
+
+        for j in range(0, cols) {
+            for i in range(0, j) {
+                if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
+                    stop = false;
+                    break;
+                }
+            }
+
+            for i in range(j + 1, rows) {
+                if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
+                    stop = false;
+                    break;
+                }
+            }
+        }
+
+        if stop {
+            break;
+        }
+        iter = iter + 1;
+
+        // FIXME: This is a very naive implementation.
+        let shift = unsafe { eigenvalues.unsafe_at((rows - 1, rows - 1)) };
+
+        for i in range(0, rows) {
+            unsafe { shifter.unsafe_set((i, i), shift.clone()) }
+        }
+
+        let (q, r) = qr(&(eigenvalues - shifter));
+
+        eigenvalues = r * q + shifter;
+        eigenvectors = eigenvectors * q;
+    }
+
+    (eigenvectors, eigenvalues.diag())
 }

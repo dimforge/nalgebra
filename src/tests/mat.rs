@@ -37,34 +37,28 @@ macro_rules! test_qr_impl(
   );
 )
 
-macro_rules! test_eigen_qr_impl(
-    ($t: ty) => {
-        for _ in range(0u, 10000) {
-            let randmat : $t = random();
-
-            let (eigenvalues, eigenvectors) = na::eigen_qr(&randmat, &Float::epsilon(), 1000);
-
-            // FIXME: provide a method to initialize a matrix from its diagonal!
-            let diag: $t = na::zero();
-
-            for i in range(0, na::dim::<$t>()) {
-                diag.set((i, i), eigenvalues.at(i));
-            }
-
-            let recomp = na::transpose(&eigenvectors) * diag * eigenvectors;
-
-            println!("mat: {}", randmat);
-            println!("eigenvectors: {}", eigenvectors);
-            println!("eigenvalues: {}", eigenvalues);
-            println!("recomp: {}", recomp);
-
-            assert!(false);
-            fail!("what!");
-
-            assert!(na::approx_eq(&randmat,  &recomp));
-        }
-    }
-)
+// NOTE: deactivated untile we get a better convergence rate.
+// macro_rules! test_eigen_qr_impl(
+//     ($t: ty) => {
+//         for _ in range(0u, 10000) {
+//             let randmat : $t = random();
+//             // Make it symetric so that we can recompose the matrix to test at the end.
+//             let randmat = na::transpose(&randmat) * randmat;
+// 
+//             let (eigenvectors, eigenvalues) = na::eigen_qr(&randmat, &Float::epsilon(), 100);
+// 
+//             let diag: $t = Diag::from_diag(&eigenvalues);
+// 
+//             let recomp = eigenvectors * diag * na::transpose(&eigenvectors);
+// 
+//             println!("eigenvalues: {}", eigenvalues);
+//             println!("   mat: {}", randmat);
+//             println!("recomp: {}", recomp);
+// 
+//             assert!(na::approx_eq_eps(&randmat,  &recomp, &1.0e-2));
+//         }
+//     }
+// )
 
 #[test]
 fn test_transpose_mat1() {
@@ -295,6 +289,7 @@ fn test_qr_mat6() {
     test_qr_impl!(Mat6<f64>);
 }
 
+// NOTE: deactivated untile we get a better convergence rate.
 // #[test]
 // fn test_eigen_qr_mat1() {
 //     test_eigen_qr_impl!(Mat1<f64>);
