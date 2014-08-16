@@ -6,18 +6,22 @@ pub use traits::{PartialLess, PartialEqual, PartialGreater, NotComparable};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
+    AnyVec,
     ApproxEq,
-    FloatVec,
-    FloatVecExt,
     Basis,
     Cast,
     Col,
+    ColSlice, RowSlice,
     Cov,
     Cross,
     CrossMatrix,
     Det,
+    Diag,
     Dim,
     Dot,
+    Eye,
+    FloatVec,
+    FloatVecExt,
     FromHomogeneous,
     Indexable,
     Inv,
@@ -40,10 +44,7 @@ pub use traits::{
     Translate, Translation,
     Transpose,
     UniformSphereSample,
-    AnyVec,
-    VecExt,
-    ColSlice, RowSlice,
-    Eye
+    VecExt
 };
 
 pub use structs::{
@@ -735,6 +736,9 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
 //
 //
 
+/*
+ * Eye
+ */
 /// Construct the identity matrix for a given dimension
 #[inline(always)]
 pub fn new_identity<M: Eye>(dim: uint) -> M { Eye::new_identity(dim) }
@@ -762,6 +766,15 @@ pub fn orthonormal_subspace_basis<V: Basis>(v: &V, f: |V| -> bool) {
 /*
  * Col<C>
  */
+
+/*
+ * Diag<V>
+ */
+/// Gets the diagonal of a square matrix.
+#[inline(always)]
+pub fn diag<M: Diag<V>, V>(m: &M) -> V {
+    m.diag()
+}
 
 /*
  * Dim

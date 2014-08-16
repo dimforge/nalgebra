@@ -2,6 +2,7 @@
 
 #![allow(missing_doc)] // we hide doc to not have to document the $trhs double dispatch trait.
 
+use std::cmp;
 use std::rand::Rand;
 use std::rand;
 use std::num::{One, Zero};
@@ -9,7 +10,7 @@ use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
 use traits::operations::{Inv, Transpose, Mean, Cov};
-use traits::structure::{Cast, ColSlice, RowSlice, Eye, Indexable};
+use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable};
 use std::fmt::{Show, Formatter, Result};
 
 
@@ -546,6 +547,41 @@ impl<N: Clone> RowSlice<DVec<N>> for DMat<N> {
             slice_idx += 1;
         }
         slice
+    }
+}
+
+impl<N: Clone + Zero>  Diag<DVec<N>> for DMat<N> {
+    #[inline]
+    fn from_diag(diag: &DVec<N>) -> DMat<N> {
+        let mut res = DMat::new_zeros(diag.len(), diag.len());
+
+        res.set_diag(diag);
+
+        res
+    }
+
+    #[inline]
+    fn set_diag(&mut self, diag: &DVec<N>) {
+        let smallest_dim = cmp::min(self.nrows, self.ncols);
+
+        assert!(diag.len() == smallest_dim);
+
+        for i in range(0, smallest_dim) {
+            unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
+        }
+    }
+
+    #[inline]
+    fn diag(&self) -> DVec<N> {
+        let smallest_dim = cmp::min(self.nrows, self.ncols);
+
+        let mut diag: DVec<N> = DVec::new_zeros(smallest_dim);
+
+        for i in range(0, smallest_dim) {
+            unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
+        }
+
+        diag
     }
 }
 

@@ -115,6 +115,18 @@ pub trait Dim {
     fn dim(unused_self: Option<Self>) -> uint;
 }
 
+/// Trait to get the diagonal of square matrices.
+pub trait Diag<V> {
+    /// Creates a new matrix with the given diagonal.
+    fn from_diag(diag: &V) -> Self;
+
+    /// Sets the diagonal of this matrix.
+    fn set_diag(&mut self, diag: &V);
+
+    /// The diagonal of this matrix.
+    fn diag(&self) -> V;
+}
+
 // FIXME: this trait should not be on nalgebra.
 // however, it is needed because std::ops::Index is (strangely) to poor: it
 // does not have a function to set values.

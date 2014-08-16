@@ -6,7 +6,7 @@ pub use self::geometry::{AbsoluteRotate, Cross, CrossMatrix, Dot, FromHomogeneou
 
 pub use self::structure::{FloatVec, FloatVecExt, Basis, Cast, Col, Dim, Indexable,
                           Iterable, IterableMut, Mat, Row, AnyVec, VecExt,
-                          ColSlice, RowSlice, Eye};
+                          ColSlice, RowSlice, Diag, Eye};
 
 pub use self::operations::{Absolute, ApproxEq, Cov, Det, Inv, LMul, Mean, Outer, PartialOrd, RMul,
                            ScalarAdd, ScalarSub, ScalarMul, ScalarDiv, Transpose};

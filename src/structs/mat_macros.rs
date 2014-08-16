@@ -307,6 +307,39 @@ macro_rules! col_impl(
   )
 )
 
+macro_rules! diag_impl(
+    ($t: ident, $tv: ident, $dim: expr) => (
+        impl<N: Clone + Zero> Diag<$tv<N>> for $t<N> {
+            #[inline]
+            fn from_diag(diag: &$tv<N>) -> $t<N> {
+                let mut res: $t<N> = Zero::zero();
+
+                res.set_diag(diag);
+
+                res
+            }
+
+            #[inline]
+            fn set_diag(&mut self, diag: &$tv<N>) {
+                for i in range(0, $dim) {
+                    unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
+                }
+            }
+
+            #[inline]
+            fn diag(&self) -> $tv<N> {
+                let mut diag: $tv<N> = Zero::zero();
+
+                for i in range(0, $dim) {
+                    unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
+                }
+
+                diag
+            }
+        }
+    )
+)
+
 macro_rules! mat_mul_mat_impl(
   ($t: ident, $trhs: ident, $dim: expr) => (
     impl<N: Clone + Num> $trhs<N, $t<N>> for $t<N> {
