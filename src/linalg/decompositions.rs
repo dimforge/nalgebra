@@ -34,11 +34,12 @@ pub fn householder_matrix<N: Float,
 ///
 /// # Arguments
 /// * `m` - matrix to decompose
-pub fn decomp_qr<N: Float,
-                 V: Indexable<uint, N> + Norm<N>,
-                 M: Clone + Eye + ColSlice<V> + Transpose
-                    + Indexable<(uint, uint), N> + Mul<M, M>>
-                 (m: &M) -> (M, M) {
+pub fn qr<N: Float,
+          V: Indexable<uint, N> + Norm<N>,
+          M: Clone + Eye + ColSlice<V> + Transpose
+              + Indexable<(uint, uint), N> + Mul<M, M>>
+          (m: &M) 
+          -> (M, M) {
     let (rows, cols) = m.shape();
     assert!(rows >= cols);
     let mut q : M = Eye::new_identity(rows);
@@ -67,4 +68,3 @@ pub fn decomp_qr<N: Float,
 
     (q, r)
 }
-

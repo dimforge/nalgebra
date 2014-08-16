@@ -245,7 +245,7 @@ impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
     #[inline]
     unsafe fn unsafe_at(&self, rowcol: (uint,  uint)) -> N {
         let (row, col) = rowcol;
-        (*self.mij.as_slice().unsafe_ref(self.offset(row, col))).clone()
+        (*self.mij.as_slice().unsafe_get(self.offset(row, col))).clone()
     }
 
     #[inline]
@@ -524,7 +524,7 @@ impl<N: Clone> ColSlice<DVec<N>> for DMat<N> {
         // we can init from slice thanks to the matrix being column major
         let start= self.offset(row_start, col_id);
         let stop = self.offset(row_end, col_id);
-        let slice = DVec::from_vec(
+        let slice = DVec::from_slice(
             row_end - row_start, self.mij.slice(start, stop));
         slice
     }

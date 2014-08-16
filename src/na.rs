@@ -48,7 +48,8 @@ pub use traits::{
 
 pub use structs::{
     Identity,
-    DMat, DVec,
+    DMat,
+    DVec, DVec1, DVec2,  DVec3,  DVec4,  DVec5,  DVec6,
     Iso2, Iso3, Iso4,
     Mat1, Mat2, Mat3, Mat4,
     Mat5, Mat6,
@@ -57,7 +58,8 @@ pub use structs::{
 };
 
 pub use linalg::{
-    decomp_qr,
+    qr,
+    eigen_qr,
     householder_matrix
 };
 

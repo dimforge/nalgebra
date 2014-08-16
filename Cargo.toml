@@ -3,6 +3,6 @@ name    = "nalgebra"
 version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ] # FIXME: add the contributors.
 
-[[lib]]
+[lib]
 name = "nalgebra"
 path = "src/lib.rs"

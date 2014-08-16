@@ -1,7 +1,7 @@
 //! Data structures and implementations.
 
 pub use self::dmat::DMat;
-pub use self::dvec::DVec;
+pub use self::dvec::{DVec, DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
 pub use self::vec::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 pub use self::mat::{Identity, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6};
 pub use self::rot::{Rot2, Rot3, Rot4};
@@ -18,6 +18,7 @@ pub use self::mat::{Mat1MulRhs, Mat2MulRhs, Mat3MulRhs, Mat4MulRhs, Mat5MulRhs, 
 
 mod metal;
 mod dmat;
+mod dvec_macros;
 mod dvec;
 mod vec_macros;
 mod vec;

@@ -15,6 +15,26 @@ macro_rules! new_impl(
     )
 )
 
+macro_rules! as_slice_impl(
+    ($t: ident, $dim: expr) => (
+        impl<N> $t<N> {
+            /// Slices this vector.
+            pub fn as_slice<'a>(&'a self) -> &'a [N] {
+                unsafe {
+                    mem::transmute::<&$t<N>, &[N, ..$dim]>(self).as_slice()
+                }
+            }
+
+            /// Mutably slices this vector.
+            pub fn as_mut_slice<'a>(&'a mut self) -> &'a mut [N] {
+                unsafe {
+                    mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).as_mut_slice()
+                }
+            }
+        }
+    )
+)
+
 macro_rules! at_fast_impl(
     ($t: ident, $dim: expr) => (
         impl<N: Clone> $t<N> {

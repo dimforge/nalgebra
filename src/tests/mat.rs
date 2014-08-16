@@ -2,7 +2,6 @@ use std::num::{Float, abs};
 use std::rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable};
 use na;
-use na::decomp_qr;
 use std::cmp::{min, max};
 
 macro_rules! test_inv_mat_impl(
@@ -25,17 +24,46 @@ macro_rules! test_transpose_mat_impl(
   );
 )
 
-macro_rules! test_decomp_qr_impl(
+macro_rules! test_qr_impl(
   ($t: ty) => (
     for _ in range(0u, 10000) {
       let randmat : $t = random();
 
-      let (q, r) = decomp_qr(&randmat);
+      let (q, r) = na::qr(&randmat);
       let recomp = q * r;
 
       assert!(na::approx_eq(&randmat,  &recomp));
     }
   );
+)
+
+macro_rules! test_eigen_qr_impl(
+    ($t: ty) => {
+        for _ in range(0u, 10000) {
+            let randmat : $t = random();
+
+            let (eigenvalues, eigenvectors) = na::eigen_qr(&randmat, &Float::epsilon(), 1000);
+
+            // FIXME: provide a method to initialize a matrix from its diagonal!
+            let diag: $t = na::zero();
+
+            for i in range(0, na::dim::<$t>()) {
+                diag.set((i, i), eigenvalues.at(i));
+            }
+
+            let recomp = na::transpose(&eigenvectors) * diag * eigenvectors;
+
+            println!("mat: {}", randmat);
+            println!("eigenvectors: {}", eigenvectors);
+            println!("eigenvalues: {}", eigenvalues);
+            println!("recomp: {}", recomp);
+
+            assert!(false);
+            fail!("what!");
+
+            assert!(na::approx_eq(&randmat,  &recomp));
+        }
+    }
 )
 
 #[test]
@@ -139,7 +167,7 @@ fn test_mean_dmat() {
         ]
     );
 
-    assert!(na::approx_eq(&na::mean(&mat), &DVec::from_vec(3, [4.0f64, 5.0, 6.0])));
+    assert!(na::approx_eq(&na::mean(&mat), &DVec::from_slice(3, [4.0f64, 5.0, 6.0])));
 }
 
 #[test]
@@ -223,14 +251,14 @@ fn test_dmat_from_vec() {
 }
 
 #[test]
-fn test_decomp_qr() {
+fn test_qr() {
     for _ in range(0u, 10) {
         let dim1: uint = random();
         let dim2: uint = random();
         let rows = min(40, max(dim1, dim2));
         let cols = min(40, min(dim1, dim2));
         let randmat: DMat<f64> = DMat::new_random(rows, cols);
-        let (q, r) = decomp_qr(&randmat);
+        let (q, r) = na::qr(&randmat);
         let recomp = q * r;
 
         assert!(na::approx_eq(&randmat,  &recomp));
@@ -238,40 +266,68 @@ fn test_decomp_qr() {
 }
 
 #[test]
-fn test_decomp_qr_mat1() {
-    test_decomp_qr_impl!(Mat1<f64>);
+fn test_qr_mat1() {
+    test_qr_impl!(Mat1<f64>);
 }
 
 #[test]
-fn test_decomp_qr_mat2() {
-    test_decomp_qr_impl!(Mat2<f64>);
+fn test_qr_mat2() {
+    test_qr_impl!(Mat2<f64>);
 }
 
 #[test]
-fn test_decomp_qr_mat3() {
-    test_decomp_qr_impl!(Mat3<f64>);
+fn test_qr_mat3() {
+    test_qr_impl!(Mat3<f64>);
 }
 
 #[test]
-fn test_decomp_qr_mat4() {
-    test_decomp_qr_impl!(Mat4<f64>);
+fn test_qr_mat4() {
+    test_qr_impl!(Mat4<f64>);
 }
 
 #[test]
-fn test_decomp_qr_mat5() {
-    test_decomp_qr_impl!(Mat5<f64>);
+fn test_qr_mat5() {
+    test_qr_impl!(Mat5<f64>);
 }
 
 #[test]
-fn test_decomp_qr_mat6() {
-    test_decomp_qr_impl!(Mat6<f64>);
+fn test_qr_mat6() {
+    test_qr_impl!(Mat6<f64>);
 }
 
+// #[test]
+// fn test_eigen_qr_mat1() {
+//     test_eigen_qr_impl!(Mat1<f64>);
+// }
+// 
+// #[test]
+// fn test_eigen_qr_mat2() {
+//     test_eigen_qr_impl!(Mat2<f64>);
+// }
+// 
+// #[test]
+// fn test_eigen_qr_mat3() {
+//     test_eigen_qr_impl!(Mat3<f64>);
+// }
+// 
+// #[test]
+// fn test_eigen_qr_mat4() {
+//     test_eigen_qr_impl!(Mat4<f64>);
+// }
+// 
+// #[test]
+// fn test_eigen_qr_mat5() {
+//     test_eigen_qr_impl!(Mat5<f64>);
+// }
+// 
+// #[test]
+// fn test_eigen_qr_mat6() {
+//     test_eigen_qr_impl!(Mat6<f64>);
+// }
 
 #[test]
 fn test_from_fn() {
-    let actual: DMat<uint> = DMat::from_fn( 3, 4, 
-                                           |i,j| 10*i + j);
+    let actual: DMat<uint> = DMat::from_fn(3, 4, |i, j| 10 * i + j);
     let expected: DMat<uint> = DMat::from_row_vec(3, 4, 
                                                   [0_0, 0_1, 0_2, 0_3,
                                                    1_0, 1_1, 1_2, 1_3,

@@ -11,95 +11,11 @@ use std::iter::FromIterator;
 use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut, Indexable};
 
-/// Vector with a dimension unknown at compile-time.
+/// Heap allocated, dynamically sized vector.
 #[deriving(Eq, PartialEq, Show, Clone)]
 pub struct DVec<N> {
     /// Components of the vector. Contains as much elements as the vector dimension.
     pub at: Vec<N>
-}
-
-double_dispatch_binop_decl_trait!(DVec, DVecMulRhs)
-double_dispatch_binop_decl_trait!(DVec, DVecDivRhs)
-double_dispatch_binop_decl_trait!(DVec, DVecAddRhs)
-double_dispatch_binop_decl_trait!(DVec, DVecSubRhs)
-
-mul_redispatch_impl!(DVec, DVecMulRhs)
-div_redispatch_impl!(DVec, DVecDivRhs)
-add_redispatch_impl!(DVec, DVecAddRhs)
-sub_redispatch_impl!(DVec, DVecSubRhs)
-
-impl<N: Zero + Clone> DVec<N> {
-    /// Builds a vector filled with zeros.
-    ///
-    /// # Arguments
-    /// * `dim` - The dimension of the vector.
-    #[inline]
-    pub fn new_zeros(dim: uint) -> DVec<N> {
-        DVec::from_elem(dim, Zero::zero())
-    }
-
-    /// Tests if all components of the vector are zeroes.
-    #[inline]
-    pub fn is_zero(&self) -> bool {
-        self.at.iter().all(|e| e.is_zero())
-    }
-}
-
-impl<N: Clone> Indexable<uint, N> for DVec<N> {
-
-    fn at(&self, i: uint) -> N {
-        assert!(i < self.at.len());
-        unsafe {
-            self.unsafe_at(i)
-        }
-    }
-
-    fn set(&mut self, i: uint, val: N) {
-        assert!(i < self.at.len());
-        unsafe {
-            self.unsafe_set(i, val);
-        }
-    }
-
-    fn swap(&mut self, i: uint, j: uint) {
-        assert!(i < self.at.len());
-        assert!(j < self.at.len());
-        self.at.as_mut_slice().swap(i, j);
-    }
-
-    fn shape(&self) -> uint {
-        self.at.len()
-    }
-
-    #[inline]
-    unsafe fn unsafe_at(&self, i: uint) -> N {
-        (*self.at.as_slice().unsafe_ref(i)).clone()
-    }
-
-    #[inline]
-    unsafe fn unsafe_set(&mut self, i: uint, val: N) {
-        *self.at.as_mut_slice().unsafe_mut_ref(i) = val
-    }
-
-}
-
-impl<N: One + Clone> DVec<N> {
-    /// Builds a vector filled with ones.
-    ///
-    /// # Arguments
-    /// * `dim` - The dimension of the vector.
-    #[inline]
-    pub fn new_ones(dim: uint) -> DVec<N> {
-        DVec::from_elem(dim, One::one())
-    }
-}
-
-impl<N: Rand> DVec<N> {
-    /// Builds a vector filled with random values.
-    #[inline]
-    pub fn new_random(dim: uint) -> DVec<N> {
-        DVec::from_fn(dim, |_| rand::random())
-    }
 }
 
 impl<N> DVec<N> {
@@ -112,24 +28,6 @@ impl<N> DVec<N> {
         DVec {
             at: vec
         }
-    }
-
-    /// Gets a reference to of this vector data.
-    #[inline]
-    pub fn as_vec<'r>(&'r self) -> &'r [N] {
-        self.at.as_slice()
-    }
-
-    /// Gets a mutable reference to of this vector data.
-    #[inline]
-    pub fn as_mut_vec<'r>(&'r mut self) -> &'r mut [N] {
-        self.at.as_mut_slice()
-    }
-
-    /// Extracts this vector data.
-    #[inline]
-    pub fn to_vec(self) -> Vec<N> {
-        self.at
     }
 }
 
@@ -144,7 +42,7 @@ impl<N: Clone> DVec<N> {
     ///
     /// The vector must have at least `dim` elements.
     #[inline]
-    pub fn from_vec(dim: uint, vec: &[N]) -> DVec<N> {
+    pub fn from_slice(dim: uint, vec: &[N]) -> DVec<N> {
         assert!(dim <= vec.len());
 
         DVec {
@@ -161,27 +59,6 @@ impl<N> DVec<N> {
     }
 }
 
-impl<N> Collection for DVec<N> {
-    #[inline]
-    fn len(&self) -> uint {
-        self.at.len()
-    }
-}
-
-impl<N> Iterable<N> for DVec<N> {
-    #[inline]
-    fn iter<'l>(&'l self) -> Items<'l, N> {
-        self.at.iter()
-    }
-}
-
-impl<N> IterableMut<N> for DVec<N> {
-    #[inline]
-    fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
-        self.at.mut_iter()
-    }
-}
-
 impl<N> FromIterator<N> for DVec<N> {
     #[inline]
     fn from_iter<I: Iterator<N>>(mut param: I) -> DVec<N> {
@@ -195,258 +72,71 @@ impl<N> FromIterator<N> for DVec<N> {
     }
 }
 
-impl<N: Clone + Float + ApproxEq<N> + DVecMulRhs<N, DVec<N>>> DVec<N> {
-    /// Computes the canonical basis for the given dimension. A canonical basis is a set of
-    /// vectors, mutually orthogonal, with all its component equal to 0.0 except one which is equal
-    /// to 1.0.
-    pub fn canonical_basis_with_dim(dim: uint) -> Vec<DVec<N>> {
-        let mut res : Vec<DVec<N>> = Vec::new();
 
-        for i in range(0u, dim) {
-            let mut basis_element : DVec<N> = DVec::new_zeros(dim);
-
-            *basis_element.at.get_mut(i) = One::one();
-
-            res.push(basis_element);
-        }
-
-        res
-    }
-
-    /// Computes a basis of the space orthogonal to the vector. If the input vector is of dimension
-    /// `n`, this will return `n - 1` vectors.
-    pub fn orthogonal_subspace_basis(&self) -> Vec<DVec<N>> {
-        // compute the basis of the orthogonal subspace using Gram-Schmidt
-        // orthogonalization algorithm
-        let     dim                = self.at.len();
-        let mut res : Vec<DVec<N>> = Vec::new();
-
-        for i in range(0u, dim) {
-            let mut basis_element : DVec<N> = DVec::new_zeros(self.at.len());
-
-            *basis_element.at.get_mut(i) = One::one();
-
-            if res.len() == dim - 1 {
-                break;
-            }
-
-            let mut elt = basis_element.clone();
-
-            elt = elt - self * Dot::dot(&basis_element, self);
-
-            for v in res.iter() {
-                elt = elt - v * Dot::dot(&elt, v)
-            };
-
-            if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &Zero::zero()) {
-                res.push(Norm::normalize_cpy(&elt));
-            }
-        }
-
-        assert!(res.len() == dim - 1);
-
-        res
+impl<N> Collection for DVec<N> {
+    #[inline]
+    fn len(&self) -> uint {
+        self.at.len()
     }
 }
 
-impl<N: Add<N, N>> DVecAddRhs<N, DVec<N>> for DVec<N> {
-    #[inline]
-    fn binop(left: &DVec<N>, right: &DVec<N>) -> DVec<N> {
-        assert!(left.at.len() == right.at.len());
-        DVec {
-            at: left.at.iter().zip(right.at.iter()).map(|(a, b)| *a + *b).collect()
-        }
-    }
+dvec_impl!(DVec, DVecMulRhs, DVecDivRhs, DVecAddRhs, DVecSubRhs)
+
+/// Stack-allocated, dynamically sized vector with a maximum size of 1.
+pub struct DVec1<N> {
+    at:  [N, ..1],
+    dim: uint
 }
 
-impl<N: Sub<N, N>> DVecSubRhs<N, DVec<N>> for DVec<N> {
-    #[inline]
-    fn binop(left: &DVec<N>, right: &DVec<N>) -> DVec<N> {
-        assert!(left.at.len() == right.at.len());
-        DVec {
-            at: left.at.iter().zip(right.at.iter()).map(|(a, b)| *a - *b).collect()
-        }
-    }
+small_dvec_impl!(DVec1, 1, DVec1MulRhs, DVec1DivRhs, DVec1AddRhs, DVec1SubRhs, 0)
+small_dvec_from_impl!(DVec1, 1, Zero::zero())
+
+
+/// Stack-allocated, dynamically sized vector with a maximum size of 2.
+pub struct DVec2<N> {
+    at:  [N, ..2],
+    dim: uint
 }
 
-impl<N: Neg<N>> Neg<DVec<N>> for DVec<N> {
-    #[inline]
-    fn neg(&self) -> DVec<N> {
-        DVec { at: self.at.iter().map(|a| -*a).collect() }
-    }
+small_dvec_impl!(DVec2, 2, DVec2MulRhs, DVec2DivRhs, DVec2AddRhs, DVec2SubRhs, 0, 1)
+small_dvec_from_impl!(DVec2, 2, Zero::zero(), Zero::zero())
+
+
+/// Stack-allocated, dynamically sized vector with a maximum size of 3.
+pub struct DVec3<N> {
+    at:  [N, ..3],
+    dim: uint
 }
 
-impl<N: Num + Clone> Dot<N> for DVec<N> {
-    #[inline]
-    fn dot(a: &DVec<N>, b: &DVec<N>) -> N {
-        assert!(a.at.len() == b.at.len());
+small_dvec_impl!(DVec3, 3, DVec3MulRhs, DVec3DivRhs, DVec3AddRhs, DVec3SubRhs, 0, 1, 2)
+small_dvec_from_impl!(DVec3, 3, Zero::zero(), Zero::zero(), Zero::zero())
 
-        let mut res: N = Zero::zero();
 
-        for i in range(0u, a.at.len()) {
-            res = res + unsafe { a.unsafe_at(i) * b.unsafe_at(i) };
-        }
-
-        res
-    }
-
-    #[inline]
-    fn sub_dot(a: &DVec<N>, b: &DVec<N>, c: &DVec<N>) -> N {
-        let mut res: N = Zero::zero();
-
-        for i in range(0u, a.at.len()) {
-            res = res + unsafe { (a.unsafe_at(i) - b.unsafe_at(i)) * c.unsafe_at(i) };
-        }
-
-        res
-    }
+/// Stack-allocated, dynamically sized vector with a maximum size of 4.
+pub struct DVec4<N> {
+    at:  [N, ..4],
+    dim: uint
 }
 
-impl<N: Float + Clone> Norm<N> for DVec<N> {
-    #[inline]
-    fn sqnorm(v: &DVec<N>) -> N {
-        Dot::dot(v, v)
-    }
+small_dvec_impl!(DVec4, 4, DVec4MulRhs, DVec4DivRhs, DVec4AddRhs, DVec4SubRhs, 0, 1, 2, 3)
+small_dvec_from_impl!(DVec4, 4, Zero::zero(), Zero::zero(), Zero::zero(), Zero::zero())
 
-    #[inline]
-    fn norm(v: &DVec<N>) -> N {
-        Norm::sqnorm(v).sqrt()
-    }
 
-    #[inline]
-    fn normalize_cpy(v: &DVec<N>) -> DVec<N> {
-        let mut res : DVec<N> = v.clone();
-
-        let _ = res.normalize();
-
-        res
-    }
-
-    #[inline]
-    fn normalize(&mut self) -> N {
-        let l = Norm::norm(self);
-
-        for i in range(0u, self.at.len()) {
-            *self.at.get_mut(i) = self.at[i] / l;
-        }
-
-        l
-    }
+/// Stack-allocated, dynamically sized vector with a maximum size of 5.
+pub struct DVec5<N> {
+    at:  [N, ..5],
+    dim: uint
 }
 
-impl<N: ApproxEq<N>> ApproxEq<N> for DVec<N> {
-    #[inline]
-    fn approx_epsilon(_: Option<DVec<N>>) -> N {
-        ApproxEq::approx_epsilon(None::<N>)
-    }
+small_dvec_impl!(DVec5, 5, DVec5MulRhs, DVec5DivRhs, DVec5AddRhs, DVec5SubRhs, 0, 1, 2, 3, 4)
+small_dvec_from_impl!(DVec5, 5, Zero::zero(), Zero::zero(), Zero::zero(), Zero::zero(), Zero::zero())
 
-    #[inline]
-    fn approx_eq(a: &DVec<N>, b: &DVec<N>) -> bool {
-        let mut zip = a.at.iter().zip(b.at.iter());
 
-        zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
-    }
-
-    #[inline]
-    fn approx_eq_eps(a: &DVec<N>, b: &DVec<N>, epsilon: &N) -> bool {
-        let mut zip = a.at.iter().zip(b.at.iter());
-
-        zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
-    }
+/// Stack-allocated, dynamically sized vector with a maximum size of 6.
+pub struct DVec6<N> {
+    at:  [N, ..6],
+    dim: uint
 }
 
-macro_rules! scalar_mul_impl (
-    ($n: ident) => (
-        impl DVecMulRhs<$n, DVec<$n>> for $n {
-            #[inline]
-            fn binop(left: &DVec<$n>, right: &$n) -> DVec<$n> {
-                DVec { at: left.at.iter().map(|a| a * *right).collect() }
-            }
-        }
-    )
-)
-
-macro_rules! scalar_div_impl (
-    ($n: ident) => (
-        impl DVecDivRhs<$n, DVec<$n>> for $n {
-            #[inline]
-            fn binop(left: &DVec<$n>, right: &$n) -> DVec<$n> {
-                DVec { at: left.at.iter().map(|a| a / *right).collect() }
-            }
-        }
-    )
-)
-
-macro_rules! scalar_add_impl (
-    ($n: ident) => (
-        impl DVecAddRhs<$n, DVec<$n>> for $n {
-            #[inline]
-            fn binop(left: &DVec<$n>, right: &$n) -> DVec<$n> {
-                DVec { at: left.at.iter().map(|a| a + *right).collect() }
-            }
-        }
-    )
-)
-
-macro_rules! scalar_sub_impl (
-    ($n: ident) => (
-        impl DVecSubRhs<$n, DVec<$n>> for $n {
-            #[inline]
-            fn binop(left: &DVec<$n>, right: &$n) -> DVec<$n> {
-                DVec { at: left.at.iter().map(|a| a - *right).collect() }
-            }
-        }
-    )
-)
-
-scalar_mul_impl!(f64)
-scalar_mul_impl!(f32)
-scalar_mul_impl!(u64)
-scalar_mul_impl!(u32)
-scalar_mul_impl!(u16)
-scalar_mul_impl!(u8)
-scalar_mul_impl!(i64)
-scalar_mul_impl!(i32)
-scalar_mul_impl!(i16)
-scalar_mul_impl!(i8)
-scalar_mul_impl!(uint)
-scalar_mul_impl!(int)
-
-scalar_div_impl!(f64)
-scalar_div_impl!(f32)
-scalar_div_impl!(u64)
-scalar_div_impl!(u32)
-scalar_div_impl!(u16)
-scalar_div_impl!(u8)
-scalar_div_impl!(i64)
-scalar_div_impl!(i32)
-scalar_div_impl!(i16)
-scalar_div_impl!(i8)
-scalar_div_impl!(uint)
-scalar_div_impl!(int)
-
-scalar_add_impl!(f64)
-scalar_add_impl!(f32)
-scalar_add_impl!(u64)
-scalar_add_impl!(u32)
-scalar_add_impl!(u16)
-scalar_add_impl!(u8)
-scalar_add_impl!(i64)
-scalar_add_impl!(i32)
-scalar_add_impl!(i16)
-scalar_add_impl!(i8)
-scalar_add_impl!(uint)
-scalar_add_impl!(int)
-
-scalar_sub_impl!(f64)
-scalar_sub_impl!(f32)
-scalar_sub_impl!(u64)
-scalar_sub_impl!(u32)
-scalar_sub_impl!(u16)
-scalar_sub_impl!(u8)
-scalar_sub_impl!(i64)
-scalar_sub_impl!(i32)
-scalar_sub_impl!(i16)
-scalar_sub_impl!(i8)
-scalar_sub_impl!(uint)
-scalar_sub_impl!(int)
+small_dvec_impl!(DVec6, 6, DVec6MulRhs, DVec6DivRhs, DVec6AddRhs, DVec6SubRhs, 0, 1, 2, 3, 4, 5)
+small_dvec_from_impl!(DVec6, 6, Zero::zero(), Zero::zero(), Zero::zero(), Zero::zero(), Zero::zero(), Zero::zero())
