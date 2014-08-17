@@ -123,9 +123,9 @@ pub fn eigen_qr<N:  Float,
             unsafe { shifter.unsafe_set((i, i), shift.clone()) }
         }
 
-        let (q, r) = qr(&(eigenvalues - shifter));
+        let (q, r) = qr(&eigenvalues);//  - shifter));
 
-        eigenvalues = r * q + shifter;
+        eigenvalues = r * q /*+ shifter*/;
         eigenvectors = eigenvectors * q;
     }
 
