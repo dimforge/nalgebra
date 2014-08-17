@@ -1,11 +1,11 @@
 use std::num::{Zero, One};
 use structs::vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
 use structs::mat::{Mat1, Mat2, Mat3, Mat3MulRhs, Mat2MulRhs};
-use traits::operations::{Inv, Det};
+use traits::operations::{Inv, Det, ApproxEq};
 use traits::structure::{Row, Col};
 
 // some specializations:
-impl<N: Num + Clone> Inv for Mat1<N> {
+impl<N: Num + ApproxEq<N> + Clone> Inv for Mat1<N> {
     #[inline]
     fn inv_cpy(m: &Mat1<N>) -> Option<Mat1<N>> {
         let mut res = m.clone();
@@ -20,7 +20,7 @@ impl<N: Num + Clone> Inv for Mat1<N> {
 
     #[inline]
     fn inv(&mut self) -> bool {
-        if self.m11.is_zero() {
+        if ApproxEq::approx_eq(&self.m11, &Zero::zero()) {
             false
         }
         else {
@@ -32,7 +32,7 @@ impl<N: Num + Clone> Inv for Mat1<N> {
     }
 }
 
-impl<N: Num + Clone> Inv for Mat2<N> {
+impl<N: Num + ApproxEq<N> + Clone> Inv for Mat2<N> {
     #[inline]
     fn inv_cpy(m: &Mat2<N>) -> Option<Mat2<N>> {
         let mut res = m.clone();
@@ -49,7 +49,7 @@ impl<N: Num + Clone> Inv for Mat2<N> {
     fn inv(&mut self) -> bool {
         let det = Det::det(self);
 
-        if det.is_zero() {
+        if ApproxEq::approx_eq(&det, &Zero::zero()) {
             false
         }
         else {
@@ -62,7 +62,7 @@ impl<N: Num + Clone> Inv for Mat2<N> {
     }
 }
 
-impl<N: Num + Clone> Inv for Mat3<N> {
+impl<N: Num + ApproxEq<N> + Clone> Inv for Mat3<N> {
     #[inline]
     fn inv_cpy(m: &Mat3<N>) -> Option<Mat3<N>> {
         let mut res = m.clone();
@@ -83,7 +83,7 @@ impl<N: Num + Clone> Inv for Mat3<N> {
 
         let det = self.m11 * minor_m12_m23 - self.m12 * minor_m11_m23 + self.m13 * minor_m11_m22;
 
-        if det.is_zero() {
+        if ApproxEq::approx_eq(&det, &Zero::zero()) {
             false
         }
         else {
