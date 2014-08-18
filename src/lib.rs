@@ -101,7 +101,6 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![feature(macro_rules)]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
-extern crate std;
 extern crate rand;
 extern crate serialize;
 

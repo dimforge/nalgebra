@@ -38,7 +38,7 @@ pub use traits::{
     Rotate, Rotation, RotationMatrix, RotationWithTranslation,
     Row,
     ScalarAdd, ScalarSub,
-    ScalarMul, ScalarAdd,
+    ScalarMul, ScalarDiv,
     ToHomogeneous,
     Transform, Transformation,
     Translate, Translation,
@@ -82,7 +82,7 @@ pub use linalg::{
 /// * `Mat4DivRhs` will allow the overload of the `/` operator between the implementor type and
 /// `Mat4`. The `Mat4` being the first argument of the division.
 pub mod overload {
-    pub use structs::{Vec1SubRhs, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs, Vec5MulRhs, Vec6MulRhs,
+    pub use structs::{Vec1MulRhs, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs, Vec5MulRhs, Vec6MulRhs,
                       Vec1DivRhs, Vec2DivRhs, Vec3DivRhs, Vec4DivRhs, Vec5DivRhs, Vec6DivRhs,
                       Vec1AddRhs, Vec2AddRhs, Vec3AddRhs, Vec4AddRhs, Vec5AddRhs, Vec6AddRhs,
                       Vec1SubRhs, Vec2SubRhs, Vec3SubRhs, Vec4SubRhs, Vec5SubRhs, Vec6SubRhs,
