@@ -3,17 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The nalgebra library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `na` mod in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, na">
 
     <title>nalgebra::na - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
+    
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -21,10 +22,11 @@
     </div>
     <![endif]-->
 
+    
+
     <section class="sidebar">
         
-
-        <p class='location'><a href='../index.html'>nalgebra</a></p><div class='block mod'><h2>Modules</h2><a class='mod current' href='../na/index.html'>na</a><br/></div>
+        <p class='location'><a href='../index.html'>nalgebra</a></p><div class='block mod'><h2>Modules</h2><a class='mod current' href='../na/index.html'>na</a></div>
     </section>
 
     <nav class="sub">
@@ -32,20 +34,23 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'>Module <a href='../index.html'>nalgebra</a>::<a class='mod' href=''>na</a><a class='source' id='src-6' href='../../src/nalgebra/src/na.rs.html#1-784'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Module <a href='../index.html'>nalgebra</a>&#8203;::<a class='mod' href=''>na</a>&#8203;</div><div class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-5' href='../../src/nalgebra/src/na.rs.html#1-810'>[src]</a></div></h1>
 <div class='docblock'><p><strong>nalgebra</strong> prelude.</p>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
 <table><tr><td><code>pub use traits::{<a class='type' href='../../nalgebra/na/type.PartialOrdering.html' title='nalgebra::na::PartialOrdering'>PartialLess</a>, <a class='type' href='../../nalgebra/na/type.PartialOrdering.html' title='nalgebra::na::PartialOrdering'>PartialEqual</a>, <a class='type' href='../../nalgebra/na/type.PartialOrdering.html' title='nalgebra::na::PartialOrdering'>PartialGreater</a>, <a class='type' href='../../nalgebra/na/type.PartialOrdering.html' title='nalgebra::na::PartialOrdering'>NotComparable</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                     <tr>
-                        <td><a class='mod' href='overload/index.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='mod' href='overload/index.html'
                                title='nalgebra::na::overload'>overload</a></td>
                         <td class='docblock short'><p>Traits to work around the language limitations related to operator overloading.</p>
 </td>
@@ -53,154 +58,196 @@
                 </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                     <tr>
-                        <td><a class='struct' href='struct.DMat.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.DMat.html'
                                title='nalgebra::na::DMat'>DMat</a></td>
                         <td class='docblock short'><p>Matrix with dimensions unknown at compile-time.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.DVec.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.DVec.html'
                                title='nalgebra::na::DVec'>DVec</a></td>
-                        <td class='docblock short'><p>Vector with a dimension unknown at compile-time.</p>
+                        <td class='docblock short'><p>Heap allocated, dynamically sized vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Identity.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.DVec1.html'
+                               title='nalgebra::na::DVec1'>DVec1</a></td>
+                        <td class='docblock short'><p>Stack-allocated, dynamically sized vector with a maximum size of 1.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.DVec2.html'
+                               title='nalgebra::na::DVec2'>DVec2</a></td>
+                        <td class='docblock short'><p>Stack-allocated, dynamically sized vector with a maximum size of 2.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.DVec3.html'
+                               title='nalgebra::na::DVec3'>DVec3</a></td>
+                        <td class='docblock short'><p>Stack-allocated, dynamically sized vector with a maximum size of 3.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.DVec4.html'
+                               title='nalgebra::na::DVec4'>DVec4</a></td>
+                        <td class='docblock short'><p>Stack-allocated, dynamically sized vector with a maximum size of 4.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.DVec5.html'
+                               title='nalgebra::na::DVec5'>DVec5</a></td>
+                        <td class='docblock short'><p>Stack-allocated, dynamically sized vector with a maximum size of 5.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.DVec6.html'
+                               title='nalgebra::na::DVec6'>DVec6</a></td>
+                        <td class='docblock short'><p>Stack-allocated, dynamically sized vector with a maximum size of 6.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Identity.html'
                                title='nalgebra::na::Identity'>Identity</a></td>
                         <td class='docblock short'><p>Special identity matrix. All its operation are no-ops.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Iso2.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Iso2.html'
                                title='nalgebra::na::Iso2'>Iso2</a></td>
                         <td class='docblock short'><p>Two dimensional isometry.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Iso3.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Iso3.html'
                                title='nalgebra::na::Iso3'>Iso3</a></td>
                         <td class='docblock short'><p>Three dimensional isometry.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Iso4.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Iso4.html'
                                title='nalgebra::na::Iso4'>Iso4</a></td>
                         <td class='docblock short'><p>Four dimensional isometry.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Mat1.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Mat1.html'
                                title='nalgebra::na::Mat1'>Mat1</a></td>
                         <td class='docblock short'><p>Square matrix of dimension 1.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Mat2.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Mat2.html'
                                title='nalgebra::na::Mat2'>Mat2</a></td>
                         <td class='docblock short'><p>Square matrix of dimension 2.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Mat3.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Mat3.html'
                                title='nalgebra::na::Mat3'>Mat3</a></td>
                         <td class='docblock short'><p>Square matrix of dimension 3.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Mat4.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Mat4.html'
                                title='nalgebra::na::Mat4'>Mat4</a></td>
                         <td class='docblock short'><p>Square matrix of dimension 4.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Mat5.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Mat5.html'
                                title='nalgebra::na::Mat5'>Mat5</a></td>
                         <td class='docblock short'><p>Square matrix of dimension 5.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Mat6.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Mat6.html'
                                title='nalgebra::na::Mat6'>Mat6</a></td>
                         <td class='docblock short'><p>Square matrix of dimension 6.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Rot2.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Rot2.html'
                                title='nalgebra::na::Rot2'>Rot2</a></td>
                         <td class='docblock short'><p>Two dimensional rotation matrix.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Rot3.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Rot3.html'
                                title='nalgebra::na::Rot3'>Rot3</a></td>
                         <td class='docblock short'><p>Three dimensional rotation matrix.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Rot4.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Rot4.html'
                                title='nalgebra::na::Rot4'>Rot4</a></td>
                         <td class='docblock short'><p>Four dimensional rotation matrix.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Vec0.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Vec0.html'
                                title='nalgebra::na::Vec0'>Vec0</a></td>
                         <td class='docblock short'><p>Vector of dimension 0.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Vec1.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Vec1.html'
                                title='nalgebra::na::Vec1'>Vec1</a></td>
                         <td class='docblock short'><p>Vector of dimension 1.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Vec2.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Vec2.html'
                                title='nalgebra::na::Vec2'>Vec2</a></td>
                         <td class='docblock short'><p>Vector of dimension 2.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Vec3.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Vec3.html'
                                title='nalgebra::na::Vec3'>Vec3</a></td>
                         <td class='docblock short'><p>Vector of dimension 3.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Vec4.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Vec4.html'
                                title='nalgebra::na::Vec4'>Vec4</a></td>
                         <td class='docblock short'><p>Vector of dimension 4.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Vec5.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Vec5.html'
                                title='nalgebra::na::Vec5'>Vec5</a></td>
                         <td class='docblock short'><p>Vector of dimension 5.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='struct' href='struct.Vec6.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='struct' href='struct.Vec6.html'
                                title='nalgebra::na::Vec6'>Vec6</a></td>
                         <td class='docblock short'><p>Vector of dimension 6.</p>
 </td>
@@ -208,7 +255,7 @@
                 </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
                     <tr>
-                        <td><a class='type' href='type.PartialOrdering.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='type' href='type.PartialOrdering.html'
                                title='nalgebra::na::PartialOrdering'>PartialOrdering</a></td>
                         <td class='docblock short'><p>Result of a partial ordering.</p>
 </td>
@@ -216,7 +263,7 @@
                 </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
                     <tr>
-                        <td><a class='trait' href='trait.Absolute.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Absolute.html'
                                title='nalgebra::na::Absolute'>Absolute</a></td>
                         <td class='docblock short'><p>Trait of objects having an absolute value.
 This is useful if the object does not have the same type as its absolute value.</p>
@@ -224,105 +271,119 @@ This is useful if the object does not have the same type as its absolute value.<
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.AbsoluteRotate.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.AbsoluteRotate.html'
                                title='nalgebra::na::AbsoluteRotate'>AbsoluteRotate</a></td>
                         <td class='docblock short'><p>Composition of a rotation and an absolute value.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.AnyVec.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.AnyVec.html'
                                title='nalgebra::na::AnyVec'>AnyVec</a></td>
                         <td class='docblock short'><p>Trait grouping most common operations on vectors.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.ApproxEq.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.ApproxEq.html'
                                title='nalgebra::na::ApproxEq'>ApproxEq</a></td>
                         <td class='docblock short'><p>Trait for testing approximate equality</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Basis.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Basis.html'
                                title='nalgebra::na::Basis'>Basis</a></td>
                         <td class='docblock short'><p>Traits of objects which can form a basis (typically vectors).</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Cast.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Cast.html'
                                title='nalgebra::na::Cast'>Cast</a></td>
                         <td class='docblock short'><p>Traits of objects which can be created from an object of type <code>T</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Col.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Col.html'
                                title='nalgebra::na::Col'>Col</a></td>
                         <td class='docblock short'><p>Trait to access columns of a matrix or vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.ColSlice.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.ColSlice.html'
                                title='nalgebra::na::ColSlice'>ColSlice</a></td>
                         <td class='docblock short'><p>Trait to access part of a column of a matrix</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Cov.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Cov.html'
                                title='nalgebra::na::Cov'>Cov</a></td>
                         <td class='docblock short'><p>Trait for computing the covariance of a set of data.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Cross.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Cross.html'
                                title='nalgebra::na::Cross'>Cross</a></td>
                         <td class='docblock short'><p>Trait of elements having a cross product.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.CrossMatrix.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.CrossMatrix.html'
                                title='nalgebra::na::CrossMatrix'>CrossMatrix</a></td>
                         <td class='docblock short'><p>Trait of elements having a cross product operation which can be expressed as a matrix.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Dim.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Det.html'
+                               title='nalgebra::na::Det'>Det</a></td>
+                        <td class='docblock short'><p>Trait of objects having a determinant. Typically used by square matrices.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Diag.html'
+                               title='nalgebra::na::Diag'>Diag</a></td>
+                        <td class='docblock short'><p>Trait to get the diagonal of square matrices.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Dim.html'
                                title='nalgebra::na::Dim'>Dim</a></td>
                         <td class='docblock short'><p>Trait of objects having a spacial dimension known at compile time.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Dot.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Dot.html'
                                title='nalgebra::na::Dot'>Dot</a></td>
                         <td class='docblock short'><p>Traits of objects having a dot product.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Eye.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Eye.html'
                                title='nalgebra::na::Eye'>Eye</a></td>
                         <td class='docblock short'><p>Trait for constructing the identity matrix</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.FloatVec.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.FloatVec.html'
                                title='nalgebra::na::FloatVec'>FloatVec</a></td>
                         <td class='docblock short'><p>Trait of vector with components implementing the <code>Float</code> trait.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.FloatVecExt.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.FloatVecExt.html'
                                title='nalgebra::na::FloatVecExt'>FloatVecExt</a></td>
                         <td class='docblock short'><p>Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 operations on vectors.</p>
@@ -330,98 +391,98 @@ operations on vectors.</p>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.FromHomogeneous.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.FromHomogeneous.html'
                                title='nalgebra::na::FromHomogeneous'>FromHomogeneous</a></td>
                         <td class='docblock short'><p>Traits of objects which can be build from an homogeneous coordinate form.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Indexable.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Indexable.html'
                                title='nalgebra::na::Indexable'>Indexable</a></td>
                         <td class='docblock short'><p>This is a workaround of current Rust limitations.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Inv.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Inv.html'
                                title='nalgebra::na::Inv'>Inv</a></td>
                         <td class='docblock short'><p>Trait of objects having an inverse. Typically used to implement matrix inverse.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Iterable.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Iterable.html'
                                title='nalgebra::na::Iterable'>Iterable</a></td>
                         <td class='docblock short'><p>This is a workaround of current Rust limitations.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.IterableMut.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.IterableMut.html'
                                title='nalgebra::na::IterableMut'>IterableMut</a></td>
                         <td class='docblock short'><p>This is a workaround of current Rust limitations.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.LMul.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.LMul.html'
                                title='nalgebra::na::LMul'>LMul</a></td>
                         <td class='docblock short'><p>Trait of objects having a left multiplication with another element.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Mat.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Mat.html'
                                title='nalgebra::na::Mat'>Mat</a></td>
                         <td class='docblock short'><p>Trait of matrices.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Mean.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Mean.html'
                                title='nalgebra::na::Mean'>Mean</a></td>
                         <td class='docblock short'><p>Trait for computing the covariance of a set of data.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Norm.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Norm.html'
                                title='nalgebra::na::Norm'>Norm</a></td>
                         <td class='docblock short'><p>Traits of objects having an euclidian norm.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Outer.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Outer.html'
                                title='nalgebra::na::Outer'>Outer</a></td>
                         <td class='docblock short'><p>Traits of objects having an outer product.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.PartialOrd.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.PartialOrd.html'
                                title='nalgebra::na::PartialOrd'>PartialOrd</a></td>
                         <td class='docblock short'><p>Pointwise ordering operations.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.RMul.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.RMul.html'
                                title='nalgebra::na::RMul'>RMul</a></td>
                         <td class='docblock short'><p>Trait of objects having a right multiplication with another element.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Rotate.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Rotate.html'
                                title='nalgebra::na::Rotate'>Rotate</a></td>
                         <td class='docblock short'><p>Trait of objects able to rotate other objects.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Rotation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Rotation.html'
                                title='nalgebra::na::Rotation'>Rotation</a></td>
                         <td class='docblock short'><p>Trait of object which can represent a rotation, and to which new rotations can be appended. A
 rotation is assumed to be an isometry without translation and without reflexion.</p>
@@ -429,7 +490,7 @@ rotation is assumed to be an isometry without translation and without reflexion.
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.RotationMatrix.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.RotationMatrix.html'
                                title='nalgebra::na::RotationMatrix'>RotationMatrix</a></td>
                         <td class='docblock short'><p>Trait of transformation having a rotation extractable as a rotation matrix. This can typically
 be implemented by quaternions to convert them to a rotation matrix.</p>
@@ -437,56 +498,70 @@ be implemented by quaternions to convert them to a rotation matrix.</p>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.RotationWithTranslation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.RotationWithTranslation.html'
                                title='nalgebra::na::RotationWithTranslation'>RotationWithTranslation</a></td>
                         <td class='docblock short'><p>Various composition of rotation and translation.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Row.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Row.html'
                                title='nalgebra::na::Row'>Row</a></td>
                         <td class='docblock short'><p>Trait to access rows of a matrix or a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.RowSlice.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.RowSlice.html'
                                title='nalgebra::na::RowSlice'>RowSlice</a></td>
                         <td class='docblock short'><p>Trait to access part of a row of a matrix</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.ScalarAdd.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.ScalarAdd.html'
                                title='nalgebra::na::ScalarAdd'>ScalarAdd</a></td>
                         <td class='docblock short'><p>Trait of objects having an addition with a scalar.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.ScalarSub.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.ScalarDiv.html'
+                               title='nalgebra::na::ScalarDiv'>ScalarDiv</a></td>
+                        <td class='docblock short'><p>Trait of objects having a division by a scalar.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.ScalarMul.html'
+                               title='nalgebra::na::ScalarMul'>ScalarMul</a></td>
+                        <td class='docblock short'><p>Trait of objects having a multiplication with a scalar.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.ScalarSub.html'
                                title='nalgebra::na::ScalarSub'>ScalarSub</a></td>
                         <td class='docblock short'><p>Trait of objects having a subtraction with a scalar.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.ToHomogeneous.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.ToHomogeneous.html'
                                title='nalgebra::na::ToHomogeneous'>ToHomogeneous</a></td>
                         <td class='docblock short'><p>Traits of objects which can be put in homogeneous coordinates form.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Transform.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Transform.html'
                                title='nalgebra::na::Transform'>Transform</a></td>
                         <td class='docblock short'><p>Trait of objects able to transform other objects.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Transformation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Transformation.html'
                                title='nalgebra::na::Transformation'>Transformation</a></td>
                         <td class='docblock short'><p>Trait of object which represent a transformation, and to which new transformations can
 be appended.</p>
@@ -494,7 +569,7 @@ be appended.</p>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Translate.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Translate.html'
                                title='nalgebra::na::Translate'>Translate</a></td>
                         <td class='docblock short'><p>Trait of objects able to rotate other objects. This is typically implemented by matrices which
 rotate vectors.</p>
@@ -502,7 +577,7 @@ rotate vectors.</p>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Translation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Translation.html'
                                title='nalgebra::na::Translation'>Translation</a></td>
                         <td class='docblock short'><p>Trait of object which represent a translation, and to wich new translation
 can be appended.</p>
@@ -510,21 +585,21 @@ can be appended.</p>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.Transpose.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Transpose.html'
                                title='nalgebra::na::Transpose'>Transpose</a></td>
                         <td class='docblock short'><p>Trait of objects which can be transposed.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.UniformSphereSample.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.UniformSphereSample.html'
                                title='nalgebra::na::UniformSphereSample'>UniformSphereSample</a></td>
                         <td class='docblock short'><p>Trait of vectors able to sample a unit sphere.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='trait' href='trait.VecExt.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.VecExt.html'
                                title='nalgebra::na::VecExt'>VecExt</a></td>
                         <td class='docblock short'><p>Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 operations on vectors.</p>
@@ -533,105 +608,105 @@ operations on vectors.</p>
                 </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
                     <tr>
-                        <td><a class='fn' href='fn.abs.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.abs.html'
                                title='nalgebra::na::abs'>abs</a></td>
                         <td class='docblock short'><p>Computes a component-wise absolute value.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.absolute_rotate.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.absolute_rotate.html'
                                title='nalgebra::na::absolute_rotate'>absolute_rotate</a></td>
                         <td class='docblock short'><p>Applies a rotation using the absolute values of its components.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.append_rotation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.append_rotation.html'
                                title='nalgebra::na::append_rotation'>append_rotation</a></td>
                         <td class='docblock short'><p>Applies the rotation <code>v</code> to a copy of <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.append_rotation_wrt_center.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.append_rotation_wrt_center.html'
                                title='nalgebra::na::append_rotation_wrt_center'>append_rotation_wrt_center</a></td>
                         <td class='docblock short'><p>Rotates a copy of <code>m</code> by <code>amount</code> using <code>m.translation()</code> as the pivot point.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.append_rotation_wrt_point.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.append_rotation_wrt_point.html'
                                title='nalgebra::na::append_rotation_wrt_point'>append_rotation_wrt_point</a></td>
                         <td class='docblock short'><p>Rotates a copy of <code>m</code> by <code>amount</code> using <code>center</code> as the pivot point.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.append_transformation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.append_transformation.html'
                                title='nalgebra::na::append_transformation'>append_transformation</a></td>
                         <td class='docblock short'><p>Gets a transformed copy of <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.append_translation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.append_translation.html'
                                title='nalgebra::na::append_translation'>append_translation</a></td>
                         <td class='docblock short'><p>Applies the translation <code>v</code> to a copy of <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.approx_eq.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.approx_eq.html'
                                title='nalgebra::na::approx_eq'>approx_eq</a></td>
                         <td class='docblock short'><p>Tests approximate equality.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.approx_eq_eps.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.approx_eq_eps.html'
                                title='nalgebra::na::approx_eq_eps'>approx_eq_eps</a></td>
                         <td class='docblock short'><p>Tests approximate equality using a custom epsilon.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.canonical_basis.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.canonical_basis.html'
                                title='nalgebra::na::canonical_basis'>canonical_basis</a></td>
                         <td class='docblock short'><p>Computes the canonical basis for a given dimension.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.cast.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.cast.html'
                                title='nalgebra::na::cast'>cast</a></td>
                         <td class='docblock short'><p>Converts an object from one type to another.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.clamp.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.clamp.html'
                                title='nalgebra::na::clamp'>clamp</a></td>
                         <td class='docblock short'><p>Change the input value to ensure it is on the range <code>[min, max]</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.cov.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.cov.html'
                                title='nalgebra::na::cov'>cov</a></td>
                         <td class='docblock short'><p>Computes the covariance of a set of observations.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.cross.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.cross.html'
                                title='nalgebra::na::cross'>cross</a></td>
                         <td class='docblock short'><p>Computes the cross product of two vectors.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.cross_matrix.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.cross_matrix.html'
                                title='nalgebra::na::cross_matrix'>cross_matrix</a></td>
                         <td class='docblock short'><p>Given a vector, computes the matrix which, when multiplied by another vector, computes a cross
 product.</p>
@@ -639,169 +714,183 @@ product.</p>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.decomp_qr.html'
-                               title='nalgebra::na::decomp_qr'>decomp_qr</a></td>
-                        <td class='docblock short'><p>QR decomposition using Householder reflections.</p>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.det.html'
+                               title='nalgebra::na::det'>det</a></td>
+                        <td class='docblock short'><p>Computes the determinant of a square matrix.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.dim.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.diag.html'
+                               title='nalgebra::na::diag'>diag</a></td>
+                        <td class='docblock short'><p>Gets the diagonal of a square matrix.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.dim.html'
                                title='nalgebra::na::dim'>dim</a></td>
                         <td class='docblock short'><p>Gets the dimension an object lives in.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.dot.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.dot.html'
                                title='nalgebra::na::dot'>dot</a></td>
                         <td class='docblock short'><p>Computes the dot product of two vectors.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.from_homogeneous.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.eigen_qr.html'
+                               title='nalgebra::na::eigen_qr'>eigen_qr</a></td>
+                        <td class='docblock short'><p>Eigendecomposition of a square matrix using the qr algorithm.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.from_homogeneous.html'
                                title='nalgebra::na::from_homogeneous'>from_homogeneous</a></td>
                         <td class='docblock short'><p>Converts a matrix or vector from homogeneous coordinates.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.householder_matrix.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.householder_matrix.html'
                                title='nalgebra::na::householder_matrix'>householder_matrix</a></td>
                         <td class='docblock short'><p>Get the householder matrix corresponding to a reflexion to the hyperplane
-defined by `vec̀ . It can be a reflexion contained in a subspace.</p>
+defined by <code>vec</code>. It can be a reflexion contained in a subspace.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.identity.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.identity.html'
                                title='nalgebra::na::identity'>identity</a></td>
                         <td class='docblock short'><p>Create a special identity object.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.inf.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.inf.html'
                                title='nalgebra::na::inf'>inf</a></td>
                         <td class='docblock short'><p>Returns the infimum of <code>a</code> and <code>b</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.inv.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.inv.html'
                                title='nalgebra::na::inv'>inv</a></td>
                         <td class='docblock short'><p>Gets an inverted copy of a matrix.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.inv_rotate.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.inv_rotate.html'
                                title='nalgebra::na::inv_rotate'>inv_rotate</a></td>
                         <td class='docblock short'><p>Applies an inverse rotation to a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.inv_rotation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.inv_rotation.html'
                                title='nalgebra::na::inv_rotation'>inv_rotation</a></td>
                         <td class='docblock short'><p>Gets the inverse rotation applicable by <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.inv_transform.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.inv_transform.html'
                                title='nalgebra::na::inv_transform'>inv_transform</a></td>
                         <td class='docblock short'><p>Applies an inverse transformation to a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.inv_transformation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.inv_transformation.html'
                                title='nalgebra::na::inv_transformation'>inv_transformation</a></td>
                         <td class='docblock short'><p>Gets the inverse transformation applicable by <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.inv_translate.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.inv_translate.html'
                                title='nalgebra::na::inv_translate'>inv_translate</a></td>
                         <td class='docblock short'><p>Applies an inverse translation to a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.inv_translation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.inv_translation.html'
                                title='nalgebra::na::inv_translation'>inv_translation</a></td>
                         <td class='docblock short'><p>Gets the inverse translation applicable by <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.max.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.max.html'
                                title='nalgebra::na::max'>max</a></td>
                         <td class='docblock short'><p>Same as <code>cmp::max</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.mean.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.mean.html'
                                title='nalgebra::na::mean'>mean</a></td>
                         <td class='docblock short'><p>Computes the mean of a set of observations.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.min.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.min.html'
                                title='nalgebra::na::min'>min</a></td>
                         <td class='docblock short'><p>Same as <code>cmp::min</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.new_identity.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.new_identity.html'
                                title='nalgebra::na::new_identity'>new_identity</a></td>
                         <td class='docblock short'><p>Construct the identity matrix for a given dimension</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.norm.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.norm.html'
                                title='nalgebra::na::norm'>norm</a></td>
                         <td class='docblock short'><p>Computes the L2 norm of a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.normalize.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.normalize.html'
                                title='nalgebra::na::normalize'>normalize</a></td>
                         <td class='docblock short'><p>Gets the normalized version of a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.one.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.one.html'
                                title='nalgebra::na::one'>one</a></td>
                         <td class='docblock short'><p>Create a one-valued value.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.orthonormal_subspace_basis.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.orthonormal_subspace_basis.html'
                                title='nalgebra::na::orthonormal_subspace_basis'>orthonormal_subspace_basis</a></td>
                         <td class='docblock short'><p>Computes the basis of the orthonormal subspace of a given vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.outer.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.outer.html'
                                title='nalgebra::na::outer'>outer</a></td>
                         <td class='docblock short'><p>Computes the outer product of two vectors.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.partial_clamp.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.partial_clamp.html'
                                title='nalgebra::na::partial_clamp'>partial_clamp</a></td>
                         <td class='docblock short'><p>Clamp <code>value</code> between <code>min</code> and <code>max</code>. Returns <code>None</code> if <code>value</code> is not comparable to
 <code>min</code> or <code>max</code>.</p>
@@ -809,56 +898,56 @@ defined by `vec̀ . It can be a reflexion contained in a subspace.</p>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.partial_cmp.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.partial_cmp.html'
                                title='nalgebra::na::partial_cmp'>partial_cmp</a></td>
                         <td class='docblock short'><p>Compare <code>a</code> and <code>b</code> using a partial ordering relation.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.partial_ge.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.partial_ge.html'
                                title='nalgebra::na::partial_ge'>partial_ge</a></td>
                         <td class='docblock short'><p>Returns <code>true</code> iff <code>a</code> and <code>b</code> are comparable and <code>a &gt;= b</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.partial_gt.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.partial_gt.html'
                                title='nalgebra::na::partial_gt'>partial_gt</a></td>
                         <td class='docblock short'><p>Returns <code>true</code> iff <code>a</code> and <code>b</code> are comparable and <code>a &gt; b</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.partial_le.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.partial_le.html'
                                title='nalgebra::na::partial_le'>partial_le</a></td>
                         <td class='docblock short'><p>Returns <code>true</code> iff <code>a</code> and <code>b</code> are comparable and <code>a &lt;= b</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.partial_lt.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.partial_lt.html'
                                title='nalgebra::na::partial_lt'>partial_lt</a></td>
                         <td class='docblock short'><p>Returns <code>true</code> iff <code>a</code> and <code>b</code> are comparable and <code>a &lt; b</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.partial_max.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.partial_max.html'
                                title='nalgebra::na::partial_max'>partial_max</a></td>
                         <td class='docblock short'><p>Return the maximum of <code>a</code> and <code>b</code> if they are comparable.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.partial_min.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.partial_min.html'
                                title='nalgebra::na::partial_min'>partial_min</a></td>
                         <td class='docblock short'><p>Return the minimum of <code>a</code> and <code>b</code> if they are comparable.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.perspective3d.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.perspective3d.html'
                                title='nalgebra::na::perspective3d'>perspective3d</a></td>
                         <td class='docblock short'><p>Computes a projection matrix given the frustrum near plane width, height, the field of
 view, and the distance to the clipping planes (<code>znear</code> and <code>zfar</code>).</p>
@@ -866,105 +955,112 @@ view, and the distance to the clipping planes (<code>znear</code> and <code>zfar
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.prepend_rotation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.prepend_rotation.html'
                                title='nalgebra::na::prepend_rotation'>prepend_rotation</a></td>
                         <td class='docblock short'><p>Pre-applies the rotation <code>v</code> to a copy of <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.rotate.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.qr.html'
+                               title='nalgebra::na::qr'>qr</a></td>
+                        <td class='docblock short'><p>QR decomposition using Householder reflections.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.rotate.html'
                                title='nalgebra::na::rotate'>rotate</a></td>
                         <td class='docblock short'><p>Applies a rotation to a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.rotation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.rotation.html'
                                title='nalgebra::na::rotation'>rotation</a></td>
                         <td class='docblock short'><p>Gets the rotation applicable by <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.sample_sphere.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.sample_sphere.html'
                                title='nalgebra::na::sample_sphere'>sample_sphere</a></td>
                         <td class='docblock short'><p>Samples the unit sphere living on the dimension as the samples types.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.sqnorm.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.sqnorm.html'
                                title='nalgebra::na::sqnorm'>sqnorm</a></td>
                         <td class='docblock short'><p>Computes the squared L2 norm of a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.sub_dot.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.sub_dot.html'
                                title='nalgebra::na::sub_dot'>sub_dot</a></td>
                         <td class='docblock short'><p>Computes a subtraction followed by a dot product.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.sup.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.sup.html'
                                title='nalgebra::na::sup'>sup</a></td>
                         <td class='docblock short'><p>Returns the supremum of <code>a</code> and <code>b</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.to_homogeneous.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.to_homogeneous.html'
                                title='nalgebra::na::to_homogeneous'>to_homogeneous</a></td>
                         <td class='docblock short'><p>Converts a matrix or vector to homogeneous coordinates.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.to_rot_mat.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.to_rot_mat.html'
                                title='nalgebra::na::to_rot_mat'>to_rot_mat</a></td>
                         <td class='docblock short'><p>Builds a rotation matrix from <code>r</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.transform.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.transform.html'
                                title='nalgebra::na::transform'>transform</a></td>
                         <td class='docblock short'><p>Applies a transformation to a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.transformation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.transformation.html'
                                title='nalgebra::na::transformation'>transformation</a></td>
                         <td class='docblock short'><p>Gets the transformation applicable by <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.translate.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.translate.html'
                                title='nalgebra::na::translate'>translate</a></td>
                         <td class='docblock short'><p>Applies a translation to a vector.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.translation.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.translation.html'
                                title='nalgebra::na::translation'>translation</a></td>
                         <td class='docblock short'><p>Gets the translation applicable by <code>m</code>.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.transpose.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.transpose.html'
                                title='nalgebra::na::transpose'>transpose</a></td>
                         <td class='docblock short'><p>Gets a transposed copy of a matrix.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='fn' href='fn.zero.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.zero.html'
                                title='nalgebra::na::zero'>zero</a></td>
                         <td class='docblock short'><p>Create a zero-valued value.</p>
 </td>
@@ -982,9 +1078,9 @@ view, and the distance to the clipping planes (<code>znear</code> and <code>zfar
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>
@@ -998,12 +1094,14 @@ view, and the distance to the clipping planes (<code>znear</code> and <code>zfar
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../";

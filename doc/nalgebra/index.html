@@ -3,17 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The nalgebra library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `nalgebra` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, nalgebra">
 
     <title>nalgebra - Rust</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
+    
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -21,9 +22,10 @@
     </div>
     <![endif]-->
 
+    
+
     <section class="sidebar">
         
-
         <p class='location'></p>
     </section>
 
@@ -32,14 +34,17 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'>Crate <a class='mod' href=''>nalgebra</a><a class='source' id='src-0' href='../src/nalgebra/src/lib.rs.html#1-137'>[src]</a></h1>
+<h1 class='fqn'><div class='in-band'>Crate <a class='mod' href=''>nalgebra</a>&#8203;</div><div class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-0' href='../src/nalgebra/src/lib.rs.html#1-130'>[src]</a></div></h1>
 <div class='docblock'>
 <h1 id="nalgebra" class='section-header'><a
                            href="#nalgebra">nalgebra</a></h1>
@@ -110,26 +115,22 @@ For example, the following works:</li>
     <span class='kw'>let</span> <span class='ident'>v</span>: <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();
     <span class='kw'>let</span> <span class='ident'>m</span>: <span class='ident'>Mat3</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>one</span>();
 
-    <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>m</span> <span class='op'>*</span> <span class='ident'>v</span>;<span class='comment'>   // matrix-vector multiplication.
-    </span><span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>v</span> <span class='op'>*</span> <span class='ident'>m</span>;<span class='comment'>   // vector-matrix multiplication.
-    </span><span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>m</span> <span class='op'>*</span> <span class='ident'>m</span>;<span class='comment'>   // matrix-matrix multiplication.
-    </span><span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>v</span> <span class='op'>*</span> <span class='number'>2.0</span>;<span class='comment'> // vector-scalar multiplication.
-</span>}
+    <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>m</span> <span class='op'>*</span> <span class='ident'>v</span>;      <span class='comment'>// matrix-vector multiplication.</span>
+    <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>v</span> <span class='op'>*</span> <span class='ident'>m</span>;      <span class='comment'>// vector-matrix multiplication.</span>
+    <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>m</span> <span class='op'>*</span> <span class='ident'>m</span>;      <span class='comment'>// matrix-matrix multiplication.</span>
+    <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>v</span> <span class='op'>*</span> <span class='number'>2.0f64</span>; <span class='comment'>// vector-scalar multiplication.</span>
+}
 </pre>
 
 <h2 id="compilation" class='section-header'><a
                            href="#compilation">Compilation</a></h2>
-<p>You will need the last rust compiler from the master branch.
-If you encounter problems, make sure you have the last version before creating an issue.</p>
-<pre class='rust '>
-<span class='ident'>git</span> <span class='ident'>clone</span> <span class='ident'>git</span>:<span class='comment'>//github.com/sebcrozet/nalgebra.git
-</span><span class='ident'>cd</span> <span class='ident'>nalgebra</span>
-<span class='ident'>make</span>
-</pre>
+<p>You will need the last nightly build of the <a href="http://www.rust-lang.org">rust compiler</a>
+and the official package manager: <a href="https://github.com/rust-lang/cargo">cargo</a>.</p>
 
-<p>You can build the documentation on the <code>doc</code> folder using:</p>
+<p>Simply add the following to your <code>Cargo.toml</code> file:</p>
 <pre class='rust '>
-<span class='ident'>make</span> <span class='ident'>doc</span>
+[<span class='ident'>dependencies</span>.<span class='ident'>nalgebra</span>]
+<span class='ident'>git</span> <span class='op'>=</span> <span class='string'>&quot;https://github.com/sebcrozet/nalgebra&quot;</span>
 </pre>
 
 <h2 id="<strong>nalgebra</strong>-in-use" class='section-header'><a
@@ -146,7 +147,7 @@ Feel free to add your project to this list if you happen to use <strong>nalgebra
 </div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                     <tr>
-                        <td><a class='mod' href='na/index.html'
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='mod' href='na/index.html'
                                title='nalgebra::na'>na</a></td>
                         <td class='docblock short'><p><strong>nalgebra</strong> prelude.</p>
 </td>
@@ -164,9 +165,9 @@ Feel free to add your project to this list if you happen to use <strong>nalgebra
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>
@@ -180,12 +181,14 @@ Feel free to add your project to this list if you happen to use <strong>nalgebra
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../";

@@ -3,17 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The nalgebra library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `src/structs/iso.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>iso.rs.html -- source</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
 
     
+    
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -21,9 +22,10 @@
     </div>
     <![endif]-->
 
+    
+
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +34,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -195,8 +197,8 @@
 <span id='155'>155</span>
 <span id='156'>156</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! Isometric transformations.
-</span>
+<span class='doccomment'>//! Isometric transformations.</span>
+
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_doc</span>)]</span>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>};
@@ -211,76 +213,76 @@
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>rot</span>::{<span class='ident'>Rot2</span>, <span class='ident'>Rot3</span>, <span class='ident'>Rot4</span>};
 
 
-<span class='doccomment'>/// Two dimensional isometry.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// This is the composition of a rotation followed by a translation.
-</span><span class='doccomment'>/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>)]</span>
+<span class='doccomment'>/// Two dimensional isometry.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// This is the composition of a rotation followed by a translation.</span>
+<span class='doccomment'>/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Iso2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The rotation applicable by this isometry.
-</span>    <span class='kw'>pub</span> <span class='ident'>rotation</span>:    <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
-    <span class='doccomment'>/// The translation applicable by this isometry.
-</span>    <span class='kw'>pub</span> <span class='ident'>translation</span>: <span class='ident'>Vec2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
+    <span class='doccomment'>/// The rotation applicable by this isometry.</span>
+    <span class='kw'>pub</span> <span class='ident'>rotation</span>:    <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
+    <span class='doccomment'>/// The translation applicable by this isometry.</span>
+    <span class='kw'>pub</span> <span class='ident'>translation</span>: <span class='ident'>Vec2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
 }
 
-<span class='doccomment'>/// Three dimensional isometry.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// This is the composition of a rotation followed by a translation.
-</span><span class='doccomment'>/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>)]</span>
+<span class='doccomment'>/// Three dimensional isometry.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// This is the composition of a rotation followed by a translation.</span>
+<span class='doccomment'>/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Iso3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The rotation applicable by this isometry.
-</span>    <span class='kw'>pub</span> <span class='ident'>rotation</span>:    <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
-    <span class='doccomment'>/// The translation applicable by this isometry.
-</span>    <span class='kw'>pub</span> <span class='ident'>translation</span>: <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
+    <span class='doccomment'>/// The rotation applicable by this isometry.</span>
+    <span class='kw'>pub</span> <span class='ident'>rotation</span>:    <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
+    <span class='doccomment'>/// The translation applicable by this isometry.</span>
+    <span class='kw'>pub</span> <span class='ident'>translation</span>: <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
 }
 
-<span class='doccomment'>/// Four dimensional isometry.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
-</span><span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>)]</span>
+<span class='doccomment'>/// Four dimensional isometry.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.</span>
+<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Iso4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The rotation applicable by this isometry.
-</span>    <span class='kw'>pub</span> <span class='ident'>rotation</span>:    <span class='ident'>Rot4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
-    <span class='doccomment'>/// The translation applicable by this isometry.
-</span>    <span class='kw'>pub</span> <span class='ident'>translation</span>: <span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
+    <span class='doccomment'>/// The rotation applicable by this isometry.</span>
+    <span class='kw'>pub</span> <span class='ident'>rotation</span>:    <span class='ident'>Rot4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
+    <span class='doccomment'>/// The translation applicable by this isometry.</span>
+    <span class='kw'>pub</span> <span class='ident'>translation</span>: <span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Clone</span> <span class='op'>+</span> <span class='ident'>Float</span><span class='op'>&gt;</span> <span class='ident'>Iso3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Reorient and translate this transformation such that its local `x` axis points to a given
-</span>    <span class='doccomment'>/// direction.  Note that the usually known `look_at` function does the same thing but with the
-</span>    <span class='doccomment'>/// `z` axis. See `look_at_z` for that.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Arguments
-</span>    <span class='doccomment'>///   * eye - The new translation of the transformation.
-</span>    <span class='doccomment'>///   * at - The point to look at. `at - eye` is the direction the matrix `x` axis will be
-</span>    <span class='doccomment'>///   aligned with.
-</span>    <span class='doccomment'>///   * up - Vector pointing up. The only requirement of this parameter is to not be colinear
-</span>    <span class='doccomment'>///   with `at`. Non-colinearity is not checked.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>eye</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+    <span class='doccomment'>/// Reorient and translate this transformation such that its local `x` axis points to a given</span>
+    <span class='doccomment'>/// direction.  Note that the usually known `look_at` function does the same thing but with the</span>
+    <span class='doccomment'>/// `z` axis. See `look_at_z` for that.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Arguments</span>
+    <span class='doccomment'>///   * eye - The new translation of the transformation.</span>
+    <span class='doccomment'>///   * at - The point to look at. `at - eye` is the direction the matrix `x` axis will be</span>
+    <span class='doccomment'>///   aligned with.</span>
+    <span class='doccomment'>///   * up - Vector pointing up. The only requirement of this parameter is to not be colinear</span>
+    <span class='doccomment'>///   with `at`. Non-colinearity is not checked.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>eye</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
         <span class='self'>self</span>.<span class='ident'>rotation</span>.<span class='ident'>look_at</span>(<span class='kw-2'>&amp;</span>(<span class='op'>*</span><span class='ident'>at</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>eye</span>), <span class='ident'>up</span>);
         <span class='self'>self</span>.<span class='ident'>translation</span> <span class='op'>=</span> <span class='ident'>eye</span>.<span class='ident'>clone</span>();
     }
 
-    <span class='doccomment'>/// Reorient and translate this transformation such that its local `z` axis points to a given
-</span>    <span class='doccomment'>/// direction.
-</span>    <span class='doccomment'>///
-</span>    <span class='doccomment'>/// # Arguments
-</span>    <span class='doccomment'>///   * eye - The new translation of the transformation.
-</span>    <span class='doccomment'>///   * at - The point to look at. `at - eye` is the direction the matrix `x` axis will be
-</span>    <span class='doccomment'>///   aligned with
-</span>    <span class='doccomment'>///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
-</span>    <span class='doccomment'>///   with `at`. Non-colinearity is not checked.
-</span>    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at_z</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>eye</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+    <span class='doccomment'>/// Reorient and translate this transformation such that its local `z` axis points to a given</span>
+    <span class='doccomment'>/// direction.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// # Arguments</span>
+    <span class='doccomment'>///   * eye - The new translation of the transformation.</span>
+    <span class='doccomment'>///   * at - The point to look at. `at - eye` is the direction the matrix `x` axis will be</span>
+    <span class='doccomment'>///   aligned with</span>
+    <span class='doccomment'>///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear</span>
+    <span class='doccomment'>///   with `at`. Non-colinearity is not checked.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at_z</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>eye</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
         <span class='self'>self</span>.<span class='ident'>rotation</span>.<span class='ident'>look_at_z</span>(<span class='kw-2'>&amp;</span>(<span class='op'>*</span><span class='ident'>at</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>eye</span>), <span class='ident'>up</span>);
         <span class='self'>self</span>.<span class='ident'>translation</span> <span class='op'>=</span> <span class='ident'>eye</span>.<span class='ident'>clone</span>();
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='ident'>Iso4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {<span class='comment'>
-    // XXX remove that when iso_impl works for Iso4
-    </span><span class='doccomment'>/// Creates a new isometry from a rotation matrix and a vector.
-</span>    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='ident'>Iso4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='comment'>// XXX remove that when iso_impl works for Iso4</span>
+    <span class='doccomment'>/// Creates a new isometry from a rotation matrix and a vector.</span>
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_with_rotmat</span>(<span class='ident'>translation</span>: <span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>rotation</span>: <span class='ident'>Rot4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Iso4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
         <span class='ident'>Iso4</span> {
             <span class='ident'>rotation</span>:    <span class='ident'>rotation</span>,
@@ -329,18 +331,18 @@
 <span class='macro'>translate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>)
 <span class='macro'>iso_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Iso3MulRhs</span>)
 <span class='macro'>iso_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Iso3MulRhs</span>)
-<span class='macro'>vec_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec3MulRhs</span>)<span class='comment'>
+<span class='macro'>vec_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec3MulRhs</span>)
 
-// iso_impl!(Iso4, Rot4, Vec4, Vec4)
-</span><span class='macro'>double_dispatch_binop_decl_trait</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Iso4MulRhs</span>)
-<span class='macro'>mul_redispatch_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Iso4MulRhs</span>)<span class='comment'>
-// rotation_matrix_impl!(Iso4, Rot4, Vec4, Vec4)
-// rotation_impl!(Iso4, Rot4, Vec4)
-</span><span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='number'>4</span>)
+<span class='comment'>// iso_impl!(Iso4, Rot4, Vec4, Vec4)</span>
+<span class='macro'>double_dispatch_binop_decl_trait</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Iso4MulRhs</span>)
+<span class='macro'>mul_redispatch_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Iso4MulRhs</span>)
+<span class='comment'>// rotation_matrix_impl!(Iso4, Rot4, Vec4, Vec4)</span>
+<span class='comment'>// rotation_impl!(Iso4, Rot4, Vec4)</span>
+<span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='number'>4</span>)
 <span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>)
-<span class='macro'>absolute_rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>)<span class='comment'>
-// rand_impl!(Iso4)
-</span><span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>)
+<span class='macro'>absolute_rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>)
+<span class='comment'>// rand_impl!(Iso4)</span>
+<span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>)
 <span class='macro'>to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Mat5</span>)
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>)
 <span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>)
@@ -365,9 +367,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>
@@ -381,12 +383,14 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../../";

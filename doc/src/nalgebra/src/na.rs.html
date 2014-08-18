@@ -3,17 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The nalgebra library documentation.">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `src/na.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>na.rs.html -- source</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400,600'
-          rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="../../../main.css">
 
     
+    
 </head>
-<body>
+<body class="rustdoc">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -21,9 +22,10 @@
     </div>
     <![endif]-->
 
+    
+
     <section class="sidebar">
         
-
         
     </section>
 
@@ -32,7 +34,7 @@
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Search documentation..."
+                       placeholder="Click or press 'S' to search, '?' for more options..."
                        type="search">
             </div>
         </form>
@@ -826,26 +828,57 @@
 <span id='786'>786</span>
 <span id='787'>787</span>
 <span id='788'>788</span>
+<span id='789'>789</span>
+<span id='790'>790</span>
+<span id='791'>791</span>
+<span id='792'>792</span>
+<span id='793'>793</span>
+<span id='794'>794</span>
+<span id='795'>795</span>
+<span id='796'>796</span>
+<span id='797'>797</span>
+<span id='798'>798</span>
+<span id='799'>799</span>
+<span id='800'>800</span>
+<span id='801'>801</span>
+<span id='802'>802</span>
+<span id='803'>803</span>
+<span id='804'>804</span>
+<span id='805'>805</span>
+<span id='806'>806</span>
+<span id='807'>807</span>
+<span id='808'>808</span>
+<span id='809'>809</span>
+<span id='810'>810</span>
+<span id='811'>811</span>
+<span id='812'>812</span>
+<span id='813'>813</span>
+<span id='814'>814</span>
 </pre><pre class='rust '>
-<span class='doccomment'>//! **nalgebra** prelude.
-</span>
+<span class='doccomment'>//! **nalgebra** prelude.</span>
+
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>, <span class='ident'>FloatMath</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cmp</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>traits</span>::{<span class='ident'>PartialLess</span>, <span class='ident'>PartialEqual</span>, <span class='ident'>PartialGreater</span>, <span class='ident'>NotComparable</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>traits</span>::{
     <span class='ident'>Absolute</span>,
     <span class='ident'>AbsoluteRotate</span>,
+    <span class='ident'>AnyVec</span>,
     <span class='ident'>ApproxEq</span>,
-    <span class='ident'>FloatVec</span>,
-    <span class='ident'>FloatVecExt</span>,
     <span class='ident'>Basis</span>,
     <span class='ident'>Cast</span>,
     <span class='ident'>Col</span>,
+    <span class='ident'>ColSlice</span>, <span class='ident'>RowSlice</span>,
     <span class='ident'>Cov</span>,
     <span class='ident'>Cross</span>,
     <span class='ident'>CrossMatrix</span>,
+    <span class='ident'>Det</span>,
+    <span class='ident'>Diag</span>,
     <span class='ident'>Dim</span>,
     <span class='ident'>Dot</span>,
+    <span class='ident'>Eye</span>,
+    <span class='ident'>FloatVec</span>,
+    <span class='ident'>FloatVecExt</span>,
     <span class='ident'>FromHomogeneous</span>,
     <span class='ident'>Indexable</span>,
     <span class='ident'>Inv</span>,
@@ -862,20 +895,19 @@
     <span class='ident'>Rotate</span>, <span class='ident'>Rotation</span>, <span class='ident'>RotationMatrix</span>, <span class='ident'>RotationWithTranslation</span>,
     <span class='ident'>Row</span>,
     <span class='ident'>ScalarAdd</span>, <span class='ident'>ScalarSub</span>,
+    <span class='ident'>ScalarMul</span>, <span class='ident'>ScalarDiv</span>,
     <span class='ident'>ToHomogeneous</span>,
     <span class='ident'>Transform</span>, <span class='ident'>Transformation</span>,
     <span class='ident'>Translate</span>, <span class='ident'>Translation</span>,
     <span class='ident'>Transpose</span>,
     <span class='ident'>UniformSphereSample</span>,
-    <span class='ident'>AnyVec</span>,
-    <span class='ident'>VecExt</span>,
-    <span class='ident'>ColSlice</span>, <span class='ident'>RowSlice</span>,
-    <span class='ident'>Eye</span>
+    <span class='ident'>VecExt</span>
 };
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>structs</span>::{
     <span class='ident'>Identity</span>,
-    <span class='ident'>DMat</span>, <span class='ident'>DVec</span>,
+    <span class='ident'>DMat</span>,
+    <span class='ident'>DVec</span>, <span class='ident'>DVec1</span>, <span class='ident'>DVec2</span>,  <span class='ident'>DVec3</span>,  <span class='ident'>DVec4</span>,  <span class='ident'>DVec5</span>,  <span class='ident'>DVec6</span>,
     <span class='ident'>Iso2</span>, <span class='ident'>Iso3</span>, <span class='ident'>Iso4</span>,
     <span class='ident'>Mat1</span>, <span class='ident'>Mat2</span>, <span class='ident'>Mat3</span>, <span class='ident'>Mat4</span>,
     <span class='ident'>Mat5</span>, <span class='ident'>Mat6</span>,
@@ -884,29 +916,30 @@
 };
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>linalg</span>::{
-    <span class='ident'>decomp_qr</span>,
+    <span class='ident'>qr</span>,
+    <span class='ident'>eigen_qr</span>,
     <span class='ident'>householder_matrix</span>
 };
 
-<span class='doccomment'>/// Traits to work around the language limitations related to operator overloading.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// The trait names are formed by:
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// * a type name (eg. Vec1, Vec2, Mat3, Mat4, etc.).
-</span><span class='doccomment'>/// * the name of a binary operation (eg. Mul, Div, Add, Sub, etc.). 
-</span><span class='doccomment'>/// * the word `Rhs`.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// When implemented by the type `T`, the trait makes it possible to overload the binary operator
-</span><span class='doccomment'>/// between `T` and the type name given by the trait.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// # Examples:
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// * `Vec3MulRhs` will allow the overload of the `*` operator between the implementor type and
-</span><span class='doccomment'>/// `Vec3`. The `Vec3` being the first argument of the multiplication.
-</span><span class='doccomment'>/// * `Mat4DivRhs` will allow the overload of the `/` operator between the implementor type and
-</span><span class='doccomment'>/// `Mat4`. The `Mat4` being the first argument of the division.
-</span><span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>overload</span> {
-    <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>structs</span>::{<span class='ident'>Vec1SubRhs</span>, <span class='ident'>Vec2MulRhs</span>, <span class='ident'>Vec3MulRhs</span>, <span class='ident'>Vec4MulRhs</span>, <span class='ident'>Vec5MulRhs</span>, <span class='ident'>Vec6MulRhs</span>,
+<span class='doccomment'>/// Traits to work around the language limitations related to operator overloading.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// The trait names are formed by:</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// * a type name (eg. Vec1, Vec2, Mat3, Mat4, etc.).</span>
+<span class='doccomment'>/// * the name of a binary operation (eg. Mul, Div, Add, Sub, etc.). </span>
+<span class='doccomment'>/// * the word `Rhs`.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// When implemented by the type `T`, the trait makes it possible to overload the binary operator</span>
+<span class='doccomment'>/// between `T` and the type name given by the trait.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Examples:</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// * `Vec3MulRhs` will allow the overload of the `*` operator between the implementor type and</span>
+<span class='doccomment'>/// `Vec3`. The `Vec3` being the first argument of the multiplication.</span>
+<span class='doccomment'>/// * `Mat4DivRhs` will allow the overload of the `/` operator between the implementor type and</span>
+<span class='doccomment'>/// `Mat4`. The `Mat4` being the first argument of the division.</span>
+<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>overload</span> {
+    <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>structs</span>::{<span class='ident'>Vec1MulRhs</span>, <span class='ident'>Vec2MulRhs</span>, <span class='ident'>Vec3MulRhs</span>, <span class='ident'>Vec4MulRhs</span>, <span class='ident'>Vec5MulRhs</span>, <span class='ident'>Vec6MulRhs</span>,
                       <span class='ident'>Vec1DivRhs</span>, <span class='ident'>Vec2DivRhs</span>, <span class='ident'>Vec3DivRhs</span>, <span class='ident'>Vec4DivRhs</span>, <span class='ident'>Vec5DivRhs</span>, <span class='ident'>Vec6DivRhs</span>,
                       <span class='ident'>Vec1AddRhs</span>, <span class='ident'>Vec2AddRhs</span>, <span class='ident'>Vec3AddRhs</span>, <span class='ident'>Vec4AddRhs</span>, <span class='ident'>Vec5AddRhs</span>, <span class='ident'>Vec6AddRhs</span>,
                       <span class='ident'>Vec1SubRhs</span>, <span class='ident'>Vec2SubRhs</span>, <span class='ident'>Vec3SubRhs</span>, <span class='ident'>Vec4SubRhs</span>, <span class='ident'>Vec5SubRhs</span>, <span class='ident'>Vec6SubRhs</span>,
@@ -916,8 +949,8 @@
                       <span class='ident'>Mat1SubRhs</span>, <span class='ident'>Mat2SubRhs</span>, <span class='ident'>Mat3SubRhs</span>, <span class='ident'>Mat4SubRhs</span>, <span class='ident'>Mat5SubRhs</span>, <span class='ident'>Mat6SubRhs</span>};
 }
 
-<span class='doccomment'>/// Change the input value to ensure it is on the range `[min, max]`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Change the input value to ensure it is on the range `[min, max]`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clamp</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>cmp</span>::<span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>val</span>: <span class='ident'>T</span>, <span class='ident'>min</span>: <span class='ident'>T</span>, <span class='ident'>max</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
     <span class='kw'>if</span> <span class='ident'>val</span> <span class='op'>&gt;</span> <span class='ident'>min</span> {
         <span class='kw'>if</span> <span class='ident'>val</span> <span class='op'>&lt;</span> <span class='ident'>max</span> {
@@ -932,121 +965,121 @@
     }
 }
 
-<span class='doccomment'>/// Same as `cmp::max`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Same as `cmp::max`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>max</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Ord</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
     <span class='ident'>cmp</span>::<span class='ident'>max</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Same as `cmp::min`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Same as `cmp::min`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>min</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Ord</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
     <span class='ident'>cmp</span>::<span class='ident'>min</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Returns the infimum of `a` and `b`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Returns the infimum of `a` and `b`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inf</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>inf</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Returns the supremum of `a` and `b`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Returns the supremum of `a` and `b`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sup</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>sup</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Compare `a` and `b` using a partial ordering relation.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Compare `a` and `b` using a partial ordering relation.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_cmp</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>PartialOrdering</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt; b`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt; b`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_lt</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>partial_lt</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt;= b`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt;= b`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_le</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>partial_le</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt; b`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt; b`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_gt</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>partial_gt</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt;= b`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt;= b`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_ge</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>partial_ge</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Return the minimum of `a` and `b` if they are comparable.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Return the minimum of `a` and `b` if they are comparable.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_min</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>partial_min</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Return the maximum of `a` and `b` if they are comparable.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Return the maximum of `a` and `b` if they are comparable.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_max</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>partial_max</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to
-</span><span class='doccomment'>/// `min` or `max`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to</span>
+<span class='doccomment'>/// `min` or `max`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_clamp</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>value</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>min</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>max</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
     <span class='ident'>PartialOrd</span>::<span class='ident'>partial_clamp</span>(<span class='ident'>value</span>, <span class='ident'>min</span>, <span class='ident'>max</span>)
-}<span class='comment'>
+}
 
-//
-//
-// Constructors
-//
-//
+<span class='comment'>//</span>
+<span class='comment'>//</span>
+<span class='comment'>// Constructors</span>
+<span class='comment'>//</span>
+<span class='comment'>//</span>
 
-</span><span class='doccomment'>/// Create a special identity object.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// Same as `Identity::new()`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Create a special identity object.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Same as `Identity::new()`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>identity</span>() <span class='op'>-&gt;</span> <span class='ident'>Identity</span> {
     <span class='ident'>Identity</span>::<span class='ident'>new</span>()
 }
 
-<span class='doccomment'>/// Create a zero-valued value.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// This is the same as `std::num::zero()`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Create a zero-valued value.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// This is the same as `std::num::zero()`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>zero</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Zero</span><span class='op'>&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>T</span> {
     <span class='ident'>Zero</span>::<span class='ident'>zero</span>()
 }
 
-<span class='doccomment'>/// Create a one-valued value.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// This is the same as `std::num::one()`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Create a one-valued value.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// This is the same as `std::num::one()`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>one</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>One</span><span class='op'>&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>T</span> {
     <span class='ident'>One</span>::<span class='ident'>one</span>()
-}<span class='comment'>
+}
 
-//
-//
-// Geometry
-//
-//
+<span class='comment'>//</span>
+<span class='comment'>//</span>
+<span class='comment'>// Geometry</span>
+<span class='comment'>//</span>
+<span class='comment'>//</span>
 
-/*
+<span class='comment'>/*
  * Perspective
- */
-</span><span class='doccomment'>/// Computes a projection matrix given the frustrum near plane width, height, the field of
-</span><span class='doccomment'>/// view, and the distance to the clipping planes (`znear` and `zfar`).
-</span><span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>perspective3d</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Zero</span> <span class='op'>+</span> <span class='ident'>One</span><span class='op'>&gt;</span>(<span class='ident'>width</span>: <span class='ident'>N</span>, <span class='ident'>height</span>: <span class='ident'>N</span>, <span class='ident'>fov</span>: <span class='ident'>N</span>, <span class='ident'>znear</span>: <span class='ident'>N</span>, <span class='ident'>zfar</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>Mat4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+ */</span>
+<span class='doccomment'>/// Computes a projection matrix given the frustrum near plane width, height, the field of</span>
+<span class='doccomment'>/// view, and the distance to the clipping planes (`znear` and `zfar`).</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>perspective3d</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>FloatMath</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Zero</span> <span class='op'>+</span> <span class='ident'>One</span><span class='op'>&gt;</span>(<span class='ident'>width</span>: <span class='ident'>N</span>, <span class='ident'>height</span>: <span class='ident'>N</span>, <span class='ident'>fov</span>: <span class='ident'>N</span>, <span class='ident'>znear</span>: <span class='ident'>N</span>, <span class='ident'>zfar</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>Mat4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='kw'>let</span> <span class='ident'>aspect</span> <span class='op'>=</span> <span class='ident'>width</span> <span class='op'>/</span> <span class='ident'>height</span>;
 
     <span class='kw'>let</span> <span class='ident'>_1</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>one</span>();
@@ -1060,239 +1093,239 @@
         <span class='ident'>zero</span>(), <span class='ident'>sy</span>,     <span class='ident'>zero</span>(), <span class='ident'>zero</span>(),
         <span class='ident'>zero</span>(), <span class='ident'>zero</span>(), <span class='ident'>sz</span>,     <span class='ident'>tz</span>,
         <span class='ident'>zero</span>(), <span class='ident'>zero</span>(), <span class='ident'>one</span>(),  <span class='ident'>zero</span>())
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Translation&lt;V&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Gets the translation applicable by `m`.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use nalgebra::na::{Vec3, Iso3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t     = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
-</span><span class='doccomment'>///     let trans = na::translation(&amp;t);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(trans == Vec3::new(1.0, 1.0, 1.0));
-</span><span class='doccomment'>/// }
-</span><span class='doccomment'>/// ```
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets the translation applicable by `m`.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use nalgebra::na::{Vec3, Iso3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t     = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());</span>
+<span class='doccomment'>///     let trans = na::translation(&amp;t);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(trans == Vec3::new(1.0, 1.0, 1.0));</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>translation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>translation</span>()
 }
 
-<span class='doccomment'>/// Gets the inverse translation applicable by `m`.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use nalgebra::na::{Vec3, Iso3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t      = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
-</span><span class='doccomment'>///     let itrans = na::inv_translation(&amp;t);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(itrans == Vec3::new(-1.0, -1.0, -1.0));
-</span><span class='doccomment'>/// }
-</span><span class='doccomment'>/// ```
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets the inverse translation applicable by `m`.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use nalgebra::na::{Vec3, Iso3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t      = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());</span>
+<span class='doccomment'>///     let itrans = na::inv_translation(&amp;t);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(itrans == Vec3::new(-1.0, -1.0, -1.0));</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_translation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>inv_translation</span>()
 }
 
-<span class='doccomment'>/// Applies the translation `v` to a copy of `m`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Applies the translation `v` to a copy of `m`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append_translation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>Translation</span>::<span class='ident'>append_translation_cpy</span>(<span class='ident'>m</span>, <span class='ident'>v</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Translate&lt;V&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Applies a translation to a vector.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use nalgebra::na::{Vec3, Iso3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t  = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
-</span><span class='doccomment'>///     let v  = Vec3::new(2.0, 2.0, 2.0);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     let tv = na::translate(&amp;t, &amp;v);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(tv == Vec3::new(3.0, 3.0, 3.0))
-</span><span class='doccomment'>/// }
-</span><span class='doccomment'>/// ```
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Applies a translation to a vector.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use nalgebra::na::{Vec3, Iso3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());</span>
+<span class='doccomment'>///     let v  = Vec3::new(2.0, 2.0, 2.0);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     let tv = na::translate(&amp;t, &amp;v);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(tv == Vec3::new(3.0, 3.0, 3.0))</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>translate</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Translate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>translate</span>(<span class='ident'>v</span>)
 }
 
-<span class='doccomment'>/// Applies an inverse translation to a vector.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use nalgebra::na::{Vec3, Iso3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t  = Iso3::new(Vec3::new(1.0, 1.0, 1.0), na::zero());
-</span><span class='doccomment'>///     let v  = Vec3::new(2.0, 2.0, 2.0);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     let tv = na::inv_translate(&amp;t, &amp;v);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vec3::new(1.0, 1.0, 1.0)))
-</span><span class='doccomment'>/// }
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Applies an inverse translation to a vector.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use nalgebra::na::{Vec3, Iso3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());</span>
+<span class='doccomment'>///     let v  = Vec3::new(2.0, 2.0, 2.0);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     let tv = na::inv_translate(&amp;t, &amp;v);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vec3::new(1.0, 1.0, 1.0)))</span>
+<span class='doccomment'>/// }</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_translate</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Translate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>inv_translate</span>(<span class='ident'>v</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Rotation&lt;V&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Gets the rotation applicable by `m`.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use nalgebra::na::{Vec3, Rot3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t = Rot3::new(Vec3::new(1.0, 1.0, 1.0));
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;t), &amp;Vec3::new(1.0, 1.0, 1.0)));
-</span><span class='doccomment'>/// }
-</span><span class='doccomment'>/// ```
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets the rotation applicable by `m`.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use nalgebra::na::{Vec3, Rot3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t = Rot3::new(Vec3::new(1.0f64, 1.0, 1.0));</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;t), &amp;Vec3::new(1.0, 1.0, 1.0)));</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>rotation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>rotation</span>()
 }
 
 
-<span class='doccomment'>/// Gets the inverse rotation applicable by `m`.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use nalgebra::na::{Vec3, Rot3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t = Rot3::new(Vec3::new(1.0, 1.0, 1.0));
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(na::approx_eq(&amp;na::inv_rotation(&amp;t), &amp;Vec3::new(-1.0, -1.0, -1.0)));
-</span><span class='doccomment'>/// }
-</span><span class='doccomment'>/// ```
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets the inverse rotation applicable by `m`.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use nalgebra::na::{Vec3, Rot3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t = Rot3::new(Vec3::new(1.0f64, 1.0, 1.0));</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::inv_rotation(&amp;t), &amp;Vec3::new(-1.0, -1.0, -1.0)));</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_rotation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>inv_rotation</span>()
-}<span class='comment'>
+}
 
-// FIXME: this example is a bit shity
-</span><span class='doccomment'>/// Applies the rotation `v` to a copy of `m`.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use nalgebra::na::{Vec3, Rot3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.0));
-</span><span class='doccomment'>///     let v  = Vec3::new(1.0, 1.0, 1.0);
-</span><span class='doccomment'>///     let rt = na::append_rotation(&amp;t, &amp;v);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;rt), &amp;Vec3::new(1.0, 1.0, 1.0)))
-</span><span class='doccomment'>/// }
-</span><span class='doccomment'>/// ```
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='comment'>// FIXME: this example is a bit shity</span>
+<span class='doccomment'>/// Applies the rotation `v` to a copy of `m`.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use nalgebra::na::{Vec3, Rot3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.0));</span>
+<span class='doccomment'>///     let v  = Vec3::new(1.0, 1.0, 1.0);</span>
+<span class='doccomment'>///     let rt = na::append_rotation(&amp;t, &amp;v);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;rt), &amp;Vec3::new(1.0, 1.0, 1.0)))</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append_rotation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>Rotation</span>::<span class='ident'>append_rotation_cpy</span>(<span class='ident'>m</span>, <span class='ident'>v</span>)
-}<span class='comment'>
+}
 
-// FIXME: this example is a bit shity
-</span><span class='doccomment'>/// Pre-applies the rotation `v` to a copy of `m`.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use nalgebra::na::{Vec3, Rot3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.0));
-</span><span class='doccomment'>///     let v  = Vec3::new(1.0, 1.0, 1.0);
-</span><span class='doccomment'>///     let rt = na::prepend_rotation(&amp;t, &amp;v);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;rt), &amp;Vec3::new(1.0, 1.0, 1.0)))
-</span><span class='doccomment'>/// }
-</span><span class='doccomment'>/// ```
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='comment'>// FIXME: this example is a bit shity</span>
+<span class='doccomment'>/// Pre-applies the rotation `v` to a copy of `m`.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use nalgebra::na::{Vec3, Rot3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.0));</span>
+<span class='doccomment'>///     let v  = Vec3::new(1.0, 1.0, 1.0);</span>
+<span class='doccomment'>///     let rt = na::prepend_rotation(&amp;t, &amp;v);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;rt), &amp;Vec3::new(1.0, 1.0, 1.0)))</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>Rotation</span>::<span class='ident'>prepend_rotation_cpy</span>(<span class='ident'>m</span>, <span class='ident'>v</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Rotate&lt;V&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Applies a rotation to a vector.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use std::num::Float;
-</span><span class='doccomment'>/// use nalgebra::na::{Rot3, Vec3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.5 * Float::pi()));
-</span><span class='doccomment'>///     let v  = Vec3::new(1.0, 0.0, 0.0);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     let tv = na::rotate(&amp;t, &amp;v);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vec3::new(0.0, 1.0, 0.0)))
-</span><span class='doccomment'>/// }
-</span><span class='doccomment'>/// ```
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Applies a rotation to a vector.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use std::num::Float;</span>
+<span class='doccomment'>/// use nalgebra::na::{Rot3, Vec3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * Float::pi()));</span>
+<span class='doccomment'>///     let v  = Vec3::new(1.0, 0.0, 0.0);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     let tv = na::rotate(&amp;t, &amp;v);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vec3::new(0.0, 1.0, 0.0)))</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>rotate</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>rotate</span>(<span class='ident'>v</span>)
 }
 
 
-<span class='doccomment'>/// Applies an inverse rotation to a vector.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// ```rust
-</span><span class='doccomment'>/// extern crate nalgebra;
-</span><span class='doccomment'>/// use std::num::Float;
-</span><span class='doccomment'>/// use nalgebra::na::{Rot3, Vec3};
-</span><span class='doccomment'>/// use nalgebra::na;
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// fn main() {
-</span><span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0, 0.0, 0.5 * Float::pi()));
-</span><span class='doccomment'>///     let v  = Vec3::new(1.0, 0.0, 0.0);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     let tv = na::inv_rotate(&amp;t, &amp;v);
-</span><span class='doccomment'>///
-</span><span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vec3::new(0.0, -1.0, 0.0)))
-</span><span class='doccomment'>/// }
-</span><span class='doccomment'>/// ```
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Applies an inverse rotation to a vector.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```rust</span>
+<span class='doccomment'>/// extern crate nalgebra;</span>
+<span class='doccomment'>/// use std::num::Float;</span>
+<span class='doccomment'>/// use nalgebra::na::{Rot3, Vec3};</span>
+<span class='doccomment'>/// use nalgebra::na;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// fn main() {</span>
+<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * Float::pi()));</span>
+<span class='doccomment'>///     let v  = Vec3::new(1.0, 0.0, 0.0);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     let tv = na::inv_rotate(&amp;t, &amp;v);</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vec3::new(0.0, -1.0, 0.0)))</span>
+<span class='doccomment'>/// }</span>
+<span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_rotate</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>inv_rotate</span>(<span class='ident'>v</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * RotationWithTranslation&lt;LV, AV&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Rotates a copy of `m` by `amount` using `center` as the pivot point.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Rotates a copy of `m` by `amount` using `center` as the pivot point.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_point</span><span class='op'>&lt;</span><span class='ident'>LV</span>: <span class='ident'>Neg</span><span class='op'>&lt;</span><span class='ident'>LV</span><span class='op'>&gt;</span>,
                                  <span class='ident'>AV</span>,
                                  <span class='ident'>M</span>: <span class='ident'>RotationWithTranslation</span><span class='op'>&lt;</span><span class='ident'>LV</span>, <span class='ident'>AV</span><span class='op'>&gt;&gt;</span>(
@@ -1302,320 +1335,341 @@
     <span class='ident'>RotationWithTranslation</span>::<span class='ident'>append_rotation_wrt_point_cpy</span>(<span class='ident'>m</span>, <span class='ident'>amount</span>, <span class='ident'>center</span>)
 }
 
-<span class='doccomment'>/// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_center</span><span class='op'>&lt;</span><span class='ident'>LV</span>: <span class='ident'>Neg</span><span class='op'>&lt;</span><span class='ident'>LV</span><span class='op'>&gt;</span>,
                                   <span class='ident'>AV</span>,
                                   <span class='ident'>M</span>: <span class='ident'>RotationWithTranslation</span><span class='op'>&lt;</span><span class='ident'>LV</span>, <span class='ident'>AV</span><span class='op'>&gt;&gt;</span>(
                                   <span class='ident'>m</span>:      <span class='kw-2'>&amp;</span><span class='ident'>M</span>,
                                   <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>RotationWithTranslation</span>::<span class='ident'>append_rotation_wrt_center_cpy</span>(<span class='ident'>m</span>, <span class='ident'>amount</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * RotationMatrix&lt;LV, AV, R&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Builds a rotation matrix from `r`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Builds a rotation matrix from `r`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_rot_mat</span><span class='op'>&lt;</span><span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>M</span>: <span class='ident'>Mat</span><span class='op'>&lt;</span><span class='ident'>LV</span>, <span class='ident'>LV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span>, <span class='ident'>R</span>: <span class='ident'>RotationMatrix</span><span class='op'>&lt;</span><span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>M</span><span class='op'>&gt;&gt;</span>(<span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>r</span>.<span class='ident'>to_rot_mat</span>()
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * AbsoluteRotate&lt;V&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Applies a rotation using the absolute values of its components.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Applies a rotation using the absolute values of its components.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>absolute_rotate</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>AbsoluteRotate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>absolute_rotate</span>(<span class='ident'>v</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Transformation&lt;T&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Gets the transformation applicable by `m`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets the transformation applicable by `m`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>transformation</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>M</span>: <span class='ident'>Transformation</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
     <span class='ident'>m</span>.<span class='ident'>transformation</span>()
 }
 
-<span class='doccomment'>/// Gets the inverse transformation applicable by `m`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets the inverse transformation applicable by `m`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_transformation</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>M</span>: <span class='ident'>Transformation</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
     <span class='ident'>m</span>.<span class='ident'>inv_transformation</span>()
 }
 
-<span class='doccomment'>/// Gets a transformed copy of `m`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets a transformed copy of `m`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append_transformation</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>M</span>: <span class='ident'>Transformation</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>Transformation</span>::<span class='ident'>append_transformation_cpy</span>(<span class='ident'>m</span>, <span class='ident'>t</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Transform&lt;V&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Applies a transformation to a vector.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Applies a transformation to a vector.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>transform</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Transform</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>transform</span>(<span class='ident'>v</span>)
 }
 
-<span class='doccomment'>/// Applies an inverse transformation to a vector.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Applies an inverse transformation to a vector.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_transform</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Transform</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>m</span>.<span class='ident'>inv_transform</span>(<span class='ident'>v</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Dot&lt;N&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Computes the dot product of two vectors.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes the dot product of two vectors.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>dot</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Dot</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
     <span class='ident'>Dot</span>::<span class='ident'>dot</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Computes a subtraction followed by a dot product.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes a subtraction followed by a dot product.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sub_dot</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Dot</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>c</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
     <span class='ident'>Dot</span>::<span class='ident'>sub_dot</span>(<span class='ident'>a</span>, <span class='ident'>b</span>, <span class='ident'>c</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Norm&lt;N&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Computes the L2 norm of a vector.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes the L2 norm of a vector.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>norm</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span>: <span class='ident'>Float</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
     <span class='ident'>Norm</span>::<span class='ident'>norm</span>(<span class='ident'>v</span>)
 }
 
-<span class='doccomment'>/// Computes the squared L2 norm of a vector.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes the squared L2 norm of a vector.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sqnorm</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span>: <span class='ident'>Float</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
     <span class='ident'>Norm</span>::<span class='ident'>sqnorm</span>(<span class='ident'>v</span>)
 }
 
-<span class='doccomment'>/// Gets the normalized version of a vector.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets the normalized version of a vector.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>normalize</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span>: <span class='ident'>Float</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
     <span class='ident'>Norm</span>::<span class='ident'>normalize_cpy</span>(<span class='ident'>v</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
+ * Det&lt;N&gt;
+ */</span>
+<span class='doccomment'>/// Computes the determinant of a square matrix.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>det</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Det</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
+    <span class='ident'>Det</span>::<span class='ident'>det</span>(<span class='ident'>m</span>)
+}
+
+<span class='comment'>/*
  * Cross&lt;V&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Computes the cross product of two vectors.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes the cross product of two vectors.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cross</span><span class='op'>&lt;</span><span class='ident'>LV</span>: <span class='ident'>Cross</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span>, <span class='ident'>AV</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>) <span class='op'>-&gt;</span> <span class='ident'>AV</span> {
     <span class='ident'>Cross</span>::<span class='ident'>cross</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * CrossMatrix&lt;M&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Given a vector, computes the matrix which, when multiplied by another vector, computes a cross
-</span><span class='doccomment'>/// product.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Given a vector, computes the matrix which, when multiplied by another vector, computes a cross</span>
+<span class='doccomment'>/// product.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cross_matrix</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>CrossMatrix</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>CrossMatrix</span>::<span class='ident'>cross_matrix</span>(<span class='ident'>v</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * ToHomogeneous&lt;U&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Converts a matrix or vector to homogeneous coordinates.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Converts a matrix or vector to homogeneous coordinates.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_homogeneous</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>ToHomogeneous</span><span class='op'>&lt;</span><span class='ident'>Res</span><span class='op'>&gt;</span>, <span class='ident'>Res</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>Res</span> {
     <span class='ident'>ToHomogeneous</span>::<span class='ident'>to_homogeneous</span>(<span class='ident'>m</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * FromHomogeneous&lt;U&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Converts a matrix or vector from homogeneous coordinates.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// w-normalization is appied.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Converts a matrix or vector from homogeneous coordinates.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// w-normalization is appied.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_homogeneous</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Res</span>: <span class='ident'>FromHomogeneous</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>Res</span> {
     <span class='ident'>FromHomogeneous</span>::<span class='ident'>from</span>(<span class='ident'>m</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * UniformSphereSample
- */
+ */</span>
 
-</span><span class='doccomment'>/// Samples the unit sphere living on the dimension as the samples types.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// The number of sampling point is implementation-specific. It is always uniform.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Samples the unit sphere living on the dimension as the samples types.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// The number of sampling point is implementation-specific. It is always uniform.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sample_sphere</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>UniformSphereSample</span><span class='op'>&gt;</span>(<span class='ident'>f</span>: <span class='op'>|</span><span class='ident'>V</span><span class='op'>|</span> <span class='op'>-&gt;</span> ()) {
     <span class='ident'>UniformSphereSample</span>::<span class='ident'>sample</span>(<span class='ident'>f</span>)
-}<span class='comment'>
+}
 
-//
-//
-// Operations
-//
-//
+<span class='comment'>//</span>
+<span class='comment'>//</span>
+<span class='comment'>// Operations</span>
+<span class='comment'>//</span>
+<span class='comment'>//</span>
 
-/*
+<span class='comment'>/*
  * AproxEq&lt;N&gt;
- */
-</span><span class='doccomment'>/// Tests approximate equality.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+ */</span>
+<span class='doccomment'>/// Tests approximate equality.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>approx_eq</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>ApproxEq</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
     <span class='ident'>ApproxEq</span>::<span class='ident'>approx_eq</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
-<span class='doccomment'>/// Tests approximate equality using a custom epsilon.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Tests approximate equality using a custom epsilon.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>approx_eq_eps</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>ApproxEq</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>eps</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
     <span class='ident'>ApproxEq</span>::<span class='ident'>approx_eq_eps</span>(<span class='ident'>a</span>, <span class='ident'>b</span>, <span class='ident'>eps</span>)
-}<span class='comment'>
+}
 
 
-/*
+<span class='comment'>/*
  * Absolute&lt;A&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Computes a component-wise absolute value.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes a component-wise absolute value.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>abs</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Absolute</span><span class='op'>&lt;</span><span class='ident'>Res</span><span class='op'>&gt;</span>, <span class='ident'>Res</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>Res</span> {
     <span class='ident'>Absolute</span>::<span class='ident'>abs</span>(<span class='ident'>m</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Inv
- */
+ */</span>
 
-</span><span class='doccomment'>/// Gets an inverted copy of a matrix.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets an inverted copy of a matrix.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Inv</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span> {
     <span class='ident'>Inv</span>::<span class='ident'>inv_cpy</span>(<span class='ident'>m</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Transpose
- */
+ */</span>
 
-</span><span class='doccomment'>/// Gets a transposed copy of a matrix.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Gets a transposed copy of a matrix.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>transpose</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Transpose</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>Transpose</span>::<span class='ident'>transpose_cpy</span>(<span class='ident'>m</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Outer&lt;M&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Computes the outer product of two vectors.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes the outer product of two vectors.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>outer</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Outer</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>Outer</span>::<span class='ident'>outer</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Cov&lt;M&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Computes the covariance of a set of observations.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes the covariance of a set of observations.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cov</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Cov</span><span class='op'>&lt;</span><span class='ident'>Res</span><span class='op'>&gt;</span>, <span class='ident'>Res</span><span class='op'>&gt;</span>(<span class='ident'>observations</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>Res</span> {
     <span class='ident'>Cov</span>::<span class='ident'>cov</span>(<span class='ident'>observations</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Mean&lt;N&gt;
- */
+ */</span>
 
-</span><span class='doccomment'>/// Computes the mean of a set of observations.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes the mean of a set of observations.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mean</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>M</span>: <span class='ident'>Mean</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>observations</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
     <span class='ident'>Mean</span>::<span class='ident'>mean</span>(<span class='ident'>observations</span>)
-}<span class='comment'>
+}
 
-//
-//
-// Structure
-//
-//
+<span class='comment'>//</span>
+<span class='comment'>//</span>
+<span class='comment'>// Structure</span>
+<span class='comment'>//</span>
+<span class='comment'>//</span>
 
-</span><span class='doccomment'>/// Construct the identity matrix for a given dimension
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_identity</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Eye</span><span class='op'>&gt;</span>(<span class='ident'>dim</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> { <span class='ident'>Eye</span>::<span class='ident'>new_identity</span>(<span class='ident'>dim</span>) }<span class='comment'>
+<span class='comment'>/*
+ * Eye
+ */</span>
+<span class='doccomment'>/// Construct the identity matrix for a given dimension</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_identity</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Eye</span><span class='op'>&gt;</span>(<span class='ident'>dim</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> { <span class='ident'>Eye</span>::<span class='ident'>new_identity</span>(<span class='ident'>dim</span>) }
 
-/*
+<span class='comment'>/*
  * Basis
- */
+ */</span>
 
-</span><span class='doccomment'>/// Computes the canonical basis for a given dimension.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes the canonical basis for a given dimension.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>canonical_basis</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Basis</span><span class='op'>&gt;</span>(<span class='ident'>f</span>: <span class='op'>|</span><span class='ident'>V</span><span class='op'>|</span> <span class='op'>-&gt;</span> <span class='ident'>bool</span>) {
     <span class='ident'>Basis</span>::<span class='ident'>canonical_basis</span>(<span class='ident'>f</span>)
 }
 
-<span class='doccomment'>/// Computes the basis of the orthonormal subspace of a given vector.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='doccomment'>/// Computes the basis of the orthonormal subspace of a given vector.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>orthonormal_subspace_basis</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Basis</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>f</span>: <span class='op'>|</span><span class='ident'>V</span><span class='op'>|</span> <span class='op'>-&gt;</span> <span class='ident'>bool</span>) {
     <span class='ident'>Basis</span>::<span class='ident'>orthonormal_subspace_basis</span>(<span class='ident'>v</span>, <span class='ident'>f</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Row&lt;R&gt;
- */
+ */</span>
 
-/*
+<span class='comment'>/*
  * Col&lt;C&gt;
- */
+ */</span>
 
-/*
+<span class='comment'>/*
+ * Diag&lt;V&gt;
+ */</span>
+<span class='doccomment'>/// Gets the diagonal of a square matrix.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>diag</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Diag</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>, <span class='ident'>V</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
+    <span class='ident'>m</span>.<span class='ident'>diag</span>()
+}
+
+<span class='comment'>/*
  * Dim
- */
-</span><span class='doccomment'>/// Gets the dimension an object lives in.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// Same as `Dim::dim::(None::&lt;V&gt;)`.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+ */</span>
+<span class='doccomment'>/// Gets the dimension an object lives in.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Same as `Dim::dim::(None::&lt;V&gt;)`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>dim</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
     <span class='ident'>Dim</span>::<span class='ident'>dim</span>(<span class='prelude-val'>None</span>::<span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Cast&lt;T&gt;
- */
-</span><span class='doccomment'>/// Converts an object from one type to another.
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// For primitive types, this is the same as the `as` keywords.
-</span><span class='doccomment'>/// The following properties are preserved by a cast:
-</span><span class='doccomment'>///
-</span><span class='doccomment'>/// * Type-level geometric invariants cannot be broken (eg. a cast from Rot3&lt;f64&gt; to Rot3&lt;i64&gt; is
-</span><span class='doccomment'>/// not possible)
-</span><span class='doccomment'>/// * A cast to a type with more type-level invariants cannot be done (eg. a cast from Mat&lt;f64&gt; to
-</span><span class='doccomment'>/// Rot3&lt;f64&gt; is not possible)
-</span><span class='doccomment'>/// * For primitive types an unbounded cast is done using the `as` keyword (this is different from
-</span><span class='doccomment'>/// the standard library which makes bound-checking to ensure eg. that a i64 is not out of the
-</span><span class='doccomment'>/// range of an i32 when a cast from i64 to i32 is done).
-</span><span class='doccomment'>/// * A cast does not affect the dimension of an algebraic object. Note that this prevents an
-</span><span class='doccomment'>/// isometric transform to be cast to a raw matrix. Use `to_homogeneous` for that special purpose.
-</span><span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+ */</span>
+<span class='doccomment'>/// Converts an object from one type to another.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// For primitive types, this is the same as the `as` keywords.</span>
+<span class='doccomment'>/// The following properties are preserved by a cast:</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// * Type-level geometric invariants cannot be broken (eg. a cast from Rot3&lt;f64&gt; to Rot3&lt;i64&gt; is</span>
+<span class='doccomment'>/// not possible)</span>
+<span class='doccomment'>/// * A cast to a type with more type-level invariants cannot be done (eg. a cast from Mat&lt;f64&gt; to</span>
+<span class='doccomment'>/// Rot3&lt;f64&gt; is not possible)</span>
+<span class='doccomment'>/// * For primitive types an unbounded cast is done using the `as` keyword (this is different from</span>
+<span class='doccomment'>/// the standard library which makes bound-checking to ensure eg. that a i64 is not out of the</span>
+<span class='doccomment'>/// range of an i32 when a cast from i64 to i32 is done).</span>
+<span class='doccomment'>/// * A cast does not affect the dimension of an algebraic object. Note that this prevents an</span>
+<span class='doccomment'>/// isometric transform to be cast to a raw matrix. Use `to_homogeneous` for that special purpose.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cast</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>U</span>: <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;&gt;</span>(<span class='ident'>t</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>U</span> {
     <span class='ident'>Cast</span>::<span class='ident'>from</span>(<span class='ident'>t</span>)
-}<span class='comment'>
+}
 
-/*
+<span class='comment'>/*
  * Indexable
- */
-</span></pre>
+ */</span>
+</pre>
 </section>
     <section id='search' class="content hidden"></section>
 
@@ -1629,9 +1683,9 @@
                 <dd>Show this help dialog</dd>
                 <dt>S</dt>
                 <dd>Focus the search field</dd>
-                <dt>&uarr;</dt>
+                <dt>&larrb;</dt>
                 <dd>Move up in search results</dd>
-                <dt>&darr;</dt>
+                <dt>&rarrb;</dt>
                 <dd>Move down in search results</dd>
                 <dt>&#9166;</dt>
                 <dd>Go to active search result</dd>
@@ -1645,12 +1699,14 @@
             </p>
             <p>
                 Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code> (or <code>str</code>), <code>enum</code>,
+                <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
             </p>
         </div>
     </div>
+
+    
 
     <script>
         window.rootPath = "../../../";
