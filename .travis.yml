@@ -1,13 +1,1 @@
-env:
-  global:
-    - secure: GwyxF8F9NKc9M2YypZZMGyIolTf7lDfeKnhhGre28HuzE4e9oIB7dUGjqYrx6uQ/ei++rpd+pjhTFilnX5inS/E+7R7DRvdX00JERWPF+qgiWpxPAoT/iI2RQ+7PKiLcwrzdzQIhSfIse/FikdpkeSY0FJG9/vu/HXNzFxDBPW0=
-language: c
-install:
-  - sudo apt-get update
-  - curl -s http://www.rust-lang.org/rustup.sh | sudo sh
-  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib 
-script:
-  - rustc --version
-  - make
-after_script:
-  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
+language: rust
