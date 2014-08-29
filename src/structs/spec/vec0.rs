@@ -52,14 +52,14 @@ impl<N> vec::Vec0<N> {
     }
 }
 
-impl<N> Iterable<N> for vec::Vec0<N> {
+impl<N: 'static> Iterable<N> for vec::Vec0<N> {
     #[inline]
     fn iter<'l>(&'l self) -> Items<'l, N> {
         unsafe { mem::transmute::<&'l vec::Vec0<N>, &'l [N, ..0]>(self).iter() }
     }
 }
 
-impl<N> IterableMut<N> for vec::Vec0<N> {
+impl<N: 'static> IterableMut<N> for vec::Vec0<N> {
     #[inline]
     fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
         unsafe { mem::transmute::<&'l mut vec::Vec0<N>, &'l mut [N, ..0]>(self).mut_iter() }
