@@ -7,14 +7,6 @@ use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim};
 use traits::geometry::{Translation, Dot, Norm};
 use structs::vec;
 
-impl<N> vec::Vec0<N> {
-    /// Creates a new vector.
-    #[inline]
-    pub fn new() -> vec::Vec0<N> {
-        vec::Vec0
-    }
-}
-
 impl<N> Indexable<uint, N> for vec::Vec0<N> {
     #[inline]
     fn at(&self, _: uint) -> N {
@@ -41,14 +33,6 @@ impl<N> Indexable<uint, N> for vec::Vec0<N> {
 
     #[inline]
     unsafe fn unsafe_set(&mut self, _: uint, _: N) {
-    }
-}
-
-impl<N> vec::Vec0<N> {
-    /// Creates a new vector. The parameter is not taken in account.
-    #[inline]
-    pub fn new_repeat(_: N) -> vec::Vec0<N> {
-        vec::Vec0
     }
 }
 

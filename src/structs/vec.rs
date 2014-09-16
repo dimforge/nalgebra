@@ -17,6 +17,20 @@ use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut};
 #[deriving(Eq, PartialEq, Decodable, Clone, Rand, Zero, Show)]
 pub struct Vec0<N>;
 
+impl<N> Vec0<N> {
+    /// Creates a new vector.
+    #[inline]
+    pub fn new() -> Vec0<N> {
+        Vec0
+    }
+
+    /// Creates a new vector. The parameter is not taken in account.
+    #[inline]
+    pub fn new_repeat(_: N) -> Vec0<N> {
+        Vec0
+    }
+}
+
 /// Vector of dimension 1.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
 pub struct Vec1<N> {
