@@ -267,6 +267,17 @@ impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
 
 }
 
+// TODO: implement after DST lands
+/*
+impl<N> Index<uint, [N]> for DMat<N> {
+    fn index(&self, i: &uint) -> &[N] { ... }
+}
+
+impl<N> IndexMut<uint, [N]> for DMat<N> {
+    fn index_mut(&mut self, i: &uint) -> &mut [N] { ... }
+}
+*/
+
 impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> DMatMulRhs<N, DMat<N>> for DMat<N> {
     fn binop(left: &DMat<N>, right: &DMat<N>) -> DMat<N> {
         assert!(left.ncols == right.nrows);

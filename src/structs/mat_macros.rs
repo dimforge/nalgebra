@@ -225,6 +225,26 @@ macro_rules! indexable_impl(
   )
 )
 
+macro_rules! index_impl(
+    ($t: ident, $tv: ident, $dim: expr) => (
+        impl<N> Index<uint, $tv<N>> for $t<N> {
+            fn index(&self, i: &uint) -> &$tv<N> {
+                unsafe {
+                    &mem::transmute::<&$t<N>, &[$tv<N>, ..$dim]>(self)[*i]
+                }
+            }
+        }
+
+        impl<N> IndexMut<uint, $tv<N>> for $t<N> {
+            fn index_mut(&mut self, i: &uint) -> &mut $tv<N> {
+                unsafe {
+                    &mut mem::transmute::<&mut $t<N>, &mut [$tv<N>, ..$dim]>(self)[*i]
+                }
+            }
+        }
+    )
+)
+
 macro_rules! col_slice_impl(
     ($t: ident, $tv: ident, $slice: ident, $dim: expr) => (
         impl<N: Clone + Zero> ColSlice<$slice<N>> for $t<N> {
@@ -239,7 +259,7 @@ macro_rules! col_slice_impl(
 
 macro_rules! row_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
-    impl<N: Clone + Zero> Row<$tv<N>> for $t<N> {
+    impl<N: Clone> Row<$tv<N>> for $t<N> {
         #[inline]
         fn nrows(&self) -> uint {
             Dim::dim(None::<$t<N>>)
@@ -247,20 +267,12 @@ macro_rules! row_impl(
 
         #[inline]
         fn set_row(&mut self, row: uint, v: $tv<N>) {
-            for (i, e) in v.iter().enumerate() {
-                self.set((row, i), e.clone());
-            }
+            self[row] = v;
         }
 
         #[inline]
         fn row(&self, row: uint) -> $tv<N> {
-            let mut res: $tv<N> = Zero::zero();
-
-            for (i, e) in res.mut_iter().enumerate() {
-                *e = self.at((row, i));
-            }
-
-            res
+            self[row].clone()
         }
     }
   )

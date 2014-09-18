@@ -186,6 +186,22 @@ macro_rules! col_impl(
     )
 )
 
+macro_rules! index_impl(
+    ($t: ident, $tv: ident) => (
+        impl<N> Index<uint, $tv<N>> for $t<N> {
+            fn index(&self, i: &uint) -> &$tv<N> {
+                &self.submat[*i]
+            }
+        }
+
+        impl<N> IndexMut<uint, $tv<N>> for $t<N> {
+            fn index_mut(&mut self, i: &uint) -> &mut $tv<N> {
+                &mut self.submat[*i]
+            }
+        }
+    )
+)
+
 macro_rules! to_homogeneous_impl(
     ($t: ident, $tm: ident) => (
         impl<N: Num + Clone> ToHomogeneous<$tm<N>> for $t<N> {
