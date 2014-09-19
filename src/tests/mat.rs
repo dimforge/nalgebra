@@ -9,7 +9,10 @@ macro_rules! test_inv_mat_impl(
     for _ in range(0u, 10000) {
       let randmat : $t = random();
 
-      assert!(na::approx_eq(&(na::inv(&randmat).unwrap() * randmat), &na::one()));
+      match na::inv(&randmat) {
+          None    => { },
+          Some(i) => assert!(na::approx_eq(&(i * randmat), &na::one()))
+      }
     }
   );
 )
