@@ -259,7 +259,7 @@ macro_rules! col_slice_impl(
 
 macro_rules! row_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
-    impl<N: Clone> Row<$tv<N>> for $t<N> {
+    impl<N: Clone + Zero> Row<$tv<N>> for $t<N> {
         #[inline]
         fn nrows(&self) -> uint {
             Dim::dim(None::<$t<N>>)
@@ -267,12 +267,20 @@ macro_rules! row_impl(
 
         #[inline]
         fn set_row(&mut self, row: uint, v: $tv<N>) {
-            self[row] = v;
+            for (i, e) in v.iter().enumerate() {
+                self.set((row, i), e.clone());
+            }
         }
 
         #[inline]
         fn row(&self, row: uint) -> $tv<N> {
-            self[row].clone()
+            let mut res: $tv<N> = Zero::zero();
+
+            for (i, e) in res.mut_iter().enumerate() {
+                *e = self.at((row, i));
+            }
+
+            res
         }
     }
   )
@@ -292,7 +300,7 @@ macro_rules! row_slice_impl(
 
 macro_rules! col_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
-    impl<N: Clone + Zero> Col<$tv<N>> for $t<N> {
+    impl<N: Clone> Col<$tv<N>> for $t<N> {
         #[inline]
         fn ncols(&self) -> uint {
             Dim::dim(None::<$t<N>>)
@@ -300,20 +308,12 @@ macro_rules! col_impl(
 
         #[inline]
         fn set_col(&mut self, col: uint, v: $tv<N>) {
-            for (i, e) in v.iter().enumerate() {
-                self.set((i, col), e.clone());
-            }
+            self[col] = v;
         }
 
         #[inline]
         fn col(&self, col: uint) -> $tv<N> {
-            let mut res: $tv<N> = Zero::zero();
-
-            for (i, e) in res.mut_iter().enumerate() {
-                *e = self.at((i, col));
-            }
-
-            res
+            self[col].clone()
         }
     }
   )

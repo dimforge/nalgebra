@@ -1,6 +1,6 @@
 use std::num::{Float, abs};
 use std::rand::random;
-use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable};
+use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable, Row, Col};
 use na;
 use std::cmp::{min, max};
 
@@ -329,4 +329,16 @@ fn test_from_fn() {
                                                    2_0, 2_1, 2_2, 2_3 ]);
 
     assert_eq!(actual, expected);
+}
+
+#[test]
+fn test_row_3() {
+    let mat = Mat3::new(0.0f32, 1.0, 2.0,
+                        3.0,    4.0, 5.0,
+                        6.0,    7.0, 8.0);
+    let second_row = mat.row(1);
+    let second_col = mat.col(1);
+
+    assert!(second_row == Vec3::new(3.0, 4.0, 5.0));
+    assert!(second_col == Vec3::new(1.0, 4.0, 7.0));
 }
