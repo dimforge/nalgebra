@@ -66,7 +66,7 @@ impl<N: Zero + Clone> DMat<N> {
 
     #[inline]
     pub fn reset(&mut self) {
-        for mij in self.mij.mut_iter() {
+        for mij in self.mij.iter_mut() {
             *mij = Zero::zero();
         }
     }
@@ -227,7 +227,7 @@ impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
     unsafe fn unsafe_set(&mut self, rowcol: (uint, uint), val: N) {
         let (row, col) = rowcol;
         let offset = self.offset(row, col);
-        *self.mij.as_mut_slice().unsafe_mut_ref(offset) = val
+        *self.mij.as_mut_slice().unsafe_mut(offset) = val
     }
 
     /// Reads the value of a component of the matrix.
@@ -369,7 +369,6 @@ Inv for DMat<N> {
 
         let dim              = self.nrows;
         let mut res: DMat<N> = Eye::new_identity(dim);
-        let     _0T: N       = Zero::zero();
 
         // inversion using Gauss-Jordan elimination
         for k in range(0u, dim) {
@@ -380,7 +379,7 @@ Inv for DMat<N> {
             let mut n0 = k; // index of a non-zero entry
 
             while n0 != dim {
-                if unsafe { self.unsafe_at((n0, k)) } != _0T {
+                if unsafe { self.unsafe_at((n0, k)) } != Zero::zero() {
                     break;
                 }
 

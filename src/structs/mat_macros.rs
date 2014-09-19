@@ -442,7 +442,6 @@ macro_rules! inv_impl(
 
         fn inv(&mut self) -> bool {
             let mut res: $t<N> = One::one();
-            let     _0N: N     = Zero::zero();
 
             // inversion using Gauss-Jordan elimination
             for k in range(0u, $dim) {
@@ -453,7 +452,7 @@ macro_rules! inv_impl(
                 let mut n0 = k; // index of a non-zero entry
 
                 while n0 != $dim {
-                    if self.at((n0, k)) != _0N {
+                    if self.at((n0, k)) != Zero::zero() {
                         break;
                     }
 

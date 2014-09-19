@@ -46,7 +46,7 @@ impl<N: 'static> Iterable<N> for vec::Vec0<N> {
 impl<N: 'static> IterableMut<N> for vec::Vec0<N> {
     #[inline]
     fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
-        unsafe { mem::transmute::<&'l mut vec::Vec0<N>, &'l mut [N, ..0]>(self).mut_iter() }
+        unsafe { mem::transmute::<&'l mut vec::Vec0<N>, &'l mut [N, ..0]>(self).iter_mut() }
     }
 }
 
@@ -74,7 +74,7 @@ impl<N, T> Add<T, vec::Vec0<N>> for vec::Vec0<N> {
 
 impl<N, T> Sub<T, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn sub(&self, _: &T) -> vec::Vec0<N> { 
+    fn sub(&self, _: &T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
@@ -95,7 +95,7 @@ impl<N: Num> Dot<N> for vec::Vec0<N> {
     #[inline]
     fn sub_dot(_: &vec::Vec0<N>, _: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
         Zero::zero()
-    } 
+    }
 }
 
 impl<N, T> Mul<T, vec::Vec0<N>> for vec::Vec0<N> {
