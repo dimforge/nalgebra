@@ -85,6 +85,18 @@ macro_rules! dvec_impl(
 
         }
 
+        impl<N> Index<uint, N> for $dvec<N> {
+            fn index(&self, i: &uint) -> &N {
+                &self.as_slice()[*i]
+            }
+        }
+
+        impl<N> IndexMut<uint, N> for $dvec<N> {
+            fn index_mut(&mut self, i: &uint) -> &mut N {
+                &mut self.as_mut_slice()[*i]
+            }
+        }
+
         impl<N: One + Zero + Clone> $dvec<N> {
             /// Builds a vector filled with ones.
             ///

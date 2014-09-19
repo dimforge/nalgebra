@@ -210,6 +210,22 @@ macro_rules! indexable_impl(
     )
 )
 
+macro_rules! index_impl(
+    ($t: ident) => (
+        impl<N> Index<uint, N> for $t<N> {
+            fn index(&self, i: &uint) -> &N {
+                &self.as_slice()[*i]
+            }
+        }
+
+        impl<N> IndexMut<uint, N> for $t<N> {
+            fn index_mut(&mut self, i: &uint) -> &mut N {
+                &mut self.as_mut_slice()[*i]
+            }
+        }
+    )
+)
+
 macro_rules! new_repeat_impl(
     ($t: ident, $param: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone> $t<N> {
