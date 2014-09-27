@@ -128,7 +128,7 @@ impl<N: Clone> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   Vec::from_slice(vec)
+            mij:   vec.to_vec()
         }
     }
 }

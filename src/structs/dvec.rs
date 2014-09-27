@@ -46,7 +46,7 @@ impl<N: Clone> DVec<N> {
         assert!(dim <= vec.len());
 
         DVec {
-            at: Vec::from_slice(vec.slice_to(dim))
+            at: vec.slice_to(dim).to_vec()
         }
     }
 }
