@@ -1,7 +1,12 @@
+#![feature(macro_rules)]
+
+extern crate debug;
+extern crate test;
+extern crate "nalgebra" as na;
+
 use std::rand::random;
 use test::Bencher;
 use na::{Vec2, Vec3, Vec4, Vec5, Vec6};
-use na;
 
 macro_rules! bench_dot_vec(
     ($bh: expr, $t: ty) => {

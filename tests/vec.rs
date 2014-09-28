@@ -1,7 +1,10 @@
+#![feature(macro_rules)]
+
+extern crate debug;
+extern crate "nalgebra" as na;
+
 use std::rand::random;
-use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
-use na::{Mat3, Iterable, IterableMut}; // FIXME: get rid of that
-use na;
+use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Iterable, IterableMut};
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (

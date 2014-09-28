@@ -1,8 +1,12 @@
+#![feature(macro_rules)]
+
+extern crate debug;
+extern crate "nalgebra" as na;
+
 use std::num::{Float, abs};
 use std::rand::random;
-use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable, Row, Col};
-use na;
 use std::cmp::{min, max};
+use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable, Row, Col};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (

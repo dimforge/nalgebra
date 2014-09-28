@@ -7,8 +7,7 @@ test:
 	cargo test
 
 bench:
-	rustc --test src/lib.rs --opt-level 3 -o bench~ && ./bench~ --bench
-	rm bench~
+	cargo bench
 
 doc:
 	cargo doc
