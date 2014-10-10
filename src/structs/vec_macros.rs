@@ -668,16 +668,6 @@ macro_rules! transform_impl(
                 self.inv_translate(other)
             }
         }
-
-        impl<N: Clone> Transform<$tv<N>> for $tv<N> {
-            fn transform(&self, other: &$tv<N>) -> $tv<N> {
-                other.clone()
-            }
-
-            fn inv_transform(&self, other: &$tv<N>) -> $tv<N> {
-                other.clone()
-            }
-        }
     )
 )
 
