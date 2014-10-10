@@ -129,7 +129,7 @@ translate_impl!(Vec1, Pnt1)
 rotate_impl!(Vec1)
 rotate_impl!(Pnt1)
 transform_impl!(Vec1, Pnt1)
-vec_as_pnt_impl!(Vec1, Pnt1)
+vec_as_pnt_impl!(Vec1, Pnt1, x)
 
 /// Vector of dimension 2.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -230,7 +230,7 @@ translate_impl!(Vec2, Pnt2)
 rotate_impl!(Vec2)
 rotate_impl!(Pnt2)
 transform_impl!(Vec2, Pnt2)
-vec_as_pnt_impl!(Vec2, Pnt2)
+vec_as_pnt_impl!(Vec2, Pnt2, x, y)
 
 /// Vector of dimension 3.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -336,7 +336,7 @@ translate_impl!(Vec3, Pnt3)
 rotate_impl!(Vec3)
 rotate_impl!(Pnt3)
 transform_impl!(Vec3, Pnt3)
-vec_as_pnt_impl!(Vec3, Pnt3)
+vec_as_pnt_impl!(Vec3, Pnt3, x, y, z)
 
 
 /// Vector of dimension 4.
@@ -442,7 +442,7 @@ translate_impl!(Vec4, Pnt4)
 rotate_impl!(Vec4)
 rotate_impl!(Pnt4)
 transform_impl!(Vec4, Pnt4)
-vec_as_pnt_impl!(Vec4, Pnt4)
+vec_as_pnt_impl!(Vec4, Pnt4, x, y, z, w)
 
 /// Vector of dimension 5.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -549,7 +549,7 @@ translate_impl!(Vec5, Pnt5)
 rotate_impl!(Vec5)
 rotate_impl!(Pnt5)
 transform_impl!(Vec5, Pnt5)
-vec_as_pnt_impl!(Vec5, Pnt5)
+vec_as_pnt_impl!(Vec5, Pnt5, x, y, z, w, a)
 
 /// Vector of dimension 6.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -656,4 +656,4 @@ translate_impl!(Vec6, Pnt6)
 rotate_impl!(Vec6)
 rotate_impl!(Pnt6)
 transform_impl!(Vec6, Pnt6)
-vec_as_pnt_impl!(Vec6, Pnt6)
+vec_as_pnt_impl!(Vec6, Pnt6, x, y, z, w, a, b)

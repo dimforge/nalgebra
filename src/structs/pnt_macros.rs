@@ -53,8 +53,16 @@ macro_rules! pnt_sub_vec_impl(
 )
 
 macro_rules! pnt_as_vec_impl(
-    ($t: ident, $tv: ident) => (
+    ($t: ident, $tv: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N> $t<N> {
+            #[inline]
+            pub fn to_vec(self) -> $tv<N> {
+                $tv::new(
+                    self.$comp0
+                    $(, self.$compN)*
+                )
+            }
+
             #[inline]
             pub fn as_vec<'a>(&'a self) -> &'a $tv<N> {
                 unsafe {
@@ -64,6 +72,11 @@ macro_rules! pnt_as_vec_impl(
         }
 
         impl<N> PntAsVec<$tv<N>> for $t<N> {
+            #[inline]
+            fn to_vec(self) -> $tv<N> {
+                self.to_vec()
+            }
+
             #[inline]
             fn as_vec<'a>(&'a self) -> &'a $tv<N> {
                 self.as_vec()

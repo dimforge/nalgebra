@@ -682,8 +682,16 @@ macro_rules! transform_impl(
 )
 
 macro_rules! vec_as_pnt_impl(
-    ($tv: ident, $t: ident) => (
+    ($tv: ident, $t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N> $tv<N> {
+            #[inline]
+            pub fn to_pnt(self) -> $t<N> {
+                $t::new(
+                    self.$comp0
+                    $(, self.$compN)*
+                )
+            }
+
             #[inline]
             pub fn as_pnt<'a>(&'a self) -> &'a $t<N> {
                 unsafe {
@@ -693,6 +701,11 @@ macro_rules! vec_as_pnt_impl(
         }
 
         impl<N> VecAsPnt<$t<N>> for $tv<N> {
+            #[inline]
+            fn to_pnt(self) -> $t<N> {
+                self.to_pnt()
+            }
+
             #[inline]
             fn as_pnt<'a>(&'a self) -> &'a $t<N> {
                 self.as_pnt()

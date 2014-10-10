@@ -147,6 +147,9 @@ pub trait IterableMut<N> {
  */
 /// Trait that relates a point of an affine space to a vector of the associated vector space.
 pub trait VecAsPnt<P> {
+    /// Converts this point to its associated vector.
+    fn to_pnt(self) -> P;
+
     /// Converts a reference to this point to a reference to its associated vector.
     fn as_pnt<'a>(&'a self) -> &'a P;
 }
@@ -187,6 +190,9 @@ impl<N: Float, V: FloatVec<N> + VecExt<N> + Basis> FloatVecExt<N> for V { }
  */
 /// Trait that relates a point of an affine space to a vector of the associated vector space.
 pub trait PntAsVec<V> {
+    /// Converts this point to its associated vector.
+    fn to_vec(self) -> V;
+
     /// Converts a reference to this point to a reference to its associated vector.
     fn as_vec<'a>(&'a self) -> &'a V;
 }
