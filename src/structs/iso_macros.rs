@@ -358,7 +358,7 @@ macro_rules! to_homogeneous_impl(
                 // copy the translation
                 let dim = Dim::dim(None::<$th<N>>);
 
-                res.set_col(dim - 1, ToHomogeneous::to_homogeneous(&m.translation));
+                res.set_col(dim - 1, ToHomogeneous::to_homogeneous(m.translation.as_pnt()).to_vec());
 
                 res
             }
