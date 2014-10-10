@@ -72,28 +72,6 @@ macro_rules! iso_mul_iso_impl(
     )
 )
 
-macro_rules! iso_mul_vec_impl(
-    ($t: ident, $tv: ident, $tmul: ident) => (
-        impl<N: Num + Clone> $tmul<N, $tv<N>> for $tv<N> {
-            #[inline]
-            fn binop(left: &$t<N>, right: &$tv<N>) -> $tv<N> {
-                left.rotation * *right
-            }
-        }
-    )
-)
-
-macro_rules! vec_mul_iso_impl(
-    ($t: ident, $tv: ident, $tmul: ident) => (
-        impl<N: Clone + Num> $tmul<N, $tv<N>> for $t<N> {
-            #[inline]
-            fn binop(left: &$tv<N>, right: &$t<N>) -> $tv<N> {
-                left * right.rotation
-            }
-        }
-    )
-)
-
 macro_rules! iso_mul_pnt_impl(
     ($t: ident, $tv: ident, $tmul: ident) => (
         impl<N: Num + Clone> $tmul<N, $tv<N>> for $tv<N> {
@@ -295,18 +273,6 @@ macro_rules! transform_impl(
             #[inline(always)]
             fn inv_transform(&self, other: &V) -> V {
                 $trhs::inv_transform(self, other)
-            }
-        }
-
-        impl<N: Num + Clone> $trhs<N> for $tv<N> {
-            #[inline]
-            fn transform(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
-                t.rotation.transform(v)
-            }
-
-            #[inline]
-            fn inv_transform(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
-                t.rotation.inv_transform(v)
             }
         }
 

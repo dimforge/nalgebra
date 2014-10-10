@@ -10,7 +10,7 @@ use traits::operations::{Inv, ApproxEq};
 use traits::geometry::{RotationMatrix, Rotation, Rotate, AbsoluteRotate, Transform, Transformation,
                        Translate, Translation, ToHomogeneous};
 
-use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
+use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::pnt::{Pnt2, Pnt3, Pnt4, Pnt2MulRhs, Pnt3MulRhs, Pnt4MulRhs};
 use structs::rot::{Rot2, Rot3, Rot4};
 
@@ -111,8 +111,6 @@ rotate_impl!(Iso2, Vec2)
 translation_impl!(Iso2, Vec2)
 translate_impl!(Iso2, Pnt2)
 iso_mul_iso_impl!(Iso2, Iso2MulRhs)
-iso_mul_vec_impl!(Iso2, Vec2, Iso2MulRhs)
-vec_mul_iso_impl!(Iso2, Vec2, Vec2MulRhs)
 iso_mul_pnt_impl!(Iso2, Pnt2, Iso2MulRhs)
 pnt_mul_iso_impl!(Iso2, Pnt2, Pnt2MulRhs)
 
@@ -134,8 +132,6 @@ rotate_impl!(Iso3, Vec3)
 translation_impl!(Iso3, Vec3)
 translate_impl!(Iso3, Pnt3)
 iso_mul_iso_impl!(Iso3, Iso3MulRhs)
-iso_mul_vec_impl!(Iso3, Vec3, Iso3MulRhs)
-vec_mul_iso_impl!(Iso3, Vec3, Vec3MulRhs)
 iso_mul_pnt_impl!(Iso3, Pnt3, Iso3MulRhs)
 pnt_mul_iso_impl!(Iso3, Pnt3, Pnt3MulRhs)
 
@@ -157,7 +153,5 @@ rotate_impl!(Iso4, Vec4)
 translation_impl!(Iso4, Vec4)
 translate_impl!(Iso4, Pnt4)
 iso_mul_iso_impl!(Iso4, Iso4MulRhs)
-iso_mul_vec_impl!(Iso4, Vec4, Iso4MulRhs)
-vec_mul_iso_impl!(Iso4, Vec4, Vec4MulRhs)
 iso_mul_pnt_impl!(Iso4, Pnt4, Iso4MulRhs)
 pnt_mul_iso_impl!(Iso4, Pnt4, Pnt4MulRhs)
