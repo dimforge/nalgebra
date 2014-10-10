@@ -181,8 +181,6 @@ pub use linalg::{
     householder_matrix
 };
 
-#[deprecated = "use the root module `nalgebra::` directly instead of the `nalgebra::na::` module (you may create an alias `extern crate \"nalgebra\" as na;` when importing the crate)"]
-pub mod na;
 mod structs;
 mod traits;
 mod linalg;
