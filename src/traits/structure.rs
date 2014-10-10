@@ -195,13 +195,19 @@ pub trait PntAsVec<V> {
 
     /// Converts a reference to this point to a reference to its associated vector.
     fn as_vec<'a>(&'a self) -> &'a V;
+
+    // NOTE: this is used in some places to overcome some limitations untill the trait reform is
+    // done on rustc.
+    /// Sets the coordinates of this point to match those of a given vector.
+    fn set_coords(&mut self, coords: V);
 }
 
 /// Trait grouping most common operations on points.
 // XXX: the vector space element `V` should be an associated type. Though this would prevent V from
 // having bounds (they are not supported yet). So, for now, we will just use a type parameter.
 pub trait AnyPnt<N, V>:
-          PntAsVec<V> + Dim + Sub<Self, V> + Orig + Neg<Self> + PartialEq + Mul<N, Self> + Div<N, Self> {
+          PntAsVec<V> + Dim + Sub<Self, V> + Orig + Neg<Self> + PartialEq + Mul<N, Self> +
+          Div<N, Self> + Add<V, Self> { // FIXME: + Sub<V, Self>
 }
 
 /// Trait of points with components implementing the `Float` trait.
@@ -230,7 +236,7 @@ pub trait PntExt<N, V>: AnyPnt<N, V> + Indexable<uint, N> + Iterable<N> +
 pub trait FloatPntExt<N: Float, V: Norm<N>> : FloatPnt<N, V> + PntExt<N, V> { }
 
 
-impl<N, V, P: PntAsVec<V> + Dim + Sub<P, V> + Orig + Neg<P> + PartialEq + Mul<N, P> + Div<N, P>>
+impl<N, V, P: PntAsVec<V> + Dim + Sub<P, V> + Add<V, P> + Orig + Neg<P> + PartialEq + Mul<N, P> + Div<N, P>>
 AnyPnt<N, V> for P { }
 impl<N: Float, V: Norm<N>, P: AnyPnt<N, V>> FloatPnt<N, V> for P { }
 impl<N, V, P: AnyPnt<N, V> + Indexable<uint, N> + Iterable<N> + ScalarAdd<N> + ScalarSub<N> + Bounded>

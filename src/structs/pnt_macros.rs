@@ -69,6 +69,12 @@ macro_rules! pnt_as_vec_impl(
                     mem::transmute(self)
                 }
             }
+
+            #[inline]
+            fn set_coords(&mut self, v: $tv<N>) {
+                self.$comp0 = v.$comp0;
+                $(self.$compN = v.$compN;)*
+            }
         }
 
         impl<N> PntAsVec<$tv<N>> for $t<N> {
@@ -80,6 +86,11 @@ macro_rules! pnt_as_vec_impl(
             #[inline]
             fn as_vec<'a>(&'a self) -> &'a $tv<N> {
                 self.as_vec()
+            }
+
+            #[inline]
+            fn set_coords(&mut self, v: $tv<N>) {
+                self.set_coords(v)
             }
         }
     )

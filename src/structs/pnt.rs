@@ -1,6 +1,6 @@
 //! Points with dimensions known at compile-time.
 
-#![allow(missing_doc)] // we allow missing to avoid having to document the vector components.
+#![allow(missing_doc)] // we allow missing to avoid having to document the point components.
 
 use std::mem;
 use std::num::{Zero, One, Bounded};
@@ -18,13 +18,13 @@ use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 pub struct Pnt0<N>;
 
 impl<N> Pnt0<N> {
-    /// Creates a new vector.
+    /// Creates a new point.
     #[inline]
     pub fn new() -> Pnt0<N> {
         Pnt0
     }
 
-    /// Creates a new vector. The parameter is not taken in account.
+    /// Creates a new point. The parameter is not taken in account.
     #[inline]
     pub fn new_repeat(_: N) -> Pnt0<N> {
         Pnt0
@@ -34,7 +34,7 @@ impl<N> Pnt0<N> {
 /// Point of dimension 1.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
 pub struct Pnt1<N> {
-    /// First component of the vector.
+    /// First component of the point.
     pub x: N
 }
 
@@ -123,9 +123,9 @@ pnt_from_homogeneous_impl!(Pnt1, Pnt2, y, x)
 /// Point of dimension 2.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
 pub struct Pnt2<N> {
-    /// First component of the vector.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the vector.
+    /// Second component of the point.
     pub y: N
 }
 
@@ -214,11 +214,11 @@ pnt_from_homogeneous_impl!(Pnt2, Pnt3, z, x, y)
 /// Point of dimension 3.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
 pub struct Pnt3<N> {
-    /// First component of the vector.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the vector.
+    /// Second component of the point.
     pub y: N,
-    /// Third component of the vector.
+    /// Third component of the point.
     pub z: N
 }
 
@@ -307,13 +307,13 @@ pnt_from_homogeneous_impl!(Pnt3, Pnt4, w, x, y, z)
 /// Point of dimension 4.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
 pub struct Pnt4<N> {
-    /// First component of the vector.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the vector.
+    /// Second component of the point.
     pub y: N,
-    /// Third component of the vector.
+    /// Third component of the point.
     pub z: N,
-    /// Fourth component of the vector.
+    /// Fourth component of the point.
     pub w: N
 }
 
@@ -402,15 +402,15 @@ pnt_from_homogeneous_impl!(Pnt4, Pnt5, a, x, y, z, w)
 /// Point of dimension 5.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
 pub struct Pnt5<N> {
-    /// First component of the vector.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the vector.
+    /// Second component of the point.
     pub y: N,
-    /// Third component of the vector.
+    /// Third component of the point.
     pub z: N,
-    /// Fourth component of the vector.
+    /// Fourth component of the point.
     pub w: N,
-    /// Fifth of the vector.
+    /// Fifth of the point.
     pub a: N
 }
 
@@ -499,17 +499,17 @@ pnt_from_homogeneous_impl!(Pnt5, Pnt6, b, x, y, z, w, a)
 /// Point of dimension 6.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
 pub struct Pnt6<N> {
-    /// First component of the vector.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the vector.
+    /// Second component of the point.
     pub y: N,
-    /// Third component of the vector.
+    /// Third component of the point.
     pub z: N,
-    /// Fourth component of the vector.
+    /// Fourth component of the point.
     pub w: N,
-    /// Fifth of the vector.
+    /// Fifth of the point.
     pub a: N,
-    /// Sixth component of the vector.
+    /// Sixth component of the point.
     pub b: N
 }
 

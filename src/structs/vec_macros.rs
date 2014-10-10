@@ -599,7 +599,7 @@ macro_rules! bounded_impl(
     )
 )
 
-macro_rules! to_homogeneous_impl(
+macro_rules! vec_to_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + One + Zero> ToHomogeneous<$t2<N>> for $t<N> {
             fn to_homogeneous(v: &$t<N>) -> $t2<N> {
@@ -614,7 +614,7 @@ macro_rules! to_homogeneous_impl(
     )
 )
 
-macro_rules! from_homogeneous_impl(
+macro_rules! vec_from_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + Div<N, N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N> {
             fn from(v: &$t2<N>) -> $t<N> {

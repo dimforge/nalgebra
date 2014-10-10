@@ -162,8 +162,7 @@ impl<N: Clone + Float> Rot3<N> {
     /// Reorient this matrix such that its local `z` axis points to a given point.
     ///
     /// # Arguments
-    ///   * at - The point to look at. It is also the direction the matrix `y` axis will be aligned
-    ///   with
+    ///   * at - The look direction, that is, direction the matrix `y` axis will be aligned with
     ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at_z(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
