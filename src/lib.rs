@@ -350,8 +350,15 @@ pub fn one<T: One>() -> T {
 
 /// Returns the trivial origin of an affine space.
 #[inline(always)]
-pub fn orig<T: Orig>() -> T {
+pub fn orig<P: Orig>() -> P {
     Orig::orig()
+}
+
+/// Returns the center of two points.
+#[inline]
+pub fn center<N: Float, P: FloatPnt<N, V>, V>(a: &P, b: &P) -> P {
+    let _2 = one::<N>() + one();
+    (*a + *b.as_vec()) / _2
 }
 
 /*
