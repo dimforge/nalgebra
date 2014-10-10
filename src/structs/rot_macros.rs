@@ -12,32 +12,98 @@ macro_rules! submat_impl(
 )
 
 macro_rules! rotate_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: Num + Clone> Rotate<$tv<N>> for $t<N> {
+    ($trhs: ident, $t: ident, $tv: ident, $tp: ident) => (
+        /*
+         * FIXME: we use the double dispatch trick here so that we can rotate vectors _and_
+         * points. Remove this as soon as rust supports multidispatch.
+         */
+        pub trait $trhs<N> {
+            fn rotate(left: &$t<N>, right: &Self) -> Self;
+            fn inv_rotate(left: &$t<N>, right: &Self) -> Self;
+        }
+
+        impl<N, V: $trhs<N>> Rotate<V> for $t<N> {
+            #[inline(always)]
+            fn rotate(&self, other: &V) -> V {
+                $trhs::rotate(self, other)
+            }
+
+            #[inline(always)]
+            fn inv_rotate(&self, other: &V) -> V {
+                $trhs::inv_rotate(self, other)
+            }
+        }
+
+        impl<N: Num + Clone> $trhs<N> for $tv<N> {
             #[inline]
-            fn rotate(&self, v: &$tv<N>) -> $tv<N> {
-                self * *v
+            fn rotate(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
+                t * *v
             }
 
             #[inline]
-            fn inv_rotate(&self, v: &$tv<N>) -> $tv<N> {
-                v * *self
+            fn inv_rotate(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
+                v * *t
+            }
+        }
+
+        impl<N: Num + Clone> $trhs<N> for $tp<N> {
+            #[inline]
+            fn rotate(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
+                t * *p
+            }
+
+            #[inline]
+            fn inv_rotate(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
+                p * *t
             }
         }
     )
 )
 
 macro_rules! transform_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: Num + Clone> Transform<$tv<N>> for $t<N> {
+    ($trhs: ident, $t: ident, $tv: ident, $tp: ident) => (
+        /*
+         * FIXME: we use the double dispatch trick here so that we can transform vectors _and_
+         * points. Remove this as soon as rust supports multidispatch.
+         */
+        pub trait $trhs<N> {
+            fn transform(left: &$t<N>, right: &Self) -> Self;
+            fn inv_transform(left: &$t<N>, right: &Self) -> Self;
+        }
+
+        impl<N, V: $trhs<N>> Transform<V> for $t<N> {
+            #[inline(always)]
+            fn transform(&self, other: &V) -> V {
+                $trhs::transform(self, other)
+            }
+
+            #[inline(always)]
+            fn inv_transform(&self, other: &V) -> V {
+                $trhs::inv_transform(self, other)
+            }
+        }
+
+        impl<N: Num + Clone> $trhs<N> for $tv<N> {
             #[inline]
-            fn transform(&self, v: &$tv<N>) -> $tv<N> {
-                self.rotate(v)
+            fn transform(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
+                t.rotate(v)
             }
 
             #[inline]
-            fn inv_transform(&self, v: &$tv<N>) -> $tv<N> {
-                self.inv_rotate(v)
+            fn inv_transform(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
+                t.inv_rotate(v)
+            }
+        }
+
+        impl<N: Num + Clone> $trhs<N> for $tp<N> {
+            #[inline]
+            fn transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
+                t.rotate(p)
+            }
+
+            #[inline]
+            fn inv_transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
+                t.inv_rotate(p)
             }
         }
     )
@@ -99,6 +165,12 @@ macro_rules! rot_mul_vec_impl(
     )
 )
 
+macro_rules! rot_mul_pnt_impl(
+    ($t: ident, $tv: ident, $mulrhs: ident) => (
+        rot_mul_vec_impl!($t, $tv, $mulrhs)
+    )
+)
+
 macro_rules! vec_mul_rot_impl(
     ($t: ident, $tv: ident, $mulrhs: ident) => (
         impl<N: Num + Clone> $mulrhs<N, $tv<N>> for $t<N> {
@@ -107,6 +179,12 @@ macro_rules! vec_mul_rot_impl(
                 *left * right.submat
             }
         }
+    )
+)
+
+macro_rules! pnt_mul_rot_impl(
+    ($t: ident, $tv: ident, $mulrhs: ident) => (
+        vec_mul_rot_impl!($t, $tv, $mulrhs)
     )
 )
 

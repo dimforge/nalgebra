@@ -202,19 +202,6 @@ pub trait Dot<N> {
     /// Computes the dot (inner) product of two vectors.
     #[inline]
     fn dot(&Self, &Self) -> N;
-
-    /**
-     * Short-cut to compute the projection of a point on a vector, but without
-     * computing intermediate vectors.
-     * The following equation must be verified:
-     *
-     * ```.ignore
-     *   a.sub_dot(b, c) == (a - b).dot(c)
-     * ```
-     *
-     */
-    #[inline]
-    fn sub_dot(a: &Self, b: &Self, c: &Self) -> N;
 }
 
 /// Traits of objects having an euclidian norm.
@@ -279,4 +266,22 @@ pub trait FromHomogeneous<U> {
 pub trait UniformSphereSample {
     /// Iterate through the samples.
     fn sample(|Self| -> ());
+}
+
+/// The zero element of a vector space, seen as an element of its embeding affine space.
+// XXX: once associated types are suported, move this to the `AnyPnt` trait.
+pub trait Orig {
+    /// The trivial origin.
+    fn orig() -> Self;
+    /// Returns true if this points is exactly the trivial origin.
+    fn is_orig(&self) -> bool;
+}
+
+/// Trait implemented by projectors.
+// XXX: Vout should be an associated type instead of a type parameter.
+pub trait Projector<Vin, Vout> {
+    /// Projects an element of a vector or affine space to a subspace.
+    ///
+    /// This must be an indempotent operaton.
+    fn project(&self, &Vin) -> Vout;
 }

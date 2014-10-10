@@ -431,13 +431,6 @@ pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
     super::dot(a, b)
 }
 
-/// Computes a subtraction followed by a dot product.
-#[inline(always)]
-#[deprecated = "use the root module `nalgebra::` directly instead of the `nalgebra::na::` module (you may create an alias `extern crate \"nalgebra\" as na;` when importing the crate)"]
-pub fn sub_dot<V: Dot<N>, N>(a: &V, b: &V, c: &V) -> N {
-    super::sub_dot(a, b, c)
-}
-
 /*
  * Norm<N>
  */

@@ -115,6 +115,7 @@ pub use traits::{
     Absolute,
     AbsoluteRotate,
     AnyVec,
+    AnyPnt,
     ApproxEq,
     Basis,
     Cast,
@@ -128,6 +129,8 @@ pub use traits::{
     Dim,
     Dot,
     Eye,
+    FloatPnt,
+    FloatPntExt,
     FloatVec,
     FloatVecExt,
     FromHomogeneous,
@@ -139,9 +142,13 @@ pub use traits::{
     Mat,
     Mean,
     Norm,
+    Orig,
     Outer,
     PartialOrd,
     PartialOrdering,
+    PntAsVec,
+    PntExt,
+    Projector,
     RMul,
     Rotate, Rotation, RotationMatrix, RotationWithTranslation,
     Row,
@@ -152,6 +159,7 @@ pub use traits::{
     Translate, Translation,
     Transpose,
     UniformSphereSample,
+    VecAsPnt,
     VecExt
 };
 
@@ -163,7 +171,8 @@ pub use structs::{
     Mat1, Mat2, Mat3, Mat4,
     Mat5, Mat6,
     Rot2, Rot3, Rot4,
-    Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6
+    Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
+    Pnt0, Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6
 };
 
 pub use linalg::{
@@ -337,6 +346,27 @@ pub fn one<T: One>() -> T {
 //
 //
 
+/// Returns the trivial origin of an affine space.
+#[inline(always)]
+pub fn orig<T: Orig>() -> T {
+    Orig::orig()
+}
+
+/*
+ * FloatPnt
+ */
+/// Returns the distance between two points.
+#[inline(always)]
+pub fn dist<N: Float, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
+    FloatPnt::<N, V>::dist(a, b)
+}
+
+/// Returns the squared distance between two points.
+#[inline(always)]
+pub fn sqdist<N: Float, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
+    FloatPnt::<N, V>::sqdist(a, b)
+}
+
 /*
  * Perspective
  */
@@ -405,46 +435,46 @@ pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
 }
 
 /*
- * Translate<V>
+ * Translate<P>
  */
 
-/// Applies a translation to a vector.
+/// Applies a translation to a point.
 ///
 /// ```rust
 /// extern crate "nalgebra" as na;
-/// use na::{Vec3, Iso3};
+/// use na::{Pnt3, Vec3, Iso3};
 ///
 /// fn main() {
 ///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
-///     let v  = Vec3::new(2.0, 2.0, 2.0);
+///     let p  = Pnt3::new(2.0, 2.0, 2.0);
 ///
-///     let tv = na::translate(&t, &v);
+///     let tp = na::translate(&t, &p);
 ///
-///     assert!(tv == Vec3::new(3.0, 3.0, 3.0))
+///     assert!(tp == Pnt3::new(3.0, 3.0, 3.0))
 /// }
 /// ```
 #[inline(always)]
-pub fn translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
-    m.translate(v)
+pub fn translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
+    m.translate(p)
 }
 
-/// Applies an inverse translation to a vector.
+/// Applies an inverse translation to a point.
 ///
 /// ```rust
 /// extern crate "nalgebra" as na;
-/// use na::{Vec3, Iso3};
+/// use na::{Pnt3, Vec3, Iso3};
 ///
 /// fn main() {
 ///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
-///     let v  = Vec3::new(2.0, 2.0, 2.0);
+///     let p  = Pnt3::new(2.0, 2.0, 2.0);
 ///
-///     let tv = na::inv_translate(&t, &v);
+///     let tp = na::inv_translate(&t, &p);
 ///
-///     assert!(na::approx_eq(&tv, &Vec3::new(1.0, 1.0, 1.0)))
+///     assert!(na::approx_eq(&tp, &Pnt3::new(1.0, 1.0, 1.0)))
 /// }
 #[inline(always)]
-pub fn inv_translate<V, M: Translate<V>>(m: &M, v: &V) -> V {
-    m.inv_translate(v)
+pub fn inv_translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
+    m.inv_translate(p)
 }
 
 /*
@@ -664,12 +694,6 @@ pub fn inv_transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
 #[inline(always)]
 pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
     Dot::dot(a, b)
-}
-
-/// Computes a subtraction followed by a dot product.
-#[inline(always)]
-pub fn sub_dot<V: Dot<N>, N>(a: &V, b: &V, c: &V) -> N {
-    Dot::sub_dot(a, b, c)
 }
 
 /*

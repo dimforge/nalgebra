@@ -1,5 +1,6 @@
 use std::num::{Zero, One};
 use structs::vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
+use structs::pnt::{Pnt2, Pnt3, Pnt2MulRhs, Pnt3MulRhs};
 use structs::mat::{Mat1, Mat2, Mat3, Mat3MulRhs, Mat2MulRhs};
 use traits::operations::{Inv, Det, ApproxEq};
 use traits::structure::{Row, Col};
@@ -279,6 +280,48 @@ impl<N: Mul<N, N> + Add<N, N>> Mat2MulRhs<N, Vec2<N>> for Vec2<N> {
     #[inline(always)]
     fn binop(left: &Mat2<N>, right: &Vec2<N>) -> Vec2<N> {
         Vec2::new(
+            left.m11 * right.x + left.m12 * right.y,
+            left.m21 * right.x + left.m22 * right.y
+        )
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> Mat3MulRhs<N, Pnt3<N>> for Pnt3<N> {
+    #[inline(always)]
+    fn binop(left: &Mat3<N>, right: &Pnt3<N>) -> Pnt3<N> {
+        Pnt3::new(
+            left.m11 * right.x + left.m12 * right.y + left.m13 * right.z,
+            left.m21 * right.x + left.m22 * right.y + left.m23 * right.z,
+            left.m31 * right.x + left.m32 * right.y + left.m33 * right.z
+        )
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> Pnt3MulRhs<N, Pnt3<N>> for Mat3<N> {
+    #[inline(always)]
+    fn binop(left: &Pnt3<N>, right: &Mat3<N>) -> Pnt3<N> {
+        Pnt3::new(
+            left.x * right.m11 + left.y * right.m21 + left.z * right.m31,
+            left.x * right.m12 + left.y * right.m22 + left.z * right.m32,
+            left.x * right.m13 + left.y * right.m23 + left.z * right.m33
+        )
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> Pnt2MulRhs<N, Pnt2<N>> for Mat2<N> {
+    #[inline(always)]
+    fn binop(left: &Pnt2<N>, right: &Mat2<N>) -> Pnt2<N> {
+        Pnt2::new(
+            left.x * right.m11 + left.y * right.m21,
+            left.x * right.m12 + left.y * right.m22
+        )
+    }
+}
+
+impl<N: Mul<N, N> + Add<N, N>> Mat2MulRhs<N, Pnt2<N>> for Pnt2<N> {
+    #[inline(always)]
+    fn binop(left: &Mat2<N>, right: &Pnt2<N>) -> Pnt2<N> {
+        Pnt2::new(
             left.m11 * right.x + left.m12 * right.y,
             left.m21 * right.x + left.m22 * right.y
         )

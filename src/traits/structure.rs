@@ -3,7 +3,7 @@
 use std::num::{Zero, Bounded};
 use std::slice::{Items, MutItems};
 use traits::operations::{RMul, LMul, ScalarAdd, ScalarSub};
-use traits::geometry::{Dot, Norm, UniformSphereSample};
+use traits::geometry::{Dot, Norm, UniformSphereSample, Orig};
 
 /// Traits of objects which can be created from an object of type `T`.
 pub trait Cast<T> {
@@ -27,37 +27,6 @@ pub trait Eye {
 
 // XXX: we keep ScalarAdd and ScalarSub here to avoid trait impl conflict (overriding) between the
 // different Add/Sub traits. This is _so_ unfortunate…
-
-/// Trait grouping most common operations on vectors.
-pub trait AnyVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + PartialEq + Mul<N, Self>
-                     + Div<N, Self> + Dot<N> {
-}
-
-/// Trait of vector with components implementing the `Float` trait.
-pub trait FloatVec<N: Float>: AnyVec<N> + Norm<N> {
-}
-
-/// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
-/// operations on vectors.
-pub trait VecExt<N>: AnyVec<N> + Indexable<uint, N> + Iterable<N> +
-                     UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded
-{ }
-
-/// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
-/// operations on vectors.
-pub trait FloatVecExt<N: Float>: FloatVec<N> + VecExt<N> + Basis { }
-
-impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + PartialEq + Mul<N, V> + Div<N, V> + Dot<N>>
-AnyVec<N> for V { }
-
-impl<N: Float, V: AnyVec<N> + Norm<N>> FloatVec<N> for V { }
-
-impl<N,
-     V: AnyVec<N> + Indexable<uint, N> + Iterable<N> +
-        UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded>
-VecExt<N> for V { }
-
-impl<N: Float, V: FloatVec<N> + VecExt<N> + Basis> FloatVecExt<N> for V { }
 
 // FIXME: return an iterator instead
 /// Traits of objects which can form a basis (typically vectors).
@@ -172,3 +141,92 @@ pub trait IterableMut<N> {
     /// Gets a vector-like read-write iterator.
     fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N>;
 }
+
+/*
+ * Vec related traits.
+ */
+/// Trait that relates a point of an affine space to a vector of the associated vector space.
+pub trait VecAsPnt<P> {
+    /// Converts a reference to this point to a reference to its associated vector.
+    fn as_pnt<'a>(&'a self) -> &'a P;
+}
+
+/// Trait grouping most common operations on vectors.
+pub trait AnyVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + PartialEq + Mul<N, Self>
+                     + Div<N, Self> + Dot<N> {
+}
+
+/// Trait of vector with components implementing the `Float` trait.
+pub trait FloatVec<N: Float>: AnyVec<N> + Norm<N> {
+}
+
+/// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
+/// operations on vectors.
+pub trait VecExt<N>: AnyVec<N> + Indexable<uint, N> + Iterable<N> +
+                     UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded
+{ }
+
+/// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
+/// operations on vectors.
+pub trait FloatVecExt<N: Float>: FloatVec<N> + VecExt<N> + Basis { }
+
+impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + PartialEq + Mul<N, V> + Div<N, V> + Dot<N>>
+AnyVec<N> for V { }
+
+impl<N: Float, V: AnyVec<N> + Norm<N>> FloatVec<N> for V { }
+
+impl<N,
+     V: AnyVec<N> + Indexable<uint, N> + Iterable<N> +
+        UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded>
+VecExt<N> for V { }
+
+impl<N: Float, V: FloatVec<N> + VecExt<N> + Basis> FloatVecExt<N> for V { }
+
+/*
+ * Pnt related traits.
+ */
+/// Trait that relates a point of an affine space to a vector of the associated vector space.
+pub trait PntAsVec<V> {
+    /// Converts a reference to this point to a reference to its associated vector.
+    fn as_vec<'a>(&'a self) -> &'a V;
+}
+
+/// Trait grouping most common operations on points.
+// XXX: the vector space element `V` should be an associated type. Though this would prevent V from
+// having bounds (they are not supported yet). So, for now, we will just use a type parameter.
+pub trait AnyPnt<N, V>:
+          PntAsVec<V> + Dim + Sub<Self, V> + Orig + Neg<Self> + PartialEq + Mul<N, Self> + Div<N, Self> {
+}
+
+/// Trait of points with components implementing the `Float` trait.
+pub trait FloatPnt<N: Float, V: Norm<N>>: AnyPnt<N, V> {
+    /// Computes the square distance between two points.
+    #[inline]
+    fn sqdist(a: &Self, b: &Self) -> N {
+        Norm::sqnorm(&(*a - *b))
+    }
+
+    /// Computes the distance between two points.
+    #[inline]
+    fn dist(a: &Self, b: &Self) -> N {
+        Norm::norm(&(*a - *b))
+    }
+}
+
+/// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
+/// operations on points.
+pub trait PntExt<N, V>: AnyPnt<N, V> + Indexable<uint, N> + Iterable<N> +
+                        ScalarAdd<N> + ScalarSub<N> + Bounded
+{ }
+
+/// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
+/// operations on points.
+pub trait FloatPntExt<N: Float, V: Norm<N>> : FloatPnt<N, V> + PntExt<N, V> { }
+
+
+impl<N, V, P: PntAsVec<V> + Dim + Sub<P, V> + Orig + Neg<P> + PartialEq + Mul<N, P> + Div<N, P>>
+AnyPnt<N, V> for P { }
+impl<N: Float, V: Norm<N>, P: AnyPnt<N, V>> FloatPnt<N, V> for P { }
+impl<N, V, P: AnyPnt<N, V> + Indexable<uint, N> + Iterable<N> + ScalarAdd<N> + ScalarSub<N> + Bounded>
+PntExt<N, V> for P { }
+impl<N: Float, V: Norm<N>, P: FloatPnt<N, V> + PntExt<N, V>> FloatPntExt<N, V> for P { }

@@ -10,7 +10,8 @@ use traits::operations::{ApproxEq, PartialOrd, PartialOrdering, PartialLess, Par
                          PartialGreater, NotComparable};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
-use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut};
+use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, VecAsPnt};
+use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 
 
 /// Vector of dimension 0.
@@ -124,9 +125,11 @@ iterable_impl!(Vec1, 1)
 iterable_mut_impl!(Vec1, 1)
 to_homogeneous_impl!(Vec1, Vec2, y, x)
 from_homogeneous_impl!(Vec1, Vec2, y, x)
-translate_impl!(Vec1)
+translate_impl!(Vec1, Pnt1)
 rotate_impl!(Vec1)
-transform_impl!(Vec1)
+rotate_impl!(Pnt1)
+transform_impl!(Vec1, Pnt1)
+vec_as_pnt_impl!(Vec1, Pnt1)
 
 /// Vector of dimension 2.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -223,9 +226,11 @@ iterable_impl!(Vec2, 2)
 iterable_mut_impl!(Vec2, 2)
 to_homogeneous_impl!(Vec2, Vec3, z, x, y)
 from_homogeneous_impl!(Vec2, Vec3, z, x, y)
-translate_impl!(Vec2)
+translate_impl!(Vec2, Pnt2)
 rotate_impl!(Vec2)
-transform_impl!(Vec2)
+rotate_impl!(Pnt2)
+transform_impl!(Vec2, Pnt2)
+vec_as_pnt_impl!(Vec2, Pnt2)
 
 /// Vector of dimension 3.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -327,9 +332,11 @@ iterable_impl!(Vec3, 3)
 iterable_mut_impl!(Vec3, 3)
 to_homogeneous_impl!(Vec3, Vec4, w, x, y, z)
 from_homogeneous_impl!(Vec3, Vec4, w, x, y, z)
-translate_impl!(Vec3)
+translate_impl!(Vec3, Pnt3)
 rotate_impl!(Vec3)
-transform_impl!(Vec3)
+rotate_impl!(Pnt3)
+transform_impl!(Vec3, Pnt3)
+vec_as_pnt_impl!(Vec3, Pnt3)
 
 
 /// Vector of dimension 4.
@@ -431,9 +438,11 @@ iterable_impl!(Vec4, 4)
 iterable_mut_impl!(Vec4, 4)
 to_homogeneous_impl!(Vec4, Vec5, a, x, y, z, w)
 from_homogeneous_impl!(Vec4, Vec5, a, x, y, z, w)
-translate_impl!(Vec4)
+translate_impl!(Vec4, Pnt4)
 rotate_impl!(Vec4)
-transform_impl!(Vec4)
+rotate_impl!(Pnt4)
+transform_impl!(Vec4, Pnt4)
+vec_as_pnt_impl!(Vec4, Pnt4)
 
 /// Vector of dimension 5.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -536,9 +545,11 @@ iterable_impl!(Vec5, 5)
 iterable_mut_impl!(Vec5, 5)
 to_homogeneous_impl!(Vec5, Vec6, b, x, y, z, w, a)
 from_homogeneous_impl!(Vec5, Vec6, b, x, y, z, w, a)
-translate_impl!(Vec5)
+translate_impl!(Vec5, Pnt5)
 rotate_impl!(Vec5)
-transform_impl!(Vec5)
+rotate_impl!(Pnt5)
+transform_impl!(Vec5, Pnt5)
+vec_as_pnt_impl!(Vec5, Pnt5)
 
 /// Vector of dimension 6.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -641,6 +652,8 @@ from_iterator_impl!(Vec6, iterator, iterator, iterator, iterator, iterator, iter
 bounded_impl!(Vec6, x, y, z, w, a, b)
 iterable_impl!(Vec6, 6)
 iterable_mut_impl!(Vec6, 6)
-translate_impl!(Vec6)
+translate_impl!(Vec6, Pnt6)
 rotate_impl!(Vec6)
-transform_impl!(Vec6)
+rotate_impl!(Pnt6)
+transform_impl!(Vec6, Pnt6)
+vec_as_pnt_impl!(Vec6, Pnt6)

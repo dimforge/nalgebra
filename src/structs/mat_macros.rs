@@ -381,11 +381,11 @@ macro_rules! mat_mul_mat_impl(
 )
 
 macro_rules! vec_mul_mat_impl(
-  ($t: ident, $v: ident, $trhs: ident, $dim: expr) => (
+  ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
     impl<N: Clone + Num> $trhs<N, $v<N>> for $t<N> {
         #[inline]
         fn binop(left: &$v<N>, right: &$t<N>) -> $v<N> {
-            let mut res : $v<N> = Zero::zero();
+            let mut res : $v<N> = $zero();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
@@ -403,11 +403,11 @@ macro_rules! vec_mul_mat_impl(
 )
 
 macro_rules! mat_mul_vec_impl(
-  ($t: ident, $v: ident, $trhs: ident, $dim: expr) => (
+  ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
     impl<N: Clone + Num> $trhs<N, $v<N>> for $v<N> {
         #[inline]
         fn binop(left: &$t<N>, right: &$v<N>) -> $v<N> {
-            let mut res : $v<N> = Zero::zero();
+            let mut res : $v<N> = $zero();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
@@ -421,6 +421,18 @@ macro_rules! mat_mul_vec_impl(
             res
         }
     }
+  )
+)
+
+macro_rules! pnt_mul_mat_impl(
+  ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
+      vec_mul_mat_impl!($t, $v, $trhs, $dim, $zero)
+  )
+)
+
+macro_rules! mat_mul_pnt_impl(
+  ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
+      mat_mul_vec_impl!($t, $v, $trhs, $dim, $zero)
   )
 )
 

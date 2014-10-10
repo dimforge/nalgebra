@@ -405,11 +405,6 @@ macro_rules! dot_impl(
             fn dot(a: &$t<N>, b: &$t<N>) -> N {
                 a.$comp0 * b.$comp0 $(+ a.$compN * b.$compN )*
             }
-
-            #[inline]
-            fn sub_dot(a: &$t<N>, b: &$t<N>, c: &$t<N>) -> N {
-                (a.$comp0 - b.$comp0) * c.$comp0 $(+ (a.$compN - b.$compN) * c.$compN )*
-            }
         }
     )
 )
@@ -608,7 +603,7 @@ macro_rules! to_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + One + Zero> ToHomogeneous<$t2<N>> for $t<N> {
             fn to_homogeneous(v: &$t<N>) -> $t2<N> {
-                let mut res: $t2<N> = One::one();
+                let mut res: $t2<N> = Zero::zero();
 
                 res.$comp0    = v.$comp0.clone();
                 $( res.$compN = v.$compN.clone(); )*
@@ -625,8 +620,8 @@ macro_rules! from_homogeneous_impl(
             fn from(v: &$t2<N>) -> $t<N> {
                 let mut res: $t<N> = Zero::zero();
 
-                res.$comp0    = v.$comp0.clone() / v.$extra;
-                $( res.$compN = v.$compN.clone() / v.$extra; )*
+                res.$comp0    = v.$comp0.clone();
+                $( res.$compN = v.$compN.clone(); )*
 
                 res
             }
@@ -635,8 +630,8 @@ macro_rules! from_homogeneous_impl(
 )
 
 macro_rules! translate_impl(
-    ($t: ident) => (
-        impl<N: Add<N, N> + Sub<N, N>> Translate<$t<N>> for $t<N> {
+    ($tv: ident, $t: ident) => (
+        impl<N: Add<N, N> + Sub<N, N>> Translate<$t<N>> for $tv<N> {
             fn translate(&self, other: &$t<N>) -> $t<N> {
                 *other + *self
             }
@@ -663,14 +658,44 @@ macro_rules! rotate_impl(
 )
 
 macro_rules! transform_impl(
-    ($t: ident) => (
-        impl<N: Clone + Add<N, N> + Sub<N, N>> Transform<$t<N>> for $t<N> {
+    ($tv: ident, $t: ident) => (
+        impl<N: Clone + Add<N, N> + Sub<N, N>> Transform<$t<N>> for $tv<N> {
             fn transform(&self, other: &$t<N>) -> $t<N> {
                 self.translate(other)
             }
 
             fn inv_transform(&self, other: &$t<N>) -> $t<N> {
                 self.inv_translate(other)
+            }
+        }
+
+        impl<N: Clone> Transform<$tv<N>> for $tv<N> {
+            fn transform(&self, other: &$tv<N>) -> $tv<N> {
+                other.clone()
+            }
+
+            fn inv_transform(&self, other: &$tv<N>) -> $tv<N> {
+                other.clone()
+            }
+        }
+    )
+)
+
+macro_rules! vec_as_pnt_impl(
+    ($tv: ident, $t: ident) => (
+        impl<N> $tv<N> {
+            #[inline]
+            pub fn as_pnt<'a>(&'a self) -> &'a $t<N> {
+                unsafe {
+                    mem::transmute(self)
+                }
+            }
+        }
+
+        impl<N> VecAsPnt<$t<N>> for $tv<N> {
+            #[inline]
+            fn as_pnt<'a>(&'a self) -> &'a $t<N> {
+                self.as_pnt()
             }
         }
     )

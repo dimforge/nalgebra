@@ -91,11 +91,6 @@ impl<N: Num> Dot<N> for vec::Vec0<N> {
     fn dot(_: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
         Zero::zero()
     }
-
-    #[inline]
-    fn sub_dot(_: &vec::Vec0<N>, _: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
-        Zero::zero()
-    }
 }
 
 impl<N, T> Mul<T, vec::Vec0<N>> for vec::Vec0<N> {

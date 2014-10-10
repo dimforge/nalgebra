@@ -4,3 +4,4 @@ doc
 lib
 TODO
 target/
+Cargo.lock

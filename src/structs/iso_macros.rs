@@ -77,13 +77,35 @@ macro_rules! iso_mul_vec_impl(
         impl<N: Num + Clone> $tmul<N, $tv<N>> for $tv<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$tv<N>) -> $tv<N> {
-                left.translation + left.rotation * *right
+                left.rotation * *right
             }
         }
     )
 )
 
 macro_rules! vec_mul_iso_impl(
+    ($t: ident, $tv: ident, $tmul: ident) => (
+        impl<N: Clone + Num> $tmul<N, $tv<N>> for $t<N> {
+            #[inline]
+            fn binop(left: &$tv<N>, right: &$t<N>) -> $tv<N> {
+                left * right.rotation
+            }
+        }
+    )
+)
+
+macro_rules! iso_mul_pnt_impl(
+    ($t: ident, $tv: ident, $tmul: ident) => (
+        impl<N: Num + Clone> $tmul<N, $tv<N>> for $tv<N> {
+            #[inline]
+            fn binop(left: &$t<N>, right: &$tv<N>) -> $tv<N> {
+                left.rotation * *right + left.translation
+            }
+        }
+    )
+)
+
+macro_rules! pnt_mul_iso_impl(
     ($t: ident, $tv: ident, $tmul: ident) => (
         impl<N: Clone + Num> $tmul<N, $tv<N>> for $t<N> {
             #[inline]
@@ -254,16 +276,49 @@ macro_rules! transformation_impl(
 )
 
 macro_rules! transform_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: Num + Clone> Transform<$tv<N>> for $t<N> {
+    ($trhs: ident, $t: ident, $tv: ident, $tp: ident) => (
+        /*
+         * FIXME: we use the double dispatch trick here so that we can transform vectors _and_
+         * points. Remove this as soon as rust supports multidispatch.
+         */
+        pub trait $trhs<N> {
+            fn transform(left: &$t<N>, right: &Self) -> Self;
+            fn inv_transform(left: &$t<N>, right: &Self) -> Self;
+        }
+
+        impl<N, V: $trhs<N>> Transform<V> for $t<N> {
+            #[inline(always)]
+            fn transform(&self, other: &V) -> V {
+                $trhs::transform(self, other)
+            }
+
+            #[inline(always)]
+            fn inv_transform(&self, other: &V) -> V {
+                $trhs::inv_transform(self, other)
+            }
+        }
+
+        impl<N: Num + Clone> $trhs<N> for $tv<N> {
             #[inline]
-            fn transform(&self, v: &$tv<N>) -> $tv<N> {
-                self.rotation.transform(v) + self.translation
+            fn transform(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
+                t.rotation.transform(v)
             }
 
             #[inline]
-            fn inv_transform(&self, v: &$tv<N>) -> $tv<N> {
-                self.rotation.inv_transform(&(v - self.translation))
+            fn inv_transform(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
+                t.rotation.inv_transform(v)
+            }
+        }
+
+        impl<N: Num + Clone> $trhs<N> for $tp<N> {
+            #[inline]
+            fn transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
+                t.rotation.transform(p) + t.translation
+            }
+
+            #[inline]
+            fn inv_transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
+                t.rotation.inv_transform(&(p - t.translation))
             }
         }
     )

@@ -220,17 +220,6 @@ macro_rules! dvec_impl(
 
                 res
             }
-
-            #[inline]
-            fn sub_dot(a: &$dvec<N>, b: &$dvec<N>, c: &$dvec<N>) -> N {
-                let mut res: N = Zero::zero();
-
-                for i in range(0u, a.len()) {
-                    res = res + unsafe { (a.unsafe_at(i) - b.unsafe_at(i)) * c.unsafe_at(i) };
-                }
-
-                res
-            }
         }
 
         impl<N: Float + Clone> Norm<N> for $dvec<N> {
