@@ -1,7 +1,7 @@
 /*!
 # nalgebra
 
-**nalgebra** is a linear algebra library written for Rust targeting:
+**nalgebra** is a low-dimensional linear algebra library written for Rust targeting:
 
 * general-purpose linear algebra (still lacks a lot of features…).
 * real time computer graphics.
@@ -38,14 +38,15 @@ fn main() {
 ```
 
 ## Features
-**nalgebra** is meant to be a general-purpose linear algebra library (but is very far from that…),
-and keeps an optimized set of tools for computational graphics and physics. Those features include:
+**nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, and keeps
+an optimized set of tools for computational graphics and physics. Those features include:
 
 * Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
 * Points with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
 * Isometries: `Iso2`, `Iso3`, `Iso4`.
+* 3D projections for computer graphics: `Persp3`, `PerspMat3`, `Ortho3`, `OrthoMat3`.
 * Dynamically sized vector: `DVec`.
 * Dynamically sized (square or rectangular) matrix: `DMat`.
 * A few methods for data analysis: `Cov`, `Mean`.
@@ -150,7 +151,6 @@ pub use traits::{
     PartialOrdering,
     PntAsVec,
     PntExt,
-    Projector,
     RMul,
     Rotate, Rotation, RotationMatrix, RotationWithTranslation,
     Row,
@@ -174,7 +174,9 @@ pub use structs::{
     Mat5, Mat6,
     Rot2, Rot3, Rot4,
     Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
-    Pnt0, Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6
+    Pnt0, Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6,
+    Persp3, PerspMat3,
+    Ortho3, OrthoMat3
 };
 
 pub use linalg::{
@@ -383,6 +385,7 @@ pub fn sqdist<N: Float, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
  */
 /// Computes a projection matrix given the frustrum near plane width, height, the field of
 /// view, and the distance to the clipping planes (`znear` and `zfar`).
+#[deprecated = "Use `Persp3::new(width / height, fov, znear, zfar).as_mat()` instead"]
 pub fn perspective3d<N: FloatMath + Cast<f32> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
     let aspect = width / height;
 

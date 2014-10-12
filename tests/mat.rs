@@ -6,7 +6,8 @@ extern crate "nalgebra" as na;
 use std::num::{Float, abs};
 use std::rand::random;
 use std::cmp::{min, max};
-use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, DMat, DVec, Indexable, Row, Col};
+use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, Persp3, PerspMat3, Ortho3, OrthoMat3,
+         DMat, DVec, Indexable, Row, Col};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -296,7 +297,7 @@ fn test_qr_mat6() {
     test_qr_impl!(Mat6<f64>);
 }
 
-// NOTE: deactivated untile we get a better convergence rate.
+// NOTE: deactivated until we get a better convergence rate.
 // #[test]
 // fn test_eigen_qr_mat1() {
 //     test_eigen_qr_impl!(Mat1<f64>);
@@ -348,4 +349,84 @@ fn test_row_3() {
 
     assert!(second_row == Vec3::new(3.0, 4.0, 5.0));
     assert!(second_col == Vec3::new(1.0, 4.0, 7.0));
+}
+
+#[test]
+fn test_persp() {
+    let mut p  = Persp3::new(42.0f64, 0.5, 1.5, 10.0);
+    let mut pm = PerspMat3::new(42.0f64, 0.5, 1.5, 10.0);
+    assert!(p.to_mat() == pm.to_mat());
+    assert!(p.aspect() == 42.0);
+    assert!(p.fov()    == 0.5);
+    assert!(p.znear()  == 1.5);
+    assert!(p.zfar()   == 10.0);
+    assert!(na::approx_eq(&pm.aspect(), &42.0));
+    assert!(na::approx_eq(&pm.fov(),    &0.5));
+    assert!(na::approx_eq(&pm.znear(),  &1.5));
+    assert!(na::approx_eq(&pm.zfar(),   &10.0));
+
+    p.set_fov(0.1);
+    pm.set_fov(0.1);
+    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
+
+    p.set_znear(24.0);
+    pm.set_znear(24.0);
+    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
+
+    p.set_zfar(61.0);
+    pm.set_zfar(61.0);
+    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
+
+    p.set_aspect(23.0);
+    pm.set_aspect(23.0);
+    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
+
+    assert!(p.aspect() == 23.0);
+    assert!(p.fov()    == 0.1);
+    assert!(p.znear()  == 24.0);
+    assert!(p.zfar()   == 61.0);
+    assert!(na::approx_eq(&pm.aspect(), &23.0));
+    assert!(na::approx_eq(&pm.fov(),    &0.1));
+    assert!(na::approx_eq(&pm.znear(),  &24.0));
+    assert!(na::approx_eq(&pm.zfar(),   &61.0));
+}
+
+#[test]
+fn test_ortho() {
+    let mut p  = Ortho3::new(42.0f64, 0.5, 1.5, 10.0);
+    let mut pm = OrthoMat3::new(42.0f64, 0.5, 1.5, 10.0);
+    assert!(p.to_mat() == pm.to_mat());
+    assert!(p.width()  == 42.0);
+    assert!(p.height() == 0.5);
+    assert!(p.znear()  == 1.5);
+    assert!(p.zfar()   == 10.0);
+    assert!(na::approx_eq(&pm.width(),  &42.0));
+    assert!(na::approx_eq(&pm.height(), &0.5));
+    assert!(na::approx_eq(&pm.znear(),  &1.5));
+    assert!(na::approx_eq(&pm.zfar(),   &10.0));
+
+    p.set_width(0.1);
+    pm.set_width(0.1);
+    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
+
+    p.set_znear(24.0);
+    pm.set_znear(24.0);
+    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
+
+    p.set_zfar(61.0);
+    pm.set_zfar(61.0);
+    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
+
+    p.set_height(23.0);
+    pm.set_height(23.0);
+    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
+
+    assert!(p.height() == 23.0);
+    assert!(p.width()  == 0.1);
+    assert!(p.znear()  == 24.0);
+    assert!(p.zfar()   == 61.0);
+    assert!(na::approx_eq(&pm.height(), &23.0));
+    assert!(na::approx_eq(&pm.width(),  &0.1));
+    assert!(na::approx_eq(&pm.znear(),  &24.0));
+    assert!(na::approx_eq(&pm.zfar(),   &61.0));
 }

@@ -7,6 +7,8 @@ pub use self::pnt::{Pnt0, Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 pub use self::mat::{Identity, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6};
 pub use self::rot::{Rot2, Rot3, Rot4};
 pub use self::iso::{Iso2, Iso3, Iso4};
+pub use self::persp::{Persp3, PerspMat3};
+pub use self::ortho::{Ortho3, OrthoMat3};
 
 pub use self::vec::{Vec1MulRhs, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs, Vec5MulRhs, Vec6MulRhs,
                     Vec1DivRhs, Vec2DivRhs, Vec3DivRhs, Vec4DivRhs, Vec5DivRhs, Vec6DivRhs,
@@ -35,6 +37,8 @@ mod rot_macros;
 mod rot;
 mod iso_macros;
 mod iso;
+mod persp;
+mod ortho;
 
 // specialization for some 1d, 2d and 3d operations
 #[doc(hidden)]

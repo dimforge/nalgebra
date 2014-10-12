@@ -276,12 +276,3 @@ pub trait Orig {
     /// Returns true if this points is exactly the trivial origin.
     fn is_orig(&self) -> bool;
 }
-
-/// Trait implemented by projectors.
-// XXX: Vout should be an associated type instead of a type parameter.
-pub trait Projector<Vin, Vout> {
-    /// Projects an element of a vector or affine space to a subspace.
-    ///
-    /// This must be an indempotent operaton.
-    fn project(&self, &Vin) -> Vout;
-}
