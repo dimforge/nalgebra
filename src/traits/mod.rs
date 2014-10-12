@@ -9,8 +9,8 @@ pub use self::structure::{FloatVec, FloatVecExt, FloatPnt, FloatPntExt, Basis, C
                           Indexable, Iterable, IterableMut, Mat, Row, AnyVec, VecExt, AnyPnt,
                           PntExt, PntAsVec, VecAsPnt, ColSlice, RowSlice, Diag, Eye};
 
-pub use self::operations::{Absolute, ApproxEq, Cov, Det, Inv, LMul, Mean, Outer, PartialOrd, RMul,
-                           ScalarAdd, ScalarSub, ScalarMul, ScalarDiv, Transpose};
+pub use self::operations::{Absolute, ApproxEq, Axpy, Cov, Det, Inv, LMul, Mean, Outer, PartialOrd,
+                           RMul, ScalarAdd, ScalarSub, ScalarMul, ScalarDiv, Transpose};
 pub use self::operations::{PartialOrdering, PartialLess, PartialEqual, PartialGreater, NotComparable};
 
 pub mod geometry;

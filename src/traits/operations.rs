@@ -360,3 +360,9 @@ impl<N, T: Div<N, T>> ScalarDiv<N> for T {
         *self / *n
     }
 }
+
+/// Trait of objects implementing the $$y = ax + y$$ operation.
+pub trait Axpy<N> {
+    /// Adds $$a * x$$ to `self`.
+    fn axpy(&mut self, a: &N, x: &Self);
+}

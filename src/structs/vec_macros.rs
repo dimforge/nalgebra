@@ -343,6 +343,18 @@ macro_rules! basis_impl(
     )
 )
 
+macro_rules! axpy_impl(
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Add<N, N> + Mul<N, N>> Axpy<N> for $t<N> {
+            #[inline]
+            fn axpy(&mut self, a: &N, x: &$t<N>) {
+                self.$comp0 = self.$comp0 + x.$comp0 * *a;
+                $( self.$compN = self.$compN + x.$compN * *a; )*
+            }
+        }
+    )
+)
+
 macro_rules! add_impl(
     ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Add<N, N>> $trhs<N, $t<N>> for $t<N> {

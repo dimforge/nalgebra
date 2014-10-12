@@ -117,6 +117,7 @@ pub use traits::{
     AnyVec,
     AnyPnt,
     ApproxEq,
+    Axpy,
     Basis,
     Cast,
     Col,
