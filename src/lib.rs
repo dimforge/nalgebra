@@ -42,6 +42,7 @@ fn main() {
 and keeps an optimized set of tools for computational graphics and physics. Those features include:
 
 * Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
+* Points with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
 * Isometries: `Iso2`, `Iso3`, `Iso4`.
@@ -87,7 +88,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 * [nphysics](https://github.com/sebcrozet/nphysics): a real-time physics engine.
 * [ncollide](https://github.com/sebcrozet/ncollide): a collision detection library.
 * [kiss3d](https://github.com/sebcrozet/kiss3d): a minimalistic graphics engine.
-* [frog](https://github.com/natal/frog): a machine learning library.
+* [nrays](https://github.com/sebcrozet/nrays): a ray tracer.
 */
 
 #![deny(non_camel_case_types)]
