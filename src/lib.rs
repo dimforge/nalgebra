@@ -10,7 +10,7 @@
 An on-line version of this documentation is available [here](http://nalgebra.org).
 
 ## Using **nalgebra**
-All the functionalities of **nalgebra** are grouped in one place: the root `nalgebra::` module.
+All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.
 This module re-exports everything and includes free functions for all traits methods doing
 out-of-place modifications.
 
@@ -38,8 +38,8 @@ fn main() {
 ```
 
 ## Features
-**nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, and keeps
-an optimized set of tools for computational graphics and physics. Those features include:
+**nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
+an optimized set of tools for computer graphics and physics. Those features include:
 
 * Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
 * Points with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
