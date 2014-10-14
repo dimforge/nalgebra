@@ -44,6 +44,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Points with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
+* Quaternions: `Quat`, `UnitQuat`.
 * Isometries: `Iso2`, `Iso3`, `Iso4`.
 * 3D projections for computer graphics: `Persp3`, `PerspMat3`, `Ortho3`, `OrthoMat3`.
 * Dynamically sized vector: `DVec`.
@@ -67,25 +68,3 @@ fn main() {
     let _ = m * m;      // matrix-matrix multiplication.
     let _ = v * 2.0f64; // vector-scalar multiplication.
 }
-```
-
-## Compilation
-You will need the last nightly build of the [rust compiler](http://www.rust-lang.org)
-and the official package manager: [cargo](https://github.com/rust-lang/cargo).
-
-Simply add the following to your `Cargo.toml` file:
-
-```.ignore
-[dependencies.nalgebra]
-git = "https://github.com/sebcrozet/nalgebra"
-```
-
-
-## **nalgebra** in use
-Here are some projects using **nalgebra**.
-Feel free to add your project to this list if you happen to use **nalgebra**!
-
-* [nphysics](https://github.com/sebcrozet/nphysics): a real-time physics engine.
-* [ncollide](https://github.com/sebcrozet/ncollide): a collision detection library.
-* [kiss3d](https://github.com/sebcrozet/kiss3d): a minimalistic graphics engine.
-* [nrays](https://github.com/sebcrozet/nrays): a ray tracer.
