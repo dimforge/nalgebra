@@ -3,7 +3,7 @@
 #![allow(missing_doc)]
 
 use std::num::{Zero, One};
-use rand::{Rand, Rng};
+use std::rand::{Rand, Rng};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
                        Norm, Cross};
 use traits::structure::{Cast, Dim, Row, Col};
@@ -134,6 +134,34 @@ impl<N: Clone + FloatMath> Rot3<N> {
                             (uy * uz * one_m_cos + ux * sin),
                             (sqz + (_1 - sqz) * cos))
             }
+        }
+    }
+
+    /// Builds a rotation matrix from an orthogonal matrix.
+    ///
+    /// This is unsafe because the orthogonality of `mat` is not checked.
+    pub unsafe fn new_with_mat(mat: Mat3<N>) -> Rot3<N> {
+        Rot3 {
+            submat: mat
+        }
+    }
+
+    /// Creates a new rotation from Euler angles.
+    ///
+    /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
+    pub fn new_with_euler_angles(roll: N, pitch: N, yaw: N) -> Rot3<N> {
+        let (sr, cr) = roll.sin_cos();
+        let (sp, cp) = pitch.sin_cos();
+        let (sy, cy) = yaw.sin_cos();
+
+        unsafe {
+            Rot3::new_with_mat(
+                Mat3::new(
+                    cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr,
+                    sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr,
+                    -sp,     cp * sr,                cp * cr
+                )
+            )
         }
     }
 }

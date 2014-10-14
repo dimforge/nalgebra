@@ -9,6 +9,7 @@ pub use self::rot::{Rot2, Rot3, Rot4};
 pub use self::iso::{Iso2, Iso3, Iso4};
 pub use self::persp::{Persp3, PerspMat3};
 pub use self::ortho::{Ortho3, OrthoMat3};
+pub use self::quat::{Quat, UnitQuat};
 
 pub use self::vec::{Vec1MulRhs, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs, Vec5MulRhs, Vec6MulRhs,
                     Vec1DivRhs, Vec2DivRhs, Vec3DivRhs, Vec4DivRhs, Vec5DivRhs, Vec6DivRhs,
@@ -31,6 +32,7 @@ mod vec_macros;
 mod vec;
 mod pnt_macros;
 mod pnt;
+mod quat;
 mod mat_macros;
 mod mat;
 mod rot_macros;

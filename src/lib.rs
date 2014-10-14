@@ -102,7 +102,6 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![feature(globs)]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
-extern crate rand;
 extern crate serialize;
 
 #[cfg(test)]
@@ -176,7 +175,8 @@ pub use structs::{
     Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
     Pnt0, Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6,
     Persp3, PerspMat3,
-    Ortho3, OrthoMat3
+    Ortho3, OrthoMat3,
+    Quat, UnitQuat
 };
 
 pub use linalg::{

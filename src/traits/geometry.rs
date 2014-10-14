@@ -215,15 +215,12 @@ pub trait Norm<N: Float> {
     /// Computes the squared norm of `self`.
     ///
     /// This is usually faster than computing the norm itself.
-    #[inline]
     fn sqnorm(&Self) -> N;
 
     /// Gets the normalized version of a copy of `v`.
-    #[inline]
     fn normalize_cpy(v: &Self) -> Self;
 
     /// Normalizes `self`.
-    #[inline]
     fn normalize(&mut self) -> N;
 }
 
