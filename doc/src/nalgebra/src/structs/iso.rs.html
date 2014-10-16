@@ -196,20 +196,22 @@
 <span id='154'>154</span>
 <span id='155'>155</span>
 <span id='156'>156</span>
+<span id='157'>157</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Isometric transformations.</span>
 
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_doc</span>)]</span>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>};
-<span class='kw'>use</span> <span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>mat</span>::{<span class='ident'>Mat3</span>, <span class='ident'>Mat4</span>, <span class='ident'>Mat5</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Col</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Inv</span>, <span class='ident'>ApproxEq</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>RotationMatrix</span>, <span class='ident'>Rotation</span>, <span class='ident'>Rotate</span>, <span class='ident'>AbsoluteRotate</span>, <span class='ident'>Transform</span>, <span class='ident'>Transformation</span>,
                        <span class='ident'>Translate</span>, <span class='ident'>Translation</span>, <span class='ident'>ToHomogeneous</span>};
 
-<span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>vec</span>::{<span class='ident'>Vec1</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec2MulRhs</span>, <span class='ident'>Vec3MulRhs</span>, <span class='ident'>Vec4MulRhs</span>};
+<span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>vec</span>::{<span class='ident'>Vec1</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec4</span>};
+<span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>pnt</span>::{<span class='ident'>Pnt2</span>, <span class='ident'>Pnt3</span>, <span class='ident'>Pnt4</span>, <span class='ident'>Pnt2MulRhs</span>, <span class='ident'>Pnt3MulRhs</span>, <span class='ident'>Pnt4MulRhs</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>rot</span>::{<span class='ident'>Rot2</span>, <span class='ident'>Rot3</span>, <span class='ident'>Rot4</span>};
 
 
@@ -259,9 +261,9 @@
     <span class='doccomment'>///   aligned with.</span>
     <span class='doccomment'>///   * up - Vector pointing up. The only requirement of this parameter is to not be colinear</span>
     <span class='doccomment'>///   with `at`. Non-colinearity is not checked.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>eye</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>eye</span>: <span class='kw-2'>&amp;</span><span class='ident'>Pnt3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Pnt3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
         <span class='self'>self</span>.<span class='ident'>rotation</span>.<span class='ident'>look_at</span>(<span class='kw-2'>&amp;</span>(<span class='op'>*</span><span class='ident'>at</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>eye</span>), <span class='ident'>up</span>);
-        <span class='self'>self</span>.<span class='ident'>translation</span> <span class='op'>=</span> <span class='ident'>eye</span>.<span class='ident'>clone</span>();
+        <span class='self'>self</span>.<span class='ident'>translation</span> <span class='op'>=</span> <span class='ident'>eye</span>.<span class='ident'>as_vec</span>().<span class='ident'>clone</span>();
     }
 
     <span class='doccomment'>/// Reorient and translate this transformation such that its local `z` axis points to a given</span>
@@ -273,9 +275,9 @@
     <span class='doccomment'>///   aligned with</span>
     <span class='doccomment'>///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear</span>
     <span class='doccomment'>///   with `at`. Non-colinearity is not checked.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at_z</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>eye</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at_z</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>eye</span>: <span class='kw-2'>&amp;</span><span class='ident'>Pnt3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Pnt3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
         <span class='self'>self</span>.<span class='ident'>rotation</span>.<span class='ident'>look_at_z</span>(<span class='kw-2'>&amp;</span>(<span class='op'>*</span><span class='ident'>at</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>eye</span>), <span class='ident'>up</span>);
-        <span class='self'>self</span>.<span class='ident'>translation</span> <span class='op'>=</span> <span class='ident'>eye</span>.<span class='ident'>clone</span>();
+        <span class='self'>self</span>.<span class='ident'>translation</span> <span class='op'>=</span> <span class='ident'>eye</span>.<span class='ident'>as_vec</span>().<span class='ident'>clone</span>();
     }
 }
 
@@ -303,14 +305,14 @@
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>)
 <span class='macro'>to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Mat3</span>)
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>)
-<span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Vec2</span>)
+<span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2TransformRhs</span>, <span class='ident'>Iso2</span>, <span class='ident'>Vec2</span>, <span class='ident'>Pnt2</span>)
 <span class='macro'>transformation_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>)
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Vec2</span>)
 <span class='macro'>translation_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Vec2</span>)
-<span class='macro'>translate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Vec2</span>)
+<span class='macro'>translate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Pnt2</span>)
 <span class='macro'>iso_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Iso2MulRhs</span>)
-<span class='macro'>iso_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Vec2</span>, <span class='ident'>Iso2MulRhs</span>)
-<span class='macro'>vec_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec2MulRhs</span>)
+<span class='macro'>iso_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Pnt2</span>, <span class='ident'>Iso2MulRhs</span>)
+<span class='macro'>pnt_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso2</span>, <span class='ident'>Pnt2</span>, <span class='ident'>Pnt2MulRhs</span>)
 
 <span class='macro'>iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Rot3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec3</span>)
 <span class='macro'>double_dispatch_binop_decl_trait</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Iso3MulRhs</span>)
@@ -324,14 +326,14 @@
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>)
 <span class='macro'>to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Mat4</span>)
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>)
-<span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>)
+<span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3TransformRhs</span>, <span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Pnt3</span>)
 <span class='macro'>transformation_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>)
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>)
 <span class='macro'>translation_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>)
-<span class='macro'>translate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>)
+<span class='macro'>translate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Pnt3</span>)
 <span class='macro'>iso_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Iso3MulRhs</span>)
-<span class='macro'>iso_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Iso3MulRhs</span>)
-<span class='macro'>vec_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec3MulRhs</span>)
+<span class='macro'>iso_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Pnt3</span>, <span class='ident'>Iso3MulRhs</span>)
+<span class='macro'>pnt_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso3</span>, <span class='ident'>Pnt3</span>, <span class='ident'>Pnt3MulRhs</span>)
 
 <span class='comment'>// iso_impl!(Iso4, Rot4, Vec4, Vec4)</span>
 <span class='macro'>double_dispatch_binop_decl_trait</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Iso4MulRhs</span>)
@@ -345,14 +347,14 @@
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>)
 <span class='macro'>to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Mat5</span>)
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>)
-<span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>)
+<span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4TransformRhs</span>, <span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Pnt4</span>)
 <span class='macro'>transformation_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>)
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>)
 <span class='macro'>translation_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>)
-<span class='macro'>translate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>)
+<span class='macro'>translate_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Pnt4</span>)
 <span class='macro'>iso_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Iso4MulRhs</span>)
-<span class='macro'>iso_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Iso4MulRhs</span>)
-<span class='macro'>vec_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec4MulRhs</span>)
+<span class='macro'>iso_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Pnt4</span>, <span class='ident'>Iso4MulRhs</span>)
+<span class='macro'>pnt_mul_iso_impl</span><span class='macro'>!</span>(<span class='ident'>Iso4</span>, <span class='ident'>Pnt4</span>, <span class='ident'>Pnt4MulRhs</span>)
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

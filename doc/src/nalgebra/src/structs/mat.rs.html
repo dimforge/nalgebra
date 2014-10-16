@@ -970,6 +970,21 @@
 <span id='928'>928</span>
 <span id='929'>929</span>
 <span id='930'>930</span>
+<span id='931'>931</span>
+<span id='932'>932</span>
+<span id='933'>933</span>
+<span id='934'>934</span>
+<span id='935'>935</span>
+<span id='936'>936</span>
+<span id='937'>937</span>
+<span id='938'>938</span>
+<span id='939'>939</span>
+<span id='940'>940</span>
+<span id='941'>941</span>
+<span id='942'>942</span>
+<span id='943'>943</span>
+<span id='944'>944</span>
+<span id='945'>945</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Matrices with dimensions known at compile-time.</span>
 
@@ -981,12 +996,13 @@
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::{<span class='ident'>Items</span>, <span class='ident'>MutItems</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>vec</span>::{<span class='ident'>Vec1</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec5</span>, <span class='ident'>Vec6</span>,
                    <span class='ident'>Vec1MulRhs</span>, <span class='ident'>Vec4MulRhs</span>, <span class='ident'>Vec5MulRhs</span>, <span class='ident'>Vec6MulRhs</span>};
+<span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>pnt</span>::{<span class='ident'>Pnt1</span>, <span class='ident'>Pnt4</span>, <span class='ident'>Pnt5</span>, <span class='ident'>Pnt6</span>, <span class='ident'>Pnt1MulRhs</span>, <span class='ident'>Pnt4MulRhs</span>, <span class='ident'>Pnt5MulRhs</span>, <span class='ident'>Pnt6MulRhs</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>dvec</span>::{<span class='ident'>DVec1</span>, <span class='ident'>DVec2</span>, <span class='ident'>DVec3</span>, <span class='ident'>DVec4</span>, <span class='ident'>DVec5</span>, <span class='ident'>DVec6</span>};
 
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Row</span>, <span class='ident'>Col</span>, <span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>Dim</span>, <span class='ident'>Indexable</span>,
                         <span class='ident'>Eye</span>, <span class='ident'>ColSlice</span>, <span class='ident'>RowSlice</span>, <span class='ident'>Diag</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Absolute</span>, <span class='ident'>Transpose</span>, <span class='ident'>Inv</span>, <span class='ident'>Outer</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>ToHomogeneous</span>, <span class='ident'>FromHomogeneous</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>ToHomogeneous</span>, <span class='ident'>FromHomogeneous</span>, <span class='ident'>Orig</span>};
 
 
 <span class='doccomment'>/// Special identity matrix. All its operation are no-ops.</span>
@@ -1083,9 +1099,12 @@
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='number'>1</span>)
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='number'>1</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='number'>1</span>)
+<span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='ident'>Vec1</span>, <span class='number'>1</span>)
 <span class='macro'>mat_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='ident'>Mat1MulRhs</span>, <span class='number'>1</span>)
-<span class='macro'>mat_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='ident'>Vec1</span>, <span class='ident'>Mat1MulRhs</span>, <span class='number'>1</span>)
-<span class='macro'>vec_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='ident'>Vec1</span>, <span class='ident'>Vec1MulRhs</span>, <span class='number'>1</span>)
+<span class='macro'>mat_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='ident'>Vec1</span>, <span class='ident'>Mat1MulRhs</span>, <span class='number'>1</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>)
+<span class='macro'>vec_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='ident'>Vec1</span>, <span class='ident'>Vec1MulRhs</span>, <span class='number'>1</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>)
+<span class='macro'>mat_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='ident'>Pnt1</span>, <span class='ident'>Mat1MulRhs</span>, <span class='number'>1</span>, <span class='ident'>Orig</span>::<span class='ident'>orig</span>)
+<span class='macro'>pnt_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='ident'>Pnt1</span>, <span class='ident'>Pnt1MulRhs</span>, <span class='number'>1</span>, <span class='ident'>Orig</span>::<span class='ident'>orig</span>)
 <span class='comment'>// (specialized) inv_impl!(Mat1, 1)</span>
 <span class='macro'>transpose_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>, <span class='number'>1</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Mat1</span>)
@@ -1184,6 +1203,7 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Mat2</span>, <span class='number'>2</span>)
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Mat2</span>, <span class='number'>2</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Mat2</span>, <span class='number'>2</span>)
+<span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Mat2</span>, <span class='ident'>Vec2</span>, <span class='number'>2</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Mat2</span>, <span class='number'>2</span>)
 <span class='comment'>// (specialized) mul_impl!(Mat2, 2)</span>
 <span class='comment'>// (specialized) rmul_impl!(Mat2, Vec2, 2)</span>
@@ -1300,6 +1320,7 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Mat3</span>, <span class='number'>3</span>)
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Mat3</span>, <span class='number'>3</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Mat3</span>, <span class='number'>3</span>)
+<span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Mat3</span>, <span class='ident'>Vec3</span>, <span class='number'>3</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Mat3</span>, <span class='number'>3</span>)
 <span class='comment'>// (specialized) mul_impl!(Mat3, 3)</span>
 <span class='comment'>// (specialized) rmul_impl!(Mat3, Vec3, 3)</span>
@@ -1468,10 +1489,13 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='number'>4</span>)
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='number'>4</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='number'>4</span>)
+<span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='ident'>Vec4</span>, <span class='number'>4</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='number'>4</span>)
 <span class='macro'>mat_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='ident'>Mat4MulRhs</span>, <span class='number'>4</span>)
-<span class='macro'>mat_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Mat4MulRhs</span>, <span class='number'>4</span>)
-<span class='macro'>vec_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec4MulRhs</span>, <span class='number'>4</span>)
+<span class='macro'>mat_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Mat4MulRhs</span>, <span class='number'>4</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>)
+<span class='macro'>vec_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec4MulRhs</span>, <span class='number'>4</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>)
+<span class='macro'>mat_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='ident'>Pnt4</span>, <span class='ident'>Mat4MulRhs</span>, <span class='number'>4</span>, <span class='ident'>Orig</span>::<span class='ident'>orig</span>)
+<span class='macro'>pnt_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='ident'>Pnt4</span>, <span class='ident'>Pnt4MulRhs</span>, <span class='number'>4</span>, <span class='ident'>Orig</span>::<span class='ident'>orig</span>)
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='number'>4</span>)
 <span class='macro'>transpose_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>, <span class='number'>4</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Mat4</span>)
@@ -1652,10 +1676,13 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='number'>5</span>)
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='number'>5</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='number'>5</span>)
+<span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='ident'>Vec5</span>, <span class='number'>5</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='number'>5</span>)
 <span class='macro'>mat_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='ident'>Mat5MulRhs</span>, <span class='number'>5</span>)
-<span class='macro'>mat_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='ident'>Vec5</span>, <span class='ident'>Mat5MulRhs</span>, <span class='number'>5</span>)
-<span class='macro'>vec_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='ident'>Vec5</span>, <span class='ident'>Vec5MulRhs</span>, <span class='number'>5</span>)
+<span class='macro'>mat_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='ident'>Vec5</span>, <span class='ident'>Mat5MulRhs</span>, <span class='number'>5</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>)
+<span class='macro'>vec_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='ident'>Vec5</span>, <span class='ident'>Vec5MulRhs</span>, <span class='number'>5</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>)
+<span class='macro'>mat_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='ident'>Pnt5</span>, <span class='ident'>Mat5MulRhs</span>, <span class='number'>5</span>, <span class='ident'>Orig</span>::<span class='ident'>orig</span>)
+<span class='macro'>pnt_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='ident'>Pnt5</span>, <span class='ident'>Pnt5MulRhs</span>, <span class='number'>5</span>, <span class='ident'>Orig</span>::<span class='ident'>orig</span>)
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='number'>5</span>)
 <span class='macro'>transpose_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>, <span class='number'>5</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Mat5</span>)
@@ -1888,10 +1915,13 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='number'>6</span>)
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='number'>6</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='number'>6</span>)
+<span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='ident'>Vec6</span>, <span class='number'>6</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='number'>6</span>)
 <span class='macro'>mat_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='ident'>Mat6MulRhs</span>, <span class='number'>6</span>)
-<span class='macro'>mat_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='ident'>Vec6</span>, <span class='ident'>Mat6MulRhs</span>, <span class='number'>6</span>)
-<span class='macro'>vec_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='ident'>Vec6</span>, <span class='ident'>Vec6MulRhs</span>, <span class='number'>6</span>)
+<span class='macro'>mat_mul_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='ident'>Vec6</span>, <span class='ident'>Mat6MulRhs</span>, <span class='number'>6</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>)
+<span class='macro'>vec_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='ident'>Vec6</span>, <span class='ident'>Vec6MulRhs</span>, <span class='number'>6</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>)
+<span class='macro'>mat_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='ident'>Pnt6</span>, <span class='ident'>Mat6MulRhs</span>, <span class='number'>6</span>, <span class='ident'>Orig</span>::<span class='ident'>orig</span>)
+<span class='macro'>pnt_mul_mat_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='ident'>Pnt6</span>, <span class='ident'>Pnt6MulRhs</span>, <span class='number'>6</span>, <span class='ident'>Orig</span>::<span class='ident'>orig</span>)
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='number'>6</span>)
 <span class='macro'>transpose_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>, <span class='number'>6</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Mat6</span>)

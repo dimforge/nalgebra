@@ -315,13 +315,6 @@
 <span id='273'>273</span>
 <span id='274'>274</span>
 <span id='275'>275</span>
-<span id='276'>276</span>
-<span id='277'>277</span>
-<span id='278'>278</span>
-<span id='279'>279</span>
-<span id='280'>280</span>
-<span id='281'>281</span>
-<span id='282'>282</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Traits of operations having a well-known or explicit geometric meaning.</span>
 
@@ -527,19 +520,6 @@
     <span class='doccomment'>/// Computes the dot (inner) product of two vectors.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>dot</span>(<span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
-
-    <span class='doccomment'>/**
-     * Short-cut to compute the projection of a point on a vector, but without
-     * computing intermediate vectors.
-     * The following equation must be verified:
-     *
-     * ```.ignore
-     *   a.sub_dot(b, c) == (a - b).dot(c)
-     * ```
-     *
-     */</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>sub_dot</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>c</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
 }
 
 <span class='doccomment'>/// Traits of objects having an euclidian norm.</span>
@@ -553,15 +533,12 @@
     <span class='doccomment'>/// Computes the squared norm of `self`.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// This is usually faster than computing the norm itself.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>sqnorm</span>(<span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
 
     <span class='doccomment'>/// Gets the normalized version of a copy of `v`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>normalize_cpy</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
 
     <span class='doccomment'>/// Normalizes `self`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>normalize</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
 }
 
@@ -604,6 +581,15 @@
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>UniformSphereSample</span> {
     <span class='doccomment'>/// Iterate through the samples.</span>
     <span class='kw'>fn</span> <span class='ident'>sample</span>(<span class='op'>|</span><span class='ident'>Self</span><span class='op'>|</span> <span class='op'>-&gt;</span> ());
+}
+
+<span class='doccomment'>/// The zero element of a vector space, seen as an element of its embeding affine space.</span>
+<span class='comment'>// XXX: once associated types are suported, move this to the `AnyPnt` trait.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Orig</span> {
+    <span class='doccomment'>/// The trivial origin.</span>
+    <span class='kw'>fn</span> <span class='ident'>orig</span>() <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='doccomment'>/// Returns true if this points is exactly the trivial origin.</span>
+    <span class='kw'>fn</span> <span class='ident'>is_orig</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
 }
 </pre>
 </section>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `partial_gt` fn in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, partial_gt">
+
+    <title>nalgebra::partial_gt - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'><a href='index.html'>nalgebra</a></p><div class='block mod'><h2>Modules</h2><a class='mod ' href='overload/index.html'>overload</a></div><div class='block struct'><h2>Structs</h2><a class='struct ' href='struct.DMat.html'>DMat</a><a class='struct ' href='struct.DVec.html'>DVec</a><a class='struct ' href='struct.DVec1.html'>DVec1</a><a class='struct ' href='struct.DVec2.html'>DVec2</a><a class='struct ' href='struct.DVec3.html'>DVec3</a><a class='struct ' href='struct.DVec4.html'>DVec4</a><a class='struct ' href='struct.DVec5.html'>DVec5</a><a class='struct ' href='struct.DVec6.html'>DVec6</a><a class='struct ' href='struct.Identity.html'>Identity</a><a class='struct ' href='struct.Iso2.html'>Iso2</a><a class='struct ' href='struct.Iso3.html'>Iso3</a><a class='struct ' href='struct.Iso4.html'>Iso4</a><a class='struct ' href='struct.Mat1.html'>Mat1</a><a class='struct ' href='struct.Mat2.html'>Mat2</a><a class='struct ' href='struct.Mat3.html'>Mat3</a><a class='struct ' href='struct.Mat4.html'>Mat4</a><a class='struct ' href='struct.Mat5.html'>Mat5</a><a class='struct ' href='struct.Mat6.html'>Mat6</a><a class='struct ' href='struct.Ortho3.html'>Ortho3</a><a class='struct ' href='struct.OrthoMat3.html'>OrthoMat3</a><a class='struct ' href='struct.Persp3.html'>Persp3</a><a class='struct ' href='struct.PerspMat3.html'>PerspMat3</a><a class='struct ' href='struct.Pnt0.html'>Pnt0</a><a class='struct ' href='struct.Pnt1.html'>Pnt1</a><a class='struct ' href='struct.Pnt2.html'>Pnt2</a><a class='struct ' href='struct.Pnt3.html'>Pnt3</a><a class='struct ' href='struct.Pnt4.html'>Pnt4</a><a class='struct ' href='struct.Pnt5.html'>Pnt5</a><a class='struct ' href='struct.Pnt6.html'>Pnt6</a><a class='struct ' href='struct.Quat.html'>Quat</a><a class='struct ' href='struct.Rot2.html'>Rot2</a><a class='struct ' href='struct.Rot3.html'>Rot3</a><a class='struct ' href='struct.Rot4.html'>Rot4</a><a class='struct ' href='struct.UnitQuat.html'>UnitQuat</a><a class='struct ' href='struct.Vec0.html'>Vec0</a><a class='struct ' href='struct.Vec1.html'>Vec1</a><a class='struct ' href='struct.Vec2.html'>Vec2</a><a class='struct ' href='struct.Vec3.html'>Vec3</a><a class='struct ' href='struct.Vec4.html'>Vec4</a><a class='struct ' href='struct.Vec5.html'>Vec5</a><a class='struct ' href='struct.Vec6.html'>Vec6</a></div><div class='block enum'><h2>Enums</h2><a class='enum ' href='enum.PartialOrdering.html'>PartialOrdering</a></div><div class='block trait'><h2>Traits</h2><a class='trait ' href='trait.Absolute.html'>Absolute</a><a class='trait ' href='trait.AbsoluteRotate.html'>AbsoluteRotate</a><a class='trait ' href='trait.AnyPnt.html'>AnyPnt</a><a class='trait ' href='trait.AnyVec.html'>AnyVec</a><a class='trait ' href='trait.ApproxEq.html'>ApproxEq</a><a class='trait ' href='trait.Axpy.html'>Axpy</a><a class='trait ' href='trait.Basis.html'>Basis</a><a class='trait ' href='trait.Cast.html'>Cast</a><a class='trait ' href='trait.Col.html'>Col</a><a class='trait ' href='trait.ColSlice.html'>ColSlice</a><a class='trait ' href='trait.Cov.html'>Cov</a><a class='trait ' href='trait.Cross.html'>Cross</a><a class='trait ' href='trait.CrossMatrix.html'>CrossMatrix</a><a class='trait ' href='trait.Det.html'>Det</a><a class='trait ' href='trait.Diag.html'>Diag</a><a class='trait ' href='trait.Dim.html'>Dim</a><a class='trait ' href='trait.Dot.html'>Dot</a><a class='trait ' href='trait.Eye.html'>Eye</a><a class='trait ' href='trait.FloatPnt.html'>FloatPnt</a><a class='trait ' href='trait.FloatPntExt.html'>FloatPntExt</a><a class='trait ' href='trait.FloatVec.html'>FloatVec</a><a class='trait ' href='trait.FloatVecExt.html'>FloatVecExt</a><a class='trait ' href='trait.FromHomogeneous.html'>FromHomogeneous</a><a class='trait ' href='trait.Indexable.html'>Indexable</a><a class='trait ' href='trait.Inv.html'>Inv</a><a class='trait ' href='trait.Iterable.html'>Iterable</a><a class='trait ' href='trait.IterableMut.html'>IterableMut</a><a class='trait ' href='trait.LMul.html'>LMul</a><a class='trait ' href='trait.Mat.html'>Mat</a><a class='trait ' href='trait.Mean.html'>Mean</a><a class='trait ' href='trait.Norm.html'>Norm</a><a class='trait ' href='trait.Orig.html'>Orig</a><a class='trait ' href='trait.Outer.html'>Outer</a><a class='trait ' href='trait.PartialOrd.html'>PartialOrd</a><a class='trait ' href='trait.PntAsVec.html'>PntAsVec</a><a class='trait ' href='trait.PntExt.html'>PntExt</a><a class='trait ' href='trait.RMul.html'>RMul</a><a class='trait ' href='trait.Rotate.html'>Rotate</a><a class='trait ' href='trait.Rotation.html'>Rotation</a><a class='trait ' href='trait.RotationMatrix.html'>RotationMatrix</a><a class='trait ' href='trait.RotationWithTranslation.html'>RotationWithTranslation</a><a class='trait ' href='trait.Row.html'>Row</a><a class='trait ' href='trait.RowSlice.html'>RowSlice</a><a class='trait ' href='trait.ScalarAdd.html'>ScalarAdd</a><a class='trait ' href='trait.ScalarDiv.html'>ScalarDiv</a><a class='trait ' href='trait.ScalarMul.html'>ScalarMul</a><a class='trait ' href='trait.ScalarSub.html'>ScalarSub</a><a class='trait ' href='trait.ToHomogeneous.html'>ToHomogeneous</a><a class='trait ' href='trait.Transform.html'>Transform</a><a class='trait ' href='trait.Transformation.html'>Transformation</a><a class='trait ' href='trait.Translate.html'>Translate</a><a class='trait ' href='trait.Translation.html'>Translation</a><a class='trait ' href='trait.Transpose.html'>Transpose</a><a class='trait ' href='trait.UniformSphereSample.html'>UniformSphereSample</a><a class='trait ' href='trait.VecAsPnt.html'>VecAsPnt</a><a class='trait ' href='trait.VecExt.html'>VecExt</a></div><div class='block fn'><h2>Functions</h2><a class='fn ' href='fn.abs.html'>abs</a><a class='fn ' href='fn.absolute_rotate.html'>absolute_rotate</a><a class='fn ' href='fn.append_rotation.html'>append_rotation</a><a class='fn ' href='fn.append_rotation_wrt_center.html'>append_rotation_wrt_center</a><a class='fn ' href='fn.append_rotation_wrt_point.html'>append_rotation_wrt_point</a><a class='fn ' href='fn.append_transformation.html'>append_transformation</a><a class='fn ' href='fn.append_translation.html'>append_translation</a><a class='fn ' href='fn.approx_eq.html'>approx_eq</a><a class='fn ' href='fn.approx_eq_eps.html'>approx_eq_eps</a><a class='fn ' href='fn.canonical_basis.html'>canonical_basis</a><a class='fn ' href='fn.cast.html'>cast</a><a class='fn ' href='fn.center.html'>center</a><a class='fn ' href='fn.clamp.html'>clamp</a><a class='fn ' href='fn.cov.html'>cov</a><a class='fn ' href='fn.cross.html'>cross</a><a class='fn ' href='fn.cross_matrix.html'>cross_matrix</a><a class='fn ' href='fn.det.html'>det</a><a class='fn ' href='fn.diag.html'>diag</a><a class='fn ' href='fn.dim.html'>dim</a><a class='fn ' href='fn.dist.html'>dist</a><a class='fn ' href='fn.dot.html'>dot</a><a class='fn ' href='fn.eigen_qr.html'>eigen_qr</a><a class='fn ' href='fn.from_homogeneous.html'>from_homogeneous</a><a class='fn ' href='fn.householder_matrix.html'>householder_matrix</a><a class='fn ' href='fn.identity.html'>identity</a><a class='fn ' href='fn.inf.html'>inf</a><a class='fn ' href='fn.inv.html'>inv</a><a class='fn ' href='fn.inv_rotate.html'>inv_rotate</a><a class='fn ' href='fn.inv_rotation.html'>inv_rotation</a><a class='fn ' href='fn.inv_transform.html'>inv_transform</a><a class='fn ' href='fn.inv_transformation.html'>inv_transformation</a><a class='fn ' href='fn.inv_translate.html'>inv_translate</a><a class='fn ' href='fn.inv_translation.html'>inv_translation</a><a class='fn ' href='fn.max.html'>max</a><a class='fn ' href='fn.mean.html'>mean</a><a class='fn ' href='fn.min.html'>min</a><a class='fn ' href='fn.new_identity.html'>new_identity</a><a class='fn ' href='fn.norm.html'>norm</a><a class='fn ' href='fn.normalize.html'>normalize</a><a class='fn ' href='fn.one.html'>one</a><a class='fn ' href='fn.orig.html'>orig</a><a class='fn ' href='fn.orthonormal_subspace_basis.html'>orthonormal_subspace_basis</a><a class='fn ' href='fn.outer.html'>outer</a><a class='fn ' href='fn.partial_clamp.html'>partial_clamp</a><a class='fn ' href='fn.partial_cmp.html'>partial_cmp</a><a class='fn ' href='fn.partial_ge.html'>partial_ge</a><a class='fn current' href='fn.partial_gt.html'>partial_gt</a><a class='fn ' href='fn.partial_le.html'>partial_le</a><a class='fn ' href='fn.partial_lt.html'>partial_lt</a><a class='fn ' href='fn.partial_max.html'>partial_max</a><a class='fn ' href='fn.partial_min.html'>partial_min</a><a class='fn ' href='fn.perspective3d.html'>perspective3d</a><a class='fn ' href='fn.prepend_rotation.html'>prepend_rotation</a><a class='fn ' href='fn.qr.html'>qr</a><a class='fn ' href='fn.rotate.html'>rotate</a><a class='fn ' href='fn.rotation.html'>rotation</a><a class='fn ' href='fn.sample_sphere.html'>sample_sphere</a><a class='fn ' href='fn.sqdist.html'>sqdist</a><a class='fn ' href='fn.sqnorm.html'>sqnorm</a><a class='fn ' href='fn.sup.html'>sup</a><a class='fn ' href='fn.to_homogeneous.html'>to_homogeneous</a><a class='fn ' href='fn.to_rot_mat.html'>to_rot_mat</a><a class='fn ' href='fn.transform.html'>transform</a><a class='fn ' href='fn.transformation.html'>transformation</a><a class='fn ' href='fn.translate.html'>translate</a><a class='fn ' href='fn.translation.html'>translation</a><a class='fn ' href='fn.transpose.html'>transpose</a><a class='fn ' href='fn.zero.html'>zero</a></div>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content fn">
+<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>nalgebra</a>::<wbr><a class='fn' href=''>partial_gt</a><wbr></span><span class='out-of-band'><span id='render-detail'>
+            <a id="collapse-all" href="#">[-]
+            </a>&nbsp;<a id="expand-all" href="#">[+]</a>
+        </span><a id='src-197079' href='../src/nalgebra/src/lib.rs.html#291-293'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn partial_gt&lt;T: <a class='trait' href='../nalgebra/trait.PartialOrd.html' title='nalgebra::PartialOrd'>PartialOrd</a>&gt;(a: &amp;T, b: &amp;T) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></pre><div class='docblock'><p>Returns <code>true</code> iff <code>a</code> and <code>b</code> are comparable and <code>a &gt; b</code>.</p>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&larrb;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&rarrb;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code>, <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "nalgebra";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>

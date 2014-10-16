@@ -231,7 +231,7 @@
         <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>dim</span> <span class='op'>&lt;=</span> <span class='ident'>vec</span>.<span class='ident'>len</span>());
 
         <span class='ident'>DVec</span> {
-            <span class='ident'>at</span>: <span class='ident'>Vec</span>::<span class='ident'>from_slice</span>(<span class='ident'>vec</span>.<span class='ident'>slice_to</span>(<span class='ident'>dim</span>))
+            <span class='ident'>at</span>: <span class='ident'>vec</span>.<span class='ident'>slice_to</span>(<span class='ident'>dim</span>).<span class='ident'>to_vec</span>()
         }
     }
 }
