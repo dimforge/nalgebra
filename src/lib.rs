@@ -107,8 +107,6 @@ extern crate serialize;
 
 #[cfg(test)]
 extern crate test;
-#[cfg(test)]
-extern crate debug;
 
 use std::num::{Zero, One, FloatMath};
 use std::cmp;

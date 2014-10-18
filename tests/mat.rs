@@ -1,6 +1,5 @@
 #![feature(macro_rules)]
 
-extern crate debug;
 extern crate "nalgebra" as na;
 
 use std::num::{Float, abs};
@@ -247,7 +246,7 @@ fn test_dmat_from_vec() {
         ]
     );
 
-    println!("mat1: {:?}, mat2: {:?}", mat1, mat2);
+    println!("mat1: {}, mat2: {}", mat1, mat2);
 
     assert!(mat1 == mat2);
 }

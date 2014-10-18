@@ -1,6 +1,5 @@
 #![feature(macro_rules)]
 
-extern crate debug;
 extern crate "nalgebra" as na;
 
 use std::rand::random;
