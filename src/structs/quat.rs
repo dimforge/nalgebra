@@ -332,7 +332,7 @@ impl<N: Num + Clone> UnitQuatMulRhs<N, Vec3<N>> for Vec3<N> {
 impl<N: Num + Clone> UnitQuatMulRhs<N, Pnt3<N>> for Pnt3<N> {
     #[inline]
     fn binop(left: &UnitQuat<N>, right: &Pnt3<N>) -> Pnt3<N> {
-        (left * *right.as_vec()).to_pnt()
+        ::orig::<Pnt3<N>>() + *left * *right.as_vec()
     }
 }
 
@@ -349,7 +349,7 @@ impl<N: Num + Clone> Vec3MulRhs<N, Vec3<N>> for UnitQuat<N> {
 impl<N: Num + Clone> Pnt3MulRhs<N, Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn binop(left: &Pnt3<N>, right: &UnitQuat<N>) -> Pnt3<N> {
-        (left.as_vec() * *right).to_pnt()
+        ::orig::<Pnt3<N>>() + *left.as_vec() * *right
     }
 }
 

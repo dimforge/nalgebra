@@ -686,6 +686,7 @@ macro_rules! transform_impl(
 macro_rules! vec_as_pnt_impl(
     ($tv: ident, $t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N> $tv<N> {
+            #[deprecated = "use `na::orig() + this_vector` instead."]
             #[inline]
             pub fn to_pnt(self) -> $t<N> {
                 $t::new(
@@ -694,6 +695,7 @@ macro_rules! vec_as_pnt_impl(
                 )
             }
 
+            #[deprecated = "use `&(na::orig() + *this_vector)` instead."]
             #[inline]
             pub fn as_pnt<'a>(&'a self) -> &'a $t<N> {
                 unsafe {
