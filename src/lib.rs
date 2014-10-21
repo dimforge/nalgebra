@@ -147,8 +147,8 @@ pub use traits::{
     Norm,
     Orig,
     Outer,
-    PartialOrd,
-    PartialOrdering,
+    POrd,
+    POrdering,
     PntAsVec,
     RMul,
     Rotate, Rotation, RotationMatrix, RotationWithTranslation,
@@ -228,7 +228,7 @@ pub mod overload {
 
 /// Change the input value to ensure it is on the range `[min, max]`.
 #[inline(always)]
-pub fn clamp<T: cmp::PartialOrd>(val: T, min: T, max: T) -> T {
+pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {
         if val < max {
             val
@@ -256,63 +256,63 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 
 /// Returns the infimum of `a` and `b`.
 #[inline(always)]
-pub fn inf<T: PartialOrd>(a: &T, b: &T) -> T {
-    PartialOrd::inf(a, b)
+pub fn inf<T: POrd>(a: &T, b: &T) -> T {
+    POrd::inf(a, b)
 }
 
 /// Returns the supremum of `a` and `b`.
 #[inline(always)]
-pub fn sup<T: PartialOrd>(a: &T, b: &T) -> T {
-    PartialOrd::sup(a, b)
+pub fn sup<T: POrd>(a: &T, b: &T) -> T {
+    POrd::sup(a, b)
 }
 
 /// Compare `a` and `b` using a partial ordering relation.
 #[inline(always)]
-pub fn partial_cmp<T: PartialOrd>(a: &T, b: &T) -> PartialOrdering {
-    PartialOrd::partial_cmp(a, b)
+pub fn partial_cmp<T: POrd>(a: &T, b: &T) -> POrdering {
+    POrd::partial_cmp(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a < b`.
 #[inline(always)]
-pub fn partial_lt<T: PartialOrd>(a: &T, b: &T) -> bool {
-    PartialOrd::partial_lt(a, b)
+pub fn partial_lt<T: POrd>(a: &T, b: &T) -> bool {
+    POrd::partial_lt(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a <= b`.
 #[inline(always)]
-pub fn partial_le<T: PartialOrd>(a: &T, b: &T) -> bool {
-    PartialOrd::partial_le(a, b)
+pub fn partial_le<T: POrd>(a: &T, b: &T) -> bool {
+    POrd::partial_le(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a > b`.
 #[inline(always)]
-pub fn partial_gt<T: PartialOrd>(a: &T, b: &T) -> bool {
-    PartialOrd::partial_gt(a, b)
+pub fn partial_gt<T: POrd>(a: &T, b: &T) -> bool {
+    POrd::partial_gt(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a >= b`.
 #[inline(always)]
-pub fn partial_ge<T: PartialOrd>(a: &T, b: &T) -> bool {
-    PartialOrd::partial_ge(a, b)
+pub fn partial_ge<T: POrd>(a: &T, b: &T) -> bool {
+    POrd::partial_ge(a, b)
 }
 
 /// Return the minimum of `a` and `b` if they are comparable.
 #[inline(always)]
-pub fn partial_min<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
-    PartialOrd::partial_min(a, b)
+pub fn partial_min<'a, T: POrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
+    POrd::partial_min(a, b)
 }
 
 /// Return the maximum of `a` and `b` if they are comparable.
 #[inline(always)]
-pub fn partial_max<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
-    PartialOrd::partial_max(a, b)
+pub fn partial_max<'a, T: POrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
+    POrd::partial_max(a, b)
 }
 
 /// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to
 /// `min` or `max`.
 #[inline(always)]
-pub fn partial_clamp<'a, T: PartialOrd>(value: &'a T, min: &'a T, max: &'a T) -> Option<&'a T> {
-    PartialOrd::partial_clamp(value, min, max)
+pub fn partial_clamp<'a, T: POrd>(value: &'a T, min: &'a T, max: &'a T) -> Option<&'a T> {
+    POrd::partial_clamp(value, min, max)
 }
 
 //

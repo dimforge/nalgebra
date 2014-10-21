@@ -4,7 +4,7 @@
 
 /// Result of a partial ordering.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Show)]
-pub enum PartialOrdering {
+pub enum POrdering {
     /// Result of a strict comparison.
     PartialLess,
     /// Equality relationship.
@@ -15,7 +15,7 @@ pub enum PartialOrdering {
     NotComparable
 }
 
-impl PartialOrdering {
+impl POrdering {
     /// Returns `true` if `self` is equal to `Equal`.
     pub fn is_eq(&self) -> bool {
         *self == PartialEqual
@@ -46,8 +46,8 @@ impl PartialOrdering {
         *self == NotComparable
     }
 
-    /// Creates a `PartialOrdering` from an `Ordering`.
-    pub fn from_ordering(ord: Ordering) -> PartialOrdering {
+    /// Creates a `POrdering` from an `Ordering`.
+    pub fn from_ordering(ord: Ordering) -> POrdering {
         match ord {
             Less    => PartialLess,
             Equal   => PartialEqual,
@@ -55,7 +55,7 @@ impl PartialOrdering {
         }
     }
 
-    /// Converts this `PartialOrdering` to an `Ordering`.
+    /// Converts this `POrdering` to an `Ordering`.
     ///
     /// Returns `None` if `self` is `NotComparable`.
     pub fn to_ordering(self) -> Option<Ordering> {
@@ -69,7 +69,7 @@ impl PartialOrdering {
 }
 
 /// Pointwise ordering operations.
-pub trait PartialOrd {
+pub trait POrd {
     /// Returns the infimum of `a` and `b`.
     fn inf(a: &Self, b: &Self) -> Self;
 
@@ -77,36 +77,36 @@ pub trait PartialOrd {
     fn sup(a: &Self, b: &Self) -> Self;
 
     /// Compare `a` and `b` using a partial ordering relation.
-    fn partial_cmp(a: &Self, b: &Self) -> PartialOrdering;
+    fn partial_cmp(a: &Self, b: &Self) -> POrdering;
 
     /// Returns `true` iff `a` and `b` are comparable and `a <= b`.
     #[inline]
     fn partial_le(a: &Self, b: &Self) -> bool {
-        PartialOrd::partial_cmp(a, b).is_le()
+        POrd::partial_cmp(a, b).is_le()
     }
 
     /// Returns `true` iff `a` and `b` are comparable and `a < b`.
     #[inline]
     fn partial_lt(a: &Self, b: &Self) -> bool {
-        PartialOrd::partial_cmp(a, b).is_lt()
+        POrd::partial_cmp(a, b).is_lt()
     }
 
     /// Returns `true` iff `a` and `b` are comparable and `a >= b`.
     #[inline]
     fn partial_ge(a: &Self, b: &Self) -> bool {
-        PartialOrd::partial_cmp(a, b).is_ge()
+        POrd::partial_cmp(a, b).is_ge()
     }
 
     /// Returns `true` iff `a` and `b` are comparable and `a > b`.
     #[inline]
     fn partial_gt(a: &Self, b: &Self) -> bool {
-        PartialOrd::partial_cmp(a, b).is_gt()
+        POrd::partial_cmp(a, b).is_gt()
     }
 
     /// Return the minimum of `a` and `b` if they are comparable.
     #[inline]
     fn partial_min<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
-        match PartialOrd::partial_cmp(a, b) {
+        match POrd::partial_cmp(a, b) {
             PartialLess | PartialEqual => Some(a),
             PartialGreater             => Some(b),
             NotComparable              => None
@@ -116,7 +116,7 @@ pub trait PartialOrd {
     /// Return the maximum of `a` and `b` if they are comparable.
     #[inline]
     fn partial_max<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
-        match PartialOrd::partial_cmp(a, b) {
+        match POrd::partial_cmp(a, b) {
             PartialGreater | PartialEqual => Some(a),
             PartialLess                   => Some(b),
             NotComparable                 => None
@@ -127,8 +127,8 @@ pub trait PartialOrd {
     /// `min` or `max`.
     #[inline]
     fn partial_clamp<'a>(value: &'a Self, min: &'a Self, max: &'a Self) -> Option<&'a Self> {
-        let v_min = PartialOrd::partial_cmp(value, min);
-        let v_max = PartialOrd::partial_cmp(value, max);
+        let v_min = POrd::partial_cmp(value, min);
+        let v_max = POrd::partial_cmp(value, max);
 
         if v_min.is_not_comparable() || v_max.is_not_comparable() {
             None

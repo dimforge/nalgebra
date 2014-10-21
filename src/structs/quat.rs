@@ -8,7 +8,7 @@ use std::num;
 use std::rand::{Rand, Rng};
 use std::slice::{Items, MutItems};
 use structs::{Vec3, Pnt3, Rot3, Mat3, Vec3MulRhs, Pnt3MulRhs};
-use traits::operations::{ApproxEq, Inv, PartialOrd, PartialOrdering, NotComparable, PartialLess,
+use traits::operations::{ApproxEq, Inv, POrd, POrdering, NotComparable, PartialLess,
                          PartialGreater, PartialEqual, Axpy};
 use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim};
 use traits::geometry::{Norm, Cross, Rotation, Rotate, Transform};

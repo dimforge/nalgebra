@@ -6,7 +6,7 @@ use std::mem;
 use std::num::{Zero, One, Float, Bounded};
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
-use traits::operations::{ApproxEq, PartialOrd, PartialOrdering, PartialLess, PartialEqual,
+use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
                          PartialGreater, NotComparable, Axpy};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
