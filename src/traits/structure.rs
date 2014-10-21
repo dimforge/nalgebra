@@ -157,7 +157,7 @@ pub trait VecAsPnt<P> {
 
 /// Trait grouping most common operations on vectors.
 pub trait AnyVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + PartialEq + Mul<N, Self>
-                     + Div<N, Self> + Dot<N> + Axpy<N> {
+                     + Div<N, Self> + Dot<N> + Axpy<N> + Basis {
 }
 
 /// Trait of vector with components implementing the `Float` trait.
@@ -172,9 +172,9 @@ pub trait AnyVecExt<N>: AnyVec<N> + Indexable<uint, N> + Index<uint, N> + IndexM
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
-pub trait FloatVecExt<N: Float>: FloatVec<N> + AnyVecExt<N> + Basis { }
+pub trait FloatVecExt<N: Float>: FloatVec<N> + AnyVecExt<N> { }
 
-impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + PartialEq + Mul<N, V> + Div<N, V> + Dot<N> + Axpy<N>>
+impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + PartialEq + Mul<N, V> + Div<N, V> + Dot<N> + Axpy<N> + Basis>
 AnyVec<N> for V { }
 
 impl<N: Float, V: AnyVec<N> + Norm<N>> FloatVec<N> for V { }
@@ -184,7 +184,7 @@ impl<N,
         UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded>
 AnyVecExt<N> for V { }
 
-impl<N: Float, V: FloatVec<N> + AnyVecExt<N> + Basis> FloatVecExt<N> for V { }
+impl<N: Float, V: FloatVec<N> + AnyVecExt<N>> FloatVecExt<N> for V { }
 
 /*
  * Pnt related traits.
