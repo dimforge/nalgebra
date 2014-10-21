@@ -114,8 +114,10 @@ pub use traits::{PartialLess, PartialEqual, PartialGreater, NotComparable};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
-    AnyVec,
     AnyPnt,
+    AnyPntExt,
+    AnyVec,
+    AnyVecExt,
     ApproxEq,
     Axpy,
     Basis,
@@ -148,7 +150,6 @@ pub use traits::{
     PartialOrd,
     PartialOrdering,
     PntAsVec,
-    PntExt,
     RMul,
     Rotate, Rotation, RotationMatrix, RotationWithTranslation,
     Row,
@@ -159,8 +160,7 @@ pub use traits::{
     Translate, Translation,
     Transpose,
     UniformSphereSample,
-    VecAsPnt,
-    VecExt
+    VecAsPnt
 };
 
 pub use structs::{

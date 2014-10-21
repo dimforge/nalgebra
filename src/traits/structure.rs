@@ -166,13 +166,13 @@ pub trait FloatVec<N: Float>: AnyVec<N> + Norm<N> {
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
-pub trait VecExt<N>: AnyVec<N> + Indexable<uint, N> + Iterable<N> +
-                     UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded
+pub trait AnyVecExt<N>: AnyVec<N> + Indexable<uint, N> + Index<uint, N> + IndexMut<uint, N> +
+                        Iterable<N> + UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded
 { }
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on vectors.
-pub trait FloatVecExt<N: Float>: FloatVec<N> + VecExt<N> + Basis { }
+pub trait FloatVecExt<N: Float>: FloatVec<N> + AnyVecExt<N> + Basis { }
 
 impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + PartialEq + Mul<N, V> + Div<N, V> + Dot<N> + Axpy<N>>
 AnyVec<N> for V { }
@@ -180,11 +180,11 @@ AnyVec<N> for V { }
 impl<N: Float, V: AnyVec<N> + Norm<N>> FloatVec<N> for V { }
 
 impl<N,
-     V: AnyVec<N> + Indexable<uint, N> + Iterable<N> +
+     V: AnyVec<N> + Indexable<uint, N> + Index<uint, N> + IndexMut<uint, N> + Iterable<N> +
         UniformSphereSample + ScalarAdd<N> + ScalarSub<N> + Bounded>
-VecExt<N> for V { }
+AnyVecExt<N> for V { }
 
-impl<N: Float, V: FloatVec<N> + VecExt<N> + Basis> FloatVecExt<N> for V { }
+impl<N: Float, V: FloatVec<N> + AnyVecExt<N> + Basis> FloatVecExt<N> for V { }
 
 /*
  * Pnt related traits.
@@ -228,18 +228,18 @@ pub trait FloatPnt<N: Float, V: Norm<N>>: AnyPnt<N, V> {
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on points.
-pub trait PntExt<N, V>: AnyPnt<N, V> + Indexable<uint, N> + Iterable<N> +
-                        ScalarAdd<N> + ScalarSub<N> + Bounded + Axpy<N>
+pub trait AnyPntExt<N, V>: AnyPnt<N, V> + Indexable<uint, N> + Index<uint, N> + IndexMut<uint, N> +
+                           Iterable<N> + ScalarAdd<N> + ScalarSub<N> + Bounded + Axpy<N>
 { }
 
 /// Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
 /// operations on points.
-pub trait FloatPntExt<N: Float, V: Norm<N>> : FloatPnt<N, V> + PntExt<N, V> { }
+pub trait FloatPntExt<N: Float, V: Norm<N>> : FloatPnt<N, V> + AnyPntExt<N, V> { }
 
 
 impl<N, V, P: PntAsVec<V> + Dim + Sub<P, V> + Add<V, P> + Orig + Neg<P> + PartialEq + Mul<N, P> + Div<N, P>>
 AnyPnt<N, V> for P { }
 impl<N: Float, V: Norm<N>, P: AnyPnt<N, V>> FloatPnt<N, V> for P { }
-impl<N, V, P: AnyPnt<N, V> + Indexable<uint, N> + Iterable<N> + ScalarAdd<N> + ScalarSub<N> + Bounded + Axpy<N>>
-PntExt<N, V> for P { }
-impl<N: Float, V: Norm<N>, P: FloatPnt<N, V> + PntExt<N, V>> FloatPntExt<N, V> for P { }
+impl<N, V, P: AnyPnt<N, V> + Indexable<uint, N> + Index<uint, N> + IndexMut<uint, N> + Iterable<N> + ScalarAdd<N> + ScalarSub<N> + Bounded + Axpy<N>>
+AnyPntExt<N, V> for P { }
+impl<N: Float, V: Norm<N>, P: FloatPnt<N, V> + AnyPntExt<N, V>> FloatPntExt<N, V> for P { }
