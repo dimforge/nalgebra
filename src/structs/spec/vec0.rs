@@ -45,7 +45,7 @@ impl<N: 'static> Iterable<N> for vec::Vec0<N> {
 
 impl<N: 'static> IterableMut<N> for vec::Vec0<N> {
     #[inline]
-    fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
+    fn iter_mut<'l>(&'l mut self) -> MutItems<'l, N> {
         unsafe { mem::transmute::<&'l mut vec::Vec0<N>, &'l mut [N, ..0]>(self).iter_mut() }
     }
 }
