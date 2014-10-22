@@ -14,7 +14,7 @@ macro_rules! test_iterator_impl(
 
             let nv: $t = v.iter().map(|e| e * n).collect();
 
-            for e in mv.mut_iter() {
+            for e in mv.iter_mut() {
                 *e = *e * n
             }
 
@@ -28,7 +28,7 @@ macro_rules! test_commut_dot_impl(
         for _ in range(0u, 10000) {
             let v1 : $t = random();
             let v2 : $t = random();
-        
+
             assert!(na::approx_eq(&na::dot(&v1, &v2), &na::dot(&v2, &v1)));
         }
     );
@@ -39,7 +39,7 @@ macro_rules! test_scalar_op_impl(
         for _ in range(0u, 10000) {
             let v1 : $t = random();
             let n  : $n = random();
-        
+
             assert!(na::approx_eq(&((v1 * n) / n), &v1));
             assert!(na::approx_eq(&((v1 / n) * n), &v1));
             assert!(na::approx_eq(&((v1 - n) + n), &v1));
@@ -51,7 +51,7 @@ macro_rules! test_scalar_op_impl(
 
             v1 = v1 * n;
             v1 = v1 / n;
-        
+
             assert!(na::approx_eq(&v1, &v0));
         }
     );
@@ -230,22 +230,22 @@ fn test_scalar_op_vec1() {
 fn test_scalar_op_vec2() {
     test_scalar_op_impl!(Vec2<f64>, f64);
 }
- 
+
 #[test]
 fn test_scalar_op_vec3() {
     test_scalar_op_impl!(Vec3<f64>, f64);
 }
- 
+
 #[test]
 fn test_scalar_op_vec4() {
     test_scalar_op_impl!(Vec4<f64>, f64);
 }
- 
+
 #[test]
 fn test_scalar_op_vec5() {
     test_scalar_op_impl!(Vec5<f64>, f64);
 }
- 
+
 #[test]
 fn test_scalar_op_vec6() {
     test_scalar_op_impl!(Vec6<f64>, f64);
@@ -265,22 +265,22 @@ fn test_iterator_vec1() {
 fn test_iterator_vec2() {
     test_iterator_impl!(Vec2<f64>, f64);
 }
- 
+
 #[test]
 fn test_iterator_vec3() {
     test_iterator_impl!(Vec3<f64>, f64);
 }
- 
+
 #[test]
 fn test_iterator_vec4() {
     test_iterator_impl!(Vec4<f64>, f64);
 }
- 
+
 #[test]
 fn test_iterator_vec5() {
     test_iterator_impl!(Vec5<f64>, f64);
 }
- 
+
 #[test]
 fn test_iterator_vec6() {
     test_iterator_impl!(Vec6<f64>, f64);

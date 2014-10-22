@@ -20,13 +20,13 @@ macro_rules! at_fast_impl(
             #[inline]
             pub unsafe fn at_fast(&self, (i, j): (uint, uint)) -> N {
                 (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)
-                 .unsafe_ref(i + j * $dim)).clone()
+                 .unsafe_get(i + j * $dim)).clone()
             }
 
             #[inline]
             pub unsafe fn set_fast(&mut self, (i, j): (uint, uint), val: N) {
                 (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
-                 .unsafe_mut_ref(i + j * $dim)) = val
+                 .unsafe_mut(i + j * $dim)) = val
             }
         }
     )
@@ -151,9 +151,9 @@ macro_rules! iterable_mut_impl(
   ($t: ident, $dim: expr) => (
     impl<N> IterableMut<N> for $t<N> {
         #[inline]
-        fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
+        fn iter_mut<'l>(&'l mut self) -> MutItems<'l, N> {
             unsafe {
-                mem::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim * $dim]>(self).mut_iter()
+                mem::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim * $dim]>(self).iter_mut()
             }
         }
     }
@@ -214,12 +214,12 @@ macro_rules! indexable_impl(
 
         #[inline]
         unsafe fn unsafe_at(&self, (i, j): (uint, uint)) -> N {
-            (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self).unsafe_ref(i + j * $dim)).clone()
+            (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self).unsafe_get(i + j * $dim)).clone()
         }
 
         #[inline]
         unsafe fn unsafe_set(&mut self, (i, j): (uint, uint), val: N) {
-            (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self).unsafe_mut_ref(i + j * $dim)) = val
+            (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self).unsafe_mut(i + j * $dim)) = val
         }
     }
   )
@@ -276,7 +276,7 @@ macro_rules! row_impl(
         fn row(&self, row: uint) -> $tv<N> {
             let mut res: $tv<N> = Zero::zero();
 
-            for (i, e) in res.mut_iter().enumerate() {
+            for (i, e) in res.iter_mut().enumerate() {
                 *e = self.at((row, i));
             }
 

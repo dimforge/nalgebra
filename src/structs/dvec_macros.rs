@@ -40,7 +40,7 @@ macro_rules! dvec_impl(
             #[inline]
             pub fn as_mut_slice<'a>(&'a mut self) -> &'a mut [N] {
                 let len = self.len();
-                self.at.mut_slice_to(len)
+                self.at.slice_to_mut(len)
             }
         }
 
@@ -80,7 +80,7 @@ macro_rules! dvec_impl(
 
             #[inline]
             unsafe fn unsafe_set(&mut self, i: uint, val: N) {
-                *self.at.as_mut_slice().unsafe_mut_ref(i) = val
+                *self.at.as_mut_slice().unsafe_mut(i) = val
             }
 
         }
@@ -125,8 +125,8 @@ macro_rules! dvec_impl(
 
         impl<N> IterableMut<N> for $dvec<N> {
             #[inline]
-            fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
-                self.as_mut_slice().mut_iter()
+            fn iter_mut<'l>(&'l mut self) -> MutItems<'l, N> {
+                self.as_mut_slice().iter_mut()
             }
         }
 
@@ -246,7 +246,7 @@ macro_rules! dvec_impl(
             fn normalize(&mut self) -> N {
                 let l = Norm::norm(self);
 
-                for n in self.as_mut_slice().mut_iter() {
+                for n in self.as_mut_slice().iter_mut() {
                     *n = *n / l;
                 }
 
@@ -424,7 +424,7 @@ macro_rules! small_dvec_from_impl (
 
                 let mut at: [N, ..$dim] = [ $( $zeros, )* ];
 
-                for n in at.mut_slice_to(dim).mut_iter() {
+                for n in at.slice_to_mut(dim).iter_mut() {
                     *n = elem.clone();
                 }
 
@@ -446,7 +446,7 @@ macro_rules! small_dvec_from_impl (
                 // FIXME: not safe.
                 let mut at: [N, ..$dim] = [ $( $zeros, )* ];
 
-                for (curr, other) in vec.iter().zip(at.mut_iter()) {
+                for (curr, other) in vec.iter().zip(at.iter_mut()) {
                     *other = curr.clone();
                 }
 

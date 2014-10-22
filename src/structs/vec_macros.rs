@@ -42,13 +42,13 @@ macro_rules! at_fast_impl(
             #[inline]
             pub unsafe fn at_fast(&self, i: uint) -> N {
                 (*mem::transmute::<&$t<N>, &[N, ..$dim]>(self)
-                 .unsafe_ref(i)).clone()
+                 .unsafe_get(i)).clone()
             }
 
             /// Unsafe write access to a vector element by index.
             #[inline]
             pub unsafe fn set_fast(&mut self, i: uint, val: N) {
-                (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).unsafe_mut_ref(i)) = val
+                (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).unsafe_mut(i)) = val
             }
         }
     )
@@ -199,12 +199,12 @@ macro_rules! indexable_impl(
 
             #[inline]
             unsafe fn unsafe_at(&self, i: uint) -> N {
-                (*mem::transmute::<&$t<N>, &[N, ..$dim]>(self).unsafe_ref(i)).clone()
+                (*mem::transmute::<&$t<N>, &[N, ..$dim]>(self).unsafe_get(i)).clone()
             }
 
             #[inline]
             unsafe fn unsafe_set(&mut self, i: uint, val: N) {
-                (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).unsafe_mut_ref(i)) = val
+                (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).unsafe_mut(i)) = val
             }
         }
     )
@@ -258,9 +258,9 @@ macro_rules! iterable_mut_impl(
     ($t: ident, $dim: expr) => (
         impl<N> IterableMut<N> for $t<N> {
             #[inline]
-            fn mut_iter<'l>(&'l mut self) -> MutItems<'l, N> {
+            fn iter_mut<'l>(&'l mut self) -> MutItems<'l, N> {
                 unsafe {
-                    mem::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim]>(self).mut_iter()
+                    mem::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim]>(self).iter_mut()
                 }
             }
         }
