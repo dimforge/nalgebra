@@ -192,14 +192,14 @@ impl<N: One + Zero + Clone> Eye for DMat<N> {
 
         for i in range(0u, dim) {
             let _1: N  = One::one();
-            res.set((i, i), _1);
+            res[(i, i)]  = _1;
         }
 
         res
     }
 }
 
-impl<N: Clone> DMat<N> {
+impl<N> DMat<N> {
     #[inline(always)]
     fn offset(&self, i: uint, j: uint) -> uint {
         i + j * self.nrows
@@ -267,16 +267,29 @@ impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
 
 }
 
-// TODO: implement after DST lands
-/*
-impl<N> Index<uint, [N]> for DMat<N> {
-    fn index(&self, i: &uint) -> &[N] { ... }
+impl<N> Index<(uint, uint), N> for DMat<N> {
+    fn index(&self, &(i, j): &(uint, uint)) -> &N {
+        assert!(i < self.nrows);
+        assert!(j < self.ncols);
+
+        unsafe {
+            self.mij.as_slice().unsafe_get(self.offset(i, j))
+        }
+    }
 }
 
-impl<N> IndexMut<uint, [N]> for DMat<N> {
-    fn index_mut(&mut self, i: &uint) -> &mut [N] { ... }
+impl<N> IndexMut<(uint, uint), N> for DMat<N> {
+    fn index_mut(&mut self, &(i, j): &(uint, uint)) -> &mut N {
+        assert!(i < self.nrows);
+        assert!(j < self.ncols);
+
+        let offset = self.offset(i, j);
+
+        unsafe {
+            self.mij.as_mut_slice().unsafe_mut(offset)
+        }
+    }
 }
-*/
 
 impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> DMatMulRhs<N, DMat<N>> for DMat<N> {
     fn binop(left: &DMat<N>, right: &DMat<N>) -> DMat<N> {
@@ -620,7 +633,7 @@ impl<N: Show + Clone> Show for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
         for i in range(0u, self.nrows()) {
             for j in range(0u, self.ncols()) {
-                let _ = write!(form, "{} ", self.at((i, j)));
+                let _ = write!(form, "{} ", self[(i, j)]);
             }
             let _ = write!(form, "\n");
         }

@@ -265,15 +265,15 @@ macro_rules! col_impl(
 )
 
 macro_rules! index_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N> Index<uint, $tv<N>> for $t<N> {
-            fn index(&self, i: &uint) -> &$tv<N> {
+    ($t: ident) => (
+        impl<N> Index<(uint, uint), N> for $t<N> {
+            fn index(&self, i: &(uint, uint)) -> &N {
                 &self.submat[*i]
             }
         }
 
-        impl<N> IndexMut<uint, $tv<N>> for $t<N> {
-            fn index_mut(&mut self, i: &uint) -> &mut $tv<N> {
+        impl<N> IndexMut<(uint, uint), N> for $t<N> {
+            fn index_mut(&mut self, i: &(uint, uint)) -> &mut N {
                 &mut self.submat[*i]
             }
         }
