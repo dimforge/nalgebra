@@ -4,9 +4,9 @@ pub use self::geometry::{AbsoluteRotate, Cross, CrossMatrix, Dot, FromHomogeneou
                          Rotate, Rotation, RotationMatrix, RotationWithTranslation, ToHomogeneous,
                          Transform, Transformation, Translate, Translation, UniformSphereSample};
 
-pub use self::structure::{FloatVec, FloatVecExt, FloatPnt, FloatPntExt, Basis, Cast, Col, Dim,
-                          Indexable, Iterable, IterableMut, Mat, Row, AnyVec, AnyVecExt, AnyPnt,
-                          AnyPntExt, PntAsVec, VecAsPnt, ColSlice, RowSlice, Diag, Eye};
+pub use self::structure::{FloatVec, FloatPnt, Basis, Cast, Col, Dim, Indexable, Iterable,
+                          IterableMut, Mat, Row, AnyVec, AnyPnt, PntAsVec, VecAsPnt, ColSlice,
+                          RowSlice, Diag, Eye};
 
 pub use self::operations::{Absolute, ApproxEq, Axpy, Cov, Det, Inv, LMul, Mean, Outer, POrd,
                            RMul, ScalarAdd, ScalarSub, ScalarMul, ScalarDiv, Transpose};
