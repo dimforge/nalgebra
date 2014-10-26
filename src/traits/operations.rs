@@ -1,6 +1,6 @@
 //! Low level operations on vectors and matrices.
 
-
+use traits::structure::SquareMat;
 
 /// Result of a partial ordering.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Show)]
@@ -248,6 +248,12 @@ pub trait Mean<N> {
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
     fn mean(v: &Self) -> N;
+}
+
+/// Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.
+pub trait EigenQR<N, V>: SquareMat<N, V> {
+    /// Computes the eigenvectors and eigenvalues of this matrix.
+    fn eigen_qr(m: &Self, eps: &N, niter: uint) -> (Self, V);
 }
 
 

@@ -9,7 +9,7 @@ pub use traits::structure::{FloatVec, FloatPnt, Basis, Cast, Col, Dim, Indexable
                             ColSlice, RowSlice, Diag, Eye, Shape};
 
 pub use traits::operations::{Absolute, ApproxEq, Axpy, Cov, Det, Inv, LMul, Mean, Outer, POrd,
-                             RMul, ScalarAdd, ScalarSub, ScalarMul, ScalarDiv, Transpose};
+                             RMul, ScalarAdd, ScalarSub, ScalarMul, ScalarDiv, Transpose, EigenQR};
 pub use traits::operations::{POrdering, PartialLess, PartialEqual, PartialGreater, NotComparable};
 
 pub mod geometry;

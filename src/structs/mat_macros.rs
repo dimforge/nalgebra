@@ -638,3 +638,14 @@ macro_rules! outer_impl(
         }
     )
 )
+
+macro_rules! eigen_qr_impl(
+    ($t: ident, $v: ident) => (
+        impl<N> EigenQR<N, $v<N>> for $t<N>
+            where N: Float + ApproxEq<N> + Clone {
+            fn eigen_qr(m: &$t<N>, eps: &N, niter: uint) -> ($t<N>, $v<N>) {
+                linalg::eigen_qr(m, eps, niter)
+            }
+        }
+    )
+)

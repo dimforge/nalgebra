@@ -76,12 +76,9 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: uint) -> (M, V)
     where N:  Float,
           VS: Indexable<uint, N> + Norm<N>,
-          M:  Indexable<(uint, uint), N> + SquareMat<N, V> + ColSlice<VS> + ApproxEq<N> + Clone {
-    let (rows, cols) = m.shape();
-
-    assert!(rows == cols, "The matrix being decomposed must be square.");
-
-    let mut eigenvectors: M = Eye::new_identity(rows);
+          M:  Indexable<(uint, uint), N> + SquareMat<N, V> + Add<M, M> + Sub<M, M> + ColSlice<VS> +
+              ApproxEq<N> + Clone {
+    let mut eigenvectors: M = ::one::<M>();
     let mut eigenvalues = m.clone();
     // let mut shifter: M = Eye::new_identity(rows);
 
@@ -89,7 +86,7 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: uint) -> (M, V)
     for _ in range(0, niter) {
         let mut stop = true;
 
-        for j in range(0, cols) {
+        for j in range(0, ::dim::<M>()) {
             for i in range(0, j) {
                 if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
                     stop = false;
@@ -97,7 +94,7 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: uint) -> (M, V)
                 }
             }
 
-            for i in range(j + 1, rows) {
+            for i in range(j + 1, ::dim::<M>()) {
                 if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
                     stop = false;
                     break;

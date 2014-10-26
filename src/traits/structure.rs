@@ -1,8 +1,8 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
-use std::num::Zero;
+use std::num::{Zero, One};
 use std::slice::{Items, MutItems};
-use traits::operations::{RMul, LMul, Axpy, Transpose};
+use traits::operations::{RMul, LMul, Axpy, Transpose, Inv};
 use traits::geometry::{Dot, Norm, Orig};
 
 /// Traits of objects which can be created from an object of type `T`.
@@ -21,12 +21,12 @@ impl<N, M, R, C> Mat<N, R, C> for M
 }
 
 /// Trait implemented by square matrices.
-pub trait SquareMat<N, V>: Mat<N, V, V> + Mul<Self, Self> + Eye + Transpose + Add<Self, Self> +
-                           Sub<Self, Self> + Diag<V> {
+pub trait SquareMat<N, V>: Mat<N, V, V> + Mul<Self, Self> + Eye + Transpose + Diag<V> + Inv + Dim +
+                           One {
 }
 
 impl<N, V, M> SquareMat<N, V> for M
-    where M: Mat<N, V, V> + Mul<M, M> + Eye + Transpose + Add<M, M> + Sub<M, M> + Diag<V> {
+    where M: Mat<N, V, V> + Mul<M, M> + Eye + Transpose + Diag<V> + Inv + Dim + One {
 }
 
 /// Trait for constructing the identity matrix

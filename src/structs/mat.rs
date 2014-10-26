@@ -13,8 +13,9 @@ use structs::dvec::{DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
 
 use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
                         Eye, ColSlice, RowSlice, Diag, Shape};
-use traits::operations::{Absolute, Transpose, Inv, Outer};
+use traits::operations::{Absolute, Transpose, Inv, Outer, EigenQR};
 use traits::geometry::{ToHomogeneous, FromHomogeneous, Orig};
+use linalg;
 
 
 /// Special identity matrix. All its operation are no-ops.
@@ -128,6 +129,7 @@ diag_impl!(Mat1, Vec1, 1)
 to_homogeneous_impl!(Mat1, Mat2, 1, 2)
 from_homogeneous_impl!(Mat1, Mat2, 1, 2)
 outer_impl!(Vec1, Mat1)
+eigen_qr_impl!(Mat1, Vec1)
 
 /// Square matrix of dimension 2.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -231,6 +233,7 @@ diag_impl!(Mat2, Vec2, 2)
 to_homogeneous_impl!(Mat2, Mat3, 2, 3)
 from_homogeneous_impl!(Mat2, Mat3, 2, 3)
 outer_impl!(Vec2, Mat2)
+eigen_qr_impl!(Mat2, Vec2)
 
 /// Square matrix of dimension 3.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -348,6 +351,7 @@ diag_impl!(Mat3, Vec3, 3)
 to_homogeneous_impl!(Mat3, Mat4, 3, 4)
 from_homogeneous_impl!(Mat3, Mat4, 3, 4)
 outer_impl!(Vec3, Mat3)
+eigen_qr_impl!(Mat3, Vec3)
 
 /// Square matrix of dimension 4.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -519,6 +523,7 @@ diag_impl!(Mat4, Vec4, 4)
 to_homogeneous_impl!(Mat4, Mat5, 4, 5)
 from_homogeneous_impl!(Mat4, Mat5, 4, 5)
 outer_impl!(Vec4, Mat4)
+eigen_qr_impl!(Mat4, Vec4)
 
 /// Square matrix of dimension 5.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -706,6 +711,7 @@ diag_impl!(Mat5, Vec5, 5)
 to_homogeneous_impl!(Mat5, Mat6, 5, 6)
 from_homogeneous_impl!(Mat5, Mat6, 5, 6)
 outer_impl!(Vec5, Mat5)
+eigen_qr_impl!(Mat5, Vec5)
 
 /// Square matrix of dimension 6.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -943,3 +949,4 @@ col_slice_impl!(Mat6, Vec6, DVec6, 6)
 row_slice_impl!(Mat6, Vec6, DVec6, 6)
 diag_impl!(Mat6, Vec6, 6)
 outer_impl!(Vec6, Mat6)
+eigen_qr_impl!(Mat6, Vec6)

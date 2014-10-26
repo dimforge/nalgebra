@@ -129,6 +129,7 @@ pub use traits::{
     Diag,
     Dim,
     Dot,
+    EigenQR,
     Eye,
     FloatPnt,
     FloatVec,
@@ -178,7 +179,6 @@ pub use structs::{
 
 pub use linalg::{
     qr,
-    eigen_qr,
     householder_matrix
 };
 
@@ -873,6 +873,15 @@ pub fn cov<M: Cov<Res>, Res>(observations: &M) -> Res {
 #[inline(always)]
 pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
     Mean::mean(observations)
+}
+
+/*
+ * EigenQR<N, V>
+ */
+/// Computes the eigenvalues and eigenvectors of a square matrix usin the QR algorithm.
+#[inline(always)]
+pub fn eigen_qr<N, V, M: EigenQR<N, V>>(m: &M, eps: &N, niter: uint) -> (M, V) {
+    EigenQR::eigen_qr(m, eps, niter)
 }
 
 //
