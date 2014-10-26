@@ -11,10 +11,10 @@ use std::cmp::min;
 /// * `dim` - the dimension of the space the resulting matrix operates in
 /// * `start` - the starting dimension of the subspace of the reflexion
 /// * `vec` - the vector defining the reflection.
-pub fn householder_matrix<N: Float,
-                          M: Eye + Indexable<(uint, uint), N>,
-                          V: Indexable<uint, N>>
-                          (dim: uint, start: uint, vec: V) -> M {
+pub fn householder_matrix<N, V, M>(dim: uint, start: uint, vec: V) -> M
+    where N: Float,
+          M: Eye + Indexable<(uint, uint), N>,
+          V: Indexable<uint, N> {
     let mut qk : M = Eye::new_identity(dim);
     let subdim = vec.shape();
 
@@ -38,12 +38,10 @@ pub fn householder_matrix<N: Float,
 ///
 /// # Arguments
 /// * `m` - matrix to decompose
-pub fn qr<N: Float,
+pub fn qr<N, V, M>(m: &M) -> (M, M)
+    where N: Float,
           V: Indexable<uint, N> + Norm<N>,
-          M: Clone + Eye + ColSlice<V> + Transpose
-              + Indexable<(uint, uint), N> + Mul<M, M>>
-          (m: &M) 
-          -> (M, M) {
+          M: Clone + Eye + ColSlice<V> + Transpose + Indexable<(uint, uint), N> + Mul<M, M> {
     let (rows, cols) = m.shape();
     assert!(rows >= cols);
     let mut q : M = Eye::new_identity(rows);
@@ -75,14 +73,12 @@ pub fn qr<N: Float,
 }
 
 /// Eigendecomposition of a square matrix using the qr algorithm.
-pub fn eigen_qr<N:  Float,
-                V:  Indexable<uint, N> + Norm<N>,
-                V2: Zero,
-                M:  Clone + Eye + ColSlice<V> + Transpose
-                    + Indexable<(uint, uint), N> + Mul<M, M>
-                    + Diag<V2> + ApproxEq<N> + Add<M, M>
-                    + Sub<M, M>>
-                (m: &M, eps: &N, niter: uint) -> (M, V2) {
+pub fn eigen_qr<N, V, V2, M>(m: &M, eps: &N, niter: uint) -> (M, V2)
+    where N:  Float,
+          V:  Indexable<uint, N> + Norm<N>,
+          V2: Zero,
+          M:  Clone + Eye + ColSlice<V> + Transpose + Indexable<(uint, uint), N> + Mul<M, M>
+              + Diag<V2> + ApproxEq<N> + Add<M, M> + Sub<M, M> {
     let (rows, cols) = m.shape();
 
     assert!(rows == cols, "The matrix being decomposed must be square.");
