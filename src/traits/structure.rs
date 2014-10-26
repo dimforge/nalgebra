@@ -46,6 +46,9 @@ pub trait Basis {
 
     /// Iterates through a basis of the subspace orthogonal to `self`.
     fn orthonormal_subspace_basis(&Self, |Self| -> bool);
+
+    /// Gets the ith element of the canonical basis.
+    fn canonical_basis_element(i: uint) -> Option<Self>;
 }
 
 /// Trait to access rows of a matrix or a vector.

@@ -79,6 +79,11 @@ impl<N> Basis for vec::Vec0<N> {
 
     #[inline(always)]
     fn orthonormal_subspace_basis(_: &vec::Vec0<N>, _: |vec::Vec0<N>| -> bool) { }
+
+    #[inline(always)]
+    fn canonical_basis_element(_: uint) -> Option<vec::Vec0<N>> {
+        None
+    }
 }
 
 impl<N, T> Add<T, vec::Vec0<N>> for vec::Vec0<N> {

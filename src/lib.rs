@@ -915,6 +915,12 @@ pub fn orthonormal_subspace_basis<V: Basis>(v: &V, f: |V| -> bool) {
     Basis::orthonormal_subspace_basis(v, f)
 }
 
+/// Gets the (0-based) i-th element of the canonical basis of V.
+#[inline]
+pub fn canonical_basis_element<V: Basis>(i: uint) -> Option<V> {
+    Basis::canonical_basis_element(i)
+}
+
 /*
  * Row<R>
  */

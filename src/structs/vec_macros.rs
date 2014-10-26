@@ -297,13 +297,7 @@ macro_rules! basis_impl(
             #[inline]
             fn canonical_basis(f: |$t<N>| -> bool) {
                 for i in range(0u, $dim) {
-                    let mut basis_element : $t<N> = Zero::zero();
-
-                    unsafe {
-                        basis_element.set_fast(i, One::one());
-                    }
-
-                    if !f(basis_element) { return }
+                    if !f(Basis::canonical_basis_element(i).unwrap()) { return }
                 }
             }
 
@@ -339,6 +333,22 @@ macro_rules! basis_impl(
 
                         basis.push(new_element);
                     }
+                }
+            }
+
+            #[inline]
+            fn canonical_basis_element(i: uint) -> Option<$t<N>> {
+                if i < $dim {
+                    let mut basis_element : $t<N> = Zero::zero();
+
+                    unsafe {
+                        basis_element.set_fast(i, One::one());
+                    }
+
+                    Some(basis_element)
+                }
+                else {
+                    None
                 }
             }
         }

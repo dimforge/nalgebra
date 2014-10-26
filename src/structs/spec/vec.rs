@@ -75,7 +75,17 @@ impl<N: One> Basis for Vec1<N> {
     }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(_: &Vec1<N>, _: |Vec1<N>| -> bool ) { }
+    fn orthonormal_subspace_basis(_: &Vec1<N>, _: |Vec1<N>| -> bool) { }
+
+    #[inline]
+    fn canonical_basis_element(i: uint) -> Option<Vec1<N>> {
+        if i == 0 {
+            Some(Vec1::new(One::one()))
+        }
+        else {
+            None
+        }
+    }
 }
 
 impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
@@ -88,6 +98,19 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
     #[inline]
     fn orthonormal_subspace_basis(n: &Vec2<N>, f: |Vec2<N>| -> bool) {
         f(Vec2::new(-n.y, n.x.clone()));
+    }
+
+    #[inline]
+    fn canonical_basis_element(i: uint) -> Option<Vec2<N>> {
+        if i == 0 {
+            Some(Vec2::new(One::one(), Zero::zero()))
+        }
+        else if i == 1 {
+            Some(Vec2::new(Zero::zero(), One::one()))
+        }
+        else {
+            None
+        }
     }
 }
 
@@ -111,6 +134,22 @@ impl<N: Float> Basis for Vec3<N> {
 
         if !f(Cross::cross(&a, n)) { return };
         f(a);
+    }
+
+    #[inline]
+    fn canonical_basis_element(i: uint) -> Option<Vec3<N>> {
+        if i == 0 {
+            Some(Vec3::new(One::one(), Zero::zero(), Zero::zero()))
+        }
+        else if i == 1 {
+            Some(Vec3::new(Zero::zero(), One::one(), Zero::zero()))
+        }
+        else if i == 2 {
+            Some(Vec3::new(Zero::zero(), Zero::zero(), One::one()))
+        }
+        else {
+            None
+        }
     }
 }
 
