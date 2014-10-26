@@ -114,8 +114,8 @@ pub use traits::{PartialLess, PartialEqual, PartialGreater, NotComparable};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
-    AnyPnt,
-    AnyVec,
+    NumPnt,
+    NumVec,
     ApproxEq,
     Axpy,
     Basis,

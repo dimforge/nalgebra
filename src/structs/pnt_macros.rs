@@ -128,3 +128,15 @@ macro_rules! pnt_from_homogeneous_impl(
         }
     )
 )
+
+macro_rules! num_float_pnt_impl(
+    ($t: ident, $tv: ident $(,$trhs: ident)*) => (
+        impl<N> NumPnt<N, $tv<N>> for $t<N>
+            where N: Num $(+ $trhs<N, $t<N>>)* {
+        }
+
+        impl<N> FloatPnt<N, $tv<N>> for $t<N>
+            where N: ApproxEq<N> + Float $(+ $trhs<N, $t<N>>)* {
+        }
+    )
+)

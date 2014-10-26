@@ -10,7 +10,8 @@ use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
                          PartialGreater, NotComparable, Axpy};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
-use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, VecAsPnt, Shape};
+use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, VecAsPnt, Shape,
+                        NumVec, FloatVec};
 use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 
 
@@ -131,6 +132,7 @@ rotate_impl!(Vec1)
 rotate_impl!(Pnt1)
 transform_impl!(Vec1, Pnt1)
 vec_as_pnt_impl!(Vec1, Pnt1, x)
+num_float_vec_impl!(Vec1, Vec1MulRhs, Vec1DivRhs)
 
 /// Vector of dimension 2.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -233,6 +235,7 @@ rotate_impl!(Vec2)
 rotate_impl!(Pnt2)
 transform_impl!(Vec2, Pnt2)
 vec_as_pnt_impl!(Vec2, Pnt2, x, y)
+num_float_vec_impl!(Vec2, Vec2MulRhs, Vec2DivRhs)
 
 /// Vector of dimension 3.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -340,6 +343,7 @@ rotate_impl!(Vec3)
 rotate_impl!(Pnt3)
 transform_impl!(Vec3, Pnt3)
 vec_as_pnt_impl!(Vec3, Pnt3, x, y, z)
+num_float_vec_impl!(Vec3, Vec3MulRhs, Vec3DivRhs)
 
 
 /// Vector of dimension 4.
@@ -447,6 +451,7 @@ rotate_impl!(Vec4)
 rotate_impl!(Pnt4)
 transform_impl!(Vec4, Pnt4)
 vec_as_pnt_impl!(Vec4, Pnt4, x, y, z, w)
+num_float_vec_impl!(Vec4, Vec4MulRhs, Vec4DivRhs)
 
 /// Vector of dimension 5.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -555,6 +560,7 @@ rotate_impl!(Vec5)
 rotate_impl!(Pnt5)
 transform_impl!(Vec5, Pnt5)
 vec_as_pnt_impl!(Vec5, Pnt5, x, y, z, w, a)
+num_float_vec_impl!(Vec5, Vec5MulRhs, Vec5DivRhs)
 
 /// Vector of dimension 6.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
@@ -663,3 +669,4 @@ rotate_impl!(Vec6)
 rotate_impl!(Pnt6)
 transform_impl!(Vec6, Pnt6)
 vec_as_pnt_impl!(Vec6, Pnt6, x, y, z, w, a, b)
+num_float_vec_impl!(Vec6, Vec6MulRhs, Vec6DivRhs)

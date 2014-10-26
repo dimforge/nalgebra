@@ -157,20 +157,13 @@ pub trait VecAsPnt<P> {
 }
 
 /// Trait grouping most common operations on vectors.
-pub trait AnyVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + PartialEq +
-                     Mul<N, Self> + Div<N, Self> + Dot<N> + Axpy<N> + Basis + Index<uint, N> {
+pub trait NumVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + PartialEq +
+                     Mul<N, Self> + Div<N, Self> + Dot<N> + Axpy<N> + Index<uint, N> {
 }
 
 /// Trait of vector with components implementing the `Float` trait.
-pub trait FloatVec<N: Float>: AnyVec<N> + Norm<N> {
+pub trait FloatVec<N: Float>: NumVec<N> + Norm<N> + Basis {
 }
-
-impl<N, V> AnyVec<N> for V
-    where V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + PartialEq + Mul<N, V> + Div<N, V> +
-             Dot<N> + Axpy<N> + Basis + Index<uint, N> {
-}
-
-impl<N: Float, V: AnyVec<N> + Norm<N>> FloatVec<N> for V { }
 
 /*
  * Pnt related traits.
@@ -192,13 +185,13 @@ pub trait PntAsVec<V> {
 /// Trait grouping most common operations on points.
 // XXX: the vector space element `V` should be an associated type. Though this would prevent V from
 // having bounds (they are not supported yet). So, for now, we will just use a type parameter.
-pub trait AnyPnt<N, V>:
+pub trait NumPnt<N, V>:
           PntAsVec<V> + Dim + Sub<Self, V> + Orig + Neg<Self> + PartialEq + Mul<N, Self> +
           Div<N, Self> + Add<V, Self> + Axpy<N> + Index<uint, N> { // FIXME: + Sub<V, Self>
 }
 
 /// Trait of points with components implementing the `Float` trait.
-pub trait FloatPnt<N: Float, V: Norm<N>>: AnyPnt<N, V> {
+pub trait FloatPnt<N: Float, V: Norm<N>>: NumPnt<N, V> {
     /// Computes the square distance between two points.
     #[inline]
     fn sqdist(a: &Self, b: &Self) -> N {
@@ -210,15 +203,4 @@ pub trait FloatPnt<N: Float, V: Norm<N>>: AnyPnt<N, V> {
     fn dist(a: &Self, b: &Self) -> N {
         Norm::norm(&(*a - *b))
     }
-}
-
-impl<N, V, P> AnyPnt<N, V> for P
-    where P: PntAsVec<V> + Dim + Sub<P, V> + Add<V, P> + Orig + Neg<P> + PartialEq + Mul<N, P> +
-             Div<N, P> + Axpy<N> + Index<uint, N> {
-}
-
-impl<N, V, P> FloatPnt<N, V> for P
-    where N: Float,
-          V: Norm<N>,
-          P: AnyPnt<N, V> {
 }

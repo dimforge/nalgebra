@@ -719,3 +719,15 @@ macro_rules! vec_as_pnt_impl(
         }
     )
 )
+
+macro_rules! num_float_vec_impl(
+    ($t: ident $(,$trhs: ident)*) => (
+        impl<N> NumVec<N> for $t<N>
+            where N: Num $(+ $trhs<N, $t<N>>)* {
+        }
+
+        impl<N> FloatVec<N> for $t<N>
+            where N: ApproxEq<N> + Float $(+ $trhs<N, $t<N>>)* {
+        }
+    )
+)

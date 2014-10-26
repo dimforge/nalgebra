@@ -8,7 +8,8 @@ use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
                          PartialGreater, NotComparable, Axpy};
-use traits::structure::{Cast, Dim, Indexable, Iterable, IterableMut, PntAsVec, Shape};
+use traits::structure::{Cast, Dim, Indexable, Iterable, IterableMut, PntAsVec, Shape,
+                        NumPnt, FloatPnt};
 use traits::geometry::{Orig, FromHomogeneous, ToHomogeneous};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 
@@ -120,6 +121,7 @@ iterable_impl!(Pnt1, 1)
 iterable_mut_impl!(Pnt1, 1)
 pnt_to_homogeneous_impl!(Pnt1, Pnt2, y, x)
 pnt_from_homogeneous_impl!(Pnt1, Pnt2, y, x)
+num_float_pnt_impl!(Pnt1, Vec1, Pnt1MulRhs, Pnt1DivRhs)
 
 /// Point of dimension 2.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
@@ -212,6 +214,7 @@ iterable_impl!(Pnt2, 2)
 iterable_mut_impl!(Pnt2, 2)
 pnt_to_homogeneous_impl!(Pnt2, Pnt3, z, x, y)
 pnt_from_homogeneous_impl!(Pnt2, Pnt3, z, x, y)
+num_float_pnt_impl!(Pnt2, Vec2, Pnt2MulRhs, Pnt2DivRhs)
 
 /// Point of dimension 3.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
@@ -306,6 +309,7 @@ iterable_impl!(Pnt3, 3)
 iterable_mut_impl!(Pnt3, 3)
 pnt_to_homogeneous_impl!(Pnt3, Pnt4, w, x, y, z)
 pnt_from_homogeneous_impl!(Pnt3, Pnt4, w, x, y, z)
+num_float_pnt_impl!(Pnt3, Vec3, Pnt3MulRhs, Pnt3DivRhs)
 
 /// Point of dimension 4.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
@@ -402,6 +406,7 @@ iterable_impl!(Pnt4, 4)
 iterable_mut_impl!(Pnt4, 4)
 pnt_to_homogeneous_impl!(Pnt4, Pnt5, a, x, y, z, w)
 pnt_from_homogeneous_impl!(Pnt4, Pnt5, a, x, y, z, w)
+num_float_pnt_impl!(Pnt4, Vec4, Pnt4MulRhs, Pnt4DivRhs)
 
 /// Point of dimension 5.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
@@ -500,6 +505,7 @@ iterable_impl!(Pnt5, 5)
 iterable_mut_impl!(Pnt5, 5)
 pnt_to_homogeneous_impl!(Pnt5, Pnt6, b, x, y, z, w, a)
 pnt_from_homogeneous_impl!(Pnt5, Pnt6, b, x, y, z, w, a)
+num_float_pnt_impl!(Pnt5, Vec5, Pnt5MulRhs, Pnt5DivRhs)
 
 /// Point of dimension 6.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
@@ -598,3 +604,4 @@ bounded_impl!(Pnt6, x, y, z, w, a, b)
 axpy_impl!(Pnt6, x, y, z, w, a, b)
 iterable_impl!(Pnt6, 6)
 iterable_mut_impl!(Pnt6, 6)
+num_float_pnt_impl!(Pnt6, Vec6, Pnt6MulRhs, Pnt6DivRhs)
