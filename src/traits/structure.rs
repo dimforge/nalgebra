@@ -106,8 +106,10 @@ pub trait Diag<V> {
 /// Thus, this is the same as the `Index` trait but without the syntactic sugar and with a method
 /// to write to a specific index.
 pub trait Indexable<Index, Res> {
+    #[deprecated = "use the Index `[]` overloaded operator instead"]
     /// Reads the `i`-th element of `self`.
     fn at(&self, i: Index) -> Res;
+    #[deprecated = "use the IndexMut `[]` overloaded operator instead"]
     /// Writes to the `i`-th element of `self`.
     fn set(&mut self, i: Index, Res);
     /// Swaps the `i`-th element of `self` with its `j`-th element.
@@ -156,16 +158,18 @@ pub trait VecAsPnt<P> {
 }
 
 /// Trait grouping most common operations on vectors.
-pub trait AnyVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + PartialEq + Mul<N, Self>
-                     + Div<N, Self> + Dot<N> + Axpy<N> + Basis {
+pub trait AnyVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + PartialEq +
+                     Mul<N, Self> + Div<N, Self> + Dot<N> + Axpy<N> + Basis + Index<uint, N> {
 }
 
 /// Trait of vector with components implementing the `Float` trait.
 pub trait FloatVec<N: Float>: AnyVec<N> + Norm<N> {
 }
 
-impl<N, V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + PartialEq + Mul<N, V> + Div<N, V> + Dot<N> + Axpy<N> + Basis>
-AnyVec<N> for V { }
+impl<N, V> AnyVec<N> for V
+    where V: Dim + Sub<V, V> + Add<V, V> + Neg<V> + Zero + PartialEq + Mul<N, V> + Div<N, V> +
+             Dot<N> + Axpy<N> + Basis + Index<uint, N> {
+}
 
 impl<N: Float, V: AnyVec<N> + Norm<N>> FloatVec<N> for V { }
 
@@ -191,7 +195,7 @@ pub trait PntAsVec<V> {
 // having bounds (they are not supported yet). So, for now, we will just use a type parameter.
 pub trait AnyPnt<N, V>:
           PntAsVec<V> + Dim + Sub<Self, V> + Orig + Neg<Self> + PartialEq + Mul<N, Self> +
-          Div<N, Self> + Add<V, Self> { // FIXME: + Sub<V, Self>
+          Div<N, Self> + Add<V, Self> + Axpy<N> + Index<uint, N> { // FIXME: + Sub<V, Self>
 }
 
 /// Trait of points with components implementing the `Float` trait.
@@ -209,6 +213,13 @@ pub trait FloatPnt<N: Float, V: Norm<N>>: AnyPnt<N, V> {
     }
 }
 
-impl<N, V, P: PntAsVec<V> + Dim + Sub<P, V> + Add<V, P> + Orig + Neg<P> + PartialEq + Mul<N, P> + Div<N, P>>
-AnyPnt<N, V> for P { }
-impl<N: Float, V: Norm<N>, P: AnyPnt<N, V>> FloatPnt<N, V> for P { }
+impl<N, V, P> AnyPnt<N, V> for P
+    where P: PntAsVec<V> + Dim + Sub<P, V> + Add<V, P> + Orig + Neg<P> + PartialEq + Mul<N, P> +
+             Div<N, P> + Axpy<N> + Index<uint, N> {
+}
+
+impl<N, V, P> FloatPnt<N, V> for P
+    where N: Float,
+          V: Norm<N>,
+          P: AnyPnt<N, V> {
+}
