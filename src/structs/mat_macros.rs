@@ -184,6 +184,13 @@ macro_rules! dim_impl(
 
 macro_rules! indexable_impl(
   ($t: ident, $dim: expr) => (
+    impl<N> Shape<(uint, uint), N> for $t<N> {
+        #[inline]
+        fn shape(&self) -> (uint, uint) {
+            ($dim, $dim)
+        }
+    }
+
     impl<N: Clone> Indexable<(uint, uint), N> for $t<N> {
         #[inline]
         fn at(&self, (i, j): (uint, uint)) -> N {
@@ -205,11 +212,6 @@ macro_rules! indexable_impl(
               mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
                 .swap(i1 + j1 * $dim, i2 + j2 * $dim)
             }
-        }
-
-        #[inline]
-        fn shape(&self) -> (uint, uint) {
-            ($dim, $dim)
         }
 
         #[inline]

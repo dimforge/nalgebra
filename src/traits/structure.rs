@@ -96,36 +96,35 @@ pub trait Diag<V> {
     fn diag(&self) -> V;
 }
 
-// FIXME: this trait should not be on nalgebra.
-// however, it is needed because std::ops::Index is (strangely) to poor: it
-// does not have a function to set values.
-// Also, using Index with tuples crashes.
+/// The shape of an indexable object.
+pub trait Shape<I, Res>: Index<I, Res> {
+    /// Returns the shape of an indexable object.
+    fn shape(&self) -> I;
+}
+
 /// This is a workaround of current Rust limitations.
 ///
-/// It exists because the `Index` trait cannot be used to express write access.
-/// Thus, this is the same as the `Index` trait but without the syntactic sugar and with a method
+/// It exists because the `I` trait cannot be used to express write access.
+/// Thus, this is the same as the `I` trait but without the syntactic sugar and with a method
 /// to write to a specific index.
-pub trait Indexable<Index, Res> {
+pub trait Indexable<I, Res>: Shape<I, Res> + IndexMut<I, Res> {
     #[deprecated = "use the Index `[]` overloaded operator instead"]
     /// Reads the `i`-th element of `self`.
-    fn at(&self, i: Index) -> Res;
+    fn at(&self, i: I) -> Res;
     #[deprecated = "use the IndexMut `[]` overloaded operator instead"]
     /// Writes to the `i`-th element of `self`.
-    fn set(&mut self, i: Index, Res);
+    fn set(&mut self, i: I, Res);
     /// Swaps the `i`-th element of `self` with its `j`-th element.
-    fn swap(&mut self, i: Index, j: Index);
-
-    /// Returns the shape of the iterable range.
-    fn shape(&self) -> Index;
+    fn swap(&mut self, i: I, j: I);
 
     /// Reads the `i`-th element of `self`.
     ///
     /// `i` is not checked.
-    unsafe fn unsafe_at(&self, i: Index) -> Res;
+    unsafe fn unsafe_at(&self, i: I) -> Res;
     /// Writes to the `i`-th element of `self`.
     ///
     /// `i` is not checked.
-    unsafe fn unsafe_set(&mut self, i: Index, Res);
+    unsafe fn unsafe_set(&mut self, i: I, Res);
 }
 
 /// This is a workaround of current Rust limitations.

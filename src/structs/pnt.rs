@@ -8,7 +8,7 @@ use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
                          PartialGreater, NotComparable, Axpy};
-use traits::structure::{Cast, Dim, Indexable, Iterable, IterableMut, PntAsVec};
+use traits::structure::{Cast, Dim, Indexable, Iterable, IterableMut, PntAsVec, Shape};
 use traits::geometry::{Orig, FromHomogeneous, ToHomogeneous};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 

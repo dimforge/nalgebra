@@ -10,7 +10,7 @@ use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
 use traits::operations::{Inv, Transpose, Mean, Cov};
-use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable};
+use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape};
 use std::fmt::{Show, Formatter, Result};
 
 
@@ -261,10 +261,13 @@ impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
         self.mij.as_mut_slice().swap(offset1, offset2);
     }
 
+}
+
+impl<N> Shape<(uint, uint), N> for DMat<N> {
+    #[inline]
     fn shape(&self) -> (uint, uint) {
         (self.nrows, self.ncols)
     }
-
 }
 
 impl<N> Index<(uint, uint), N> for DMat<N> {

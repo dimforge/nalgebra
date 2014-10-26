@@ -44,6 +44,13 @@ macro_rules! dvec_impl(
             }
         }
 
+        impl<N> Shape<uint, N> for $dvec<N> {
+            #[inline]
+            fn shape(&self) -> uint {
+                self.len()
+            }
+        }
+
         impl<N: Clone> Indexable<uint, N> for $dvec<N> {
             #[inline]
             fn at(&self, i: uint) -> N {
@@ -66,11 +73,6 @@ macro_rules! dvec_impl(
                 assert!(i < self.len());
                 assert!(j < self.len());
                 self.as_mut_slice().swap(i, j);
-            }
-
-            #[inline]
-            fn shape(&self) -> uint {
-                self.len()
             }
 
             #[inline]

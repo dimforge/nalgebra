@@ -9,7 +9,7 @@ use std::slice::{Items, MutItems};
 use traits::operations::ApproxEq;
 use std::iter::FromIterator;
 use traits::geometry::{Dot, Norm};
-use traits::structure::{Iterable, IterableMut, Indexable};
+use traits::structure::{Iterable, IterableMut, Indexable, Shape};
 
 /// Heap allocated, dynamically sized vector.
 #[deriving(Eq, PartialEq, Show, Clone)]

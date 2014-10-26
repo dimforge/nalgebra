@@ -151,6 +151,7 @@ pub use traits::{
     Row,
     ScalarAdd, ScalarSub,
     ScalarMul, ScalarDiv,
+    Shape,
     ToHomogeneous,
     Transform, Transformation,
     Translate, Translation,
@@ -930,6 +931,12 @@ pub fn diag<M: Diag<V>, V>(m: &M) -> V {
 #[inline(always)]
 pub fn dim<V: Dim>() -> uint {
     Dim::dim(None::<V>)
+}
+
+/// Gets the indexable range of an object.
+#[inline(always)]
+pub fn shape<V: Shape<I, N>, I, N>(v: &V) -> I {
+    v.shape()
 }
 
 /*

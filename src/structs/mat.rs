@@ -12,7 +12,7 @@ use structs::pnt::{Pnt1, Pnt4, Pnt5, Pnt6, Pnt1MulRhs, Pnt4MulRhs, Pnt5MulRhs, P
 use structs::dvec::{DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
 
 use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
-                        Eye, ColSlice, RowSlice, Diag};
+                        Eye, ColSlice, RowSlice, Diag, Shape};
 use traits::operations::{Absolute, Transpose, Inv, Outer};
 use traits::geometry::{ToHomogeneous, FromHomogeneous, Orig};
 

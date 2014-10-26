@@ -10,7 +10,7 @@ use std::slice::{Items, MutItems};
 use structs::{Vec3, Pnt3, Rot3, Mat3, Vec3MulRhs, Pnt3MulRhs};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, NotComparable, PartialLess,
                          PartialGreater, PartialEqual, Axpy};
-use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim};
+use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape};
 use traits::geometry::{Norm, Cross, Rotation, Rotate, Transform};
 
 /// A quaternion.

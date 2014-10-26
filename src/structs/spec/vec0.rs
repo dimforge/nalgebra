@@ -3,9 +3,30 @@ use std::num::{Zero, One, Float, Bounded};
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::ApproxEq;
-use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim};
+use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape};
 use traits::geometry::{Translation, Dot, Norm};
 use structs::vec;
+
+impl<N> Index<uint, N> for vec::Vec0<N> {
+    #[inline]
+    fn index(&self, _: &uint) -> &N {
+        panic!("Canot index a Vec0.")
+    }
+}
+
+impl<N> IndexMut<uint, N> for vec::Vec0<N> {
+    #[inline]
+    fn index_mut(&mut self, _: &uint) -> &mut N {
+        panic!("Canot index a Vec0.")
+    }
+}
+
+impl<N> Shape<uint, N> for vec::Vec0<N> {
+    #[inline]
+    fn shape(&self) -> uint {
+        0
+    }
+}
 
 impl<N> Indexable<uint, N> for vec::Vec0<N> {
     #[inline]
@@ -15,11 +36,6 @@ impl<N> Indexable<uint, N> for vec::Vec0<N> {
 
     #[inline]
     fn set(&mut self, _: uint, _: N) {
-    }
-
-    #[inline]
-    fn shape(&self) -> uint {
-        0
     }
 
     #[inline]

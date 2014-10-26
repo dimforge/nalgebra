@@ -170,6 +170,13 @@ macro_rules! vec_cast_impl(
 
 macro_rules! indexable_impl(
     ($t: ident, $dim: expr) => (
+        impl<N> Shape<uint, N> for $t<N> {
+            #[inline]
+            fn shape(&self) -> uint {
+                $dim
+            }
+        }
+
         impl<N: Clone> Indexable<uint, N> for $t<N> {
             #[inline]
             fn at(&self, i: uint) -> N {
@@ -183,11 +190,6 @@ macro_rules! indexable_impl(
                 unsafe {
                     mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self)[i] = val
                 }
-            }
-
-            #[inline]
-            fn shape(&self) -> uint {
-                $dim
             }
 
             #[inline]
