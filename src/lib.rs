@@ -152,6 +152,7 @@ pub use traits::{
     ScalarAdd, ScalarSub,
     ScalarMul, ScalarDiv,
     Shape,
+    SquareMat,
     ToHomogeneous,
     Transform, Transformation,
     Translate, Translation,
@@ -644,7 +645,7 @@ pub fn append_rotation_wrt_center<LV: Neg<LV>,
 
 /// Builds a rotation matrix from `r`.
 #[inline(always)]
-pub fn to_rot_mat<LV, AV, M: Mat<LV, LV> + Rotation<AV>, R: RotationMatrix<LV, AV, M>>(r: &R) -> M {
+pub fn to_rot_mat<N, LV, AV, M: Mat<N, LV, LV> + Rotation<AV>, R: RotationMatrix<N, LV, AV, M>>(r: &R) -> M {
     r.to_rot_mat()
 }
 

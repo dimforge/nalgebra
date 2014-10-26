@@ -2,7 +2,7 @@
 
 use std::num::Zero;
 use std::slice::{Items, MutItems};
-use traits::operations::{RMul, LMul, Axpy};
+use traits::operations::{RMul, LMul, Axpy, Transpose};
 use traits::geometry::{Dot, Norm, Orig};
 
 /// Traits of objects which can be created from an object of type `T`.
@@ -14,9 +14,19 @@ pub trait Cast<T> {
 /// Trait of matrices.
 ///
 /// A matrix has rows and columns and are able to multiply them.
-pub trait Mat<R, C> : Row<R> + Col<C> + RMul<R> + LMul<C> { }
+pub trait Mat<N, R, C>: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(uint, uint), N> { }
 
-impl<M: Row<R> + Col<C> + RMul<R> + LMul<C>, R, C> Mat<R, C> for M {
+impl<N, M, R, C> Mat<N, R, C> for M
+    where M: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(uint, uint), N> {
+}
+
+/// Trait implemented by square matrices.
+pub trait SquareMat<N, V>: Mat<N, V, V> + Mul<Self, Self> + Eye + Transpose + Add<Self, Self> +
+                           Sub<Self, Self> + Diag<V> {
+}
+
+impl<N, V, M> SquareMat<N, V> for M
+    where M: Mat<N, V, V> + Mul<M, M> + Eye + Transpose + Add<M, M> + Sub<M, M> + Diag<V> {
 }
 
 /// Trait for constructing the identity matrix

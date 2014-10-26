@@ -1,6 +1,6 @@
 use std::num::{Zero, Float};
 use traits::operations::{Transpose, ApproxEq};
-use traits::structure::{ColSlice, Eye, Indexable, Diag};
+use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat};
 use traits::geometry::Norm;
 use std::cmp::min;
 
@@ -73,19 +73,17 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 }
 
 /// Eigendecomposition of a square matrix using the qr algorithm.
-pub fn eigen_qr<N, V, V2, M>(m: &M, eps: &N, niter: uint) -> (M, V2)
+pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: uint) -> (M, V)
     where N:  Float,
-          V:  Indexable<uint, N> + Norm<N>,
-          V2: Zero,
-          M:  Clone + Eye + ColSlice<V> + Transpose + Indexable<(uint, uint), N> + Mul<M, M>
-              + Diag<V2> + ApproxEq<N> + Add<M, M> + Sub<M, M> {
+          VS: Indexable<uint, N> + Norm<N>,
+          M:  Indexable<(uint, uint), N> + SquareMat<N, V> + ColSlice<VS> + ApproxEq<N> + Clone {
     let (rows, cols) = m.shape();
 
     assert!(rows == cols, "The matrix being decomposed must be square.");
 
     let mut eigenvectors: M = Eye::new_identity(rows);
     let mut eigenvalues = m.clone();
-    let mut shifter: M = Eye::new_identity(rows);
+    // let mut shifter: M = Eye::new_identity(rows);
 
     let mut iter = 0u;
     for _ in range(0, niter) {
@@ -112,16 +110,9 @@ pub fn eigen_qr<N, V, V2, M>(m: &M, eps: &N, niter: uint) -> (M, V2)
         }
         iter = iter + 1;
 
-        // FIXME: This is a very naive implementation.
-        let shift = unsafe { eigenvalues.unsafe_at((rows - 1, rows - 1)) };
+        let (q, r) = qr(&eigenvalues);;
 
-        for i in range(0, rows) {
-            unsafe { shifter.unsafe_set((i, i), shift.clone()) }
-        }
-
-        let (q, r) = qr(&eigenvalues);//  - shifter));
-
-        eigenvalues = r * q /*+ shifter*/;
+        eigenvalues  = r * q;
         eigenvectors = eigenvectors * q;
     }
 

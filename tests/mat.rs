@@ -6,7 +6,7 @@ use std::num::{Float, abs};
 use std::rand::random;
 use std::cmp::{min, max};
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, Persp3, PerspMat3, Ortho3, OrthoMat3,
-         DMat, DVec, Indexable, Row, Col};
+         DMat, DVec, Row, Col};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -141,7 +141,7 @@ fn test_rotation2() {
 fn test_index_mat2() {
   let mat: Mat2<f64> = random();
 
-  assert!(mat.at((0, 1)) == na::transpose(&mat).at((1, 0)));
+  assert!(mat[(0, 1)] == na::transpose(&mat)[(1, 0)]);
 }
 
 #[test]

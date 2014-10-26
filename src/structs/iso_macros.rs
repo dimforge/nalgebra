@@ -27,7 +27,7 @@ macro_rules! iso_impl(
 macro_rules! rotation_matrix_impl(
     ($t: ident, $trot: ident, $tlv: ident, $tav: ident) => (
         impl<N: Cast<f32> + FloatMath + Num + Clone>
-        RotationMatrix<$tlv<N>, $tav<N>, $trot<N>> for $t<N> {
+        RotationMatrix<N, $tlv<N>, $tav<N>, $trot<N>> for $t<N> {
             #[inline]
             fn to_rot_mat(&self) -> $trot<N> {
                 self.rotation.clone()

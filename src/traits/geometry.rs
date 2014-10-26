@@ -141,7 +141,7 @@ impl<LV: Neg<LV>, AV, M: Rotation<AV> + Translation<LV>> RotationWithTranslation
 
 /// Trait of transformation having a rotation extractable as a rotation matrix. This can typically
 /// be implemented by quaternions to convert them to a rotation matrix.
-pub trait RotationMatrix<LV, AV, M: Mat<LV, LV> + Rotation<AV>> : Rotation<AV> {
+pub trait RotationMatrix<N, LV, AV, M: Mat<N, LV, LV> + Rotation<AV>> : Rotation<AV> {
     /// Gets the rotation matrix represented by `self`.
     fn to_rot_mat(&self) -> M;
 }
