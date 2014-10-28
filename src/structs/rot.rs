@@ -205,7 +205,7 @@ impl<N: Clone + Float> Rot3<N> {
     }
 }
 
-impl<N: Clone + FloatMath + Cast<f32>>
+impl<N: Clone + FloatMath + Cast<f64>>
 Rotation<Vec3<N>> for Rot3<N> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {

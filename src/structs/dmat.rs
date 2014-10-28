@@ -500,10 +500,10 @@ impl<N: Clone> Transpose for DMat<N> {
     }
 }
 
-impl<N: Num + Cast<f32> + Clone> Mean<DVec<N>> for DMat<N> {
+impl<N: Num + Cast<f64> + Clone> Mean<DVec<N>> for DMat<N> {
     fn mean(m: &DMat<N>) -> DVec<N> {
         let mut res: DVec<N> = DVec::new_zeros(m.ncols);
-        let normalizer: N    = Cast::from(1.0f32 / Cast::from(m.nrows));
+        let normalizer: N    = Cast::from(1.0f64 / Cast::from(m.nrows));
 
         for i in range(0u, m.nrows) {
             for j in range(0u, m.ncols) {
@@ -518,7 +518,7 @@ impl<N: Num + Cast<f32> + Clone> Mean<DVec<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>>> Cov<DMat<N>> for DMat<N> {
+impl<N: Clone + Num + Cast<f64> + DMatDivRhs<N, DMat<N>>> Cov<DMat<N>> for DMat<N> {
     // FIXME: this could be heavily optimized, removing all temporaries by merging loops.
     fn cov(m: &DMat<N>) -> DMat<N> {
         assert!(m.nrows > 1);
@@ -536,7 +536,7 @@ impl<N: Clone + Num + Cast<f32> + DMatDivRhs<N, DMat<N>>> Cov<DMat<N>> for DMat<
         }
 
         // FIXME: return a triangular matrix?
-        let fnormalizer: f32 = Cast::from(m.nrows() - 1);
+        let fnormalizer: f64 = Cast::from(m.nrows() - 1);
         let normalizer: N    = Cast::from(fnormalizer);
         // FIXME: this will do 2 allocations for temporaries!
         (Transpose::transpose_cpy(&centered) * centered) / normalizer

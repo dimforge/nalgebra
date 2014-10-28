@@ -122,7 +122,7 @@ macro_rules! dim_impl(
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $tlv: ident, $tav: ident) => (
-        impl<N: Cast<f32> + FloatMath> RotationMatrix<N, $tlv<N>, $tav<N>, $t<N>> for $t<N> {
+        impl<N: Cast<f64> + FloatMath> RotationMatrix<N, $tlv<N>, $tav<N>, $t<N>> for $t<N> {
             #[inline]
             fn to_rot_mat(&self) -> $t<N> {
                 self.clone()

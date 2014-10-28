@@ -383,7 +383,7 @@ pub fn sqdist<N: Float, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
 /// Computes a projection matrix given the frustrum near plane width, height, the field of
 /// view, and the distance to the clipping planes (`znear` and `zfar`).
 #[deprecated = "Use `Persp3::new(width / height, fov, znear, zfar).as_mat()` instead"]
-pub fn perspective3d<N: FloatMath + Cast<f32> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
+pub fn perspective3d<N: FloatMath + Cast<f64> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
     let aspect = width / height;
 
     let _1: N = one();
