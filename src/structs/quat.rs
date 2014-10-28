@@ -9,7 +9,8 @@ use std::rand::{Rand, Rng};
 use std::slice::{Items, MutItems};
 use structs::{Vec3, Pnt3, Rot3, Mat3, Vec3MulRhs, Pnt3MulRhs};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, NotComparable, PartialLess,
-                         PartialGreater, PartialEqual, Axpy};
+                         PartialGreater, PartialEqual, Axpy, ScalarAdd, ScalarSub, ScalarMul,
+                         ScalarDiv};
 use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape};
 use traits::geometry::{Norm, Cross, Rotation, Rotate, Transform};
 
@@ -470,6 +471,7 @@ container_impl!(Quat)
 add_impl!(Quat, QuatAddRhs, w, i, j, k)
 sub_impl!(Quat, QuatSubRhs, w, i, j, k)
 neg_impl!(Quat, w, i, j, k)
+scalar_ops_impl!(Quat, w, i, j, k)
 vec_mul_scalar_impl!(Quat, f64, QuatMulRhs, w, i, j, k)
 vec_mul_scalar_impl!(Quat, f32, QuatMulRhs, w, i, j, k)
 vec_mul_scalar_impl!(Quat, u64, QuatMulRhs, w, i, j, k)

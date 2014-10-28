@@ -433,6 +433,38 @@ macro_rules! dot_impl(
     )
 )
 
+macro_rules! scalar_ops_impl(
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Mul<N, N>> ScalarMul<N> for $t<N> {
+            #[inline]
+            fn mul_s(&self, other: &N) -> $t<N> {
+                $t::new(self.$comp0 * *other $(, self.$compN * *other)*)
+            }
+        }
+
+        impl<N: Div<N, N>> ScalarDiv<N> for $t<N> {
+            #[inline]
+            fn div_s(&self, other: &N) -> $t<N> {
+                $t::new(self.$comp0 / *other $(, self.$compN / *other)*)
+            }
+        }
+
+        impl<N: Add<N, N>> ScalarAdd<N> for $t<N> {
+            #[inline]
+            fn add_s(&self, other: &N) -> $t<N> {
+                $t::new(self.$comp0 + *other $(, self.$compN + *other)*)
+            }
+        }
+
+        impl<N: Sub<N, N>> ScalarSub<N> for $t<N> {
+            #[inline]
+            fn sub_s(&self, other: &N) -> $t<N> {
+                $t::new(self.$comp0 - *other $(, self.$compN - *other)*)
+            }
+        }
+    )
+)
+
 macro_rules! vec_mul_scalar_impl(
     ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
         impl $trhs<$n, $t<$n>> for $n {
