@@ -51,27 +51,27 @@ impl<V: Zero> Translation<V> for mat::Identity {
 
     #[inline]
     fn append_translation(&mut self, _: &V) {
-        fail!("Attempted to translate the identity matrix.")
+        panic!("Attempted to translate the identity matrix.")
     }
 
     #[inline]
     fn append_translation_cpy(_: &mat::Identity, _: &V) -> mat::Identity {
-        fail!("Attempted to translate the identity matrix.")
+        panic!("Attempted to translate the identity matrix.")
     }
 
     #[inline]
     fn prepend_translation(&mut self, _: &V) {
-        fail!("Attempted to translate the identity matrix.")
+        panic!("Attempted to translate the identity matrix.")
     }
 
     #[inline]
     fn prepend_translation_cpy(_: &mat::Identity, _: &V) -> mat::Identity {
-        fail!("Attempted to translate the identity matrix.")
+        panic!("Attempted to translate the identity matrix.")
     }
 
     #[inline]
     fn set_translation(&mut self, _: V) {
-        fail!("Attempted to translate the identity matrix.")
+        panic!("Attempted to translate the identity matrix.")
     }
 }
 
@@ -100,27 +100,27 @@ impl<V: Zero> Rotation<V> for mat::Identity {
 
     #[inline]
     fn append_rotation(&mut self, _: &V) {
-        fail!("Attempted to rotate the identity matrix.")
+        panic!("Attempted to rotate the identity matrix.")
     }
 
     #[inline]
     fn append_rotation_cpy(_: &mat::Identity, _: &V) -> mat::Identity {
-        fail!("Attempted to rotate the identity matrix.")
+        panic!("Attempted to rotate the identity matrix.")
     }
 
     #[inline]
     fn prepend_rotation(&mut self, _: &V) {
-        fail!("Attempted to rotate the identity matrix.")
+        panic!("Attempted to rotate the identity matrix.")
     }
 
     #[inline]
     fn prepend_rotation_cpy(_: &mat::Identity, _: &V) -> mat::Identity {
-        fail!("Attempted to rotate the identity matrix.")
+        panic!("Attempted to rotate the identity matrix.")
     }
 
     #[inline]
     fn set_rotation(&mut self, _: V) {
-        fail!("Attempted to rotate the identity matrix.")
+        panic!("Attempted to rotate the identity matrix.")
     }
 }
 
@@ -156,27 +156,27 @@ impl<M: One> Transformation<M> for mat::Identity {
 
     #[inline]
     fn append_transformation(&mut self, _: &M) {
-        fail!("Attempted to transform the identity matrix.")
+        panic!("Attempted to transform the identity matrix.")
     }
 
     #[inline]
     fn append_transformation_cpy(_: &mat::Identity, _: &M) -> mat::Identity {
-        fail!("Attempted to transform the identity matrix.")
+        panic!("Attempted to transform the identity matrix.")
     }
 
     #[inline]
     fn prepend_transformation(&mut self, _: &M) {
-        fail!("Attempted to transform the identity matrix.")
+        panic!("Attempted to transform the identity matrix.")
     }
 
     #[inline]
     fn prepend_transformation_cpy(_: &mat::Identity, _: &M) -> mat::Identity {
-        fail!("Attempted to transform the identity matrix.")
+        panic!("Attempted to transform the identity matrix.")
     }
 
     #[inline]
     fn set_transformation(&mut self, _: M) {
-        fail!("Attempted to transform the identity matrix.")
+        panic!("Attempted to transform the identity matrix.")
     }
 }
 

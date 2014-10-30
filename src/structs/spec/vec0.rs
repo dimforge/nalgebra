@@ -10,7 +10,7 @@ use structs::vec;
 impl<N> Indexable<uint, N> for vec::Vec0<N> {
     #[inline]
     fn at(&self, _: uint) -> N {
-        fail!("Cannot index a Vec0.")
+        panic!("Cannot index a Vec0.")
     }
 
     #[inline]
@@ -28,7 +28,7 @@ impl<N> Indexable<uint, N> for vec::Vec0<N> {
 
     #[inline]
     unsafe fn unsafe_at(&self, _: uint) -> N {
-        fail!("Cannot index a Vec0.")
+        panic!("Cannot index a Vec0.")
     }
 
     #[inline]
