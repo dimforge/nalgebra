@@ -144,7 +144,7 @@ impl<N: Clone> Row<Vec3<N>> for Mat3<N> {
             0 => Vec3::new(self.m11.clone(), self.m12.clone(), self.m13.clone()),
             1 => Vec3::new(self.m21.clone(), self.m22.clone(), self.m23.clone()),
             2 => Vec3::new(self.m31.clone(), self.m32.clone(), self.m33.clone()),
-            _ => fail!(format!("Index out of range: 3d matrices do not have {} rows.",  i))
+            _ => panic!(format!("Index out of range: 3d matrices do not have {} rows.",  i))
         }
     }
 
@@ -166,7 +166,7 @@ impl<N: Clone> Row<Vec3<N>> for Mat3<N> {
                 self.m32 = r.y.clone();
                 self.m33 = r.z;
             },
-            _ => fail!(format!("Index out of range: 3d matrices do not have {} rows.",  i))
+            _ => panic!(format!("Index out of range: 3d matrices do not have {} rows.",  i))
 
         }
     }
@@ -184,7 +184,7 @@ impl<N: Clone> Col<Vec3<N>> for Mat3<N> {
             0 => Vec3::new(self.m11.clone(), self.m21.clone(), self.m31.clone()),
             1 => Vec3::new(self.m12.clone(), self.m22.clone(), self.m32.clone()),
             2 => Vec3::new(self.m13.clone(), self.m23.clone(), self.m33.clone()),
-            _ => fail!(format!("Index out of range: 3d matrices do not have {} cols.", i))
+            _ => panic!(format!("Index out of range: 3d matrices do not have {} cols.", i))
         }
     }
 
@@ -206,7 +206,7 @@ impl<N: Clone> Col<Vec3<N>> for Mat3<N> {
                 self.m23 = r.y.clone();
                 self.m33 = r.z;
             },
-            _ => fail!(format!("Index out of range: 3d matrices do not have {} cols.", i))
+            _ => panic!(format!("Index out of range: 3d matrices do not have {} cols.", i))
 
         }
     }

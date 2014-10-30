@@ -227,7 +227,7 @@ Rotation<Vec3<N>> for Rot3<N> {
 
             if denom.is_zero() {
                 // XXX: handle that properly
-                // fail!("Internal error: singularity.")
+                // panic!("Internal error: singularity.")
                 Zero::zero()
             }
             else {
@@ -338,37 +338,37 @@ impl<N: Float + Clone>
 Rotation<Vec4<N>> for Rot4<N> {
     #[inline]
     fn rotation(&self) -> Vec4<N> {
-        fail!("Not yet implemented")
+        panic!("Not yet implemented")
     }
 
     #[inline]
     fn inv_rotation(&self) -> Vec4<N> {
-        fail!("Not yet implemented")
+        panic!("Not yet implemented")
     }
 
     #[inline]
     fn append_rotation(&mut self, _: &Vec4<N>) {
-        fail!("Not yet implemented")
+        panic!("Not yet implemented")
     }
 
     #[inline]
     fn append_rotation_cpy(_: &Rot4<N>, _: &Vec4<N>) -> Rot4<N> {
-        fail!("Not yet implemented")
+        panic!("Not yet implemented")
     }
 
     #[inline]
     fn prepend_rotation(&mut self, _: &Vec4<N>) {
-        fail!("Not yet implemented")
+        panic!("Not yet implemented")
     }
 
     #[inline]
     fn prepend_rotation_cpy(_: &Rot4<N>, _: &Vec4<N>) -> Rot4<N> {
-        fail!("Not yet implemented")
+        panic!("Not yet implemented")
     }
 
     #[inline]
     fn set_rotation(&mut self, _: Vec4<N>) {
-        fail!("Not yet implemented")
+        panic!("Not yet implemented")
     }
 }
 

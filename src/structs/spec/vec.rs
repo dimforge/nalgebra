@@ -53,7 +53,7 @@ impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
         match i {
             0 => Vec1::new(self.x.clone()),
             1 => Vec1::new(self.y.clone()),
-            _ => fail!(format!("Index out of range: 2d vectors do not have {} rows. ", i))
+            _ => panic!(format!("Index out of range: 2d vectors do not have {} rows. ", i))
         }
     }
 
@@ -62,7 +62,7 @@ impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
         match i {
             0 => self.x = r.x,
             1 => self.y = r.x,
-            _ => fail!(format!("Index out of range: 2d vectors do not have {} rows.", i))
+            _ => panic!(format!("Index out of range: 2d vectors do not have {} rows.", i))
 
         }
     }
@@ -213,7 +213,7 @@ impl<N: Cast<f32> + Clone> UniformSphereSample for Vec3<N> {
 impl<N: Cast<f32> + Clone> UniformSphereSample for Vec4<N> {
     #[inline(always)]
     fn sample(_: |Vec4<N>| -> ()) {
-        fail!("UniformSphereSample::<Vec4<N>>::sample : Not yet implemented.")
+        panic!("UniformSphereSample::<Vec4<N>>::sample : Not yet implemented.")
         // for sample in SAMPLES_3_F32.iter() {
         //     f(Cast::from(*sample))
         // }
