@@ -1,6 +1,6 @@
 //! Vectors with dimensions known at compile-time.
 
-#![allow(missing_doc)] // we allow missing to avoid having to document the dispatch traits.
+#![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
 
 use std::mem;
 use std::num::{Zero, One, Float, Bounded};

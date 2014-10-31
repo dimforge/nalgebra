@@ -94,11 +94,11 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 */
 
 #![deny(non_camel_case_types)]
-#![deny(unnecessary_parens)]
-#![deny(non_uppercase_statics)]
-#![deny(unnecessary_qualification)]
-#![deny(unused_result)]
-#![warn(missing_doc)]
+#![deny(unused_parens)]
+#![deny(non_upper_case_globals)]
+#![deny(unused_qualifications)]
+#![deny(unused_results)]
+#![warn(missing_docs)]
 #![feature(macro_rules)]
 #![feature(globs)]
 #![doc(html_root_url = "http://nalgebra.org/doc")]

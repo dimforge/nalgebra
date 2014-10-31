@@ -1,6 +1,6 @@
 //! Points with dimensions known at compile-time.
 
-#![allow(missing_doc)] // we allow missing to avoid having to document the point components.
+#![allow(missing_docs)] // we allow missing to avoid having to document the point components.
 
 use std::mem;
 use std::num::{Zero, One, Bounded};

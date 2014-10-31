@@ -1,6 +1,6 @@
 //! Matrix with dimensions unknown at compile-time.
 
-#![allow(missing_doc)] // we hide doc to not have to document the $trhs double dispatch trait.
+#![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
 
 use std::cmp;
 use std::rand::Rand;
@@ -219,7 +219,7 @@ impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
         assert!(col < self.ncols);
 
         let offset = self.offset(row, col);
-        *self.mij.get_mut(offset) = val
+        self.mij[offset] = val
     }
 
     /// Just like `set` without bounds checking.
@@ -335,7 +335,7 @@ DMatMulRhs<N, DVec<N>> for DVec<N> {
                 }
             }
 
-            *res.at.get_mut(i) = acc;
+            res.at[i] = acc;
         }
 
         res
@@ -359,7 +359,7 @@ DVecMulRhs<N, DVec<N>> for DMat<N> {
                 }
             }
 
-            *res.at.get_mut(i) = acc;
+            res.at[i] = acc;
         }
 
         res

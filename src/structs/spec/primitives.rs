@@ -1,6 +1,6 @@
 //! nalgebra trait implementation for primitive types.
 
-#![allow(missing_doc)]
+#![allow(missing_docs)]
 #![allow(non_camel_case_types)]
 
 use traits::structure::Cast;

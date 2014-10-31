@@ -1,6 +1,6 @@
 //! Matrices with dimensions known at compile-time.
 
-#![allow(missing_doc)] // we allow missing to avoid having to document the mij components.
+#![allow(missing_docs)] // we allow missing to avoid having to document the mij components.
 
 use std::mem;
 use std::num::{One, Zero};

@@ -1,6 +1,6 @@
 //! Quaternion definition.
 
-#![allow(missing_doc)] // we allow missing to avoid having to document the dispatch trait.
+#![allow(missing_docs)] // we allow missing to avoid having to document the dispatch trait.
 
 use std::mem;
 use std::num::{Zero, One, Bounded};
