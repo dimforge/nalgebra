@@ -57,6 +57,11 @@ impl<N> DVec<N> {
     pub fn from_fn(dim: uint, f: |uint| -> N) -> DVec<N> {
         DVec { at: Vec::from_fn(dim, |i| f(i)) }
     }
+
+    #[inline]
+    pub fn len(&self) -> uint {
+        self.at.len()
+    }
 }
 
 impl<N> FromIterator<N> for DVec<N> {
@@ -72,13 +77,6 @@ impl<N> FromIterator<N> for DVec<N> {
     }
 }
 
-
-impl<N> Collection for DVec<N> {
-    #[inline]
-    fn len(&self) -> uint {
-        self.at.len()
-    }
-}
 
 dvec_impl!(DVec, DVecMulRhs, DVecDivRhs, DVecAddRhs, DVecSubRhs)
 

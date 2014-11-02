@@ -377,9 +377,9 @@ macro_rules! dvec_scalar_sub_impl (
 
 macro_rules! small_dvec_impl (
     ($dvec: ident, $dim: expr, $mul: ident, $div: ident, $add: ident, $sub: ident $(,$idx: expr)*) => (
-        impl<N> Collection for $dvec<N> {
+        impl<N> $dvec<N> {
             #[inline]
-            fn len(&self) -> uint {
+            pub fn len(&self) -> uint {
                 self.dim
             }
         }
