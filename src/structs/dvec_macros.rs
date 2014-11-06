@@ -186,6 +186,22 @@ macro_rules! dvec_impl(
             }
         }
 
+        impl<N: Mul<N, N> + Zero> $mul<N, $dvec<N>> for $dvec<N> {
+            #[inline]
+            fn binop(left: &$dvec<N>, right: &$dvec<N>) -> $dvec<N> {
+                assert!(left.len() == right.len());
+                FromIterator::from_iter(left.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a * *b))
+            }
+        }
+
+        impl<N: Div<N, N> + Zero> $div<N, $dvec<N>> for $dvec<N> {
+            #[inline]
+            fn binop(left: &$dvec<N>, right: &$dvec<N>) -> $dvec<N> {
+                assert!(left.len() == right.len());
+                FromIterator::from_iter(left.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a / *b))
+            }
+        }
+
         impl<N: Add<N, N> + Zero> $add<N, $dvec<N>> for $dvec<N> {
             #[inline]
             fn binop(left: &$dvec<N>, right: &$dvec<N>) -> $dvec<N> {
