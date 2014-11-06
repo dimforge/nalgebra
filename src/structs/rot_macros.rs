@@ -37,24 +37,24 @@ macro_rules! rotate_impl(
         impl<N: Num + Clone> $trhs<N> for $tv<N> {
             #[inline]
             fn rotate(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
-                t * *v
+                *t * *v
             }
 
             #[inline]
             fn inv_rotate(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
-                v * *t
+                *v * *t
             }
         }
 
         impl<N: Num + Clone> $trhs<N> for $tp<N> {
             #[inline]
             fn rotate(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
-                t * *p
+                *t * *p
             }
 
             #[inline]
             fn inv_rotate(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
-                p * *t
+                *p * *t
             }
         }
     )

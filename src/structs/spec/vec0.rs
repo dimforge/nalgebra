@@ -136,7 +136,7 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
 
     #[inline]
     fn inv_translation(&self) -> vec::Vec0<N> {
-        -self
+        -*self
     }
 
     #[inline]
@@ -156,7 +156,7 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
 
     #[inline]
     fn prepend_translation_cpy(vec: &vec::Vec0<N>, t: &vec::Vec0<N>) -> vec::Vec0<N> {
-        vec + *t
+        *vec + *t
     }
 
     #[inline]

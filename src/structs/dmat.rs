@@ -652,7 +652,7 @@ macro_rules! scalar_mul_impl (
                 DMat {
                     nrows: left.nrows,
                     ncols: left.ncols,
-                    mij:   left.mij.iter().map(|a| a * *right).collect()
+                    mij:   left.mij.iter().map(|a| *a * *right).collect()
                 }
             }
         }
@@ -667,7 +667,7 @@ macro_rules! scalar_div_impl (
                 DMat {
                     nrows: left.nrows,
                     ncols: left.ncols,
-                    mij:   left.mij.iter().map(|a| a / *right).collect()
+                    mij:   left.mij.iter().map(|a| *a / *right).collect()
                 }
             }
         }
@@ -682,7 +682,7 @@ macro_rules! scalar_add_impl (
                 DMat {
                     nrows: left.nrows,
                     ncols: left.ncols,
-                    mij:   left.mij.iter().map(|a| a + *right).collect()
+                    mij:   left.mij.iter().map(|a| *a + *right).collect()
                 }
             }
         }
@@ -697,7 +697,7 @@ macro_rules! scalar_sub_impl (
                 DMat {
                     nrows: left.nrows,
                     ncols: left.ncols,
-                    mij:   left.mij.iter().map(|a| a - *right).collect()
+                    mij:   left.mij.iter().map(|a| *a - *right).collect()
                 }
             }
         }

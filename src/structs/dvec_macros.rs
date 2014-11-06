@@ -169,10 +169,10 @@ macro_rules! dvec_impl(
 
                     let mut elt = basis_element.clone();
 
-                    elt = elt - self * Dot::dot(&basis_element, self);
+                    elt = elt - *self * Dot::dot(&basis_element, self);
 
                     for v in res.iter() {
-                        elt = elt - v * Dot::dot(&elt, v)
+                        elt = elt - *v * Dot::dot(&elt, v)
                     };
 
                     if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &Zero::zero()) {
@@ -336,7 +336,7 @@ macro_rules! dvec_scalar_mul_impl (
         impl $mul<$n, $dvec<$n>> for $n {
             #[inline]
             fn binop(left: &$dvec<$n>, right: &$n) -> $dvec<$n> {
-                FromIterator::from_iter(left.as_slice().iter().map(|a| a * *right))
+                FromIterator::from_iter(left.as_slice().iter().map(|a| *a * *right))
             }
         }
     )
@@ -347,7 +347,7 @@ macro_rules! dvec_scalar_div_impl (
         impl $div<$n, $dvec<$n>> for $n {
             #[inline]
             fn binop(left: &$dvec<$n>, right: &$n) -> $dvec<$n> {
-                FromIterator::from_iter(left.as_slice().iter().map(|a| a / *right))
+                FromIterator::from_iter(left.as_slice().iter().map(|a| *a / *right))
             }
         }
     )
@@ -358,7 +358,7 @@ macro_rules! dvec_scalar_add_impl (
         impl $add<$n, $dvec<$n>> for $n {
             #[inline]
             fn binop(left: &$dvec<$n>, right: &$n) -> $dvec<$n> {
-                FromIterator::from_iter(left.as_slice().iter().map(|a| a + *right))
+                FromIterator::from_iter(left.as_slice().iter().map(|a| *a + *right))
             }
         }
     )
@@ -369,7 +369,7 @@ macro_rules! dvec_scalar_sub_impl (
         impl $sub<$n, $dvec<$n>> for $n {
             #[inline]
             fn binop(left: &$dvec<$n>, right: &$n) -> $dvec<$n> {
-                FromIterator::from_iter(left.as_slice().iter().map(|a| a - *right))
+                FromIterator::from_iter(left.as_slice().iter().map(|a| *a - *right))
             }
         }
     )

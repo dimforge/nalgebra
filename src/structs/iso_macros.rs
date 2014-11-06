@@ -88,7 +88,7 @@ macro_rules! pnt_mul_iso_impl(
         impl<N: Clone + Num> $tmul<N, $tv<N>> for $t<N> {
             #[inline]
             fn binop(left: &$tv<N>, right: &$t<N>) -> $tv<N> {
-                (left + right.translation) * right.rotation
+                (*left + right.translation) * right.rotation
             }
         }
     )
@@ -140,12 +140,12 @@ macro_rules! translate_impl(
         impl<N: Clone + Add<N, N> + Sub<N, N>> Translate<$tv<N>> for $t<N> {
             #[inline]
             fn translate(&self, v: &$tv<N>) -> $tv<N> {
-                v + self.translation
+                *v + self.translation
             }
 
             #[inline]
             fn inv_translate(&self, v: &$tv<N>) -> $tv<N> {
-                v - self.translation
+                *v - self.translation
             }
         }
     )
@@ -235,7 +235,7 @@ macro_rules! transformation_impl(
             }
 
             fn append_transformation_cpy(iso: &$t<N>, t: &$t<N>) -> $t<N> {
-                t * *iso
+                *t * *iso
             }
 
             fn prepend_transformation(&mut self, t: &$t<N>) {
@@ -284,7 +284,7 @@ macro_rules! transform_impl(
 
             #[inline]
             fn inv_transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
-                t.rotation.inv_transform(&(p - t.translation))
+                t.rotation.inv_transform(&(*p - t.translation))
             }
         }
     )

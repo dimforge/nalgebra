@@ -136,7 +136,7 @@ impl<N: Mul<N, N> + Sub<N, N> + Add<N, N>> QuatMulRhs<N, Quat<N>> for Quat<N> {
 impl<N: ApproxEq<N> + Float + Clone> QuatDivRhs<N, Quat<N>> for Quat<N> {
     #[inline]
     fn binop(left: &Quat<N>, right: &Quat<N>) -> Quat<N> {
-        left * Inv::inv_cpy(right).expect("Unable to invert the denominator.")
+        *left * Inv::inv_cpy(right).expect("Unable to invert the denominator.")
     }
 }
 

@@ -12,7 +12,7 @@ macro_rules! test_iterator_impl(
             let mut mv: $t = v.clone();
             let n: $n      = random();
 
-            let nv: $t = v.iter().map(|e| e * n).collect();
+            let nv: $t = v.iter().map(|e| *e * n).collect();
 
             for e in mv.iter_mut() {
                 *e = *e * n

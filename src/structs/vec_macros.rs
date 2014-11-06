@@ -323,7 +323,7 @@ macro_rules! basis_impl(
                     elt = elt - *n * Dot::dot(&basis_element, n);
 
                     for v in basis.iter() {
-                        elt = elt - v * Dot::dot(&elt, v)
+                        elt = elt - *v * Dot::dot(&elt, v)
                     };
 
                     if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &Zero::zero()) {
@@ -519,7 +519,7 @@ macro_rules! translation_impl(
 
             #[inline]
             fn inv_translation(&self) -> $t<N> {
-                -self
+                -*self
             }
 
             #[inline]
@@ -539,7 +539,7 @@ macro_rules! translation_impl(
 
             #[inline]
             fn prepend_translation_cpy(transform: &$t<N>, t: &$t<N>) -> $t<N> {
-                transform + *t
+                *transform + *t
             }
 
             #[inline]
@@ -772,4 +772,15 @@ macro_rules! num_float_vec_impl(
             where N: ApproxEq<N> + Float $(+ $trhs<N, $t<N>>)* {
         }
     )
+)
+
+macro_rules! absolute_vec_impl(
+  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    impl<N: Signed> Absolute<$t<N>> for $t<N> {
+        #[inline]
+        fn abs(m: &$t<N>) -> $t<N> {
+            $t::new(m.$comp0.abs() $(, m.$compN.abs() )*)
+        }
+    }
+  )
 )
