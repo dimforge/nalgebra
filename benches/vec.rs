@@ -3,47 +3,55 @@
 extern crate test;
 extern crate "nalgebra" as na;
 
-use std::rand::random;
+use std::rand::{IsaacRng, Rng};
 use test::Bencher;
-use na::{Vec2, Vec3, Vec4, Vec5, Vec6};
+use na::{Vec2, Vec3, Vec4};
 
-macro_rules! bench_dot_vec(
-    ($bh: expr, $t: ty) => {
-        {
-            let a: $t = random();
-            let b: $t = random();
-            let mut d = 0.0;
+#[path="common/macros.rs"]
+mod macros;
 
-            $bh.iter(|| {
-                for _ in range(0u, 1000) {
-                    d = d + na::dot(&a, &b);
-                }
-            })
-        }
-    }
-)
+bench_binop!(_bench_vec2_add_v, Vec2<f32>, Vec2<f32>, add)
+bench_binop!(_bench_vec3_add_v, Vec3<f32>, Vec3<f32>, add)
+bench_binop!(_bench_vec4_add_v, Vec4<f32>, Vec4<f32>, add)
 
-#[bench]
-fn bench_dot_vec2(bh: &mut Bencher) {
-    bench_dot_vec!(bh, Vec2<f64>)
-}
+bench_binop!(_bench_vec2_sub_v, Vec2<f32>, Vec2<f32>, sub)
+bench_binop!(_bench_vec3_sub_v, Vec3<f32>, Vec3<f32>, sub)
+bench_binop!(_bench_vec4_sub_v, Vec4<f32>, Vec4<f32>, sub)
 
-#[bench]
-fn bench_dot_vec3(bh: &mut Bencher) {
-    bench_dot_vec!(bh, Vec3<f64>)
-}
+bench_binop!(_bench_vec2_mul_v, Vec2<f32>, Vec2<f32>, mul)
+bench_binop!(_bench_vec3_mul_v, Vec3<f32>, Vec3<f32>, mul)
+bench_binop!(_bench_vec4_mul_v, Vec4<f32>, Vec4<f32>, mul)
 
-#[bench]
-fn bench_dot_vec4(bh: &mut Bencher) {
-    bench_dot_vec!(bh, Vec4<f64>)
-}
+bench_binop!(_bench_vec2_div_v, Vec2<f32>, Vec2<f32>, div)
+bench_binop!(_bench_vec3_div_v, Vec3<f32>, Vec3<f32>, div)
+bench_binop!(_bench_vec4_div_v, Vec4<f32>, Vec4<f32>, div)
 
-#[bench]
-fn bench_dot_vec5(bh: &mut Bencher) {
-    bench_dot_vec!(bh, Vec5<f64>)
-}
+bench_binop!(_bench_vec2_add_s, Vec2<f32>, f32, add)
+bench_binop!(_bench_vec3_add_s, Vec3<f32>, f32, add)
+bench_binop!(_bench_vec4_add_s, Vec4<f32>, f32, add)
 
-#[bench]
-fn bench_dot_vec6(bh: &mut Bencher) {
-    bench_dot_vec!(bh, Vec6<f64>)
-}
+bench_binop!(_bench_vec2_sub_s, Vec2<f32>, f32, sub)
+bench_binop!(_bench_vec3_sub_s, Vec3<f32>, f32, sub)
+bench_binop!(_bench_vec4_sub_s, Vec4<f32>, f32, sub)
+
+bench_binop!(_bench_vec2_mul_s, Vec2<f32>, f32, mul)
+bench_binop!(_bench_vec3_mul_s, Vec3<f32>, f32, mul)
+bench_binop!(_bench_vec4_mul_s, Vec4<f32>, f32, mul)
+
+bench_binop!(_bench_vec2_div_s, Vec2<f32>, f32, div)
+bench_binop!(_bench_vec3_div_s, Vec3<f32>, f32, div)
+bench_binop!(_bench_vec4_div_s, Vec4<f32>, f32, div)
+
+bench_binop_na!(_bench_vec2_dot, Vec2<f32>, Vec2<f32>, dot)
+bench_binop_na!(_bench_vec3_dot, Vec3<f32>, Vec3<f32>, dot)
+bench_binop_na!(_bench_vec4_dot, Vec4<f32>, Vec4<f32>, dot)
+
+bench_binop_na!(_bench_vec3_cross, Vec3<f32>, Vec3<f32>, cross)
+
+bench_unop!(_bench_vec2_norm, Vec2<f32>, norm)
+bench_unop!(_bench_vec3_norm, Vec3<f32>, norm)
+bench_unop!(_bench_vec4_norm, Vec4<f32>, norm)
+
+bench_unop!(_bench_vec2_normalize, Vec2<f32>, normalize)
+bench_unop!(_bench_vec3_normalize, Vec3<f32>, normalize)
+bench_unop!(_bench_vec4_normalize, Vec4<f32>, normalize)

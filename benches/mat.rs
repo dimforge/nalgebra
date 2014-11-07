@@ -3,166 +3,41 @@
 extern crate test;
 extern crate "nalgebra" as na;
 
-use std::rand::random;
+use std::rand::{IsaacRng, Rng};
 use test::Bencher;
-use na::{Vec2, Vec3, Vec4, Vec5, Vec6, DVec, Mat2, Mat3, Mat4, Mat5, Mat6, DMat};
+use na::{Vec2, Vec3, Vec4, Mat2, Mat3, Mat4};
 
-macro_rules! bench_mul_mat(
-    ($bh: expr, $t: ty) => {
-        {
-            let a: $t     = random();
-            let mut b: $t = random();
+#[path="common/macros.rs"]
+mod macros;
 
-            $bh.iter(|| {
-                for _ in range(0u, 1000) {
-                    b = a * b;
-                }
-            })
-        }
-    }
-)
+bench_binop!(_bench_mat2_mul_m, Mat2<f32>, Mat2<f32>, mul)
+bench_binop!(_bench_mat3_mul_m, Mat3<f32>, Mat3<f32>, mul)
+bench_binop!(_bench_mat4_mul_m, Mat4<f32>, Mat4<f32>, mul)
 
-#[bench]
-fn bench_mul_mat2(bh: &mut Bencher) {
-    bench_mul_mat!(bh, Mat2<f64>)
-}
+bench_binop!(_bench_mat2_add_m, Mat2<f32>, Mat2<f32>, add)
+bench_binop!(_bench_mat3_add_m, Mat3<f32>, Mat3<f32>, add)
+bench_binop!(_bench_mat4_add_m, Mat4<f32>, Mat4<f32>, add)
 
-#[bench]
-fn bench_mul_mat3(bh: &mut Bencher) {
-    bench_mul_mat!(bh, Mat3<f64>)
-}
+bench_binop!(_bench_mat2_sub_m, Mat2<f32>, Mat2<f32>, sub)
+bench_binop!(_bench_mat3_sub_m, Mat3<f32>, Mat3<f32>, sub)
+bench_binop!(_bench_mat4_sub_m, Mat4<f32>, Mat4<f32>, sub)
 
-#[bench]
-fn bench_mul_mat4(bh: &mut Bencher) {
-    bench_mul_mat!(bh, Mat4<f64>)
-}
+bench_binop!(_bench_mat2_mul_v, Mat2<f32>, Vec2<f32>, mul)
+bench_binop!(_bench_mat3_mul_v, Mat3<f32>, Vec3<f32>, mul)
+bench_binop!(_bench_mat4_mul_v, Mat4<f32>, Vec4<f32>, mul)
 
-#[bench]
-fn bench_mul_mat5(bh: &mut Bencher) {
-    bench_mul_mat!(bh, Mat5<f64>)
-}
+bench_binop!(_bench_mat2_mul_s, Mat2<f32>, f32, mul)
+bench_binop!(_bench_mat3_mul_s, Mat3<f32>, f32, mul)
+bench_binop!(_bench_mat4_mul_s, Mat4<f32>, f32, mul)
 
-#[bench]
-fn bench_mul_mat6(bh: &mut Bencher) {
-    bench_mul_mat!(bh, Mat6<f64>)
-}
+bench_binop!(_bench_mat2_div_s, Mat2<f32>, f32, div)
+bench_binop!(_bench_mat3_div_s, Mat3<f32>, f32, div)
+bench_binop!(_bench_mat4_div_s, Mat4<f32>, f32, div)
 
-macro_rules! bench_mul_dmat(
-    ($bh: expr, $nrows: expr, $ncols: expr) => {
-        {
-            let a:     DMat<f64> = DMat::new_random($nrows, $ncols);
-            let mut b: DMat<f64> = DMat::new_random($nrows, $ncols);
+bench_unop!(_bench_mat2_inv, Mat2<f32>, inv)
+bench_unop!(_bench_mat3_inv, Mat3<f32>, inv)
+bench_unop!(_bench_mat4_inv, Mat4<f32>, inv)
 
-            $bh.iter(|| {
-                for _ in range(0u, 1000) {
-                    b = a * b;
-                }
-            })
-        }
-    }
-)
-
-#[bench]
-fn bench_mul_dmat2(bh: &mut Bencher) {
-    bench_mul_dmat!(bh, 2, 2)
-}
-
-#[bench]
-fn bench_mul_dmat3(bh: &mut Bencher) {
-    bench_mul_dmat!(bh, 3, 3)
-}
-
-#[bench]
-fn bench_mul_dmat4(bh: &mut Bencher) {
-    bench_mul_dmat!(bh, 4, 4)
-}
-
-#[bench]
-fn bench_mul_dmat5(bh: &mut Bencher) {
-    bench_mul_dmat!(bh, 5, 5)
-}
-
-#[bench]
-fn bench_mul_dmat6(bh: &mut Bencher) {
-    bench_mul_dmat!(bh, 6, 6)
-}
-
-macro_rules! bench_mul_mat_vec(
-    ($bh: expr, $tm: ty, $tv: ty) => {
-        {
-            let m : $tm     = random();
-            let mut v : $tv = random();
-
-            $bh.iter(|| {
-                for _ in range(0u, 1000) {
-                    v = m * v
-                }
-            })
-        }
-    }
-)
-
-#[bench]
-fn bench_mul_mat_vec2(bh: &mut Bencher) {
-    bench_mul_mat_vec!(bh, Mat2<f64>, Vec2<f64>)
-}
-
-#[bench]
-fn bench_mul_mat_vec3(bh: &mut Bencher) {
-    bench_mul_mat_vec!(bh, Mat3<f64>, Vec3<f64>)
-}
-
-#[bench]
-fn bench_mul_mat_vec4(bh: &mut Bencher) {
-    bench_mul_mat_vec!(bh, Mat4<f64>, Vec4<f64>)
-}
-
-#[bench]
-fn bench_mul_mat_vec5(bh: &mut Bencher) {
-    bench_mul_mat_vec!(bh, Mat5<f64>, Vec5<f64>)
-}
-
-#[bench]
-fn bench_mul_mat_vec6(bh: &mut Bencher) {
-    bench_mul_mat_vec!(bh, Mat6<f64>, Vec6<f64>)
-}
-
-macro_rules! bench_mul_dmat_dvec(
-    ($bh: expr, $nrows: expr, $ncols: expr) => {
-        {
-            let m : DMat<f64>     = DMat::new_random($nrows, $ncols);
-            let mut v : DVec<f64> = DVec::new_random($ncols);
-
-            $bh.iter(|| {
-                for _ in range(0u, 1000) {
-                    v = m * v
-                }
-            })
-        }
-    }
-)
-
-#[bench]
-fn bench_mul_dmat_dvec2(bh: &mut Bencher) {
-    bench_mul_dmat_dvec!(bh, 2, 2)
-}
-
-#[bench]
-fn bench_mul_dmat_dvec3(bh: &mut Bencher) {
-    bench_mul_dmat_dvec!(bh, 3, 3)
-}
-
-#[bench]
-fn bench_mul_dmat_dvec4(bh: &mut Bencher) {
-    bench_mul_dmat_dvec!(bh, 4, 4)
-}
-
-#[bench]
-fn bench_mul_dmat_dvec5(bh: &mut Bencher) {
-    bench_mul_dmat_dvec!(bh, 5, 5)
-}
-
-#[bench]
-fn bench_mul_dmat_dvec6(bh: &mut Bencher) {
-    bench_mul_dmat_dvec!(bh, 6, 6)
-}
+bench_unop!(_bench_mat2_transpose, Mat2<f32>, transpose)
+bench_unop!(_bench_mat3_transpose, Mat3<f32>, transpose)
+bench_unop!(_bench_mat4_transpose, Mat4<f32>, transpose)
