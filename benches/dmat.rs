@@ -3,10 +3,8 @@
 extern crate test;
 extern crate "nalgebra" as na;
 
-use std::rand::{IsaacRng, Rng};
 use test::Bencher;
-use na::{Inv};
-use na::{Vec2, Vec3, Vec4, Vec5, Vec6, DVec, Mat2, Mat3, Mat4, Mat5, Mat6, DMat};
+use na::{DVec, DMat};
 
 macro_rules! bench_mul_dmat(
     ($bh: expr, $nrows: expr, $ncols: expr) => {

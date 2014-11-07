@@ -20,6 +20,7 @@ distcheck:
 	git clone --recursive . $(tmp)
 	make -C $(tmp)
 	make -C $(tmp) test
+	make -C $(tmp) bench
 	rm -rf $(tmp)
 
 .PHONY:doc
