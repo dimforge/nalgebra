@@ -3,7 +3,7 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the mij components.
 
 use std::mem;
-use std::num::{One, Zero};
+use std::num::{One, Zero, Num};
 use traits::operations::ApproxEq;
 use std::slice::{Items, MutItems};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
@@ -12,7 +12,7 @@ use structs::pnt::{Pnt1, Pnt4, Pnt5, Pnt6, Pnt1MulRhs, Pnt4MulRhs, Pnt5MulRhs, P
 use structs::dvec::{DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
 
 use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
-                        Eye, ColSlice, RowSlice, Diag, Shape};
+                        Eye, ColSlice, RowSlice, Diag, Shape, BaseFloat};
 use traits::operations::{Absolute, Transpose, Inv, Outer, EigenQR};
 use traits::geometry::{ToHomogeneous, FromHomogeneous, Orig};
 use linalg;

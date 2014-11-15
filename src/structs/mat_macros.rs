@@ -125,10 +125,10 @@ macro_rules! mat_sub_scalar_impl(
 
 macro_rules! absolute_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Signed> Absolute<$t<N>> for $t<N> {
+    impl<N: Absolute<N>> Absolute<$t<N>> for $t<N> {
         #[inline]
         fn abs(m: &$t<N>) -> $t<N> {
-            $t::new(m.$comp0.abs() $(, m.$compN.abs() )*)
+            $t::new(::abs(&m.$comp0) $(, ::abs(&m.$compN) )*)
         }
     }
   )
@@ -642,7 +642,7 @@ macro_rules! outer_impl(
 macro_rules! eigen_qr_impl(
     ($t: ident, $v: ident) => (
         impl<N> EigenQR<N, $v<N>> for $t<N>
-            where N: Float + ApproxEq<N> + Clone {
+            where N: Num + One + Zero + BaseFloat + ApproxEq<N> + Clone {
             fn eigen_qr(m: &$t<N>, eps: &N, niter: uint) -> ($t<N>, $v<N>) {
                 linalg::eigen_qr(m, eps, niter)
             }

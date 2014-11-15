@@ -132,7 +132,7 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Clone + Float + ApproxEq<N> + $mul<N, $dvec<N>>> $dvec<N> {
+        impl<N: Clone + BaseFloat + ApproxEq<N> + $mul<N, $dvec<N>>> $dvec<N> {
             /// Computes the canonical basis for the given dimension. A canonical basis is a set of
             /// vectors, mutually orthogonal, with all its component equal to 0.0 except one which is equal
             /// to 1.0.
@@ -240,7 +240,7 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Float + Clone> Norm<N> for $dvec<N> {
+        impl<N: BaseFloat + Clone> Norm<N> for $dvec<N> {
             #[inline]
             fn sqnorm(v: &$dvec<N>) -> N {
                 Dot::dot(v, v)

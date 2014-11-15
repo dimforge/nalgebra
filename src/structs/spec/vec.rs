@@ -1,5 +1,5 @@
-use std::num::{Zero, One};
-use traits::structure::{Cast, Row, Basis};
+use std::num::{Zero, One, Num};
+use traits::structure::{Cast, Row, Basis, BaseFloat};
 use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::mat::Mat3;
@@ -114,7 +114,7 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
     }
 }
 
-impl<N: Float> Basis for Vec3<N> {
+impl<N: BaseFloat> Basis for Vec3<N> {
     #[inline(always)]
     fn canonical_basis(f: |Vec3<N>| -> bool) {
         if !f(Vec3::new(One::one(), Zero::zero(), Zero::zero())) { return };

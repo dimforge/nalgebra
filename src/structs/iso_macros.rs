@@ -2,7 +2,7 @@
 
 macro_rules! iso_impl(
     ($t: ident, $submat: ident, $subvec: ident, $subrotvec: ident) => (
-        impl<N: Clone + FloatMath + Num> $t<N> {
+        impl<N: Clone + BaseFloat + Num> $t<N> {
             /// Creates a new isometry from a rotation matrix and a vector.
             #[inline]
             pub fn new(translation: $subvec<N>, rotation: $subrotvec<N>) -> $t<N> {
@@ -26,7 +26,7 @@ macro_rules! iso_impl(
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $trot: ident, $tlv: ident, $tav: ident) => (
-        impl<N: Cast<f64> + FloatMath + Num + Clone>
+        impl<N: Cast<f64> + BaseFloat + Num + Clone>
         RotationMatrix<N, $tlv<N>, $tav<N>, $trot<N>> for $t<N> {
             #[inline]
             fn to_rot_mat(&self) -> $trot<N> {
@@ -50,7 +50,7 @@ macro_rules! dim_impl(
 
 macro_rules! one_impl(
     ($t: ident) => (
-        impl<N: FloatMath + Clone> One for $t<N> {
+        impl<N: BaseFloat + Clone> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
                 $t::new_with_rotmat(Zero::zero(), One::one())
@@ -61,7 +61,7 @@ macro_rules! one_impl(
 
 macro_rules! iso_mul_iso_impl(
     ($t: ident, $tmul: ident) => (
-        impl<N: FloatMath + Clone> $tmul<N, $t<N>> for $t<N> {
+        impl<N: BaseFloat + Clone> $tmul<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
                 $t::new_with_rotmat(
@@ -96,7 +96,7 @@ macro_rules! pnt_mul_iso_impl(
 
 macro_rules! translation_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: FloatMath + Clone> Translation<$tv<N>> for $t<N> {
+        impl<N: BaseFloat + Clone> Translation<$tv<N>> for $t<N> {
             #[inline]
             fn translation(&self) -> $tv<N> {
                 self.translation.clone()
@@ -153,7 +153,7 @@ macro_rules! translate_impl(
 
 macro_rules! rotation_impl(
     ($t: ident, $trot: ident, $tav: ident) => (
-        impl<N: Cast<f64> + FloatMath + Clone> Rotation<$tav<N>> for $t<N> {
+        impl<N: Cast<f64> + BaseFloat + Clone> Rotation<$tav<N>> for $t<N> {
             #[inline]
             fn rotation(&self) -> $tav<N> {
                 self.rotation.rotation()
@@ -220,7 +220,7 @@ macro_rules! rotate_impl(
 
 macro_rules! transformation_impl(
     ($t: ident) => (
-        impl<N: FloatMath + Clone> Transformation<$t<N>> for $t<N> {
+        impl<N: BaseFloat + Clone> Transformation<$t<N>> for $t<N> {
             fn transformation(&self) -> $t<N> {
                 self.clone()
             }
@@ -357,7 +357,7 @@ macro_rules! approx_eq_impl(
 
 macro_rules! rand_impl(
     ($t: ident) => (
-        impl<N: Rand + Clone + FloatMath> Rand for $t<N> {
+        impl<N: Rand + Clone + BaseFloat> Rand for $t<N> {
             #[inline]
             fn rand<R: Rng>(rng: &mut R) -> $t<N> {
                 $t::new(rng.gen(), rng.gen())
@@ -368,7 +368,7 @@ macro_rules! rand_impl(
 
 macro_rules! absolute_rotate_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: Signed> AbsoluteRotate<$tv<N>> for $t<N> {
+        impl<N: BaseFloat> AbsoluteRotate<$tv<N>> for $t<N> {
             #[inline]
             fn absolute_rotate(&self, v: &$tv<N>) -> $tv<N> {
                 self.rotation.absolute_rotate(v)

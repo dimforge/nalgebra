@@ -1,6 +1,6 @@
-use std::num::{Zero, Float};
+use std::num::Zero;
 use traits::operations::{Transpose, ApproxEq};
-use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat};
+use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat, BaseFloat};
 use traits::geometry::Norm;
 use std::cmp::min;
 
@@ -12,7 +12,7 @@ use std::cmp::min;
 /// * `start` - the starting dimension of the subspace of the reflexion
 /// * `vec` - the vector defining the reflection.
 pub fn householder_matrix<N, V, M>(dim: uint, start: uint, vec: V) -> M
-    where N: Float,
+    where N: BaseFloat,
           M: Eye + Indexable<(uint, uint), N>,
           V: Indexable<uint, N> {
     let mut qk : M = Eye::new_identity(dim);
@@ -39,7 +39,7 @@ pub fn householder_matrix<N, V, M>(dim: uint, start: uint, vec: V) -> M
 /// # Arguments
 /// * `m` - matrix to decompose
 pub fn qr<N, V, M>(m: &M) -> (M, M)
-    where N: Float,
+    where N: BaseFloat,
           V: Indexable<uint, N> + Norm<N>,
           M: Clone + Eye + ColSlice<V> + Transpose + Indexable<(uint, uint), N> + Mul<M, M> {
     let (rows, cols) = m.shape();
@@ -74,7 +74,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 
 /// Eigendecomposition of a square matrix using the qr algorithm.
 pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: uint) -> (M, V)
-    where N:  Float,
+    where N:  BaseFloat,
           VS: Indexable<uint, N> + Norm<N>,
           M:  Indexable<(uint, uint), N> + SquareMat<N, V> + Add<M, M> + Sub<M, M> + ColSlice<VS> +
               ApproxEq<N> + Clone {

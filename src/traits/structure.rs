@@ -1,9 +1,15 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
-use std::num::{Zero, One};
+use std::num::{Zero, One, FloatMath, Num};
 use std::slice::{Items, MutItems};
-use traits::operations::{RMul, LMul, Axpy, Transpose, Inv};
+use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
+
+pub trait BaseFloat: FloatMath + Zero + One + Num + Absolute<Self> {
+}
+
+impl BaseFloat for f32 { }
+impl BaseFloat for f64 { }
 
 /// Traits of objects which can be created from an object of type `T`.
 pub trait Cast<T> {
@@ -174,8 +180,8 @@ pub trait NumVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero 
                      Mul<N, Self> + Div<N, Self> + Dot<N> + Axpy<N> + Index<uint, N> {
 }
 
-/// Trait of vector with components implementing the `Float` trait.
-pub trait FloatVec<N: Float>: NumVec<N> + Norm<N> + Basis {
+/// Trait of vector with components implementing the `BaseFloat` trait.
+pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Basis {
 }
 
 /*
@@ -203,8 +209,8 @@ pub trait NumPnt<N, V>:
           Div<N, Self> + Add<V, Self> + Axpy<N> + Index<uint, N> { // FIXME: + Sub<V, Self>
 }
 
-/// Trait of points with components implementing the `Float` trait.
-pub trait FloatPnt<N: Float, V: Norm<N>>: NumPnt<N, V> {
+/// Trait of points with components implementing the `BaseFloat` trait.
+pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> {
     /// Computes the square distance between two points.
     #[inline]
     fn sqdist(a: &Self, b: &Self) -> N {

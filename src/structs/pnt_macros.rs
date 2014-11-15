@@ -136,7 +136,7 @@ macro_rules! num_float_pnt_impl(
         }
 
         impl<N> FloatPnt<N, $tv<N>> for $t<N>
-            where N: ApproxEq<N> + Float $(+ $trhs<N, $t<N>>)* {
+            where N: Num + One + Zero + ApproxEq<N> + BaseFloat $(+ $trhs<N, $t<N>>)* {
         }
     )
 )

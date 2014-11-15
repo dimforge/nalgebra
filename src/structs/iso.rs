@@ -2,11 +2,11 @@
 
 #![allow(missing_docs)]
 
-use std::num::{Zero, One};
+use std::num::{Zero, One, Num};
 use std::rand::{Rand, Rng};
 use structs::mat::{Mat3, Mat4, Mat5};
-use traits::structure::{Cast, Dim, Col};
-use traits::operations::{Inv, ApproxEq};
+use traits::structure::{Cast, Dim, Col, BaseFloat};
+use traits::operations::{Inv, ApproxEq, Absolute};
 use traits::geometry::{RotationMatrix, Rotation, Rotate, AbsoluteRotate, Transform, Transformation,
                        Translate, Translation, ToHomogeneous};
 
@@ -50,7 +50,7 @@ pub struct Iso4<N> {
     pub translation: Vec4<N>
 }
 
-impl<N: Clone + Float> Iso3<N> {
+impl<N: Clone + BaseFloat> Iso3<N> {
     /// Reorient and translate this transformation such that its local `x` axis points to a given
     /// direction.  Note that the usually known `look_at` function does the same thing but with the
     /// `z` axis. See `look_at_z` for that.

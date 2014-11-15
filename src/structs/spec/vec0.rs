@@ -1,9 +1,9 @@
 use std::mem;
-use std::num::{Zero, One, Float, Bounded};
+use std::num::{Zero, One, Bounded, Num};
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::ApproxEq;
-use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape};
+use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape, BaseFloat};
 use traits::geometry::{Translation, Dot, Norm};
 use structs::vec;
 
@@ -164,7 +164,7 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Float> Norm<N> for vec::Vec0<N> {
+impl<N: BaseFloat> Norm<N> for vec::Vec0<N> {
     #[inline]
     fn sqnorm(_: &vec::Vec0<N>) -> N {
         Zero::zero()

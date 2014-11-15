@@ -3,7 +3,7 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch trait.
 
 use std::mem;
-use std::num::{Zero, One, Bounded};
+use std::num::{Zero, One, Bounded, Num};
 use std::num;
 use std::rand::{Rand, Rng};
 use std::slice::{Items, MutItems};
@@ -11,7 +11,7 @@ use structs::{Vec3, Pnt3, Rot3, Mat3, Vec3MulRhs, Pnt3MulRhs};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, NotComparable, PartialLess,
                          PartialGreater, PartialEqual, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
-use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape};
+use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat};
 use traits::geometry::{Norm, Cross, Rotation, Rotate, Transform};
 
 /// A quaternion.
@@ -65,7 +65,7 @@ impl<N: Neg<N>> Quat<N> {
     }
 }
 
-impl<N: Float + ApproxEq<N> + Clone> Inv for Quat<N> {
+impl<N: BaseFloat + ApproxEq<N> + Clone> Inv for Quat<N> {
     #[inline]
     fn inv_cpy(m: &Quat<N>) -> Option<Quat<N>> {
         let mut res = m.clone();
@@ -97,7 +97,7 @@ impl<N: Float + ApproxEq<N> + Clone> Inv for Quat<N> {
     }
 }
 
-impl<N: Float> Norm<N> for Quat<N> {
+impl<N: BaseFloat> Norm<N> for Quat<N> {
     #[inline]
     fn sqnorm(q: &Quat<N>) -> N {
         q.w * q.w + q.i * q.i + q.j * q.j + q.k * q.k
@@ -133,7 +133,7 @@ impl<N: Mul<N, N> + Sub<N, N> + Add<N, N>> QuatMulRhs<N, Quat<N>> for Quat<N> {
     }
 }
 
-impl<N: ApproxEq<N> + Float + Clone> QuatDivRhs<N, Quat<N>> for Quat<N> {
+impl<N: ApproxEq<N> + BaseFloat + Clone> QuatDivRhs<N, Quat<N>> for Quat<N> {
     #[inline]
     fn binop(left: &Quat<N>, right: &Quat<N>) -> Quat<N> {
         *left * Inv::inv_cpy(right).expect("Unable to invert the denominator.")
@@ -146,7 +146,7 @@ pub struct UnitQuat<N> {
     q: Quat<N>
 }
 
-impl<N: FloatMath> UnitQuat<N> {
+impl<N: BaseFloat> UnitQuat<N> {
     /// Creates a new unit quaternion from the axis-angle representation of a rotation.
     #[inline]
     pub fn new(axisangle: Vec3<N>) -> UnitQuat<N> {
@@ -277,7 +277,7 @@ impl<N: Clone + Neg<N>> Inv for UnitQuat<N> {
     }
 }
 
-impl<N: Clone + Rand + FloatMath> Rand for UnitQuat<N> {
+impl<N: Clone + Rand + BaseFloat> Rand for UnitQuat<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> UnitQuat<N> {
         UnitQuat::new(rng.gen())
@@ -301,7 +301,7 @@ impl<N: ApproxEq<N>> ApproxEq<N> for UnitQuat<N> {
     }
 }
 
-impl<N: Float + ApproxEq<N> + Clone> Div<UnitQuat<N>, UnitQuat<N>> for UnitQuat<N> {
+impl<N: BaseFloat + ApproxEq<N> + Clone> Div<UnitQuat<N>, UnitQuat<N>> for UnitQuat<N> {
     #[inline]
     fn div(&self, other: &UnitQuat<N>) -> UnitQuat<N> {
         UnitQuat { q: self.q / other.q }
@@ -354,7 +354,7 @@ impl<N: Num + Clone> Pnt3MulRhs<N, Pnt3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: FloatMath + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
+impl<N: BaseFloat + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {
         let _2 = num::one::<N>() + num::one();

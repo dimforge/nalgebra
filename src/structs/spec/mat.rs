@@ -1,9 +1,9 @@
-use std::num::{Zero, One};
+use std::num::{Zero, One, Num};
 use structs::vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
 use structs::pnt::{Pnt2, Pnt3, Pnt2MulRhs, Pnt3MulRhs};
 use structs::mat::{Mat1, Mat2, Mat3, Mat3MulRhs, Mat2MulRhs};
 use traits::operations::{Inv, Det, ApproxEq};
-use traits::structure::{Row, Col};
+use traits::structure::{Row, Col, BaseFloat};
 
 // some specializations:
 impl<N: Num + ApproxEq<N> + Clone> Inv for Mat1<N> {

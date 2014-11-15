@@ -3,7 +3,7 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
 
 use std::mem;
-use std::num::{Zero, One, Float, Bounded};
+use std::num::{Zero, One, Bounded, Num};
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
@@ -12,7 +12,7 @@ use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
 use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, VecAsPnt, Shape,
-                        NumVec, FloatVec};
+                        NumVec, FloatVec, BaseFloat};
 use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 
 

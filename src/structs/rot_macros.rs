@@ -122,7 +122,7 @@ macro_rules! dim_impl(
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $tlv: ident, $tav: ident) => (
-        impl<N: Cast<f64> + FloatMath> RotationMatrix<N, $tlv<N>, $tav<N>, $t<N>> for $t<N> {
+        impl<N: Zero + Num + Cast<f64> + BaseFloat> RotationMatrix<N, $tlv<N>, $tav<N>, $t<N>> for $t<N> {
             #[inline]
             fn to_rot_mat(&self) -> $t<N> {
                 self.clone()
@@ -313,7 +313,7 @@ macro_rules! approx_eq_impl(
 
 macro_rules! absolute_impl(
     ($t: ident, $tm: ident) => (
-        impl<N: Signed> Absolute<$tm<N>> for $t<N> {
+        impl<N: Absolute<N>> Absolute<$tm<N>> for $t<N> {
             #[inline]
             fn abs(m: &$t<N>) -> $tm<N> {
                 Absolute::abs(&m.submat)

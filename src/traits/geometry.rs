@@ -1,7 +1,7 @@
 //! Traits of operations having a well-known or explicit geometric meaning.
 
 
-use traits::structure::Mat;
+use traits::structure::{BaseFloat, Mat};
 
 /// Trait of object which represent a translation, and to wich new translation
 /// can be appended.
@@ -205,7 +205,7 @@ pub trait Dot<N> {
 }
 
 /// Traits of objects having an euclidian norm.
-pub trait Norm<N: Float> {
+pub trait Norm<N: BaseFloat> {
     /// Computes the norm of `self`.
     #[inline]
     fn norm(v: &Self) -> N {

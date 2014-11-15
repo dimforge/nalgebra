@@ -1,4 +1,5 @@
 use std::num::{Zero, One};
+use traits::structure::BaseFloat;
 use structs::{Pnt3, Vec3, Mat4};
 
 /// A 3D perspective projection stored without any matrix.
@@ -20,7 +21,7 @@ pub struct PerspMat3<N> {
     mat: Mat4<N>
 }
 
-impl<N: FloatMath> Persp3<N> {
+impl<N: BaseFloat> Persp3<N> {
     /// Creates a new 3D perspective projection.
     pub fn new(aspect: N, fov: N, znear: N, zfar: N) -> Persp3<N> {
         assert!(!(zfar - znear).is_zero());
@@ -45,7 +46,7 @@ impl<N: FloatMath> Persp3<N> {
     }
 }
 
-impl<N: FloatMath + Clone> Persp3<N> {
+impl<N: BaseFloat + Clone> Persp3<N> {
     /// Gets the `width / height` aspect ratio.
     #[inline]
     pub fn aspect(&self) -> N {
@@ -117,7 +118,7 @@ impl<N: FloatMath + Clone> Persp3<N> {
     }
 }
 
-impl<N: FloatMath> PerspMat3<N> {
+impl<N: BaseFloat> PerspMat3<N> {
     /// Creates a new persepctive matrix from the aspect ratio, field of view, and near/far planes.
     pub fn new(aspect: N, fov: N, znear: N, zfar: N) -> PerspMat3<N> {
         assert!(!(znear - zfar).is_zero());
@@ -256,7 +257,7 @@ impl<N: FloatMath> PerspMat3<N> {
     }
 }
 
-impl<N: FloatMath + Clone> PerspMat3<N> {
+impl<N: BaseFloat + Clone> PerspMat3<N> {
     /// Returns the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
     pub fn to_mat<'a>(&'a self) -> Mat4<N> {

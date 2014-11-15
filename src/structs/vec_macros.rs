@@ -54,11 +54,11 @@ macro_rules! at_fast_impl(
     )
 )
 
-// FIXME: N should be bounded by Ord instead of Float…
+// FIXME: N should be bounded by Ord instead of BaseFloat…
 // However, f32/f64 does not implement Ord…
 macro_rules! ord_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: FloatMath + Clone> POrd for $t<N> {
+        impl<N: BaseFloat + Clone> POrd for $t<N> {
             #[inline]
             fn inf(a: &$t<N>, b: &$t<N>) -> $t<N> {
                 $t::new(a.$comp0.min(b.$comp0.clone())
@@ -293,7 +293,7 @@ macro_rules! container_impl(
 
 macro_rules! basis_impl(
     ($t: ident, $trhs: ident, $dim: expr) => (
-        impl<N: Clone + Float + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
+        impl<N: Clone + BaseFloat + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
             #[inline]
             fn canonical_basis(f: |$t<N>| -> bool) {
                 for i in range(0u, $dim) {
@@ -552,7 +552,7 @@ macro_rules! translation_impl(
 
 macro_rules! norm_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Clone + Float> Norm<N> for $t<N> {
+        impl<N: Clone + BaseFloat> Norm<N> for $t<N> {
             #[inline]
             fn sqnorm(v: &$t<N>) -> N {
                 Dot::dot(v, v)
@@ -769,17 +769,17 @@ macro_rules! num_float_vec_impl(
         }
 
         impl<N> FloatVec<N> for $t<N>
-            where N: ApproxEq<N> + Float $(+ $trhs<N, $t<N>>)* {
+            where N: Num + Zero + One + ApproxEq<N> + BaseFloat $(+ $trhs<N, $t<N>>)* {
         }
     )
 )
 
 macro_rules! absolute_vec_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-    impl<N: Signed> Absolute<$t<N>> for $t<N> {
+    impl<N: Absolute<N>> Absolute<$t<N>> for $t<N> {
         #[inline]
         fn abs(m: &$t<N>) -> $t<N> {
-            $t::new(m.$comp0.abs() $(, m.$compN.abs() )*)
+            $t::new(::abs(&m.$comp0) $(, ::abs(&m.$compN) )*)
         }
     }
   )

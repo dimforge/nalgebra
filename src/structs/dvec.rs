@@ -2,14 +2,14 @@
 
 #![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
 
-use std::num::{Zero, One, Float};
+use std::num::{Zero, One, Num};
 use std::rand::Rand;
 use std::rand;
 use std::slice::{Items, MutItems};
 use traits::operations::ApproxEq;
 use std::iter::FromIterator;
 use traits::geometry::{Dot, Norm};
-use traits::structure::{Iterable, IterableMut, Indexable, Shape};
+use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat};
 
 /// Heap allocated, dynamically sized vector.
 #[deriving(Eq, PartialEq, Show, Clone)]

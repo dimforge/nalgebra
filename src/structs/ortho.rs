@@ -1,5 +1,6 @@
-use std::num::{Zero, One};
+use std::num::{Zero, One };
 use std::num;
+use traits::structure::BaseFloat;
 use structs::{Pnt3, Vec3, Mat4};
 
 /// A 3D orthographic projection stored without any matrix.
@@ -21,7 +22,7 @@ pub struct OrthoMat3<N> {
     mat: Mat4<N>
 }
 
-impl<N: FloatMath> Ortho3<N> {
+impl<N: BaseFloat> Ortho3<N> {
     /// Creates a new 3D orthographic projection.
     pub fn new(width: N, height: N, znear: N, zfar: N) -> Ortho3<N> {
         assert!(!(zfar - znear).is_zero());
@@ -47,7 +48,7 @@ impl<N: FloatMath> Ortho3<N> {
     }
 }
 
-impl<N: FloatMath + Clone> Ortho3<N> {
+impl<N: BaseFloat + Clone> Ortho3<N> {
     /// The width of the view cuboid.
     #[inline]
     pub fn width(&self) -> N {
@@ -111,7 +112,7 @@ impl<N: FloatMath + Clone> Ortho3<N> {
     }
 }
 
-impl<N: FloatMath> OrthoMat3<N> {
+impl<N: BaseFloat> OrthoMat3<N> {
     /// Creates a new orthographic projection matrix from the width, heihgt, znear and zfar planes of the view cuboid.
     pub fn new(width: N, height: N, znear: N, zfar: N) -> OrthoMat3<N> {
         assert!(!(zfar - znear).is_zero());
@@ -225,7 +226,7 @@ impl<N: FloatMath> OrthoMat3<N> {
     }
 }
 
-impl<N: FloatMath + Clone> OrthoMat3<N> {
+impl<N: BaseFloat + Clone> OrthoMat3<N> {
     /// Returns the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
     pub fn to_mat<'a>(&'a self) -> Mat4<N> {

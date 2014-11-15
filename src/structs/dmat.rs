@@ -5,7 +5,7 @@
 use std::cmp;
 use std::rand::Rand;
 use std::rand;
-use std::num::{One, Zero};
+use std::num::{One, Zero, Num};
 use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};

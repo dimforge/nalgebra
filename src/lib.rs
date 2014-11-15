@@ -108,7 +108,7 @@ extern crate serialize;
 #[cfg(test)]
 extern crate test;
 
-use std::num::{Zero, One, FloatMath};
+use std::num::{Zero, One};
 use std::cmp;
 pub use traits::{PartialLess, PartialEqual, PartialGreater, NotComparable};
 pub use traits::{
@@ -119,6 +119,7 @@ pub use traits::{
     ApproxEq,
     Axpy,
     Basis,
+    BaseFloat,
     Cast,
     Col,
     ColSlice, RowSlice,
@@ -357,7 +358,7 @@ pub fn orig<P: Orig>() -> P {
 
 /// Returns the center of two points.
 #[inline]
-pub fn center<N: Float, P: FloatPnt<N, V>, V>(a: &P, b: &P) -> P {
+pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V>(a: &P, b: &P) -> P {
     let _2 = one::<N>() + one();
     (*a + *b.as_vec()) / _2
 }
@@ -367,13 +368,13 @@ pub fn center<N: Float, P: FloatPnt<N, V>, V>(a: &P, b: &P) -> P {
  */
 /// Returns the distance between two points.
 #[inline(always)]
-pub fn dist<N: Float, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
+pub fn dist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
     FloatPnt::<N, V>::dist(a, b)
 }
 
 /// Returns the squared distance between two points.
 #[inline(always)]
-pub fn sqdist<N: Float, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
+pub fn sqdist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
     FloatPnt::<N, V>::sqdist(a, b)
 }
 
@@ -383,7 +384,7 @@ pub fn sqdist<N: Float, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
 /// Computes a projection matrix given the frustrum near plane width, height, the field of
 /// view, and the distance to the clipping planes (`znear` and `zfar`).
 #[deprecated = "Use `Persp3::new(width / height, fov, znear, zfar).as_mat()` instead"]
-pub fn perspective3d<N: FloatMath + Cast<f64> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
+pub fn perspective3d<N: BaseFloat + Cast<f64> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
     let aspect = width / height;
 
     let _1: N = one();
@@ -713,19 +714,19 @@ pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
 
 /// Computes the L2 norm of a vector.
 #[inline(always)]
-pub fn norm<V: Norm<N>, N: Float>(v: &V) -> N {
+pub fn norm<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
     Norm::norm(v)
 }
 
 /// Computes the squared L2 norm of a vector.
 #[inline(always)]
-pub fn sqnorm<V: Norm<N>, N: Float>(v: &V) -> N {
+pub fn sqnorm<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
     Norm::sqnorm(v)
 }
 
 /// Gets the normalized version of a vector.
 #[inline(always)]
-pub fn normalize<V: Norm<N>, N: Float>(v: &V) -> V {
+pub fn normalize<V: Norm<N>, N: BaseFloat>(v: &V) -> V {
     Norm::normalize_cpy(v)
 }
 

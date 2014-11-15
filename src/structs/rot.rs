@@ -2,11 +2,11 @@
 
 #![allow(missing_docs)]
 
-use std::num::{Zero, One};
+use std::num::{Zero, One, Num};
 use std::rand::{Rand, Rng};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
                        Norm, Cross};
-use traits::structure::{Cast, Dim, Row, Col};
+use traits::structure::{Cast, Dim, Row, Col, BaseFloat};
 use traits::operations::{Absolute, Inv, Transpose, ApproxEq};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
 use structs::pnt::{Pnt2, Pnt3, Pnt4, Pnt2MulRhs, Pnt3MulRhs, Pnt4MulRhs};
@@ -19,7 +19,7 @@ pub struct Rot2<N> {
     submat: Mat2<N>
 }
 
-impl<N: Clone + FloatMath + Neg<N>> Rot2<N> {
+impl<N: Clone + BaseFloat + Neg<N>> Rot2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
     pub fn new(angle: Vec1<N>) -> Rot2<N> {
         let (sia, coa) = angle.x.sin_cos();
@@ -30,7 +30,7 @@ impl<N: Clone + FloatMath + Neg<N>> Rot2<N> {
     }
 }
 
-impl<N: FloatMath + Clone> Rotation<Vec1<N>> for Rot2<N> {
+impl<N: BaseFloat + Clone> Rotation<Vec1<N>> for Rot2<N> {
     #[inline]
     fn rotation(&self) -> Vec1<N> {
         Vec1::new((-self.submat.m12).atan2(self.submat.m11.clone()))
@@ -67,21 +67,21 @@ impl<N: FloatMath + Clone> Rotation<Vec1<N>> for Rot2<N> {
     }
 }
 
-impl<N: Clone + Rand + FloatMath + Neg<N>> Rand for Rot2<N> {
+impl<N: Clone + Rand + BaseFloat + Neg<N>> Rand for Rot2<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rot2<N> {
         Rot2::new(rng.gen())
     }
 }
 
-impl<N: Signed> AbsoluteRotate<Vec2<N>> for Rot2<N> {
+impl<N: BaseFloat> AbsoluteRotate<Vec2<N>> for Rot2<N> {
     #[inline]
     fn absolute_rotate(&self, v: &Vec2<N>) -> Vec2<N> {
         // the matrix is skew-symetric, so we dont need to compute the absolute value of every
         // component.
-        let m11 = self.submat.m11.abs();
-        let m12 = self.submat.m12.abs();
-        let m22 = self.submat.m22.abs();
+        let m11 = ::abs(&self.submat.m11);
+        let m12 = ::abs(&self.submat.m12);
+        let m22 = ::abs(&self.submat.m22);
 
         Vec2::new(m11 * v.x + m12 * v.y, m12 * v.x + m22 * v.y)
     }
@@ -97,7 +97,7 @@ pub struct Rot3<N> {
 }
 
 
-impl<N: Clone + FloatMath> Rot3<N> {
+impl<N: Clone + BaseFloat> Rot3<N> {
     /// Builds a 3 dimensional rotation matrix from an axis and an angle.
     ///
     /// # Arguments
@@ -166,7 +166,7 @@ impl<N: Clone + FloatMath> Rot3<N> {
     }
 }
 
-impl<N: Clone + Float> Rot3<N> {
+impl<N: Clone + BaseFloat> Rot3<N> {
     /// Reorient this matrix such that its local `x` axis points to a given point. Note that the
     /// usually known `look_at` function does the same thing but with the `z` axis. See `look_at_z`
     /// for that.
@@ -205,7 +205,7 @@ impl<N: Clone + Float> Rot3<N> {
     }
 }
 
-impl<N: Clone + FloatMath + Cast<f64>>
+impl<N: Clone + BaseFloat + Cast<f64>>
 Rotation<Vec3<N>> for Rot3<N> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {
@@ -270,7 +270,7 @@ Rotation<Vec3<N>> for Rot3<N> {
     }
 }
 
-impl<N: Clone + Rand + FloatMath>
+impl<N: Clone + Rand + BaseFloat>
 Rand for Rot3<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rot3<N> {
@@ -278,13 +278,13 @@ Rand for Rot3<N> {
     }
 }
 
-impl<N: Signed> AbsoluteRotate<Vec3<N>> for Rot3<N> {
+impl<N: BaseFloat> AbsoluteRotate<Vec3<N>> for Rot3<N> {
     #[inline]
     fn absolute_rotate(&self, v: &Vec3<N>) -> Vec3<N> {
         Vec3::new(
-            self.submat.m11.abs() * v.x + self.submat.m12.abs() * v.y + self.submat.m13.abs() * v.z,
-            self.submat.m21.abs() * v.x + self.submat.m22.abs() * v.y + self.submat.m23.abs() * v.z,
-            self.submat.m31.abs() * v.x + self.submat.m32.abs() * v.y + self.submat.m33.abs() * v.z)
+            ::abs(&self.submat.m11) * v.x + ::abs(&self.submat.m12) * v.y + ::abs(&self.submat.m13) * v.z,
+            ::abs(&self.submat.m21) * v.x + ::abs(&self.submat.m22) * v.y + ::abs(&self.submat.m23) * v.z,
+            ::abs(&self.submat.m31) * v.x + ::abs(&self.submat.m32) * v.y + ::abs(&self.submat.m33) * v.z)
     }
 }
 
@@ -316,25 +316,25 @@ pub struct Rot4<N> {
 //     }
 // }
 
-impl<N: Signed> AbsoluteRotate<Vec4<N>> for Rot4<N> {
+impl<N: BaseFloat> AbsoluteRotate<Vec4<N>> for Rot4<N> {
     #[inline]
     fn absolute_rotate(&self, v: &Vec4<N>) -> Vec4<N> {
         Vec4::new(
-            self.submat.m11.abs() * v.x + self.submat.m12.abs() * v.y +
-            self.submat.m13.abs() * v.z + self.submat.m14.abs() * v.w,
+            ::abs(&self.submat.m11) * v.x + ::abs(&self.submat.m12) * v.y +
+            ::abs(&self.submat.m13) * v.z + ::abs(&self.submat.m14) * v.w,
 
-            self.submat.m21.abs() * v.x + self.submat.m22.abs() * v.y +
-            self.submat.m23.abs() * v.z + self.submat.m24.abs() * v.w,
+            ::abs(&self.submat.m21) * v.x + ::abs(&self.submat.m22) * v.y +
+            ::abs(&self.submat.m23) * v.z + ::abs(&self.submat.m24) * v.w,
 
-            self.submat.m31.abs() * v.x + self.submat.m32.abs() * v.y +
-            self.submat.m33.abs() * v.z + self.submat.m34.abs() * v.w,
+            ::abs(&self.submat.m31) * v.x + ::abs(&self.submat.m32) * v.y +
+            ::abs(&self.submat.m33) * v.z + ::abs(&self.submat.m34) * v.w,
 
-            self.submat.m41.abs() * v.x + self.submat.m42.abs() * v.y +
-            self.submat.m43.abs() * v.z + self.submat.m44.abs() * v.w)
+            ::abs(&self.submat.m41) * v.x + ::abs(&self.submat.m42) * v.y +
+            ::abs(&self.submat.m43) * v.z + ::abs(&self.submat.m44) * v.w)
     }
 }
 
-impl<N: Float + Clone>
+impl<N: BaseFloat + Clone>
 Rotation<Vec4<N>> for Rot4<N> {
     #[inline]
     fn rotation(&self) -> Vec4<N> {

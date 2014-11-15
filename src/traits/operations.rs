@@ -1,5 +1,6 @@
 //! Low level operations on vectors and matrices.
 
+use std::num::{Float, SignedInt};
 use traits::structure::SquareMat;
 
 /// Result of a partial ordering.
@@ -170,7 +171,7 @@ impl ApproxEq<f32> for f32 {
 
     #[inline]
     fn approx_eq_eps(a: &f32, b: &f32, epsilon: &f32) -> bool {
-        (*a - *b).abs() < *epsilon
+        ::abs(&(*a - *b)) < *epsilon
     }
 }
 
@@ -182,7 +183,7 @@ impl ApproxEq<f64> for f64 {
 
     #[inline]
     fn approx_eq_eps(a: &f64, b: &f64, approx_epsilon: &f64) -> bool {
-        (*a - *b).abs() < *approx_epsilon
+        ::abs(&(*a - *b)) < *approx_epsilon
     }
 }
 
@@ -344,3 +345,40 @@ pub trait Axpy<N> {
     /// Adds $$a * x$$ to `self`.
     fn axpy(&mut self, a: &N, x: &Self);
 }
+
+/*
+ * Some implementation for scalar types.
+ */
+// FIXME: move this to another module ?
+macro_rules! impl_absolute(
+    ($n: ty) => {
+        impl Absolute<$n> for $n {
+            #[inline]
+            fn abs(n: &$n) -> $n {
+                n.abs()
+            }
+        }
+    }
+)
+macro_rules! impl_absolute_id(
+    ($n: ty) => {
+        impl Absolute<$n> for $n {
+            #[inline]
+            fn abs(n: &$n) -> $n {
+                *n
+            }
+        }
+    }
+)
+
+impl_absolute!(f32)
+impl_absolute!(f64)
+impl_absolute!(i16)
+impl_absolute!(i32)
+impl_absolute!(i64)
+impl_absolute!(int)
+impl_absolute_id!(u8)
+impl_absolute_id!(u16)
+impl_absolute_id!(u32)
+impl_absolute_id!(u64)
+impl_absolute_id!(uint)
