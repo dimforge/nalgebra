@@ -3,14 +3,13 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the point components.
 
 use std::mem;
-use std::num::{Zero, One, Bounded, Num};
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
                          PartialGreater, NotComparable, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
 use traits::structure::{Cast, Dim, Indexable, Iterable, IterableMut, PntAsVec, Shape,
-                        NumPnt, FloatPnt, BaseFloat};
+                        NumPnt, FloatPnt, BaseFloat, BaseNum, Zero, One, Bounded};
 use traits::geometry::{Orig, FromHomogeneous, ToHomogeneous};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 

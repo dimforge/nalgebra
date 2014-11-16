@@ -3,7 +3,6 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch trait.
 
 use std::mem;
-use std::num::{Zero, One, Bounded, Num};
 use std::num;
 use std::rand::{Rand, Rng};
 use std::slice::{Items, MutItems};
@@ -11,11 +10,12 @@ use structs::{Vec3, Pnt3, Rot3, Mat3, Vec3MulRhs, Pnt3MulRhs};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, NotComparable, PartialLess,
                          PartialGreater, PartialEqual, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
-use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat};
+use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat, BaseNum, Zero,
+                        One, Bounded};
 use traits::geometry::{Norm, Cross, Rotation, Rotate, Transform};
 
 /// A quaternion.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Zero, Show)]
+#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
 pub struct Quat<N> {
     /// The scalar component of the quaternion.
     pub w: N,
@@ -82,7 +82,7 @@ impl<N: BaseFloat + ApproxEq<N> + Clone> Inv for Quat<N> {
     fn inv(&mut self) -> bool {
         let sqnorm = Norm::sqnorm(self);
 
-        if ApproxEq::approx_eq(&sqnorm, &Zero::zero()) {
+        if ApproxEq::approx_eq(&sqnorm, &::zero()) {
             false
         }
         else {
@@ -152,8 +152,8 @@ impl<N: BaseFloat> UnitQuat<N> {
     pub fn new(axisangle: Vec3<N>) -> UnitQuat<N> {
         let sqang = Norm::sqnorm(&axisangle);
 
-        if sqang.is_zero() {
-            One::one()
+        if ::is_zero(&sqang) {
+            ::one()
         }
         else {
             let ang    = sqang.sqrt();
@@ -251,11 +251,11 @@ impl<N> UnitQuat<N> {
     }
 }
 
-impl<N: Num + Clone> One for UnitQuat<N> {
+impl<N: BaseNum + Clone> One for UnitQuat<N> {
     #[inline]
     fn one() -> UnitQuat<N> {
         unsafe {
-            UnitQuat::new_with_unit_quat(Quat::new(One::one(), Zero::zero(), Zero::zero(), Zero::zero()))
+            UnitQuat::new_with_unit_quat(Quat::new(::one(), ::zero(), ::zero(), ::zero()))
         }
     }
 }
@@ -308,17 +308,17 @@ impl<N: BaseFloat + ApproxEq<N> + Clone> Div<UnitQuat<N>, UnitQuat<N>> for UnitQ
     }
 }
 
-impl<N: Num + Clone> UnitQuatMulRhs<N, UnitQuat<N>> for UnitQuat<N> {
+impl<N: BaseNum + Clone> UnitQuatMulRhs<N, UnitQuat<N>> for UnitQuat<N> {
     #[inline]
     fn binop(left: &UnitQuat<N>, right: &UnitQuat<N>) -> UnitQuat<N> {
         UnitQuat { q: left.q * right.q }
     }
 }
 
-impl<N: Num + Clone> UnitQuatMulRhs<N, Vec3<N>> for Vec3<N> {
+impl<N: BaseNum + Clone> UnitQuatMulRhs<N, Vec3<N>> for Vec3<N> {
     #[inline]
     fn binop(left: &UnitQuat<N>, right: &Vec3<N>) -> Vec3<N> {
-        let _2: N = num::one::<N>() + num::one();
+        let _2: N = ::one::<N>() + ::one();
         let mut t = Cross::cross(left.q.vector(), right);
         t.x = t.x * _2;
         t.y = t.y * _2;
@@ -330,14 +330,14 @@ impl<N: Num + Clone> UnitQuatMulRhs<N, Vec3<N>> for Vec3<N> {
     }
 }
 
-impl<N: Num + Clone> UnitQuatMulRhs<N, Pnt3<N>> for Pnt3<N> {
+impl<N: BaseNum + Clone> UnitQuatMulRhs<N, Pnt3<N>> for Pnt3<N> {
     #[inline]
     fn binop(left: &UnitQuat<N>, right: &Pnt3<N>) -> Pnt3<N> {
         ::orig::<Pnt3<N>>() + *left * *right.as_vec()
     }
 }
 
-impl<N: Num + Clone> Vec3MulRhs<N, Vec3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Clone> Vec3MulRhs<N, Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn binop(left: &Vec3<N>, right: &UnitQuat<N>) -> Vec3<N> {
         let mut inv_quat = right.clone();
@@ -347,7 +347,7 @@ impl<N: Num + Clone> Vec3MulRhs<N, Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: Num + Clone> Pnt3MulRhs<N, Pnt3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Clone> Pnt3MulRhs<N, Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn binop(left: &Pnt3<N>, right: &UnitQuat<N>) -> Pnt3<N> {
         ::orig::<Pnt3<N>>() + *left.as_vec() * *right
@@ -357,12 +357,12 @@ impl<N: Num + Clone> Pnt3MulRhs<N, Pnt3<N>> for UnitQuat<N> {
 impl<N: BaseFloat + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {
-        let _2 = num::one::<N>() + num::one();
+        let _2 = ::one::<N>() + ::one();
         let mut v = self.q.vector().clone();
         let ang = _2 * v.normalize().atan2(self.q.w);
 
-        if ang.is_zero() {
-            num::zero()
+        if ::is_zero(&ang) {
+            ::zero()
         }
         else {
             Vec3::new(v.x * ang, v.y * ang, v.z * ang)
@@ -400,7 +400,7 @@ impl<N: BaseFloat + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: Num + Clone> Rotate<Vec3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Clone> Rotate<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn rotate(&self, v: &Vec3<N>) -> Vec3<N> {
         *self * *v
@@ -412,7 +412,7 @@ impl<N: Num + Clone> Rotate<Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: Num + Clone> Rotate<Pnt3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Clone> Rotate<Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn rotate(&self, p: &Pnt3<N>) -> Pnt3<N> {
         *self * *p
@@ -424,7 +424,7 @@ impl<N: Num + Clone> Rotate<Pnt3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: Num + Clone> Transform<Vec3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Clone> Transform<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn transform(&self, v: &Vec3<N>) -> Vec3<N> {
         *self * *v
@@ -436,7 +436,7 @@ impl<N: Num + Clone> Transform<Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: Num + Clone> Transform<Pnt3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Clone> Transform<Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn transform(&self, p: &Pnt3<N>) -> Pnt3<N> {
         *self * *p
@@ -520,6 +520,7 @@ vec_sub_scalar_impl!(Quat, i16, QuatSubRhs, w, i, j, k)
 vec_sub_scalar_impl!(Quat, i8, QuatSubRhs, w, i, j, k)
 vec_sub_scalar_impl!(Quat, uint, QuatSubRhs, w, i, j, k)
 vec_sub_scalar_impl!(Quat, int, QuatSubRhs, w, i, j, k)
+zero_one_impl!(Quat, w, i, j, k)
 approx_eq_impl!(Quat, w, i, j, k)
 from_iterator_impl!(Quat, iterator, iterator, iterator, iterator)
 bounded_impl!(Quat, w, i, j, k)

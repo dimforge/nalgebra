@@ -1,4 +1,3 @@
-use std::num::Zero;
 use traits::operations::{Transpose, ApproxEq};
 use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat, BaseFloat};
 use traits::geometry::Norm;
@@ -52,7 +51,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
     for ite in range(0u, iterations) {
         let mut v = r.col_slice(ite, ite, rows);
         let alpha =
-            if unsafe { v.unsafe_at(ite) } >= Zero::zero() {
+            if unsafe { v.unsafe_at(ite) } >= ::zero() {
                 -Norm::norm(&v)
             }
             else {
@@ -62,7 +61,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
             let x = v.unsafe_at(0);
             v.unsafe_set(0, x - alpha);
         }
-        if !v.normalize().is_zero() {
+        if !::is_zero(&v.normalize()) {
             let qk: M = householder_matrix(rows, ite, v);
             r = qk * r;
             q = q * Transpose::transpose_cpy(&qk);

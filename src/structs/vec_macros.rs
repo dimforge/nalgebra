@@ -135,9 +135,9 @@ macro_rules! vec_axis_impl(
             /// Create a unit vector with its `$comp0` component equal to 1.0.
             #[inline]
             pub fn $comp0() -> $t<N> {
-                let mut res: $t<N> = Zero::zero();
+                let mut res: $t<N> = ::zero();
 
-                res.$comp0 = One::one();
+                res.$comp0 = ::one();
 
                 res
             }
@@ -146,9 +146,9 @@ macro_rules! vec_axis_impl(
                 /// Create a unit vector with its `$compN` component equal to 1.0.
                 #[inline]
                 pub fn $compN() -> $t<N> {
-                    let mut res: $t<N> = Zero::zero();
+                    let mut res: $t<N> = ::zero();
 
-                    res.$compN = One::one();
+                    res.$compN = ::one();
 
                     res
                 }
@@ -308,10 +308,10 @@ macro_rules! basis_impl(
                 let mut basis: Vec<$t<N>> = Vec::new();
 
                 for i in range(0u, $dim) {
-                    let mut basis_element : $t<N> = Zero::zero();
+                    let mut basis_element : $t<N> = ::zero();
 
                     unsafe {
-                        basis_element.set_fast(i, One::one());
+                        basis_element.set_fast(i, ::one());
                     }
 
                     if basis.len() == $dim - 1 {
@@ -326,7 +326,7 @@ macro_rules! basis_impl(
                         elt = elt - *v * Dot::dot(&elt, v)
                     };
 
-                    if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &Zero::zero()) {
+                    if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &::zero()) {
                         let new_element = Norm::normalize_cpy(&elt);
 
                         if !f(new_element.clone()) { return };
@@ -339,10 +339,10 @@ macro_rules! basis_impl(
             #[inline]
             fn canonical_basis_element(i: uint) -> Option<$t<N>> {
                 if i < $dim {
-                    let mut basis_element : $t<N> = Zero::zero();
+                    let mut basis_element : $t<N> = ::zero();
 
                     unsafe {
-                        basis_element.set_fast(i, One::one());
+                        basis_element.set_fast(i, ::one());
                     }
 
                     Some(basis_element)
@@ -424,7 +424,7 @@ macro_rules! neg_impl(
 
 macro_rules! dot_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Num> Dot<N> for $t<N> {
+        impl<N: BaseNum> Dot<N> for $t<N> {
             #[inline]
             fn dot(a: &$t<N>, b: &$t<N>) -> N {
                 a.$comp0 * b.$comp0 $(+ a.$compN * b.$compN )*
@@ -608,15 +608,31 @@ macro_rules! approx_eq_impl(
     )
 )
 
-macro_rules! one_impl(
+macro_rules! zero_one_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: One> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
                 $t {
-                    $comp0: One::one()
-                    $(, $compN: One::one() )*
+                    $comp0: ::one()
+                    $(, $compN: ::one() )*
                 }
+            }
+        }
+
+        impl<N: Zero> Zero for $t<N> {
+            #[inline]
+            fn zero() -> $t<N> {
+                $t {
+                    $comp0: ::zero()
+                    $(, $compN: ::zero() )*
+                }
+            }
+
+            #[inline]
+            fn is_zero(&self) -> bool {
+                self.$comp0.is_zero()
+                $(&& self.$compN.is_zero() )*
             }
         }
     )
@@ -659,7 +675,7 @@ macro_rules! vec_to_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + One + Zero> ToHomogeneous<$t2<N>> for $t<N> {
             fn to_homogeneous(v: &$t<N>) -> $t2<N> {
-                let mut res: $t2<N> = Zero::zero();
+                let mut res: $t2<N> = ::zero();
 
                 res.$comp0    = v.$comp0.clone();
                 $( res.$compN = v.$compN.clone(); )*
@@ -674,7 +690,7 @@ macro_rules! vec_from_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + Div<N, N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N> {
             fn from(v: &$t2<N>) -> $t<N> {
-                let mut res: $t<N> = Zero::zero();
+                let mut res: $t<N> = ::zero();
 
                 res.$comp0    = v.$comp0.clone();
                 $( res.$compN = v.$compN.clone(); )*
@@ -765,11 +781,11 @@ macro_rules! vec_as_pnt_impl(
 macro_rules! num_float_vec_impl(
     ($t: ident $(,$trhs: ident)*) => (
         impl<N> NumVec<N> for $t<N>
-            where N: Num $(+ $trhs<N, $t<N>>)* {
+            where N: BaseNum + Zero $(+ $trhs<N, $t<N>>)* {
         }
 
         impl<N> FloatVec<N> for $t<N>
-            where N: Num + Zero + One + ApproxEq<N> + BaseFloat $(+ $trhs<N, $t<N>>)* {
+            where N: BaseNum + Zero + One + ApproxEq<N> + BaseFloat $(+ $trhs<N, $t<N>>)* {
         }
     )
 )

@@ -1,4 +1,3 @@
-use std::num::{Zero, One};
 use traits::structure::BaseFloat;
 use structs::{Pnt3, Vec3, Mat4};
 
@@ -24,8 +23,8 @@ pub struct PerspMat3<N> {
 impl<N: BaseFloat> Persp3<N> {
     /// Creates a new 3D perspective projection.
     pub fn new(aspect: N, fov: N, znear: N, zfar: N) -> Persp3<N> {
-        assert!(!(zfar - znear).is_zero());
-        assert!(!aspect.is_zero());
+        assert!(!::is_zero(&(zfar - znear)));
+        assert!(!::is_zero(&aspect));
 
         Persp3 {
             aspect: aspect,
@@ -121,17 +120,17 @@ impl<N: BaseFloat + Clone> Persp3<N> {
 impl<N: BaseFloat> PerspMat3<N> {
     /// Creates a new persepctive matrix from the aspect ratio, field of view, and near/far planes.
     pub fn new(aspect: N, fov: N, znear: N, zfar: N) -> PerspMat3<N> {
-        assert!(!(znear - zfar).is_zero());
-        assert!(!aspect.is_zero());
+        assert!(!::is_zero(&(znear - zfar)));
+        assert!(!::is_zero(&aspect));
 
-        let mat: Mat4<N> = One::one();
+        let mat: Mat4<N> = ::one();
 
         let mut res = PerspMat3 { mat: mat };
         res.set_fov(fov);
         res.set_aspect(aspect);
         res.set_znear_and_zfar(znear, zfar);
-        res.mat.m44 = Zero::zero();
-        res.mat.m43 = One::one();
+        res.mat.m44 = ::zero();
+        res.mat.m43 = ::one();
 
         res
     }
@@ -161,7 +160,7 @@ impl<N: BaseFloat> PerspMat3<N> {
     /// Gets the field of view of the view frustrum.
     #[inline]
     pub fn fov(&self) -> N {
-        let _1: N = One::one();
+        let _1: N = ::one();
         let _2 = _1 + _1;
 
         (_1 / self.mat.m22).atan() * _2
@@ -170,7 +169,7 @@ impl<N: BaseFloat> PerspMat3<N> {
     /// Gets the near plane offset of the view frustrum.
     #[inline]
     pub fn znear(&self) -> N {
-        let _1: N = One::one();
+        let _1: N = ::one();
         let _2 = _1 + _1;
         let ratio = (self.mat.m33 + _1) / (self.mat.m33 - _1);
 
@@ -180,7 +179,7 @@ impl<N: BaseFloat> PerspMat3<N> {
     /// Gets the far plane offset of the view frustrum.
     #[inline]
     pub fn zfar(&self) -> N {
-        let _1: N = One::one();
+        let _1: N = ::one();
         let _2 = _1 + _1;
         let ratio = (self.mat.m33 + _1) / (self.mat.m33 - _1);
 
@@ -193,14 +192,14 @@ impl<N: BaseFloat> PerspMat3<N> {
     /// frustrum.
     #[inline]
     pub fn set_aspect(&mut self, aspect: N) {
-        assert!(!aspect.is_zero());
+        assert!(!::is_zero(&aspect));
         self.mat.m11 = -self.mat.m22 / aspect;
     }
 
     /// Updates this projection with a new field of view of the view frustrum.
     #[inline]
     pub fn set_fov(&mut self, fov: N) {
-        let _1: N = One::one();
+        let _1: N = ::one();
         let _2 = _1 + _1;
 
         let old_m22  = self.mat.m22.clone();
@@ -225,7 +224,7 @@ impl<N: BaseFloat> PerspMat3<N> {
     /// Updates this projection matrix with new near and far plane offsets of the view frustrum.
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
-        let _1: N = One::one();
+        let _1: N = ::one();
         let _2 = _1 + _1;
 
         self.mat.m33 = -(zfar + znear) / (znear - zfar);
@@ -235,7 +234,7 @@ impl<N: BaseFloat> PerspMat3<N> {
     /// Projects a point.
     #[inline]
     pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
-        let _1: N = One::one();
+        let _1: N = ::one();
         let inv_denom = _1 / p.z;
         Pnt3::new(
             self.mat.m11 * p.x * inv_denom,
@@ -247,7 +246,7 @@ impl<N: BaseFloat> PerspMat3<N> {
     /// Projects a vector.
     #[inline]
     pub fn project_vec(&self, p: &Vec3<N>) -> Vec3<N> {
-        let _1: N = One::one();
+        let _1: N = ::one();
         let inv_denom = _1 / p.z;
         Vec3::new(
             self.mat.m11 * p.x * inv_denom,

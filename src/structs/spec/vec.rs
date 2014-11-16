@@ -1,5 +1,4 @@
-use std::num::{Zero, One, Num};
-use traits::structure::{Cast, Row, Basis, BaseFloat};
+use traits::structure::{Cast, Row, Basis, BaseFloat, Zero, One};
 use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::mat::Mat3;
@@ -34,9 +33,9 @@ impl<N: Neg<N> + Zero + Clone> CrossMatrix<Mat3<N>> for Vec3<N> {
     #[inline]
     fn cross_matrix(v: &Vec3<N>) -> Mat3<N> {
         Mat3::new(
-            Zero::zero(), -v.z        , v.y.clone(),
-            v.z.clone() , Zero::zero(), -v.x,
-            -v.y        , v.x.clone() , Zero::zero()
+            ::zero(), -v.z        , v.y.clone(),
+            v.z.clone() , ::zero(), -v.x,
+            -v.y        , v.x.clone() , ::zero()
         )
     }
 }
@@ -71,7 +70,7 @@ impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
 impl<N: One> Basis for Vec1<N> {
     #[inline(always)]
     fn canonical_basis(f: |Vec1<N>| -> bool) {
-        f(Vec1::new(One::one()));
+        f(Vec1::new(::one()));
     }
 
     #[inline(always)]
@@ -80,7 +79,7 @@ impl<N: One> Basis for Vec1<N> {
     #[inline]
     fn canonical_basis_element(i: uint) -> Option<Vec1<N>> {
         if i == 0 {
-            Some(Vec1::new(One::one()))
+            Some(Vec1::new(::one()))
         }
         else {
             None
@@ -91,8 +90,8 @@ impl<N: One> Basis for Vec1<N> {
 impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
     #[inline(always)]
     fn canonical_basis(f: |Vec2<N>| -> bool) {
-        if !f(Vec2::new(One::one(), Zero::zero())) { return };
-        f(Vec2::new(Zero::zero(), One::one()));
+        if !f(Vec2::new(::one(), ::zero())) { return };
+        f(Vec2::new(::zero(), ::one()));
     }
 
     #[inline]
@@ -103,10 +102,10 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
     #[inline]
     fn canonical_basis_element(i: uint) -> Option<Vec2<N>> {
         if i == 0 {
-            Some(Vec2::new(One::one(), Zero::zero()))
+            Some(Vec2::new(::one(), ::zero()))
         }
         else if i == 1 {
-            Some(Vec2::new(Zero::zero(), One::one()))
+            Some(Vec2::new(::zero(), ::one()))
         }
         else {
             None
@@ -117,19 +116,19 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
 impl<N: BaseFloat> Basis for Vec3<N> {
     #[inline(always)]
     fn canonical_basis(f: |Vec3<N>| -> bool) {
-        if !f(Vec3::new(One::one(), Zero::zero(), Zero::zero())) { return };
-        if !f(Vec3::new(Zero::zero(), One::one(), Zero::zero())) { return };
-        f(Vec3::new(Zero::zero(), Zero::zero(), One::one()));
+        if !f(Vec3::new(::one(), ::zero(), ::zero())) { return };
+        if !f(Vec3::new(::zero(), ::one(), ::zero())) { return };
+        f(Vec3::new(::zero(), ::zero(), ::one()));
     }
 
     #[inline(always)]
     fn orthonormal_subspace_basis(n: &Vec3<N>, f: |Vec3<N>| -> bool) {
         let a = 
             if n.x.clone().abs() > n.y.clone().abs() {
-                Norm::normalize_cpy(&Vec3::new(n.z.clone(), Zero::zero(), -n.x))
+                Norm::normalize_cpy(&Vec3::new(n.z.clone(), ::zero(), -n.x))
             }
             else {
-                Norm::normalize_cpy(&Vec3::new(Zero::zero(), -n.z, n.y.clone()))
+                Norm::normalize_cpy(&Vec3::new(::zero(), -n.z, n.y.clone()))
             };
 
         if !f(Cross::cross(&a, n)) { return };
@@ -139,13 +138,13 @@ impl<N: BaseFloat> Basis for Vec3<N> {
     #[inline]
     fn canonical_basis_element(i: uint) -> Option<Vec3<N>> {
         if i == 0 {
-            Some(Vec3::new(One::one(), Zero::zero(), Zero::zero()))
+            Some(Vec3::new(::one(), ::zero(), ::zero()))
         }
         else if i == 1 {
-            Some(Vec3::new(Zero::zero(), One::one(), Zero::zero()))
+            Some(Vec3::new(::zero(), ::one(), ::zero()))
         }
         else if i == 2 {
-            Some(Vec3::new(Zero::zero(), Zero::zero(), One::one()))
+            Some(Vec3::new(::zero(), ::zero(), ::one()))
         }
         else {
             None
@@ -227,7 +226,7 @@ static SAMPLES_3_F64: [Vec3<f64>, ..42] = [
 impl<N: One + Clone> UniformSphereSample for Vec1<N> {
     #[inline(always)]
     fn sample(f: |Vec1<N>| -> ()) {
-        f(One::one())
+        f(::one())
      }
 }
 

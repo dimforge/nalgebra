@@ -2,11 +2,10 @@
 
 #![allow(missing_docs)]
 
-use std::num::{Zero, One, Num};
 use std::rand::{Rand, Rng};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
                        Norm, Cross};
-use traits::structure::{Cast, Dim, Row, Col, BaseFloat};
+use traits::structure::{Cast, Dim, Row, Col, BaseFloat, BaseNum, Zero, One};
 use traits::operations::{Absolute, Inv, Transpose, ApproxEq};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
 use structs::pnt::{Pnt2, Pnt3, Pnt4, Pnt2MulRhs, Pnt3MulRhs, Pnt4MulRhs};
@@ -104,13 +103,13 @@ impl<N: Clone + BaseFloat> Rot3<N> {
     ///   * `axisangle` - A vector representing the rotation. Its magnitude is the amount of rotation
     ///   in radian. Its direction is the axis of rotation.
     pub fn new(axisangle: Vec3<N>) -> Rot3<N> {
-        if Norm::sqnorm(&axisangle).is_zero() {
-            One::one()
+        if ::is_zero(&Norm::sqnorm(&axisangle)) {
+            ::one()
         }
         else {
             let mut axis   = axisangle;
             let angle      = axis.normalize();
-            let _1: N      = One::one();
+            let _1: N      = ::one();
             let ux         = axis.x.clone();
             let uy         = axis.y.clone();
             let uz         = axis.z.clone();
@@ -209,14 +208,14 @@ impl<N: Clone + BaseFloat + Cast<f64>>
 Rotation<Vec3<N>> for Rot3<N> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {
-        let angle = ((self.submat.m11 + self.submat.m22 + self.submat.m33 - One::one()) / Cast::from(2.0)).acos();
+        let angle = ((self.submat.m11 + self.submat.m22 + self.submat.m33 - ::one()) / Cast::from(2.0)).acos();
 
         if angle != angle {
             // FIXME: handle that correctly
-            Zero::zero()
+            ::zero()
         }
-        else if angle.is_zero() {
-            Zero::zero()
+        else if ::is_zero(&angle) {
+            ::zero()
         }
         else {
             let m32_m23 = self.submat.m32 - self.submat.m23;
@@ -225,10 +224,10 @@ Rotation<Vec3<N>> for Rot3<N> {
 
             let denom = (m32_m23 * m32_m23 + m13_m31 * m13_m31 + m21_m12 * m21_m12).sqrt();
 
-            if denom.is_zero() {
+            if ::is_zero(&denom) {
                 // XXX: handle that properly
                 // panic!("Internal error: singularity.")
-                Zero::zero()
+                ::zero()
             }
             else {
                 let a_d = angle / denom;

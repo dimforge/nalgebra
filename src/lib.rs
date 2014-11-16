@@ -108,18 +108,17 @@ extern crate serialize;
 #[cfg(test)]
 extern crate test;
 
-use std::num::{Zero, One};
 use std::cmp;
 pub use traits::{PartialLess, PartialEqual, PartialGreater, NotComparable};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
-    NumPnt,
-    NumVec,
     ApproxEq,
     Axpy,
     Basis,
     BaseFloat,
+    BaseNum,
+    Bounded,
     Cast,
     Col,
     ColSlice, RowSlice,
@@ -143,6 +142,9 @@ pub use traits::{
     Mat,
     Mean,
     Norm,
+    NumPnt,
+    NumVec,
+    One,
     Orig,
     Outer,
     POrd,
@@ -160,7 +162,8 @@ pub use traits::{
     Translate, Translation,
     Transpose,
     UniformSphereSample,
-    VecAsPnt
+    VecAsPnt,
+    Zero
 };
 
 pub use structs::{
@@ -334,6 +337,12 @@ pub fn identity() -> Identity {
 #[inline(always)]
 pub fn zero<T: Zero>() -> T {
     Zero::zero()
+}
+
+/// Tests is a value is iqual to zero.
+#[inline(always)]
+pub fn is_zero<T: Zero>(val: &T) -> bool {
+    val.is_zero()
 }
 
 /// Create a one-valued value.

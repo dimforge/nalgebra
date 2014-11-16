@@ -19,7 +19,7 @@ macro_rules! dvec_impl(
             /// * `dim` - The dimension of the vector.
             #[inline]
             pub fn new_zeros(dim: uint) -> $dvec<N> {
-                $dvec::from_elem(dim, Zero::zero())
+                $dvec::from_elem(dim, ::zero())
             }
 
             /// Tests if all components of the vector are zeroes.
@@ -106,7 +106,7 @@ macro_rules! dvec_impl(
             /// * `dim` - The dimension of the vector.
             #[inline]
             pub fn new_ones(dim: uint) -> $dvec<N> {
-                $dvec::from_elem(dim, One::one())
+                $dvec::from_elem(dim, ::one())
             }
         }
 
@@ -142,7 +142,7 @@ macro_rules! dvec_impl(
                 for i in range(0u, dim) {
                     let mut basis_element : $dvec<N> = $dvec::new_zeros(dim);
 
-                    basis_element.set(i, One::one());
+                    basis_element.set(i, ::one());
 
                     res.push(basis_element);
                 }
@@ -161,7 +161,7 @@ macro_rules! dvec_impl(
                 for i in range(0u, dim) {
                     let mut basis_element : $dvec<N> = $dvec::new_zeros(self.len());
 
-                    basis_element.set(i, One::one());
+                    basis_element.set(i, ::one());
 
                     if res.len() == dim - 1 {
                         break;
@@ -175,7 +175,7 @@ macro_rules! dvec_impl(
                         elt = elt - *v * Dot::dot(&elt, v)
                     };
 
-                    if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &Zero::zero()) {
+                    if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &::zero()) {
                         res.push(Norm::normalize_cpy(&elt));
                     }
                 }
@@ -225,12 +225,12 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Num + Clone> Dot<N> for $dvec<N> {
+        impl<N: BaseNum + Clone> Dot<N> for $dvec<N> {
             #[inline]
             fn dot(a: &$dvec<N>, b: &$dvec<N>) -> N {
                 assert!(a.len() == b.len());
 
-                let mut res: N = Zero::zero();
+                let mut res: N = ::zero();
 
                 for i in range(0u, a.len()) {
                     res = res + unsafe { a.unsafe_at(i) * b.unsafe_at(i) };

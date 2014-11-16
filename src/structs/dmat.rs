@@ -5,12 +5,11 @@
 use std::cmp;
 use std::rand::Rand;
 use std::rand;
-use std::num::{One, Zero, Num};
 use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::{DVec, DVecMulRhs};
 use traits::operations::{Inv, Transpose, Mean, Cov};
-use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape};
+use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
 use std::fmt::{Show, Formatter, Result};
 
 
@@ -55,7 +54,7 @@ impl<N: Zero + Clone> DMat<N> {
     ///   components.
     #[inline]
     pub fn new_zeros(nrows: uint, ncols: uint) -> DMat<N> {
-        DMat::from_elem(nrows, ncols, Zero::zero())
+        DMat::from_elem(nrows, ncols, ::zero())
     }
 
     /// Tests if all components of the matrix are zeroes.
@@ -67,7 +66,7 @@ impl<N: Zero + Clone> DMat<N> {
     #[inline]
     pub fn reset(&mut self) {
         for mij in self.mij.iter_mut() {
-            *mij = Zero::zero();
+            *mij = ::zero();
         }
     }
 }
@@ -84,7 +83,7 @@ impl<N: One + Clone> DMat<N> {
     /// Builds a matrix filled with a given constant.
     #[inline]
     pub fn new_ones(nrows: uint, ncols: uint) -> DMat<N> {
-        DMat::from_elem(nrows, ncols, One::one())
+        DMat::from_elem(nrows, ncols, ::one())
     }
 }
 
@@ -191,7 +190,7 @@ impl<N: One + Zero + Clone> Eye for DMat<N> {
         let mut res = DMat::new_zeros(dim, dim);
 
         for i in range(0u, dim) {
-            let _1: N  = One::one();
+            let _1: N  = ::one();
             res[(i, i)]  = _1;
         }
 
@@ -302,7 +301,7 @@ impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> DMatMulRhs<N, DMat<N>> for DMat<N>
 
         for i in range(0u, left.nrows) {
             for j in range(0u, right.ncols) {
-                let mut acc: N = Zero::zero();
+                let mut acc: N = ::zero();
 
                 unsafe {
                     for k in range(0u, left.ncols) {
@@ -327,7 +326,7 @@ DMatMulRhs<N, DVec<N>> for DVec<N> {
         let mut res : DVec<N> = unsafe { DVec::new_uninitialized(left.nrows) };
 
         for i in range(0u, left.nrows) {
-            let mut acc: N = Zero::zero();
+            let mut acc: N = ::zero();
 
             for j in range(0u, left.ncols) {
                 unsafe {
@@ -351,7 +350,7 @@ DVecMulRhs<N, DVec<N>> for DMat<N> {
         let mut res : DVec<N> = unsafe { DVec::new_uninitialized(right.ncols) };
 
         for i in range(0u, right.ncols) {
-            let mut acc: N = Zero::zero();
+            let mut acc: N = ::zero();
 
             for j in range(0u, right.nrows) {
                 unsafe {
@@ -366,8 +365,7 @@ DVecMulRhs<N, DVec<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone + Num>
-Inv for DMat<N> {
+impl<N: Clone + BaseNum + Zero + One> Inv for DMat<N> {
     #[inline]
     fn inv_cpy(m: &DMat<N>) -> Option<DMat<N>> {
         let mut res : DMat<N> = m.clone();
@@ -395,7 +393,7 @@ Inv for DMat<N> {
             let mut n0 = k; // index of a non-zero entry
 
             while n0 != dim {
-                if unsafe { self.unsafe_at((n0, k)) } != Zero::zero() {
+                if unsafe { self.unsafe_at((n0, k)) } != ::zero() {
                     break;
                 }
 
@@ -500,7 +498,7 @@ impl<N: Clone> Transpose for DMat<N> {
     }
 }
 
-impl<N: Num + Cast<f64> + Clone> Mean<DVec<N>> for DMat<N> {
+impl<N: BaseNum + Cast<f64> + Zero + Clone> Mean<DVec<N>> for DMat<N> {
     fn mean(m: &DMat<N>) -> DVec<N> {
         let mut res: DVec<N> = DVec::new_zeros(m.ncols);
         let normalizer: N    = Cast::from(1.0f64 / Cast::from(m.nrows));
@@ -518,7 +516,7 @@ impl<N: Num + Cast<f64> + Clone> Mean<DVec<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone + Num + Cast<f64> + DMatDivRhs<N, DMat<N>>> Cov<DMat<N>> for DMat<N> {
+impl<N: Clone + BaseNum + Cast<f64> + DMatDivRhs<N, DMat<N>>> Cov<DMat<N>> for DMat<N> {
     // FIXME: this could be heavily optimized, removing all temporaries by merging loops.
     fn cov(m: &DMat<N>) -> DMat<N> {
         assert!(m.nrows > 1);

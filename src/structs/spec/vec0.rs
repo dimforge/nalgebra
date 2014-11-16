@@ -1,11 +1,23 @@
 use std::mem;
-use std::num::{Zero, One, Bounded, Num};
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::ApproxEq;
-use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape, BaseFloat};
+use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape, BaseFloat, BaseNum,
+                        Zero, One, Bounded};
 use traits::geometry::{Translation, Dot, Norm};
 use structs::vec;
+
+impl<N> Zero for vec::Vec0<N> {
+    #[inline]
+    fn zero() -> vec::Vec0<N> {
+        vec::Vec0
+    }
+
+    #[inline]
+    fn is_zero(&self) -> bool {
+        true
+    }
+}
 
 impl<N> Index<uint, N> for vec::Vec0<N> {
     #[inline]
@@ -107,10 +119,10 @@ impl<N: Neg<N>> Neg<vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Num> Dot<N> for vec::Vec0<N> {
+impl<N: BaseNum> Dot<N> for vec::Vec0<N> {
     #[inline]
     fn dot(_: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
-        Zero::zero()
+        ::zero()
     }
 }
 
@@ -167,22 +179,22 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
 impl<N: BaseFloat> Norm<N> for vec::Vec0<N> {
     #[inline]
     fn sqnorm(_: &vec::Vec0<N>) -> N {
-        Zero::zero()
+        ::zero()
     }
 
     #[inline]
     fn norm(_: &vec::Vec0<N>) -> N {
-        Zero::zero()
+        ::zero()
     }
 
     #[inline]
     fn normalize_cpy(_: &vec::Vec0<N>) -> vec::Vec0<N> {
-        Zero::zero()
+        ::zero()
     }
 
     #[inline]
     fn normalize(&mut self) -> N {
-        Zero::zero()
+        ::zero()
     }
 }
 

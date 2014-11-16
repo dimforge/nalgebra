@@ -6,8 +6,8 @@ macro_rules! orig_impl(
             #[inline]
             fn orig() -> $t<N> {
                 $t {
-                    $comp0: Zero::zero()
-                    $(, $compN: Zero::zero() )*
+                    $comp0: ::zero()
+                    $(, $compN: ::zero() )*
                 }
             }
 
@@ -106,7 +106,7 @@ macro_rules! pnt_to_homogeneous_impl(
 
                 res.$comp0    = v.$comp0.clone();
                 $( res.$compN = v.$compN.clone(); )*
-                res.$extra    = One::one();
+                res.$extra    = ::one();
 
                 res
             }
@@ -132,11 +132,11 @@ macro_rules! pnt_from_homogeneous_impl(
 macro_rules! num_float_pnt_impl(
     ($t: ident, $tv: ident $(,$trhs: ident)*) => (
         impl<N> NumPnt<N, $tv<N>> for $t<N>
-            where N: Num $(+ $trhs<N, $t<N>>)* {
+            where N: BaseNum + Zero $(+ $trhs<N, $t<N>>)* {
         }
 
         impl<N> FloatPnt<N, $tv<N>> for $t<N>
-            where N: Num + One + Zero + ApproxEq<N> + BaseFloat $(+ $trhs<N, $t<N>>)* {
+            where N: BaseNum + One + Zero + ApproxEq<N> + BaseFloat $(+ $trhs<N, $t<N>>)* {
         }
     )
 )

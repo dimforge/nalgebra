@@ -104,8 +104,8 @@ macro_rules! eye_impl(
         impl<N: Zero + One> Eye for $t<N> {
             fn new_identity(dim: uint) -> $t<N> {
                 assert!(dim == $ndim);
-                let mut eye: $t<N> = Zero::zero();
-                $(eye.$comp_diagN = One::one();)+
+                let mut eye: $t<N> = ::zero();
+                $(eye.$comp_diagN = ::one();)+
                 eye
             }
         }
@@ -162,10 +162,29 @@ macro_rules! iterable_mut_impl(
 
 macro_rules! one_impl(
   ($t: ident, $value0: expr $(, $valueN: expr)* ) => (
-    impl<N: Clone + Num> One for $t<N> {
+    impl<N: Clone + BaseNum> One for $t<N> {
         #[inline]
         fn one() -> $t<N> {
             $t::new($value0() $(, $valueN() )*)
+        }
+    }
+  )
+)
+
+macro_rules! zero_impl(
+  ($t: ident, $comp0: ident $(, $compN: ident)* ) => (
+    impl<N: Zero> Zero for $t<N> {
+        #[inline]
+        fn zero() -> $t<N> {
+            $t {
+                $comp0: ::zero()
+                $(, $compN: ::zero() )*
+            }
+        }
+
+        #[inline]
+        fn is_zero(&self) -> bool {
+            ::is_zero(&self.$comp0) $(&& ::is_zero(&self.$compN) )*
         }
     }
   )
@@ -276,7 +295,7 @@ macro_rules! row_impl(
 
         #[inline]
         fn row(&self, row: uint) -> $tv<N> {
-            let mut res: $tv<N> = Zero::zero();
+            let mut res: $tv<N> = ::zero();
 
             for (i, e) in res.iter_mut().enumerate() {
                 *e = self.at((row, i));
@@ -317,7 +336,7 @@ macro_rules! col_impl(
 
         #[inline]
         fn col(&self, col: uint) -> $tv<N> {
-            let mut res: $tv<N> = Zero::zero();
+            let mut res: $tv<N> = ::zero();
 
             for (i, e) in res.iter_mut().enumerate() {
                 *e = self.at((i, col));
@@ -334,7 +353,7 @@ macro_rules! diag_impl(
         impl<N: Clone + Zero> Diag<$tv<N>> for $t<N> {
             #[inline]
             fn from_diag(diag: &$tv<N>) -> $t<N> {
-                let mut res: $t<N> = Zero::zero();
+                let mut res: $t<N> = ::zero();
 
                 res.set_diag(diag);
 
@@ -350,7 +369,7 @@ macro_rules! diag_impl(
 
             #[inline]
             fn diag(&self) -> $tv<N> {
-                let mut diag: $tv<N> = Zero::zero();
+                let mut diag: $tv<N> = ::zero();
 
                 for i in range(0, $dim) {
                     unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
@@ -364,15 +383,15 @@ macro_rules! diag_impl(
 
 macro_rules! mat_mul_mat_impl(
   ($t: ident, $trhs: ident, $dim: expr) => (
-    impl<N: Clone + Num> $trhs<N, $t<N>> for $t<N> {
+    impl<N: Clone + BaseNum> $trhs<N, $t<N>> for $t<N> {
         #[inline]
         fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
             // careful! we need to comute other * self here (self is the rhs).
-            let mut res: $t<N> = Zero::zero();
+            let mut res: $t<N> = ::zero();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
-                    let mut acc: N = Zero::zero();
+                    let mut acc: N = ::zero();
 
                     unsafe {
                         for k in range(0u, $dim) {
@@ -392,7 +411,7 @@ macro_rules! mat_mul_mat_impl(
 
 macro_rules! vec_mul_mat_impl(
   ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
-    impl<N: Clone + Num> $trhs<N, $v<N>> for $t<N> {
+    impl<N: Clone + BaseNum> $trhs<N, $v<N>> for $t<N> {
         #[inline]
         fn binop(left: &$v<N>, right: &$t<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
@@ -414,7 +433,7 @@ macro_rules! vec_mul_mat_impl(
 
 macro_rules! mat_mul_vec_impl(
   ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
-    impl<N: Clone + Num> $trhs<N, $v<N>> for $v<N> {
+    impl<N: Clone + BaseNum> $trhs<N, $v<N>> for $v<N> {
         #[inline]
         fn binop(left: &$t<N>, right: &$v<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
@@ -448,7 +467,7 @@ macro_rules! mat_mul_pnt_impl(
 
 macro_rules! inv_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Clone + Num>
+    impl<N: Clone + BaseNum>
     Inv for $t<N> {
         #[inline]
         fn inv_cpy(m: &$t<N>) -> Option<$t<N>> {
@@ -463,7 +482,7 @@ macro_rules! inv_impl(
         }
 
         fn inv(&mut self) -> bool {
-            let mut res: $t<N> = One::one();
+            let mut res: $t<N> = ::one();
 
             // inversion using Gauss-Jordan elimination
             for k in range(0u, $dim) {
@@ -474,7 +493,7 @@ macro_rules! inv_impl(
                 let mut n0 = k; // index of a non-zero entry
 
                 while n0 != $dim {
-                    if self.at((n0, k)) != Zero::zero() {
+                    if self.at((n0, k)) != ::zero() {
                         break;
                     }
 
@@ -581,10 +600,10 @@ macro_rules! approx_eq_impl(
 
 macro_rules! to_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
-    impl<N: Num + Clone> ToHomogeneous<$t2<N>> for $t<N> {
+    impl<N: BaseNum + Clone> ToHomogeneous<$t2<N>> for $t<N> {
         #[inline]
         fn to_homogeneous(m: &$t<N>) -> $t2<N> {
-            let mut res: $t2<N> = One::one();
+            let mut res: $t2<N> = ::one();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
@@ -600,10 +619,10 @@ macro_rules! to_homogeneous_impl(
 
 macro_rules! from_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
-    impl<N: Num + Clone> FromHomogeneous<$t2<N>> for $t<N> {
+    impl<N: BaseNum + Clone> FromHomogeneous<$t2<N>> for $t<N> {
         #[inline]
         fn from(m: &$t2<N>) -> $t<N> {
-            let mut res: $t<N> = One::one();
+            let mut res: $t<N> = ::one();
 
             for i in range(0u, $dim2) {
                 for j in range(0u, $dim2) {
@@ -625,7 +644,7 @@ macro_rules! outer_impl(
         impl<N: Clone + Mul<N, N> + Zero> Outer<$m<N>> for $t<N> {
             #[inline]
             fn outer(a: &$t<N>, b: &$t<N>) -> $m<N> {
-                let mut res: $m<N> = Zero::zero();
+                let mut res: $m<N> = ::zero();
 
                 for i in range(0u, Dim::dim(None::<$t<N>>)) {
                     for j in range(0u, Dim::dim(None::<$t<N>>)) {
@@ -642,7 +661,7 @@ macro_rules! outer_impl(
 macro_rules! eigen_qr_impl(
     ($t: ident, $v: ident) => (
         impl<N> EigenQR<N, $v<N>> for $t<N>
-            where N: Num + One + Zero + BaseFloat + ApproxEq<N> + Clone {
+            where N: BaseNum + One + Zero + BaseFloat + ApproxEq<N> + Clone {
             fn eigen_qr(m: &$t<N>, eps: &N, niter: uint) -> ($t<N>, $v<N>) {
                 linalg::eigen_qr(m, eps, niter)
             }

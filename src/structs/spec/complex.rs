@@ -5,21 +5,21 @@ use extra::complex::Cmplx;
 use traits::operations::{Absolute, Inv};
 use traits::structure::{Dim};
 
-impl<N: Clone + Num> Absolute<Cmplx<N>> for Cmplx<N> {
+impl<N: Clone + BaseNum> Absolute<Cmplx<N>> for Cmplx<N> {
     #[inline]
     fn absolute(&self) -> Cmplx<N> {
         Cmplx::new(self.re.clone(), self.im.clone())
     }
 }
 
-impl<N: Clone + Num + NumCast + Zero> Inv for Cmplx<N> {
+impl<N: Clone + BaseNum + BaseNumCast + Zero> Inv for Cmplx<N> {
     #[inline]
     fn inverse(&self) -> Option<Cmplx<N>> {
         if self.is_zero() {
             None
         }
         else {
-            let _1: N   = NumCast::from(1.0);
+            let _1: N   = BaseNumCast::from(1.0);
             let divisor = _1 / (self.re * self.re - self.im * self.im);
 
             Some(Cmplx::new(self.re * divisor, -self.im * divisor))
@@ -32,7 +32,7 @@ impl<N: Clone + Num + NumCast + Zero> Inv for Cmplx<N> {
             false
         }
         else {
-            let _1: N   = NumCast::from(1.0);
+            let _1: N   = BaseNumCast::from(1.0);
             let divisor = _1 / (self.re * self.re - self.im * self.im);
 
             self.re = self.re  * divisor;

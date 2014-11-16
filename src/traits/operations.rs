@@ -257,27 +257,6 @@ pub trait EigenQR<N, V>: SquareMat<N, V> {
     fn eigen_qr(m: &Self, eps: &N, niter: uint) -> (Self, V);
 }
 
-
-// /// Cholesky decomposition.
-// pub trait Chol {
-//     /// Performs the cholesky decomposition on `self`. The resulting upper-triangular matrix is
-//     /// returned. Returns `None` if the matrix is not symetric positive-definite.
-//     fn chol(self) -> Option<Self>;
-// 
-//     /// Performs the cholesky decomposition on `self`. The resulting upper-triangular matrix is
-//     /// written to a given parameter. If the decomposition fails `false` is returned; the state of
-//     /// the output parameter is undefined.
-//     fn chol_to(&self, out: &mut Self) -> bool {
-//         match self.chol() {
-//             None => false,
-//             Some(decomp) => {
-//                 *out = decomp;
-//                 true
-//             }
-//         }
-//     }
-// }
-
 // XXX: those two traits should not exist since there is generalized operator overloading of Add
 // and Sub.
 // However, using the same trait multiple time as a trait bound (ex: impl<T: Add<N, V> + Add<V, V>)
@@ -347,7 +326,11 @@ pub trait Axpy<N> {
 }
 
 /*
- * Some implementation for scalar types.
+ *
+ *
+ * Some implementations for scalar types.
+ *
+ *
  */
 // FIXME: move this to another module ?
 macro_rules! impl_absolute(
@@ -373,6 +356,7 @@ macro_rules! impl_absolute_id(
 
 impl_absolute!(f32)
 impl_absolute!(f64)
+impl_absolute!(i8)
 impl_absolute!(i16)
 impl_absolute!(i32)
 impl_absolute!(i64)

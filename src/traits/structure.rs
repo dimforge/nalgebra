@@ -1,13 +1,21 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
-use std::num::{Zero, One, FloatMath, Num};
+use std::num::{Int, Float, FloatMath};
 use std::slice::{Items, MutItems};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
-pub trait BaseFloat: FloatMath + Zero + One + Num + Absolute<Self> {
+/// Basic integral numeric trait.
+pub trait BaseNum: Zero + One + Add<Self, Self> + Sub<Self, Self> + Mul<Self, Self> +
+                   Div<Self, Self> + Rem<Self, Self> + Neg<Self> + PartialEq + Absolute<Self> {
 }
 
+/// Basic floating-point number numeric trait.
+pub trait BaseFloat: FloatMath + BaseNum {
+}
+
+impl BaseNum for f32 { }
+impl BaseNum for f64 { }
 impl BaseFloat for f32 { }
 impl BaseFloat for f64 { }
 
@@ -41,8 +49,29 @@ pub trait Eye {
     fn new_identity(dim: uint) -> Self;
 }
 
-// XXX: we keep ScalarAdd and ScalarSub here to avoid trait impl conflict (overriding) between the
-// different Add/Sub traits. This is _so_ unfortunate…
+/// Additive identity.
+pub trait Zero {
+    /// Returns the additive identity.
+    fn zero() -> Self;
+    /// Tests if `self` is exactly zero.
+    fn is_zero(&self) -> bool;
+}
+
+/// Multiplicative identity.
+pub trait One {
+    /// Returns the multiplicative identity.
+    fn one() -> Self;
+}
+
+/// Types that have maximum and minimum value.
+pub trait Bounded {
+    /// The minimum value.
+    #[inline]
+    fn min_value() -> Self;
+    /// The maximum value.
+    #[inline]
+    fn max_value() -> Self;
+}
 
 // FIXME: return an iterator instead
 /// Traits of objects which can form a basis (typically vectors).
@@ -223,3 +252,74 @@ pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> {
         Norm::norm(&(*a - *b))
     }
 }
+
+/*
+ *
+ *
+ * Some implementations for builtin types.
+ *
+ *
+ */
+macro_rules! impl_zero_one(
+    ($n: ty, $zero: expr, $one: expr) => {
+        impl Zero for $n {
+            #[inline]
+            fn zero() -> $n {
+                $zero
+            }
+
+            #[inline]
+            fn is_zero(&self) -> bool {
+                *self == $zero
+            }
+        }
+
+        impl One for $n {
+            fn one() -> $n {
+                $one
+            }
+        }
+    }
+)
+
+impl_zero_one!(f32, 0.0, 1.0)
+impl_zero_one!(f64, 0.0, 1.0)
+impl_zero_one!(i8, 0, 1)
+impl_zero_one!(i16, 0, 1)
+impl_zero_one!(i32, 0, 1)
+impl_zero_one!(i64, 0, 1)
+impl_zero_one!(int, 0, 1)
+impl_zero_one!(u8, 0, 1)
+impl_zero_one!(u16, 0, 1)
+impl_zero_one!(u32, 0, 1)
+impl_zero_one!(u64, 0, 1)
+impl_zero_one!(uint, 0, 1)
+
+macro_rules! impl_bounded(
+    ($n: ty, $min: expr, $max: expr) => {
+        impl Bounded for $n {
+            #[inline]
+            fn min_value() -> $n {
+                $min
+            }
+
+            #[inline]
+            fn max_value() -> $n {
+                $max
+            }
+        }
+    }
+)
+
+impl_bounded!(f32, Float::min_value(), Float::max_value())
+impl_bounded!(f64, Float::min_value(), Float::max_value())
+impl_bounded!(i8, Int::min_value(), Int::max_value())
+impl_bounded!(i16, Int::min_value(), Int::max_value())
+impl_bounded!(i32, Int::min_value(), Int::max_value())
+impl_bounded!(i64, Int::min_value(), Int::max_value())
+impl_bounded!(int, Int::min_value(), Int::max_value())
+impl_bounded!(u8, Int::min_value(), Int::max_value())
+impl_bounded!(u16, Int::min_value(), Int::max_value())
+impl_bounded!(u32, Int::min_value(), Int::max_value())
+impl_bounded!(u64, Int::min_value(), Int::max_value())
+impl_bounded!(uint, Int::min_value(), Int::max_value())

@@ -1,7 +1,8 @@
-use std::num::{One, Zero};
 use structs::mat;
 use traits::operations::{Inv, Transpose};
-use traits::geometry::{Translation, Translate, Rotation, Rotate, Transformation, Transform, AbsoluteRotate};
+use traits::structure::{Zero, One};
+use traits::geometry::{Translation, Translate, Rotation, Rotate, Transformation, Transform,
+                       AbsoluteRotate};
 
 impl One for mat::Identity {
     #[inline]
@@ -41,12 +42,12 @@ impl Transpose for mat::Identity {
 impl<V: Zero> Translation<V> for mat::Identity {
     #[inline]
     fn translation(&self) -> V {
-        Zero::zero()
+        ::zero()
     }
 
     #[inline]
     fn inv_translation(&self) -> V {
-        Zero::zero()
+        ::zero()
     }
 
     #[inline]
@@ -90,12 +91,12 @@ impl<V: Clone> Translate<V> for mat::Identity {
 impl<V: Zero> Rotation<V> for mat::Identity {
     #[inline]
     fn rotation(&self) -> V {
-        Zero::zero()
+        ::zero()
     }
 
     #[inline]
     fn inv_rotation(&self) -> V {
-        Zero::zero()
+        ::zero()
     }
 
     #[inline]
@@ -146,12 +147,12 @@ impl<V: Clone> AbsoluteRotate<V> for mat::Identity {
 impl<M: One> Transformation<M> for mat::Identity {
     #[inline]
     fn transformation(&self) -> M {
-        One::one()
+        ::one()
     }
 
     #[inline]
     fn inv_transformation(&self) -> M {
-        One::one()
+        ::one()
     }
 
     #[inline]

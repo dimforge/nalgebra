@@ -3,7 +3,6 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
 
 use std::mem;
-use std::num::{Zero, One, Bounded, Num};
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
@@ -12,7 +11,7 @@ use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
 use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, VecAsPnt, Shape,
-                        NumVec, FloatVec, BaseFloat};
+                        NumVec, FloatVec, BaseFloat, BaseNum, Zero, One, Bounded};
 use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 
 
@@ -121,7 +120,7 @@ vec_sub_scalar_impl!(Vec1, int, Vec1SubRhs, x)
 translation_impl!(Vec1)
 norm_impl!(Vec1, x)
 approx_eq_impl!(Vec1, x)
-one_impl!(Vec1, x)
+zero_one_impl!(Vec1, x)
 from_iterator_impl!(Vec1, iterator)
 bounded_impl!(Vec1, x)
 axpy_impl!(Vec1, x)
@@ -226,7 +225,7 @@ vec_sub_scalar_impl!(Vec2, int, Vec2SubRhs, x, y)
 translation_impl!(Vec2)
 norm_impl!(Vec2, x, y)
 approx_eq_impl!(Vec2, x, y)
-one_impl!(Vec2, x, y)
+zero_one_impl!(Vec2, x, y)
 from_iterator_impl!(Vec2, iterator, iterator)
 bounded_impl!(Vec2, x, y)
 axpy_impl!(Vec2, x, y)
@@ -336,7 +335,7 @@ vec_sub_scalar_impl!(Vec3, int, Vec3SubRhs, x, y, z)
 translation_impl!(Vec3)
 norm_impl!(Vec3, x, y ,z)
 approx_eq_impl!(Vec3, x, y, z)
-one_impl!(Vec3, x, y, z)
+zero_one_impl!(Vec3, x, y, z)
 from_iterator_impl!(Vec3, iterator, iterator, iterator)
 bounded_impl!(Vec3, x, y, z)
 axpy_impl!(Vec3, x, y, z)
@@ -446,7 +445,7 @@ vec_sub_scalar_impl!(Vec4, int, Vec4SubRhs, x, y, z, w)
 translation_impl!(Vec4)
 norm_impl!(Vec4, x, y, z, w)
 approx_eq_impl!(Vec4, x, y, z, w)
-one_impl!(Vec4, x, y, z, w)
+zero_one_impl!(Vec4, x, y, z, w)
 from_iterator_impl!(Vec4, iterator, iterator, iterator, iterator)
 bounded_impl!(Vec4, x, y, z, w)
 axpy_impl!(Vec4, x, y, z, w)
@@ -557,7 +556,7 @@ vec_sub_scalar_impl!(Vec5, int, Vec5SubRhs, x, y, z, w, a)
 translation_impl!(Vec5)
 norm_impl!(Vec5, x, y, z, w, a)
 approx_eq_impl!(Vec5, x, y, z, w, a)
-one_impl!(Vec5, x, y, z, w, a)
+zero_one_impl!(Vec5, x, y, z, w, a)
 from_iterator_impl!(Vec5, iterator, iterator, iterator, iterator, iterator)
 bounded_impl!(Vec5, x, y, z, w, a)
 axpy_impl!(Vec5, x, y, z, w, a)
@@ -670,7 +669,7 @@ vec_sub_scalar_impl!(Vec6, int, Vec6SubRhs, x, y, z, w, a, b)
 translation_impl!(Vec6)
 norm_impl!(Vec6, x, y, z, w, a, b)
 approx_eq_impl!(Vec6, x, y, z, w, a, b)
-one_impl!(Vec6, x, y, z, w, a, b)
+zero_one_impl!(Vec6, x, y, z, w, a, b)
 from_iterator_impl!(Vec6, iterator, iterator, iterator, iterator, iterator, iterator)
 bounded_impl!(Vec6, x, y, z, w, a, b)
 axpy_impl!(Vec6, x, y, z, w, a, b)

@@ -34,7 +34,7 @@ macro_rules! rotate_impl(
             }
         }
 
-        impl<N: Num + Clone> $trhs<N> for $tv<N> {
+        impl<N: BaseNum + Clone> $trhs<N> for $tv<N> {
             #[inline]
             fn rotate(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
                 *t * *v
@@ -46,7 +46,7 @@ macro_rules! rotate_impl(
             }
         }
 
-        impl<N: Num + Clone> $trhs<N> for $tp<N> {
+        impl<N: BaseNum + Clone> $trhs<N> for $tp<N> {
             #[inline]
             fn rotate(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
                 *t * *p
@@ -83,7 +83,7 @@ macro_rules! transform_impl(
             }
         }
 
-        impl<N: Num + Clone> $trhs<N> for $tv<N> {
+        impl<N: BaseNum + Clone> $trhs<N> for $tv<N> {
             #[inline]
             fn transform(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
                 t.rotate(v)
@@ -95,7 +95,7 @@ macro_rules! transform_impl(
             }
         }
 
-        impl<N: Num + Clone> $trhs<N> for $tp<N> {
+        impl<N: BaseNum + Clone> $trhs<N> for $tp<N> {
             #[inline]
             fn transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
                 t.rotate(p)
@@ -122,7 +122,7 @@ macro_rules! dim_impl(
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $tlv: ident, $tav: ident) => (
-        impl<N: Zero + Num + Cast<f64> + BaseFloat> RotationMatrix<N, $tlv<N>, $tav<N>, $t<N>> for $t<N> {
+        impl<N: Zero + BaseNum + Cast<f64> + BaseFloat> RotationMatrix<N, $tlv<N>, $tav<N>, $t<N>> for $t<N> {
             #[inline]
             fn to_rot_mat(&self) -> $t<N> {
                 self.clone()
@@ -133,10 +133,10 @@ macro_rules! rotation_matrix_impl(
 
 macro_rules! one_impl(
     ($t: ident) => (
-        impl<N: Num + Clone> One for $t<N> {
+        impl<N: BaseNum + Clone> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
-                $t { submat: One::one() }
+                $t { submat: ::one() }
             }
         }
     )
@@ -144,7 +144,7 @@ macro_rules! one_impl(
 
 macro_rules! rot_mul_rot_impl(
     ($t: ident, $mulrhs: ident) => (
-        impl<N: Num + Clone> $mulrhs<N, $t<N>> for $t<N> {
+        impl<N: BaseNum + Clone> $mulrhs<N, $t<N>> for $t<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
                 $t { submat: left.submat * right.submat }
@@ -155,7 +155,7 @@ macro_rules! rot_mul_rot_impl(
 
 macro_rules! rot_mul_vec_impl(
     ($t: ident, $tv: ident, $mulrhs: ident) => (
-        impl<N: Num + Clone> $mulrhs<N, $tv<N>> for $tv<N> {
+        impl<N: BaseNum + Clone> $mulrhs<N, $tv<N>> for $tv<N> {
             #[inline]
             fn binop(left: &$t<N>, right: &$tv<N>) -> $tv<N> {
                 left.submat * *right
@@ -172,7 +172,7 @@ macro_rules! rot_mul_pnt_impl(
 
 macro_rules! vec_mul_rot_impl(
     ($t: ident, $tv: ident, $mulrhs: ident) => (
-        impl<N: Num + Clone> $mulrhs<N, $tv<N>> for $t<N> {
+        impl<N: BaseNum + Clone> $mulrhs<N, $tv<N>> for $t<N> {
             #[inline]
             fn binop(left: &$tv<N>, right: &$t<N>) -> $tv<N> {
                 *left * right.submat
@@ -281,7 +281,7 @@ macro_rules! index_impl(
 
 macro_rules! to_homogeneous_impl(
     ($t: ident, $tm: ident) => (
-        impl<N: Num + Clone> ToHomogeneous<$tm<N>> for $t<N> {
+        impl<N: BaseNum + Clone> ToHomogeneous<$tm<N>> for $t<N> {
             #[inline]
             fn to_homogeneous(m: &$t<N>) -> $tm<N> {
                 ToHomogeneous::to_homogeneous(&m.submat)

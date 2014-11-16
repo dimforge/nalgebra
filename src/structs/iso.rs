@@ -2,11 +2,10 @@
 
 #![allow(missing_docs)]
 
-use std::num::{Zero, One, Num};
 use std::rand::{Rand, Rng};
 use structs::mat::{Mat3, Mat4, Mat5};
-use traits::structure::{Cast, Dim, Col, BaseFloat};
-use traits::operations::{Inv, ApproxEq, Absolute};
+use traits::structure::{Cast, Dim, Col, BaseFloat, BaseNum, One};
+use traits::operations::{Inv, ApproxEq};
 use traits::geometry::{RotationMatrix, Rotation, Rotate, AbsoluteRotate, Transform, Transformation,
                        Translate, Translation, ToHomogeneous};
 
