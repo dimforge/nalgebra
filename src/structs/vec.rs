@@ -5,8 +5,7 @@
 use std::mem;
 use std::slice::{Items, MutItems};
 use std::iter::{Iterator, FromIterator};
-use traits::operations::{ApproxEq, POrd, POrdering, PartialLess, PartialEqual,
-                         PartialGreater, NotComparable, Axpy, ScalarAdd, ScalarSub, ScalarMul,
+use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv, Absolute};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};

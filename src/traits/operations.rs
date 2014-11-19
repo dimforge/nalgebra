@@ -19,40 +19,40 @@ pub enum POrdering {
 impl POrdering {
     /// Returns `true` if `self` is equal to `Equal`.
     pub fn is_eq(&self) -> bool {
-        *self == PartialEqual
+        *self == POrdering::PartialEqual
     }
 
     /// Returns `true` if `self` is equal to `Less`.
     pub fn is_lt(&self) -> bool {
-        *self == PartialLess
+        *self == POrdering::PartialLess
     }
 
     /// Returns `true` if `self` is equal to `Less` or `Equal`.
     pub fn is_le(&self) -> bool {
-        *self == PartialLess || *self == PartialEqual
+        *self == POrdering::PartialLess || *self == POrdering::PartialEqual
     }
 
     /// Returns `true` if `self` is equal to `Greater`.
     pub fn is_gt(&self) -> bool {
-        *self == PartialGreater
+        *self == POrdering::PartialGreater
     }
 
     /// Returns `true` if `self` is equal to `Greater` or `Equal`.
     pub fn is_ge(&self) -> bool {
-        *self == PartialGreater || *self == PartialEqual
+        *self == POrdering::PartialGreater || *self == POrdering::PartialEqual
     }
 
     /// Returns `true` if `self` is equal to `NotComparable`.
     pub fn is_not_comparable(&self) -> bool {
-        *self == NotComparable
+        *self == POrdering::NotComparable
     }
 
     /// Creates a `POrdering` from an `Ordering`.
     pub fn from_ordering(ord: Ordering) -> POrdering {
         match ord {
-            Less    => PartialLess,
-            Equal   => PartialEqual,
-            Greater => PartialGreater
+            Less    => POrdering::PartialLess,
+            Equal   => POrdering::PartialEqual,
+            Greater => POrdering::PartialGreater
         }
     }
 
@@ -61,10 +61,10 @@ impl POrdering {
     /// Returns `None` if `self` is `NotComparable`.
     pub fn to_ordering(self) -> Option<Ordering> {
         match self {
-            PartialLess    => Some(Less),
-            PartialEqual   => Some(Equal),
-            PartialGreater => Some(Greater),
-            NotComparable  => None
+            POrdering::PartialLess    => Some(Less),
+            POrdering::PartialEqual   => Some(Equal),
+            POrdering::PartialGreater => Some(Greater),
+            POrdering::NotComparable  => None
         }
     }
 }
@@ -108,9 +108,9 @@ pub trait POrd {
     #[inline]
     fn partial_min<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
         match POrd::partial_cmp(a, b) {
-            PartialLess | PartialEqual => Some(a),
-            PartialGreater             => Some(b),
-            NotComparable              => None
+            POrdering::PartialLess | POrdering::PartialEqual => Some(a),
+            POrdering::PartialGreater             => Some(b),
+            POrdering::NotComparable              => None
         }
     }
 
@@ -118,9 +118,9 @@ pub trait POrd {
     #[inline]
     fn partial_max<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
         match POrd::partial_cmp(a, b) {
-            PartialGreater | PartialEqual => Some(a),
-            PartialLess                   => Some(b),
-            NotComparable                 => None
+            POrdering::PartialGreater | POrdering::PartialEqual => Some(a),
+            POrdering::PartialLess   => Some(b),
+            POrdering::NotComparable => None
         }
     }
 

@@ -80,16 +80,16 @@ macro_rules! ord_impl(
                 if is_lt { // <
                     $(
                         if a.$compN > b.$compN {
-                            return NotComparable
+                            return POrdering::NotComparable
                         }
                      )*
 
-                    PartialLess
+                    POrdering::PartialLess
                 }
                 else { // >=
                     $(
                         if a.$compN < b.$compN {
-                            return NotComparable
+                            return POrdering::NotComparable
                         }
                         else if a.$compN > b.$compN {
                             is_eq = false;
@@ -98,10 +98,10 @@ macro_rules! ord_impl(
                      )*
 
                     if is_eq {
-                        PartialEqual
+                        POrdering::PartialEqual
                     }
                     else {
-                        PartialGreater
+                        POrdering::PartialGreater
                     }
                 }
             }

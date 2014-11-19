@@ -109,7 +109,6 @@ extern crate serialize;
 extern crate test;
 
 use std::cmp;
-pub use traits::{PartialLess, PartialEqual, PartialGreater, NotComparable};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
