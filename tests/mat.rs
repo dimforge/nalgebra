@@ -161,14 +161,14 @@ fn test_mean_dmat() {
     let mat = DMat::from_row_vec(
         3,
         3,
-        [
+        &[
             1.0f64, 2.0, 3.0,
             4.0f64, 5.0, 6.0,
             7.0f64, 8.0, 9.0,
         ]
     );
 
-    assert!(na::approx_eq(&na::mean(&mat), &DVec::from_slice(3, [4.0f64, 5.0, 6.0])));
+    assert!(na::approx_eq(&na::mean(&mat), &DVec::from_slice(3, &[4.0f64, 5.0, 6.0])));
 }
 
 #[test]
@@ -176,7 +176,7 @@ fn test_cov_dmat() {
     let mat = DMat::from_row_vec(
         5,
         3,
-        [
+        &[
             4.0f64, 2.0, 0.60,
             4.2f64, 2.1, 0.59,
             3.9f64, 2.0, 0.58,
@@ -188,7 +188,7 @@ fn test_cov_dmat() {
     let expected = DMat::from_row_vec(
         3,
         3,
-        [
+        &[
             0.025f64,   0.0075,  0.00175,
             0.0075f64,  0.007,   0.00135,
             0.00175f64, 0.00135, 0.00043
@@ -203,7 +203,7 @@ fn test_transpose_dmat() {
     let mat = DMat::from_row_vec(
         8,
         4,
-        [
+        &[
             1u32,2,  3,  4,
             5,   6,  7,  8,
             9,   10, 11, 12,
@@ -223,7 +223,7 @@ fn test_dmat_from_vec() {
     let mat1 = DMat::from_row_vec(
         8,
         4,
-        [
+        &[
             1i32, 2,  3,  4,
             5,    6,  7,  8,
             9,    10, 11, 12,
@@ -238,7 +238,7 @@ fn test_dmat_from_vec() {
     let mat2 = DMat::from_col_vec(
         8,
         4,
-        [
+        &[
             1i32, 5, 9,  13, 17, 21, 25, 29, 
             2i32, 6, 10, 14, 18, 22, 26, 30,
             3i32, 7, 11, 15, 19, 23, 27, 31, 
@@ -331,9 +331,9 @@ fn test_qr_mat6() {
 fn test_from_fn() {
     let actual: DMat<uint> = DMat::from_fn(3, 4, |i, j| 10 * i + j);
     let expected: DMat<uint> = DMat::from_row_vec(3, 4, 
-                                                  [0_0, 0_1, 0_2, 0_3,
-                                                   1_0, 1_1, 1_2, 1_3,
-                                                   2_0, 2_1, 2_2, 2_3 ]);
+                                                  &[ 0_0, 0_1, 0_2, 0_3,
+                                                     1_0, 1_1, 1_2, 1_3,
+                                                     2_0, 2_1, 2_2, 2_3 ]);
 
     assert_eq!(actual, expected);
 }
