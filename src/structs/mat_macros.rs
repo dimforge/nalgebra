@@ -14,6 +14,49 @@ macro_rules! mat_impl(
   )
 )
 
+macro_rules! as_array_impl(
+    ($t: ident, $dim: expr) => (
+        impl<N> $t<N> {
+            /// View this matrix as a column-major array of arrays.
+            #[inline]
+            pub fn as_array(&self) -> &[[N, ..$dim], ..$dim] {
+                unsafe {
+                    mem::transmute(self)
+                }
+            }
+
+            /// View this matrix as a column-major mutable array of arrays.
+            #[inline]
+            pub fn as_array_mut<'a>(&'a mut self) -> &'a mut [[N, ..$dim], ..$dim] {
+                unsafe {
+                    mem::transmute(self)
+                }
+            }
+
+            // FIXME: because of https://github.com/rust-lang/rust/issues/16418 we cannot do the
+            // array-to-mat conversion by-value:
+            //
+            // pub fn from_array(&self, array: [N, ..$dim]) -> $t<N>
+
+            /// View a column-major array of array as a vector.
+            #[inline]
+            pub fn from_array_ref(&self, array: &[[N, ..$dim], ..$dim]) -> &$t<N> {
+                unsafe {
+                    mem::transmute(array)
+                }
+            }
+
+            /// View a column-major array of array as a mutable vector.
+            #[inline]
+            pub fn from_array_mut(&mut self, array: &mut [[N, ..$dim], ..$dim]) -> &mut $t<N> {
+                unsafe {
+                    mem::transmute(array)
+                }
+            }
+        }
+    )
+)
+
 macro_rules! at_fast_impl(
     ($t: ident, $dim: expr) => (
         impl<N: Clone> $t<N> {
@@ -272,7 +315,7 @@ macro_rules! col_slice_impl(
             fn col_slice(&self, cid: uint, rstart: uint, rend: uint) -> $slice<N> {
                 let col = self.col(cid);
 
-                $slice::from_slice(rend - rstart, col.as_slice().slice(rstart, rend))
+                $slice::from_slice(rend - rstart, col.as_array().slice(rstart, rend))
             }
         }
     )
@@ -313,7 +356,7 @@ macro_rules! row_slice_impl(
             fn row_slice(&self, rid: uint, cstart: uint, cend: uint) -> $slice<N> {
                 let row = self.row(rid);
 
-                $slice::from_slice(cend - cstart, row.as_slice().slice(cstart, cend))
+                $slice::from_slice(cend - cstart, row.as_array().slice(cstart, cend))
             }
         }
     )

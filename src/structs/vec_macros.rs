@@ -15,20 +15,43 @@ macro_rules! new_impl(
     )
 )
 
-macro_rules! as_slice_impl(
+macro_rules! as_array_impl(
     ($t: ident, $dim: expr) => (
         impl<N> $t<N> {
-            /// Slices this vector.
-            pub fn as_slice<'a>(&'a self) -> &'a [N] {
+            /// View this vector as an array.
+            #[inline]
+            pub fn as_array(&self) -> &[N, ..$dim] {
                 unsafe {
-                    mem::transmute::<&$t<N>, &[N, ..$dim]>(self).as_slice()
+                    mem::transmute(self)
                 }
             }
 
-            /// Mutably slices this vector.
-            pub fn as_mut_slice<'a>(&'a mut self) -> &'a mut [N] {
+            /// View this vector as a mutable array.
+            #[inline]
+            pub fn as_array_mut(&mut self) -> &mut [N, ..$dim] {
                 unsafe {
-                    mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).as_mut_slice()
+                    mem::transmute(self)
+                }
+            }
+
+            // FIXME: because of https://github.com/rust-lang/rust/issues/16418 we cannot do the
+            // array-to-vec conversion by-value:
+            //
+            // pub fn from_array(&self, array: [N, ..$dim]) -> $t<N>
+
+            /// View an array as a vector.
+            #[inline]
+            pub fn from_array_ref(&self, array: &[N, ..$dim]) -> &$t<N> {
+                unsafe {
+                    mem::transmute(array)
+                }
+            }
+
+            /// View an array as a vector.
+            #[inline]
+            pub fn from_array_mut(&mut self, array: &mut [N, ..$dim]) -> &mut $t<N> {
+                unsafe {
+                    mem::transmute(array)
                 }
             }
         }
@@ -41,14 +64,13 @@ macro_rules! at_fast_impl(
             /// Unsafe read access to a vector element by index.
             #[inline]
             pub unsafe fn at_fast(&self, i: uint) -> N {
-                (*mem::transmute::<&$t<N>, &[N, ..$dim]>(self)
-                 .unsafe_get(i)).clone()
+                (*self.as_array().unsafe_get(i)).clone()
             }
 
             /// Unsafe write access to a vector element by index.
             #[inline]
             pub unsafe fn set_fast(&mut self, i: uint, val: N) {
-                (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).unsafe_mut(i)) = val
+                (*self.as_array_mut().unsafe_mut(i)) = val
             }
         }
     )
@@ -216,13 +238,13 @@ macro_rules! index_impl(
     ($t: ident) => (
         impl<N> Index<uint, N> for $t<N> {
             fn index(&self, i: &uint) -> &N {
-                &self.as_slice()[*i]
+                &self.as_array()[*i]
             }
         }
 
         impl<N> IndexMut<uint, N> for $t<N> {
             fn index_mut(&mut self, i: &uint) -> &mut N {
-                &mut self.as_mut_slice()[*i]
+                &mut self.as_array_mut()[*i]
             }
         }
     )
@@ -757,7 +779,7 @@ macro_rules! vec_as_pnt_impl(
 
             #[deprecated = "use `&(na::orig() + *this_vector)` instead."]
             #[inline]
-            pub fn as_pnt<'a>(&'a self) -> &'a $t<N> {
+            pub fn as_pnt(&self) -> &$t<N> {
                 unsafe {
                     mem::transmute(self)
                 }
@@ -771,7 +793,7 @@ macro_rules! vec_as_pnt_impl(
             }
 
             #[inline]
-            fn as_pnt<'a>(&'a self) -> &'a $t<N> {
+            fn as_pnt(&self) -> &$t<N> {
                 self.as_pnt()
             }
         }
