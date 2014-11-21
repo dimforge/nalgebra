@@ -29,8 +29,8 @@ pub trait Translation<V> {
     fn set_translation(&mut self, V);
 }
 
-/// Trait of objects able to rotate other objects. This is typically implemented by matrices which
-/// rotate vectors.
+/// Trait of objects able to translate other objects. This is typically
+/// implemented by vectors to translate points.
 pub trait Translate<V> {
     /// Apply a translation to an object.
     fn translate(&self, &V) -> V;
