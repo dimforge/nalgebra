@@ -244,7 +244,7 @@ pub trait CrossMatrix<M> {
 /// Traits of objects which can be put in homogeneous coordinates form.
 pub trait ToHomogeneous<U> {
     /// Gets the homogeneous coordinates form of this object.
-    fn to_homogeneous(&Self) -> U;
+    fn to_homogeneous(&self) -> U;
 }
 
 /// Traits of objects which can be build from an homogeneous coordinate form.
