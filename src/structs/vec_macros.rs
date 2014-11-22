@@ -696,11 +696,11 @@ macro_rules! bounded_impl(
 macro_rules! vec_to_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + One + Zero> ToHomogeneous<$t2<N>> for $t<N> {
-            fn to_homogeneous(v: &$t<N>) -> $t2<N> {
+            fn to_homogeneous(&self) -> $t2<N> {
                 let mut res: $t2<N> = ::zero();
 
-                res.$comp0    = v.$comp0.clone();
-                $( res.$compN = v.$compN.clone(); )*
+                res.$comp0    = self.$comp0.clone();
+                $( res.$compN = self.$compN.clone(); )*
 
                 res
             }

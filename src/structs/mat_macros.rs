@@ -645,12 +645,12 @@ macro_rules! to_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
     impl<N: BaseNum + Clone> ToHomogeneous<$t2<N>> for $t<N> {
         #[inline]
-        fn to_homogeneous(m: &$t<N>) -> $t2<N> {
+        fn to_homogeneous(&self) -> $t2<N> {
             let mut res: $t2<N> = ::one();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
-                    res.set((i, j), m.at((i, j)))
+                    res.set((i, j), self.at((i, j)))
                 }
             }
 

@@ -283,8 +283,8 @@ macro_rules! to_homogeneous_impl(
     ($t: ident, $tm: ident) => (
         impl<N: BaseNum + Clone> ToHomogeneous<$tm<N>> for $t<N> {
             #[inline]
-            fn to_homogeneous(m: &$t<N>) -> $tm<N> {
-                ToHomogeneous::to_homogeneous(&m.submat)
+            fn to_homogeneous(&self) -> $tm<N> {
+                self.submat.to_homogeneous()
             }
         }
     )
