@@ -3,6 +3,14 @@ name    = "nalgebra"
 version = "0.1.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ] # FIXME: add the contributors.
 
+description = "Linear algebra library for computer physics, computer graphics and general low-dimensional linear algebra for Rust."
+documentation = "http://nalgebra.org/doc/nalgebra/index.html"
+homepage = "http://nalgebra.org"
+repository = "https://github.com/sebcrozet/nalgebra"
+readme = "README.md"
+keywords = [ "linear", "algebra", "matrix", "vector" ]
+license = "BSD-3-Clause"
+
 [lib]
 name = "nalgebra"
 path = "src/lib.rs"
