@@ -188,6 +188,7 @@ pub use linalg::{
 mod structs;
 mod traits;
 mod linalg;
+mod macros;
 
 // mod lower_triangular;
 // mod chol;
