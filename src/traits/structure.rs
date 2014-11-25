@@ -1,5 +1,7 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
+use std::f32;
+use std::f64;
 use std::num::{Int, Float, FloatMath};
 use std::slice::{Items, MutItems};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
@@ -12,12 +14,38 @@ pub trait BaseNum: Zero + One + Add<Self, Self> + Sub<Self, Self> + Mul<Self, Se
 
 /// Basic floating-point number numeric trait.
 pub trait BaseFloat: FloatMath + BaseNum {
-}
+    /// Archimedes' constant.
+    fn pi() -> Self;
+    /// 2.0 * pi.
+    fn two_pi() -> Self;
+    /// pi / 2.0.
+    fn frac_pi_2() -> Self;
+    /// pi / 3.0.
+    fn frac_pi_3() -> Self;
+    /// pi / 4.0.
+    fn frac_pi_4() -> Self;
+    /// pi / 6.0.
+    fn frac_pi_6() -> Self;
+    /// pi / 8.0.
+    fn frac_pi_8() -> Self;
+    /// 1.0 / pi.
+    fn frac_1_pi() -> Self;
+    /// 2.0 / pi.
+    fn frac_2_pi() -> Self;
+    /// 2.0 / sqrt(pi).
+    fn frac_2_sqrtpi() -> Self;
 
-impl BaseNum for f32 { }
-impl BaseNum for f64 { }
-impl BaseFloat for f32 { }
-impl BaseFloat for f64 { }
+    /// Euler's number.
+    fn e() -> Self;
+    /// log2(e).
+    fn log2_e() -> Self;
+    /// log10(e).
+    fn log10_e() -> Self;
+    /// ln(2.0).
+    fn ln_2() -> Self;
+    /// ln(10.0).
+    fn ln_10() -> Self;
+}
 
 /// Traits of objects which can be created from an object of type `T`.
 pub trait Cast<T> {
@@ -260,6 +288,10 @@ pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> {
  *
  *
  */
+
+
+
+// Zero and One
 macro_rules! impl_zero_one(
     ($n: ty, $zero: expr, $one: expr) => {
         impl Zero for $n {
@@ -295,6 +327,8 @@ impl_zero_one!(u32, 0, 1)
 impl_zero_one!(u64, 0, 1)
 impl_zero_one!(uint, 0, 1)
 
+
+// Bounded
 macro_rules! impl_bounded(
     ($n: ty, $min: expr, $max: expr) => {
         impl Bounded for $n {
@@ -323,3 +357,93 @@ impl_bounded!(u16, Int::min_value(), Int::max_value())
 impl_bounded!(u32, Int::min_value(), Int::max_value())
 impl_bounded!(u64, Int::min_value(), Int::max_value())
 impl_bounded!(uint, Int::min_value(), Int::max_value())
+
+
+// BaseFloat
+macro_rules! impl_base_float(
+    ($n: ident) => {
+        impl BaseFloat for $n {
+            /// Archimedes' constant.
+            fn pi() -> $n {
+                $n::consts::PI
+            }
+
+            /// 2.0 * pi.
+            fn two_pi() -> $n {
+                $n::consts::PI_2
+            }
+
+            /// pi / 2.0.
+            fn frac_pi_2() -> $n {
+                $n::consts::FRAC_PI_2
+            }
+
+            /// pi / 3.0.
+            fn frac_pi_3() -> $n {
+                $n::consts::FRAC_PI_3
+            }
+
+            /// pi / 4.0.
+            fn frac_pi_4() -> $n {
+                $n::consts::FRAC_PI_4
+            }
+
+            /// pi / 6.0.
+            fn frac_pi_6() -> $n {
+                $n::consts::FRAC_PI_6
+            }
+
+            /// pi / 8.0.
+            fn frac_pi_8() -> $n {
+                $n::consts::FRAC_PI_8
+            }
+
+            /// 1.0 / pi.
+            fn frac_1_pi() -> $n {
+                $n::consts::FRAC_1_PI
+            }
+
+            /// 2.0 / pi.
+            fn frac_2_pi() -> $n {
+                $n::consts::FRAC_2_PI
+            }
+
+            /// 2.0 / sqrt(pi).
+            fn frac_2_sqrtpi() -> $n {
+                $n::consts::FRAC_2_SQRTPI
+            }
+
+
+            /// Euler's number.
+            fn e() -> $n {
+                $n::consts::E
+            }
+
+            /// log2(e).
+            fn log2_e() -> $n {
+                $n::consts::LOG2_E
+            }
+
+            /// log10(e).
+            fn log10_e() -> $n {
+                $n::consts::LOG10_E
+            }
+
+            /// ln(2.0).
+            fn ln_2() -> $n {
+                $n::consts::LN_2
+            }
+
+            /// ln(10.0).
+            fn ln_10() -> $n {
+                $n::consts::LN_10
+            }
+        }
+    }
+)
+
+impl BaseNum for f32 { }
+impl BaseNum for f64 { }
+
+impl_base_float!(f32)
+impl_base_float!(f64)

@@ -2,11 +2,10 @@
 
 extern crate "nalgebra" as na;
 
-use std::num::Float;
 use std::rand::random;
 use std::cmp::{min, max};
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, Persp3, PerspMat3, Ortho3, OrthoMat3,
-         DMat, DVec, Row, Col};
+         DMat, DVec, Row, Col, BaseFloat};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -131,7 +130,7 @@ fn test_inv_mat6() {
 fn test_rotation2() {
     for _ in range(0u, 10000) {
         let randmat: na::Rot2<f64> = na::one();
-        let ang    = Vec1::new(na::abs(&random::<f64>()) % Float::pi());
+        let ang    = Vec1::new(na::abs(&random::<f64>()) % BaseFloat::pi());
 
         assert!(na::approx_eq(&na::rotation(&na::append_rotation(&randmat, &ang)), &ang));
     }
@@ -149,7 +148,7 @@ fn test_inv_rotation3() {
     for _ in range(0u, 10000) {
         let randmat: Rot3<f64> = na::one();
         let dir:     Vec3<f64> = random();
-        let ang            = na::normalize(&dir) * (na::abs(&random::<f64>()) % Float::pi());
+        let ang            = na::normalize(&dir) * (na::abs(&random::<f64>()) % BaseFloat::pi());
         let rot            = na::append_rotation(&randmat, &ang);
 
         assert!(na::approx_eq(&(na::transpose(&rot) * rot), &na::one()));
