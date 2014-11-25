@@ -411,11 +411,12 @@
 </pre><pre class='rust '>
 <span class='doccomment'>//! Low level operations on vectors and matrices.</span>
 
-
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::{<span class='ident'>Float</span>, <span class='ident'>SignedInt</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::<span class='ident'>SquareMat</span>;
 
 <span class='doccomment'>/// Result of a partial ordering.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>PartialOrdering</span> {
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>POrdering</span> {
     <span class='doccomment'>/// Result of a strict comparison.</span>
     <span class='ident'>PartialLess</span>,
     <span class='doccomment'>/// Equality relationship.</span>
@@ -426,61 +427,61 @@
     <span class='ident'>NotComparable</span>
 }
 
-<span class='kw'>impl</span> <span class='ident'>PartialOrdering</span> {
+<span class='kw'>impl</span> <span class='ident'>POrdering</span> {
     <span class='doccomment'>/// Returns `true` if `self` is equal to `Equal`.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>PartialEqual</span>
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialEqual</span>
     }
 
     <span class='doccomment'>/// Returns `true` if `self` is equal to `Less`.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_lt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>PartialLess</span>
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialLess</span>
     }
 
     <span class='doccomment'>/// Returns `true` if `self` is equal to `Less` or `Equal`.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_le</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>PartialLess</span> <span class='op'>||</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>PartialEqual</span>
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialLess</span> <span class='op'>||</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialEqual</span>
     }
 
     <span class='doccomment'>/// Returns `true` if `self` is equal to `Greater`.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_gt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>PartialGreater</span>
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialGreater</span>
     }
 
     <span class='doccomment'>/// Returns `true` if `self` is equal to `Greater` or `Equal`.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_ge</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>PartialGreater</span> <span class='op'>||</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>PartialEqual</span>
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialGreater</span> <span class='op'>||</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialEqual</span>
     }
 
     <span class='doccomment'>/// Returns `true` if `self` is equal to `NotComparable`.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_not_comparable</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>NotComparable</span>
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='ident'>POrdering</span>::<span class='ident'>NotComparable</span>
     }
 
-    <span class='doccomment'>/// Creates a `PartialOrdering` from an `Ordering`.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_ordering</span>(<span class='ident'>ord</span>: <span class='ident'>Ordering</span>) <span class='op'>-&gt;</span> <span class='ident'>PartialOrdering</span> {
+    <span class='doccomment'>/// Creates a `POrdering` from an `Ordering`.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_ordering</span>(<span class='ident'>ord</span>: <span class='ident'>Ordering</span>) <span class='op'>-&gt;</span> <span class='ident'>POrdering</span> {
         <span class='kw'>match</span> <span class='ident'>ord</span> {
-            <span class='ident'>Less</span>    <span class='op'>=&gt;</span> <span class='ident'>PartialLess</span>,
-            <span class='ident'>Equal</span>   <span class='op'>=&gt;</span> <span class='ident'>PartialEqual</span>,
-            <span class='ident'>Greater</span> <span class='op'>=&gt;</span> <span class='ident'>PartialGreater</span>
+            <span class='ident'>Less</span>    <span class='op'>=&gt;</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialLess</span>,
+            <span class='ident'>Equal</span>   <span class='op'>=&gt;</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialEqual</span>,
+            <span class='ident'>Greater</span> <span class='op'>=&gt;</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialGreater</span>
         }
     }
 
-    <span class='doccomment'>/// Converts this `PartialOrdering` to an `Ordering`.</span>
+    <span class='doccomment'>/// Converts this `POrdering` to an `Ordering`.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Returns `None` if `self` is `NotComparable`.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_ordering</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Ordering</span><span class='op'>&gt;</span> {
         <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='ident'>PartialLess</span>    <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>Less</span>),
-            <span class='ident'>PartialEqual</span>   <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>Equal</span>),
-            <span class='ident'>PartialGreater</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>Greater</span>),
-            <span class='ident'>NotComparable</span>  <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
+            <span class='ident'>POrdering</span>::<span class='ident'>PartialLess</span>    <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>Less</span>),
+            <span class='ident'>POrdering</span>::<span class='ident'>PartialEqual</span>   <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>Equal</span>),
+            <span class='ident'>POrdering</span>::<span class='ident'>PartialGreater</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>Greater</span>),
+            <span class='ident'>POrdering</span>::<span class='ident'>NotComparable</span>  <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
         }
     }
 }
 
 <span class='doccomment'>/// Pointwise ordering operations.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>PartialOrd</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>POrd</span> {
     <span class='doccomment'>/// Returns the infimum of `a` and `b`.</span>
     <span class='kw'>fn</span> <span class='ident'>inf</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
 
@@ -488,49 +489,49 @@
     <span class='kw'>fn</span> <span class='ident'>sup</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
 
     <span class='doccomment'>/// Compare `a` and `b` using a partial ordering relation.</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_cmp</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>PartialOrdering</span>;
+    <span class='kw'>fn</span> <span class='ident'>partial_cmp</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>POrdering</span>;
 
     <span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt;= b`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>partial_le</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>PartialOrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>).<span class='ident'>is_le</span>()
+        <span class='ident'>POrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>).<span class='ident'>is_le</span>()
     }
 
     <span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt; b`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>partial_lt</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>PartialOrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>).<span class='ident'>is_lt</span>()
+        <span class='ident'>POrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>).<span class='ident'>is_lt</span>()
     }
 
     <span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt;= b`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>partial_ge</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>PartialOrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>).<span class='ident'>is_ge</span>()
+        <span class='ident'>POrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>).<span class='ident'>is_ge</span>()
     }
 
     <span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt; b`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>partial_gt</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>PartialOrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>).<span class='ident'>is_gt</span>()
+        <span class='ident'>POrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>).<span class='ident'>is_gt</span>()
     }
 
     <span class='doccomment'>/// Return the minimum of `a` and `b` if they are comparable.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>partial_min</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='ident'>PartialOrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>) {
-            <span class='ident'>PartialLess</span> <span class='op'>|</span> <span class='ident'>PartialEqual</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>),
-            <span class='ident'>PartialGreater</span>             <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>b</span>),
-            <span class='ident'>NotComparable</span>              <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
+        <span class='kw'>match</span> <span class='ident'>POrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>) {
+            <span class='ident'>POrdering</span>::<span class='ident'>PartialLess</span> <span class='op'>|</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialEqual</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>),
+            <span class='ident'>POrdering</span>::<span class='ident'>PartialGreater</span>             <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>b</span>),
+            <span class='ident'>POrdering</span>::<span class='ident'>NotComparable</span>              <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
         }
     }
 
     <span class='doccomment'>/// Return the maximum of `a` and `b` if they are comparable.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>partial_max</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='ident'>PartialOrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>) {
-            <span class='ident'>PartialGreater</span> <span class='op'>|</span> <span class='ident'>PartialEqual</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>),
-            <span class='ident'>PartialLess</span>                   <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>b</span>),
-            <span class='ident'>NotComparable</span>                 <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
+        <span class='kw'>match</span> <span class='ident'>POrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>) {
+            <span class='ident'>POrdering</span>::<span class='ident'>PartialGreater</span> <span class='op'>|</span> <span class='ident'>POrdering</span>::<span class='ident'>PartialEqual</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>),
+            <span class='ident'>POrdering</span>::<span class='ident'>PartialLess</span>   <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>b</span>),
+            <span class='ident'>POrdering</span>::<span class='ident'>NotComparable</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>
         }
     }
 
@@ -538,8 +539,8 @@
     <span class='doccomment'>/// `min` or `max`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>partial_clamp</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='ident'>value</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span>, <span class='ident'>min</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span>, <span class='ident'>max</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>v_min</span> <span class='op'>=</span> <span class='ident'>PartialOrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>value</span>, <span class='ident'>min</span>);
-        <span class='kw'>let</span> <span class='ident'>v_max</span> <span class='op'>=</span> <span class='ident'>PartialOrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>value</span>, <span class='ident'>max</span>);
+        <span class='kw'>let</span> <span class='ident'>v_min</span> <span class='op'>=</span> <span class='ident'>POrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>value</span>, <span class='ident'>min</span>);
+        <span class='kw'>let</span> <span class='ident'>v_max</span> <span class='op'>=</span> <span class='ident'>POrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>value</span>, <span class='ident'>max</span>);
 
         <span class='kw'>if</span> <span class='ident'>v_min</span>.<span class='ident'>is_not_comparable</span>() <span class='op'>||</span> <span class='ident'>v_max</span>.<span class='ident'>is_not_comparable</span>() {
             <span class='prelude-val'>None</span>
@@ -581,7 +582,7 @@
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>approx_eq_eps</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>f32</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>f32</span>, <span class='ident'>epsilon</span>: <span class='kw-2'>&amp;</span><span class='ident'>f32</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        (<span class='op'>*</span><span class='ident'>a</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>b</span>).<span class='ident'>abs</span>() <span class='op'>&lt;</span> <span class='op'>*</span><span class='ident'>epsilon</span>
+        ::<span class='ident'>abs</span>(<span class='kw-2'>&amp;</span>(<span class='op'>*</span><span class='ident'>a</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>b</span>)) <span class='op'>&lt;</span> <span class='op'>*</span><span class='ident'>epsilon</span>
     }
 }
 
@@ -593,7 +594,7 @@
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>approx_eq_eps</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>f64</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>f64</span>, <span class='ident'>approx_epsilon</span>: <span class='kw-2'>&amp;</span><span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        (<span class='op'>*</span><span class='ident'>a</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>b</span>).<span class='ident'>abs</span>() <span class='op'>&lt;</span> <span class='op'>*</span><span class='ident'>approx_epsilon</span>
+        ::<span class='ident'>abs</span>(<span class='kw-2'>&amp;</span>(<span class='op'>*</span><span class='ident'>a</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>b</span>)) <span class='op'>&lt;</span> <span class='op'>*</span><span class='ident'>approx_epsilon</span>
     }
 }
 
@@ -661,26 +662,11 @@
     <span class='kw'>fn</span> <span class='ident'>mean</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
 }
 
-
-<span class='comment'>// /// Cholesky decomposition.</span>
-<span class='comment'>// pub trait Chol {</span>
-<span class='comment'>//     /// Performs the cholesky decomposition on `self`. The resulting upper-triangular matrix is</span>
-<span class='comment'>//     /// returned. Returns `None` if the matrix is not symetric positive-definite.</span>
-<span class='comment'>//     fn chol(self) -&gt; Option&lt;Self&gt;;</span>
-<span class='comment'>// </span>
-<span class='comment'>//     /// Performs the cholesky decomposition on `self`. The resulting upper-triangular matrix is</span>
-<span class='comment'>//     /// written to a given parameter. If the decomposition fails `false` is returned; the state of</span>
-<span class='comment'>//     /// the output parameter is undefined.</span>
-<span class='comment'>//     fn chol_to(&amp;self, out: &amp;mut Self) -&gt; bool {</span>
-<span class='comment'>//         match self.chol() {</span>
-<span class='comment'>//             None =&gt; false,</span>
-<span class='comment'>//             Some(decomp) =&gt; {</span>
-<span class='comment'>//                 *out = decomp;</span>
-<span class='comment'>//                 true</span>
-<span class='comment'>//             }</span>
-<span class='comment'>//         }</span>
-<span class='comment'>//     }</span>
-<span class='comment'>// }</span>
+<span class='doccomment'>/// Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>EigenQR</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span>: <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Computes the eigenvectors and eigenvalues of this matrix.</span>
+    <span class='kw'>fn</span> <span class='ident'>eigen_qr</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>, <span class='ident'>eps</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>, <span class='ident'>niter</span>: <span class='ident'>uint</span>) <span class='op'>-&gt;</span> (<span class='ident'>Self</span>, <span class='ident'>V</span>);
+}
 
 <span class='comment'>// XXX: those two traits should not exist since there is generalized operator overloading of Add</span>
 <span class='comment'>// and Sub.</span>
@@ -726,24 +712,10 @@
     <span class='kw'>fn</span> <span class='ident'>add_s</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>T</span>: <span class='ident'>Add</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>T</span><span class='op'>&gt;&gt;</span> <span class='ident'>ScalarAdd</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>T</span> {
-    <span class='doccomment'>/// Gets the result of `self + n`.</span>
-    <span class='kw'>fn</span> <span class='ident'>add_s</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>n</span>
-    }
-}
-
 <span class='doccomment'>/// Trait of objects having a subtraction with a scalar.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ScalarSub</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Gets the result of `self - n`.</span>
     <span class='kw'>fn</span> <span class='ident'>sub_s</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>T</span>: <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>T</span><span class='op'>&gt;&gt;</span> <span class='ident'>ScalarSub</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>T</span> {
-    <span class='doccomment'>/// Gets the result of `self - n`.</span>
-    <span class='kw'>fn</span> <span class='ident'>sub_s</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>n</span>
-    }
 }
 
 <span class='doccomment'>/// Trait of objects having a multiplication with a scalar.</span>
@@ -752,24 +724,10 @@
     <span class='kw'>fn</span> <span class='ident'>mul_s</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>T</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>T</span><span class='op'>&gt;&gt;</span> <span class='ident'>ScalarMul</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>T</span> {
-    <span class='doccomment'>/// Gets the result of `self * n`.</span>
-    <span class='kw'>fn</span> <span class='ident'>mul_s</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>*</span> <span class='op'>*</span><span class='ident'>n</span>
-    }
-}
-
 <span class='doccomment'>/// Trait of objects having a division by a scalar.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ScalarDiv</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Gets the result of `self / n`.</span>
     <span class='kw'>fn</span> <span class='ident'>div_s</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>T</span>: <span class='ident'>Div</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>T</span><span class='op'>&gt;&gt;</span> <span class='ident'>ScalarDiv</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>T</span> {
-    <span class='doccomment'>/// Gets the result of `self / n`.</span>
-    <span class='kw'>fn</span> <span class='ident'>div_s</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>/</span> <span class='op'>*</span><span class='ident'>n</span>
-    }
 }
 
 <span class='doccomment'>/// Trait of objects implementing the `y = ax + y` operation.</span>
@@ -777,6 +735,48 @@
     <span class='doccomment'>/// Adds $$a * x$$ to `self`.</span>
     <span class='kw'>fn</span> <span class='ident'>axpy</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>, <span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>);
 }
+
+<span class='comment'>/*
+ *
+ *
+ * Some implementations for scalar types.
+ *
+ *
+ */</span>
+<span class='comment'>// FIXME: move this to another module ?</span>
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_absolute</span>(
+    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>: <span class='ident'>ty</span>) <span class='op'>=&gt;</span> {
+        <span class='kw'>impl</span> <span class='ident'>Absolute</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span> {
+            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+            <span class='kw'>fn</span> <span class='ident'>abs</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>) <span class='op'>-&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span> {
+                <span class='ident'>n</span>.<span class='ident'>abs</span>()
+            }
+        }
+    }
+)
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_absolute_id</span>(
+    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>: <span class='ident'>ty</span>) <span class='op'>=&gt;</span> {
+        <span class='kw'>impl</span> <span class='ident'>Absolute</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span> {
+            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+            <span class='kw'>fn</span> <span class='ident'>abs</span>(<span class='ident'>n</span>: <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>) <span class='op'>-&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span> {
+                <span class='op'>*</span><span class='ident'>n</span>
+            }
+        }
+    }
+)
+
+<span class='macro'>impl_absolute</span><span class='macro'>!</span>(<span class='ident'>f32</span>)
+<span class='macro'>impl_absolute</span><span class='macro'>!</span>(<span class='ident'>f64</span>)
+<span class='macro'>impl_absolute</span><span class='macro'>!</span>(<span class='ident'>i8</span>)
+<span class='macro'>impl_absolute</span><span class='macro'>!</span>(<span class='ident'>i16</span>)
+<span class='macro'>impl_absolute</span><span class='macro'>!</span>(<span class='ident'>i32</span>)
+<span class='macro'>impl_absolute</span><span class='macro'>!</span>(<span class='ident'>i64</span>)
+<span class='macro'>impl_absolute</span><span class='macro'>!</span>(<span class='ident'>int</span>)
+<span class='macro'>impl_absolute_id</span><span class='macro'>!</span>(<span class='ident'>u8</span>)
+<span class='macro'>impl_absolute_id</span><span class='macro'>!</span>(<span class='ident'>u16</span>)
+<span class='macro'>impl_absolute_id</span><span class='macro'>!</span>(<span class='ident'>u32</span>)
+<span class='macro'>impl_absolute_id</span><span class='macro'>!</span>(<span class='ident'>u64</span>)
+<span class='macro'>impl_absolute_id</span><span class='macro'>!</span>(<span class='ident'>uint</span>)
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

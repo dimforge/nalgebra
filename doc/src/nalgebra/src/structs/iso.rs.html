@@ -196,16 +196,14 @@
 <span id='154'>154</span>
 <span id='155'>155</span>
 <span id='156'>156</span>
-<span id='157'>157</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Isometric transformations.</span>
 
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_doc</span>)]</span>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>mat</span>::{<span class='ident'>Mat3</span>, <span class='ident'>Mat4</span>, <span class='ident'>Mat5</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Col</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Col</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>One</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Inv</span>, <span class='ident'>ApproxEq</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>RotationMatrix</span>, <span class='ident'>Rotation</span>, <span class='ident'>Rotate</span>, <span class='ident'>AbsoluteRotate</span>, <span class='ident'>Transform</span>, <span class='ident'>Transformation</span>,
                        <span class='ident'>Translate</span>, <span class='ident'>Translation</span>, <span class='ident'>ToHomogeneous</span>};
@@ -250,7 +248,7 @@
     <span class='kw'>pub</span> <span class='ident'>translation</span>: <span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Clone</span> <span class='op'>+</span> <span class='ident'>Float</span><span class='op'>&gt;</span> <span class='ident'>Iso3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Clone</span> <span class='op'>+</span> <span class='ident'>BaseFloat</span><span class='op'>&gt;</span> <span class='ident'>Iso3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Reorient and translate this transformation such that its local `x` axis points to a given</span>
     <span class='doccomment'>/// direction.  Note that the usually known `look_at` function does the same thing but with the</span>
     <span class='doccomment'>/// `z` axis. See `look_at_z` for that.</span>

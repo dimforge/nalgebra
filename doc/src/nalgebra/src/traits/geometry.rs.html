@@ -319,7 +319,7 @@
 <span class='doccomment'>//! Traits of operations having a well-known or explicit geometric meaning.</span>
 
 
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::<span class='ident'>Mat</span>;
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>BaseFloat</span>, <span class='ident'>Mat</span>};
 
 <span class='doccomment'>/// Trait of object which represent a translation, and to wich new translation</span>
 <span class='doccomment'>/// can be appended.</span>
@@ -347,8 +347,8 @@
     <span class='kw'>fn</span> <span class='ident'>set_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>V</span>);
 }
 
-<span class='doccomment'>/// Trait of objects able to rotate other objects. This is typically implemented by matrices which</span>
-<span class='doccomment'>/// rotate vectors.</span>
+<span class='doccomment'>/// Trait of objects able to translate other objects. This is typically</span>
+<span class='doccomment'>/// implemented by vectors to translate points.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Translate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Apply a translation to an object.</span>
     <span class='kw'>fn</span> <span class='ident'>translate</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>;
@@ -459,7 +459,7 @@
 
 <span class='doccomment'>/// Trait of transformation having a rotation extractable as a rotation matrix. This can typically</span>
 <span class='doccomment'>/// be implemented by quaternions to convert them to a rotation matrix.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>RotationMatrix</span><span class='op'>&lt;</span><span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>M</span>: <span class='ident'>Mat</span><span class='op'>&lt;</span><span class='ident'>LV</span>, <span class='ident'>LV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;&gt;</span> : <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>RotationMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>M</span>: <span class='ident'>Mat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>LV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;&gt;</span> : <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Gets the rotation matrix represented by `self`.</span>
     <span class='kw'>fn</span> <span class='ident'>to_rot_mat</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span>;
 }
@@ -523,7 +523,7 @@
 }
 
 <span class='doccomment'>/// Traits of objects having an euclidian norm.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Float</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Computes the norm of `self`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>norm</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
@@ -562,7 +562,7 @@
 <span class='doccomment'>/// Traits of objects which can be put in homogeneous coordinates form.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ToHomogeneous</span><span class='op'>&lt;</span><span class='ident'>U</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Gets the homogeneous coordinates form of this object.</span>
-    <span class='kw'>fn</span> <span class='ident'>to_homogeneous</span>(<span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>U</span>;
+    <span class='kw'>fn</span> <span class='ident'>to_homogeneous</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>U</span>;
 }
 
 <span class='doccomment'>/// Traits of objects which can be build from an homogeneous coordinate form.</span>

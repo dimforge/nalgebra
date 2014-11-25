@@ -705,20 +705,38 @@
 <span id='663'>663</span>
 <span id='664'>664</span>
 <span id='665'>665</span>
+<span id='666'>666</span>
+<span id='667'>667</span>
+<span id='668'>668</span>
+<span id='669'>669</span>
+<span id='670'>670</span>
+<span id='671'>671</span>
+<span id='672'>672</span>
+<span id='673'>673</span>
+<span id='674'>674</span>
+<span id='675'>675</span>
+<span id='676'>676</span>
+<span id='677'>677</span>
+<span id='678'>678</span>
+<span id='679'>679</span>
+<span id='680'>680</span>
+<span id='681'>681</span>
+<span id='682'>682</span>
+<span id='683'>683</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Vectors with dimensions known at compile-time.</span>
 
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_doc</span>)]</span> <span class='comment'>// we allow missing to avoid having to document the dispatch traits.</span>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span> <span class='comment'>// we allow missing to avoid having to document the dispatch traits.</span>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>, <span class='ident'>Float</span>, <span class='ident'>Bounded</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::{<span class='ident'>Items</span>, <span class='ident'>MutItems</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::{<span class='ident'>Iterator</span>, <span class='ident'>FromIterator</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>ApproxEq</span>, <span class='ident'>PartialOrd</span>, <span class='ident'>PartialOrdering</span>, <span class='ident'>PartialLess</span>, <span class='ident'>PartialEqual</span>,
-                         <span class='ident'>PartialGreater</span>, <span class='ident'>NotComparable</span>, <span class='ident'>Axpy</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>ApproxEq</span>, <span class='ident'>POrd</span>, <span class='ident'>POrdering</span>, <span class='ident'>Axpy</span>, <span class='ident'>ScalarAdd</span>, <span class='ident'>ScalarSub</span>, <span class='ident'>ScalarMul</span>,
+                         <span class='ident'>ScalarDiv</span>, <span class='ident'>Absolute</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Transform</span>, <span class='ident'>Rotate</span>, <span class='ident'>FromHomogeneous</span>, <span class='ident'>ToHomogeneous</span>, <span class='ident'>Dot</span>, <span class='ident'>Norm</span>,
                        <span class='ident'>Translation</span>, <span class='ident'>Translate</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Basis</span>, <span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Indexable</span>, <span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>VecAsPnt</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Basis</span>, <span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Indexable</span>, <span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>VecAsPnt</span>, <span class='ident'>Shape</span>,
+                        <span class='ident'>NumVec</span>, <span class='ident'>FloatVec</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>Zero</span>, <span class='ident'>One</span>, <span class='ident'>Bounded</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>pnt</span>::{<span class='ident'>Pnt1</span>, <span class='ident'>Pnt2</span>, <span class='ident'>Pnt3</span>, <span class='ident'>Pnt4</span>, <span class='ident'>Pnt5</span>, <span class='ident'>Pnt6</span>};
 
 
@@ -761,7 +779,7 @@
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
 <span class='macro'>vec_axis_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>Vec1Cast</span>, <span class='ident'>x</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='number'>1</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='number'>1</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='number'>1</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='number'>1</span>)
@@ -775,6 +793,7 @@
 <span class='macro'>div_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>Vec1DivRhs</span>, <span class='ident'>x</span>)
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
 <span class='macro'>dot_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>f64</span>, <span class='ident'>Vec1MulRhs</span>, <span class='ident'>x</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>f32</span>, <span class='ident'>Vec1MulRhs</span>, <span class='ident'>x</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>u64</span>, <span class='ident'>Vec1MulRhs</span>, <span class='ident'>x</span>)
@@ -826,7 +845,7 @@
 <span class='macro'>translation_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>)
 <span class='macro'>norm_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
-<span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
+<span class='macro'>zero_one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>iterator</span>)
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
 <span class='macro'>axpy_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
@@ -839,6 +858,8 @@
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>)
 <span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>Pnt1</span>)
 <span class='macro'>vec_as_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>Pnt1</span>, <span class='ident'>x</span>)
+<span class='macro'>num_float_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>Vec1MulRhs</span>, <span class='ident'>Vec1DivRhs</span>)
+<span class='macro'>absolute_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec1</span>, <span class='ident'>x</span>)
 
 <span class='doccomment'>/// Vector of dimension 2.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Zero</span>, <span class='ident'>Show</span>)]</span>
@@ -863,7 +884,7 @@
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>vec_axis_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>Vec2Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='number'>2</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='number'>2</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='number'>2</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='number'>2</span>)
@@ -877,6 +898,7 @@
 <span class='macro'>div_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>Vec2DivRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>dot_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>f64</span>, <span class='ident'>Vec2MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>f32</span>, <span class='ident'>Vec2MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>u64</span>, <span class='ident'>Vec2MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
@@ -928,7 +950,7 @@
 <span class='macro'>translation_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>)
 <span class='macro'>norm_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
-<span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
+<span class='macro'>zero_one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>)
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>axpy_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
@@ -941,6 +963,8 @@
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>)
 <span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>Pnt2</span>)
 <span class='macro'>vec_as_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
+<span class='macro'>num_float_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>Vec2MulRhs</span>, <span class='ident'>Vec2DivRhs</span>)
+<span class='macro'>absolute_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 
 <span class='doccomment'>/// Vector of dimension 3.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Zero</span>, <span class='ident'>Show</span>)]</span>
@@ -967,7 +991,7 @@
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>vec_axis_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>Vec3Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='number'>3</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='number'>3</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='number'>3</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='number'>3</span>)
@@ -981,6 +1005,7 @@
 <span class='macro'>div_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>Vec3DivRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>dot_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>f64</span>, <span class='ident'>Vec3MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>f32</span>, <span class='ident'>Vec3MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>u64</span>, <span class='ident'>Vec3MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
@@ -1035,7 +1060,7 @@
 <span class='macro'>translation_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>)
 <span class='macro'>norm_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span> ,<span class='ident'>z</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
-<span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
+<span class='macro'>zero_one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>)
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>axpy_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
@@ -1048,6 +1073,8 @@
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>)
 <span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>Pnt3</span>)
 <span class='macro'>vec_as_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
+<span class='macro'>num_float_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>Vec3MulRhs</span>, <span class='ident'>Vec3DivRhs</span>)
+<span class='macro'>absolute_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 
 
 <span class='doccomment'>/// Vector of dimension 4.</span>
@@ -1077,7 +1104,7 @@
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>vec_axis_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>Vec4Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='number'>4</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='number'>4</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='number'>4</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='number'>4</span>)
@@ -1091,6 +1118,7 @@
 <span class='macro'>div_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>Vec4DivRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>dot_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>f64</span>, <span class='ident'>Vec4MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>f32</span>, <span class='ident'>Vec4MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>u64</span>, <span class='ident'>Vec4MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
@@ -1142,7 +1170,7 @@
 <span class='macro'>translation_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>)
 <span class='macro'>norm_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
-<span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
+<span class='macro'>zero_one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>)
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>axpy_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
@@ -1155,6 +1183,8 @@
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>)
 <span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>Pnt4</span>)
 <span class='macro'>vec_as_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
+<span class='macro'>num_float_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>Vec4MulRhs</span>, <span class='ident'>Vec4DivRhs</span>)
+<span class='macro'>absolute_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 
 <span class='doccomment'>/// Vector of dimension 5.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Zero</span>, <span class='ident'>Show</span>)]</span>
@@ -1185,7 +1215,7 @@
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>vec_axis_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>Vec5Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='number'>5</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='number'>5</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='number'>5</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='number'>5</span>)
@@ -1199,6 +1229,7 @@
 <span class='macro'>div_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>Vec5DivRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>dot_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>f64</span>, <span class='ident'>Vec5MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>f32</span>, <span class='ident'>Vec5MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>u64</span>, <span class='ident'>Vec5MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
@@ -1250,7 +1281,7 @@
 <span class='macro'>translation_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>)
 <span class='macro'>norm_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
-<span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
+<span class='macro'>zero_one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>)
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>axpy_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
@@ -1263,6 +1294,8 @@
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>)
 <span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>Pnt5</span>)
 <span class='macro'>vec_as_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
+<span class='macro'>num_float_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>Vec5MulRhs</span>, <span class='ident'>Vec5DivRhs</span>)
+<span class='macro'>absolute_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 
 <span class='doccomment'>/// Vector of dimension 6.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Zero</span>, <span class='ident'>Show</span>)]</span>
@@ -1295,7 +1328,7 @@
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>vec_axis_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>Vec6Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='number'>6</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='number'>6</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='number'>6</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='number'>6</span>)
@@ -1309,6 +1342,7 @@
 <span class='macro'>div_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>Vec6DivRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>dot_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>f64</span>, <span class='ident'>Vec6MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>f32</span>, <span class='ident'>Vec6MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>u64</span>, <span class='ident'>Vec6MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
@@ -1360,7 +1394,7 @@
 <span class='macro'>translation_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>)
 <span class='macro'>norm_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
-<span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='macro'>zero_one_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>)
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>axpy_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
@@ -1371,6 +1405,8 @@
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>)
 <span class='macro'>transform_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>Pnt6</span>)
 <span class='macro'>vec_as_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='macro'>num_float_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>Vec6MulRhs</span>, <span class='ident'>Vec6DivRhs</span>)
+<span class='macro'>absolute_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

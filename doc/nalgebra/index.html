@@ -44,7 +44,7 @@
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>nalgebra</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
             <a id="collapse-all" href="#">[-]
             </a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/nalgebra/src/lib.rs.html#1-961'>[src]</a></span></h1>
+        </span><a id='src-0' href='../src/nalgebra/src/lib.rs.html#1-986'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="nalgebra" class='section-header'><a
                            href="#nalgebra">nalgebra</a></h1>
@@ -145,13 +145,28 @@ Feel free to add your project to this list if you happen to use <strong>nalgebra
 <li><a href="https://github.com/sebcrozet/kiss3d">kiss3d</a>: a minimalistic graphics engine.</li>
 <li><a href="https://github.com/sebcrozet/nrays">nrays</a>: a ray tracer.</li>
 </ul>
-</div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
-<table><tr><td><code>pub use traits::{<a class='enum' href='../nalgebra/enum.PartialOrdering.html' title='nalgebra::PartialOrdering'>PartialLess</a>, <a class='enum' href='../nalgebra/enum.PartialOrdering.html' title='nalgebra::PartialOrdering'>PartialEqual</a>, <a class='enum' href='../nalgebra/enum.PartialOrdering.html' title='nalgebra::PartialOrdering'>PartialGreater</a>, <a class='enum' href='../nalgebra/enum.PartialOrdering.html' title='nalgebra::PartialOrdering'>NotComparable</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='mod' href='overload/index.html'
                                title='nalgebra::overload'>overload</a></td>
                         <td class='docblock short'><p>Traits to work around the language limitations related to operator overloading.</p>
+</td>
+                    </tr>
+                </table><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
+<table>
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.assert_approx_eq!.html'
+                               title='nalgebra::assert_approx_eq!'>assert_approx_eq!</a></td>
+                        <td class='docblock short'><p>Asserts approximate equality of two values with the <code>ApproxEq</code> trait.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.assert_approx_eq_eps!.html'
+                               title='nalgebra::assert_approx_eq_eps!'>assert_approx_eq_eps!</a></td>
+                        <td class='docblock short'><p>Asserts approximate equality within a given tolerance of two values with the
+<code>ApproxEq</code> trait.</p>
 </td>
                     </tr>
                 </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
@@ -445,8 +460,8 @@ Feel free to add your project to this list if you happen to use <strong>nalgebra
                 </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
                     <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='enum' href='enum.PartialOrdering.html'
-                               title='nalgebra::PartialOrdering'>PartialOrdering</a></td>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='enum' href='enum.POrdering.html'
+                               title='nalgebra::POrdering'>POrdering</a></td>
                         <td class='docblock short'><p>Result of a partial ordering.</p>
 </td>
                     </tr>
@@ -468,20 +483,6 @@ This is useful if the object does not have the same type as its absolute value.<
                     </tr>
                 
                     <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.AnyPnt.html'
-                               title='nalgebra::AnyPnt'>AnyPnt</a></td>
-                        <td class='docblock short'><p>Trait grouping most common operations on points.</p>
-</td>
-                    </tr>
-                
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.AnyVec.html'
-                               title='nalgebra::AnyVec'>AnyVec</a></td>
-                        <td class='docblock short'><p>Trait grouping most common operations on vectors.</p>
-</td>
-                    </tr>
-                
-                    <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.ApproxEq.html'
                                title='nalgebra::ApproxEq'>ApproxEq</a></td>
                         <td class='docblock short'><p>Trait for testing approximate equality</p>
@@ -496,9 +497,30 @@ This is useful if the object does not have the same type as its absolute value.<
                     </tr>
                 
                     <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.BaseFloat.html'
+                               title='nalgebra::BaseFloat'>BaseFloat</a></td>
+                        <td class='docblock short'><p>Basic floating-point number numeric trait.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.BaseNum.html'
+                               title='nalgebra::BaseNum'>BaseNum</a></td>
+                        <td class='docblock short'><p>Basic integral numeric trait.</p>
+</td>
+                    </tr>
+                
+                    <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Basis.html'
                                title='nalgebra::Basis'>Basis</a></td>
                         <td class='docblock short'><p>Traits of objects which can form a basis (typically vectors).</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Bounded.html'
+                               title='nalgebra::Bounded'>Bounded</a></td>
+                        <td class='docblock short'><p>Types that have maximum and minimum value.</p>
 </td>
                     </tr>
                 
@@ -573,6 +595,13 @@ This is useful if the object does not have the same type as its absolute value.<
                     </tr>
                 
                     <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.EigenQR.html'
+                               title='nalgebra::EigenQR'>EigenQR</a></td>
+                        <td class='docblock short'><p>Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.</p>
+</td>
+                    </tr>
+                
+                    <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Eye.html'
                                title='nalgebra::Eye'>Eye</a></td>
                         <td class='docblock short'><p>Trait for constructing the identity matrix</p>
@@ -582,30 +611,14 @@ This is useful if the object does not have the same type as its absolute value.<
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.FloatPnt.html'
                                title='nalgebra::FloatPnt'>FloatPnt</a></td>
-                        <td class='docblock short'><p>Trait of points with components implementing the <code>Float</code> trait.</p>
-</td>
-                    </tr>
-                
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.FloatPntExt.html'
-                               title='nalgebra::FloatPntExt'>FloatPntExt</a></td>
-                        <td class='docblock short'><p>Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
-operations on points.</p>
+                        <td class='docblock short'><p>Trait of points with components implementing the <code>BaseFloat</code> trait.</p>
 </td>
                     </tr>
                 
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.FloatVec.html'
                                title='nalgebra::FloatVec'>FloatVec</a></td>
-                        <td class='docblock short'><p>Trait of vector with components implementing the <code>Float</code> trait.</p>
-</td>
-                    </tr>
-                
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.FloatVecExt.html'
-                               title='nalgebra::FloatVecExt'>FloatVecExt</a></td>
-                        <td class='docblock short'><p>Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
-operations on vectors.</p>
+                        <td class='docblock short'><p>Trait of vector with components implementing the <code>BaseFloat</code> trait.</p>
 </td>
                     </tr>
                 
@@ -673,6 +686,27 @@ operations on vectors.</p>
                     </tr>
                 
                     <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.NumPnt.html'
+                               title='nalgebra::NumPnt'>NumPnt</a></td>
+                        <td class='docblock short'><p>Trait grouping most common operations on points.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.NumVec.html'
+                               title='nalgebra::NumVec'>NumVec</a></td>
+                        <td class='docblock short'><p>Trait grouping most common operations on vectors.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.One.html'
+                               title='nalgebra::One'>One</a></td>
+                        <td class='docblock short'><p>Multiplicative identity.</p>
+</td>
+                    </tr>
+                
+                    <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Orig.html'
                                title='nalgebra::Orig'>Orig</a></td>
                         <td class='docblock short'><p>The zero element of a vector space, seen as an element of its embeding affine space.</p>
@@ -687,8 +721,8 @@ operations on vectors.</p>
                     </tr>
                 
                     <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.PartialOrd.html'
-                               title='nalgebra::PartialOrd'>PartialOrd</a></td>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.POrd.html'
+                               title='nalgebra::POrd'>POrd</a></td>
                         <td class='docblock short'><p>Pointwise ordering operations.</p>
 </td>
                     </tr>
@@ -697,14 +731,6 @@ operations on vectors.</p>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.PntAsVec.html'
                                title='nalgebra::PntAsVec'>PntAsVec</a></td>
                         <td class='docblock short'><p>Trait that relates a point of an affine space to a vector of the associated vector space.</p>
-</td>
-                    </tr>
-                
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.PntExt.html'
-                               title='nalgebra::PntExt'>PntExt</a></td>
-                        <td class='docblock short'><p>Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
-operations on points.</p>
 </td>
                     </tr>
                 
@@ -788,6 +814,20 @@ be implemented by quaternions to convert them to a rotation matrix.</p>
                     </tr>
                 
                     <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Shape.html'
+                               title='nalgebra::Shape'>Shape</a></td>
+                        <td class='docblock short'><p>The shape of an indexable object.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.SquareMat.html'
+                               title='nalgebra::SquareMat'>SquareMat</a></td>
+                        <td class='docblock short'><p>Trait implemented by square matrices.</p>
+</td>
+                    </tr>
+                
+                    <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.ToHomogeneous.html'
                                title='nalgebra::ToHomogeneous'>ToHomogeneous</a></td>
                         <td class='docblock short'><p>Traits of objects which can be put in homogeneous coordinates form.</p>
@@ -812,8 +852,8 @@ be appended.</p>
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Translate.html'
                                title='nalgebra::Translate'>Translate</a></td>
-                        <td class='docblock short'><p>Trait of objects able to rotate other objects. This is typically implemented by matrices which
-rotate vectors.</p>
+                        <td class='docblock short'><p>Trait of objects able to translate other objects. This is typically
+implemented by vectors to translate points.</p>
 </td>
                     </tr>
                 
@@ -840,17 +880,16 @@ can be appended.</p>
                     </tr>
                 
                     <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.VecAsPnt.html'
+                        <td><a class='stability Deprecated' title='Deprecated: This will be removed in the future. Use point + vector operations instead.'></a><a class='trait' href='trait.VecAsPnt.html'
                                title='nalgebra::VecAsPnt'>VecAsPnt</a></td>
                         <td class='docblock short'><p>Trait that relates a point of an affine space to a vector of the associated vector space.</p>
 </td>
                     </tr>
                 
                     <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.VecExt.html'
-                               title='nalgebra::VecExt'>VecExt</a></td>
-                        <td class='docblock short'><p>Trait grouping uncommon, low-level and borderline (from the mathematical point of view)
-operations on vectors.</p>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='trait' href='trait.Zero.html'
+                               title='nalgebra::Zero'>Zero</a></td>
+                        <td class='docblock short'><p>Additive identity.</p>
 </td>
                     </tr>
                 </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
@@ -922,6 +961,13 @@ operations on vectors.</p>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.canonical_basis.html'
                                title='nalgebra::canonical_basis'>canonical_basis</a></td>
                         <td class='docblock short'><p>Computes the canonical basis for a given dimension.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.canonical_basis_element.html'
+                               title='nalgebra::canonical_basis_element'>canonical_basis_element</a></td>
+                        <td class='docblock short'><p>Gets the (0-based) i-th element of the canonical basis of V.</p>
 </td>
                     </tr>
                 
@@ -1006,7 +1052,7 @@ product.</p>
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.eigen_qr.html'
                                title='nalgebra::eigen_qr'>eigen_qr</a></td>
-                        <td class='docblock short'><p>Eigendecomposition of a square matrix using the qr algorithm.</p>
+                        <td class='docblock short'><p>Computes the eigenvalues and eigenvectors of a square matrix usin the QR algorithm.</p>
 </td>
                     </tr>
                 
@@ -1085,6 +1131,13 @@ defined by <code>vec</code>. It can be a reflexion contained in a subspace.</p>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.inv_translation.html'
                                title='nalgebra::inv_translation'>inv_translation</a></td>
                         <td class='docblock short'><p>Gets the inverse translation applicable by <code>m</code>.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.is_zero.html'
+                               title='nalgebra::is_zero'>is_zero</a></td>
+                        <td class='docblock short'><p>Tests is a value is iqual to zero.</p>
 </td>
                     </tr>
                 
@@ -1255,6 +1308,13 @@ view, and the distance to the clipping planes (<code>znear</code> and <code>zfar
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.sample_sphere.html'
                                title='nalgebra::sample_sphere'>sample_sphere</a></td>
                         <td class='docblock short'><p>Samples the unit sphere living on the dimension as the samples types.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='fn' href='fn.shape.html'
+                               title='nalgebra::shape'>shape</a></td>
+                        <td class='docblock short'><p>Gets the indexable range of an object.</p>
 </td>
                     </tr>
                 

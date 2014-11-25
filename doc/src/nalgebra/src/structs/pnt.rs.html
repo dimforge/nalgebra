@@ -640,18 +640,30 @@
 <span id='598'>598</span>
 <span id='599'>599</span>
 <span id='600'>600</span>
+<span id='601'>601</span>
+<span id='602'>602</span>
+<span id='603'>603</span>
+<span id='604'>604</span>
+<span id='605'>605</span>
+<span id='606'>606</span>
+<span id='607'>607</span>
+<span id='608'>608</span>
+<span id='609'>609</span>
+<span id='610'>610</span>
+<span id='611'>611</span>
+<span id='612'>612</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Points with dimensions known at compile-time.</span>
 
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_doc</span>)]</span> <span class='comment'>// we allow missing to avoid having to document the point components.</span>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span> <span class='comment'>// we allow missing to avoid having to document the point components.</span>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>, <span class='ident'>Bounded</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::{<span class='ident'>Items</span>, <span class='ident'>MutItems</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::{<span class='ident'>Iterator</span>, <span class='ident'>FromIterator</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>ApproxEq</span>, <span class='ident'>PartialOrd</span>, <span class='ident'>PartialOrdering</span>, <span class='ident'>PartialLess</span>, <span class='ident'>PartialEqual</span>,
-                         <span class='ident'>PartialGreater</span>, <span class='ident'>NotComparable</span>, <span class='ident'>Axpy</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Indexable</span>, <span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>PntAsVec</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>ApproxEq</span>, <span class='ident'>POrd</span>, <span class='ident'>POrdering</span>, <span class='ident'>Axpy</span>, <span class='ident'>ScalarAdd</span>, <span class='ident'>ScalarSub</span>, <span class='ident'>ScalarMul</span>,
+                         <span class='ident'>ScalarDiv</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Indexable</span>, <span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>PntAsVec</span>, <span class='ident'>Shape</span>,
+                        <span class='ident'>NumPnt</span>, <span class='ident'>FloatPnt</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>Zero</span>, <span class='ident'>One</span>, <span class='ident'>Bounded</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Orig</span>, <span class='ident'>FromHomogeneous</span>, <span class='ident'>ToHomogeneous</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>vec</span>::{<span class='ident'>Vec1</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec5</span>, <span class='ident'>Vec6</span>};
 
@@ -695,7 +707,7 @@
 <span class='macro'>orig_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>)
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Pnt1Cast</span>, <span class='ident'>x</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='number'>1</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='number'>1</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='number'>1</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='number'>1</span>)
@@ -707,6 +719,7 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>)
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Vec1</span>, <span class='ident'>Pnt1AddRhs</span>, <span class='ident'>x</span>)
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Vec1</span>, <span class='ident'>Pnt1SubRhs</span>, <span class='ident'>x</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>f64</span>, <span class='ident'>Pnt1MulRhs</span>, <span class='ident'>x</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>f32</span>, <span class='ident'>Pnt1MulRhs</span>, <span class='ident'>x</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>u64</span>, <span class='ident'>Pnt1MulRhs</span>, <span class='ident'>x</span>)
@@ -763,6 +776,7 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='number'>1</span>)
 <span class='macro'>pnt_to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Pnt2</span>, <span class='ident'>y</span>, <span class='ident'>x</span>)
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Pnt2</span>, <span class='ident'>y</span>, <span class='ident'>x</span>)
+<span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Vec1</span>, <span class='ident'>Pnt1MulRhs</span>, <span class='ident'>Pnt1DivRhs</span>)
 
 <span class='doccomment'>/// Point of dimension 2.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>)]</span>
@@ -787,7 +801,7 @@
 <span class='macro'>orig_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Pnt2Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='number'>2</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='number'>2</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='number'>2</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='number'>2</span>)
@@ -799,6 +813,7 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Vec2</span>, <span class='ident'>Pnt2AddRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Vec2</span>, <span class='ident'>Pnt2SubRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>f64</span>, <span class='ident'>Pnt2MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>f32</span>, <span class='ident'>Pnt2MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>u64</span>, <span class='ident'>Pnt2MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
@@ -855,6 +870,7 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='number'>2</span>)
 <span class='macro'>pnt_to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Pnt3</span>, <span class='ident'>z</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Pnt3</span>, <span class='ident'>z</span>, <span class='ident'>x</span>, <span class='ident'>y</span>)
+<span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Vec2</span>, <span class='ident'>Pnt2MulRhs</span>, <span class='ident'>Pnt2DivRhs</span>)
 
 <span class='doccomment'>/// Point of dimension 3.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>)]</span>
@@ -881,7 +897,7 @@
 <span class='macro'>orig_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Pnt3Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='number'>3</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='number'>3</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='number'>3</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='number'>3</span>)
@@ -893,6 +909,7 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Pnt3AddRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Pnt3SubRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>f64</span>, <span class='ident'>Pnt3MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>f32</span>, <span class='ident'>Pnt3MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>u64</span>, <span class='ident'>Pnt3MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
@@ -949,6 +966,7 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='number'>3</span>)
 <span class='macro'>pnt_to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Pnt4</span>, <span class='ident'>w</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Pnt4</span>, <span class='ident'>w</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>)
+<span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Pnt3MulRhs</span>, <span class='ident'>Pnt3DivRhs</span>)
 
 <span class='doccomment'>/// Point of dimension 4.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>)]</span>
@@ -977,7 +995,7 @@
 <span class='macro'>orig_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Pnt4Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='number'>4</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='number'>4</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='number'>4</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='number'>4</span>)
@@ -989,6 +1007,7 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Pnt4AddRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Pnt4SubRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>f64</span>, <span class='ident'>Pnt4MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>f32</span>, <span class='ident'>Pnt4MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>u64</span>, <span class='ident'>Pnt4MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
@@ -1045,6 +1064,7 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='number'>4</span>)
 <span class='macro'>pnt_to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Pnt5</span>, <span class='ident'>a</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Pnt5</span>, <span class='ident'>a</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>)
+<span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Pnt4MulRhs</span>, <span class='ident'>Pnt4DivRhs</span>)
 
 <span class='doccomment'>/// Point of dimension 5.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>)]</span>
@@ -1075,7 +1095,7 @@
 <span class='macro'>orig_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Pnt5Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='number'>5</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='number'>5</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='number'>5</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='number'>5</span>)
@@ -1087,6 +1107,7 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Vec5</span>, <span class='ident'>Pnt5AddRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Vec5</span>, <span class='ident'>Pnt5SubRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>f64</span>, <span class='ident'>Pnt5MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>f32</span>, <span class='ident'>Pnt5MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>u64</span>, <span class='ident'>Pnt5MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
@@ -1143,6 +1164,7 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='number'>5</span>)
 <span class='macro'>pnt_to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Pnt6</span>, <span class='ident'>b</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Pnt6</span>, <span class='ident'>b</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>)
+<span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Vec5</span>, <span class='ident'>Pnt5MulRhs</span>, <span class='ident'>Pnt5DivRhs</span>)
 
 <span class='doccomment'>/// Point of dimension 6.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Encodable</span>, <span class='ident'>Decodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>)]</span>
@@ -1175,7 +1197,7 @@
 <span class='macro'>orig_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>ord_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>vec_cast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>Pnt6Cast</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
-<span class='macro'>as_slice_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>)
+<span class='macro'>as_array_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>)
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>)
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>)
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>)
@@ -1187,6 +1209,7 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>Vec6</span>, <span class='ident'>Pnt6AddRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>Vec6</span>, <span class='ident'>Pnt6SubRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>f64</span>, <span class='ident'>Pnt6MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>f32</span>, <span class='ident'>Pnt6MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>vec_mul_scalar_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>u64</span>, <span class='ident'>Pnt6MulRhs</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
@@ -1241,6 +1264,7 @@
 <span class='macro'>axpy_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>)
 <span class='macro'>iterable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>)
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>)
+<span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>Vec6</span>, <span class='ident'>Pnt6MulRhs</span>, <span class='ident'>Pnt6DivRhs</span>)
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

@@ -179,22 +179,18 @@
 <span id='137'>137</span>
 <span id='138'>138</span>
 <span id='139'>139</span>
-<span id='140'>140</span>
-<span id='141'>141</span>
-<span id='142'>142</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Vector with dimensions unknown at compile-time.</span>
 
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_doc</span>)]</span> <span class='comment'>// we hide doc to not have to document the $trhs double dispatch trait.</span>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span> <span class='comment'>// we hide doc to not have to document the $trhs double dispatch trait.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>, <span class='ident'>Float</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rand</span>::<span class='ident'>Rand</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rand</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::{<span class='ident'>Items</span>, <span class='ident'>MutItems</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::<span class='ident'>ApproxEq</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::<span class='ident'>FromIterator</span>;
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Dot</span>, <span class='ident'>Norm</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>Indexable</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>Indexable</span>, <span class='ident'>Shape</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>Zero</span>, <span class='ident'>One</span>};
 
 <span class='doccomment'>/// Heap allocated, dynamically sized vector.</span>
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Show</span>, <span class='ident'>Clone</span>)]</span>
@@ -242,6 +238,11 @@
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_fn</span>(<span class='ident'>dim</span>: <span class='ident'>uint</span>, <span class='ident'>f</span>: <span class='op'>|</span><span class='ident'>uint</span><span class='op'>|</span> <span class='op'>-&gt;</span> <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>DVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
         <span class='ident'>DVec</span> { <span class='ident'>at</span>: <span class='ident'>Vec</span>::<span class='ident'>from_fn</span>(<span class='ident'>dim</span>, <span class='op'>|</span><span class='ident'>i</span><span class='op'>|</span> <span class='ident'>f</span>(<span class='ident'>i</span>)) }
     }
+
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>len</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
+        <span class='self'>self</span>.<span class='ident'>at</span>.<span class='ident'>len</span>()
+    }
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='ident'>FromIterator</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>DVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
@@ -258,13 +259,6 @@
 }
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='ident'>Collection</span> <span class='kw'>for</span> <span class='ident'>DVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>len</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>uint</span> {
-        <span class='self'>self</span>.<span class='ident'>at</span>.<span class='ident'>len</span>()
-    }
-}
-
 <span class='macro'>dvec_impl</span><span class='macro'>!</span>(<span class='ident'>DVec</span>, <span class='ident'>DVecMulRhs</span>, <span class='ident'>DVecDivRhs</span>, <span class='ident'>DVecAddRhs</span>, <span class='ident'>DVecSubRhs</span>)
 
 <span class='doccomment'>/// Stack-allocated, dynamically sized vector with a maximum size of 1.</span>
@@ -274,7 +268,7 @@
 }
 
 <span class='macro'>small_dvec_impl</span><span class='macro'>!</span>(<span class='ident'>DVec1</span>, <span class='number'>1</span>, <span class='ident'>DVec1MulRhs</span>, <span class='ident'>DVec1DivRhs</span>, <span class='ident'>DVec1AddRhs</span>, <span class='ident'>DVec1SubRhs</span>, <span class='number'>0</span>)
-<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec1</span>, <span class='number'>1</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>())
+<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec1</span>, <span class='number'>1</span>, ::<span class='ident'>zero</span>())
 
 
 <span class='doccomment'>/// Stack-allocated, dynamically sized vector with a maximum size of 2.</span>
@@ -284,7 +278,7 @@
 }
 
 <span class='macro'>small_dvec_impl</span><span class='macro'>!</span>(<span class='ident'>DVec2</span>, <span class='number'>2</span>, <span class='ident'>DVec2MulRhs</span>, <span class='ident'>DVec2DivRhs</span>, <span class='ident'>DVec2AddRhs</span>, <span class='ident'>DVec2SubRhs</span>, <span class='number'>0</span>, <span class='number'>1</span>)
-<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec2</span>, <span class='number'>2</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>())
+<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec2</span>, <span class='number'>2</span>, ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>())
 
 
 <span class='doccomment'>/// Stack-allocated, dynamically sized vector with a maximum size of 3.</span>
@@ -294,7 +288,7 @@
 }
 
 <span class='macro'>small_dvec_impl</span><span class='macro'>!</span>(<span class='ident'>DVec3</span>, <span class='number'>3</span>, <span class='ident'>DVec3MulRhs</span>, <span class='ident'>DVec3DivRhs</span>, <span class='ident'>DVec3AddRhs</span>, <span class='ident'>DVec3SubRhs</span>, <span class='number'>0</span>, <span class='number'>1</span>, <span class='number'>2</span>)
-<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec3</span>, <span class='number'>3</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>())
+<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec3</span>, <span class='number'>3</span>, ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>())
 
 
 <span class='doccomment'>/// Stack-allocated, dynamically sized vector with a maximum size of 4.</span>
@@ -304,7 +298,7 @@
 }
 
 <span class='macro'>small_dvec_impl</span><span class='macro'>!</span>(<span class='ident'>DVec4</span>, <span class='number'>4</span>, <span class='ident'>DVec4MulRhs</span>, <span class='ident'>DVec4DivRhs</span>, <span class='ident'>DVec4AddRhs</span>, <span class='ident'>DVec4SubRhs</span>, <span class='number'>0</span>, <span class='number'>1</span>, <span class='number'>2</span>, <span class='number'>3</span>)
-<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec4</span>, <span class='number'>4</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>())
+<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec4</span>, <span class='number'>4</span>, ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>())
 
 
 <span class='doccomment'>/// Stack-allocated, dynamically sized vector with a maximum size of 5.</span>
@@ -314,7 +308,7 @@
 }
 
 <span class='macro'>small_dvec_impl</span><span class='macro'>!</span>(<span class='ident'>DVec5</span>, <span class='number'>5</span>, <span class='ident'>DVec5MulRhs</span>, <span class='ident'>DVec5DivRhs</span>, <span class='ident'>DVec5AddRhs</span>, <span class='ident'>DVec5SubRhs</span>, <span class='number'>0</span>, <span class='number'>1</span>, <span class='number'>2</span>, <span class='number'>3</span>, <span class='number'>4</span>)
-<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec5</span>, <span class='number'>5</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>())
+<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec5</span>, <span class='number'>5</span>, ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>())
 
 
 <span class='doccomment'>/// Stack-allocated, dynamically sized vector with a maximum size of 6.</span>
@@ -324,7 +318,7 @@
 }
 
 <span class='macro'>small_dvec_impl</span><span class='macro'>!</span>(<span class='ident'>DVec6</span>, <span class='number'>6</span>, <span class='ident'>DVec6MulRhs</span>, <span class='ident'>DVec6DivRhs</span>, <span class='ident'>DVec6AddRhs</span>, <span class='ident'>DVec6SubRhs</span>, <span class='number'>0</span>, <span class='number'>1</span>, <span class='number'>2</span>, <span class='number'>3</span>, <span class='number'>4</span>, <span class='number'>5</span>)
-<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec6</span>, <span class='number'>6</span>, <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>(), <span class='ident'>Zero</span>::<span class='ident'>zero</span>())
+<span class='macro'>small_dvec_from_impl</span><span class='macro'>!</span>(<span class='ident'>DVec6</span>, <span class='number'>6</span>, ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>(), ::<span class='ident'>zero</span>())
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

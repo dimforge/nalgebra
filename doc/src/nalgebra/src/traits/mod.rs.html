@@ -57,20 +57,22 @@
 <span id='15'>15</span>
 <span id='16'>16</span>
 <span id='17'>17</span>
+<span id='18'>18</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Mathematical traits.</span>
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>geometry</span>::{<span class='ident'>AbsoluteRotate</span>, <span class='ident'>Cross</span>, <span class='ident'>CrossMatrix</span>, <span class='ident'>Dot</span>, <span class='ident'>FromHomogeneous</span>, <span class='ident'>Norm</span>, <span class='ident'>Orig</span>,
-                         <span class='ident'>Rotate</span>, <span class='ident'>Rotation</span>, <span class='ident'>RotationMatrix</span>, <span class='ident'>RotationWithTranslation</span>, <span class='ident'>ToHomogeneous</span>,
-                         <span class='ident'>Transform</span>, <span class='ident'>Transformation</span>, <span class='ident'>Translate</span>, <span class='ident'>Translation</span>, <span class='ident'>UniformSphereSample</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>AbsoluteRotate</span>, <span class='ident'>Cross</span>, <span class='ident'>CrossMatrix</span>, <span class='ident'>Dot</span>, <span class='ident'>FromHomogeneous</span>, <span class='ident'>Norm</span>, <span class='ident'>Orig</span>,
+                           <span class='ident'>Rotate</span>, <span class='ident'>Rotation</span>, <span class='ident'>RotationMatrix</span>, <span class='ident'>RotationWithTranslation</span>, <span class='ident'>ToHomogeneous</span>,
+                           <span class='ident'>Transform</span>, <span class='ident'>Transformation</span>, <span class='ident'>Translate</span>, <span class='ident'>Translation</span>, <span class='ident'>UniformSphereSample</span>};
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>structure</span>::{<span class='ident'>FloatVec</span>, <span class='ident'>FloatVecExt</span>, <span class='ident'>FloatPnt</span>, <span class='ident'>FloatPntExt</span>, <span class='ident'>Basis</span>, <span class='ident'>Cast</span>, <span class='ident'>Col</span>, <span class='ident'>Dim</span>,
-                          <span class='ident'>Indexable</span>, <span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>Mat</span>, <span class='ident'>Row</span>, <span class='ident'>AnyVec</span>, <span class='ident'>VecExt</span>, <span class='ident'>AnyPnt</span>,
-                          <span class='ident'>PntExt</span>, <span class='ident'>PntAsVec</span>, <span class='ident'>VecAsPnt</span>, <span class='ident'>ColSlice</span>, <span class='ident'>RowSlice</span>, <span class='ident'>Diag</span>, <span class='ident'>Eye</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>FloatVec</span>, <span class='ident'>FloatPnt</span>, <span class='ident'>Basis</span>, <span class='ident'>Cast</span>, <span class='ident'>Col</span>, <span class='ident'>Dim</span>, <span class='ident'>Indexable</span>, <span class='ident'>Iterable</span>,
+                            <span class='ident'>IterableMut</span>, <span class='ident'>Mat</span>, <span class='ident'>SquareMat</span>, <span class='ident'>Row</span>, <span class='ident'>NumVec</span>, <span class='ident'>NumPnt</span>, <span class='ident'>PntAsVec</span>, <span class='ident'>VecAsPnt</span>,
+                            <span class='ident'>ColSlice</span>, <span class='ident'>RowSlice</span>, <span class='ident'>Diag</span>, <span class='ident'>Eye</span>, <span class='ident'>Shape</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>Zero</span>, <span class='ident'>One</span>,
+                            <span class='ident'>Bounded</span>};
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>operations</span>::{<span class='ident'>Absolute</span>, <span class='ident'>ApproxEq</span>, <span class='ident'>Axpy</span>, <span class='ident'>Cov</span>, <span class='ident'>Det</span>, <span class='ident'>Inv</span>, <span class='ident'>LMul</span>, <span class='ident'>Mean</span>, <span class='ident'>Outer</span>, <span class='ident'>PartialOrd</span>,
-                           <span class='ident'>RMul</span>, <span class='ident'>ScalarAdd</span>, <span class='ident'>ScalarSub</span>, <span class='ident'>ScalarMul</span>, <span class='ident'>ScalarDiv</span>, <span class='ident'>Transpose</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>operations</span>::{<span class='ident'>PartialOrdering</span>, <span class='ident'>PartialLess</span>, <span class='ident'>PartialEqual</span>, <span class='ident'>PartialGreater</span>, <span class='ident'>NotComparable</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Absolute</span>, <span class='ident'>ApproxEq</span>, <span class='ident'>Axpy</span>, <span class='ident'>Cov</span>, <span class='ident'>Det</span>, <span class='ident'>Inv</span>, <span class='ident'>LMul</span>, <span class='ident'>Mean</span>, <span class='ident'>Outer</span>, <span class='ident'>POrd</span>,
+                             <span class='ident'>RMul</span>, <span class='ident'>ScalarAdd</span>, <span class='ident'>ScalarSub</span>, <span class='ident'>ScalarMul</span>, <span class='ident'>ScalarDiv</span>, <span class='ident'>Transpose</span>, <span class='ident'>EigenQR</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::<span class='ident'>POrdering</span>;
 
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>geometry</span>;
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>structure</span>;
