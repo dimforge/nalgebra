@@ -36,11 +36,11 @@ macro_rules! as_array_impl(
             // FIXME: because of https://github.com/rust-lang/rust/issues/16418 we cannot do the
             // array-to-mat conversion by-value:
             //
-            // pub fn from_array(&self, array: [N, ..$dim]) -> $t<N>
+            // pub fn from_array(array: [N, ..$dim]) -> $t<N>
 
             /// View a column-major array of array as a vector.
             #[inline]
-            pub fn from_array_ref(&self, array: &[[N, ..$dim], ..$dim]) -> &$t<N> {
+            pub fn from_array_ref(array: &[[N, ..$dim], ..$dim]) -> &$t<N> {
                 unsafe {
                     mem::transmute(array)
                 }
@@ -48,7 +48,7 @@ macro_rules! as_array_impl(
 
             /// View a column-major array of array as a mutable vector.
             #[inline]
-            pub fn from_array_mut(&mut self, array: &mut [[N, ..$dim], ..$dim]) -> &mut $t<N> {
+            pub fn from_array_mut(array: &mut [[N, ..$dim], ..$dim]) -> &mut $t<N> {
                 unsafe {
                     mem::transmute(array)
                 }
