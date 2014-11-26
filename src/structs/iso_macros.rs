@@ -60,35 +60,35 @@ macro_rules! one_impl(
 )
 
 macro_rules! iso_mul_iso_impl(
-    ($t: ident, $tmul: ident) => (
-        impl<N: BaseFloat + Clone> $tmul<N, $t<N>> for $t<N> {
+    ($t: ident) => (
+        impl<N: BaseFloat + Clone> Mul<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
+            fn mul(&self, right: &$t<N>) -> $t<N> {
                 $t::new_with_rotmat(
-                    left.translation + left.rotation * right.translation,
-                    left.rotation * right.rotation)
+                    self.translation + self.rotation * right.translation,
+                    self.rotation * right.rotation)
             }
         }
     )
 )
 
 macro_rules! iso_mul_pnt_impl(
-    ($t: ident, $tv: ident, $tmul: ident) => (
-        impl<N: BaseNum + Clone> $tmul<N, $tv<N>> for $tv<N> {
+    ($t: ident, $tv: ident) => (
+        impl<N: BaseNum + Clone> Mul<$tv<N>, $tv<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$tv<N>) -> $tv<N> {
-                left.rotation * *right + left.translation
+            fn mul(&self, right: &$tv<N>) -> $tv<N> {
+                self.rotation * *right + self.translation
             }
         }
     )
 )
 
 macro_rules! pnt_mul_iso_impl(
-    ($t: ident, $tv: ident, $tmul: ident) => (
-        impl<N: Clone + BaseNum> $tmul<N, $tv<N>> for $t<N> {
+    ($t: ident, $tv: ident) => (
+        impl<N: Clone + BaseNum> Mul<$t<N>, $tv<N>> for $tv<N> {
             #[inline]
-            fn binop(left: &$tv<N>, right: &$t<N>) -> $tv<N> {
-                (*left + right.translation) * right.rotation
+            fn mul(&self, right: &$t<N>) -> $tv<N> {
+                (*self + right.translation) * right.rotation
             }
         }
     )
@@ -254,37 +254,16 @@ macro_rules! transformation_impl(
 )
 
 macro_rules! transform_impl(
-    ($trhs: ident, $t: ident, $tv: ident, $tp: ident) => (
-        /*
-         * FIXME: we use the double dispatch trick here so that we can transform vectors _and_
-         * points. Remove this as soon as rust supports multidispatch.
-         */
-        pub trait $trhs<N> {
-            fn transform(left: &$t<N>, right: &Self) -> Self;
-            fn inv_transform(left: &$t<N>, right: &Self) -> Self;
-        }
-
-        impl<N, V: $trhs<N>> Transform<V> for $t<N> {
-            #[inline(always)]
-            fn transform(&self, other: &V) -> V {
-                $trhs::transform(self, other)
-            }
-
-            #[inline(always)]
-            fn inv_transform(&self, other: &V) -> V {
-                $trhs::inv_transform(self, other)
-            }
-        }
-
-        impl<N: BaseNum + Clone> $trhs<N> for $tp<N> {
+    ($t: ident, $tp: ident) => (
+        impl<N: BaseNum + Clone> Transform<$tp<N>> for $t<N> {
             #[inline]
-            fn transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
-                t.rotation.transform(p) + t.translation
+            fn transform(&self, p: &$tp<N>) -> $tp<N> {
+                self.rotation.transform(p) + self.translation
             }
 
             #[inline]
-            fn inv_transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
-                t.rotation.inv_transform(&(*p - t.translation))
+            fn inv_transform(&self, p: &$tp<N>) -> $tp<N> {
+                self.rotation.inv_transform(&(*p - self.translation))
             }
         }
     )

@@ -12,98 +12,56 @@ macro_rules! submat_impl(
 )
 
 macro_rules! rotate_impl(
-    ($trhs: ident, $t: ident, $tv: ident, $tp: ident) => (
-        /*
-         * FIXME: we use the double dispatch trick here so that we can rotate vectors _and_
-         * points. Remove this as soon as rust supports multidispatch.
-         */
-        pub trait $trhs<N> {
-            fn rotate(left: &$t<N>, right: &Self) -> Self;
-            fn inv_rotate(left: &$t<N>, right: &Self) -> Self;
-        }
-
-        impl<N, V: $trhs<N>> Rotate<V> for $t<N> {
-            #[inline(always)]
-            fn rotate(&self, other: &V) -> V {
-                $trhs::rotate(self, other)
+    ($t: ident, $tv: ident, $tp: ident) => (
+        impl<N: BaseNum + Clone> Rotate<$tv<N>> for $t<N> {
+            #[inline]
+            fn rotate(&self, v: &$tv<N>) -> $tv<N> {
+                *self * *v
             }
 
-            #[inline(always)]
-            fn inv_rotate(&self, other: &V) -> V {
-                $trhs::inv_rotate(self, other)
+            #[inline]
+            fn inv_rotate(&self, v: &$tv<N>) -> $tv<N> {
+                *v * *self
             }
         }
 
-        impl<N: BaseNum + Clone> $trhs<N> for $tv<N> {
+        impl<N: BaseNum + Clone> Rotate<$tp<N>> for $t<N> {
             #[inline]
-            fn rotate(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
-                *t * *v
+            fn rotate(&self, p: &$tp<N>) -> $tp<N> {
+                *self * *p
             }
 
             #[inline]
-            fn inv_rotate(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
-                *v * *t
-            }
-        }
-
-        impl<N: BaseNum + Clone> $trhs<N> for $tp<N> {
-            #[inline]
-            fn rotate(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
-                *t * *p
-            }
-
-            #[inline]
-            fn inv_rotate(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
-                *p * *t
+            fn inv_rotate(&self, p: &$tp<N>) -> $tp<N> {
+                *p * *self
             }
         }
     )
 )
 
 macro_rules! transform_impl(
-    ($trhs: ident, $t: ident, $tv: ident, $tp: ident) => (
-        /*
-         * FIXME: we use the double dispatch trick here so that we can transform vectors _and_
-         * points. Remove this as soon as rust supports multidispatch.
-         */
-        pub trait $trhs<N> {
-            fn transform(left: &$t<N>, right: &Self) -> Self;
-            fn inv_transform(left: &$t<N>, right: &Self) -> Self;
-        }
-
-        impl<N, V: $trhs<N>> Transform<V> for $t<N> {
-            #[inline(always)]
-            fn transform(&self, other: &V) -> V {
-                $trhs::transform(self, other)
+    ($t: ident, $tv: ident, $tp: ident) => (
+        impl<N: BaseNum + Clone> Transform<$tv<N>> for $t<N> {
+            #[inline]
+            fn transform(&self, v: &$tv<N>) -> $tv<N> {
+                self.rotate(v)
             }
 
-            #[inline(always)]
-            fn inv_transform(&self, other: &V) -> V {
-                $trhs::inv_transform(self, other)
+            #[inline]
+            fn inv_transform(&self, v: &$tv<N>) -> $tv<N> {
+                self.inv_rotate(v)
             }
         }
 
-        impl<N: BaseNum + Clone> $trhs<N> for $tv<N> {
+        impl<N: BaseNum + Clone> Transform<$tp<N>> for $t<N> {
             #[inline]
-            fn transform(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
-                t.rotate(v)
+            fn transform(&self, p: &$tp<N>) -> $tp<N> {
+                self.rotate(p)
             }
 
             #[inline]
-            fn inv_transform(t: &$t<N>, v: &$tv<N>) -> $tv<N> {
-                t.inv_rotate(v)
-            }
-        }
-
-        impl<N: BaseNum + Clone> $trhs<N> for $tp<N> {
-            #[inline]
-            fn transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
-                t.rotate(p)
-            }
-
-            #[inline]
-            fn inv_transform(t: &$t<N>, p: &$tp<N>) -> $tp<N> {
-                t.inv_rotate(p)
+            fn inv_transform(&self, p: &$tp<N>) -> $tp<N> {
+                self.inv_rotate(p)
             }
         }
     )
@@ -143,47 +101,47 @@ macro_rules! one_impl(
 )
 
 macro_rules! rot_mul_rot_impl(
-    ($t: ident, $mulrhs: ident) => (
-        impl<N: BaseNum + Clone> $mulrhs<N, $t<N>> for $t<N> {
+    ($t: ident) => (
+        impl<N: BaseNum + Clone> Mul<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
-                $t { submat: left.submat * right.submat }
+            fn mul(&self, right: &$t<N>) -> $t<N> {
+                $t { submat: self.submat * right.submat }
             }
         }
     )
 )
 
 macro_rules! rot_mul_vec_impl(
-    ($t: ident, $tv: ident, $mulrhs: ident) => (
-        impl<N: BaseNum + Clone> $mulrhs<N, $tv<N>> for $tv<N> {
+    ($t: ident, $tv: ident) => (
+        impl<N: BaseNum + Clone> Mul<$tv<N>, $tv<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$tv<N>) -> $tv<N> {
-                left.submat * *right
+            fn mul(&self, right: &$tv<N>) -> $tv<N> {
+                self.submat * *right
             }
         }
     )
 )
 
 macro_rules! rot_mul_pnt_impl(
-    ($t: ident, $tv: ident, $mulrhs: ident) => (
-        rot_mul_vec_impl!($t, $tv, $mulrhs)
+    ($t: ident, $tv: ident) => (
+        rot_mul_vec_impl!($t, $tv)
     )
 )
 
 macro_rules! vec_mul_rot_impl(
-    ($t: ident, $tv: ident, $mulrhs: ident) => (
-        impl<N: BaseNum + Clone> $mulrhs<N, $tv<N>> for $t<N> {
+    ($t: ident, $tv: ident) => (
+        impl<N: BaseNum + Clone> Mul<$t<N>, $tv<N>> for $tv<N> {
             #[inline]
-            fn binop(left: &$tv<N>, right: &$t<N>) -> $tv<N> {
-                *left * right.submat
+            fn mul(&self, right: &$t<N>) -> $tv<N> {
+                *self * right.submat
             }
         }
     )
 )
 
 macro_rules! pnt_mul_rot_impl(
-    ($t: ident, $tv: ident, $mulrhs: ident) => (
-        vec_mul_rot_impl!($t, $tv, $mulrhs)
+    ($t: ident, $tv: ident) => (
+        vec_mul_rot_impl!($t, $tv)
     )
 )
 

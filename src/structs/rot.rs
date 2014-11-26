@@ -7,8 +7,8 @@ use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transfo
                        Norm, Cross};
 use traits::structure::{Cast, Dim, Row, Col, BaseFloat, BaseNum, Zero, One};
 use traits::operations::{Absolute, Inv, Transpose, ApproxEq};
-use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec2MulRhs, Vec3MulRhs, Vec4MulRhs};
-use structs::pnt::{Pnt2, Pnt3, Pnt4, Pnt2MulRhs, Pnt3MulRhs, Pnt4MulRhs};
+use structs::vec::{Vec1, Vec2, Vec3, Vec4};
+use structs::pnt::{Pnt2, Pnt3, Pnt4};
 use structs::mat::{Mat2, Mat3, Mat4, Mat5};
 
 
@@ -376,17 +376,15 @@ Rotation<Vec4<N>> for Rot4<N> {
  * Common implementations.
  */
 
-double_dispatch_binop_decl_trait!(Rot2, Rot2MulRhs)
-mul_redispatch_impl!(Rot2, Rot2MulRhs)
 submat_impl!(Rot2, Mat2)
-rotate_impl!(Rot2RotateRhs, Rot2, Vec2, Pnt2)
-transform_impl!(Rot2TransformRhs, Rot2, Vec2, Pnt2)
+rotate_impl!(Rot2, Vec2, Pnt2)
+transform_impl!(Rot2, Vec2, Pnt2)
 dim_impl!(Rot2, 2)
-rot_mul_rot_impl!(Rot2, Rot2MulRhs)
-rot_mul_vec_impl!(Rot2, Vec2, Rot2MulRhs)
-vec_mul_rot_impl!(Rot2, Vec2, Vec2MulRhs)
-rot_mul_pnt_impl!(Rot2, Pnt2, Rot2MulRhs)
-pnt_mul_rot_impl!(Rot2, Pnt2, Pnt2MulRhs)
+rot_mul_rot_impl!(Rot2)
+rot_mul_vec_impl!(Rot2, Vec2)
+vec_mul_rot_impl!(Rot2, Vec2)
+rot_mul_pnt_impl!(Rot2, Pnt2)
+pnt_mul_rot_impl!(Rot2, Pnt2)
 one_impl!(Rot2)
 rotation_matrix_impl!(Rot2, Vec2, Vec1)
 col_impl!(Rot2, Vec2)
@@ -398,17 +396,15 @@ inv_impl!(Rot2)
 transpose_impl!(Rot2)
 approx_eq_impl!(Rot2)
 
-double_dispatch_binop_decl_trait!(Rot3, Rot3MulRhs)
-mul_redispatch_impl!(Rot3, Rot3MulRhs)
 submat_impl!(Rot3, Mat3)
-rotate_impl!(Rot3RotateRhs, Rot3, Vec3, Pnt3)
-transform_impl!(Rot3TransformRhs, Rot3, Vec3, Pnt3)
+rotate_impl!(Rot3, Vec3, Pnt3)
+transform_impl!(Rot3, Vec3, Pnt3)
 dim_impl!(Rot3, 3)
-rot_mul_rot_impl!(Rot3, Rot3MulRhs)
-rot_mul_vec_impl!(Rot3, Vec3, Rot3MulRhs)
-vec_mul_rot_impl!(Rot3, Vec3, Vec3MulRhs)
-rot_mul_pnt_impl!(Rot3, Pnt3, Rot3MulRhs)
-pnt_mul_rot_impl!(Rot3, Pnt3, Pnt3MulRhs)
+rot_mul_rot_impl!(Rot3)
+rot_mul_vec_impl!(Rot3, Vec3)
+vec_mul_rot_impl!(Rot3, Vec3)
+rot_mul_pnt_impl!(Rot3, Pnt3)
+pnt_mul_rot_impl!(Rot3, Pnt3)
 one_impl!(Rot3)
 rotation_matrix_impl!(Rot3, Vec3, Vec3)
 col_impl!(Rot3, Vec3)
@@ -420,17 +416,15 @@ inv_impl!(Rot3)
 transpose_impl!(Rot3)
 approx_eq_impl!(Rot3)
 
-double_dispatch_binop_decl_trait!(Rot4, Rot4MulRhs)
-mul_redispatch_impl!(Rot4, Rot4MulRhs)
 submat_impl!(Rot4, Mat4)
-rotate_impl!(Rot4RotateRhs, Rot4, Vec4, Pnt4)
-transform_impl!(Rot4TransformRhs, Rot4, Vec4, Pnt4)
+rotate_impl!(Rot4, Vec4, Pnt4)
+transform_impl!(Rot4, Vec4, Pnt4)
 dim_impl!(Rot4, 4)
-rot_mul_rot_impl!(Rot4, Rot4MulRhs)
-rot_mul_vec_impl!(Rot4, Vec4, Rot4MulRhs)
-vec_mul_rot_impl!(Rot4, Vec4, Vec4MulRhs)
-rot_mul_pnt_impl!(Rot4, Pnt4, Rot4MulRhs)
-pnt_mul_rot_impl!(Rot4, Pnt4, Pnt4MulRhs)
+rot_mul_rot_impl!(Rot4)
+rot_mul_vec_impl!(Rot4, Vec4)
+vec_mul_rot_impl!(Rot4, Vec4)
+rot_mul_pnt_impl!(Rot4, Pnt4)
+pnt_mul_rot_impl!(Rot4, Pnt4)
 one_impl!(Rot4)
 rotation_matrix_impl!(Rot4, Vec4, Vec4)
 col_impl!(Rot4, Vec4)

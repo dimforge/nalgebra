@@ -76,10 +76,10 @@ macro_rules! at_fast_impl(
 )
 
 macro_rules! mat_cast_impl(
-    ($t: ident, $tcast: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<Nin: Clone, Nout: Clone + Cast<Nin>> $tcast<Nout> for $t<Nin> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<Nin: Clone, Nout: Clone + Cast<Nin>> Cast<$t<Nin>> for $t<Nout> {
             #[inline]
-            fn to(v: $t<Nin>) -> $t<Nout> {
+            fn from(v: $t<Nin>) -> $t<Nout> {
                 $t::new(Cast::from(v.$comp0.clone()) $(, Cast::from(v.$compN.clone()))*)
             }
         }
@@ -87,55 +87,55 @@ macro_rules! mat_cast_impl(
 )
 
 macro_rules! add_impl(
-    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Add<N, N>> $trhs<N, $t<N>> for $t<N> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
-                $t::new(left.$comp0 + right.$comp0 $(, left.$compN + right.$compN)*)
+            fn add(&self, right: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0 + right.$comp0 $(, self.$compN + right.$compN)*)
             }
         }
     )
 )
 
 macro_rules! sub_impl(
-    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
-                $t::new(left.$comp0 - right.$comp0 $(, left.$compN - right.$compN)*)
+            fn sub(&self, right: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0 - right.$comp0 $(, self.$compN - right.$compN)*)
             }
         }
     )
 )
 
 macro_rules! mat_mul_scalar_impl(
-    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl $trhs<$n, $t<$n>> for $n {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Mul<N, N>> Mul<N, $t<N>> for N {
             #[inline]
-            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
-                $t::new(left.$comp0 * *right $(, left.$compN * *right)*)
+            fn mul(&self, right: &N) -> $t<N> {
+                $t::new(self.$comp0 * *right $(, self.$compN * *right)*)
             }
         }
     )
 )
 
 macro_rules! mat_div_scalar_impl(
-    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl $trhs<$n, $t<$n>> for $n {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Div<N, N>> Div<N, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
-                $t::new(left.$comp0 / *right $(, left.$compN / *right)*)
+            fn div(&self, right: &N) -> $t<N> {
+                $t::new(self.$comp0 / *right $(, self.$compN / *right)*)
             }
         }
     )
 )
 
 macro_rules! mat_add_scalar_impl(
-    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl $trhs<$n, $t<$n>> for $n {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Add<N, N>> Add<N, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
-                $t::new(left.$comp0 + *right $(, left.$compN + *right)*)
+            fn add(&self, right: &N) -> $t<N> {
+                $t::new(self.$comp0 + *right $(, self.$compN + *right)*)
             }
         }
     )
@@ -143,10 +143,10 @@ macro_rules! mat_add_scalar_impl(
 
 
 macro_rules! eye_impl(
-    ($t: ident, $ndim: expr, $($comp_diagN: ident),+) => (
+    ($t: ident, $dim: expr, $($comp_diagN: ident),+) => (
         impl<N: Zero + One> Eye for $t<N> {
             fn new_identity(dim: uint) -> $t<N> {
-                assert!(dim == $ndim);
+                assert!(dim == $dim);
                 let mut eye: $t<N> = ::zero();
                 $(eye.$comp_diagN = ::one();)+
                 eye
@@ -156,11 +156,11 @@ macro_rules! eye_impl(
 )
 
 macro_rules! mat_sub_scalar_impl(
-    ($t: ident, $n: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl $trhs<$n, $t<$n>> for $n {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Sub<N, N> Sub<N, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<$n>, right: &$n) -> $t<$n> {
-                $t::new(left.$comp0 - *right $(, left.$compN - *right)*)
+            fn sub(self, right: &N) -> $t<N> {
+                $t::new(self.$comp0 - *right $(, self.$compN - *right)*)
             }
         }
     )
@@ -425,10 +425,10 @@ macro_rules! diag_impl(
 )
 
 macro_rules! mat_mul_mat_impl(
-  ($t: ident, $trhs: ident, $dim: expr) => (
-    impl<N: Clone + BaseNum> $trhs<N, $t<N>> for $t<N> {
+  ($t: ident, $dim: expr) => (
+    impl<N: Clone + BaseNum> Mul<$t<N>, $t<N>> for $t<N> {
         #[inline]
-        fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
+        fn mul(&self, right: &$t<N>) -> $t<N> {
             // careful! we need to comute other * self here (self is the rhs).
             let mut res: $t<N> = ::zero();
 
@@ -438,7 +438,7 @@ macro_rules! mat_mul_mat_impl(
 
                     unsafe {
                         for k in range(0u, $dim) {
-                            acc = acc + left.at_fast((i, k)) * right.at_fast((k, j));
+                            acc = acc + self.at_fast((i, k)) * right.at_fast((k, j));
                         }
 
                         res.set_fast((i, j), acc);
@@ -453,16 +453,16 @@ macro_rules! mat_mul_mat_impl(
 )
 
 macro_rules! vec_mul_mat_impl(
-  ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
-    impl<N: Clone + BaseNum> $trhs<N, $v<N>> for $t<N> {
+  ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
+    impl<N: Clone + BaseNum> Mul<$t<N>, $v<N>> for $v<N> {
         #[inline]
-        fn binop(left: &$v<N>, right: &$t<N>) -> $v<N> {
+        fn mul(&self, right: &$t<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
                     unsafe {
-                        let val = res.at_fast(i) + left.at_fast(j) * right.at_fast((j, i));
+                        let val = res.at_fast(i) + self.at_fast(j) * right.at_fast((j, i));
                         res.set_fast(i, val)
                     }
                 }
@@ -475,16 +475,16 @@ macro_rules! vec_mul_mat_impl(
 )
 
 macro_rules! mat_mul_vec_impl(
-  ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
-    impl<N: Clone + BaseNum> $trhs<N, $v<N>> for $v<N> {
+  ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
+    impl<N: Clone + BaseNum> Mul<$v<N>, $v<N>> for $t<N> {
         #[inline]
-        fn binop(left: &$t<N>, right: &$v<N>) -> $v<N> {
+        fn mul(&self, right: &$v<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
 
             for i in range(0u, $dim) {
                 for j in range(0u, $dim) {
                     unsafe {
-                        let val = res.at_fast(i) + left.at_fast((i, j)) * right.at_fast(j);
+                        let val = res.at_fast(i) + self.at_fast((i, j)) * right.at_fast(j);
                         res.set_fast(i, val)
                     }
                 }
@@ -497,14 +497,14 @@ macro_rules! mat_mul_vec_impl(
 )
 
 macro_rules! pnt_mul_mat_impl(
-  ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
-      vec_mul_mat_impl!($t, $v, $trhs, $dim, $zero)
+  ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
+      vec_mul_mat_impl!($t, $v, $dim, $zero)
   )
 )
 
 macro_rules! mat_mul_pnt_impl(
-  ($t: ident, $v: ident, $trhs: ident, $dim: expr, $zero: expr) => (
-      mat_mul_vec_impl!($t, $v, $trhs, $dim, $zero)
+  ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
+      mat_mul_vec_impl!($t, $v, $dim, $zero)
   )
 )
 
