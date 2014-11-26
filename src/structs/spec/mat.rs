@@ -1,6 +1,6 @@
-use structs::vec::{Vec2, Vec3, Vec2MulRhs, Vec3MulRhs};
-use structs::pnt::{Pnt2, Pnt3, Pnt2MulRhs, Pnt3MulRhs};
-use structs::mat::{Mat1, Mat2, Mat3, Mat3MulRhs, Mat2MulRhs};
+use structs::vec::{Vec2, Vec3};
+use structs::pnt::{Pnt2, Pnt3};
+use structs::mat::{Mat1, Mat2, Mat3};
 use traits::operations::{Inv, Det, ApproxEq};
 use traits::structure::{Row, Col, BaseNum};
 
@@ -211,118 +211,118 @@ impl<N: Clone> Col<Vec3<N>> for Mat3<N> {
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Mat3MulRhs<N, Mat3<N>> for Mat3<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N> {
     #[inline]
-    fn binop(left: &Mat3<N>, right: &Mat3<N>) -> Mat3<N> {
+    fn mul(&self, right: &Mat3<N>) -> Mat3<N> {
         Mat3::new(
-            left.m11 * right.m11 + left.m12 * right.m21 + left.m13 * right.m31,
-            left.m11 * right.m12 + left.m12 * right.m22 + left.m13 * right.m32,
-            left.m11 * right.m13 + left.m12 * right.m23 + left.m13 * right.m33,
+            self.m11 * right.m11 + self.m12 * right.m21 + self.m13 * right.m31,
+            self.m11 * right.m12 + self.m12 * right.m22 + self.m13 * right.m32,
+            self.m11 * right.m13 + self.m12 * right.m23 + self.m13 * right.m33,
 
-            left.m21 * right.m11 + left.m22 * right.m21 + left.m23 * right.m31,
-            left.m21 * right.m12 + left.m22 * right.m22 + left.m23 * right.m32,
-            left.m21 * right.m13 + left.m22 * right.m23 + left.m23 * right.m33,
+            self.m21 * right.m11 + self.m22 * right.m21 + self.m23 * right.m31,
+            self.m21 * right.m12 + self.m22 * right.m22 + self.m23 * right.m32,
+            self.m21 * right.m13 + self.m22 * right.m23 + self.m23 * right.m33,
 
-            left.m31 * right.m11 + left.m32 * right.m21 + left.m33 * right.m31,
-            left.m31 * right.m12 + left.m32 * right.m22 + left.m33 * right.m32,
-            left.m31 * right.m13 + left.m32 * right.m23 + left.m33 * right.m33
+            self.m31 * right.m11 + self.m32 * right.m21 + self.m33 * right.m31,
+            self.m31 * right.m12 + self.m32 * right.m22 + self.m33 * right.m32,
+            self.m31 * right.m13 + self.m32 * right.m23 + self.m33 * right.m33
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Mat2MulRhs<N, Mat2<N>> for Mat2<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N> {
     #[inline(always)]
-    fn binop(left: &Mat2<N>, right: &Mat2<N>) -> Mat2<N> {
+    fn mul(&self, right: &Mat2<N>) -> Mat2<N> {
         Mat2::new(
-            left.m11 * right.m11 + left.m12 * right.m21,
-            left.m11 * right.m12 + left.m12 * right.m22,
+            self.m11 * right.m11 + self.m12 * right.m21,
+            self.m11 * right.m12 + self.m12 * right.m22,
 
-            left.m21 * right.m11 + left.m22 * right.m21,
-            left.m21 * right.m12 + left.m22 * right.m22
+            self.m21 * right.m11 + self.m22 * right.m21,
+            self.m21 * right.m12 + self.m22 * right.m22
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Mat3MulRhs<N, Vec3<N>> for Vec3<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Vec3<N>, Vec3<N>> for Mat3<N> {
     #[inline(always)]
-    fn binop(left: &Mat3<N>, right: &Vec3<N>) -> Vec3<N> {
+    fn mul(&self, right: &Vec3<N>) -> Vec3<N> {
         Vec3::new(
-            left.m11 * right.x + left.m12 * right.y + left.m13 * right.z,
-            left.m21 * right.x + left.m22 * right.y + left.m23 * right.z,
-            left.m31 * right.x + left.m32 * right.y + left.m33 * right.z
+            self.m11 * right.x + self.m12 * right.y + self.m13 * right.z,
+            self.m21 * right.x + self.m22 * right.y + self.m23 * right.z,
+            self.m31 * right.x + self.m32 * right.y + self.m33 * right.z
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Vec3MulRhs<N, Vec3<N>> for Mat3<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Vec3<N>> for Vec3<N> {
     #[inline(always)]
-    fn binop(left: &Vec3<N>, right: &Mat3<N>) -> Vec3<N> {
+    fn mul(&self, right: &Mat3<N>) -> Vec3<N> {
         Vec3::new(
-            left.x * right.m11 + left.y * right.m21 + left.z * right.m31,
-            left.x * right.m12 + left.y * right.m22 + left.z * right.m32,
-            left.x * right.m13 + left.y * right.m23 + left.z * right.m33
+            self.x * right.m11 + self.y * right.m21 + self.z * right.m31,
+            self.x * right.m12 + self.y * right.m22 + self.z * right.m32,
+            self.x * right.m13 + self.y * right.m23 + self.z * right.m33
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Vec2MulRhs<N, Vec2<N>> for Mat2<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Vec2<N>> for Vec2<N> {
     #[inline(always)]
-    fn binop(left: &Vec2<N>, right: &Mat2<N>) -> Vec2<N> {
+    fn mul(&self, right: &Mat2<N>) -> Vec2<N> {
         Vec2::new(
-            left.x * right.m11 + left.y * right.m21,
-            left.x * right.m12 + left.y * right.m22
+            self.x * right.m11 + self.y * right.m21,
+            self.x * right.m12 + self.y * right.m22
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Mat2MulRhs<N, Vec2<N>> for Vec2<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Vec2<N>, Vec2<N>> for Mat2<N> {
     #[inline(always)]
-    fn binop(left: &Mat2<N>, right: &Vec2<N>) -> Vec2<N> {
+    fn mul(&self, right: &Vec2<N>) -> Vec2<N> {
         Vec2::new(
-            left.m11 * right.x + left.m12 * right.y,
-            left.m21 * right.x + left.m22 * right.y
+            self.m11 * right.x + self.m12 * right.y,
+            self.m21 * right.x + self.m22 * right.y
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Mat3MulRhs<N, Pnt3<N>> for Pnt3<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Pnt3<N>, Pnt3<N>> for Mat3<N> {
     #[inline(always)]
-    fn binop(left: &Mat3<N>, right: &Pnt3<N>) -> Pnt3<N> {
+    fn mul(&self, right: &Pnt3<N>) -> Pnt3<N> {
         Pnt3::new(
-            left.m11 * right.x + left.m12 * right.y + left.m13 * right.z,
-            left.m21 * right.x + left.m22 * right.y + left.m23 * right.z,
-            left.m31 * right.x + left.m32 * right.y + left.m33 * right.z
+            self.m11 * right.x + self.m12 * right.y + self.m13 * right.z,
+            self.m21 * right.x + self.m22 * right.y + self.m23 * right.z,
+            self.m31 * right.x + self.m32 * right.y + self.m33 * right.z
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Pnt3MulRhs<N, Pnt3<N>> for Mat3<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Pnt3<N>> for Pnt3<N> {
     #[inline(always)]
-    fn binop(left: &Pnt3<N>, right: &Mat3<N>) -> Pnt3<N> {
+    fn mul(&self, right: &Mat3<N>) -> Pnt3<N> {
         Pnt3::new(
-            left.x * right.m11 + left.y * right.m21 + left.z * right.m31,
-            left.x * right.m12 + left.y * right.m22 + left.z * right.m32,
-            left.x * right.m13 + left.y * right.m23 + left.z * right.m33
+            self.x * right.m11 + self.y * right.m21 + self.z * right.m31,
+            self.x * right.m12 + self.y * right.m22 + self.z * right.m32,
+            self.x * right.m13 + self.y * right.m23 + self.z * right.m33
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Pnt2MulRhs<N, Pnt2<N>> for Mat2<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Pnt2<N>> for Pnt2<N> {
     #[inline(always)]
-    fn binop(left: &Pnt2<N>, right: &Mat2<N>) -> Pnt2<N> {
+    fn mul(&self, right: &Mat2<N>) -> Pnt2<N> {
         Pnt2::new(
-            left.x * right.m11 + left.y * right.m21,
-            left.x * right.m12 + left.y * right.m22
+            self.x * right.m11 + self.y * right.m21,
+            self.x * right.m12 + self.y * right.m22
         )
     }
 }
 
-impl<N: Mul<N, N> + Add<N, N>> Mat2MulRhs<N, Pnt2<N>> for Pnt2<N> {
+impl<N: Mul<N, N> + Add<N, N>> Mul<Pnt2<N>, Pnt2<N>> for Mat2<N> {
     #[inline(always)]
-    fn binop(left: &Mat2<N>, right: &Pnt2<N>) -> Pnt2<N> {
+    fn mul(&self, right: &Pnt2<N>) -> Pnt2<N> {
         Pnt2::new(
-            left.m11 * right.x + left.m12 * right.y,
-            left.m21 * right.x + left.m22 * right.y
+            self.m11 * right.x + self.m12 * right.y,
+            self.m21 * right.x + self.m22 * right.y
         )
     }
 }

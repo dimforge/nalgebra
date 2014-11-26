@@ -1,17 +1,7 @@
 #![macro_escape]
 
 macro_rules! dvec_impl(
-    ($dvec: ident, $mul: ident, $div: ident, $add: ident, $sub: ident) => (
-        double_dispatch_binop_decl_trait!($dvec, $mul)
-        double_dispatch_binop_decl_trait!($dvec, $div)
-        double_dispatch_binop_decl_trait!($dvec, $add)
-        double_dispatch_binop_decl_trait!($dvec, $sub)
-
-        mul_redispatch_impl!($dvec, $mul)
-        div_redispatch_impl!($dvec, $div)
-        add_redispatch_impl!($dvec, $add)
-        sub_redispatch_impl!($dvec, $sub)
-
+    ($dvec: ident) => (
         impl<N: Zero + Clone> $dvec<N> {
             /// Builds a vector filled with zeros.
             ///
@@ -132,7 +122,7 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Clone + BaseFloat + ApproxEq<N> + $mul<N, $dvec<N>>> $dvec<N> {
+        impl<N: Clone + BaseFloat + ApproxEq<N>> $dvec<N> {
             /// Computes the canonical basis for the given dimension. A canonical basis is a set of
             /// vectors, mutually orthogonal, with all its component equal to 0.0 except one which is equal
             /// to 1.0.
@@ -186,35 +176,35 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Mul<N, N> + Zero> $mul<N, $dvec<N>> for $dvec<N> {
+        impl<N: Mul<N, N> + Zero> Mul<$dvec<N>, $dvec<N>> for $dvec<N> {
             #[inline]
-            fn binop(left: &$dvec<N>, right: &$dvec<N>) -> $dvec<N> {
-                assert!(left.len() == right.len());
-                FromIterator::from_iter(left.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a * *b))
+            fn mul(&self, right: &$dvec<N>) -> $dvec<N> {
+                assert!(self.len() == right.len());
+                FromIterator::from_iter(self.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a * *b))
             }
         }
 
-        impl<N: Div<N, N> + Zero> $div<N, $dvec<N>> for $dvec<N> {
+        impl<N: Div<N, N> + Zero> Div<$dvec<N>, $dvec<N>> for $dvec<N> {
             #[inline]
-            fn binop(left: &$dvec<N>, right: &$dvec<N>) -> $dvec<N> {
-                assert!(left.len() == right.len());
-                FromIterator::from_iter(left.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a / *b))
+            fn div(&self, right: &$dvec<N>) -> $dvec<N> {
+                assert!(self.len() == right.len());
+                FromIterator::from_iter(self.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a / *b))
             }
         }
 
-        impl<N: Add<N, N> + Zero> $add<N, $dvec<N>> for $dvec<N> {
+        impl<N: Add<N, N> + Zero> Add<$dvec<N>, $dvec<N>> for $dvec<N> {
             #[inline]
-            fn binop(left: &$dvec<N>, right: &$dvec<N>) -> $dvec<N> {
-                assert!(left.len() == right.len());
-                FromIterator::from_iter(left.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a + *b))
+            fn add(&self, right: &$dvec<N>) -> $dvec<N> {
+                assert!(self.len() == right.len());
+                FromIterator::from_iter(self.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a + *b))
             }
         }
 
-        impl<N: Sub<N, N> + Zero> $sub<N, $dvec<N>> for $dvec<N> {
+        impl<N: Sub<N, N> + Zero> Sub<$dvec<N>, $dvec<N>> for $dvec<N> {
             #[inline]
-            fn binop(left: &$dvec<N>, right: &$dvec<N>) -> $dvec<N> {
-                assert!(left.len() == right.len());
-                FromIterator::from_iter(left.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a - *b))
+            fn sub(&self, right: &$dvec<N>) -> $dvec<N> {
+                assert!(self.len() == right.len());
+                FromIterator::from_iter(self.as_slice().iter().zip(right.as_slice().iter()).map(|(a, b)| *a - *b))
             }
         }
 
@@ -293,106 +283,38 @@ macro_rules! dvec_impl(
             }
         }
 
-        dvec_scalar_mul_impl!($dvec, f64, $mul)
-        dvec_scalar_mul_impl!($dvec, f32, $mul)
-        dvec_scalar_mul_impl!($dvec, u64, $mul)
-        dvec_scalar_mul_impl!($dvec, u32, $mul)
-        dvec_scalar_mul_impl!($dvec, u16, $mul)
-        dvec_scalar_mul_impl!($dvec, u8, $mul)
-        dvec_scalar_mul_impl!($dvec, i64, $mul)
-        dvec_scalar_mul_impl!($dvec, i32, $mul)
-        dvec_scalar_mul_impl!($dvec, i16, $mul)
-        dvec_scalar_mul_impl!($dvec, i8, $mul)
-        dvec_scalar_mul_impl!($dvec, uint, $mul)
-        dvec_scalar_mul_impl!($dvec, int, $mul)
-
-        dvec_scalar_div_impl!($dvec, f64, $div)
-        dvec_scalar_div_impl!($dvec, f32, $div)
-        dvec_scalar_div_impl!($dvec, u64, $div)
-        dvec_scalar_div_impl!($dvec, u32, $div)
-        dvec_scalar_div_impl!($dvec, u16, $div)
-        dvec_scalar_div_impl!($dvec, u8, $div)
-        dvec_scalar_div_impl!($dvec, i64, $div)
-        dvec_scalar_div_impl!($dvec, i32, $div)
-        dvec_scalar_div_impl!($dvec, i16, $div)
-        dvec_scalar_div_impl!($dvec, i8, $div)
-        dvec_scalar_div_impl!($dvec, uint, $div)
-        dvec_scalar_div_impl!($dvec, int, $div)
-
-        dvec_scalar_add_impl!($dvec, f64, $add)
-        dvec_scalar_add_impl!($dvec, f32, $add)
-        dvec_scalar_add_impl!($dvec, u64, $add)
-        dvec_scalar_add_impl!($dvec, u32, $add)
-        dvec_scalar_add_impl!($dvec, u16, $add)
-        dvec_scalar_add_impl!($dvec, u8, $add)
-        dvec_scalar_add_impl!($dvec, i64, $add)
-        dvec_scalar_add_impl!($dvec, i32, $add)
-        dvec_scalar_add_impl!($dvec, i16, $add)
-        dvec_scalar_add_impl!($dvec, i8, $add)
-        dvec_scalar_add_impl!($dvec, uint, $add)
-        dvec_scalar_add_impl!($dvec, int, $add)
-
-        dvec_scalar_sub_impl!($dvec, f64, $sub)
-        dvec_scalar_sub_impl!($dvec, f32, $sub)
-        dvec_scalar_sub_impl!($dvec, u64, $sub)
-        dvec_scalar_sub_impl!($dvec, u32, $sub)
-        dvec_scalar_sub_impl!($dvec, u16, $sub)
-        dvec_scalar_sub_impl!($dvec, u8, $sub)
-        dvec_scalar_sub_impl!($dvec, i64, $sub)
-        dvec_scalar_sub_impl!($dvec, i32, $sub)
-        dvec_scalar_sub_impl!($dvec, i16, $sub)
-        dvec_scalar_sub_impl!($dvec, i8, $sub)
-        dvec_scalar_sub_impl!($dvec, uint, $sub)
-        dvec_scalar_sub_impl!($dvec, int, $sub)
-    )
-)
-
-macro_rules! dvec_scalar_mul_impl (
-    ($dvec: ident, $n: ident, $mul: ident) => (
-        impl $mul<$n, $dvec<$n>> for $n {
+        impl<N: Mul<N, N> + Zero> Mul<N, $dvec<N>> for $dvec<N> {
             #[inline]
-            fn binop(left: &$dvec<$n>, right: &$n) -> $dvec<$n> {
-                FromIterator::from_iter(left.as_slice().iter().map(|a| *a * *right))
+            fn mul(&self, right: &N) -> $dvec<N> {
+                FromIterator::from_iter(self.as_slice().iter().map(|a| *a * *right))
             }
         }
-    )
-)
 
-macro_rules! dvec_scalar_div_impl (
-    ($dvec: ident, $n: ident, $div: ident) => (
-        impl $div<$n, $dvec<$n>> for $n {
+        impl<N: Div<N, N> + Zero> Div<N, $dvec<N>> for $dvec<N> {
             #[inline]
-            fn binop(left: &$dvec<$n>, right: &$n) -> $dvec<$n> {
-                FromIterator::from_iter(left.as_slice().iter().map(|a| *a / *right))
+            fn div(&self, right: &N) -> $dvec<N> {
+                FromIterator::from_iter(self.as_slice().iter().map(|a| *a / *right))
             }
         }
-    )
-)
 
-macro_rules! dvec_scalar_add_impl (
-    ($dvec: ident, $n: ident, $add: ident) => (
-        impl $add<$n, $dvec<$n>> for $n {
+        impl<N: Add<N, N> + Zero> Add<N, $dvec<N>> for $dvec<N> {
             #[inline]
-            fn binop(left: &$dvec<$n>, right: &$n) -> $dvec<$n> {
-                FromIterator::from_iter(left.as_slice().iter().map(|a| *a + *right))
+            fn add(&self, right: &N) -> $dvec<N> {
+                FromIterator::from_iter(self.as_slice().iter().map(|a| *a + *right))
             }
         }
-    )
-)
 
-macro_rules! dvec_scalar_sub_impl (
-    ($dvec: ident, $n: ident, $sub: ident) => (
-        impl $sub<$n, $dvec<$n>> for $n {
+        impl<N: Sub<N, N> + Zero> Sub<N, $dvec<N>> for $dvec<N> {
             #[inline]
-            fn binop(left: &$dvec<$n>, right: &$n) -> $dvec<$n> {
-                FromIterator::from_iter(left.as_slice().iter().map(|a| *a - *right))
+            fn sub(&self, right: &N) -> $dvec<N> {
+                FromIterator::from_iter(self.as_slice().iter().map(|a| *a - *right))
             }
         }
     )
 )
 
 macro_rules! small_dvec_impl (
-    ($dvec: ident, $dim: expr, $mul: ident, $div: ident, $add: ident, $sub: ident $(,$idx: expr)*) => (
+    ($dvec: ident, $dim: expr $(,$idx: expr)*) => (
         impl<N> $dvec<N> {
             #[inline]
             pub fn len(&self) -> uint {
@@ -428,7 +350,7 @@ macro_rules! small_dvec_impl (
             }
         }
 
-        dvec_impl!($dvec, $mul, $div, $add, $sub)
+        dvec_impl!($dvec)
     )
 )
 

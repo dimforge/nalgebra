@@ -77,7 +77,7 @@ impl<N> FromIterator<N> for DVec<N> {
 }
 
 
-dvec_impl!(DVec, DVecMulRhs, DVecDivRhs, DVecAddRhs, DVecSubRhs)
+dvec_impl!(DVec)
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 1.
 pub struct DVec1<N> {
@@ -85,7 +85,7 @@ pub struct DVec1<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec1, 1, DVec1MulRhs, DVec1DivRhs, DVec1AddRhs, DVec1SubRhs, 0)
+small_dvec_impl!(DVec1, 1, 0)
 small_dvec_from_impl!(DVec1, 1, ::zero())
 
 
@@ -95,7 +95,7 @@ pub struct DVec2<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec2, 2, DVec2MulRhs, DVec2DivRhs, DVec2AddRhs, DVec2SubRhs, 0, 1)
+small_dvec_impl!(DVec2, 2, 0, 1)
 small_dvec_from_impl!(DVec2, 2, ::zero(), ::zero())
 
 
@@ -105,7 +105,7 @@ pub struct DVec3<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec3, 3, DVec3MulRhs, DVec3DivRhs, DVec3AddRhs, DVec3SubRhs, 0, 1, 2)
+small_dvec_impl!(DVec3, 3, 0, 1, 2)
 small_dvec_from_impl!(DVec3, 3, ::zero(), ::zero(), ::zero())
 
 
@@ -115,7 +115,7 @@ pub struct DVec4<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec4, 4, DVec4MulRhs, DVec4DivRhs, DVec4AddRhs, DVec4SubRhs, 0, 1, 2, 3)
+small_dvec_impl!(DVec4, 4, 0, 1, 2, 3)
 small_dvec_from_impl!(DVec4, 4, ::zero(), ::zero(), ::zero(), ::zero())
 
 
@@ -125,7 +125,7 @@ pub struct DVec5<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec5, 5, DVec5MulRhs, DVec5DivRhs, DVec5AddRhs, DVec5SubRhs, 0, 1, 2, 3, 4)
+small_dvec_impl!(DVec5, 5, 0, 1, 2, 3, 4)
 small_dvec_from_impl!(DVec5, 5, ::zero(), ::zero(), ::zero(), ::zero(), ::zero())
 
 
@@ -135,5 +135,5 @@ pub struct DVec6<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec6, 6, DVec6MulRhs, DVec6DivRhs, DVec6AddRhs, DVec6SubRhs, 0, 1, 2, 3, 4, 5)
+small_dvec_impl!(DVec6, 6, 0, 1, 2, 3, 4, 5)
 small_dvec_from_impl!(DVec6, 6, ::zero(), ::zero(), ::zero(), ::zero(), ::zero(), ::zero())

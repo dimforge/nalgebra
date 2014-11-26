@@ -20,33 +20,33 @@ macro_rules! orig_impl(
 )
 
 macro_rules! pnt_sub_impl(
-    ($t: ident, $tv: ident, $trhs: ident) => (
-        impl<N: Sub<N, N>> $trhs<N, $tv<N>> for $t<N> {
+    ($t: ident, $tv: ident) => (
+        impl<N: Sub<N, N>> Sub<$t<N>, $tv<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$t<N>) -> $tv<N> {
-                *left.as_vec() - *right.as_vec()
+            fn sub(&self, right: &$t<N>) -> $tv<N> {
+                *self.as_vec() - *right.as_vec()
             }
         }
     )
 )
 
 macro_rules! pnt_add_vec_impl(
-    ($t: ident, $tv: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Add<N, N>> $trhs<N, $t<N>> for $tv<N> {
+    ($t: ident, $tv: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Add<N, N>> Add<$tv<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$tv<N>) -> $t<N> {
-                $t::new(left.$comp0 + right.$comp0 $(, left.$compN + right.$compN)*)
+            fn add(&self, right: &$tv<N>) -> $t<N> {
+                $t::new(self.$comp0 + right.$comp0 $(, self.$compN + right.$compN)*)
             }
         }
     )
 )
 
 macro_rules! pnt_sub_vec_impl(
-    ($t: ident, $tv: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Sub<N, N>> $trhs<N, $t<N>> for $tv<N> {
+    ($t: ident, $tv: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Sub<N, N>> Sub<$tv<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$tv<N>) -> $t<N> {
-                $t::new(left.$comp0 - right.$comp0 $(, left.$compN - right.$compN)*)
+            fn sub(&self, right: &$tv<N>) -> $t<N> {
+                $t::new(self.$comp0 - right.$comp0 $(, self.$compN - right.$compN)*)
             }
         }
     )
@@ -130,13 +130,13 @@ macro_rules! pnt_from_homogeneous_impl(
 )
 
 macro_rules! num_float_pnt_impl(
-    ($t: ident, $tv: ident $(,$trhs: ident)*) => (
+    ($t: ident, $tv: ident) => (
         impl<N> NumPnt<N, $tv<N>> for $t<N>
-            where N: BaseNum + Zero $(+ $trhs<N, $t<N>>)* {
+            where N: BaseNum {
         }
 
         impl<N> FloatPnt<N, $tv<N>> for $t<N>
-            where N: BaseNum + One + Zero + ApproxEq<N> + BaseFloat $(+ $trhs<N, $t<N>>)* {
+            where N: BaseFloat + ApproxEq<N> {
         }
     )
 )

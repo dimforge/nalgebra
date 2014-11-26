@@ -180,10 +180,10 @@ macro_rules! vec_axis_impl(
 )
 
 macro_rules! vec_cast_impl(
-    ($t: ident, $tcast: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<Nin: Clone, Nout: Clone + Cast<Nin>> $tcast<Nout> for $t<Nin> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<Nin: Clone, Nout: Clone + Cast<Nin>> Cast<$t<Nin>> for $t<Nout> {
             #[inline]
-            fn to(v: $t<Nin>) -> $t<Nout> {
+            fn from(v: $t<Nin>) -> $t<Nout> {
                 $t::new(Cast::from(v.$comp0.clone()) $(, Cast::from(v.$compN.clone()))*)
             }
         }
@@ -314,8 +314,8 @@ macro_rules! container_impl(
 )
 
 macro_rules! basis_impl(
-    ($t: ident, $trhs: ident, $dim: expr) => (
-        impl<N: Clone + BaseFloat + ApproxEq<N> + $trhs<N, $t<N>>> Basis for $t<N> {
+    ($t: ident, $dim: expr) => (
+        impl<N: Clone + BaseFloat + ApproxEq<N>> Basis for $t<N> {
             #[inline]
             fn canonical_basis(f: |$t<N>| -> bool) {
                 for i in range(0u, $dim) {
@@ -390,44 +390,89 @@ macro_rules! axpy_impl(
 )
 
 macro_rules! add_impl(
-    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Add<N, N>> $trhs<N, $t<N>> for $t<N> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
-                $t::new(left.$comp0 + right.$comp0 $(, left.$compN + right.$compN)*)
+            fn add(&self, right: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0 + right.$comp0 $(, self.$compN + right.$compN)*)
+            }
+        }
+    )
+)
+
+macro_rules! scalar_add_impl(
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        // $t against scalar
+        impl<N: Add<N, N>> Add<N, $t<N>> for $t<N> {
+            #[inline]
+            fn add(&self, right: &N) -> $t<N> {
+                $t::new(self.$comp0 + *right $(, self.$compN + *right)*)
             }
         }
     )
 )
 
 macro_rules! sub_impl(
-    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Sub<N, N>> $trhs<N, $t<N>> for $t<N> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
-                $t::new(left.$comp0 - right.$comp0 $(, left.$compN - right.$compN)*)
+            fn sub(&self, right: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0 - right.$comp0 $(, self.$compN - right.$compN)*)
+            }
+        }
+    )
+)
+
+macro_rules! scalar_sub_impl(
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Sub<N, N>> Sub<N, $t<N>> for $t<N> {
+            #[inline]
+            fn sub(&self, right: &N) -> $t<N> {
+                $t::new(self.$comp0 - *right $(, self.$compN - *right)*)
             }
         }
     )
 )
 
 macro_rules! mul_impl(
-    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Mul<N, N>> $trhs<N, $t<N>> for $t<N> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Mul<N, N>> Mul<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
-                $t::new(left.$comp0 * right.$comp0 $(, left.$compN * right.$compN)*)
+            fn mul(&self, right: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0 * right.$comp0 $(, self.$compN * right.$compN)*)
+            }
+        }
+    )
+)
+
+macro_rules! scalar_mul_impl(
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Mul<N, N>> Mul<N, $t<N>> for $t<N> {
+            #[inline]
+            fn mul(&self, right: &N) -> $t<N> {
+                $t::new(self.$comp0 * *right $(, self.$compN * *right)*)
             }
         }
     )
 )
 
 macro_rules! div_impl(
-    ($t: ident, $trhs: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Div<N, N>> $trhs<N, $t<N>> for $t<N> {
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Div<N, N>> Div<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn binop(left: &$t<N>, right: &$t<N>) -> $t<N> {
-                $t::new(left.$comp0 / right.$comp0 $(, left.$compN / right.$compN)*)
+            fn div(&self, right: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0 / right.$comp0 $(, self.$compN / right.$compN)*)
+            }
+        }
+    )
+)
+
+macro_rules! scalar_div_impl(
+    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+        impl<N: Div<N, N>> Div<N, $t<N>> for $t<N> {
+            #[inline]
+            fn div(&self, right: &N) -> $t<N> {
+                $t::new(self.$comp0 / *right $(, self.$compN / *right)*)
             }
         }
     )
@@ -801,13 +846,13 @@ macro_rules! vec_as_pnt_impl(
 )
 
 macro_rules! num_float_vec_impl(
-    ($t: ident $(,$trhs: ident)*) => (
+    ($t: ident) => (
         impl<N> NumVec<N> for $t<N>
-            where N: BaseNum + Zero $(+ $trhs<N, $t<N>>)* {
+            where N: BaseNum {
         }
 
         impl<N> FloatVec<N> for $t<N>
-            where N: BaseNum + Zero + One + ApproxEq<N> + BaseFloat $(+ $trhs<N, $t<N>>)* {
+            where N: BaseFloat + ApproxEq<N> {
         }
     )
 )
