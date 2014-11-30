@@ -270,14 +270,14 @@ macro_rules! dvec_impl(
 
             #[inline]
             fn approx_eq(a: &$dvec<N>, b: &$dvec<N>) -> bool {
-                let mut zip = a.as_slice().iter().zip(b.as_slice().iter());
+                let zip = a.as_slice().iter().zip(b.as_slice().iter());
 
                 zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
             }
 
             #[inline]
             fn approx_eq_eps(a: &$dvec<N>, b: &$dvec<N>, epsilon: &N) -> bool {
-                let mut zip = a.as_slice().iter().zip(b.as_slice().iter());
+                let zip = a.as_slice().iter().zip(b.as_slice().iter());
 
                 zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
             }

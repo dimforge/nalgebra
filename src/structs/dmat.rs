@@ -605,14 +605,14 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
 
     #[inline]
     fn approx_eq(a: &DMat<N>, b: &DMat<N>) -> bool {
-        let mut zip = a.mij.iter().zip(b.mij.iter());
+        let zip = a.mij.iter().zip(b.mij.iter());
 
         zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
     }
 
     #[inline]
     fn approx_eq_eps(a: &DMat<N>, b: &DMat<N>, epsilon: &N) -> bool {
-        let mut zip = a.mij.iter().zip(b.mij.iter());
+        let zip = a.mij.iter().zip(b.mij.iter());
 
         zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
     }

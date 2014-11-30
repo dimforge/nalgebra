@@ -626,14 +626,14 @@ macro_rules! approx_eq_impl(
 
         #[inline]
         fn approx_eq(a: &$t<N>, b: &$t<N>) -> bool {
-            let mut zip = a.iter().zip(b.iter());
+            let zip = a.iter().zip(b.iter());
 
             zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
         }
 
         #[inline]
         fn approx_eq_eps(a: &$t<N>, b: &$t<N>, epsilon: &N) -> bool {
-            let mut zip = a.iter().zip(b.iter());
+            let zip = a.iter().zip(b.iter());
 
             zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
         }
