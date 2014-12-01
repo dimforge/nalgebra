@@ -355,9 +355,8 @@ impl<N: Clone + Add<N, N> + Mul<N, N> + Zero> Mul<DMat<N>, DVec<N>> for DVec<N> 
 
 impl<N: Clone + BaseNum + Zero + One> Inv for DMat<N> {
     #[inline]
-    fn inv_cpy(m: &DMat<N>) -> Option<DMat<N>> {
-        let mut res : DMat<N> = m.clone();
-
+    fn inv_cpy(&self) -> Option<DMat<N>> {
+        let mut res: DMat<N> = self.clone();
         if res.inv() {
             Some(res)
         }
@@ -442,21 +441,21 @@ impl<N: Clone + BaseNum + Zero + One> Inv for DMat<N> {
 
 impl<N: Clone> Transpose for DMat<N> {
     #[inline]
-    fn transpose_cpy(m: &DMat<N>) -> DMat<N> {
-        if m.nrows == m.ncols {
-            let mut res = m.clone();
+    fn transpose_cpy(&self) -> DMat<N> {
+        if self.nrows == self.ncols {
+            let mut res = self.clone();
 
             res.transpose();
 
             res
         }
         else {
-            let mut res = unsafe { DMat::new_uninitialized(m.ncols, m.nrows) };
+            let mut res = unsafe { DMat::new_uninitialized(self.ncols, self.nrows) };
 
-            for i in range(0u, m.nrows) {
-                for j in range(0u, m.ncols) {
+            for i in range(0u, self.nrows) {
+                for j in range(0u, self.ncols) {
                     unsafe {
-                        res.unsafe_set((j, i), m.unsafe_at((i, j)))
+                        res.unsafe_set((j, i), self.unsafe_at((i, j)))
                     }
                 }
             }
@@ -487,14 +486,14 @@ impl<N: Clone> Transpose for DMat<N> {
 }
 
 impl<N: BaseNum + Cast<f64> + Zero + Clone> Mean<DVec<N>> for DMat<N> {
-    fn mean(m: &DMat<N>) -> DVec<N> {
-        let mut res: DVec<N> = DVec::new_zeros(m.ncols);
-        let normalizer: N    = Cast::from(1.0f64 / Cast::from(m.nrows));
+    fn mean(&self) -> DVec<N> {
+        let mut res: DVec<N> = DVec::new_zeros(self.ncols);
+        let normalizer: N    = Cast::from(1.0f64 / Cast::from(self.nrows));
 
-        for i in range(0u, m.nrows) {
-            for j in range(0u, m.ncols) {
+        for i in range(0u, self.nrows) {
+            for j in range(0u, self.ncols) {
                 unsafe {
-                    let acc = res.unsafe_at(j) + m.unsafe_at((i, j)) * normalizer;
+                    let acc = res.unsafe_at(j) + self.unsafe_at((i, j)) * normalizer;
                     res.unsafe_set(j, acc);
                 }
             }
@@ -506,23 +505,23 @@ impl<N: BaseNum + Cast<f64> + Zero + Clone> Mean<DVec<N>> for DMat<N> {
 
 impl<N: Clone + BaseNum + Cast<f64> + Div<N, N>> Cov<DMat<N>> for DMat<N> {
     // FIXME: this could be heavily optimized, removing all temporaries by merging loops.
-    fn cov(m: &DMat<N>) -> DMat<N> {
-        assert!(m.nrows > 1);
+    fn cov(&self) -> DMat<N> {
+        assert!(self.nrows > 1);
 
-        let mut centered = unsafe { DMat::new_uninitialized(m.nrows, m.ncols) };
-        let mean = Mean::mean(m);
+        let mut centered = unsafe { DMat::new_uninitialized(self.nrows, self.ncols) };
+        let mean = self.mean();
 
         // FIXME: use the rows iterator when available
-        for i in range(0u, m.nrows) {
-            for j in range(0u, m.ncols) {
+        for i in range(0u, self.nrows) {
+            for j in range(0u, self.ncols) {
                 unsafe {
-                    centered.unsafe_set((i, j), m.unsafe_at((i, j)) - mean.unsafe_at(j));
+                    centered.unsafe_set((i, j), self.unsafe_at((i, j)) - mean.unsafe_at(j));
                 }
             }
         }
 
         // FIXME: return a triangular matrix?
-        let fnormalizer: f64 = Cast::from(m.nrows() - 1);
+        let fnormalizer: f64 = Cast::from(self.nrows() - 1);
         let normalizer: N    = Cast::from(fnormalizer);
         // FIXME: this will do 2 allocations for temporaries!
         (Transpose::transpose_cpy(&centered) * centered) / normalizer
@@ -604,16 +603,8 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     }
 
     #[inline]
-    fn approx_eq(a: &DMat<N>, b: &DMat<N>) -> bool {
-        let zip = a.mij.iter().zip(b.mij.iter());
-
-        zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
-    }
-
-    #[inline]
-    fn approx_eq_eps(a: &DMat<N>, b: &DMat<N>, epsilon: &N) -> bool {
-        let zip = a.mij.iter().zip(b.mij.iter());
-
+    fn approx_eq_eps(&self, other: &DMat<N>, epsilon: &N) -> bool {
+        let zip = self.mij.iter().zip(other.mij.iter());
         zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
     }
 }

@@ -7,9 +7,8 @@ use traits::structure::{Row, Col, BaseNum};
 // some specializations:
 impl<N: BaseNum + ApproxEq<N> + Clone> Inv for Mat1<N> {
     #[inline]
-    fn inv_cpy(m: &Mat1<N>) -> Option<Mat1<N>> {
-        let mut res = m.clone();
-
+    fn inv_cpy(&self) -> Option<Mat1<N>> {
+        let mut res = self.clone();
         if res.inv() {
             Some(res)
         }
@@ -34,9 +33,8 @@ impl<N: BaseNum + ApproxEq<N> + Clone> Inv for Mat1<N> {
 
 impl<N: BaseNum + ApproxEq<N> + Clone> Inv for Mat2<N> {
     #[inline]
-    fn inv_cpy(m: &Mat2<N>) -> Option<Mat2<N>> {
-        let mut res = m.clone();
-
+    fn inv_cpy(&self) -> Option<Mat2<N>> {
+        let mut res = self.clone();
         if res.inv() {
             Some(res)
         }
@@ -64,9 +62,8 @@ impl<N: BaseNum + ApproxEq<N> + Clone> Inv for Mat2<N> {
 
 impl<N: BaseNum + ApproxEq<N> + Clone> Inv for Mat3<N> {
     #[inline]
-    fn inv_cpy(m: &Mat3<N>) -> Option<Mat3<N>> {
-        let mut res = m.clone();
-
+    fn inv_cpy(&self) -> Option<Mat3<N>> {
+        let mut res = self.clone();
         if res.inv() {
             Some(res)
         }
@@ -108,26 +105,26 @@ impl<N: BaseNum + ApproxEq<N> + Clone> Inv for Mat3<N> {
 
 impl<N: BaseNum + Clone> Det<N> for Mat1<N> {
     #[inline]
-    fn det(m: &Mat1<N>) -> N {
-        m.m11.clone()
+    fn det(&self) -> N {
+        self.m11.clone()
     }
 }
 
 impl<N: BaseNum> Det<N> for Mat2<N> {
     #[inline]
-    fn det(m: &Mat2<N>) -> N {
-        m.m11 * m.m22 - m.m21 * m.m12
+    fn det(&self) -> N {
+        self.m11 * self.m22 - self.m21 * self.m12
     }
 }
 
 impl<N: BaseNum> Det<N> for Mat3<N> {
     #[inline]
-    fn det(m: &Mat3<N>) -> N {
-        let minor_m12_m23 = m.m22 * m.m33 - m.m32 * m.m23;
-        let minor_m11_m23 = m.m21 * m.m33 - m.m31 * m.m23;
-        let minor_m11_m22 = m.m21 * m.m32 - m.m31 * m.m22;
+    fn det(&self) -> N {
+        let minor_m12_m23 = self.m22 * self.m33 - self.m32 * self.m23;
+        let minor_m11_m23 = self.m21 * self.m33 - self.m31 * self.m23;
+        let minor_m11_m22 = self.m21 * self.m32 - self.m31 * self.m22;
 
-        m.m11 * minor_m12_m23 - m.m12 * minor_m11_m23 + m.m13 * minor_m11_m22
+        self.m11 * minor_m12_m23 - self.m12 * minor_m11_m23 + self.m13 * minor_m11_m22
     }
 }
 

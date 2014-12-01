@@ -113,8 +113,8 @@ macro_rules! translation_impl(
             }
 
             #[inline]
-            fn append_translation_cpy(iso: &$t<N>, t: &$tv<N>) -> $t<N> {
-                $t::new_with_rotmat(*t + iso.translation, iso.rotation.clone())
+            fn append_translation_cpy(&self, t: &$tv<N>) -> $t<N> {
+                $t::new_with_rotmat(*t + self.translation, self.rotation.clone())
             }
 
             #[inline]
@@ -123,8 +123,8 @@ macro_rules! translation_impl(
             }
 
             #[inline]
-            fn prepend_translation_cpy(iso: &$t<N>, t: &$tv<N>) -> $t<N> {
-                $t::new_with_rotmat(iso.translation + iso.rotation * *t, iso.rotation.clone())
+            fn prepend_translation_cpy(&self, t: &$tv<N>) -> $t<N> {
+                $t::new_with_rotmat(self.translation + self.rotation * *t, self.rotation.clone())
             }
 
             #[inline]
@@ -173,10 +173,10 @@ macro_rules! rotation_impl(
             }
 
             #[inline]
-            fn append_rotation_cpy(t: &$t<N>, rot: &$tav<N>) -> $t<N> {
+            fn append_rotation_cpy(&self, rot: &$tav<N>) -> $t<N> {
                 let delta = $trot::new(rot.clone());
 
-                $t::new_with_rotmat(delta * t.translation, delta * t.rotation)
+                $t::new_with_rotmat(delta * self.translation, delta * self.rotation)
             }
 
             #[inline]
@@ -187,10 +187,10 @@ macro_rules! rotation_impl(
             }
 
             #[inline]
-            fn prepend_rotation_cpy(t: &$t<N>, rot: &$tav<N>) -> $t<N> {
+            fn prepend_rotation_cpy(&self, rot: &$tav<N>) -> $t<N> {
                 let delta = $trot::new(rot.clone());
 
-                $t::new_with_rotmat(t.translation.clone(), t.rotation * delta)
+                $t::new_with_rotmat(self.translation.clone(), self.rotation * delta)
             }
 
             #[inline]
@@ -234,16 +234,16 @@ macro_rules! transformation_impl(
                 *self = *t * *self
             }
 
-            fn append_transformation_cpy(iso: &$t<N>, t: &$t<N>) -> $t<N> {
-                *t * *iso
+            fn append_transformation_cpy(&self, t: &$t<N>) -> $t<N> {
+                *t * *self
             }
 
             fn prepend_transformation(&mut self, t: &$t<N>) {
                 *self = *self * *t
             }
 
-            fn prepend_transformation_cpy(iso: &$t<N>, t: &$t<N>) -> $t<N> {
-                *iso * *t
+            fn prepend_transformation_cpy(&self, t: &$t<N>) -> $t<N> {
+                *self * *t
             }
 
             fn set_transformation(&mut self, t: $t<N>) {
@@ -276,17 +276,14 @@ macro_rules! inv_impl(
             fn inv(&mut self) -> bool {
                 self.rotation.inv();
                 self.translation = self.rotation * -self.translation;
-
                 // always succeed
                 true
             }
 
             #[inline]
-            fn inv_cpy(m: &$t<N>) -> Option<$t<N>> {
-                let mut res = m.clone();
-
+            fn inv_cpy(&self) -> Option<$t<N>> {
+                let mut res = self.clone();
                 res.inv();
-
                 // always succeed
                 Some(res)
             }
@@ -320,15 +317,9 @@ macro_rules! approx_eq_impl(
             }
 
             #[inline]
-            fn approx_eq(a: &$t<N>, b: &$t<N>) -> bool {
-                ApproxEq::approx_eq(&a.rotation, &b.rotation) &&
-                    ApproxEq::approx_eq(&a.translation, &b.translation)
-            }
-
-            #[inline]
-            fn approx_eq_eps(a: &$t<N>, b: &$t<N>, epsilon: &N) -> bool {
-                ApproxEq::approx_eq_eps(&a.rotation, &b.rotation, epsilon) &&
-                    ApproxEq::approx_eq_eps(&a.translation, &b.translation, epsilon)
+            fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
+                ApproxEq::approx_eq_eps(&self.rotation, &other.rotation, epsilon) &&
+                    ApproxEq::approx_eq_eps(&self.translation, &other.translation, epsilon)
             }
         }
     )

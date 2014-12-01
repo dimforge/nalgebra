@@ -5,37 +5,37 @@ use structs::mat::Mat3;
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
     #[inline]
-    fn cross(a: &Vec2<N>, b: &Vec2<N>) -> Vec1<N> {
-        Vec1::new(a.x * b.y - a.y * b.x)
+    fn cross(&self, other: &Vec2<N>) -> Vec1<N> {
+        Vec1::new(self.x * other.y - self.y * other.x)
     }
 }
 
 // FIXME: instead of returning a Vec2, define a Mat2x1 matrix?
 impl<N: Neg<N> + Clone> CrossMatrix<Vec2<N>> for Vec2<N> {
     #[inline]
-    fn cross_matrix(v: &Vec2<N>) -> Vec2<N> {
-        Vec2::new(-v.y, v.x.clone())
+    fn cross_matrix(&self) -> Vec2<N> {
+        Vec2::new(-self.y, self.x.clone())
     }
 }
 
 impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
     #[inline]
-    fn cross(a: &Vec3<N>, b: &Vec3<N>) -> Vec3<N> {
+    fn cross(&self, other: &Vec3<N>) -> Vec3<N> {
         Vec3::new(
-            a.y * b.z - a.z * b.y,
-            a.z * b.x - a.x * b.z,
-            a.x * b.y - a.y * b.x
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x
         )
     }
 }
 
 impl<N: Neg<N> + Zero + Clone> CrossMatrix<Mat3<N>> for Vec3<N> {
     #[inline]
-    fn cross_matrix(v: &Vec3<N>) -> Mat3<N> {
+    fn cross_matrix(&self) -> Mat3<N> {
         Mat3::new(
-            ::zero(), -v.z        , v.y.clone(),
-            v.z.clone() , ::zero(), -v.x,
-            -v.y        , v.x.clone() , ::zero()
+            ::zero(),       -self.z,          self.y.clone(),
+            self.z.clone(),  ::zero(),       -self.x,
+            -self.y,         self.x.clone(),  ::zero()
         )
     }
 }

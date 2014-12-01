@@ -513,9 +513,8 @@ macro_rules! inv_impl(
     impl<N: Clone + BaseNum>
     Inv for $t<N> {
         #[inline]
-        fn inv_cpy(m: &$t<N>) -> Option<$t<N>> {
-            let mut res : $t<N> = m.clone();
-
+        fn inv_cpy(&self) -> Option<$t<N>> {
+            let mut res : $t<N> = self.clone();
             if res.inv() {
                 Some(res)
             }
@@ -596,11 +595,9 @@ macro_rules! transpose_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Clone> Transpose for $t<N> {
         #[inline]
-        fn transpose_cpy(m: &$t<N>) -> $t<N> {
-            let mut res = m.clone();
-
+        fn transpose_cpy(&self) -> $t<N> {
+            let mut res = self.clone();
             res.transpose();
-
             res
         }
 
@@ -625,16 +622,8 @@ macro_rules! approx_eq_impl(
         }
 
         #[inline]
-        fn approx_eq(a: &$t<N>, b: &$t<N>) -> bool {
-            let zip = a.iter().zip(b.iter());
-
-            zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
-        }
-
-        #[inline]
-        fn approx_eq_eps(a: &$t<N>, b: &$t<N>, epsilon: &N) -> bool {
-            let zip = a.iter().zip(b.iter());
-
+        fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
+            let zip = self.iter().zip(other.iter());
             zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
         }
     }
@@ -686,15 +675,13 @@ macro_rules! outer_impl(
     ($t: ident, $m: ident) => (
         impl<N: Clone + Mul<N, N> + Zero> Outer<$m<N>> for $t<N> {
             #[inline]
-            fn outer(a: &$t<N>, b: &$t<N>) -> $m<N> {
+            fn outer(&self, other: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = ::zero();
-
                 for i in range(0u, Dim::dim(None::<$t<N>>)) {
                     for j in range(0u, Dim::dim(None::<$t<N>>)) {
-                        res.set((i, j), a.at(i) * b.at(j))
+                        res.set((i, j), self.at(i) * other.at(j))
                     }
                 }
-
                 res
             }
         }
@@ -705,8 +692,8 @@ macro_rules! eigen_qr_impl(
     ($t: ident, $v: ident) => (
         impl<N> EigenQR<N, $v<N>> for $t<N>
             where N: BaseNum + One + Zero + BaseFloat + ApproxEq<N> + Clone {
-            fn eigen_qr(m: &$t<N>, eps: &N, niter: uint) -> ($t<N>, $v<N>) {
-                linalg::eigen_qr(m, eps, niter)
+            fn eigen_qr(&self, eps: &N, niter: uint) -> ($t<N>, $v<N>) {
+                linalg::eigen_qr(self, eps, niter)
             }
         }
     )

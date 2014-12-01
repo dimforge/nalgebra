@@ -46,8 +46,8 @@ impl<N: BaseFloat + Clone> Rotation<Vec1<N>> for Rot2<N> {
     }
 
     #[inline]
-    fn append_rotation_cpy(t: &Rot2<N>, rot: &Vec1<N>) -> Rot2<N> {
-        Rot2::new(rot.clone()) * *t
+    fn append_rotation_cpy(&self, rot: &Vec1<N>) -> Rot2<N> {
+        Rot2::new(rot.clone()) * *self
     }
 
     #[inline]
@@ -56,8 +56,8 @@ impl<N: BaseFloat + Clone> Rotation<Vec1<N>> for Rot2<N> {
     }
 
     #[inline]
-    fn prepend_rotation_cpy(t: &Rot2<N>, rot: &Vec1<N>) -> Rot2<N> {
-        *t * Rot2::new(rot.clone())
+    fn prepend_rotation_cpy(&self, rot: &Vec1<N>) -> Rot2<N> {
+        *self * Rot2::new(rot.clone())
     }
 
     #[inline]
@@ -249,8 +249,8 @@ Rotation<Vec3<N>> for Rot3<N> {
     }
 
     #[inline]
-    fn append_rotation_cpy(t: &Rot3<N>, axisangle: &Vec3<N>) -> Rot3<N> {
-        Rot3::new(axisangle.clone()) * *t
+    fn append_rotation_cpy(&self, axisangle: &Vec3<N>) -> Rot3<N> {
+        Rot3::new(axisangle.clone()) * *self
     }
 
     #[inline]
@@ -259,8 +259,8 @@ Rotation<Vec3<N>> for Rot3<N> {
     }
 
     #[inline]
-    fn prepend_rotation_cpy(t: &Rot3<N>, axisangle: &Vec3<N>) -> Rot3<N> {
-        *t * Rot3::new(axisangle.clone())
+    fn prepend_rotation_cpy(&self, axisangle: &Vec3<N>) -> Rot3<N> {
+        *self * Rot3::new(axisangle.clone())
     }
 
     #[inline]
@@ -351,7 +351,7 @@ Rotation<Vec4<N>> for Rot4<N> {
     }
 
     #[inline]
-    fn append_rotation_cpy(_: &Rot4<N>, _: &Vec4<N>) -> Rot4<N> {
+    fn append_rotation_cpy(&self, _: &Vec4<N>) -> Rot4<N> {
         panic!("Not yet implemented")
     }
 
@@ -361,7 +361,7 @@ Rotation<Vec4<N>> for Rot4<N> {
     }
 
     #[inline]
-    fn prepend_rotation_cpy(_: &Rot4<N>, _: &Vec4<N>) -> Rot4<N> {
+    fn prepend_rotation_cpy(&self, _: &Vec4<N>) -> Rot4<N> {
         panic!("Not yet implemented")
     }
 

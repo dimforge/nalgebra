@@ -270,14 +270,14 @@ pub trait NumPnt<N, V>:
 pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> {
     /// Computes the square distance between two points.
     #[inline]
-    fn sqdist(a: &Self, b: &Self) -> N {
-        Norm::sqnorm(&(*a - *b))
+    fn sqdist(&self, other: &Self) -> N {
+        (*self - *other).sqnorm()
     }
 
     /// Computes the distance between two points.
     #[inline]
-    fn dist(a: &Self, b: &Self) -> N {
-        Norm::norm(&(*a - *b))
+    fn dist(&self, other: &Self) -> N {
+        (*self - *other).norm()
     }
 }
 

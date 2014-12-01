@@ -326,13 +326,13 @@ pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V>(a: &P, b: &P) -> P {
 /// Returns the distance between two points.
 #[inline(always)]
 pub fn dist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
-    FloatPnt::<N, V>::dist(a, b)
+    a.dist(b)
 }
 
 /// Returns the squared distance between two points.
 #[inline(always)]
 pub fn sqdist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
-    FloatPnt::<N, V>::sqdist(a, b)
+    a.sqdist(b)
 }
 
 /*

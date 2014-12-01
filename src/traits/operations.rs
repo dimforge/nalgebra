@@ -71,55 +71,55 @@ impl POrdering {
 
 /// Pointwise ordering operations.
 pub trait POrd {
-    /// Returns the infimum of `a` and `b`.
-    fn inf(a: &Self, b: &Self) -> Self;
+    /// Returns the infimum of this value and another
+    fn inf(&self, other: &Self) -> Self;
 
-    /// Returns the supremum of `a` and `b`.
-    fn sup(a: &Self, b: &Self) -> Self;
+    /// Returns the supremum of this value and another
+    fn sup(&self, other: &Self) -> Self;
 
-    /// Compare `a` and `b` using a partial ordering relation.
-    fn partial_cmp(a: &Self, b: &Self) -> POrdering;
+    /// Compare `self` and `other` using a partial ordering relation.
+    fn partial_cmp(&self, other: &Self) -> POrdering;
 
-    /// Returns `true` iff `a` and `b` are comparable and `a <= b`.
+    /// Returns `true` iff `self` and `other` are comparable and `self <= other`.
     #[inline]
-    fn partial_le(a: &Self, b: &Self) -> bool {
-        POrd::partial_cmp(a, b).is_le()
+    fn partial_le(&self, other: &Self) -> bool {
+        POrd::partial_cmp(self, other).is_le()
     }
 
-    /// Returns `true` iff `a` and `b` are comparable and `a < b`.
+    /// Returns `true` iff `self` and `other` are comparable and `self < other`.
     #[inline]
-    fn partial_lt(a: &Self, b: &Self) -> bool {
-        POrd::partial_cmp(a, b).is_lt()
+    fn partial_lt(&self, other: &Self) -> bool {
+        POrd::partial_cmp(self, other).is_lt()
     }
 
-    /// Returns `true` iff `a` and `b` are comparable and `a >= b`.
+    /// Returns `true` iff `self` and `other` are comparable and `self >= other`.
     #[inline]
-    fn partial_ge(a: &Self, b: &Self) -> bool {
-        POrd::partial_cmp(a, b).is_ge()
+    fn partial_ge(&self, other: &Self) -> bool {
+        POrd::partial_cmp(self, other).is_ge()
     }
 
-    /// Returns `true` iff `a` and `b` are comparable and `a > b`.
+    /// Returns `true` iff `self` and `other` are comparable and `self > other`.
     #[inline]
-    fn partial_gt(a: &Self, b: &Self) -> bool {
-        POrd::partial_cmp(a, b).is_gt()
+    fn partial_gt(&self, other: &Self) -> bool {
+        POrd::partial_cmp(self, other).is_gt()
     }
 
-    /// Return the minimum of `a` and `b` if they are comparable.
+    /// Return the minimum of `self` and `other` if they are comparable.
     #[inline]
-    fn partial_min<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
-        match POrd::partial_cmp(a, b) {
-            POrdering::PartialLess | POrdering::PartialEqual => Some(a),
-            POrdering::PartialGreater             => Some(b),
+    fn partial_min<'a>(&'a self, other: &'a Self) -> Option<&'a Self> {
+        match POrd::partial_cmp(self, other) {
+            POrdering::PartialLess | POrdering::PartialEqual => Some(self),
+            POrdering::PartialGreater             => Some(other),
             POrdering::NotComparable              => None
         }
     }
 
-    /// Return the maximum of `a` and `b` if they are comparable.
+    /// Return the maximum of `self` and `other` if they are comparable.
     #[inline]
-    fn partial_max<'a>(a: &'a Self, b: &'a Self) -> Option<&'a Self> {
-        match POrd::partial_cmp(a, b) {
-            POrdering::PartialGreater | POrdering::PartialEqual => Some(a),
-            POrdering::PartialLess   => Some(b),
+    fn partial_max<'a>(&'a self, other: &'a Self) -> Option<&'a Self> {
+        match POrd::partial_cmp(self, other) {
+            POrdering::PartialGreater | POrdering::PartialEqual => Some(self),
+            POrdering::PartialLess   => Some(other),
             POrdering::NotComparable => None
         }
     }
@@ -127,9 +127,9 @@ pub trait POrd {
     /// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to
     /// `min` or `max`.
     #[inline]
-    fn partial_clamp<'a>(value: &'a Self, min: &'a Self, max: &'a Self) -> Option<&'a Self> {
-        let v_min = POrd::partial_cmp(value, min);
-        let v_max = POrd::partial_cmp(value, max);
+    fn partial_clamp<'a>(&'a self, min: &'a Self, max: &'a Self) -> Option<&'a Self> {
+        let v_min = self.partial_cmp(min);
+        let v_max = self.partial_cmp(max);
 
         if v_min.is_not_comparable() || v_max.is_not_comparable() {
             None
@@ -142,7 +142,7 @@ pub trait POrd {
                 Some(max)
             }
             else {
-                Some(value)
+                Some(self)
             }
         }
     }
@@ -154,12 +154,12 @@ pub trait ApproxEq<Eps> {
     fn approx_epsilon(unused_self: Option<Self>) -> Eps;
 
     /// Tests approximate equality using a custom epsilon.
-    fn approx_eq_eps(a: &Self, other: &Self, epsilon: &Eps) -> bool;
+    fn approx_eq_eps(&self, other: &Self, epsilon: &Eps) -> bool;
 
     /// Tests approximate equality.
     #[inline]
-    fn approx_eq(a: &Self, b: &Self) -> bool {
-        ApproxEq::approx_eq_eps(a, b, &ApproxEq::approx_epsilon(None::<Self>))
+    fn approx_eq(&self, other: &Self) -> bool {
+        self.approx_eq_eps(other, &ApproxEq::approx_epsilon(None::<Self>))
     }
 }
 
@@ -170,8 +170,8 @@ impl ApproxEq<f32> for f32 {
     }
 
     #[inline]
-    fn approx_eq_eps(a: &f32, b: &f32, epsilon: &f32) -> bool {
-        ::abs(&(*a - *b)) < *epsilon
+    fn approx_eq_eps(&self, other: &f32, epsilon: &f32) -> bool {
+        ::abs(&(*self - *other)) < *epsilon
     }
 }
 
@@ -182,8 +182,8 @@ impl ApproxEq<f64> for f64 {
     }
 
     #[inline]
-    fn approx_eq_eps(a: &f64, b: &f64, approx_epsilon: &f64) -> bool {
-        ::abs(&(*a - *b)) < *approx_epsilon
+    fn approx_eq_eps(&self, other: &f64, approx_epsilon: &f64) -> bool {
+        ::abs(&(*self - *other)) < *approx_epsilon
     }
 }
 
@@ -198,7 +198,7 @@ pub trait Absolute<A> {
 /// Trait of objects having an inverse. Typically used to implement matrix inverse.
 pub trait Inv {
     /// Returns the inverse of `m`.
-    fn inv_cpy(m: &Self) -> Option<Self>;
+    fn inv_cpy(&self) -> Option<Self>;
 
     /// In-place version of `inverse`.
     fn inv(&mut self) -> bool;
@@ -207,13 +207,13 @@ pub trait Inv {
 /// Trait of objects having a determinant. Typically used by square matrices.
 pub trait Det<N> {
     /// Returns the determinant of `m`.
-    fn det(m: &Self) -> N;
+    fn det(&self) -> N;
 }
 
 /// Trait of objects which can be transposed.
 pub trait Transpose {
     /// Computes the transpose of a matrix.
-    fn transpose_cpy(m: &Self) -> Self;
+    fn transpose_cpy(&self) -> Self;
 
     /// In-place version of `transposed`.
     fn transpose(&mut self);
@@ -222,7 +222,7 @@ pub trait Transpose {
 /// Traits of objects having an outer product.
 pub trait Outer<M> {
     /// Computes the outer product: `a * b`
-    fn outer(a: &Self, b: &Self) -> M;
+    fn outer(&self, other: &Self) -> M;
 }
 
 /// Trait for computing the covariance of a set of data.
@@ -231,14 +231,14 @@ pub trait Cov<M> {
     ///
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn cov(m: &Self) -> M;
+    fn cov(&self) -> M;
 
     /// Computes the covariance of the obsevations stored by `m`:
     ///
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn cov_to(m: &Self, out: &mut M) {
-        *out = Cov::cov(m)
+    fn cov_to(&self, out: &mut M) {
+        *out = self.cov()
     }
 }
 
@@ -248,13 +248,13 @@ pub trait Mean<N> {
     /// 
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn mean(v: &Self) -> N;
+    fn mean(&self) -> N;
 }
 
 /// Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.
 pub trait EigenQR<N, V>: SquareMat<N, V> {
     /// Computes the eigenvectors and eigenvalues of this matrix.
-    fn eigen_qr(m: &Self, eps: &N, niter: uint) -> (Self, V);
+    fn eigen_qr(&self, eps: &N, niter: uint) -> (Self, V);
 }
 
 // XXX: those two traits should not exist since there is generalized operator overloading of Add
