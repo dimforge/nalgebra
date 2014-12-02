@@ -66,9 +66,8 @@ impl<N: Neg<N>> Quat<N> {
 
 impl<N: BaseFloat + ApproxEq<N> + Clone> Inv for Quat<N> {
     #[inline]
-    fn inv_cpy(m: &Quat<N>) -> Option<Quat<N>> {
-        let mut res = m.clone();
-
+    fn inv_cpy(&self) -> Option<Quat<N>> {
+        let mut res = self.clone();
         if res.inv() {
             Some(res)
         }
@@ -98,14 +97,14 @@ impl<N: BaseFloat + ApproxEq<N> + Clone> Inv for Quat<N> {
 
 impl<N: BaseFloat> Norm<N> for Quat<N> {
     #[inline]
-    fn sqnorm(q: &Quat<N>) -> N {
-        q.w * q.w + q.i * q.i + q.j * q.j + q.k * q.k
+    fn sqnorm(&self) -> N {
+        self.w * self.w + self.i * self.i + self.j * self.j + self.k * self.k
     }
 
     #[inline]
-    fn normalize_cpy(v: &Quat<N>) -> Quat<N> {
-        let n = Norm::norm(v);
-        Quat::new(v.w / n, v.i / n, v.j / n, v.k / n)
+    fn normalize_cpy(&self) -> Quat<N> {
+        let n = self.norm();
+        Quat::new(self.w / n, self.i / n, self.j / n, self.k / n)
     }
 
     #[inline]
@@ -261,9 +260,8 @@ impl<N: BaseNum + Clone> One for UnitQuat<N> {
 
 impl<N: Clone + Neg<N>> Inv for UnitQuat<N> {
     #[inline]
-    fn inv_cpy(m: &UnitQuat<N>) -> Option<UnitQuat<N>> {
-        let mut cpy = m.clone();
-
+    fn inv_cpy(&self) -> Option<UnitQuat<N>> {
+        let mut cpy = self.clone();
         cpy.inv();
         Some(cpy)
     }
@@ -290,13 +288,8 @@ impl<N: ApproxEq<N>> ApproxEq<N> for UnitQuat<N> {
     }
 
     #[inline]
-    fn approx_eq(a: &UnitQuat<N>, b: &UnitQuat<N>) -> bool {
-        ApproxEq::approx_eq(&a.q, &b.q)
-    }
-
-    #[inline]
-    fn approx_eq_eps(a: &UnitQuat<N>, b: &UnitQuat<N>, eps: &N) -> bool {
-        ApproxEq::approx_eq_eps(&a.q, &b.q, eps)
+    fn approx_eq_eps(&self, other: &UnitQuat<N>, eps: &N) -> bool {
+        ApproxEq::approx_eq_eps(&self.q, &other.q, eps)
     }
 }
 
@@ -379,8 +372,8 @@ impl<N: BaseFloat + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
     }
 
     #[inline]
-    fn append_rotation_cpy(t: &UnitQuat<N>, amount: &Vec3<N>) -> UnitQuat<N> {
-        *t * UnitQuat::new(amount.clone())
+    fn append_rotation_cpy(&self, amount: &Vec3<N>) -> UnitQuat<N> {
+        *self * UnitQuat::new(amount.clone())
     }
 
     #[inline]
@@ -389,8 +382,8 @@ impl<N: BaseFloat + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
     }
 
     #[inline]
-    fn prepend_rotation_cpy(t: &UnitQuat<N>, amount: &Vec3<N>) -> UnitQuat<N> {
-        UnitQuat::new(amount.clone()) * *t
+    fn prepend_rotation_cpy(&self, amount: &Vec3<N>) -> UnitQuat<N> {
+        UnitQuat::new(amount.clone()) * *self
     }
 
     #[inline]

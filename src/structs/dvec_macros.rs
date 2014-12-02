@@ -217,36 +217,26 @@ macro_rules! dvec_impl(
 
         impl<N: BaseNum + Clone> Dot<N> for $dvec<N> {
             #[inline]
-            fn dot(a: &$dvec<N>, b: &$dvec<N>) -> N {
-                assert!(a.len() == b.len());
-
+            fn dot(&self, other: &$dvec<N>) -> N {
+                assert!(self.len() == other.len());
                 let mut res: N = ::zero();
-
-                for i in range(0u, a.len()) {
-                    res = res + unsafe { a.unsafe_at(i) * b.unsafe_at(i) };
+                for i in range(0u, self.len()) {
+                    res = res + unsafe { self.unsafe_at(i) * other.unsafe_at(i) };
                 }
-
                 res
             }
         }
 
         impl<N: BaseFloat + Clone> Norm<N> for $dvec<N> {
             #[inline]
-            fn sqnorm(v: &$dvec<N>) -> N {
-                Dot::dot(v, v)
+            fn sqnorm(&self) -> N {
+                Dot::dot(self, self)
             }
 
             #[inline]
-            fn norm(v: &$dvec<N>) -> N {
-                Norm::sqnorm(v).sqrt()
-            }
-
-            #[inline]
-            fn normalize_cpy(v: &$dvec<N>) -> $dvec<N> {
-                let mut res : $dvec<N> = v.clone();
-
+            fn normalize_cpy(&self) -> $dvec<N> {
+                let mut res : $dvec<N> = self.clone();
                 let _ = res.normalize();
-
                 res
             }
 
@@ -269,16 +259,8 @@ macro_rules! dvec_impl(
             }
 
             #[inline]
-            fn approx_eq(a: &$dvec<N>, b: &$dvec<N>) -> bool {
-                let zip = a.as_slice().iter().zip(b.as_slice().iter());
-
-                zip.all(|(a, b)| ApproxEq::approx_eq(a, b))
-            }
-
-            #[inline]
-            fn approx_eq_eps(a: &$dvec<N>, b: &$dvec<N>, epsilon: &N) -> bool {
-                let zip = a.as_slice().iter().zip(b.as_slice().iter());
-
+            fn approx_eq_eps(&self, other: &$dvec<N>, epsilon: &N) -> bool {
+                let zip = self.as_slice().iter().zip(other.as_slice().iter());
                 zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
             }
         }

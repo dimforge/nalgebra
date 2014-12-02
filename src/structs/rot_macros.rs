@@ -157,9 +157,9 @@ macro_rules! inv_impl(
             }
 
             #[inline]
-            fn inv_cpy(m: &$t<N>) -> Option<$t<N>> {
+            fn inv_cpy(&self) -> Option<$t<N>> {
                 // always succeed
-                Some(Transpose::transpose_cpy(m))
+                Some(self.transpose_cpy())
             }
         }
     )
@@ -169,8 +169,8 @@ macro_rules! transpose_impl(
     ($t: ident) => (
         impl<N: Clone> Transpose for $t<N> {
             #[inline]
-            fn transpose_cpy(m: &$t<N>) -> $t<N> {
-                $t { submat: Transpose::transpose_cpy(&m.submat) }
+            fn transpose_cpy(&self) -> $t<N> {
+                $t { submat: Transpose::transpose_cpy(&self.submat) }
             }
 
             #[inline]
@@ -257,13 +257,13 @@ macro_rules! approx_eq_impl(
             }
 
             #[inline]
-            fn approx_eq(a: &$t<N>, b: &$t<N>) -> bool {
-                ApproxEq::approx_eq(&a.submat, &b.submat)
+            fn approx_eq(&self, other: &$t<N>) -> bool {
+                ApproxEq::approx_eq(&self.submat, &other.submat)
             }
 
             #[inline]
-            fn approx_eq_eps(a: &$t<N>, b: &$t<N>, epsilon: &N) -> bool {
-                ApproxEq::approx_eq_eps(&a.submat, &b.submat, epsilon)
+            fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
+                ApproxEq::approx_eq_eps(&self.submat, &other.submat, epsilon)
             }
         }
     )

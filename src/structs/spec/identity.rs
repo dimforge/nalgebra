@@ -12,7 +12,7 @@ impl One for mat::Identity {
 }
 
 impl Inv for mat::Identity {
-    fn inv_cpy(_: &mat::Identity) -> Option<mat::Identity> {
+    fn inv_cpy(&self) -> Option<mat::Identity> {
         Some(mat::Identity::new())
     }
 
@@ -30,7 +30,7 @@ impl<T: Clone> Mul<T, T> for mat::Identity {
 
 impl Transpose for mat::Identity {
     #[inline]
-    fn transpose_cpy(_: &mat::Identity) -> mat::Identity {
+    fn transpose_cpy(&self) -> mat::Identity {
         mat::Identity::new()
     }
 
@@ -56,7 +56,7 @@ impl<V: Zero> Translation<V> for mat::Identity {
     }
 
     #[inline]
-    fn append_translation_cpy(_: &mat::Identity, _: &V) -> mat::Identity {
+    fn append_translation_cpy(&self, _: &V) -> mat::Identity {
         panic!("Attempted to translate the identity matrix.")
     }
 
@@ -66,7 +66,7 @@ impl<V: Zero> Translation<V> for mat::Identity {
     }
 
     #[inline]
-    fn prepend_translation_cpy(_: &mat::Identity, _: &V) -> mat::Identity {
+    fn prepend_translation_cpy(&self, _: &V) -> mat::Identity {
         panic!("Attempted to translate the identity matrix.")
     }
 
@@ -105,7 +105,7 @@ impl<V: Zero> Rotation<V> for mat::Identity {
     }
 
     #[inline]
-    fn append_rotation_cpy(_: &mat::Identity, _: &V) -> mat::Identity {
+    fn append_rotation_cpy(&self, _: &V) -> mat::Identity {
         panic!("Attempted to rotate the identity matrix.")
     }
 
@@ -115,7 +115,7 @@ impl<V: Zero> Rotation<V> for mat::Identity {
     }
 
     #[inline]
-    fn prepend_rotation_cpy(_: &mat::Identity, _: &V) -> mat::Identity {
+    fn prepend_rotation_cpy(&self, _: &V) -> mat::Identity {
         panic!("Attempted to rotate the identity matrix.")
     }
 
@@ -161,7 +161,7 @@ impl<M: One> Transformation<M> for mat::Identity {
     }
 
     #[inline]
-    fn append_transformation_cpy(_: &mat::Identity, _: &M) -> mat::Identity {
+    fn append_transformation_cpy(&self, _: &M) -> mat::Identity {
         panic!("Attempted to transform the identity matrix.")
     }
 
@@ -171,7 +171,7 @@ impl<M: One> Transformation<M> for mat::Identity {
     }
 
     #[inline]
-    fn prepend_transformation_cpy(_: &mat::Identity, _: &M) -> mat::Identity {
+    fn prepend_transformation_cpy(&self, _: &M) -> mat::Identity {
         panic!("Attempted to transform the identity matrix.")
     }
 

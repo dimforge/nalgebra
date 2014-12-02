@@ -82,26 +82,26 @@ macro_rules! ord_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: BaseFloat + Clone> POrd for $t<N> {
             #[inline]
-            fn inf(a: &$t<N>, b: &$t<N>) -> $t<N> {
-                $t::new(a.$comp0.min(b.$comp0.clone())
-                        $(, a.$compN.min(b.$compN))*)
+            fn inf(&self, other: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0.min(other.$comp0.clone())
+                        $(, self.$compN.min(other.$compN))*)
             }
 
             #[inline]
-            fn sup(a: &$t<N>, b: &$t<N>) -> $t<N> {
-                $t::new(a.$comp0.max(b.$comp0.clone())
-                        $(, a.$compN.max(b.$compN.clone()))*)
+            fn sup(&self, other: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0.max(other.$comp0.clone())
+                        $(, self.$compN.max(other.$compN.clone()))*)
             }
 
             #[inline]
             #[allow(unused_mut)] // otherwise there will be a warning for is_eq or Vec1.
-            fn partial_cmp(a: &$t<N>, b: &$t<N>) -> POrdering {
-                let is_lt     = a.$comp0 <  b.$comp0;
-                let mut is_eq = a.$comp0 == b.$comp0;
+            fn partial_cmp(&self, other: &$t<N>) -> POrdering {
+                let is_lt     = self.$comp0 <  other.$comp0;
+                let mut is_eq = self.$comp0 == other.$comp0;
 
                 if is_lt { // <
                     $(
-                        if a.$compN > b.$compN {
+                        if self.$compN > other.$compN {
                             return POrdering::NotComparable
                         }
                      )*
@@ -110,10 +110,10 @@ macro_rules! ord_impl(
                 }
                 else { // >=
                     $(
-                        if a.$compN < b.$compN {
+                        if self.$compN < other.$compN {
                             return POrdering::NotComparable
                         }
-                        else if a.$compN > b.$compN {
+                        else if self.$compN > other.$compN {
                             is_eq = false;
                         }
 
@@ -129,23 +129,23 @@ macro_rules! ord_impl(
             }
 
             #[inline]
-            fn partial_lt(a: &$t<N>, b: &$t<N>) -> bool {
-                a.$comp0 < b.$comp0 $(&& a.$compN < b.$compN)*
+            fn partial_lt(&self, other: &$t<N>) -> bool {
+                self.$comp0 < other.$comp0 $(&& self.$compN < other.$compN)*
             }
 
             #[inline]
-            fn partial_le(a: &$t<N>, b: &$t<N>) -> bool {
-                a.$comp0 <= b.$comp0 $(&& a.$compN <= b.$compN)*
+            fn partial_le(&self, other: &$t<N>) -> bool {
+                self.$comp0 <= other.$comp0 $(&& self.$compN <= other.$compN)*
             }
 
             #[inline]
-            fn partial_gt(a: &$t<N>, b: &$t<N>) -> bool {
-                a.$comp0 > b.$comp0 $(&& a.$compN > b.$compN)*
+            fn partial_gt(&self, other: &$t<N>) -> bool {
+                self.$comp0 > other.$comp0 $(&& self.$compN > other.$compN)*
             }
 
             #[inline]
-            fn partial_ge(a: &$t<N>, b: &$t<N>) -> bool {
-                a.$comp0 >= b.$comp0 $(&& a.$compN >= b.$compN)*
+            fn partial_ge(&self, other: &$t<N>) -> bool {
+                self.$comp0 >= other.$comp0 $(&& self.$compN >= other.$compN)*
             }
         }
     )
@@ -493,8 +493,8 @@ macro_rules! dot_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: BaseNum> Dot<N> for $t<N> {
             #[inline]
-            fn dot(a: &$t<N>, b: &$t<N>) -> N {
-                a.$comp0 * b.$comp0 $(+ a.$compN * b.$compN )*
+            fn dot(&self, other: &$t<N>) -> N {
+                self.$comp0 * other.$comp0 $(+ self.$compN * other.$compN )*
             }
         }
     )
@@ -595,8 +595,8 @@ macro_rules! translation_impl(
             }
 
             #[inline]
-            fn append_translation_cpy(transform: &$t<N>, t: &$t<N>) -> $t<N> {
-                *t + *transform
+            fn append_translation_cpy(&self, t: &$t<N>) -> $t<N> {
+                *t + *self
             }
 
             #[inline]
@@ -605,8 +605,8 @@ macro_rules! translation_impl(
             }
 
             #[inline]
-            fn prepend_translation_cpy(transform: &$t<N>, t: &$t<N>) -> $t<N> {
-                *transform + *t
+            fn prepend_translation_cpy(&self, t: &$t<N>) -> $t<N> {
+                *self + *t
             }
 
             #[inline]
@@ -621,21 +621,14 @@ macro_rules! norm_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Clone + BaseFloat> Norm<N> for $t<N> {
             #[inline]
-            fn sqnorm(v: &$t<N>) -> N {
-                Dot::dot(v, v)
+            fn sqnorm(&self) -> N {
+                Dot::dot(self, self)
             }
 
             #[inline]
-            fn norm(v: &$t<N>) -> N {
-                Norm::sqnorm(v).sqrt()
-            }
-
-            #[inline]
-            fn normalize_cpy(v: &$t<N>) -> $t<N> {
-                let mut res : $t<N> = v.clone();
-
+            fn normalize_cpy(&self) -> $t<N> {
+                let mut res : $t<N> = self.clone();
                 let _ = res.normalize();
-
                 res
             }
 
@@ -661,15 +654,15 @@ macro_rules! approx_eq_impl(
             }
 
             #[inline]
-            fn approx_eq(a: &$t<N>, b: &$t<N>) -> bool {
-                ApproxEq::approx_eq(&a.$comp0, &b.$comp0)
-                $(&& ApproxEq::approx_eq(&a.$compN, &b.$compN))*
+            fn approx_eq(&self, other: &$t<N>) -> bool {
+                ApproxEq::approx_eq(&self.$comp0, &other.$comp0)
+                $(&& ApproxEq::approx_eq(&self.$compN, &other.$compN))*
             }
 
             #[inline]
-            fn approx_eq_eps(a: &$t<N>, b: &$t<N>, eps: &N) -> bool {
-                ApproxEq::approx_eq_eps(&a.$comp0, &b.$comp0, eps)
-                $(&& ApproxEq::approx_eq_eps(&a.$compN, &b.$compN, eps))*
+            fn approx_eq_eps(&self, other: &$t<N>, eps: &N) -> bool {
+                ApproxEq::approx_eq_eps(&self.$comp0, &other.$comp0, eps)
+                $(&& ApproxEq::approx_eq_eps(&self.$compN, &other.$compN, eps))*
             }
         }
     )

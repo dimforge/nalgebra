@@ -121,7 +121,7 @@ impl<N: Neg<N>> Neg<vec::Vec0<N>> for vec::Vec0<N> {
 
 impl<N: BaseNum> Dot<N> for vec::Vec0<N> {
     #[inline]
-    fn dot(_: &vec::Vec0<N>, _: &vec::Vec0<N>) -> N {
+    fn dot(&self, _: &vec::Vec0<N>) -> N {
         ::zero()
     }
 }
@@ -157,8 +157,8 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     }
 
     #[inline]
-    fn append_translation_cpy(vec: &vec::Vec0<N>, t: &vec::Vec0<N>) -> vec::Vec0<N> {
-        *t + vec
+    fn append_translation_cpy(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
+        *t + self
     }
 
     #[inline]
@@ -167,8 +167,8 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     }
 
     #[inline]
-    fn prepend_translation_cpy(vec: &vec::Vec0<N>, t: &vec::Vec0<N>) -> vec::Vec0<N> {
-        *vec + *t
+    fn prepend_translation_cpy(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
+        *self + *t
     }
 
     #[inline]
@@ -178,17 +178,17 @@ impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
 
 impl<N: BaseFloat> Norm<N> for vec::Vec0<N> {
     #[inline]
-    fn sqnorm(_: &vec::Vec0<N>) -> N {
+    fn sqnorm(&self) -> N {
         ::zero()
     }
 
     #[inline]
-    fn norm(_: &vec::Vec0<N>) -> N {
+    fn norm(&self) -> N {
         ::zero()
     }
 
     #[inline]
-    fn normalize_cpy(_: &vec::Vec0<N>) -> vec::Vec0<N> {
+    fn normalize_cpy(&self) -> vec::Vec0<N> {
         ::zero()
     }
 
@@ -205,12 +205,7 @@ impl<N: ApproxEq<N>> ApproxEq<N> for vec::Vec0<N> {
     }
 
     #[inline]
-    fn approx_eq(_: &vec::Vec0<N>, _: &vec::Vec0<N>) -> bool {
-        true
-    }
-
-    #[inline]
-    fn approx_eq_eps(_: &vec::Vec0<N>, _: &vec::Vec0<N>, _: &N) -> bool {
+    fn approx_eq_eps(&self, _: &vec::Vec0<N>, _: &N) -> bool {
         true
     }
 }
