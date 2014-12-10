@@ -4,7 +4,7 @@ use std::num::{Float, SignedInt};
 use traits::structure::SquareMat;
 
 /// Result of a partial ordering.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Show)]
+#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Show, Copy)]
 pub enum POrdering {
     /// Result of a strict comparison.
     PartialLess,

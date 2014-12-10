@@ -14,7 +14,7 @@ use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, Base
 use traits::geometry::{Norm, Cross, Rotation, Rotate, Transform};
 
 /// A quaternion.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show)]
+#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Quat<N> {
     /// The scalar component of the quaternion.
     pub w: N,
@@ -139,7 +139,7 @@ impl<N: ApproxEq<N> + BaseFloat + Clone> Div<Quat<N>, Quat<N>> for Quat<N> {
 }
 
 /// A unit quaternion that can represent a 3D rotation.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Show)]
+#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Show, Copy)]
 pub struct UnitQuat<N> {
     q: Quat<N>
 }
