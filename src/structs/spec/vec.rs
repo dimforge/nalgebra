@@ -234,7 +234,7 @@ impl<N: Cast<f64> + Clone> UniformSphereSample for Vec2<N> {
     #[inline(always)]
     fn sample(f: |Vec2<N>| -> ()) {
          for sample in SAMPLES_2_F64.iter() {
-             f(Cast::from(*sample))
+             f(Cast::from(sample.clone()))
          }
      }
 }
@@ -243,7 +243,7 @@ impl<N: Cast<f64> + Clone> UniformSphereSample for Vec3<N> {
     #[inline(always)]
     fn sample(f: |Vec3<N>| -> ()) {
         for sample in SAMPLES_3_F64.iter() {
-            f(Cast::from(*sample))
+            f(Cast::from(sample.clone()))
         }
     }
 }
