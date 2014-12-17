@@ -100,14 +100,14 @@ impl<N> Basis for vec::Vec0<N> {
 
 impl<N, T> Add<T, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn add(&self, _: &T) -> vec::Vec0<N> {
+    fn add(self, _: T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
 
 impl<N, T> Sub<T, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn sub(&self, _: &T) -> vec::Vec0<N> {
+    fn sub(self, _: T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
@@ -128,22 +128,22 @@ impl<N: BaseNum> Dot<N> for vec::Vec0<N> {
 
 impl<N, T> Mul<T, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn mul(&self, _: &T) -> vec::Vec0<N> {
+    fn mul(self, _: T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
 
 impl<N, T> Div<T, vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn div(&self, _: &T) -> vec::Vec0<N> {
+    fn div(self, _: T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
 
-impl<N: Clone + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
+impl<N: Copy + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
     fn translation(&self) -> vec::Vec0<N> {
-        self.clone()
+        *self
     }
 
     #[inline]

@@ -9,12 +9,13 @@ use na::{DVec, DMat};
 macro_rules! bench_mul_dmat(
     ($bh: expr, $nrows: expr, $ncols: expr) => {
         {
-            let a:     DMat<f64> = DMat::new_random($nrows, $ncols);
-            let mut b: DMat<f64> = DMat::new_random($nrows, $ncols);
-
             $bh.iter(|| {
+                let a:     DMat<f64> = DMat::new_random($nrows, $ncols);
+                let mut b: DMat<f64> = DMat::new_random($nrows, $ncols);
+
                 for _ in range(0u, 1000) {
-                    b = a * b;
+                    // XXX: the clone here is highly undesirable!
+                    b = a.clone() * b;
                 }
             })
         }
@@ -49,12 +50,14 @@ fn bench_mul_dmat6(bh: &mut Bencher) {
 macro_rules! bench_mul_dmat_dvec(
     ($bh: expr, $nrows: expr, $ncols: expr) => {
         {
-            let m : DMat<f64>     = DMat::new_random($nrows, $ncols);
-            let mut v : DVec<f64> = DVec::new_random($ncols);
 
             $bh.iter(|| {
+                let m : DMat<f64>     = DMat::new_random($nrows, $ncols);
+                let mut v : DVec<f64> = DVec::new_random($ncols);
+
                 for _ in range(0u, 1000) {
-                    v = m * v
+                    // XXX: the clone here is highly undesirable!
+                    v = m.clone() * v
                 }
             })
         }

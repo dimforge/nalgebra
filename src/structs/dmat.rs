@@ -36,7 +36,7 @@ impl<N> DMat<N> {
     }
 }
 
-impl<N: Zero + Clone> DMat<N> {
+impl<N: Zero + Clone + Copy> DMat<N> {
     /// Builds a matrix filled with zeros.
     ///
     /// # Arguments
@@ -69,7 +69,7 @@ impl<N: Rand> DMat<N> {
     }
 }
 
-impl<N: One + Clone> DMat<N> {
+impl<N: One + Clone + Copy> DMat<N> {
     /// Builds a matrix filled with a given constant.
     #[inline]
     pub fn new_ones(nrows: uint, ncols: uint) -> DMat<N> {
@@ -77,7 +77,7 @@ impl<N: One + Clone> DMat<N> {
     }
 }
 
-impl<N: Clone> DMat<N> {
+impl<N: Clone + Copy> DMat<N> {
     /// Builds a matrix filled with a given constant.
     #[inline]
     pub fn from_elem(nrows: uint, ncols: uint, val: N) -> DMat<N> {
@@ -169,7 +169,7 @@ impl<N> DMat<N> {
 
 // FIXME: add a function to modify the dimension (to avoid useless allocations)?
 
-impl<N: One + Zero + Clone> Eye for DMat<N> {
+impl<N: One + Zero + Clone + Copy> Eye for DMat<N> {
     /// Builds an identity matrix.
     ///
     /// # Arguments
@@ -196,7 +196,7 @@ impl<N> DMat<N> {
 
 }
 
-impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
+impl<N: Copy> Indexable<(uint, uint), N> for DMat<N> {
     /// Changes the value of a component of the matrix.
     ///
     /// # Arguments
@@ -235,7 +235,8 @@ impl<N: Clone> Indexable<(uint, uint), N> for DMat<N> {
     #[inline]
     unsafe fn unsafe_at(&self, rowcol: (uint,  uint)) -> N {
         let (row, col) = rowcol;
-        (*self.mij.as_slice().unsafe_get(self.offset(row, col))).clone()
+
+        *self.mij.as_slice().unsafe_get(self.offset(row, col))
     }
 
     #[inline]
@@ -283,8 +284,8 @@ impl<N> IndexMut<(uint, uint), N> for DMat<N> {
     }
 }
 
-impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> {
-    fn mul(&self, right: &DMat<N>) -> DMat<N> {
+impl<N: Copy + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> {
+    fn mul(self, right: DMat<N>) -> DMat<N> {
         assert!(self.ncols == right.nrows);
 
         let mut res = unsafe { DMat::new_uninitialized(self.nrows, right.ncols) };
@@ -308,8 +309,8 @@ impl<N: Clone + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> 
     }
 }
 
-impl<N: Clone + Add<N, N> + Mul<N, N> + Zero> Mul<DVec<N>, DVec<N>> for DMat<N> {
-    fn mul(&self, right: &DVec<N>) -> DVec<N> {
+impl<N: Copy + Add<N, N> + Mul<N, N> + Zero> Mul<DVec<N>, DVec<N>> for DMat<N> {
+    fn mul(self, right: DVec<N>) -> DVec<N> {
         assert!(self.ncols == right.at.len());
 
         let mut res : DVec<N> = unsafe { DVec::new_uninitialized(self.nrows) };
@@ -331,8 +332,8 @@ impl<N: Clone + Add<N, N> + Mul<N, N> + Zero> Mul<DVec<N>, DVec<N>> for DMat<N> 
 }
 
 
-impl<N: Clone + Add<N, N> + Mul<N, N> + Zero> Mul<DMat<N>, DVec<N>> for DVec<N> {
-    fn mul(&self, right: &DMat<N>) -> DVec<N> {
+impl<N: Copy + Add<N, N> + Mul<N, N> + Zero> Mul<DMat<N>, DVec<N>> for DVec<N> {
+    fn mul(self, right: DMat<N>) -> DVec<N> {
         assert!(right.nrows == self.at.len());
 
         let mut res : DVec<N> = unsafe { DVec::new_uninitialized(right.ncols) };
@@ -353,7 +354,7 @@ impl<N: Clone + Add<N, N> + Mul<N, N> + Zero> Mul<DMat<N>, DVec<N>> for DVec<N> 
     }
 }
 
-impl<N: Clone + BaseNum + Zero + One> Inv for DMat<N> {
+impl<N: BaseNum + Clone> Inv for DMat<N> {
     #[inline]
     fn inv_cpy(&self) -> Option<DMat<N>> {
         let mut res: DMat<N> = self.clone();
@@ -439,7 +440,7 @@ impl<N: Clone + BaseNum + Zero + One> Inv for DMat<N> {
     }
 }
 
-impl<N: Clone> Transpose for DMat<N> {
+impl<N: Clone + Copy> Transpose for DMat<N> {
     #[inline]
     fn transpose_cpy(&self) -> DMat<N> {
         if self.nrows == self.ncols {
@@ -485,7 +486,7 @@ impl<N: Clone> Transpose for DMat<N> {
     }
 }
 
-impl<N: BaseNum + Cast<f64> + Zero + Clone> Mean<DVec<N>> for DMat<N> {
+impl<N: BaseNum + Cast<f64> + Clone> Mean<DVec<N>> for DMat<N> {
     fn mean(&self) -> DVec<N> {
         let mut res: DVec<N> = DVec::new_zeros(self.ncols);
         let normalizer: N    = Cast::from(1.0f64 / Cast::from(self.nrows));
@@ -503,7 +504,7 @@ impl<N: BaseNum + Cast<f64> + Zero + Clone> Mean<DVec<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone + BaseNum + Cast<f64> + Div<N, N>> Cov<DMat<N>> for DMat<N> {
+impl<N: BaseNum + Cast<f64> + Clone> Cov<DMat<N>> for DMat<N> {
     // FIXME: this could be heavily optimized, removing all temporaries by merging loops.
     fn cov(&self) -> DMat<N> {
         assert!(self.nrows > 1);
@@ -528,7 +529,7 @@ impl<N: Clone + BaseNum + Cast<f64> + Div<N, N>> Cov<DMat<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone> ColSlice<DVec<N>> for DMat<N> {
+impl<N: Copy + Clone> ColSlice<DVec<N>> for DMat<N> {
     fn col_slice(&self, col_id :uint, row_start: uint, row_end: uint) -> DVec<N> {
         assert!(col_id < self.ncols);
         assert!(row_start < row_end);
@@ -542,7 +543,7 @@ impl<N: Clone> ColSlice<DVec<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone> RowSlice<DVec<N>> for DMat<N> {
+impl<N: Copy> RowSlice<DVec<N>> for DMat<N> {
     fn row_slice(&self, row_id :uint, col_start: uint, col_end: uint) -> DVec<N> {
         assert!(row_id < self.nrows);
         assert!(col_start < col_end);
@@ -561,7 +562,7 @@ impl<N: Clone> RowSlice<DVec<N>> for DMat<N> {
     }
 }
 
-impl<N: Clone + Zero>  Diag<DVec<N>> for DMat<N> {
+impl<N: Copy + Clone + Zero>  Diag<DVec<N>> for DMat<N> {
     #[inline]
     fn from_diag(diag: &DVec<N>) -> DMat<N> {
         let mut res = DMat::new_zeros(diag.len(), diag.len());
@@ -609,7 +610,7 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     }
 }
 
-impl<N: Show + Clone> Show for DMat<N> {
+impl<N: Show + Copy> Show for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
         for i in range(0u, self.nrows()) {
             for j in range(0u, self.ncols()) {
@@ -621,46 +622,54 @@ impl<N: Show + Clone> Show for DMat<N> {
     }
 }
 
-impl<N: Mul<N, N>> Mul<N, DMat<N>> for DMat<N> {
+impl<N: Copy + Mul<N, N>> Mul<N, DMat<N>> for DMat<N> {
     #[inline]
-    fn mul(&self, right: &N) -> DMat<N> {
-        DMat {
-            nrows: self.nrows,
-            ncols: self.ncols,
-            mij:   self.mij.iter().map(|a| *a * *right).collect()
+    fn mul(self, right: N) -> DMat<N> {
+        let mut res = self;
+
+        for mij in res.mij.iter_mut() {
+            *mij = *mij * right;
         }
+
+        res
     }
 }
 
-impl<N: Div<N, N>> Div<N, DMat<N>> for DMat<N> {
+impl<N: Copy + Div<N, N>> Div<N, DMat<N>> for DMat<N> {
     #[inline]
-    fn div(&self, right: &N) -> DMat<N> {
-        DMat {
-            nrows: self.nrows,
-            ncols: self.ncols,
-            mij:   self.mij.iter().map(|a| *a / *right).collect()
+    fn div(self, right: N) -> DMat<N> {
+        let mut res = self;
+
+        for mij in res.mij.iter_mut() {
+            *mij = *mij / right;
         }
+
+        res
     }
 }
 
-impl<N: Add<N, N>> Add<N, DMat<N>> for DMat<N> {
+impl<N: Copy + Add<N, N>> Add<N, DMat<N>> for DMat<N> {
     #[inline]
-    fn add(&self, right: &N) -> DMat<N> {
-        DMat {
-            nrows: self.nrows,
-            ncols: self.ncols,
-            mij:   self.mij.iter().map(|a| *a + *right).collect()
+    fn add(self, right: N) -> DMat<N> {
+        let mut res = self;
+
+        for mij in res.mij.iter_mut() {
+            *mij = *mij + right;
         }
+
+        res
     }
 }
 
-impl<N: Sub<N, N>> Sub<N, DMat<N>> for DMat<N> {
+impl<N: Copy + Sub<N, N>> Sub<N, DMat<N>> for DMat<N> {
     #[inline]
-    fn sub(&self, right: &N) -> DMat<N> {
-        DMat {
-            nrows: self.nrows,
-            ncols: self.ncols,
-            mij:   self.mij.iter().map(|a| *a - *right).collect()
+    fn sub(self, right: N) -> DMat<N> {
+        let mut res = self;
+
+        for mij in res.mij.iter_mut() {
+            *mij = *mij - right;
         }
+
+        res
     }
 }

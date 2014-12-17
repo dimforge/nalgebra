@@ -59,11 +59,11 @@ macro_rules! as_array_impl(
 
 macro_rules! at_fast_impl(
     ($t: ident, $dim: expr) => (
-        impl<N: Clone> $t<N> {
+        impl<N: Copy> $t<N> {
             #[inline]
             pub unsafe fn at_fast(&self, (i, j): (uint, uint)) -> N {
                 (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)
-                 .unsafe_get(i + j * $dim)).clone()
+                 .unsafe_get(i + j * $dim))
             }
 
             #[inline]
@@ -77,10 +77,10 @@ macro_rules! at_fast_impl(
 
 macro_rules! mat_cast_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<Nin: Clone, Nout: Clone + Cast<Nin>> Cast<$t<Nin>> for $t<Nout> {
+        impl<Nin: Copy, Nout: Copy + Cast<Nin>> Cast<$t<Nin>> for $t<Nout> {
             #[inline]
             fn from(v: $t<Nin>) -> $t<Nout> {
-                $t::new(Cast::from(v.$comp0.clone()) $(, Cast::from(v.$compN.clone()))*)
+                $t::new(Cast::from(v.$comp0) $(, Cast::from(v.$compN))*)
             }
         }
     )
@@ -90,7 +90,7 @@ macro_rules! add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn add(&self, right: &$t<N>) -> $t<N> {
+            fn add(self, right: $t<N>) -> $t<N> {
                 $t::new(self.$comp0 + right.$comp0 $(, self.$compN + right.$compN)*)
             }
         }
@@ -101,7 +101,7 @@ macro_rules! sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn sub(&self, right: &$t<N>) -> $t<N> {
+            fn sub(self, right: $t<N>) -> $t<N> {
                 $t::new(self.$comp0 - right.$comp0 $(, self.$compN - right.$compN)*)
             }
         }
@@ -112,7 +112,7 @@ macro_rules! mat_mul_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Mul<N, N>> Mul<N, $t<N>> for N {
             #[inline]
-            fn mul(&self, right: &N) -> $t<N> {
+            fn mul(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 * *right $(, self.$compN * *right)*)
             }
         }
@@ -123,7 +123,7 @@ macro_rules! mat_div_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Div<N, N>> Div<N, $t<N>> for $t<N> {
             #[inline]
-            fn div(&self, right: &N) -> $t<N> {
+            fn div(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 / *right $(, self.$compN / *right)*)
             }
         }
@@ -134,7 +134,7 @@ macro_rules! mat_add_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         impl<N: Add<N, N>> Add<N, $t<N>> for $t<N> {
             #[inline]
-            fn add(&self, right: &N) -> $t<N> {
+            fn add(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 + *right $(, self.$compN + *right)*)
             }
         }
@@ -205,7 +205,7 @@ macro_rules! iterable_mut_impl(
 
 macro_rules! one_impl(
   ($t: ident, $value0: expr $(, $valueN: expr)* ) => (
-    impl<N: Clone + BaseNum> One for $t<N> {
+    impl<N: Copy + BaseNum> One for $t<N> {
         #[inline]
         fn one() -> $t<N> {
             $t::new($value0() $(, $valueN() )*)
@@ -253,11 +253,11 @@ macro_rules! indexable_impl(
         }
     }
 
-    impl<N: Clone> Indexable<(uint, uint), N> for $t<N> {
+    impl<N: Copy> Indexable<(uint, uint), N> for $t<N> {
         #[inline]
         fn at(&self, (i, j): (uint, uint)) -> N {
             unsafe {
-                mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)[i + j * $dim].clone()
+                mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)[i + j * $dim]
             }
         }
 
@@ -278,7 +278,7 @@ macro_rules! indexable_impl(
 
         #[inline]
         unsafe fn unsafe_at(&self, (i, j): (uint, uint)) -> N {
-            (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self).unsafe_get(i + j * $dim)).clone()
+            (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self).unsafe_get(i + j * $dim))
         }
 
         #[inline]
@@ -311,7 +311,7 @@ macro_rules! index_impl(
 
 macro_rules! col_slice_impl(
     ($t: ident, $tv: ident, $slice: ident, $dim: expr) => (
-        impl<N: Clone + Zero> ColSlice<$slice<N>> for $t<N> {
+        impl<N: Clone + Copy + Zero> ColSlice<$slice<N>> for $t<N> {
             fn col_slice(&self, cid: uint, rstart: uint, rend: uint) -> $slice<N> {
                 let col = self.col(cid);
 
@@ -323,7 +323,7 @@ macro_rules! col_slice_impl(
 
 macro_rules! row_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
-    impl<N: Clone + Zero> Row<$tv<N>> for $t<N> {
+    impl<N: Copy + Zero> Row<$tv<N>> for $t<N> {
         #[inline]
         fn nrows(&self) -> uint {
             Dim::dim(None::<$t<N>>)
@@ -332,7 +332,7 @@ macro_rules! row_impl(
         #[inline]
         fn set_row(&mut self, row: uint, v: $tv<N>) {
             for (i, e) in v.iter().enumerate() {
-                self.set((row, i), e.clone());
+                self.set((row, i), *e);
             }
         }
 
@@ -352,7 +352,7 @@ macro_rules! row_impl(
 
 macro_rules! row_slice_impl(
     ($t: ident, $tv: ident, $slice: ident, $dim: expr) => (
-        impl<N: Clone + Zero> RowSlice<$slice<N>> for $t<N> {
+        impl<N: Clone + Copy + Zero> RowSlice<$slice<N>> for $t<N> {
             fn row_slice(&self, rid: uint, cstart: uint, cend: uint) -> $slice<N> {
                 let row = self.row(rid);
 
@@ -364,7 +364,7 @@ macro_rules! row_slice_impl(
 
 macro_rules! col_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
-    impl<N: Clone + Zero> Col<$tv<N>> for $t<N> {
+    impl<N: Copy + Zero> Col<$tv<N>> for $t<N> {
         #[inline]
         fn ncols(&self) -> uint {
             Dim::dim(None::<$t<N>>)
@@ -373,7 +373,7 @@ macro_rules! col_impl(
         #[inline]
         fn set_col(&mut self, col: uint, v: $tv<N>) {
             for (i, e) in v.iter().enumerate() {
-                self.set((i, col), e.clone());
+                self.set((i, col), *e);
             }
         }
 
@@ -393,7 +393,7 @@ macro_rules! col_impl(
 
 macro_rules! diag_impl(
     ($t: ident, $tv: ident, $dim: expr) => (
-        impl<N: Clone + Zero> Diag<$tv<N>> for $t<N> {
+        impl<N: Copy + Zero> Diag<$tv<N>> for $t<N> {
             #[inline]
             fn from_diag(diag: &$tv<N>) -> $t<N> {
                 let mut res: $t<N> = ::zero();
@@ -426,9 +426,9 @@ macro_rules! diag_impl(
 
 macro_rules! mat_mul_mat_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Clone + BaseNum> Mul<$t<N>, $t<N>> for $t<N> {
+    impl<N: Copy + BaseNum> Mul<$t<N>, $t<N>> for $t<N> {
         #[inline]
-        fn mul(&self, right: &$t<N>) -> $t<N> {
+        fn mul(self, right: $t<N>) -> $t<N> {
             // careful! we need to comute other * self here (self is the rhs).
             let mut res: $t<N> = ::zero();
 
@@ -454,9 +454,9 @@ macro_rules! mat_mul_mat_impl(
 
 macro_rules! vec_mul_mat_impl(
   ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
-    impl<N: Clone + BaseNum> Mul<$t<N>, $v<N>> for $v<N> {
+    impl<N: Copy + BaseNum> Mul<$t<N>, $v<N>> for $v<N> {
         #[inline]
-        fn mul(&self, right: &$t<N>) -> $v<N> {
+        fn mul(self, right: $t<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
 
             for i in range(0u, $dim) {
@@ -476,9 +476,9 @@ macro_rules! vec_mul_mat_impl(
 
 macro_rules! mat_mul_vec_impl(
   ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
-    impl<N: Clone + BaseNum> Mul<$v<N>, $v<N>> for $t<N> {
+    impl<N: Copy + BaseNum> Mul<$v<N>, $v<N>> for $t<N> {
         #[inline]
-        fn mul(&self, right: &$v<N>) -> $v<N> {
+        fn mul(self, right: $v<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
 
             for i in range(0u, $dim) {
@@ -510,11 +510,11 @@ macro_rules! mat_mul_pnt_impl(
 
 macro_rules! inv_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Clone + BaseNum>
+    impl<N: Copy + BaseNum>
     Inv for $t<N> {
         #[inline]
         fn inv_cpy(&self) -> Option<$t<N>> {
-            let mut res : $t<N> = self.clone();
+            let mut res : $t<N> = *self;
             if res.inv() {
                 Some(res)
             }
@@ -593,10 +593,11 @@ macro_rules! inv_impl(
 
 macro_rules! transpose_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Clone> Transpose for $t<N> {
+    impl<N: Copy> Transpose for $t<N> {
         #[inline]
         fn transpose_cpy(&self) -> $t<N> {
-            let mut res = self.clone();
+            let mut res = *self;
+
             res.transpose();
             res
         }
@@ -632,7 +633,7 @@ macro_rules! approx_eq_impl(
 
 macro_rules! to_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
-    impl<N: BaseNum + Clone> ToHomogeneous<$t2<N>> for $t<N> {
+    impl<N: BaseNum + Copy> ToHomogeneous<$t2<N>> for $t<N> {
         #[inline]
         fn to_homogeneous(&self) -> $t2<N> {
             let mut res: $t2<N> = ::one();
@@ -651,7 +652,7 @@ macro_rules! to_homogeneous_impl(
 
 macro_rules! from_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
-    impl<N: BaseNum + Clone> FromHomogeneous<$t2<N>> for $t<N> {
+    impl<N: BaseNum + Copy> FromHomogeneous<$t2<N>> for $t<N> {
         #[inline]
         fn from(m: &$t2<N>) -> $t<N> {
             let mut res: $t<N> = ::one();
@@ -673,7 +674,7 @@ macro_rules! from_homogeneous_impl(
 
 macro_rules! outer_impl(
     ($t: ident, $m: ident) => (
-        impl<N: Clone + Mul<N, N> + Zero> Outer<$m<N>> for $t<N> {
+        impl<N: Copy + Mul<N, N> + Zero> Outer<$m<N>> for $t<N> {
             #[inline]
             fn outer(&self, other: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = ::zero();
@@ -691,7 +692,7 @@ macro_rules! outer_impl(
 macro_rules! eigen_qr_impl(
     ($t: ident, $v: ident) => (
         impl<N> EigenQR<N, $v<N>> for $t<N>
-            where N: BaseNum + One + Zero + BaseFloat + ApproxEq<N> + Clone {
+            where N: BaseFloat + ApproxEq<N> + Clone {
             fn eigen_qr(&self, eps: &N, niter: uint) -> ($t<N>, $v<N>) {
                 linalg::eigen_qr(self, eps, niter)
             }

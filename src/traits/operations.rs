@@ -270,7 +270,7 @@ pub trait RMul<V> {
     fn rmul(&self, v: &V) -> V;
 }
 
-impl<M: Mul<T, T>, T> RMul<T> for M {
+impl<M: Copy + Mul<T, T>, T: Copy> RMul<T> for M {
     fn rmul(&self, v: &T) -> T {
         *self * *v
     }
@@ -282,7 +282,7 @@ pub trait LMul<V> {
     fn lmul(&self, &V) -> V;
 }
 
-impl<T: Mul<M, T>, M> LMul<T> for M {
+impl<T: Copy + Mul<M, T>, M: Copy> LMul<T> for M {
     fn lmul(&self, v: &T) -> T {
         *v * *self
     }
@@ -366,3 +366,27 @@ impl_absolute_id!(u16)
 impl_absolute_id!(u32)
 impl_absolute_id!(u64)
 impl_absolute_id!(uint)
+
+macro_rules! impl_axpy(
+    ($n: ty) => {
+        impl Axpy<$n> for $n {
+            #[inline]
+            fn axpy(&mut self, a: &$n, x: &$n) {
+                *self = *self + *a * *x
+            }
+        }
+    }
+)
+
+impl_axpy!(f32)
+impl_axpy!(f64)
+impl_axpy!(i8)
+impl_axpy!(i16)
+impl_axpy!(i32)
+impl_axpy!(i64)
+impl_axpy!(int)
+impl_axpy!(u8)
+impl_axpy!(u16)
+impl_axpy!(u32)
+impl_axpy!(u64)
+impl_axpy!(uint)
