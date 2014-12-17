@@ -40,11 +40,11 @@ pub fn householder_matrix<N, V, M>(dim: uint, start: uint, vec: V) -> M
 pub fn qr<N, V, M>(m: &M) -> (M, M)
     where N: BaseFloat,
           V: Indexable<uint, N> + Norm<N>,
-          M: Clone + Eye + ColSlice<V> + Transpose + Indexable<(uint, uint), N> + Mul<M, M> {
+          M: Copy + Eye + ColSlice<V> + Transpose + Indexable<(uint, uint), N> + Mul<M, M> {
     let (rows, cols) = m.shape();
     assert!(rows >= cols);
     let mut q : M = Eye::new_identity(rows);
-    let mut r = m.clone();
+    let mut r = *m;
 
     let iterations = min(rows - 1, cols);
 
@@ -76,9 +76,9 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: uint) -> (M, V)
     where N:  BaseFloat,
           VS: Indexable<uint, N> + Norm<N>,
           M:  Indexable<(uint, uint), N> + SquareMat<N, V> + Add<M, M> + Sub<M, M> + ColSlice<VS> +
-              ApproxEq<N> + Clone {
+              ApproxEq<N> + Copy {
     let mut eigenvectors: M = ::one::<M>();
-    let mut eigenvalues = m.clone();
+    let mut eigenvalues = *m;
     // let mut shifter: M = Eye::new_identity(rows);
 
     let mut iter = 0u;

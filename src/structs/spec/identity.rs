@@ -23,8 +23,8 @@ impl Inv for mat::Identity {
 
 impl<T: Clone> Mul<T, T> for mat::Identity {
     #[inline]
-    fn mul(&self, other: &T) -> T {
-        other.clone()
+    fn mul(self, other: T) -> T {
+        other
     }
 }
 

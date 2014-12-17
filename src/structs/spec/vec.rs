@@ -3,7 +3,7 @@ use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::mat::Mat3;
 
-impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
+impl<N: Copy + Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
     #[inline]
     fn cross(&self, other: &Vec2<N>) -> Vec1<N> {
         Vec1::new(self.x * other.y - self.y * other.x)
@@ -11,14 +11,14 @@ impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
 }
 
 // FIXME: instead of returning a Vec2, define a Mat2x1 matrix?
-impl<N: Neg<N> + Clone> CrossMatrix<Vec2<N>> for Vec2<N> {
+impl<N: Neg<N> + Copy> CrossMatrix<Vec2<N>> for Vec2<N> {
     #[inline]
     fn cross_matrix(&self) -> Vec2<N> {
-        Vec2::new(-self.y, self.x.clone())
+        Vec2::new(-self.y, self.x)
     }
 }
 
-impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
+impl<N: Copy + Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
     #[inline]
     fn cross(&self, other: &Vec3<N>) -> Vec3<N> {
         Vec3::new(
@@ -29,19 +29,19 @@ impl<N: Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
     }
 }
 
-impl<N: Neg<N> + Zero + Clone> CrossMatrix<Mat3<N>> for Vec3<N> {
+impl<N: Neg<N> + Zero + Copy> CrossMatrix<Mat3<N>> for Vec3<N> {
     #[inline]
     fn cross_matrix(&self) -> Mat3<N> {
         Mat3::new(
-            ::zero(),       -self.z,          self.y.clone(),
-            self.z.clone(),  ::zero(),       -self.x,
-            -self.y,         self.x.clone(),  ::zero()
+            ::zero(), -self.z,  self.y,
+            self.z,   ::zero(), -self.x,
+            -self.y,  self.x,   ::zero()
         )
     }
 }
 
 // FIXME: implement this for all other vectors
-impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
+impl<N: Copy> Row<Vec1<N>> for Vec2<N> {
     #[inline]
     fn nrows(&self) -> uint {
         2
@@ -50,8 +50,8 @@ impl<N: Clone> Row<Vec1<N>> for Vec2<N> {
     #[inline]
     fn row(&self, i: uint) -> Vec1<N> {
         match i {
-            0 => Vec1::new(self.x.clone()),
-            1 => Vec1::new(self.y.clone()),
+            0 => Vec1::new(self.x),
+            1 => Vec1::new(self.y),
             _ => panic!(format!("Index out of range: 2d vectors do not have {} rows. ", i))
         }
     }
@@ -87,7 +87,7 @@ impl<N: One> Basis for Vec1<N> {
     }
 }
 
-impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
+impl<N: Copy + One + Zero + Neg<N>> Basis for Vec2<N> {
     #[inline(always)]
     fn canonical_basis(f: |Vec2<N>| -> bool) {
         if !f(Vec2::new(::one(), ::zero())) { return };
@@ -96,7 +96,7 @@ impl<N: Clone + One + Zero + Neg<N>> Basis for Vec2<N> {
 
     #[inline]
     fn orthonormal_subspace_basis(n: &Vec2<N>, f: |Vec2<N>| -> bool) {
-        f(Vec2::new(-n.y, n.x.clone()));
+        f(Vec2::new(-n.y, n.x));
     }
 
     #[inline]
@@ -124,11 +124,11 @@ impl<N: BaseFloat> Basis for Vec3<N> {
     #[inline(always)]
     fn orthonormal_subspace_basis(n: &Vec3<N>, f: |Vec3<N>| -> bool) {
         let a = 
-            if n.x.clone().abs() > n.y.clone().abs() {
-                Norm::normalize_cpy(&Vec3::new(n.z.clone(), ::zero(), -n.x))
+            if n.x.abs() > n.y.abs() {
+                Norm::normalize_cpy(&Vec3::new(n.z, ::zero(), -n.x))
             }
             else {
-                Norm::normalize_cpy(&Vec3::new(::zero(), -n.z, n.y.clone()))
+                Norm::normalize_cpy(&Vec3::new(::zero(), -n.z, n.y))
             };
 
         if !f(Cross::cross(&a, n)) { return };
@@ -223,32 +223,32 @@ static SAMPLES_3_F64: [Vec3<f64>, ..42] = [
     Vec3 { x: 0.162456 , y: 0.499995 , z: 0.850654 }
 ];
 
-impl<N: One + Clone> UniformSphereSample for Vec1<N> {
+impl<N: One + Copy> UniformSphereSample for Vec1<N> {
     #[inline(always)]
     fn sample(f: |Vec1<N>| -> ()) {
         f(::one())
      }
 }
 
-impl<N: Cast<f64> + Clone> UniformSphereSample for Vec2<N> {
+impl<N: Cast<f64> + Copy> UniformSphereSample for Vec2<N> {
     #[inline(always)]
     fn sample(f: |Vec2<N>| -> ()) {
          for sample in SAMPLES_2_F64.iter() {
-             f(Cast::from(sample.clone()))
+             f(Cast::from(*sample))
          }
      }
 }
 
-impl<N: Cast<f64> + Clone> UniformSphereSample for Vec3<N> {
+impl<N: Cast<f64> + Copy> UniformSphereSample for Vec3<N> {
     #[inline(always)]
     fn sample(f: |Vec3<N>| -> ()) {
         for sample in SAMPLES_3_F64.iter() {
-            f(Cast::from(sample.clone()))
+            f(Cast::from(*sample))
         }
     }
 }
 
-impl<N: Cast<f64> + Clone> UniformSphereSample for Vec4<N> {
+impl<N: Cast<f64> + Copy> UniformSphereSample for Vec4<N> {
     #[inline(always)]
     fn sample(_: |Vec4<N>| -> ()) {
         panic!("UniformSphereSample::<Vec4<N>>::sample : Not yet implemented.")

@@ -13,7 +13,7 @@ macro_rules! submat_impl(
 
 macro_rules! rotate_impl(
     ($t: ident, $tv: ident, $tp: ident) => (
-        impl<N: BaseNum + Clone> Rotate<$tv<N>> for $t<N> {
+        impl<N: BaseNum> Rotate<$tv<N>> for $t<N> {
             #[inline]
             fn rotate(&self, v: &$tv<N>) -> $tv<N> {
                 *self * *v
@@ -25,7 +25,7 @@ macro_rules! rotate_impl(
             }
         }
 
-        impl<N: BaseNum + Clone> Rotate<$tp<N>> for $t<N> {
+        impl<N: BaseNum> Rotate<$tp<N>> for $t<N> {
             #[inline]
             fn rotate(&self, p: &$tp<N>) -> $tp<N> {
                 *self * *p
@@ -41,7 +41,7 @@ macro_rules! rotate_impl(
 
 macro_rules! transform_impl(
     ($t: ident, $tv: ident, $tp: ident) => (
-        impl<N: BaseNum + Clone> Transform<$tv<N>> for $t<N> {
+        impl<N: BaseNum> Transform<$tv<N>> for $t<N> {
             #[inline]
             fn transform(&self, v: &$tv<N>) -> $tv<N> {
                 self.rotate(v)
@@ -53,7 +53,7 @@ macro_rules! transform_impl(
             }
         }
 
-        impl<N: BaseNum + Clone> Transform<$tp<N>> for $t<N> {
+        impl<N: BaseNum> Transform<$tp<N>> for $t<N> {
             #[inline]
             fn transform(&self, p: &$tp<N>) -> $tp<N> {
                 self.rotate(p)
@@ -91,7 +91,7 @@ macro_rules! rotation_matrix_impl(
 
 macro_rules! one_impl(
     ($t: ident) => (
-        impl<N: BaseNum + Clone> One for $t<N> {
+        impl<N: BaseNum> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
                 $t { submat: ::one() }
@@ -102,9 +102,9 @@ macro_rules! one_impl(
 
 macro_rules! rot_mul_rot_impl(
     ($t: ident) => (
-        impl<N: BaseNum + Clone> Mul<$t<N>, $t<N>> for $t<N> {
+        impl<N: BaseNum> Mul<$t<N>, $t<N>> for $t<N> {
             #[inline]
-            fn mul(&self, right: &$t<N>) -> $t<N> {
+            fn mul(self, right: $t<N>) -> $t<N> {
                 $t { submat: self.submat * right.submat }
             }
         }
@@ -113,10 +113,10 @@ macro_rules! rot_mul_rot_impl(
 
 macro_rules! rot_mul_vec_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: BaseNum + Clone> Mul<$tv<N>, $tv<N>> for $t<N> {
+        impl<N: BaseNum> Mul<$tv<N>, $tv<N>> for $t<N> {
             #[inline]
-            fn mul(&self, right: &$tv<N>) -> $tv<N> {
-                self.submat * *right
+            fn mul(self, right: $tv<N>) -> $tv<N> {
+                self.submat * right
             }
         }
     )
@@ -130,10 +130,10 @@ macro_rules! rot_mul_pnt_impl(
 
 macro_rules! vec_mul_rot_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: BaseNum + Clone> Mul<$t<N>, $tv<N>> for $tv<N> {
+        impl<N: BaseNum> Mul<$t<N>, $tv<N>> for $tv<N> {
             #[inline]
-            fn mul(&self, right: &$t<N>) -> $tv<N> {
-                *self * right.submat
+            fn mul(self, right: $t<N>) -> $tv<N> {
+                self * right.submat
             }
         }
     )
@@ -147,7 +147,7 @@ macro_rules! pnt_mul_rot_impl(
 
 macro_rules! inv_impl(
     ($t: ident) => (
-        impl<N: Clone> Inv for $t<N> {
+        impl<N: Copy> Inv for $t<N> {
             #[inline]
             fn inv(&mut self) -> bool {
                 self.transpose();
@@ -167,7 +167,7 @@ macro_rules! inv_impl(
 
 macro_rules! transpose_impl(
     ($t: ident) => (
-        impl<N: Clone> Transpose for $t<N> {
+        impl<N: Copy> Transpose for $t<N> {
             #[inline]
             fn transpose_cpy(&self) -> $t<N> {
                 $t { submat: Transpose::transpose_cpy(&self.submat) }
@@ -183,7 +183,7 @@ macro_rules! transpose_impl(
 
 macro_rules! row_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: Clone + Zero> Row<$tv<N>> for $t<N> {
+        impl<N: Copy + Zero> Row<$tv<N>> for $t<N> {
             #[inline]
             fn nrows(&self) -> uint {
                 self.submat.nrows()
@@ -203,7 +203,7 @@ macro_rules! row_impl(
 
 macro_rules! col_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: Clone + Zero> Col<$tv<N>> for $t<N> {
+        impl<N: Copy + Zero> Col<$tv<N>> for $t<N> {
             #[inline]
             fn ncols(&self) -> uint {
                 self.submat.ncols()
@@ -239,7 +239,7 @@ macro_rules! index_impl(
 
 macro_rules! to_homogeneous_impl(
     ($t: ident, $tm: ident) => (
-        impl<N: BaseNum + Clone> ToHomogeneous<$tm<N>> for $t<N> {
+        impl<N: BaseNum> ToHomogeneous<$tm<N>> for $t<N> {
             #[inline]
             fn to_homogeneous(&self) -> $tm<N> {
                 self.submat.to_homogeneous()

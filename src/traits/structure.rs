@@ -8,8 +8,9 @@ use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
 /// Basic integral numeric trait.
-pub trait BaseNum: Zero + One + Add<Self, Self> + Sub<Self, Self> + Mul<Self, Self> +
-                   Div<Self, Self> + Rem<Self, Self> + Neg<Self> + PartialEq + Absolute<Self> {
+pub trait BaseNum: Copy + Zero + One + Add<Self, Self> + Sub<Self, Self> + Mul<Self, Self> +
+                   Div<Self, Self> + Rem<Self, Self> + Neg<Self> + PartialEq + Absolute<Self> +
+                   Axpy<Self> {
 }
 
 /// Basic floating-point number numeric trait.
@@ -262,7 +263,7 @@ pub trait PntAsVec<V> {
 // XXX: the vector space element `V` should be an associated type. Though this would prevent V from
 // having bounds (they are not supported yet). So, for now, we will just use a type parameter.
 pub trait NumPnt<N, V>:
-          PntAsVec<V> + Dim + Sub<Self, V> + Orig + Neg<Self> + PartialEq + Mul<N, Self> +
+          Copy + PntAsVec<V> + Dim + Sub<Self, V> + Orig + Neg<Self> + PartialEq + Mul<N, Self> +
           Div<N, Self> + Add<V, Self> + Axpy<N> + Index<uint, N> { // FIXME: + Sub<V, Self>
 }
 

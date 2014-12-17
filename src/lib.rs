@@ -315,7 +315,7 @@ pub fn orig<P: Orig>() -> P {
 
 /// Returns the center of two points.
 #[inline]
-pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V>(a: &P, b: &P) -> P {
+pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy>(a: &P, b: &P) -> P {
     let _2 = one::<N>() + one();
     (*a + *b.as_vec()) / _2
 }

@@ -11,7 +11,7 @@ use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy, ScalarAdd, Scalar
                          ScalarDiv};
 use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat, BaseNum, Zero,
                         One, Bounded};
-use traits::geometry::{Norm, Cross, Rotation, Rotate, Transform};
+use traits::geometry::{Norm, Rotation, Rotate, Transform};
 
 /// A quaternion.
 #[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show, Copy)]
@@ -64,10 +64,11 @@ impl<N: Neg<N>> Quat<N> {
     }
 }
 
-impl<N: BaseFloat + ApproxEq<N> + Clone> Inv for Quat<N> {
+impl<N: BaseFloat + ApproxEq<N>> Inv for Quat<N> {
     #[inline]
     fn inv_cpy(&self) -> Option<Quat<N>> {
-        let mut res = self.clone();
+        let mut res = *self;
+
         if res.inv() {
             Some(res)
         }
@@ -120,9 +121,9 @@ impl<N: BaseFloat> Norm<N> for Quat<N> {
     }
 }
 
-impl<N: Mul<N, N> + Sub<N, N> + Add<N, N>> Mul<Quat<N>, Quat<N>> for Quat<N> {
+impl<N: Copy + Mul<N, N> + Sub<N, N> + Add<N, N>> Mul<Quat<N>, Quat<N>> for Quat<N> {
     #[inline]
-    fn mul(&self, right: &Quat<N>) -> Quat<N> {
+    fn mul(self, right: Quat<N>) -> Quat<N> {
         Quat::new(
             self.w * right.w - self.i * right.i - self.j * right.j - self.k * right.k,
             self.w * right.i + self.i * right.w + self.j * right.k - self.k * right.j,
@@ -131,10 +132,10 @@ impl<N: Mul<N, N> + Sub<N, N> + Add<N, N>> Mul<Quat<N>, Quat<N>> for Quat<N> {
     }
 }
 
-impl<N: ApproxEq<N> + BaseFloat + Clone> Div<Quat<N>, Quat<N>> for Quat<N> {
+impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>, Quat<N>> for Quat<N> {
     #[inline]
-    fn div(&self, right: &Quat<N>) -> Quat<N> {
-        *self * Inv::inv_cpy(right).expect("Unable to invert the denominator.")
+    fn div(self, right: Quat<N>) -> Quat<N> {
+        self * right.inv_cpy().expect("Unable to invert the denominator.")
     }
 }
 
@@ -249,7 +250,7 @@ impl<N> UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum + Clone> One for UnitQuat<N> {
+impl<N: BaseNum> One for UnitQuat<N> {
     #[inline]
     fn one() -> UnitQuat<N> {
         unsafe {
@@ -258,10 +259,11 @@ impl<N: BaseNum + Clone> One for UnitQuat<N> {
     }
 }
 
-impl<N: Clone + Neg<N>> Inv for UnitQuat<N> {
+impl<N: Copy + Neg<N>> Inv for UnitQuat<N> {
     #[inline]
     fn inv_cpy(&self) -> Option<UnitQuat<N>> {
-        let mut cpy = self.clone();
+        let mut cpy = *self;
+
         cpy.inv();
         Some(cpy)
     }
@@ -274,7 +276,7 @@ impl<N: Clone + Neg<N>> Inv for UnitQuat<N> {
     }
 }
 
-impl<N: Clone + Rand + BaseFloat> Rand for UnitQuat<N> {
+impl<N: Rand + BaseFloat> Rand for UnitQuat<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> UnitQuat<N> {
         UnitQuat::new(rng.gen())
@@ -293,64 +295,63 @@ impl<N: ApproxEq<N>> ApproxEq<N> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseFloat + ApproxEq<N> + Clone> Div<UnitQuat<N>, UnitQuat<N>> for UnitQuat<N> {
+impl<N: BaseFloat + ApproxEq<N>> Div<UnitQuat<N>, UnitQuat<N>> for UnitQuat<N> {
     #[inline]
-    fn div(&self, other: &UnitQuat<N>) -> UnitQuat<N> {
+    fn div(self, other: UnitQuat<N>) -> UnitQuat<N> {
         UnitQuat { q: self.q / other.q }
     }
 }
 
-impl<N: BaseNum + Clone> Mul<UnitQuat<N>, UnitQuat<N>> for UnitQuat<N> {
+impl<N: BaseNum> Mul<UnitQuat<N>, UnitQuat<N>> for UnitQuat<N> {
     #[inline]
-    fn mul(&self, right: &UnitQuat<N>) -> UnitQuat<N> {
+    fn mul(self, right: UnitQuat<N>) -> UnitQuat<N> {
         UnitQuat { q: self.q * right.q }
     }
 }
 
-impl<N: BaseNum + Clone> Mul<Vec3<N>, Vec3<N>> for UnitQuat<N> {
+impl<N: BaseNum> Mul<Vec3<N>, Vec3<N>> for UnitQuat<N> {
     #[inline]
-    fn mul(&self, right: &Vec3<N>) -> Vec3<N> {
+    fn mul(self, right: Vec3<N>) -> Vec3<N> {
         let _2: N = ::one::<N>() + ::one();
-        let mut t = Cross::cross(self.q.vector(), right);
+        let mut t = ::cross(self.q.vector(), &right);
         t.x = t.x * _2;
         t.y = t.y * _2;
         t.z = t.z * _2;
 
-        Vec3::new(t.x * self.q.w, t.y * self.q.w, t.z * self.q.w) +
-        Cross::cross(self.q.vector(), &t) +
-        *right
+        Vec3::new(t.x * self.q.w, t.y * self.q.w, t.z * self.q.w) + ::cross(self.q.vector(), &t) + right
     }
 }
 
-impl<N: BaseNum + Clone> Mul<Pnt3<N>, Pnt3<N>> for UnitQuat<N> {
+impl<N: BaseNum> Mul<Pnt3<N>, Pnt3<N>> for UnitQuat<N> {
     #[inline]
-    fn mul(&self, right: &Pnt3<N>) -> Pnt3<N> {
-        ::orig::<Pnt3<N>>() + *self * *right.as_vec()
+    fn mul(self, right: Pnt3<N>) -> Pnt3<N> {
+        ::orig::<Pnt3<N>>() + self * *right.as_vec()
     }
 }
 
-impl<N: BaseNum + Clone> Mul<UnitQuat<N>, Vec3<N>> for Vec3<N> {
+impl<N: BaseNum> Mul<UnitQuat<N>, Vec3<N>> for Vec3<N> {
     #[inline]
-    fn mul(&self, right: &UnitQuat<N>) -> Vec3<N> {
-        let mut inv_quat = right.clone();
+    fn mul(self, right: UnitQuat<N>) -> Vec3<N> {
+        let mut inv_quat = right;
+
         inv_quat.inv();
 
-        inv_quat * *self
+        inv_quat * self
     }
 }
 
-impl<N: BaseNum + Clone> Mul<UnitQuat<N>, Pnt3<N>> for Pnt3<N> {
+impl<N: BaseNum> Mul<UnitQuat<N>, Pnt3<N>> for Pnt3<N> {
     #[inline]
-    fn mul(&self, right: &UnitQuat<N>) -> Pnt3<N> {
-        ::orig::<Pnt3<N>>() + *self.as_vec() * *right
+    fn mul(self, right: UnitQuat<N>) -> Pnt3<N> {
+        ::orig::<Pnt3<N>>() + *self.as_vec() * right
     }
 }
 
-impl<N: BaseFloat + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
+impl<N: BaseFloat> Rotation<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn rotation(&self) -> Vec3<N> {
         let _2 = ::one::<N>() + ::one();
-        let mut v = self.q.vector().clone();
+        let mut v = *self.q.vector();
         let ang = _2 * v.normalize().atan2(self.q.w);
 
         if ::is_zero(&ang) {
@@ -373,7 +374,7 @@ impl<N: BaseFloat + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
 
     #[inline]
     fn append_rotation_cpy(&self, amount: &Vec3<N>) -> UnitQuat<N> {
-        *self * UnitQuat::new(amount.clone())
+        *self * UnitQuat::new(*amount)
     }
 
     #[inline]
@@ -383,7 +384,7 @@ impl<N: BaseFloat + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
 
     #[inline]
     fn prepend_rotation_cpy(&self, amount: &Vec3<N>) -> UnitQuat<N> {
-        UnitQuat::new(amount.clone()) * *self
+        UnitQuat::new(*amount) * *self
     }
 
     #[inline]
@@ -392,7 +393,7 @@ impl<N: BaseFloat + Clone> Rotation<Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum + Clone> Rotate<Vec3<N>> for UnitQuat<N> {
+impl<N: BaseNum> Rotate<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn rotate(&self, v: &Vec3<N>) -> Vec3<N> {
         *self * *v
@@ -404,7 +405,7 @@ impl<N: BaseNum + Clone> Rotate<Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum + Clone> Rotate<Pnt3<N>> for UnitQuat<N> {
+impl<N: BaseNum> Rotate<Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn rotate(&self, p: &Pnt3<N>) -> Pnt3<N> {
         *self * *p
@@ -416,7 +417,7 @@ impl<N: BaseNum + Clone> Rotate<Pnt3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum + Clone> Transform<Vec3<N>> for UnitQuat<N> {
+impl<N: BaseNum> Transform<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn transform(&self, v: &Vec3<N>) -> Vec3<N> {
         *self * *v
@@ -428,7 +429,7 @@ impl<N: BaseNum + Clone> Transform<Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum + Clone> Transform<Pnt3<N>> for UnitQuat<N> {
+impl<N: BaseNum> Transform<Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn transform(&self, p: &Pnt3<N>) -> Pnt3<N> {
         *self * *p
