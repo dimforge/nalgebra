@@ -342,7 +342,7 @@ macro_rules! impl_absolute(
             }
         }
     }
-)
+);
 macro_rules! impl_absolute_id(
     ($n: ty) => {
         impl Absolute<$n> for $n {
@@ -352,20 +352,20 @@ macro_rules! impl_absolute_id(
             }
         }
     }
-)
+);
 
-impl_absolute!(f32)
-impl_absolute!(f64)
-impl_absolute!(i8)
-impl_absolute!(i16)
-impl_absolute!(i32)
-impl_absolute!(i64)
-impl_absolute!(int)
-impl_absolute_id!(u8)
-impl_absolute_id!(u16)
-impl_absolute_id!(u32)
-impl_absolute_id!(u64)
-impl_absolute_id!(uint)
+impl_absolute!(f32);
+impl_absolute!(f64);
+impl_absolute!(i8);
+impl_absolute!(i16);
+impl_absolute!(i32);
+impl_absolute!(i64);
+impl_absolute!(int);
+impl_absolute_id!(u8);
+impl_absolute_id!(u16);
+impl_absolute_id!(u32);
+impl_absolute_id!(u64);
+impl_absolute_id!(uint);
 
 macro_rules! impl_axpy(
     ($n: ty) => {
@@ -376,17 +376,17 @@ macro_rules! impl_axpy(
             }
         }
     }
-)
+);
 
-impl_axpy!(f32)
-impl_axpy!(f64)
-impl_axpy!(i8)
-impl_axpy!(i16)
-impl_axpy!(i32)
-impl_axpy!(i64)
-impl_axpy!(int)
-impl_axpy!(u8)
-impl_axpy!(u16)
-impl_axpy!(u32)
-impl_axpy!(u64)
-impl_axpy!(uint)
+impl_axpy!(f32);
+impl_axpy!(f64);
+impl_axpy!(i8);
+impl_axpy!(i16);
+impl_axpy!(i32);
+impl_axpy!(i64);
+impl_axpy!(int);
+impl_axpy!(u8);
+impl_axpy!(u16);
+impl_axpy!(u32);
+impl_axpy!(u64);
+impl_axpy!(uint);

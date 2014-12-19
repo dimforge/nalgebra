@@ -21,7 +21,7 @@ macro_rules! test_iterator_impl(
             assert!(nv == mv && nv == v * n);
         }
     )
-)
+);
 
 macro_rules! test_commut_dot_impl(
     ($t: ty) => (
@@ -32,7 +32,7 @@ macro_rules! test_commut_dot_impl(
             assert!(na::approx_eq(&na::dot(&v1, &v2), &na::dot(&v2, &v1)));
         }
     );
-)
+);
 
 macro_rules! test_scalar_op_impl(
     ($t: ty, $n: ty) => (
@@ -55,7 +55,7 @@ macro_rules! test_scalar_op_impl(
             assert!(na::approx_eq(&v1, &v0));
         }
     );
-)
+);
 
 macro_rules! test_basis_impl(
     ($t: ty) => (
@@ -73,7 +73,7 @@ macro_rules! test_basis_impl(
             })
         }
     );
-)
+);
 
 macro_rules! test_subspace_basis_impl(
     ($t: ty) => (
@@ -97,7 +97,7 @@ macro_rules! test_subspace_basis_impl(
             })
         }
     );
-)
+);
 
 #[test]
 fn test_cross_vec3() {

@@ -17,7 +17,7 @@ macro_rules! orig_impl(
             }
         }
     )
-)
+);
 
 macro_rules! pnt_sub_impl(
     ($t: ident, $tv: ident) => (
@@ -28,7 +28,7 @@ macro_rules! pnt_sub_impl(
             }
         }
     )
-)
+);
 
 macro_rules! pnt_add_vec_impl(
     ($t: ident, $tv: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -39,7 +39,7 @@ macro_rules! pnt_add_vec_impl(
             }
         }
     )
-)
+);
 
 macro_rules! pnt_sub_vec_impl(
     ($t: ident, $tv: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -50,7 +50,7 @@ macro_rules! pnt_sub_vec_impl(
             }
         }
     )
-)
+);
 
 macro_rules! pnt_as_vec_impl(
     ($t: ident, $tv: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -96,7 +96,7 @@ macro_rules! pnt_as_vec_impl(
             }
         }
     )
-)
+);
 
 macro_rules! pnt_to_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -112,7 +112,7 @@ macro_rules! pnt_to_homogeneous_impl(
             }
         }
     )
-)
+);
 
 macro_rules! pnt_from_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -127,7 +127,7 @@ macro_rules! pnt_from_homogeneous_impl(
             }
         }
     )
-)
+);
 
 macro_rules! num_float_pnt_impl(
     ($t: ident, $tv: ident) => (
@@ -139,4 +139,4 @@ macro_rules! num_float_pnt_impl(
             where N: BaseFloat + ApproxEq<N> {
         }
     )
-)
+);

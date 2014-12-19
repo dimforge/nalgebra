@@ -313,20 +313,20 @@ macro_rules! impl_zero_one(
             }
         }
     }
-)
+);
 
-impl_zero_one!(f32, 0.0, 1.0)
-impl_zero_one!(f64, 0.0, 1.0)
-impl_zero_one!(i8, 0, 1)
-impl_zero_one!(i16, 0, 1)
-impl_zero_one!(i32, 0, 1)
-impl_zero_one!(i64, 0, 1)
-impl_zero_one!(int, 0, 1)
-impl_zero_one!(u8, 0, 1)
-impl_zero_one!(u16, 0, 1)
-impl_zero_one!(u32, 0, 1)
-impl_zero_one!(u64, 0, 1)
-impl_zero_one!(uint, 0, 1)
+impl_zero_one!(f32, 0.0, 1.0);
+impl_zero_one!(f64, 0.0, 1.0);
+impl_zero_one!(i8, 0, 1);
+impl_zero_one!(i16, 0, 1);
+impl_zero_one!(i32, 0, 1);
+impl_zero_one!(i64, 0, 1);
+impl_zero_one!(int, 0, 1);
+impl_zero_one!(u8, 0, 1);
+impl_zero_one!(u16, 0, 1);
+impl_zero_one!(u32, 0, 1);
+impl_zero_one!(u64, 0, 1);
+impl_zero_one!(uint, 0, 1);
 
 
 // Bounded
@@ -344,20 +344,20 @@ macro_rules! impl_bounded(
             }
         }
     }
-)
+);
 
-impl_bounded!(f32, Float::min_value(), Float::max_value())
-impl_bounded!(f64, Float::min_value(), Float::max_value())
-impl_bounded!(i8, Int::min_value(), Int::max_value())
-impl_bounded!(i16, Int::min_value(), Int::max_value())
-impl_bounded!(i32, Int::min_value(), Int::max_value())
-impl_bounded!(i64, Int::min_value(), Int::max_value())
-impl_bounded!(int, Int::min_value(), Int::max_value())
-impl_bounded!(u8, Int::min_value(), Int::max_value())
-impl_bounded!(u16, Int::min_value(), Int::max_value())
-impl_bounded!(u32, Int::min_value(), Int::max_value())
-impl_bounded!(u64, Int::min_value(), Int::max_value())
-impl_bounded!(uint, Int::min_value(), Int::max_value())
+impl_bounded!(f32, Float::min_value(), Float::max_value());
+impl_bounded!(f64, Float::min_value(), Float::max_value());
+impl_bounded!(i8, Int::min_value(), Int::max_value());
+impl_bounded!(i16, Int::min_value(), Int::max_value());
+impl_bounded!(i32, Int::min_value(), Int::max_value());
+impl_bounded!(i64, Int::min_value(), Int::max_value());
+impl_bounded!(int, Int::min_value(), Int::max_value());
+impl_bounded!(u8, Int::min_value(), Int::max_value());
+impl_bounded!(u16, Int::min_value(), Int::max_value());
+impl_bounded!(u32, Int::min_value(), Int::max_value());
+impl_bounded!(u64, Int::min_value(), Int::max_value());
+impl_bounded!(uint, Int::min_value(), Int::max_value());
 
 
 // BaseFloat
@@ -441,10 +441,10 @@ macro_rules! impl_base_float(
             }
         }
     }
-)
+);
 
 impl BaseNum for f32 { }
 impl BaseNum for f64 { }
 
-impl_base_float!(f32)
-impl_base_float!(f64)
+impl_base_float!(f32);
+impl_base_float!(f64);

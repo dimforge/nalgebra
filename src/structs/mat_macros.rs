@@ -12,7 +12,7 @@ macro_rules! mat_impl(
         }
     }
   )
-)
+);
 
 macro_rules! as_array_impl(
     ($t: ident, $dim: expr) => (
@@ -55,7 +55,7 @@ macro_rules! as_array_impl(
             }
         }
     )
-)
+);
 
 macro_rules! at_fast_impl(
     ($t: ident, $dim: expr) => (
@@ -73,7 +73,7 @@ macro_rules! at_fast_impl(
             }
         }
     )
-)
+);
 
 macro_rules! mat_cast_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -84,7 +84,7 @@ macro_rules! mat_cast_impl(
             }
         }
     )
-)
+);
 
 macro_rules! add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -95,7 +95,7 @@ macro_rules! add_impl(
             }
         }
     )
-)
+);
 
 macro_rules! sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -106,7 +106,7 @@ macro_rules! sub_impl(
             }
         }
     )
-)
+);
 
 macro_rules! mat_mul_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -117,7 +117,7 @@ macro_rules! mat_mul_scalar_impl(
             }
         }
     )
-)
+);
 
 macro_rules! mat_div_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -128,7 +128,7 @@ macro_rules! mat_div_scalar_impl(
             }
         }
     )
-)
+);
 
 macro_rules! mat_add_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -139,7 +139,7 @@ macro_rules! mat_add_scalar_impl(
             }
         }
     )
-)
+);
 
 
 macro_rules! eye_impl(
@@ -153,7 +153,7 @@ macro_rules! eye_impl(
             }
         }
     )
-)
+);
 
 macro_rules! mat_sub_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -164,7 +164,7 @@ macro_rules! mat_sub_scalar_impl(
             }
         }
     )
-)
+);
 
 macro_rules! absolute_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -175,7 +175,7 @@ macro_rules! absolute_impl(
         }
     }
   )
-)
+);
 
 macro_rules! iterable_impl(
   ($t: ident, $dim: expr) => (
@@ -188,7 +188,7 @@ macro_rules! iterable_impl(
         }
     }
   )
-)
+);
 
 macro_rules! iterable_mut_impl(
   ($t: ident, $dim: expr) => (
@@ -201,7 +201,7 @@ macro_rules! iterable_mut_impl(
         }
     }
   )
-)
+);
 
 macro_rules! one_impl(
   ($t: ident, $value0: expr $(, $valueN: expr)* ) => (
@@ -212,7 +212,7 @@ macro_rules! one_impl(
         }
     }
   )
-)
+);
 
 macro_rules! zero_impl(
   ($t: ident, $comp0: ident $(, $compN: ident)* ) => (
@@ -231,7 +231,7 @@ macro_rules! zero_impl(
         }
     }
   )
-)
+);
 
 macro_rules! dim_impl(
   ($t: ident, $dim: expr) => (
@@ -242,7 +242,7 @@ macro_rules! dim_impl(
         }
     }
   )
-)
+);
 
 macro_rules! indexable_impl(
   ($t: ident, $dim: expr) => (
@@ -287,7 +287,7 @@ macro_rules! indexable_impl(
         }
     }
   )
-)
+);
 
 macro_rules! index_impl(
     ($t: ident, $dim: expr) => (
@@ -307,7 +307,7 @@ macro_rules! index_impl(
             }
         }
     )
-)
+);
 
 macro_rules! col_slice_impl(
     ($t: ident, $tv: ident, $slice: ident, $dim: expr) => (
@@ -319,7 +319,7 @@ macro_rules! col_slice_impl(
             }
         }
     )
-)
+);
 
 macro_rules! row_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
@@ -348,7 +348,7 @@ macro_rules! row_impl(
         }
     }
   )
-)
+);
 
 macro_rules! row_slice_impl(
     ($t: ident, $tv: ident, $slice: ident, $dim: expr) => (
@@ -360,7 +360,7 @@ macro_rules! row_slice_impl(
             }
         }
     )
-)
+);
 
 macro_rules! col_impl(
   ($t: ident, $tv: ident, $dim: expr) => (
@@ -389,7 +389,7 @@ macro_rules! col_impl(
         }
     }
   )
-)
+);
 
 macro_rules! diag_impl(
     ($t: ident, $tv: ident, $dim: expr) => (
@@ -422,7 +422,7 @@ macro_rules! diag_impl(
             }
         }
     )
-)
+);
 
 macro_rules! mat_mul_mat_impl(
   ($t: ident, $dim: expr) => (
@@ -450,7 +450,7 @@ macro_rules! mat_mul_mat_impl(
         }
     }
   )
-)
+);
 
 macro_rules! vec_mul_mat_impl(
   ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
@@ -472,7 +472,7 @@ macro_rules! vec_mul_mat_impl(
         }
     }
   )
-)
+);
 
 macro_rules! mat_mul_vec_impl(
   ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
@@ -494,19 +494,19 @@ macro_rules! mat_mul_vec_impl(
         }
     }
   )
-)
+);
 
 macro_rules! pnt_mul_mat_impl(
   ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
-      vec_mul_mat_impl!($t, $v, $dim, $zero)
+      vec_mul_mat_impl!($t, $v, $dim, $zero);
   )
-)
+);
 
 macro_rules! mat_mul_pnt_impl(
   ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
-      mat_mul_vec_impl!($t, $v, $dim, $zero)
+      mat_mul_vec_impl!($t, $v, $dim, $zero);
   )
-)
+);
 
 macro_rules! inv_impl(
   ($t: ident, $dim: expr) => (
@@ -589,7 +589,7 @@ macro_rules! inv_impl(
         }
     }
   )
-)
+);
 
 macro_rules! transpose_impl(
   ($t: ident, $dim: expr) => (
@@ -612,7 +612,7 @@ macro_rules! transpose_impl(
         }
     }
   )
-)
+);
 
 macro_rules! approx_eq_impl(
   ($t: ident) => (
@@ -629,7 +629,7 @@ macro_rules! approx_eq_impl(
         }
     }
   )
-)
+);
 
 macro_rules! to_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
@@ -648,7 +648,7 @@ macro_rules! to_homogeneous_impl(
         }
     }
   )
-)
+);
 
 macro_rules! from_homogeneous_impl(
   ($t: ident, $t2: ident, $dim: expr, $dim2: expr) => (
@@ -670,7 +670,7 @@ macro_rules! from_homogeneous_impl(
         }
     }
   )
-)
+);
 
 macro_rules! outer_impl(
     ($t: ident, $m: ident) => (
@@ -687,7 +687,7 @@ macro_rules! outer_impl(
             }
         }
     )
-)
+);
 
 macro_rules! eigen_qr_impl(
     ($t: ident, $v: ident) => (
@@ -698,4 +698,4 @@ macro_rules! eigen_qr_impl(
             }
         }
     )
-)
+);

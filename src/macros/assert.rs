@@ -11,7 +11,7 @@ macro_rules! assert_approx_eq_eps(
             )
         }
     })
-)
+);
 
 /// Asserts approximate equality of two values with the `ApproxEq` trait.
 #[macro_export]
@@ -25,4 +25,4 @@ macro_rules! assert_approx_eq(
             )
         }
     })
-)
+);

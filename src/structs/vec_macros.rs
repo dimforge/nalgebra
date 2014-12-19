@@ -13,7 +13,7 @@ macro_rules! new_impl(
             }
         }
     )
-)
+);
 
 macro_rules! as_array_impl(
     ($t: ident, $dim: expr) => (
@@ -56,7 +56,7 @@ macro_rules! as_array_impl(
             }
         }
     )
-)
+);
 
 macro_rules! at_fast_impl(
     ($t: ident, $dim: expr) => (
@@ -74,7 +74,7 @@ macro_rules! at_fast_impl(
             }
         }
     )
-)
+);
 
 // FIXME: N should be bounded by Ord instead of BaseFloat…
 // However, f32/f64 does not implement Ord…
@@ -149,7 +149,7 @@ macro_rules! ord_impl(
             }
         }
     )
-)
+);
 
 macro_rules! vec_axis_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -177,7 +177,7 @@ macro_rules! vec_axis_impl(
             )*
         }
     )
-)
+);
 
 macro_rules! vec_cast_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -188,7 +188,7 @@ macro_rules! vec_cast_impl(
             }
         }
     )
-)
+);
 
 macro_rules! indexable_impl(
     ($t: ident, $dim: expr) => (
@@ -232,7 +232,7 @@ macro_rules! indexable_impl(
             }
         }
     )
-)
+);
 
 macro_rules! index_impl(
     ($t: ident) => (
@@ -248,7 +248,7 @@ macro_rules! index_impl(
             }
         }
     )
-)
+);
 
 macro_rules! new_repeat_impl(
     ($t: ident, $param: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -263,7 +263,7 @@ macro_rules! new_repeat_impl(
             }
         }
     )
-)
+);
 
 macro_rules! iterable_impl(
     ($t: ident, $dim: expr) => (
@@ -276,7 +276,7 @@ macro_rules! iterable_impl(
             }
         }
     )
-)
+);
 
 macro_rules! iterable_mut_impl(
     ($t: ident, $dim: expr) => (
@@ -289,7 +289,7 @@ macro_rules! iterable_mut_impl(
             }
         }
     )
-)
+);
 
 macro_rules! dim_impl(
     ($t: ident, $dim: expr) => (
@@ -300,7 +300,7 @@ macro_rules! dim_impl(
             }
         }
     )
-)
+);
 
 macro_rules! container_impl(
     ($t: ident) => (
@@ -311,7 +311,7 @@ macro_rules! container_impl(
             }
         }
     )
-)
+);
 
 macro_rules! basis_impl(
     ($t: ident, $dim: expr) => (
@@ -375,7 +375,7 @@ macro_rules! basis_impl(
             }
         }
     )
-)
+);
 
 macro_rules! axpy_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -387,7 +387,7 @@ macro_rules! axpy_impl(
             }
         }
     )
-)
+);
 
 macro_rules! add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -398,7 +398,7 @@ macro_rules! add_impl(
             }
         }
     )
-)
+);
 
 macro_rules! scalar_add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -410,7 +410,7 @@ macro_rules! scalar_add_impl(
             }
         }
     )
-)
+);
 
 macro_rules! sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -421,7 +421,7 @@ macro_rules! sub_impl(
             }
         }
     )
-)
+);
 
 macro_rules! scalar_sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -432,7 +432,7 @@ macro_rules! scalar_sub_impl(
             }
         }
     )
-)
+);
 
 macro_rules! mul_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -443,7 +443,7 @@ macro_rules! mul_impl(
             }
         }
     )
-)
+);
 
 macro_rules! scalar_mul_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -454,7 +454,7 @@ macro_rules! scalar_mul_impl(
             }
         }
     )
-)
+);
 
 macro_rules! div_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -465,7 +465,7 @@ macro_rules! div_impl(
             }
         }
     )
-)
+);
 
 macro_rules! scalar_div_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -476,7 +476,7 @@ macro_rules! scalar_div_impl(
             }
         }
     )
-)
+);
 
 macro_rules! neg_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -487,7 +487,7 @@ macro_rules! neg_impl(
             }
         }
     )
-)
+);
 
 macro_rules! dot_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -498,7 +498,7 @@ macro_rules! dot_impl(
             }
         }
     )
-)
+);
 
 macro_rules! scalar_ops_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -530,7 +530,7 @@ macro_rules! scalar_ops_impl(
             }
         }
     )
-)
+);
 
 macro_rules! translation_impl(
     ($t: ident) => (
@@ -571,7 +571,7 @@ macro_rules! translation_impl(
             }
         }
     )
-)
+);
 
 macro_rules! norm_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -599,7 +599,7 @@ macro_rules! norm_impl(
             }
         }
     )
-)
+);
 
 macro_rules! approx_eq_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -622,7 +622,7 @@ macro_rules! approx_eq_impl(
             }
         }
     )
-)
+);
 
 macro_rules! zero_one_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -652,7 +652,7 @@ macro_rules! zero_one_impl(
             }
         }
     )
-)
+);
 
 macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident $(, $paramN: ident)*) => (
@@ -663,7 +663,7 @@ macro_rules! from_iterator_impl(
             }
         }
     )
-)
+);
 
 macro_rules! bounded_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -685,7 +685,7 @@ macro_rules! bounded_impl(
             }
         }
     )
-)
+);
 
 macro_rules! vec_to_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -700,7 +700,7 @@ macro_rules! vec_to_homogeneous_impl(
             }
         }
     )
-)
+);
 
 macro_rules! vec_from_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -715,7 +715,7 @@ macro_rules! vec_from_homogeneous_impl(
             }
         }
     )
-)
+);
 
 macro_rules! translate_impl(
     ($tv: ident, $t: ident) => (
@@ -729,7 +729,7 @@ macro_rules! translate_impl(
             }
         }
     )
-)
+);
 
 macro_rules! rotate_impl(
     ($t: ident) => (
@@ -743,7 +743,7 @@ macro_rules! rotate_impl(
             }
         }
     )
-)
+);
 
 macro_rules! transform_impl(
     ($tv: ident, $t: ident) => (
@@ -757,7 +757,7 @@ macro_rules! transform_impl(
             }
         }
     )
-)
+);
 
 macro_rules! vec_as_pnt_impl(
     ($tv: ident, $t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -792,7 +792,7 @@ macro_rules! vec_as_pnt_impl(
             }
         }
     )
-)
+);
 
 macro_rules! num_float_vec_impl(
     ($t: ident) => (
@@ -804,7 +804,7 @@ macro_rules! num_float_vec_impl(
             where N: BaseFloat + ApproxEq<N> {
         }
     )
-)
+);
 
 macro_rules! absolute_vec_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
@@ -815,4 +815,4 @@ macro_rules! absolute_vec_impl(
         }
     }
   )
-)
+);

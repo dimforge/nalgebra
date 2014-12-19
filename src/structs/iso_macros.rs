@@ -22,7 +22,7 @@ macro_rules! iso_impl(
             }
         }
     )
-)
+);
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $trot: ident, $tlv: ident, $tav: ident) => (
@@ -34,7 +34,7 @@ macro_rules! rotation_matrix_impl(
             }
         }
     )
-)
+);
 
 
 macro_rules! dim_impl(
@@ -46,7 +46,7 @@ macro_rules! dim_impl(
             }
         }
     )
-)
+);
 
 macro_rules! one_impl(
     ($t: ident) => (
@@ -57,7 +57,7 @@ macro_rules! one_impl(
             }
         }
     )
-)
+);
 
 macro_rules! iso_mul_iso_impl(
     ($t: ident) => (
@@ -70,7 +70,7 @@ macro_rules! iso_mul_iso_impl(
             }
         }
     )
-)
+);
 
 macro_rules! iso_mul_pnt_impl(
     ($t: ident, $tv: ident) => (
@@ -81,7 +81,7 @@ macro_rules! iso_mul_pnt_impl(
             }
         }
     )
-)
+);
 
 macro_rules! pnt_mul_iso_impl(
     ($t: ident, $tv: ident) => (
@@ -92,7 +92,7 @@ macro_rules! pnt_mul_iso_impl(
             }
         }
     )
-)
+);
 
 macro_rules! translation_impl(
     ($t: ident, $tv: ident) => (
@@ -133,7 +133,7 @@ macro_rules! translation_impl(
             }
         }
     )
-)
+);
 
 macro_rules! translate_impl(
     ($t: ident, $tv: ident) => (
@@ -149,7 +149,7 @@ macro_rules! translate_impl(
             }
         }
     )
-)
+);
 
 macro_rules! rotation_impl(
     ($t: ident, $trot: ident, $tav: ident) => (
@@ -200,7 +200,7 @@ macro_rules! rotation_impl(
             }
         }
     )
-)
+);
 
 macro_rules! rotate_impl(
     ($t: ident, $tv: ident) => (
@@ -216,7 +216,7 @@ macro_rules! rotate_impl(
             }
         }
     )
-)
+);
 
 macro_rules! transformation_impl(
     ($t: ident) => (
@@ -251,7 +251,7 @@ macro_rules! transformation_impl(
             }
         }
     )
-)
+);
 
 macro_rules! transform_impl(
     ($t: ident, $tp: ident) => (
@@ -267,7 +267,7 @@ macro_rules! transform_impl(
             }
         }
     )
-)
+);
 
 macro_rules! inv_impl(
     ($t: ident) => (
@@ -289,7 +289,7 @@ macro_rules! inv_impl(
             }
         }
     )
-)
+);
 
 macro_rules! to_homogeneous_impl(
     ($t: ident, $th: ident) => (
@@ -306,7 +306,7 @@ macro_rules! to_homogeneous_impl(
             }
         }
     )
-)
+);
 
 macro_rules! approx_eq_impl(
     ($t: ident) => (
@@ -323,7 +323,7 @@ macro_rules! approx_eq_impl(
             }
         }
     )
-)
+);
 
 macro_rules! rand_impl(
     ($t: ident) => (
@@ -334,7 +334,7 @@ macro_rules! rand_impl(
             }
         }
     )
-)
+);
 
 macro_rules! absolute_rotate_impl(
     ($t: ident, $tv: ident) => (
@@ -345,4 +345,4 @@ macro_rules! absolute_rotate_impl(
             }
         }
     )
-)
+);

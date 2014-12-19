@@ -441,30 +441,30 @@ impl<N: BaseNum> Transform<Pnt3<N>> for UnitQuat<N> {
     }
 }
 
-ord_impl!(Quat, w, i, j, k)
-vec_axis_impl!(Quat, w, i, j, k)
-vec_cast_impl!(Quat, w, i, j, k)
-as_array_impl!(Quat, 4)
-index_impl!(Quat)
-indexable_impl!(Quat, 4)
-at_fast_impl!(Quat, 4)
-new_repeat_impl!(Quat, val, w, i, j, k)
-dim_impl!(Quat, 3)
-container_impl!(Quat)
-add_impl!(Quat, w, i, j, k)
-sub_impl!(Quat, w, i, j, k)
-scalar_add_impl!(Quat, w, i, j, k)
-scalar_sub_impl!(Quat, w, i, j, k)
-scalar_mul_impl!(Quat, w, i, j, k)
-scalar_div_impl!(Quat, w, i, j, k)
-neg_impl!(Quat, w, i, j, k)
-scalar_ops_impl!(Quat, w, i, j, k)
-zero_one_impl!(Quat, w, i, j, k)
-approx_eq_impl!(Quat, w, i, j, k)
-from_iterator_impl!(Quat, iterator, iterator, iterator, iterator)
-bounded_impl!(Quat, w, i, j, k)
-axpy_impl!(Quat, w, i, j, k)
-iterable_impl!(Quat, 4)
-iterable_mut_impl!(Quat, 4)
+ord_impl!(Quat, w, i, j, k);
+vec_axis_impl!(Quat, w, i, j, k);
+vec_cast_impl!(Quat, w, i, j, k);
+as_array_impl!(Quat, 4);
+index_impl!(Quat);
+indexable_impl!(Quat, 4);
+at_fast_impl!(Quat, 4);
+new_repeat_impl!(Quat, val, w, i, j, k);
+dim_impl!(Quat, 3);
+container_impl!(Quat);
+add_impl!(Quat, w, i, j, k);
+sub_impl!(Quat, w, i, j, k);
+scalar_add_impl!(Quat, w, i, j, k);
+scalar_sub_impl!(Quat, w, i, j, k);
+scalar_mul_impl!(Quat, w, i, j, k);
+scalar_div_impl!(Quat, w, i, j, k);
+neg_impl!(Quat, w, i, j, k);
+scalar_ops_impl!(Quat, w, i, j, k);
+zero_one_impl!(Quat, w, i, j, k);
+approx_eq_impl!(Quat, w, i, j, k);
+from_iterator_impl!(Quat, iterator, iterator, iterator, iterator);
+bounded_impl!(Quat, w, i, j, k);
+axpy_impl!(Quat, w, i, j, k);
+iterable_impl!(Quat, 4);
+iterable_mut_impl!(Quat, 4);
 
-dim_impl!(UnitQuat, 3)
+dim_impl!(UnitQuat, 3);
