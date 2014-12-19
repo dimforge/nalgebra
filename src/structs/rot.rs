@@ -376,62 +376,62 @@ Rotation<Vec4<N>> for Rot4<N> {
  * Common implementations.
  */
 
-submat_impl!(Rot2, Mat2)
-rotate_impl!(Rot2, Vec2, Pnt2)
-transform_impl!(Rot2, Vec2, Pnt2)
-dim_impl!(Rot2, 2)
-rot_mul_rot_impl!(Rot2)
-rot_mul_vec_impl!(Rot2, Vec2)
-vec_mul_rot_impl!(Rot2, Vec2)
-rot_mul_pnt_impl!(Rot2, Pnt2)
-pnt_mul_rot_impl!(Rot2, Pnt2)
-one_impl!(Rot2)
-rotation_matrix_impl!(Rot2, Vec2, Vec1)
-col_impl!(Rot2, Vec2)
-row_impl!(Rot2, Vec2)
-index_impl!(Rot2)
-absolute_impl!(Rot2, Mat2)
-to_homogeneous_impl!(Rot2, Mat3)
-inv_impl!(Rot2)
-transpose_impl!(Rot2)
-approx_eq_impl!(Rot2)
+submat_impl!(Rot2, Mat2);
+rotate_impl!(Rot2, Vec2, Pnt2);
+transform_impl!(Rot2, Vec2, Pnt2);
+dim_impl!(Rot2, 2);
+rot_mul_rot_impl!(Rot2);
+rot_mul_vec_impl!(Rot2, Vec2);
+vec_mul_rot_impl!(Rot2, Vec2);
+rot_mul_pnt_impl!(Rot2, Pnt2);
+pnt_mul_rot_impl!(Rot2, Pnt2);
+one_impl!(Rot2);
+rotation_matrix_impl!(Rot2, Vec2, Vec1);
+col_impl!(Rot2, Vec2);
+row_impl!(Rot2, Vec2);
+index_impl!(Rot2);
+absolute_impl!(Rot2, Mat2);
+to_homogeneous_impl!(Rot2, Mat3);
+inv_impl!(Rot2);
+transpose_impl!(Rot2);
+approx_eq_impl!(Rot2);
 
-submat_impl!(Rot3, Mat3)
-rotate_impl!(Rot3, Vec3, Pnt3)
-transform_impl!(Rot3, Vec3, Pnt3)
-dim_impl!(Rot3, 3)
-rot_mul_rot_impl!(Rot3)
-rot_mul_vec_impl!(Rot3, Vec3)
-vec_mul_rot_impl!(Rot3, Vec3)
-rot_mul_pnt_impl!(Rot3, Pnt3)
-pnt_mul_rot_impl!(Rot3, Pnt3)
-one_impl!(Rot3)
-rotation_matrix_impl!(Rot3, Vec3, Vec3)
-col_impl!(Rot3, Vec3)
-row_impl!(Rot3, Vec3)
-index_impl!(Rot3)
-absolute_impl!(Rot3, Mat3)
-to_homogeneous_impl!(Rot3, Mat4)
-inv_impl!(Rot3)
-transpose_impl!(Rot3)
-approx_eq_impl!(Rot3)
+submat_impl!(Rot3, Mat3);
+rotate_impl!(Rot3, Vec3, Pnt3);
+transform_impl!(Rot3, Vec3, Pnt3);
+dim_impl!(Rot3, 3);
+rot_mul_rot_impl!(Rot3);
+rot_mul_vec_impl!(Rot3, Vec3);
+vec_mul_rot_impl!(Rot3, Vec3);
+rot_mul_pnt_impl!(Rot3, Pnt3);
+pnt_mul_rot_impl!(Rot3, Pnt3);
+one_impl!(Rot3);
+rotation_matrix_impl!(Rot3, Vec3, Vec3);
+col_impl!(Rot3, Vec3);
+row_impl!(Rot3, Vec3);
+index_impl!(Rot3);
+absolute_impl!(Rot3, Mat3);
+to_homogeneous_impl!(Rot3, Mat4);
+inv_impl!(Rot3);
+transpose_impl!(Rot3);
+approx_eq_impl!(Rot3);
 
-submat_impl!(Rot4, Mat4)
-rotate_impl!(Rot4, Vec4, Pnt4)
-transform_impl!(Rot4, Vec4, Pnt4)
-dim_impl!(Rot4, 4)
-rot_mul_rot_impl!(Rot4)
-rot_mul_vec_impl!(Rot4, Vec4)
-vec_mul_rot_impl!(Rot4, Vec4)
-rot_mul_pnt_impl!(Rot4, Pnt4)
-pnt_mul_rot_impl!(Rot4, Pnt4)
-one_impl!(Rot4)
-rotation_matrix_impl!(Rot4, Vec4, Vec4)
-col_impl!(Rot4, Vec4)
-row_impl!(Rot4, Vec4)
-index_impl!(Rot4)
-absolute_impl!(Rot4, Mat4)
-to_homogeneous_impl!(Rot4, Mat5)
-inv_impl!(Rot4)
-transpose_impl!(Rot4)
-approx_eq_impl!(Rot4)
+submat_impl!(Rot4, Mat4);
+rotate_impl!(Rot4, Vec4, Pnt4);
+transform_impl!(Rot4, Vec4, Pnt4);
+dim_impl!(Rot4, 4);
+rot_mul_rot_impl!(Rot4);
+rot_mul_vec_impl!(Rot4, Vec4);
+vec_mul_rot_impl!(Rot4, Vec4);
+rot_mul_pnt_impl!(Rot4, Pnt4);
+pnt_mul_rot_impl!(Rot4, Pnt4);
+one_impl!(Rot4);
+rotation_matrix_impl!(Rot4, Vec4, Vec4);
+col_impl!(Rot4, Vec4);
+row_impl!(Rot4, Vec4);
+index_impl!(Rot4);
+absolute_impl!(Rot4, Mat4);
+to_homogeneous_impl!(Rot4, Mat5);
+inv_impl!(Rot4);
+transpose_impl!(Rot4);
+approx_eq_impl!(Rot4);

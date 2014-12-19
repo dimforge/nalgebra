@@ -17,7 +17,7 @@ macro_rules! test_inv_mat_impl(
       }
     }
   );
-)
+);
 
 macro_rules! test_transpose_mat_impl(
   ($t: ty) => (
@@ -27,7 +27,7 @@ macro_rules! test_transpose_mat_impl(
       assert!(na::transpose(&na::transpose(&randmat)) == randmat);
     }
   );
-)
+);
 
 macro_rules! test_qr_impl(
   ($t: ty) => (
@@ -40,7 +40,7 @@ macro_rules! test_qr_impl(
       assert!(na::approx_eq(&randmat,  &recomp));
     }
   );
-)
+);
 
 // NOTE: deactivated untile we get a better convergence rate.
 // macro_rules! test_eigen_qr_impl(

@@ -77,7 +77,7 @@ impl<N> FromIterator<N> for DVec<N> {
 }
 
 
-dvec_impl!(DVec)
+dvec_impl!(DVec);
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 1.
 pub struct DVec1<N> {
@@ -85,8 +85,8 @@ pub struct DVec1<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec1, 1, 0)
-small_dvec_from_impl!(DVec1, 1, ::zero())
+small_dvec_impl!(DVec1, 1, 0);
+small_dvec_from_impl!(DVec1, 1, ::zero());
 
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 2.
@@ -95,8 +95,8 @@ pub struct DVec2<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec2, 2, 0, 1)
-small_dvec_from_impl!(DVec2, 2, ::zero(), ::zero())
+small_dvec_impl!(DVec2, 2, 0, 1);
+small_dvec_from_impl!(DVec2, 2, ::zero(), ::zero());
 
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 3.
@@ -105,8 +105,8 @@ pub struct DVec3<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec3, 3, 0, 1, 2)
-small_dvec_from_impl!(DVec3, 3, ::zero(), ::zero(), ::zero())
+small_dvec_impl!(DVec3, 3, 0, 1, 2);
+small_dvec_from_impl!(DVec3, 3, ::zero(), ::zero(), ::zero());
 
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 4.
@@ -115,8 +115,8 @@ pub struct DVec4<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec4, 4, 0, 1, 2, 3)
-small_dvec_from_impl!(DVec4, 4, ::zero(), ::zero(), ::zero(), ::zero())
+small_dvec_impl!(DVec4, 4, 0, 1, 2, 3);
+small_dvec_from_impl!(DVec4, 4, ::zero(), ::zero(), ::zero(), ::zero());
 
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 5.
@@ -125,8 +125,8 @@ pub struct DVec5<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec5, 5, 0, 1, 2, 3, 4)
-small_dvec_from_impl!(DVec5, 5, ::zero(), ::zero(), ::zero(), ::zero(), ::zero())
+small_dvec_impl!(DVec5, 5, 0, 1, 2, 3, 4);
+small_dvec_from_impl!(DVec5, 5, ::zero(), ::zero(), ::zero(), ::zero(), ::zero());
 
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 6.
@@ -135,5 +135,5 @@ pub struct DVec6<N> {
     dim: uint
 }
 
-small_dvec_impl!(DVec6, 6, 0, 1, 2, 3, 4, 5)
-small_dvec_from_impl!(DVec6, 6, ::zero(), ::zero(), ::zero(), ::zero(), ::zero(), ::zero())
+small_dvec_impl!(DVec6, 6, 0, 1, 2, 3, 4, 5);
+small_dvec_from_impl!(DVec6, 6, ::zero(), ::zero(), ::zero(), ::zero(), ::zero(), ::zero());

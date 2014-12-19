@@ -359,7 +359,7 @@ macro_rules! dvec_impl(
             }
         }
     )
-)
+);
 
 macro_rules! small_dvec_impl (
     ($dvec: ident, $dim: expr $(,$idx: expr)*) => (
@@ -398,9 +398,9 @@ macro_rules! small_dvec_impl (
             }
         }
 
-        dvec_impl!($dvec)
+        dvec_impl!($dvec);
     )
-)
+);
 
 macro_rules! small_dvec_from_impl (
     ($dvec: ident, $dim: expr $(,$zeros: expr)*) => (
@@ -488,4 +488,4 @@ macro_rules! small_dvec_from_impl (
             }
         }
     )
-)
+);

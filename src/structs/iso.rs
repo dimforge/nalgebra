@@ -92,59 +92,59 @@ impl<N> Iso4<N> {
     }
 }
 
-iso_impl!(Iso2, Rot2, Vec2, Vec1)
-rotation_matrix_impl!(Iso2, Rot2, Vec2, Vec1)
-rotation_impl!(Iso2, Rot2, Vec1)
-dim_impl!(Iso2, 2)
-one_impl!(Iso2)
-absolute_rotate_impl!(Iso2, Vec2)
-rand_impl!(Iso2)
-approx_eq_impl!(Iso2)
-to_homogeneous_impl!(Iso2, Mat3)
-inv_impl!(Iso2)
-transform_impl!(Iso2, Pnt2)
-transformation_impl!(Iso2)
-rotate_impl!(Iso2, Vec2)
-translation_impl!(Iso2, Vec2)
-translate_impl!(Iso2, Pnt2)
-iso_mul_iso_impl!(Iso2)
-iso_mul_pnt_impl!(Iso2, Pnt2)
-pnt_mul_iso_impl!(Iso2, Pnt2)
+iso_impl!(Iso2, Rot2, Vec2, Vec1);
+rotation_matrix_impl!(Iso2, Rot2, Vec2, Vec1);
+rotation_impl!(Iso2, Rot2, Vec1);
+dim_impl!(Iso2, 2);
+one_impl!(Iso2);
+absolute_rotate_impl!(Iso2, Vec2);
+rand_impl!(Iso2);
+approx_eq_impl!(Iso2);
+to_homogeneous_impl!(Iso2, Mat3);
+inv_impl!(Iso2);
+transform_impl!(Iso2, Pnt2);
+transformation_impl!(Iso2);
+rotate_impl!(Iso2, Vec2);
+translation_impl!(Iso2, Vec2);
+translate_impl!(Iso2, Pnt2);
+iso_mul_iso_impl!(Iso2);
+iso_mul_pnt_impl!(Iso2, Pnt2);
+pnt_mul_iso_impl!(Iso2, Pnt2);
 
-iso_impl!(Iso3, Rot3, Vec3, Vec3)
-rotation_matrix_impl!(Iso3, Rot3, Vec3, Vec3)
-rotation_impl!(Iso3, Rot3, Vec3)
-dim_impl!(Iso3, 3)
-one_impl!(Iso3)
-absolute_rotate_impl!(Iso3, Vec3)
-rand_impl!(Iso3)
-approx_eq_impl!(Iso3)
-to_homogeneous_impl!(Iso3, Mat4)
-inv_impl!(Iso3)
-transform_impl!(Iso3, Pnt3)
-transformation_impl!(Iso3)
-rotate_impl!(Iso3, Vec3)
-translation_impl!(Iso3, Vec3)
-translate_impl!(Iso3, Pnt3)
-iso_mul_iso_impl!(Iso3)
-iso_mul_pnt_impl!(Iso3, Pnt3)
-pnt_mul_iso_impl!(Iso3, Pnt3)
+iso_impl!(Iso3, Rot3, Vec3, Vec3);
+rotation_matrix_impl!(Iso3, Rot3, Vec3, Vec3);
+rotation_impl!(Iso3, Rot3, Vec3);
+dim_impl!(Iso3, 3);
+one_impl!(Iso3);
+absolute_rotate_impl!(Iso3, Vec3);
+rand_impl!(Iso3);
+approx_eq_impl!(Iso3);
+to_homogeneous_impl!(Iso3, Mat4);
+inv_impl!(Iso3);
+transform_impl!(Iso3, Pnt3);
+transformation_impl!(Iso3);
+rotate_impl!(Iso3, Vec3);
+translation_impl!(Iso3, Vec3);
+translate_impl!(Iso3, Pnt3);
+iso_mul_iso_impl!(Iso3);
+iso_mul_pnt_impl!(Iso3, Pnt3);
+pnt_mul_iso_impl!(Iso3, Pnt3);
 
-// iso_impl!(Iso4, Rot4, Vec4, Vec4)
-// rotation_matrix_impl!(Iso4, Rot4, Vec4, Vec4)
-// rotation_impl!(Iso4, Rot4, Vec4)
-dim_impl!(Iso4, 4)
-one_impl!(Iso4)
-absolute_rotate_impl!(Iso4, Vec4)
-// rand_impl!(Iso4)
-approx_eq_impl!(Iso4)
-to_homogeneous_impl!(Iso4, Mat5)
-inv_impl!(Iso4)
-transform_impl!(Iso4, Pnt4)
-transformation_impl!(Iso4)
-rotate_impl!(Iso4, Vec4)
-translation_impl!(Iso4, Vec4)
-translate_impl!(Iso4, Pnt4)
-iso_mul_iso_impl!(Iso4)
-iso_mul_pnt_impl!(Iso4, Pnt4)
-pnt_mul_iso_impl!(Iso4, Pnt4)
+// iso_impl!(Iso4, Rot4, Vec4, Vec4);
+// rotation_matrix_impl!(Iso4, Rot4, Vec4, Vec4);
+// rotation_impl!(Iso4, Rot4, Vec4);
+dim_impl!(Iso4, 4);
+one_impl!(Iso4);
+absolute_rotate_impl!(Iso4, Vec4);
+// rand_impl!(Iso4);
+approx_eq_impl!(Iso4);
+to_homogeneous_impl!(Iso4, Mat5);
+inv_impl!(Iso4);
+transform_impl!(Iso4, Pnt4);
+transformation_impl!(Iso4);
+rotate_impl!(Iso4, Vec4);
+translation_impl!(Iso4, Vec4);
+translate_impl!(Iso4, Pnt4);
+iso_mul_iso_impl!(Iso4);
+iso_mul_pnt_impl!(Iso4, Pnt4);
+pnt_mul_iso_impl!(Iso4, Pnt4);
