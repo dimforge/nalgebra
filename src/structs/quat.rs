@@ -54,7 +54,7 @@ impl<N> Quat<N> {
     }
 }
 
-impl<N: Neg<N>> Quat<N> {
+impl<N: Neg<N> + Copy> Quat<N> {
     /// Replaces this quaternion by its conjugate.
     #[inline]
     pub fn conjugate(&mut self) {

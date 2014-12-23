@@ -250,9 +250,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Neg<N> + Zero> Neg<$dvec<N>> for $dvec<N> {
+        impl<N: Neg<N> + Zero + Copy> Neg<$dvec<N>> for $dvec<N> {
             #[inline]
-            fn neg(&self) -> $dvec<N> {
+            fn neg(self) -> $dvec<N> {
                 FromIterator::from_iter(self.as_slice().iter().map(|a| -*a))
             }
         }

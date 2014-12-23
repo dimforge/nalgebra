@@ -576,7 +576,7 @@ pub fn inv_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 
 /// Rotates a copy of `m` by `amount` using `center` as the pivot point.
 #[inline(always)]
-pub fn append_rotation_wrt_point<LV: Neg<LV>,
+pub fn append_rotation_wrt_point<LV: Neg<LV> + Copy,
                                  AV,
                                  M: RotationWithTranslation<LV, AV>>(
                                  m:      &M,
@@ -587,7 +587,7 @@ pub fn append_rotation_wrt_point<LV: Neg<LV>,
 
 /// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
 #[inline(always)]
-pub fn append_rotation_wrt_center<LV: Neg<LV>,
+pub fn append_rotation_wrt_center<LV: Neg<LV> + Copy,
                                   AV,
                                   M: RotationWithTranslation<LV, AV>>(
                                   m:      &M,

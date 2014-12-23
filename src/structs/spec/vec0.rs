@@ -112,9 +112,9 @@ impl<N, T> Sub<T, vec::Vec0<N>> for vec::Vec0<N> {
     }
 }
 
-impl<N: Neg<N>> Neg<vec::Vec0<N>> for vec::Vec0<N> {
+impl<N: Neg<N> + Copy> Neg<vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
-    fn neg(&self) -> vec::Vec0<N> {
+    fn neg(self) -> vec::Vec0<N> {
         vec::Vec0
     }
 }

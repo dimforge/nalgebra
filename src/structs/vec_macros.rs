@@ -480,9 +480,9 @@ macro_rules! scalar_div_impl(
 
 macro_rules! neg_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Neg<N>> Neg<$t<N>> for $t<N> {
+        impl<N: Neg<N> + Copy> Neg<$t<N>> for $t<N> {
             #[inline]
-            fn neg(&self) -> $t<N> {
+            fn neg(self) -> $t<N> {
                 $t::new(-self.$comp0 $(, -self.$compN )*)
             }
         }
