@@ -4,7 +4,7 @@
 
 use std::mem;
 use traits::operations::ApproxEq;
-use std::slice::{Items, MutItems};
+use std::slice::{Iter, IterMut};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use structs::pnt::{Pnt1, Pnt4, Pnt5, Pnt6};
 use structs::dvec::{DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};

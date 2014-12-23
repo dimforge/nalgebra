@@ -3,7 +3,7 @@
 use std::f32;
 use std::f64;
 use std::num::{Int, Float, FloatMath};
-use std::slice::{Items, MutItems};
+use std::slice::{Iter, IterMut};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
@@ -209,7 +209,7 @@ pub trait Indexable<I, Res>: Shape<I, Res> + IndexMut<I, Res> {
 /// Traits of objects which can be iterated through like a vector.
 pub trait Iterable<N> {
     /// Gets a vector-like read-only iterator.
-    fn iter<'l>(&'l self) -> Items<'l, N>;
+    fn iter<'l>(&'l self) -> Iter<'l, N>;
 }
 
 /// This is a workaround of current Rust limitations.
@@ -217,7 +217,7 @@ pub trait Iterable<N> {
 /// Traits of mutable objects which can be iterated through like a vector.
 pub trait IterableMut<N> {
     /// Gets a vector-like read-write iterator.
-    fn iter_mut<'l>(&'l mut self) -> MutItems<'l, N>;
+    fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N>;
 }
 
 /*

@@ -82,7 +82,7 @@ pub trait Rotate<V> {
 ///
 /// Those operations are automatically implemented in term of the `Rotation` and `Translation`
 /// traits.
-pub trait RotationWithTranslation<LV: Neg<LV>, AV>: Rotation<AV> + Translation<LV> {
+pub trait RotationWithTranslation<LV: Neg<LV> + Copy, AV>: Rotation<AV> + Translation<LV> {
     /// Applies a rotation centered on a specific point.
     ///
     /// # Arguments
@@ -136,7 +136,7 @@ pub trait RotationWithTranslation<LV: Neg<LV>, AV>: Rotation<AV> + Translation<L
     }
 }
 
-impl<LV: Neg<LV>, AV, M: Rotation<AV> + Translation<LV>> RotationWithTranslation<LV, AV> for M {
+impl<LV: Neg<LV> + Copy, AV, M: Rotation<AV> + Translation<LV>> RotationWithTranslation<LV, AV> for M {
 }
 
 /// Trait of transformation having a rotation extractable as a rotation matrix. This can typically

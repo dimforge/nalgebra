@@ -4,7 +4,7 @@
 
 use std::rand::Rand;
 use std::rand;
-use std::slice::{Items, MutItems};
+use std::slice::{Iter, IterMut};
 use std::iter::FromIterator;
 use traits::operations::{ApproxEq, Axpy};
 use traits::geometry::{Dot, Norm};

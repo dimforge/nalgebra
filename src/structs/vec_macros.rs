@@ -269,7 +269,7 @@ macro_rules! iterable_impl(
     ($t: ident, $dim: expr) => (
         impl<N> Iterable<N> for $t<N> {
             #[inline]
-            fn iter<'l>(&'l self) -> Items<'l, N> {
+            fn iter<'l>(&'l self) -> Iter<'l, N> {
                 unsafe {
                     mem::transmute::<&'l $t<N>, &'l [N, ..$dim]>(self).iter()
                 }
@@ -282,7 +282,7 @@ macro_rules! iterable_mut_impl(
     ($t: ident, $dim: expr) => (
         impl<N> IterableMut<N> for $t<N> {
             #[inline]
-            fn iter_mut<'l>(&'l mut self) -> MutItems<'l, N> {
+            fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
                 unsafe {
                     mem::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim]>(self).iter_mut()
                 }
@@ -480,9 +480,9 @@ macro_rules! scalar_div_impl(
 
 macro_rules! neg_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Neg<N>> Neg<$t<N>> for $t<N> {
+        impl<N: Neg<N> + Copy> Neg<$t<N>> for $t<N> {
             #[inline]
-            fn neg(&self) -> $t<N> {
+            fn neg(self) -> $t<N> {
                 $t::new(-self.$comp0 $(, -self.$compN )*)
             }
         }
