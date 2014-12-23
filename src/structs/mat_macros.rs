@@ -181,7 +181,7 @@ macro_rules! iterable_impl(
   ($t: ident, $dim: expr) => (
     impl<N> Iterable<N> for $t<N> {
         #[inline]
-        fn iter<'l>(&'l self) -> Items<'l, N> {
+        fn iter<'l>(&'l self) -> Iter<'l, N> {
             unsafe {
                 mem::transmute::<&'l $t<N>, &'l [N, ..$dim * $dim]>(self).iter()
             }
@@ -194,7 +194,7 @@ macro_rules! iterable_mut_impl(
   ($t: ident, $dim: expr) => (
     impl<N> IterableMut<N> for $t<N> {
         #[inline]
-        fn iter_mut<'l>(&'l mut self) -> MutItems<'l, N> {
+        fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
             unsafe {
                 mem::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim * $dim]>(self).iter_mut()
             }

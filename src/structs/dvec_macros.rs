@@ -110,14 +110,14 @@ macro_rules! dvec_impl(
 
         impl<N> Iterable<N> for $dvec<N> {
             #[inline]
-            fn iter<'l>(&'l self) -> Items<'l, N> {
+            fn iter<'l>(&'l self) -> Iter<'l, N> {
                 self.as_slice().iter()
             }
         }
 
         impl<N> IterableMut<N> for $dvec<N> {
             #[inline]
-            fn iter_mut<'l>(&'l mut self) -> MutItems<'l, N> {
+            fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
                 self.as_mut_slice().iter_mut()
             }
         }

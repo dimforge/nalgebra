@@ -3,7 +3,7 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
 
 use std::mem;
-use std::slice::{Items, MutItems};
+use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator};
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv, Absolute};

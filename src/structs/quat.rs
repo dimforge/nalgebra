@@ -5,7 +5,7 @@
 use std::mem;
 use std::num;
 use std::rand::{Rand, Rng};
-use std::slice::{Items, MutItems};
+use std::slice::{Iter, IterMut};
 use structs::{Vec3, Pnt3, Rot3, Mat3};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
