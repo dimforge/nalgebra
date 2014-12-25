@@ -17,7 +17,7 @@ use linalg;
 
 
 /// Special identity matrix. All its operation are no-ops.
-#[deriving(Eq, PartialEq, Decodable, Clone, Rand, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcDecodable, Clone, Rand, Show, Copy)]
 pub struct Identity;
 
 impl Identity {
@@ -29,7 +29,7 @@ impl Identity {
 }
 
 /// Square matrix of dimension 1.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Mat1<N> {
     pub m11: N
 }
@@ -73,7 +73,7 @@ outer_impl!(Vec1, Mat1);
 eigen_qr_impl!(Mat1, Vec1);
 
 /// Square matrix of dimension 2.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Mat2<N> {
     pub m11: N, pub m21: N,
     pub m12: N, pub m22: N
@@ -121,7 +121,7 @@ outer_impl!(Vec2, Mat2);
 eigen_qr_impl!(Mat2, Vec2);
 
 /// Square matrix of dimension 3.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Mat3<N> {
     pub m11: N, pub m21: N, pub m31: N,
     pub m12: N, pub m22: N, pub m32: N,
@@ -203,7 +203,7 @@ outer_impl!(Vec3, Mat3);
 eigen_qr_impl!(Mat3, Vec3);
 
 /// Square matrix of dimension 4.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Mat4<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N,
@@ -303,7 +303,7 @@ outer_impl!(Vec4, Mat4);
 eigen_qr_impl!(Mat4, Vec4);
 
 /// Square matrix of dimension 5.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Mat5<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N,
@@ -417,7 +417,7 @@ outer_impl!(Vec5, Mat5);
 eigen_qr_impl!(Mat5, Vec5);
 
 /// Square matrix of dimension 6.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Hash, Rand, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Mat6<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N, pub m61: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N, pub m62: N,
