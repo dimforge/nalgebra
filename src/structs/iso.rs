@@ -18,7 +18,7 @@ use structs::rot::{Rot2, Rot3, Rot4};
 ///
 /// This is the composition of a rotation followed by a translation.
 /// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
 pub struct Iso2<N> {
     /// The rotation applicable by this isometry.
     pub rotation:    Rot2<N>,
@@ -30,7 +30,7 @@ pub struct Iso2<N> {
 ///
 /// This is the composition of a rotation followed by a translation.
 /// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
 pub struct Iso3<N> {
     /// The rotation applicable by this isometry.
     pub rotation:    Rot3<N>,
@@ -41,7 +41,7 @@ pub struct Iso3<N> {
 /// Four dimensional isometry.
 ///
 /// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
-#[deriving(Eq, PartialEq, Encodable, Decodable, Clone, Show, Copy)]
+#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
 pub struct Iso4<N> {
     /// The rotation applicable by this isometry.
     pub rotation:    Rot4<N>,

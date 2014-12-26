@@ -86,7 +86,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![feature(globs)]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
-extern crate serialize;
+extern crate "rustc-serialize" as rustc_serialize;
 
 #[cfg(test)]
 extern crate test;
