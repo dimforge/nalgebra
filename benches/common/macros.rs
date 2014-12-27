@@ -21,7 +21,7 @@ macro_rules! bench_binop(
             })
         }
     }
-)
+);
 
 macro_rules! bench_binop_na(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
@@ -44,7 +44,7 @@ macro_rules! bench_binop_na(
             })
         }
     }
-)
+);
 
 macro_rules! bench_unop(
     ($name: ident, $t: ty, $unop: ident) => {
@@ -66,7 +66,7 @@ macro_rules! bench_unop(
             })
         }
     }
-)
+);
 
 macro_rules! bench_unop_self(
     ($name: ident, $t: ty, $unop: ident) => {
@@ -88,7 +88,7 @@ macro_rules! bench_unop_self(
             })
         }
     }
-)
+);
 
 macro_rules! bench_construction(
     ($name: ident, $constructor: path $(, $args: ident: $types: ty)*) => {
@@ -111,4 +111,4 @@ macro_rules! bench_construction(
             })
         }
     }
-)
+);
