@@ -156,6 +156,12 @@ pub trait ApproxEq<Eps> {
     /// Tests approximate equality using a custom epsilon.
     fn approx_eq_eps(&self, other: &Self, epsilon: &Eps) -> bool;
 
+    /// Default ULPs for approximation.
+    fn approx_ulps(unused_self: Option<Self>) -> u32;
+
+    /// Tests approximate equality using units in the last place (ULPs)
+    fn approx_eq_ulps(&self, other: &Self, ulps: u32) -> bool;
+
     /// Tests approximate equality.
     #[inline]
     fn approx_eq(&self, other: &Self) -> bool {
@@ -173,6 +179,25 @@ impl ApproxEq<f32> for f32 {
     fn approx_eq_eps(&self, other: &f32, epsilon: &f32) -> bool {
         ::abs(&(*self - *other)) < *epsilon
     }
+
+    fn approx_ulps(_: Option<f32>) -> u32 {
+        8
+    }
+
+    fn approx_eq_ulps(&self, other: &f32, ulps: u32) -> bool {
+        // Handle -0 == +0
+        if *self == *other { return true; }
+
+        // Otherwise, differing signs should be not-equal, even if within ulps
+        if self.signum() != other.signum() { return false; }
+
+        // IEEE754 floats are in the same order as 2s complement ints
+        // so this trick (subtracting the ints) works.
+        let iself: i32 = unsafe { ::std::mem::transmute(*self) };
+        let iother: i32 = unsafe { ::std::mem::transmute(*other) };
+
+        (iself - iother).abs() < ulps as i32
+    }
 }
 
 impl ApproxEq<f64> for f64 {
@@ -184,6 +209,23 @@ impl ApproxEq<f64> for f64 {
     #[inline]
     fn approx_eq_eps(&self, other: &f64, approx_epsilon: &f64) -> bool {
         ::abs(&(*self - *other)) < *approx_epsilon
+    }
+
+    fn approx_ulps(_: Option<f64>) -> u32 {
+        8
+    }
+
+    fn approx_eq_ulps(&self, other: &f64, ulps: u32) -> bool {
+        // Handle -0 == +0
+        if *self == *other { return true; }
+
+        // Otherwise, differing signs should be not-equal, even if within ulps
+        if self.signum() != other.signum() { return false; }
+
+        let iself: i64 = unsafe { ::std::mem::transmute(*self) };
+        let iother: i64 = unsafe { ::std::mem::transmute(*other) };
+
+        (iself - iother).abs() < ulps as i64
     }
 }
 

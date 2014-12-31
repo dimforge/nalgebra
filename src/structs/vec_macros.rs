@@ -610,6 +610,11 @@ macro_rules! approx_eq_impl(
             }
 
             #[inline]
+            fn approx_ulps(_: Option<$t<N>>) -> u32 {
+                ApproxEq::approx_ulps(None::<N>)
+            }
+
+            #[inline]
             fn approx_eq(&self, other: &$t<N>) -> bool {
                 ApproxEq::approx_eq(&self.$comp0, &other.$comp0)
                 $(&& ApproxEq::approx_eq(&self.$compN, &other.$compN))*
@@ -619,6 +624,12 @@ macro_rules! approx_eq_impl(
             fn approx_eq_eps(&self, other: &$t<N>, eps: &N) -> bool {
                 ApproxEq::approx_eq_eps(&self.$comp0, &other.$comp0, eps)
                 $(&& ApproxEq::approx_eq_eps(&self.$compN, &other.$compN, eps))*
+            }
+
+            #[inline]
+            fn approx_eq_ulps(&self, other: &$t<N>, ulps: u32) -> bool {
+                ApproxEq::approx_eq_ulps(&self.$comp0, &other.$comp0, ulps)
+                $(&& ApproxEq::approx_eq_ulps(&self.$compN, &other.$compN, ulps))*
             }
         }
     )

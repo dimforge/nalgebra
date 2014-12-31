@@ -257,6 +257,11 @@ macro_rules! approx_eq_impl(
             }
 
             #[inline]
+            fn approx_ulps(_: Option<$t<N>>) -> u32 {
+                ApproxEq::approx_ulps(None::<N>)
+            }
+
+            #[inline]
             fn approx_eq(&self, other: &$t<N>) -> bool {
                 ApproxEq::approx_eq(&self.submat, &other.submat)
             }
@@ -264,6 +269,11 @@ macro_rules! approx_eq_impl(
             #[inline]
             fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
                 ApproxEq::approx_eq_eps(&self.submat, &other.submat, epsilon)
+            }
+
+            #[inline]
+            fn approx_eq_ulps(&self, other: &$t<N>, ulps: u32) -> bool {
+                ApproxEq::approx_eq_ulps(&self.submat, &other.submat, ulps)
             }
         }
     )

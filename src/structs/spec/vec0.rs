@@ -204,8 +204,17 @@ impl<N: ApproxEq<N>> ApproxEq<N> for vec::Vec0<N> {
         ApproxEq::approx_epsilon(None::<N>)
     }
 
+    fn approx_ulps(_: Option<vec::Vec0<N>>) -> u32 {
+        ApproxEq::approx_ulps(None::<N>)
+    }
+
     #[inline]
     fn approx_eq_eps(&self, _: &vec::Vec0<N>, _: &N) -> bool {
+        true
+    }
+
+    #[inline]
+    fn approx_eq_ulps(&self, _: &vec::Vec0<N>, _: u32) -> bool {
         true
     }
 }
