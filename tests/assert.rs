@@ -33,3 +33,36 @@ fn assert_approx_eq_eps_f32() {
 fn assert_approx_eq_eps_f64_fail() {
     assert_approx_eq_eps!(1.0f64, 1.1, 0.05);
 }
+
+#[test]
+fn assert_approx_eq_ulps_f32() {
+    let x = 1000000_f32;
+    let y = 1000000.1_f32;
+    assert!(x != y);
+    assert_approx_eq_ulps!(x, y, 3);
+}
+
+#[test]
+#[should_fail]
+fn assert_approx_eq_ulps_f32_fail() {
+    let x = 1000000_f32;
+    let y = 1000000.1_f32;
+    assert_approx_eq_ulps!(x, y, 2);
+}
+
+#[test]
+fn assert_approx_eq_ulps_f64() {
+    let x = 1000000_f64;
+    let y = 1000000.0000000003_f64;
+    assert!(x != y);
+    assert_approx_eq_ulps!(x, y, 4);
+}
+
+#[test]
+#[should_fail]
+fn assert_approx_eq_ulps_f64_fail() {
+    let x = 1000000_f64;
+    let y = 1000000.0000000003_f64;
+    assert!(x != y);
+    assert_approx_eq_ulps!(x, y, 3);
+}
