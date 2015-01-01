@@ -70,7 +70,7 @@ macro_rules! at_fast_impl(
             /// Unsafe write access to a vector element by index.
             #[inline]
             pub unsafe fn set_fast(&mut self, i: uint, val: N) {
-                (*self.as_array_mut().unsafe_mut(i)) = val
+                (*self.as_array_mut().get_unchecked_mut(i)) = val
             }
         }
     )
@@ -228,7 +228,7 @@ macro_rules! indexable_impl(
 
             #[inline]
             unsafe fn unsafe_set(&mut self, i: uint, val: N) {
-                (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).unsafe_mut(i)) = val
+                (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim]>(self).get_unchecked_mut(i)) = val
             }
         }
     )

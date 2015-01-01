@@ -83,7 +83,7 @@ macro_rules! bench_unop_self(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box(elems.unsafe_mut(i).$unop())
+                    test::black_box(elems.get_unchecked_mut(i).$unop())
                 }
             })
         }
