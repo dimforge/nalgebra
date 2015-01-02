@@ -6,6 +6,7 @@ use std::rand::Rand;
 use std::rand;
 use std::slice::{Iter, IterMut};
 use std::iter::FromIterator;
+use std::iter::repeat;
 use traits::operations::{ApproxEq, Axpy};
 use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, BaseNum, Zero, One};
@@ -34,7 +35,7 @@ impl<N: Clone> DVec<N> {
     /// Builds a vector filled with a constant.
     #[inline]
     pub fn from_elem(dim: uint, elem: N) -> DVec<N> {
-        DVec { at: Vec::from_elem(dim, elem) }
+        DVec { at: repeat(elem).take(dim).collect() }
     }
 
     /// Builds a vector filled with the components provided by a vector.
@@ -54,7 +55,7 @@ impl<N> DVec<N> {
     /// Builds a vector filled with the result of a function.
     #[inline(always)]
     pub fn from_fn(dim: uint, f: |uint| -> N) -> DVec<N> {
-        DVec { at: Vec::from_fn(dim, |i| f(i)) }
+        DVec { at: range(0, dim).map(|i| f(i)).collect() }
     }
 
     #[inline]

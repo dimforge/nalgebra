@@ -3,6 +3,7 @@
 #![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
 
 use std::cmp;
+use std::iter::repeat;
 use std::rand::Rand;
 use std::rand;
 use traits::operations::ApproxEq;
@@ -84,7 +85,7 @@ impl<N: Clone + Copy> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   Vec::from_elem(nrows * ncols, val)
+            mij:   repeat(val).take(nrows * ncols).collect()
         }
     }
 
@@ -129,7 +130,7 @@ impl<N> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   Vec::from_fn(nrows * ncols, |i| { let m = i / nrows; f(i - m * nrows, m) })
+            mij:   range(0, nrows * ncols).map(|i| { let m = i / nrows; f(i - m * nrows, m) }).collect()
         }
     }
 
@@ -216,7 +217,7 @@ impl<N: Copy> Indexable<(uint, uint), N> for DMat<N> {
     unsafe fn unsafe_set(&mut self, rowcol: (uint, uint), val: N) {
         let (row, col) = rowcol;
         let offset = self.offset(row, col);
-        *self.mij.as_mut_slice().unsafe_mut(offset) = val
+        *self.mij.as_mut_slice().get_unchecked_mut(offset) = val
     }
 
     /// Reads the value of a component of the matrix.
@@ -236,7 +237,7 @@ impl<N: Copy> Indexable<(uint, uint), N> for DMat<N> {
     unsafe fn unsafe_at(&self, rowcol: (uint,  uint)) -> N {
         let (row, col) = rowcol;
 
-        *self.mij.as_slice().unsafe_get(self.offset(row, col))
+        *self.mij.as_slice().get_unchecked(self.offset(row, col))
     }
 
     #[inline]
@@ -266,7 +267,7 @@ impl<N> Index<(uint, uint), N> for DMat<N> {
         assert!(j < self.ncols);
 
         unsafe {
-            self.mij.as_slice().unsafe_get(self.offset(i, j))
+            self.mij.as_slice().get_unchecked(self.offset(i, j))
         }
     }
 }
@@ -279,7 +280,7 @@ impl<N> IndexMut<(uint, uint), N> for DMat<N> {
         let offset = self.offset(i, j);
 
         unsafe {
-            self.mij.as_mut_slice().unsafe_mut(offset)
+            self.mij.as_mut_slice().get_unchecked_mut(offset)
         }
     }
 }
