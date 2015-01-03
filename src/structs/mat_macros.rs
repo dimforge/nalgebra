@@ -19,7 +19,7 @@ macro_rules! as_array_impl(
         impl<N> $t<N> {
             /// View this matrix as a column-major array of arrays.
             #[inline]
-            pub fn as_array(&self) -> &[[N, ..$dim], ..$dim] {
+            pub fn as_array(&self) -> &[[N; $dim]; $dim] {
                 unsafe {
                     mem::transmute(self)
                 }
@@ -27,7 +27,7 @@ macro_rules! as_array_impl(
 
             /// View this matrix as a column-major mutable array of arrays.
             #[inline]
-            pub fn as_array_mut<'a>(&'a mut self) -> &'a mut [[N, ..$dim], ..$dim] {
+            pub fn as_array_mut<'a>(&'a mut self) -> &'a mut [[N; $dim]; $dim] {
                 unsafe {
                     mem::transmute(self)
                 }
@@ -36,11 +36,11 @@ macro_rules! as_array_impl(
             // FIXME: because of https://github.com/rust-lang/rust/issues/16418 we cannot do the
             // array-to-mat conversion by-value:
             //
-            // pub fn from_array(array: [N, ..$dim]) -> $t<N>
+            // pub fn from_array(array: [N; $dim]) -> $t<N>
 
             /// View a column-major array of array as a vector.
             #[inline]
-            pub fn from_array_ref(array: &[[N, ..$dim], ..$dim]) -> &$t<N> {
+            pub fn from_array_ref(array: &[[N; $dim]; $dim]) -> &$t<N> {
                 unsafe {
                     mem::transmute(array)
                 }
@@ -48,7 +48,7 @@ macro_rules! as_array_impl(
 
             /// View a column-major array of array as a mutable vector.
             #[inline]
-            pub fn from_array_mut(array: &mut [[N, ..$dim], ..$dim]) -> &mut $t<N> {
+            pub fn from_array_mut(array: &mut [[N; $dim]; $dim]) -> &mut $t<N> {
                 unsafe {
                     mem::transmute(array)
                 }
@@ -62,13 +62,13 @@ macro_rules! at_fast_impl(
         impl<N: Copy> $t<N> {
             #[inline]
             pub unsafe fn at_fast(&self, (i, j): (uint, uint)) -> N {
-                (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)
+                (*mem::transmute::<&$t<N>, &[N; $dim * $dim]>(self)
                  .unsafe_get(i + j * $dim))
             }
 
             #[inline]
             pub unsafe fn set_fast(&mut self, (i, j): (uint, uint), val: N) {
-                (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
+                (*mem::transmute::<&mut $t<N>, &mut [N; $dim * $dim]>(self)
                  .get_unchecked_mut(i + j * $dim)) = val
             }
         }
@@ -183,7 +183,7 @@ macro_rules! iterable_impl(
         #[inline]
         fn iter<'l>(&'l self) -> Iter<'l, N> {
             unsafe {
-                mem::transmute::<&'l $t<N>, &'l [N, ..$dim * $dim]>(self).iter()
+                mem::transmute::<&'l $t<N>, &'l [N; $dim * $dim]>(self).iter()
             }
         }
     }
@@ -196,7 +196,7 @@ macro_rules! iterable_mut_impl(
         #[inline]
         fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
             unsafe {
-                mem::transmute::<&'l mut $t<N>, &'l mut [N, ..$dim * $dim]>(self).iter_mut()
+                mem::transmute::<&'l mut $t<N>, &'l mut [N; $dim * $dim]>(self).iter_mut()
             }
         }
     }
@@ -257,33 +257,33 @@ macro_rules! indexable_impl(
         #[inline]
         fn at(&self, (i, j): (uint, uint)) -> N {
             unsafe {
-                mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self)[i + j * $dim]
+                mem::transmute::<&$t<N>, &[N; $dim * $dim]>(self)[i + j * $dim]
             }
         }
 
         #[inline]
         fn set(&mut self, (i, j): (uint, uint), val: N) {
             unsafe {
-                mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)[i + j * $dim] = val
+                mem::transmute::<&mut $t<N>, &mut [N; $dim * $dim]>(self)[i + j * $dim] = val
             }
         }
 
         #[inline]
         fn swap(&mut self, (i1, j1): (uint, uint), (i2, j2): (uint, uint)) {
             unsafe {
-              mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)
+              mem::transmute::<&mut $t<N>, &mut [N; $dim * $dim]>(self)
                 .swap(i1 + j1 * $dim, i2 + j2 * $dim)
             }
         }
 
         #[inline]
         unsafe fn unsafe_at(&self, (i, j): (uint, uint)) -> N {
-            (*mem::transmute::<&$t<N>, &[N, ..$dim * $dim]>(self).unsafe_get(i + j * $dim))
+            (*mem::transmute::<&$t<N>, &[N; $dim * $dim]>(self).unsafe_get(i + j * $dim))
         }
 
         #[inline]
         unsafe fn unsafe_set(&mut self, (i, j): (uint, uint), val: N) {
-            (*mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self).get_unchecked_mut(i + j * $dim)) = val
+            (*mem::transmute::<&mut $t<N>, &mut [N; $dim * $dim]>(self).get_unchecked_mut(i + j * $dim)) = val
         }
     }
   )
@@ -294,7 +294,7 @@ macro_rules! index_impl(
         impl<N> Index<(uint, uint), N> for $t<N> {
             fn index(&self, &(i, j): &(uint, uint)) -> &N {
                 unsafe {
-                    &mem::transmute::<&$t<N>, &mut [N, ..$dim * $dim]>(self)[i + j * $dim]
+                    &mem::transmute::<&$t<N>, &mut [N; $dim * $dim]>(self)[i + j * $dim]
                 }
             }
         }
@@ -302,7 +302,7 @@ macro_rules! index_impl(
         impl<N> IndexMut<(uint, uint), N> for $t<N> {
             fn index_mut(&mut self, &(i, j): &(uint, uint)) -> &mut N {
                 unsafe {
-                    &mut mem::transmute::<&mut $t<N>, &mut [N, ..$dim * $dim]>(self)[i + j * $dim]
+                    &mut mem::transmute::<&mut $t<N>, &mut [N; $dim * $dim]>(self)[i + j * $dim]
                 }
             }
         }

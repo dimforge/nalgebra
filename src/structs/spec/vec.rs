@@ -153,7 +153,7 @@ impl<N: BaseFloat> Basis for Vec3<N> {
 }
 
 // FIXME: this bad: this fixes definitly the number of samples…
-static SAMPLES_2_F64: [Vec2<f64>, ..21] = [
+static SAMPLES_2_F64: [Vec2<f64>; 21] = [
     Vec2 { x: 1.0,         y: 0.0         },
     Vec2 { x: 0.95557281,  y: 0.29475517  },
     Vec2 { x: 0.82623877,  y: 0.56332006  },
@@ -178,7 +178,7 @@ static SAMPLES_2_F64: [Vec2<f64>, ..21] = [
 ];
 
 // Those vectors come from bullet 3d
-static SAMPLES_3_F64: [Vec3<f64>, ..42] = [
+static SAMPLES_3_F64: [Vec3<f64>; 42] = [
     Vec3 { x: 0.000000 , y: -0.000000, z: -1.000000 },
     Vec3 { x: 0.723608 , y: -0.525725, z: -0.447219 },
     Vec3 { x: -0.276388, y: -0.850649, z: -0.447219 },

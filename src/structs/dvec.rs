@@ -82,7 +82,7 @@ dvec_impl!(DVec);
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 1.
 pub struct DVec1<N> {
-    at:  [N, ..1],
+    at:  [N; 1],
     dim: uint
 }
 
@@ -92,7 +92,7 @@ small_dvec_from_impl!(DVec1, 1, ::zero());
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 2.
 pub struct DVec2<N> {
-    at:  [N, ..2],
+    at:  [N; 2],
     dim: uint
 }
 
@@ -102,7 +102,7 @@ small_dvec_from_impl!(DVec2, 2, ::zero(), ::zero());
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 3.
 pub struct DVec3<N> {
-    at:  [N, ..3],
+    at:  [N; 3],
     dim: uint
 }
 
@@ -112,7 +112,7 @@ small_dvec_from_impl!(DVec3, 3, ::zero(), ::zero(), ::zero());
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 4.
 pub struct DVec4<N> {
-    at:  [N, ..4],
+    at:  [N; 4],
     dim: uint
 }
 
@@ -122,7 +122,7 @@ small_dvec_from_impl!(DVec4, 4, ::zero(), ::zero(), ::zero(), ::zero());
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 5.
 pub struct DVec5<N> {
-    at:  [N, ..5],
+    at:  [N; 5],
     dim: uint
 }
 
@@ -132,7 +132,7 @@ small_dvec_from_impl!(DVec5, 5, ::zero(), ::zero(), ::zero(), ::zero(), ::zero()
 
 /// Stack-allocated, dynamically sized vector with a maximum size of 6.
 pub struct DVec6<N> {
-    at:  [N, ..6],
+    at:  [N; 6],
     dim: uint
 }
 

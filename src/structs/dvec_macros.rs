@@ -389,7 +389,7 @@ macro_rules! small_dvec_impl (
 
         impl<N: Clone> Clone for $dvec<N> {
             fn clone(&self) -> $dvec<N> {
-                let at: [N, ..$dim] = [ $( self.at[$idx].clone(), )* ];
+                let at: [N; $dim] = [ $( self.at[$idx].clone(), )* ];
 
                 $dvec {
                     at:  at,
@@ -410,7 +410,7 @@ macro_rules! small_dvec_from_impl (
             pub fn from_elem(dim: uint, elem: N) -> $dvec<N> {
                 assert!(dim <= $dim);
 
-                let mut at: [N, ..$dim] = [ $( $zeros, )* ];
+                let mut at: [N; $dim] = [ $( $zeros, )* ];
 
                 for n in at.slice_to_mut(dim).iter_mut() {
                     *n = elem;
@@ -432,7 +432,7 @@ macro_rules! small_dvec_from_impl (
                 assert!(dim <= vec.len() && dim <= $dim);
 
                 // FIXME: not safe.
-                let mut at: [N, ..$dim] = [ $( $zeros, )* ];
+                let mut at: [N; $dim] = [ $( $zeros, )* ];
 
                 for (curr, other) in vec.iter().zip(at.iter_mut()) {
                     *other = *curr;
@@ -451,7 +451,7 @@ macro_rules! small_dvec_from_impl (
             pub fn from_fn(dim: uint, f: |uint| -> N) -> $dvec<N> {
                 assert!(dim <= $dim);
 
-                let mut at: [N, ..$dim] = [ $( $zeros, )* ];
+                let mut at: [N; $dim] = [ $( $zeros, )* ];
 
                 for i in range(0, dim) {
                     at[i] = f(i);
@@ -467,7 +467,7 @@ macro_rules! small_dvec_from_impl (
         impl<N: Zero> FromIterator<N> for $dvec<N> {
             #[inline]
             fn from_iter<I: Iterator<N>>(mut param: I) -> $dvec<N> {
-                let mut at: [N, ..$dim] = [ $( $zeros, )* ];
+                let mut at: [N; $dim] = [ $( $zeros, )* ];
 
                 let mut dim = 0;
 
