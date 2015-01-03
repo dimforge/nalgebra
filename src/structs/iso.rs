@@ -3,6 +3,7 @@
 #![allow(missing_docs)]
 
 use std::rand::{Rand, Rng};
+use std::ops::{Add,Sub,Mul};
 use structs::mat::{Mat3, Mat4, Mat5};
 use traits::structure::{Cast, Dim, Col, BaseFloat, BaseNum, One};
 use traits::operations::{Inv, ApproxEq};

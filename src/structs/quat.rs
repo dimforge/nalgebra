@@ -6,6 +6,7 @@ use std::mem;
 use std::num;
 use std::rand::{Rand, Rng};
 use std::slice::{Iter, IterMut};
+use std::ops::{Index,IndexMut,Add,Sub,Mul,Div,Neg};
 use structs::{Vec3, Pnt3, Rot3, Mat3};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};

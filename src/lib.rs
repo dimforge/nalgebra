@@ -92,6 +92,8 @@ extern crate "rustc-serialize" as rustc_serialize;
 extern crate test;
 
 use std::cmp;
+use std::ops::Neg;
+
 pub use traits::{
     Absolute,
     AbsoluteRotate,

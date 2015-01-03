@@ -3,6 +3,7 @@
 #![allow(missing_docs)]
 
 use std::rand::{Rand, Rng};
+use std::ops::{Index,IndexMut,Mul,Neg};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
                        Norm, Cross};
 use traits::structure::{Cast, Dim, Row, Col, BaseFloat, BaseNum, Zero, One};

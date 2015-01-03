@@ -9,6 +9,7 @@ use std::rand;
 use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::DVec;
+use std::ops::{Index,IndexMut,Add,Sub,Mul,Div};
 use traits::operations::{Inv, Transpose, Mean, Cov};
 use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
 use std::fmt::{Show, Formatter, Result};
