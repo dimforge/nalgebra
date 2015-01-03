@@ -1,3 +1,4 @@
+use std::ops::{Add,Sub,Mul};
 use traits::operations::{Transpose, ApproxEq};
 use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat, BaseFloat};
 use traits::geometry::Norm;

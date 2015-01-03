@@ -1,3 +1,4 @@
+use std::ops::{Add,Mul};
 use structs::vec::{Vec2, Vec3};
 use structs::pnt::{Pnt2, Pnt3};
 use structs::mat::{Mat1, Mat2, Mat3};

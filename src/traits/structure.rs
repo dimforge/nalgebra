@@ -4,6 +4,7 @@ use std::f32;
 use std::f64;
 use std::num::{Int, Float, FloatMath};
 use std::slice::{Iter, IterMut};
+use std::ops::{Index,IndexMut,Add,Sub,Mul,Div,Rem,Neg};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 

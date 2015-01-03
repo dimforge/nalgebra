@@ -1,6 +1,7 @@
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator};
+use std::ops::{Index,IndexMut,Add,Sub,Mul,Div,Neg};
 use traits::operations::ApproxEq;
 use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape, BaseFloat, BaseNum,
                         Zero, One, Bounded};

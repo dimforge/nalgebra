@@ -1,10 +1,12 @@
 //! Low level operations on vectors and matrices.
 
+use std::ops::{Mul};
+use std::cmp::{Ordering};
 use std::num::{Float, SignedInt};
 use traits::structure::SquareMat;
 
 /// Result of a partial ordering.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
 pub enum POrdering {
     /// Result of a strict comparison.
     PartialLess,
@@ -50,9 +52,9 @@ impl POrdering {
     /// Creates a `POrdering` from an `Ordering`.
     pub fn from_ordering(ord: Ordering) -> POrdering {
         match ord {
-            Less    => POrdering::PartialLess,
-            Equal   => POrdering::PartialEqual,
-            Greater => POrdering::PartialGreater
+            Ordering::Less    => POrdering::PartialLess,
+            Ordering::Equal   => POrdering::PartialEqual,
+            Ordering::Greater => POrdering::PartialGreater
         }
     }
 
@@ -61,9 +63,9 @@ impl POrdering {
     /// Returns `None` if `self` is `NotComparable`.
     pub fn to_ordering(self) -> Option<Ordering> {
         match self {
-            POrdering::PartialLess    => Some(Less),
-            POrdering::PartialEqual   => Some(Equal),
-            POrdering::PartialGreater => Some(Greater),
+            POrdering::PartialLess    => Some(Ordering::Less),
+            POrdering::PartialEqual   => Some(Ordering::Equal),
+            POrdering::PartialGreater => Some(Ordering::Greater),
             POrdering::NotComparable  => None
         }
     }

@@ -9,13 +9,14 @@ use std::rand;
 use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::DVec;
+use std::ops::{Index,IndexMut,Add,Sub,Mul,Div};
 use traits::operations::{Inv, Transpose, Mean, Cov};
 use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
 use std::fmt::{Show, Formatter, Result};
 
 
 /// Matrix with dimensions unknown at compile-time.
-#[deriving(Eq, PartialEq, Clone)]
+#[derive(Eq, PartialEq, Clone)]
 pub struct DMat<N> {
     nrows: uint,
     ncols: uint,

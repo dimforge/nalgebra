@@ -1,3 +1,4 @@
+use std::ops::{Sub,Mul,Neg};
 use traits::structure::{Cast, Row, Basis, BaseFloat, Zero, One};
 use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
