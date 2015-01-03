@@ -1,10 +1,13 @@
 //! Low level operations on vectors and matrices.
 
 use std::num::{Float, SignedInt};
+use std::ops::*;
+use std::cmp::*;
+use std::cmp::Ordering::*;
 use traits::structure::SquareMat;
 
 /// Result of a partial ordering.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
 pub enum POrdering {
     /// Result of a strict comparison.
     PartialLess,
@@ -149,7 +152,7 @@ pub trait POrd {
 }
 
 /// Trait for testing approximate equality
-pub trait ApproxEq<Eps> {
+pub trait ApproxEq<Eps>: Sized {
     /// Default epsilon for approximation.
     fn approx_epsilon(unused_self: Option<Self>) -> Eps;
 

@@ -6,6 +6,7 @@ extern crate "nalgebra" as na;
 use std::rand::{IsaacRng, Rng};
 use test::Bencher;
 use na::{Vec2, Vec3, Vec4, Mat2, Mat3, Mat4};
+use std::ops::{Add, Sub, Mul, Div};
 
 #[path="common/macros.rs"]
 mod macros;

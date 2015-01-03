@@ -4,7 +4,7 @@ use structs::{Pnt3, Vec3, Mat4};
 /// A 3D perspective projection stored without any matrix.
 ///
 /// Reading or modifying its individual properties is cheap but applying the transformation is costly.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
 pub struct Persp3<N> {
     aspect: N,
     fov:    N,
@@ -15,7 +15,7 @@ pub struct Persp3<N> {
 /// A 3D perspective projection stored as a 4D matrix.
 ///
 /// Reading or modifying its individual properties is costly but applying the transformation is cheap.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
 pub struct PerspMat3<N> {
     mat: Mat4<N>
 }

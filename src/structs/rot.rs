@@ -2,6 +2,8 @@
 
 #![allow(missing_docs)]
 
+use std::ops::*;
+
 use std::rand::{Rand, Rng};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
                        Norm, Cross};
@@ -13,7 +15,7 @@ use structs::mat::{Mat2, Mat3, Mat4, Mat5};
 
 
 /// Two dimensional rotation matrix.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]
 pub struct Rot2<N> {
     submat: Mat2<N>
 }
@@ -90,7 +92,7 @@ impl<N: BaseFloat> AbsoluteRotate<Vec2<N>> for Rot2<N> {
  * 3d rotation
  */
 /// Three dimensional rotation matrix.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]
 pub struct Rot3<N> {
     submat: Mat3<N>
 }
@@ -288,7 +290,7 @@ impl<N: BaseFloat> AbsoluteRotate<Vec3<N>> for Rot3<N> {
 }
 
 /// Four dimensional rotation matrix.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]
 pub struct Rot4<N> {
     submat: Mat4<N>
 }
