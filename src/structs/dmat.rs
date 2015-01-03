@@ -15,7 +15,7 @@ use std::fmt::{Show, Formatter, Result};
 
 
 /// Matrix with dimensions unknown at compile-time.
-#[deriving(Eq, PartialEq, Clone)]
+#[derive(Eq, PartialEq, Clone)]
 pub struct DMat<N> {
     nrows: uint,
     ncols: uint,
