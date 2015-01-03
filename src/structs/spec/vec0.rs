@@ -67,14 +67,14 @@ impl<N> Indexable<uint, N> for vec::Vec0<N> {
 impl<N: 'static> Iterable<N> for vec::Vec0<N> {
     #[inline]
     fn iter<'l>(&'l self) -> Iter<'l, N> {
-        unsafe { mem::transmute::<&'l vec::Vec0<N>, &'l [N, ..0]>(self).iter() }
+        unsafe { mem::transmute::<&'l vec::Vec0<N>, &'l [N; 0]>(self).iter() }
     }
 }
 
 impl<N: 'static> IterableMut<N> for vec::Vec0<N> {
     #[inline]
     fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
-        unsafe { mem::transmute::<&'l mut vec::Vec0<N>, &'l mut [N, ..0]>(self).iter_mut() }
+        unsafe { mem::transmute::<&'l mut vec::Vec0<N>, &'l mut [N; 0]>(self).iter_mut() }
     }
 }
 
