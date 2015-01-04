@@ -210,7 +210,9 @@ impl<N: Copy> Col<Vec3<N>> for Mat3<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Mat3<N>> for Mat3<N> {
+    type Output = Mat3<N>;
+
     #[inline]
     fn mul(self, right: Mat3<N>) -> Mat3<N> {
         Mat3::new(
@@ -229,7 +231,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Mat3<N>> for Mat3<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Mat2<N>> for Mat2<N> {
+    type Output = Mat2<N>;
+
     #[inline(always)]
     fn mul(self, right: Mat2<N>) -> Mat2<N> {
         Mat2::new(
@@ -242,7 +246,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Mat2<N>> for Mat2<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Vec3<N>, Vec3<N>> for Mat3<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Vec3<N>> for Mat3<N> {
+    type Output = Vec3<N>;
+
     #[inline(always)]
     fn mul(self, right: Vec3<N>) -> Vec3<N> {
         Vec3::new(
@@ -253,7 +259,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Vec3<N>, Vec3<N>> for Mat3<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Vec3<N>> for Vec3<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Mat3<N>> for Vec3<N> {
+    type Output = Vec3<N>;
+
     #[inline(always)]
     fn mul(self, right: Mat3<N>) -> Vec3<N> {
         Vec3::new(
@@ -264,7 +272,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Vec3<N>> for Vec3<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Vec2<N>> for Vec2<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Mat2<N>> for Vec2<N> {
+    type Output = Vec2<N>;
+
     #[inline(always)]
     fn mul(self, right: Mat2<N>) -> Vec2<N> {
         Vec2::new(
@@ -274,7 +284,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Vec2<N>> for Vec2<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Vec2<N>, Vec2<N>> for Mat2<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Vec2<N>> for Mat2<N> {
+    type Output = Vec2<N>;
+
     #[inline(always)]
     fn mul(self, right: Vec2<N>) -> Vec2<N> {
         Vec2::new(
@@ -284,7 +296,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Vec2<N>, Vec2<N>> for Mat2<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Pnt3<N>, Pnt3<N>> for Mat3<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Pnt3<N>> for Mat3<N> {
+    type Output = Pnt3<N>;
+
     #[inline(always)]
     fn mul(self, right: Pnt3<N>) -> Pnt3<N> {
         Pnt3::new(
@@ -295,7 +309,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Pnt3<N>, Pnt3<N>> for Mat3<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Pnt3<N>> for Pnt3<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Mat3<N>> for Pnt3<N> {
+    type Output = Pnt3<N>;
+
     #[inline(always)]
     fn mul(self, right: Mat3<N>) -> Pnt3<N> {
         Pnt3::new(
@@ -306,7 +322,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat3<N>, Pnt3<N>> for Pnt3<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Pnt2<N>> for Pnt2<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Mat2<N>> for Pnt2<N> {
+    type Output = Pnt2<N>;
+
     #[inline(always)]
     fn mul(self, right: Mat2<N>) -> Pnt2<N> {
         Pnt2::new(
@@ -316,7 +334,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Mat2<N>, Pnt2<N>> for Pnt2<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N>> Mul<Pnt2<N>, Pnt2<N>> for Mat2<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Pnt2<N>> for Mat2<N> {
+    type Output = Pnt2<N>;
+
     #[inline(always)]
     fn mul(self, right: Pnt2<N>) -> Pnt2<N> {
         Pnt2::new(

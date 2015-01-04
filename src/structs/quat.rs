@@ -56,7 +56,7 @@ impl<N> Quat<N> {
     }
 }
 
-impl<N: Neg<N> + Copy> Quat<N> {
+impl<N: Neg<Output = N> + Copy> Quat<N> {
     /// Replaces this quaternion by its conjugate.
     #[inline]
     pub fn conjugate(&mut self) {
@@ -123,7 +123,10 @@ impl<N: BaseFloat> Norm<N> for Quat<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Sub<N, N> + Add<N, N>> Mul<Quat<N>, Quat<N>> for Quat<N> {
+impl<N> Mul<Quat<N>> for Quat<N>
+    where N: Copy + Mul<N, Output = N> + Sub<N, Output = N> + Add<N, Output = N> {
+    type Output = Quat<N>;
+
     #[inline]
     fn mul(self, right: Quat<N>) -> Quat<N> {
         Quat::new(
@@ -134,7 +137,9 @@ impl<N: Copy + Mul<N, N> + Sub<N, N> + Add<N, N>> Mul<Quat<N>, Quat<N>> for Quat
     }
 }
 
-impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>, Quat<N>> for Quat<N> {
+impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>> for Quat<N> {
+    type Output = Quat<N>;
+
     #[inline]
     fn div(self, right: Quat<N>) -> Quat<N> {
         self * right.inv_cpy().expect("Unable to invert the denominator.")
@@ -261,7 +266,7 @@ impl<N: BaseNum> One for UnitQuat<N> {
     }
 }
 
-impl<N: Copy + Neg<N>> Inv for UnitQuat<N> {
+impl<N: Copy + Neg<Output = N>> Inv for UnitQuat<N> {
     #[inline]
     fn inv_cpy(&self) -> Option<UnitQuat<N>> {
         let mut cpy = *self;
@@ -307,21 +312,27 @@ impl<N: ApproxEq<N>> ApproxEq<N> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseFloat + ApproxEq<N>> Div<UnitQuat<N>, UnitQuat<N>> for UnitQuat<N> {
+impl<N: BaseFloat + ApproxEq<N>> Div<UnitQuat<N>> for UnitQuat<N> {
+    type Output = UnitQuat<N>;
+
     #[inline]
     fn div(self, other: UnitQuat<N>) -> UnitQuat<N> {
         UnitQuat { q: self.q / other.q }
     }
 }
 
-impl<N: BaseNum> Mul<UnitQuat<N>, UnitQuat<N>> for UnitQuat<N> {
+impl<N: BaseNum> Mul<UnitQuat<N>> for UnitQuat<N> {
+    type Output = UnitQuat<N>;
+
     #[inline]
     fn mul(self, right: UnitQuat<N>) -> UnitQuat<N> {
         UnitQuat { q: self.q * right.q }
     }
 }
 
-impl<N: BaseNum> Mul<Vec3<N>, Vec3<N>> for UnitQuat<N> {
+impl<N: BaseNum> Mul<Vec3<N>> for UnitQuat<N> {
+    type Output = Vec3<N>;
+
     #[inline]
     fn mul(self, right: Vec3<N>) -> Vec3<N> {
         let _2: N = ::one::<N>() + ::one();
@@ -334,14 +345,18 @@ impl<N: BaseNum> Mul<Vec3<N>, Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum> Mul<Pnt3<N>, Pnt3<N>> for UnitQuat<N> {
+impl<N: BaseNum> Mul<Pnt3<N>> for UnitQuat<N> {
+    type Output = Pnt3<N>;
+
     #[inline]
     fn mul(self, right: Pnt3<N>) -> Pnt3<N> {
         ::orig::<Pnt3<N>>() + self * *right.as_vec()
     }
 }
 
-impl<N: BaseNum> Mul<UnitQuat<N>, Vec3<N>> for Vec3<N> {
+impl<N: BaseNum> Mul<UnitQuat<N>> for Vec3<N> {
+    type Output = Vec3<N>;
+
     #[inline]
     fn mul(self, right: UnitQuat<N>) -> Vec3<N> {
         let mut inv_quat = right;
@@ -352,7 +367,9 @@ impl<N: BaseNum> Mul<UnitQuat<N>, Vec3<N>> for Vec3<N> {
     }
 }
 
-impl<N: BaseNum> Mul<UnitQuat<N>, Pnt3<N>> for Pnt3<N> {
+impl<N: BaseNum> Mul<UnitQuat<N>> for Pnt3<N> {
+    type Output = Pnt3<N>;
+
     #[inline]
     fn mul(self, right: UnitQuat<N>) -> Pnt3<N> {
         ::orig::<Pnt3<N>>() + *self.as_vec() * right

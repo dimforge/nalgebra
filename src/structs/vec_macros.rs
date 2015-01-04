@@ -192,7 +192,7 @@ macro_rules! vec_cast_impl(
 
 macro_rules! indexable_impl(
     ($t: ident, $dim: expr) => (
-        impl<N> Shape<uint, N> for $t<N> {
+        impl<N> Shape<uint> for $t<N> {
             #[inline]
             fn shape(&self) -> uint {
                 $dim
@@ -236,13 +236,17 @@ macro_rules! indexable_impl(
 
 macro_rules! index_impl(
     ($t: ident) => (
-        impl<N> Index<uint, N> for $t<N> {
+        impl<N> Index<uint> for $t<N> {
+            type Output = N;
+
             fn index(&self, i: &uint) -> &N {
                 &self.as_array()[*i]
             }
         }
 
-        impl<N> IndexMut<uint, N> for $t<N> {
+        impl<N> IndexMut<uint> for $t<N> {
+            type Output = N;
+
             fn index_mut(&mut self, i: &uint) -> &mut N {
                 &mut self.as_array_mut()[*i]
             }
@@ -391,7 +395,9 @@ macro_rules! axpy_impl(
 
 macro_rules! add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
+        impl<N: Add<N, Output = N>> Add<$t<N>> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn add(self, right: $t<N>) -> $t<N> {
                 $t::new(self.$comp0 + right.$comp0 $(, self.$compN + right.$compN)*)
@@ -403,7 +409,9 @@ macro_rules! add_impl(
 macro_rules! scalar_add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
         // $t against scalar
-        impl<N: Copy + Add<N, N>> Add<N, $t<N>> for $t<N> {
+        impl<N: Copy + Add<N, Output = N>> Add<N> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn add(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 + right $(, self.$compN + right)*)
@@ -414,7 +422,9 @@ macro_rules! scalar_add_impl(
 
 macro_rules! sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
+        impl<N: Sub<N, Output = N>> Sub<$t<N>> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn sub(self, right: $t<N>) -> $t<N> {
                 $t::new(self.$comp0 - right.$comp0 $(, self.$compN - right.$compN)*)
@@ -425,7 +435,9 @@ macro_rules! sub_impl(
 
 macro_rules! scalar_sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Copy + Sub<N, N>> Sub<N, $t<N>> for $t<N> {
+        impl<N: Copy + Sub<N, Output = N>> Sub<N> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn sub(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 - right $(, self.$compN - right)*)
@@ -436,7 +448,8 @@ macro_rules! scalar_sub_impl(
 
 macro_rules! mul_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Copy + Mul<N, N>> Mul<$t<N>, $t<N>> for $t<N> {
+        impl<N: Copy + Mul<N, Output = N>> Mul<$t<N>> for $t<N> {
+            type Output = $t<N>;
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
                 $t::new(self.$comp0 * right.$comp0 $(, self.$compN * right.$compN)*)
@@ -447,7 +460,9 @@ macro_rules! mul_impl(
 
 macro_rules! scalar_mul_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Copy + Mul<N, N>> Mul<N, $t<N>> for $t<N> {
+        impl<N: Copy + Mul<N, Output = N>> Mul<N> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn mul(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 * right $(, self.$compN * right)*)
@@ -458,7 +473,9 @@ macro_rules! scalar_mul_impl(
 
 macro_rules! div_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Copy + Div<N, N>> Div<$t<N>, $t<N>> for $t<N> {
+        impl<N: Copy + Div<N, Output = N>> Div<$t<N>> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn div(self, right: $t<N>) -> $t<N> {
                 $t::new(self.$comp0 / right.$comp0 $(, self.$compN / right.$compN)*)
@@ -469,7 +486,9 @@ macro_rules! div_impl(
 
 macro_rules! scalar_div_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Copy + Div<N, N>> Div<N, $t<N>> for $t<N> {
+        impl<N: Copy + Div<N, Output = N>> Div<N> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn div(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 / right $(, self.$compN / right)*)
@@ -480,7 +499,9 @@ macro_rules! scalar_div_impl(
 
 macro_rules! neg_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Neg<N> + Copy> Neg<$t<N>> for $t<N> {
+        impl<N: Neg<Output = N> + Copy> Neg for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn neg(self) -> $t<N> {
                 $t::new(-self.$comp0 $(, -self.$compN )*)
@@ -502,28 +523,28 @@ macro_rules! dot_impl(
 
 macro_rules! scalar_ops_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Copy + Mul<N, N>> ScalarMul<N> for $t<N> {
+        impl<N: Copy + Mul<N, Output = N>> ScalarMul<N> for $t<N> {
             #[inline]
             fn mul_s(&self, other: &N) -> $t<N> {
                 $t::new(self.$comp0 * *other $(, self.$compN * *other)*)
             }
         }
 
-        impl<N: Copy + Div<N, N>> ScalarDiv<N> for $t<N> {
+        impl<N: Copy + Div<N, Output = N>> ScalarDiv<N> for $t<N> {
             #[inline]
             fn div_s(&self, other: &N) -> $t<N> {
                 $t::new(self.$comp0 / *other $(, self.$compN / *other)*)
             }
         }
 
-        impl<N: Copy + Add<N, N>> ScalarAdd<N> for $t<N> {
+        impl<N: Copy + Add<N, Output = N>> ScalarAdd<N> for $t<N> {
             #[inline]
             fn add_s(&self, other: &N) -> $t<N> {
                 $t::new(self.$comp0 + *other $(, self.$compN + *other)*)
             }
         }
 
-        impl<N: Copy + Sub<N, N>> ScalarSub<N> for $t<N> {
+        impl<N: Copy + Sub<N, Output = N>> ScalarSub<N> for $t<N> {
             #[inline]
             fn sub_s(&self, other: &N) -> $t<N> {
                 $t::new(self.$comp0 - *other $(, self.$compN - *other)*)
@@ -534,7 +555,7 @@ macro_rules! scalar_ops_impl(
 
 macro_rules! translation_impl(
     ($t: ident) => (
-        impl<N: Copy + Add<N, N> + Neg<N>> Translation<$t<N>> for $t<N> {
+        impl<N: Copy + Add<N, Output = N> + Neg<Output = N>> Translation<$t<N>> for $t<N> {
             #[inline]
             fn translation(&self) -> $t<N> {
                 *self
@@ -669,7 +690,7 @@ macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident $(, $paramN: ident)*) => (
         impl<N> FromIterator<N> for $t<N> {
             #[inline]
-            fn from_iter<I: Iterator<N>>(mut $param0: I) -> $t<N> {
+            fn from_iter<I: Iterator<Item = N>>(mut $param0: I) -> $t<N> {
                 $t::new($param0.next().unwrap() $(, $paramN.next().unwrap())*)
             }
         }
@@ -715,7 +736,7 @@ macro_rules! vec_to_homogeneous_impl(
 
 macro_rules! vec_from_homogeneous_impl(
     ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Copy + Div<N, N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N> {
+        impl<N: Copy + Div<N, Output = N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N> {
             fn from(v: &$t2<N>) -> $t<N> {
                 let mut res: $t<N> = ::zero();
 
@@ -730,7 +751,7 @@ macro_rules! vec_from_homogeneous_impl(
 
 macro_rules! translate_impl(
     ($tv: ident, $t: ident) => (
-        impl<N: Copy + Add<N, N> + Sub<N, N>> Translate<$t<N>> for $tv<N> {
+        impl<N: Copy + Add<N, Output = N> + Sub<N, Output = N>> Translate<$t<N>> for $tv<N> {
             fn translate(&self, other: &$t<N>) -> $t<N> {
                 *other + *self
             }
@@ -758,7 +779,7 @@ macro_rules! rotate_impl(
 
 macro_rules! transform_impl(
     ($tv: ident, $t: ident) => (
-        impl<N: Copy + Add<N, N> + Sub<N, N>> Transform<$t<N>> for $tv<N> {
+        impl<N: Copy + Add<N, Output = N> + Sub<N, Output = N>> Transform<$t<N>> for $tv<N> {
             fn transform(&self, other: &$t<N>) -> $t<N> {
                 self.translate(other)
             }

@@ -80,7 +80,9 @@ macro_rules! dim_impl(
 
 macro_rules! rotation_matrix_impl(
     ($t: ident, $tlv: ident, $tav: ident) => (
-        impl<N: Zero + BaseNum + Cast<f64> + BaseFloat> RotationMatrix<N, $tlv<N>, $tav<N>, $t<N>> for $t<N> {
+        impl<N: Zero + BaseNum + Cast<f64> + BaseFloat> RotationMatrix<N, $tlv<N>, $tav<N>> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn to_rot_mat(&self) -> $t<N> {
                 self.clone()
@@ -102,7 +104,9 @@ macro_rules! one_impl(
 
 macro_rules! rot_mul_rot_impl(
     ($t: ident) => (
-        impl<N: BaseNum> Mul<$t<N>, $t<N>> for $t<N> {
+        impl<N: BaseNum> Mul<$t<N>> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
                 $t { submat: self.submat * right.submat }
@@ -113,7 +117,9 @@ macro_rules! rot_mul_rot_impl(
 
 macro_rules! rot_mul_vec_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: BaseNum> Mul<$tv<N>, $tv<N>> for $t<N> {
+        impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
+            type Output = $tv<N>;
+
             #[inline]
             fn mul(self, right: $tv<N>) -> $tv<N> {
                 self.submat * right
@@ -130,7 +136,9 @@ macro_rules! rot_mul_pnt_impl(
 
 macro_rules! vec_mul_rot_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: BaseNum> Mul<$t<N>, $tv<N>> for $tv<N> {
+        impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
+            type Output = $tv<N>;
+
             #[inline]
             fn mul(self, right: $t<N>) -> $tv<N> {
                 self * right.submat
@@ -223,7 +231,9 @@ macro_rules! col_impl(
 
 macro_rules! index_impl(
     ($t: ident) => (
-        impl<N> Index<(uint, uint), N> for $t<N> {
+        impl<N> Index<(uint, uint)> for $t<N> {
+            type Output = N;
+
             fn index(&self, i: &(uint, uint)) -> &N {
                 &self.submat[*i]
             }

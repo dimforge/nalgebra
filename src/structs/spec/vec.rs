@@ -4,7 +4,9 @@ use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::mat::Mat3;
 
-impl<N: Copy + Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
+impl<N: Copy + Mul<N, Output = N> + Sub<N, Output = N>> Cross for Vec2<N> {
+    type Output = Vec1<N>;
+
     #[inline]
     fn cross(&self, other: &Vec2<N>) -> Vec1<N> {
         Vec1::new(self.x * other.y - self.y * other.x)
@@ -12,14 +14,16 @@ impl<N: Copy + Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
 }
 
 // FIXME: instead of returning a Vec2, define a Mat2x1 matrix?
-impl<N: Neg<N> + Copy> CrossMatrix<Vec2<N>> for Vec2<N> {
+impl<N: Neg<Output = N> + Copy> CrossMatrix<Vec2<N>> for Vec2<N> {
     #[inline]
     fn cross_matrix(&self) -> Vec2<N> {
         Vec2::new(-self.y, self.x)
     }
 }
 
-impl<N: Copy + Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
+impl<N: Copy + Mul<N, Output = N> + Sub<N, Output = N>> Cross for Vec3<N> {
+    type Output = Vec3<N>;
+
     #[inline]
     fn cross(&self, other: &Vec3<N>) -> Vec3<N> {
         Vec3::new(
@@ -30,7 +34,7 @@ impl<N: Copy + Mul<N, N> + Sub<N, N>> Cross<Vec3<N>> for Vec3<N> {
     }
 }
 
-impl<N: Neg<N> + Zero + Copy> CrossMatrix<Mat3<N>> for Vec3<N> {
+impl<N: Neg<Output = N> + Zero + Copy> CrossMatrix<Mat3<N>> for Vec3<N> {
     #[inline]
     fn cross_matrix(&self) -> Mat3<N> {
         Mat3::new(
@@ -88,7 +92,7 @@ impl<N: One> Basis for Vec1<N> {
     }
 }
 
-impl<N: Copy + One + Zero + Neg<N>> Basis for Vec2<N> {
+impl<N: Copy + One + Zero + Neg<Output = N>> Basis for Vec2<N> {
     #[inline(always)]
     fn canonical_basis(f: |Vec2<N>| -> bool) {
         if !f(Vec2::new(::one(), ::zero())) { return };

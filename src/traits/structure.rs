@@ -9,9 +9,11 @@ use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
 /// Basic integral numeric trait.
-pub trait BaseNum: Copy + Zero + One + Add<Self, Self> + Sub<Self, Self> + Mul<Self, Self> +
-                   Div<Self, Self> + Rem<Self, Self> + Neg<Self> + PartialEq + Absolute<Self> +
-                   Axpy<Self> {
+pub trait BaseNum: Copy + Zero + One +
+                   Add<Self, Output = Self> + Sub<Self, Output = Self> +
+                   Mul<Self, Output = Self> + Div<Self, Output = Self> +
+                   Rem<Self, Output = Self> + Neg<Output = Self> + PartialEq +
+                   Absolute<Self> + Axpy<Self> {
 }
 
 /// Basic floating-point number numeric trait.
@@ -58,19 +60,19 @@ pub trait Cast<T> {
 /// Trait of matrices.
 ///
 /// A matrix has rows and columns and are able to multiply them.
-pub trait Mat<N, R, C>: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(uint, uint), N> { }
+pub trait Mat<N, R, C>: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(uint, uint), Output = N> { }
 
 impl<N, M, R, C> Mat<N, R, C> for M
-    where M: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(uint, uint), N> {
+    where M: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(uint, uint), Output = N> {
 }
 
 /// Trait implemented by square matrices.
-pub trait SquareMat<N, V>: Mat<N, V, V> + Mul<Self, Self> + Eye + Transpose + Diag<V> + Inv + Dim +
-                           One {
+pub trait SquareMat<N, V>: Mat<N, V, V> +
+                           Mul<Self, Output = Self> + Eye + Transpose + Diag<V> + Inv + Dim + One {
 }
 
 impl<N, V, M> SquareMat<N, V> for M
-    where M: Mat<N, V, V> + Mul<M, M> + Eye + Transpose + Diag<V> + Inv + Dim + One {
+    where M: Mat<N, V, V> + Mul<M, Output = M> + Eye + Transpose + Diag<V> + Inv + Dim + One {
 }
 
 /// Trait for constructing the identity matrix
@@ -175,7 +177,7 @@ pub trait Diag<V> {
 }
 
 /// The shape of an indexable object.
-pub trait Shape<I, Res>: Index<I, Res> {
+pub trait Shape<I>: Index<I> {
     /// Returns the shape of an indexable object.
     fn shape(&self) -> I;
 }
@@ -185,24 +187,24 @@ pub trait Shape<I, Res>: Index<I, Res> {
 /// It exists because the `I` trait cannot be used to express write access.
 /// Thus, this is the same as the `I` trait but without the syntactic sugar and with a method
 /// to write to a specific index.
-pub trait Indexable<I, Res>: Shape<I, Res> + IndexMut<I, Res> {
+pub trait Indexable<I, N>: Shape<I> + IndexMut<I, Output = N> {
     #[deprecated = "use the Index `[]` overloaded operator instead"]
     /// Reads the `i`-th element of `self`.
-    fn at(&self, i: I) -> Res;
+    fn at(&self, i: I) -> N;
     #[deprecated = "use the IndexMut `[]` overloaded operator instead"]
     /// Writes to the `i`-th element of `self`.
-    fn set(&mut self, i: I, Res);
+    fn set(&mut self, i: I, N);
     /// Swaps the `i`-th element of `self` with its `j`-th element.
     fn swap(&mut self, i: I, j: I);
 
     /// Reads the `i`-th element of `self`.
     ///
     /// `i` is not checked.
-    unsafe fn unsafe_at(&self, i: I) -> Res;
+    unsafe fn unsafe_at(&self, i: I) -> N;
     /// Writes to the `i`-th element of `self`.
     ///
     /// `i` is not checked.
-    unsafe fn unsafe_set(&mut self, i: I, Res);
+    unsafe fn unsafe_set(&mut self, i: I, N);
 }
 
 /// This is a workaround of current Rust limitations.
@@ -235,8 +237,12 @@ pub trait VecAsPnt<P> {
 }
 
 /// Trait grouping most common operations on vectors.
-pub trait NumVec<N>: Dim + Sub<Self, Self> + Add<Self, Self> + Neg<Self> + Zero + PartialEq +
-                     Mul<N, Self> + Div<N, Self> + Dot<N> + Axpy<N> + Index<uint, N> {
+pub trait NumVec<N>: Dim +
+                     Sub<Self, Output = Self> + Add<Self, Output = Self> +
+                     Mul<N, Output = Self> + Div<N, Output = Self> + 
+                     Neg<Output = Self> +
+                     Index<uint, Output = N> +
+                     Zero + PartialEq + Dot<N> + Axpy<N> {
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
@@ -264,8 +270,18 @@ pub trait PntAsVec<V> {
 // XXX: the vector space element `V` should be an associated type. Though this would prevent V from
 // having bounds (they are not supported yet). So, for now, we will just use a type parameter.
 pub trait NumPnt<N, V>:
-          Copy + PntAsVec<V> + Dim + Sub<Self, V> + Orig + Neg<Self> + PartialEq + Mul<N, Self> +
-          Div<N, Self> + Add<V, Self> + Axpy<N> + Index<uint, N> { // FIXME: + Sub<V, Self>
+          Copy +
+          PntAsVec<V> +
+          Dim +
+          Orig +
+          PartialEq +
+          Axpy<N> +
+          Sub<Self, Output = V> +
+          Neg<Output = Self>    +
+          Mul<N, Output = Self> +
+          Div<N, Output = Self> +
+          Add<V, Output = Self> +
+          Index<uint, Output = N> { // FIXME: + Sub<V, Self>
 }
 
 /// Trait of points with components implementing the `BaseFloat` trait.

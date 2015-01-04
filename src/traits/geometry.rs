@@ -82,7 +82,7 @@ pub trait Rotate<V> {
 ///
 /// Those operations are automatically implemented in term of the `Rotation` and `Translation`
 /// traits.
-pub trait RotationWithTranslation<LV: Neg<LV> + Copy, AV>: Rotation<AV> + Translation<LV> + Sized {
+pub trait RotationWithTranslation<LV: Neg<Output = LV> + Copy, AV>: Rotation<AV> + Translation<LV> + Sized {
     /// Applies a rotation centered on a specific point.
     ///
     /// # Arguments
@@ -136,14 +136,16 @@ pub trait RotationWithTranslation<LV: Neg<LV> + Copy, AV>: Rotation<AV> + Transl
     }
 }
 
-impl<LV: Neg<LV> + Copy, AV, M: Rotation<AV> + Translation<LV>> RotationWithTranslation<LV, AV> for M {
+impl<LV: Neg<Output = LV> + Copy, AV, M: Rotation<AV> + Translation<LV>> RotationWithTranslation<LV, AV> for M {
 }
 
 /// Trait of transformation having a rotation extractable as a rotation matrix. This can typically
 /// be implemented by quaternions to convert them to a rotation matrix.
-pub trait RotationMatrix<N, LV, AV, M: Mat<N, LV, LV> + Rotation<AV>> : Rotation<AV> {
+pub trait RotationMatrix<N, LV, AV> : Rotation<AV> {
+    type Output: Mat<N, LV, LV> + Rotation<AV>;
+
     /// Gets the rotation matrix represented by `self`.
-    fn to_rot_mat(&self) -> M;
+    fn to_rot_mat(&self) -> Self::Output;
 }
 
 /// Composition of a rotation and an absolute value.
@@ -227,9 +229,11 @@ pub trait Norm<N: BaseFloat> {
 /**
  * Trait of elements having a cross product.
  */
-pub trait Cross<V> {
+pub trait Cross {
+    type Output;
+
     /// Computes the cross product between two elements (usually vectors).
-    fn cross(&self, other: &Self) -> V;
+    fn cross(&self, other: &Self) -> Self::Output;
 }
 
 /**
