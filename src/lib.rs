@@ -84,6 +84,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![warn(missing_docs)]
 #![feature(macro_rules)]
 #![feature(globs)]
+#![feature(old_orphan_check)]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
 extern crate "rustc-serialize" as rustc_serialize;
@@ -92,6 +93,7 @@ extern crate "rustc-serialize" as rustc_serialize;
 extern crate test;
 
 use std::cmp;
+use std::ops::*;
 pub use traits::{
     Absolute,
     AbsoluteRotate,

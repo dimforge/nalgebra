@@ -6,6 +6,8 @@ use std::mem;
 use std::num;
 use std::rand::{Rand, Rng};
 use std::slice::{Iter, IterMut};
+use std::ops::*;
+use std::iter::FromIterator;
 use structs::{Vec3, Pnt3, Rot3, Mat3};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
@@ -14,7 +16,7 @@ use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, Base
 use traits::geometry::{Norm, Rotation, Rotate, Transform};
 
 /// A quaternion.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Quat<N> {
     /// The scalar component of the quaternion.
     pub w: N,
@@ -140,7 +142,7 @@ impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>, Quat<N>> for Quat<N> {
 }
 
 /// A unit quaternion that can represent a 3D rotation.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Show, Copy)]
 pub struct UnitQuat<N> {
     q: Quat<N>
 }

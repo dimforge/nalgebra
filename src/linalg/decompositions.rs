@@ -2,6 +2,7 @@ use traits::operations::{Transpose, ApproxEq};
 use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat, BaseFloat};
 use traits::geometry::Norm;
 use std::cmp::min;
+use std::ops::*;
 
 /// Get the householder matrix corresponding to a reflexion to the hyperplane
 /// defined by `vec`. It can be a reflexion contained in a subspace.

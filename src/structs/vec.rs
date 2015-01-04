@@ -5,6 +5,7 @@
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator};
+use std::ops::*;
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv, Absolute};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
@@ -15,7 +16,7 @@ use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 
 
 /// Vector of dimension 0.
-#[deriving(Eq, PartialEq, RustcDecodable, Clone, Rand, Zero, Show, Copy)]
+#[derive(Eq, PartialEq, RustcDecodable, Clone, Rand, Zero, Show, Copy)]
 pub struct Vec0<N>;
 
 impl<N> Vec0<N> {
@@ -33,7 +34,7 @@ impl<N> Vec0<N> {
 }
 
 /// Vector of dimension 1.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Vec1<N> {
     /// First component of the vector.
     pub x: N
@@ -82,7 +83,7 @@ num_float_vec_impl!(Vec1);
 absolute_vec_impl!(Vec1, x);
 
 /// Vector of dimension 2.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
 pub struct Vec2<N> {
     /// First component of the vector.
     pub x: N,
@@ -133,7 +134,7 @@ num_float_vec_impl!(Vec2);
 absolute_vec_impl!(Vec2, x, y);
 
 /// Vector of dimension 3.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
 pub struct Vec3<N> {
     /// First component of the vector.
     pub x: N,
@@ -187,7 +188,7 @@ absolute_vec_impl!(Vec3, x, y, z);
 
 
 /// Vector of dimension 4.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
 pub struct Vec4<N> {
     /// First component of the vector.
     pub x: N,
@@ -242,7 +243,7 @@ num_float_vec_impl!(Vec4);
 absolute_vec_impl!(Vec4, x, y, z, w);
 
 /// Vector of dimension 5.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
 pub struct Vec5<N> {
     /// First component of the vector.
     pub x: N,
@@ -299,7 +300,7 @@ num_float_vec_impl!(Vec5);
 absolute_vec_impl!(Vec5, x, y, z, w, a);
 
 /// Vector of dimension 6.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Zero, Show, Copy)]
 pub struct Vec6<N> {
     /// First component of the vector.
     pub x: N,

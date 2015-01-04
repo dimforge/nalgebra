@@ -5,6 +5,7 @@
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator};
+use std::ops::*;
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
 use traits::structure::{Cast, Dim, Indexable, Iterable, IterableMut, PntAsVec, Shape,
@@ -14,7 +15,7 @@ use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 
 
 /// Point of dimension 0.
-#[deriving(Eq, PartialEq, RustcDecodable, Clone, Rand, Show, Copy)]
+#[derive(Eq, PartialEq, RustcDecodable, Clone, Rand, Show, Copy)]
 pub struct Pnt0<N>;
 
 impl<N> Pnt0<N> {
@@ -32,7 +33,7 @@ impl<N> Pnt0<N> {
 }
 
 /// Point of dimension 1.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt1<N> {
     /// First component of the point.
     pub x: N
@@ -70,7 +71,7 @@ pnt_from_homogeneous_impl!(Pnt1, Pnt2, y, x);
 num_float_pnt_impl!(Pnt1, Vec1);
 
 /// Point of dimension 2.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt2<N> {
     /// First component of the point.
     pub x: N,
@@ -110,7 +111,7 @@ pnt_from_homogeneous_impl!(Pnt2, Pnt3, z, x, y);
 num_float_pnt_impl!(Pnt2, Vec2);
 
 /// Point of dimension 3.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt3<N> {
     /// First component of the point.
     pub x: N,
@@ -152,7 +153,7 @@ pnt_from_homogeneous_impl!(Pnt3, Pnt4, w, x, y, z);
 num_float_pnt_impl!(Pnt3, Vec3);
 
 /// Point of dimension 4.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt4<N> {
     /// First component of the point.
     pub x: N,
@@ -196,7 +197,7 @@ pnt_from_homogeneous_impl!(Pnt4, Pnt5, a, x, y, z, w);
 num_float_pnt_impl!(Pnt4, Vec4);
 
 /// Point of dimension 5.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt5<N> {
     /// First component of the point.
     pub x: N,
@@ -242,7 +243,7 @@ pnt_from_homogeneous_impl!(Pnt5, Pnt6, b, x, y, z, w, a);
 num_float_pnt_impl!(Pnt5, Vec5);
 
 /// Point of dimension 6.
-#[deriving(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt6<N> {
     /// First component of the point.
     pub x: N,

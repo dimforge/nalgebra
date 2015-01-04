@@ -1,5 +1,6 @@
 //! Traits of operations having a well-known or explicit geometric meaning.
 
+use std::ops::*;
 
 use traits::structure::{BaseFloat, Mat};
 
@@ -82,7 +83,7 @@ pub trait Rotate<V> {
 ///
 /// Those operations are automatically implemented in term of the `Rotation` and `Translation`
 /// traits.
-pub trait RotationWithTranslation<LV: Neg<LV> + Copy, AV>: Rotation<AV> + Translation<LV> {
+pub trait RotationWithTranslation<LV: Neg<LV> + Copy, AV>: Rotation<AV> + Translation<LV> + Sized {
     /// Applies a rotation centered on a specific point.
     ///
     /// # Arguments

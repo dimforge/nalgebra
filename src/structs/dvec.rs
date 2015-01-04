@@ -7,12 +7,13 @@ use std::rand;
 use std::slice::{Iter, IterMut};
 use std::iter::FromIterator;
 use std::iter::repeat;
+use std::ops::*;
 use traits::operations::{ApproxEq, Axpy};
 use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, BaseNum, Zero, One};
 
 /// Heap allocated, dynamically sized vector.
-#[deriving(Eq, PartialEq, Show, Clone)]
+#[derive(Eq, PartialEq, Show, Clone)]
 pub struct DVec<N> {
     /// Components of the vector. Contains as much elements as the vector dimension.
     pub at: Vec<N>

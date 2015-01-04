@@ -4,6 +4,7 @@ use std::f32;
 use std::f64;
 use std::num::{Int, Float, FloatMath};
 use std::slice::{Iter, IterMut};
+use std::ops::*;
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
@@ -268,7 +269,7 @@ pub trait NumPnt<N, V>:
 }
 
 /// Trait of points with components implementing the `BaseFloat` trait.
-pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> {
+pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> + Sized {
     /// Computes the square distance between two points.
     #[inline]
     fn sqdist(&self, other: &Self) -> N {
