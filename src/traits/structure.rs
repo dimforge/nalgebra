@@ -4,7 +4,7 @@ use std::f32;
 use std::f64;
 use std::num::{Int, Float, FloatMath};
 use std::slice::{Iter, IterMut};
-use std::ops::*;
+use std::ops::{Add, Sub, Mul, Div, Neg, Rem, Index, IndexMut};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 

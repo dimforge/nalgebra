@@ -2,8 +2,7 @@
 
 #![allow(missing_docs)] // we allow missing to avoid having to document the mij components.
 
-use std::ops::*;
-
+use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 use std::mem;
 use traits::operations::ApproxEq;
 use std::slice::{Iter, IterMut};

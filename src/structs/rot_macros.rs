@@ -228,12 +228,6 @@ macro_rules! index_impl(
                 &self.submat[*i]
             }
         }
-
-        impl<N> IndexMut<(uint, uint), N> for $t<N> {
-            fn index_mut(&mut self, i: &(uint, uint)) -> &mut N {
-                &mut self.submat[*i]
-            }
-        }
     )
 );
 

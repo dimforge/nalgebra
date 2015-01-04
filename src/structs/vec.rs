@@ -2,10 +2,10 @@
 
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
 
+use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator};
-use std::ops::*;
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv, Absolute};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,

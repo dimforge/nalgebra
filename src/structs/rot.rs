@@ -2,8 +2,7 @@
 
 #![allow(missing_docs)]
 
-use std::ops::*;
-
+use std::ops::{Mul, Neg, Index};
 use std::rand::{Rand, Rng};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
                        Norm, Cross};

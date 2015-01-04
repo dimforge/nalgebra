@@ -1,8 +1,8 @@
+use std::ops::{Sub, Mul, Neg};
 use traits::structure::{Cast, Row, Basis, BaseFloat, Zero, One};
 use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::mat::Mat3;
-use std::ops::*;
 
 impl<N: Copy + Mul<N, N> + Sub<N, N>> Cross<Vec1<N>> for Vec2<N> {
     #[inline]

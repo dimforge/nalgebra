@@ -5,7 +5,7 @@
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator};
-use std::ops::*;
+use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
 use traits::structure::{Cast, Dim, Indexable, Iterable, IterableMut, PntAsVec, Shape,

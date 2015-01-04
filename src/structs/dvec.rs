@@ -7,7 +7,7 @@ use std::rand;
 use std::slice::{Iter, IterMut};
 use std::iter::FromIterator;
 use std::iter::repeat;
-use std::ops::*;
+use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use traits::operations::{ApproxEq, Axpy};
 use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, BaseNum, Zero, One};

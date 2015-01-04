@@ -6,7 +6,7 @@ use std::cmp;
 use std::iter::repeat;
 use std::rand::Rand;
 use std::rand;
-use std::ops::*;
+use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 use traits::operations::ApproxEq;
 use std::mem;
 use structs::dvec::DVec;

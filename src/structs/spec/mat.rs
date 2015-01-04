@@ -1,9 +1,9 @@
+use std::ops::{Add, Mul};
 use structs::vec::{Vec2, Vec3};
 use structs::pnt::{Pnt2, Pnt3};
 use structs::mat::{Mat1, Mat2, Mat3};
 use traits::operations::{Inv, Det, ApproxEq};
 use traits::structure::{Row, Col, BaseNum};
-use std::ops::*;
 
 // some specializations:
 impl<N: BaseNum + ApproxEq<N>> Inv for Mat1<N> {
