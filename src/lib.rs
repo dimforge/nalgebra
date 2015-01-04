@@ -911,7 +911,7 @@ pub fn dim<V: Dim>() -> uint {
 
 /// Gets the indexable range of an object.
 #[inline(always)]
-pub fn shape<V: Shape<I>, I, N>(v: &V) -> I {
+pub fn shape<V: Shape<I>, I>(v: &V) -> I {
     v.shape()
 }
 
