@@ -19,7 +19,7 @@ pub struct Rot2<N> {
     submat: Mat2<N>
 }
 
-impl<N: Clone + BaseFloat + Neg<N> + Copy> Rot2<N> {
+impl<N: Clone + BaseFloat + Neg<Output = N> + Copy> Rot2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
     pub fn new(angle: Vec1<N>) -> Rot2<N> {
         let (sia, coa) = angle.x.sin_cos();
@@ -67,7 +67,7 @@ impl<N: BaseFloat + Clone> Rotation<Vec1<N>> for Rot2<N> {
     }
 }
 
-impl<N: Clone + Rand + BaseFloat + Neg<N> + Copy> Rand for Rot2<N> {
+impl<N: Rand + BaseFloat> Rand for Rot2<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rot2<N> {
         Rot2::new(rng.gen())

@@ -314,7 +314,7 @@ pub trait RMul<V> {
     fn rmul(&self, v: &V) -> V;
 }
 
-impl<M: Copy + Mul<T, T>, T: Copy> RMul<T> for M {
+impl<M: Copy + Mul<T, Output = T>, T: Copy> RMul<T> for M {
     fn rmul(&self, v: &T) -> T {
         *self * *v
     }
@@ -326,7 +326,7 @@ pub trait LMul<V> {
     fn lmul(&self, &V) -> V;
 }
 
-impl<T: Copy + Mul<M, T>, M: Copy> LMul<T> for M {
+impl<T: Copy + Mul<M, Output = T>, M: Copy> LMul<T> for M {
     fn lmul(&self, v: &T) -> T {
         *v * *self
     }

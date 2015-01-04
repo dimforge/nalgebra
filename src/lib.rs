@@ -84,6 +84,8 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![warn(missing_docs)]
 #![feature(macro_rules)]
 #![feature(globs)]
+#![feature(default_type_params)]
+#![feature(associated_types)]
 #![feature(old_orphan_check)]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
@@ -578,7 +580,7 @@ pub fn inv_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 
 /// Rotates a copy of `m` by `amount` using `center` as the pivot point.
 #[inline(always)]
-pub fn append_rotation_wrt_point<LV: Neg<LV> + Copy,
+pub fn append_rotation_wrt_point<LV: Neg<Output = LV> + Copy,
                                  AV,
                                  M: RotationWithTranslation<LV, AV>>(
                                  m:      &M,
@@ -589,7 +591,7 @@ pub fn append_rotation_wrt_point<LV: Neg<LV> + Copy,
 
 /// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
 #[inline(always)]
-pub fn append_rotation_wrt_center<LV: Neg<LV> + Copy,
+pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
                                   AV,
                                   M: RotationWithTranslation<LV, AV>>(
                                   m:      &M,
@@ -603,7 +605,7 @@ pub fn append_rotation_wrt_center<LV: Neg<LV> + Copy,
 
 /// Builds a rotation matrix from `r`.
 #[inline(always)]
-pub fn to_rot_mat<N, LV, AV, M: Mat<N, LV, LV> + Rotation<AV>, R: RotationMatrix<N, LV, AV, M>>(r: &R) -> M {
+pub fn to_rot_mat<N, LV, AV, R: RotationMatrix<N, LV, AV>>(r: &R) -> R::Output {
     r.to_rot_mat()
 }
 
@@ -702,7 +704,7 @@ pub fn det<M: Det<N>, N>(m: &M) -> N {
 
 /// Computes the cross product of two vectors.
 #[inline(always)]
-pub fn cross<LV: Cross<AV>, AV>(a: &LV, b: &LV) -> AV {
+pub fn cross<LV: Cross>(a: &LV, b: &LV) -> LV::Output {
     Cross::cross(a, b)
 }
 
@@ -909,7 +911,7 @@ pub fn dim<V: Dim>() -> uint {
 
 /// Gets the indexable range of an object.
 #[inline(always)]
-pub fn shape<V: Shape<I, N>, I, N>(v: &V) -> I {
+pub fn shape<V: Shape<I>, I, N>(v: &V) -> I {
     v.shape()
 }
 

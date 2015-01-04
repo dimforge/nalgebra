@@ -34,7 +34,7 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N> Shape<uint, N> for $dvec<N> {
+        impl<N> Shape<uint> for $dvec<N> {
             #[inline]
             fn shape(&self) -> uint {
                 self.len()
@@ -77,13 +77,17 @@ macro_rules! dvec_impl(
 
         }
 
-        impl<N> Index<uint, N> for $dvec<N> {
+        impl<N> Index<uint> for $dvec<N> {
+            type Output = N;
+
             fn index(&self, i: &uint) -> &N {
                 &self.as_slice()[*i]
             }
         }
 
-        impl<N> IndexMut<uint, N> for $dvec<N> {
+        impl<N> IndexMut<uint> for $dvec<N> {
+            type Output = N;
+
             fn index_mut(&mut self, i: &uint) -> &mut N {
                 &mut self.as_mut_slice()[*i]
             }
@@ -122,7 +126,7 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Copy + Add<N, N> + Mul<N, N>> Axpy<N> for $dvec<N> {
+        impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N>> Axpy<N> for $dvec<N> {
             fn axpy(&mut self, a: &N, x: &$dvec<N>) {
                 assert!(self.len() == x.len());
 
@@ -190,7 +194,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Copy + Mul<N, N> + Zero> Mul<$dvec<N>, $dvec<N>> for $dvec<N> {
+        impl<N: Copy + Mul<N, Output = N> + Zero> Mul<$dvec<N>> for $dvec<N> {
+            type Output = $dvec<N>;
+
             #[inline]
             fn mul(self, right: $dvec<N>) -> $dvec<N> {
                 assert!(self.len() == right.len());
@@ -205,7 +211,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Copy + Div<N, N> + Zero> Div<$dvec<N>, $dvec<N>> for $dvec<N> {
+        impl<N: Copy + Div<N, Output = N> + Zero> Div<$dvec<N>> for $dvec<N> {
+            type Output = $dvec<N>;
+
             #[inline]
             fn div(self, right: $dvec<N>) -> $dvec<N> {
                 assert!(self.len() == right.len());
@@ -220,7 +228,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Copy + Add<N, N> + Zero> Add<$dvec<N>, $dvec<N>> for $dvec<N> {
+        impl<N: Copy + Add<N, Output = N> + Zero> Add<$dvec<N>> for $dvec<N> {
+            type Output = $dvec<N>;
+
             #[inline]
             fn add(self, right: $dvec<N>) -> $dvec<N> {
                 assert!(self.len() == right.len());
@@ -235,7 +245,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Copy + Sub<N, N> + Zero> Sub<$dvec<N>, $dvec<N>> for $dvec<N> {
+        impl<N: Copy + Sub<N, Output = N> + Zero> Sub<$dvec<N>> for $dvec<N> {
+            type Output = $dvec<N>;
+
             #[inline]
             fn sub(self, right: $dvec<N>) -> $dvec<N> {
                 assert!(self.len() == right.len());
@@ -250,7 +262,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Neg<N> + Zero + Copy> Neg<$dvec<N>> for $dvec<N> {
+        impl<N: Neg<Output = N> + Zero + Copy> Neg for $dvec<N> {
+            type Output = $dvec<N>;
+
             #[inline]
             fn neg(self) -> $dvec<N> {
                 FromIterator::from_iter(self.as_slice().iter().map(|a| -*a))
@@ -318,7 +332,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Copy + Mul<N, N> + Zero> Mul<N, $dvec<N>> for $dvec<N> {
+        impl<N: Copy + Mul<N, Output = N> + Zero> Mul<N> for $dvec<N> {
+            type Output = $dvec<N>;
+
             #[inline]
             fn mul(self, right: N) -> $dvec<N> {
                 let mut res = self;
@@ -331,7 +347,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Copy + Div<N, N> + Zero> Div<N, $dvec<N>> for $dvec<N> {
+        impl<N: Copy + Div<N, Output = N> + Zero> Div<N> for $dvec<N> {
+            type Output = $dvec<N>;
+
             #[inline]
             fn div(self, right: N) -> $dvec<N> {
                 let mut res = self;
@@ -344,7 +362,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Copy + Add<N, N> + Zero> Add<N, $dvec<N>> for $dvec<N> {
+        impl<N: Copy + Add<N, Output = N> + Zero> Add<N> for $dvec<N> {
+            type Output = $dvec<N>;
+
             #[inline]
             fn add(self, right: N) -> $dvec<N> {
                 let mut res = self;
@@ -357,7 +377,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: Copy + Sub<N, N> + Zero> Sub<N, $dvec<N>> for $dvec<N> {
+        impl<N: Copy + Sub<N, Output = N> + Zero> Sub<N> for $dvec<N> {
+            type Output = $dvec<N>;
+
             #[inline]
             fn sub(self, right: N) -> $dvec<N> {
                 let mut res = self;
@@ -477,7 +499,7 @@ macro_rules! small_dvec_from_impl (
 
         impl<N: Zero> FromIterator<N> for $dvec<N> {
             #[inline]
-            fn from_iter<I: Iterator<N>>(mut param: I) -> $dvec<N> {
+            fn from_iter<I: Iterator<Item = N>>(mut param: I) -> $dvec<N> {
                 let mut at: [N; $dim] = [ $( $zeros, )* ];
 
                 let mut dim = 0;

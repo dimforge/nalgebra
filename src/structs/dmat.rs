@@ -255,14 +255,16 @@ impl<N: Copy> Indexable<(uint, uint), N> for DMat<N> {
 
 }
 
-impl<N> Shape<(uint, uint), N> for DMat<N> {
+impl<N> Shape<(uint, uint)> for DMat<N> {
     #[inline]
     fn shape(&self) -> (uint, uint) {
         (self.nrows, self.ncols)
     }
 }
 
-impl<N> Index<(uint, uint), N> for DMat<N> {
+impl<N> Index<(uint, uint)> for DMat<N> {
+    type Output = N;
+
     fn index(&self, &(i, j): &(uint, uint)) -> &N {
         assert!(i < self.nrows);
         assert!(j < self.ncols);
@@ -273,7 +275,9 @@ impl<N> Index<(uint, uint), N> for DMat<N> {
     }
 }
 
-impl<N> IndexMut<(uint, uint), N> for DMat<N> {
+impl<N> IndexMut<(uint, uint)> for DMat<N> {
+    type Output = N;
+
     fn index_mut(&mut self, &(i, j): &(uint, uint)) -> &mut N {
         assert!(i < self.nrows);
         assert!(j < self.ncols);
@@ -286,7 +290,9 @@ impl<N> IndexMut<(uint, uint), N> for DMat<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> {
+impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<DMat<N>> for DMat<N> {
+    type Output = DMat<N>;
+
     fn mul(self, right: DMat<N>) -> DMat<N> {
         assert!(self.ncols == right.nrows);
 
@@ -311,7 +317,9 @@ impl<N: Copy + Mul<N, N> + Add<N, N> + Zero> Mul<DMat<N>, DMat<N>> for DMat<N> {
     }
 }
 
-impl<N: Copy + Add<N, N> + Mul<N, N> + Zero> Mul<DVec<N>, DVec<N>> for DMat<N> {
+impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<DVec<N>> for DMat<N> {
+    type Output = DVec<N>;
+
     fn mul(self, right: DVec<N>) -> DVec<N> {
         assert!(self.ncols == right.at.len());
 
@@ -334,7 +342,9 @@ impl<N: Copy + Add<N, N> + Mul<N, N> + Zero> Mul<DVec<N>, DVec<N>> for DMat<N> {
 }
 
 
-impl<N: Copy + Add<N, N> + Mul<N, N> + Zero> Mul<DMat<N>, DVec<N>> for DVec<N> {
+impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<DMat<N>> for DVec<N> {
+    type Output = DVec<N>;
+
     fn mul(self, right: DMat<N>) -> DVec<N> {
         assert!(right.nrows == self.at.len());
 
@@ -635,7 +645,9 @@ impl<N: Show + Copy> Show for DMat<N> {
     }
 }
 
-impl<N: Copy + Mul<N, N>> Mul<N, DMat<N>> for DMat<N> {
+impl<N: Copy + Mul<N, Output = N>> Mul<N> for DMat<N> {
+    type Output = DMat<N>;
+
     #[inline]
     fn mul(self, right: N) -> DMat<N> {
         let mut res = self;
@@ -648,7 +660,9 @@ impl<N: Copy + Mul<N, N>> Mul<N, DMat<N>> for DMat<N> {
     }
 }
 
-impl<N: Copy + Div<N, N>> Div<N, DMat<N>> for DMat<N> {
+impl<N: Copy + Div<N, Output = N>> Div<N> for DMat<N> {
+    type Output = DMat<N>;
+
     #[inline]
     fn div(self, right: N) -> DMat<N> {
         let mut res = self;
@@ -661,7 +675,9 @@ impl<N: Copy + Div<N, N>> Div<N, DMat<N>> for DMat<N> {
     }
 }
 
-impl<N: Copy + Add<N, N>> Add<N, DMat<N>> for DMat<N> {
+impl<N: Copy + Add<N, Output = N>> Add<N> for DMat<N> {
+    type Output = DMat<N>;
+
     #[inline]
     fn add(self, right: N) -> DMat<N> {
         let mut res = self;
@@ -674,7 +690,9 @@ impl<N: Copy + Add<N, N>> Add<N, DMat<N>> for DMat<N> {
     }
 }
 
-impl<N: Copy + Sub<N, N>> Sub<N, DMat<N>> for DMat<N> {
+impl<N: Copy + Sub<N, Output = N>> Sub<N> for DMat<N> {
+    type Output = DMat<N>;
+
     #[inline]
     fn sub(self, right: N) -> DMat<N> {
         let mut res = self;

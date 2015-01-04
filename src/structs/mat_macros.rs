@@ -88,7 +88,9 @@ macro_rules! mat_cast_impl(
 
 macro_rules! add_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Add<N, N>> Add<$t<N>, $t<N>> for $t<N> {
+        impl<N: Add<N, Output = N>> Add<$t<N>> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn add(self, right: $t<N>) -> $t<N> {
                 $t::new(self.$comp0 + right.$comp0 $(, self.$compN + right.$compN)*)
@@ -99,7 +101,9 @@ macro_rules! add_impl(
 
 macro_rules! sub_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Sub<N, N>> Sub<$t<N>, $t<N>> for $t<N> {
+        impl<N: Sub<N, Output = N>> Sub<$t<N>> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn sub(self, right: $t<N>) -> $t<N> {
                 $t::new(self.$comp0 - right.$comp0 $(, self.$compN - right.$compN)*)
@@ -110,7 +114,9 @@ macro_rules! sub_impl(
 
 macro_rules! mat_mul_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Mul<N, N>> Mul<N, $t<N>> for N {
+        impl<N: Mul<N, Output = N>> Mul<N> for N {
+            type Output = $t<N>;
+
             #[inline]
             fn mul(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 * *right $(, self.$compN * *right)*)
@@ -121,7 +127,9 @@ macro_rules! mat_mul_scalar_impl(
 
 macro_rules! mat_div_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Div<N, N>> Div<N, $t<N>> for $t<N> {
+        impl<N: Div<N, Output = N>> Div<N> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn div(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 / *right $(, self.$compN / *right)*)
@@ -132,7 +140,9 @@ macro_rules! mat_div_scalar_impl(
 
 macro_rules! mat_add_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Add<N, N>> Add<N, $t<N>> for $t<N> {
+        impl<N: Add<N, Output = N>> Add<N> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn add(self, right: N) -> $t<N> {
                 $t::new(self.$comp0 + *right $(, self.$compN + *right)*)
@@ -157,7 +167,9 @@ macro_rules! eye_impl(
 
 macro_rules! mat_sub_scalar_impl(
     ($t: ident, $comp0: ident $(,$compN: ident)*) => (
-        impl<N: Sub<N, N> Sub<N, $t<N>> for $t<N> {
+        impl<N: Sub<N, Output = N> Sub<N> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn sub(self, right: &N) -> $t<N> {
                 $t::new(self.$comp0 - *right $(, self.$compN - *right)*)
@@ -246,7 +258,7 @@ macro_rules! dim_impl(
 
 macro_rules! indexable_impl(
   ($t: ident, $dim: expr) => (
-    impl<N> Shape<(uint, uint), N> for $t<N> {
+    impl<N> Shape<(uint, uint)> for $t<N> {
         #[inline]
         fn shape(&self) -> (uint, uint) {
             ($dim, $dim)
@@ -291,7 +303,9 @@ macro_rules! indexable_impl(
 
 macro_rules! index_impl(
     ($t: ident, $dim: expr) => (
-        impl<N> Index<(uint, uint), N> for $t<N> {
+        impl<N> Index<(uint, uint)> for $t<N> {
+            type Output = N;
+
             fn index(&self, &(i, j): &(uint, uint)) -> &N {
                 unsafe {
                     &mem::transmute::<&$t<N>, &mut [N; $dim * $dim]>(self)[i + j * $dim]
@@ -299,7 +313,9 @@ macro_rules! index_impl(
             }
         }
 
-        impl<N> IndexMut<(uint, uint), N> for $t<N> {
+        impl<N> IndexMut<(uint, uint)> for $t<N> {
+            type Output = N;
+
             fn index_mut(&mut self, &(i, j): &(uint, uint)) -> &mut N {
                 unsafe {
                     &mut mem::transmute::<&mut $t<N>, &mut [N; $dim * $dim]>(self)[i + j * $dim]
@@ -426,7 +442,8 @@ macro_rules! diag_impl(
 
 macro_rules! mat_mul_mat_impl(
   ($t: ident, $dim: expr) => (
-    impl<N: Copy + BaseNum> Mul<$t<N>, $t<N>> for $t<N> {
+    impl<N: Copy + BaseNum> Mul<$t<N>> for $t<N> {
+        type Output = $t<N>;
         #[inline]
         fn mul(self, right: $t<N>) -> $t<N> {
             // careful! we need to comute other * self here (self is the rhs).
@@ -454,7 +471,9 @@ macro_rules! mat_mul_mat_impl(
 
 macro_rules! vec_mul_mat_impl(
   ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
-    impl<N: Copy + BaseNum> Mul<$t<N>, $v<N>> for $v<N> {
+    impl<N: Copy + BaseNum> Mul<$t<N>> for $v<N> {
+        type Output = $v<N>;
+
         #[inline]
         fn mul(self, right: $t<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
@@ -476,7 +495,9 @@ macro_rules! vec_mul_mat_impl(
 
 macro_rules! mat_mul_vec_impl(
   ($t: ident, $v: ident, $dim: expr, $zero: expr) => (
-    impl<N: Copy + BaseNum> Mul<$v<N>, $v<N>> for $t<N> {
+    impl<N: Copy + BaseNum> Mul<$v<N>> for $t<N> {
+        type Output = $v<N>;
+
         #[inline]
         fn mul(self, right: $v<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
@@ -685,7 +706,7 @@ macro_rules! from_homogeneous_impl(
 
 macro_rules! outer_impl(
     ($t: ident, $m: ident) => (
-        impl<N: Copy + Mul<N, N> + Zero> Outer<$m<N>> for $t<N> {
+        impl<N: Copy + Mul<N, Output = N> + Zero> Outer<$m<N>> for $t<N> {
             #[inline]
             fn outer(&self, other: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = ::zero();

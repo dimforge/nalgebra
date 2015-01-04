@@ -20,21 +20,25 @@ impl<N> Zero for vec::Vec0<N> {
     }
 }
 
-impl<N> Index<uint, N> for vec::Vec0<N> {
+impl<N> Index<uint> for vec::Vec0<N> {
+    type Output = N;
+
     #[inline]
     fn index(&self, _: &uint) -> &N {
         panic!("Canot index a Vec0.")
     }
 }
 
-impl<N> IndexMut<uint, N> for vec::Vec0<N> {
+impl<N> IndexMut<uint> for vec::Vec0<N> {
+    type Output = N;
+
     #[inline]
     fn index_mut(&mut self, _: &uint) -> &mut N {
         panic!("Canot index a Vec0.")
     }
 }
 
-impl<N> Shape<uint, N> for vec::Vec0<N> {
+impl<N> Shape<uint> for vec::Vec0<N> {
     #[inline]
     fn shape(&self) -> uint {
         0
@@ -99,21 +103,27 @@ impl<N> Basis for vec::Vec0<N> {
     }
 }
 
-impl<N, T> Add<T, vec::Vec0<N>> for vec::Vec0<N> {
+impl<N, T> Add<T> for vec::Vec0<N> {
+    type Output = vec::Vec0<N>;
+
     #[inline]
     fn add(self, _: T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
 
-impl<N, T> Sub<T, vec::Vec0<N>> for vec::Vec0<N> {
+impl<N, T> Sub<T> for vec::Vec0<N> {
+    type Output = vec::Vec0<N>;
+
     #[inline]
     fn sub(self, _: T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
 
-impl<N: Neg<N> + Copy> Neg<vec::Vec0<N>> for vec::Vec0<N> {
+impl<N: Neg<Output = N> + Copy> Neg for vec::Vec0<N> {
+    type Output = vec::Vec0<N>;
+
     #[inline]
     fn neg(self) -> vec::Vec0<N> {
         vec::Vec0
@@ -127,21 +137,25 @@ impl<N: BaseNum> Dot<N> for vec::Vec0<N> {
     }
 }
 
-impl<N, T> Mul<T, vec::Vec0<N>> for vec::Vec0<N> {
+impl<N, T> Mul<T> for vec::Vec0<N> {
+    type Output = vec::Vec0<N>;
+
     #[inline]
     fn mul(self, _: T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
 
-impl<N, T> Div<T, vec::Vec0<N>> for vec::Vec0<N> {
+impl<N, T> Div<T> for vec::Vec0<N> {
+    type Output = vec::Vec0<N>;
+
     #[inline]
     fn div(self, _: T) -> vec::Vec0<N> {
         vec::Vec0
     }
 }
 
-impl<N: Copy + Add<N, N> + Neg<N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
+impl<N: Copy + Add<N, Output = N> + Neg<Output = N>> Translation<vec::Vec0<N>> for vec::Vec0<N> {
     #[inline]
     fn translation(&self) -> vec::Vec0<N> {
         *self
@@ -229,7 +243,7 @@ impl<N: One> One for vec::Vec0<N> {
 
 impl<N> FromIterator<N> for vec::Vec0<N> {
     #[inline]
-    fn from_iter<I: Iterator<N>>(_: I) -> vec::Vec0<N> {
+    fn from_iter<I: Iterator<Item = N>>(_: I) -> vec::Vec0<N> {
         vec::Vec0
     }
 }

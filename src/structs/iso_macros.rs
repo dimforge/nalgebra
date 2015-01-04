@@ -27,7 +27,9 @@ macro_rules! iso_impl(
 macro_rules! rotation_matrix_impl(
     ($t: ident, $trot: ident, $tlv: ident, $tav: ident) => (
         impl<N: Cast<f64> + BaseFloat>
-        RotationMatrix<N, $tlv<N>, $tav<N>, $trot<N>> for $t<N> {
+        RotationMatrix<N, $tlv<N>, $tav<N>> for $t<N> {
+            type Output = $trot<N>;
+
             #[inline]
             fn to_rot_mat(&self) -> $trot<N> {
                 self.rotation
@@ -61,7 +63,9 @@ macro_rules! one_impl(
 
 macro_rules! iso_mul_iso_impl(
     ($t: ident) => (
-        impl<N: BaseFloat> Mul<$t<N>, $t<N>> for $t<N> {
+        impl<N: BaseFloat> Mul<$t<N>> for $t<N> {
+            type Output = $t<N>;
+
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
                 $t::new_with_rotmat(
@@ -74,7 +78,9 @@ macro_rules! iso_mul_iso_impl(
 
 macro_rules! iso_mul_pnt_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: BaseNum> Mul<$tv<N>, $tv<N>> for $t<N> {
+        impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
+            type Output = $tv<N>;
+
             #[inline]
             fn mul(self, right: $tv<N>) -> $tv<N> {
                 self.rotation * right + self.translation
@@ -85,7 +91,8 @@ macro_rules! iso_mul_pnt_impl(
 
 macro_rules! pnt_mul_iso_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: BaseNum> Mul<$t<N>, $tv<N>> for $tv<N> {
+        impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
+            type Output = $tv<N>;
             #[inline]
             fn mul(self, right: $t<N>) -> $tv<N> {
                 (self + right.translation) * right.rotation
@@ -137,7 +144,7 @@ macro_rules! translation_impl(
 
 macro_rules! translate_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: Copy + Add<N, N> + Sub<N, N>> Translate<$tv<N>> for $t<N> {
+        impl<N: Copy + Add<N, Output = N> + Sub<N, Output = N>> Translate<$tv<N>> for $t<N> {
             #[inline]
             fn translate(&self, v: &$tv<N>) -> $tv<N> {
                 *v + self.translation
