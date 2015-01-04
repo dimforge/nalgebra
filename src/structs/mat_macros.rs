@@ -623,9 +623,20 @@ macro_rules! approx_eq_impl(
         }
 
         #[inline]
+        fn approx_ulps(_: Option<$t<N>>) -> u32 {
+            ApproxEq::approx_ulps(None::<N>)
+        }
+
+        #[inline]
         fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
             let zip = self.iter().zip(other.iter());
             zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
+        }
+
+        #[inline]
+        fn approx_eq_ulps(&self, other: &$t<N>, ulps: u32) -> bool {
+            let zip = self.iter().zip(other.iter());
+            zip.all(|(a, b)| ApproxEq::approx_eq_ulps(a, b, ulps))
         }
     }
   )

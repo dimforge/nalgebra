@@ -292,8 +292,18 @@ impl<N: ApproxEq<N>> ApproxEq<N> for UnitQuat<N> {
     }
 
     #[inline]
+    fn approx_ulps(_: Option<UnitQuat<N>>) -> u32 {
+        ApproxEq::approx_ulps(None::<N>)
+    }
+
+    #[inline]
     fn approx_eq_eps(&self, other: &UnitQuat<N>, eps: &N) -> bool {
         ApproxEq::approx_eq_eps(&self.q, &other.q, eps)
+    }
+
+    #[inline]
+    fn approx_eq_ulps(&self, other: &UnitQuat<N>, ulps: u32) -> bool {
+        ApproxEq::approx_eq_ulps(&self.q, &other.q, ulps)
     }
 }
 

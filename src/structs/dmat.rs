@@ -606,9 +606,20 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     }
 
     #[inline]
+    fn approx_ulps(_: Option<DMat<N>>) -> u32 {
+        ApproxEq::approx_ulps(None::<N>)
+    }
+
+    #[inline]
     fn approx_eq_eps(&self, other: &DMat<N>, epsilon: &N) -> bool {
         let zip = self.mij.iter().zip(other.mij.iter());
         zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
+    }
+
+    #[inline]
+    fn approx_eq_ulps(&self, other: &DMat<N>, ulps: u32) -> bool {
+        let zip = self.mij.iter().zip(other.mij.iter());
+        zip.all(|(a, b)| ApproxEq::approx_eq_ulps(a, b, ulps))
     }
 }
 

@@ -317,9 +317,20 @@ macro_rules! approx_eq_impl(
             }
 
             #[inline]
+            fn approx_ulps(_: Option<$t<N>>) -> u32 {
+                ApproxEq::approx_ulps(None::<N>)
+            }
+
+            #[inline]
             fn approx_eq_eps(&self, other: &$t<N>, epsilon: &N) -> bool {
                 ApproxEq::approx_eq_eps(&self.rotation, &other.rotation, epsilon) &&
                     ApproxEq::approx_eq_eps(&self.translation, &other.translation, epsilon)
+            }
+
+            #[inline]
+            fn approx_eq_ulps(&self, other: &$t<N>, ulps: u32) -> bool {
+                ApproxEq::approx_eq_ulps(&self.rotation, &other.rotation, ulps) &&
+                    ApproxEq::approx_eq_ulps(&self.translation, &other.translation, ulps)
             }
         }
     )
