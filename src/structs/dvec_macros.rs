@@ -67,7 +67,7 @@ macro_rules! dvec_impl(
 
             #[inline]
             unsafe fn unsafe_at(&self, i: uint) -> N {
-                *self.at.as_slice().unsafe_get(i)
+                *self.at.as_slice().get_unchecked(i)
             }
 
             #[inline]
