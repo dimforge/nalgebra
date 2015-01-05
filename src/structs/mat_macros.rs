@@ -63,7 +63,7 @@ macro_rules! at_fast_impl(
             #[inline]
             pub unsafe fn at_fast(&self, (i, j): (uint, uint)) -> N {
                 (*mem::transmute::<&$t<N>, &[N; $dim * $dim]>(self)
-                 .unsafe_get(i + j * $dim))
+                 .get_unchecked(i + j * $dim))
             }
 
             #[inline]
@@ -290,7 +290,7 @@ macro_rules! indexable_impl(
 
         #[inline]
         unsafe fn unsafe_at(&self, (i, j): (uint, uint)) -> N {
-            (*mem::transmute::<&$t<N>, &[N; $dim * $dim]>(self).unsafe_get(i + j * $dim))
+            (*mem::transmute::<&$t<N>, &[N; $dim * $dim]>(self).get_unchecked(i + j * $dim))
         }
 
         #[inline]

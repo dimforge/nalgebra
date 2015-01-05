@@ -64,7 +64,7 @@ macro_rules! at_fast_impl(
             /// Unsafe read access to a vector element by index.
             #[inline]
             pub unsafe fn at_fast(&self, i: uint) -> N {
-                (*self.as_array().unsafe_get(i))
+                (*self.as_array().get_unchecked(i))
             }
 
             /// Unsafe write access to a vector element by index.
@@ -223,7 +223,7 @@ macro_rules! indexable_impl(
 
             #[inline]
             unsafe fn unsafe_at(&self, i: uint) -> N {
-                (*mem::transmute::<&$t<N>, &[N; $dim]>(self).unsafe_get(i))
+                (*mem::transmute::<&$t<N>, &[N; $dim]>(self).get_unchecked(i))
             }
 
             #[inline]

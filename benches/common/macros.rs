@@ -16,7 +16,7 @@ macro_rules! bench_binop(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box(elems1.unsafe_get(i).$binop(*elems2.unsafe_get(i)))
+                    test::black_box(elems1.get_unchecked(i).$binop(*elems2.get_unchecked(i)))
                 }
             })
         }
@@ -39,7 +39,7 @@ macro_rules! bench_binop_na(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box(na::$binop(elems1.unsafe_get(i), elems2.unsafe_get(i)))
+                    test::black_box(na::$binop(elems1.get_unchecked(i), elems2.get_unchecked(i)))
                 }
             })
         }
@@ -61,7 +61,7 @@ macro_rules! bench_unop(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box(na::$unop(elems.unsafe_get(i)))
+                    test::black_box(na::$unop(elems.get_unchecked(i)))
                 }
             })
         }
@@ -105,7 +105,7 @@ macro_rules! bench_construction(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    let res = $constructor($(*$args.unsafe_get(i),)*);
+                    let res = $constructor($(*$args.get_unchecked(i),)*);
                     test::black_box(res)
                 }
             })
