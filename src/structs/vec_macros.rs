@@ -321,14 +321,14 @@ macro_rules! basis_impl(
     ($t: ident, $dim: expr) => (
         impl<N: Copy + BaseFloat + ApproxEq<N>> Basis for $t<N> {
             #[inline]
-            fn canonical_basis(f: |$t<N>| -> bool) {
+            fn canonical_basis<F: Fn($t<N>) -> bool>(f: F) {
                 for i in range(0u, $dim) {
                     if !f(Basis::canonical_basis_element(i).unwrap()) { return }
                 }
             }
 
             #[inline]
-            fn orthonormal_subspace_basis(n: &$t<N>, f: |$t<N>| -> bool) {
+            fn orthonormal_subspace_basis<F: Fn($t<N>) -> bool>(n: &$t<N>, f: F) {
                 // compute the basis of the orthogonal subspace using Gram-Schmidt
                 // orthogonalization algorithm
                 let mut basis: Vec<$t<N>> = Vec::new();

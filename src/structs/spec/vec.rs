@@ -74,12 +74,12 @@ impl<N: Copy> Row<Vec1<N>> for Vec2<N> {
 
 impl<N: One> Basis for Vec1<N> {
     #[inline(always)]
-    fn canonical_basis(f: |Vec1<N>| -> bool) {
+    fn canonical_basis<F: Fn(Vec1<N>) -> bool>(f: F) {
         f(Vec1::new(::one()));
     }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(_: &Vec1<N>, _: |Vec1<N>| -> bool) { }
+    fn orthonormal_subspace_basis<F: Fn(Vec1<N>) -> bool>(_: &Vec1<N>, _: F) { }
 
     #[inline]
     fn canonical_basis_element(i: uint) -> Option<Vec1<N>> {
@@ -94,13 +94,13 @@ impl<N: One> Basis for Vec1<N> {
 
 impl<N: Copy + One + Zero + Neg<Output = N>> Basis for Vec2<N> {
     #[inline(always)]
-    fn canonical_basis(f: |Vec2<N>| -> bool) {
+    fn canonical_basis<F: Fn(Vec2<N>) -> bool>(f: F) {
         if !f(Vec2::new(::one(), ::zero())) { return };
         f(Vec2::new(::zero(), ::one()));
     }
 
     #[inline]
-    fn orthonormal_subspace_basis(n: &Vec2<N>, f: |Vec2<N>| -> bool) {
+    fn orthonormal_subspace_basis<F: Fn(Vec2<N>) -> bool>(n: &Vec2<N>, f: F) {
         f(Vec2::new(-n.y, n.x));
     }
 
@@ -120,14 +120,14 @@ impl<N: Copy + One + Zero + Neg<Output = N>> Basis for Vec2<N> {
 
 impl<N: BaseFloat> Basis for Vec3<N> {
     #[inline(always)]
-    fn canonical_basis(f: |Vec3<N>| -> bool) {
+    fn canonical_basis<F: Fn(Vec3<N>) -> bool>(f: F) {
         if !f(Vec3::new(::one(), ::zero(), ::zero())) { return };
         if !f(Vec3::new(::zero(), ::one(), ::zero())) { return };
         f(Vec3::new(::zero(), ::zero(), ::one()));
     }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(n: &Vec3<N>, f: |Vec3<N>| -> bool) {
+    fn orthonormal_subspace_basis<F: Fn(Vec3<N>) -> bool>(n: &Vec3<N>, f: F) {
         let a = 
             if n.x.abs() > n.y.abs() {
                 Norm::normalize_cpy(&Vec3::new(n.z, ::zero(), -n.x))
@@ -230,14 +230,14 @@ static SAMPLES_3_F64: [Vec3<f64>; 42] = [
 
 impl<N: One + Copy> UniformSphereSample for Vec1<N> {
     #[inline(always)]
-    fn sample(f: |Vec1<N>| -> ()) {
+    fn sample<F: Fn(Vec1<N>)>(f: F) {
         f(::one())
      }
 }
 
 impl<N: Cast<f64> + Copy> UniformSphereSample for Vec2<N> {
     #[inline(always)]
-    fn sample(f: |Vec2<N>| -> ()) {
+    fn sample<F: Fn(Vec2<N>)>(f: F) {
          for sample in SAMPLES_2_F64.iter() {
              f(Cast::from(*sample))
          }
@@ -246,7 +246,7 @@ impl<N: Cast<f64> + Copy> UniformSphereSample for Vec2<N> {
 
 impl<N: Cast<f64> + Copy> UniformSphereSample for Vec3<N> {
     #[inline(always)]
-    fn sample(f: |Vec3<N>| -> ()) {
+    fn sample<F: Fn(Vec3<N>)>(f: F) {
         for sample in SAMPLES_3_F64.iter() {
             f(Cast::from(*sample))
         }
@@ -255,7 +255,7 @@ impl<N: Cast<f64> + Copy> UniformSphereSample for Vec3<N> {
 
 impl<N: Cast<f64> + Copy> UniformSphereSample for Vec4<N> {
     #[inline(always)]
-    fn sample(_: |Vec4<N>| -> ()) {
+    fn sample<F: Fn(Vec4<N>)>(_: F) {
         panic!("UniformSphereSample::<Vec4<N>>::sample : Not yet implemented.")
         // for sample in SAMPLES_3_F32.iter() {
         //     f(Cast::from(*sample))
