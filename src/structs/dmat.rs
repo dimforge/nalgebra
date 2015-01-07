@@ -127,7 +127,7 @@ impl<N: Clone + Copy> DMat<N> {
 impl<N> DMat<N> {
     /// Builds a matrix filled with a given constant.
     #[inline(always)]
-    pub fn from_fn<F: Fn(uint, uint) -> N>(nrows: uint, ncols: uint, f: F) -> DMat<N> {
+    pub fn from_fn<F: FnMut(uint, uint) -> N>(nrows: uint, ncols: uint, mut f: F) -> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,

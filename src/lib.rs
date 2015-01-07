@@ -746,7 +746,7 @@ pub fn from_homogeneous<M, Res: FromHomogeneous<M>>(m: &M) -> Res {
 ///
 /// The number of sampling point is implementation-specific. It is always uniform.
 #[inline(always)]
-pub fn sample_sphere<V: UniformSphereSample, F: Fn(V)>(f: F) {
+pub fn sample_sphere<V: UniformSphereSample, F: FnMut(V)>(f: F) {
     UniformSphereSample::sample(f)
 }
 
@@ -862,13 +862,13 @@ pub fn new_identity<M: Eye>(dim: uint) -> M {
 
 /// Computes the canonical basis for a given dimension.
 #[inline(always)]
-pub fn canonical_basis<V: Basis, F: Fn(V) -> bool>(f: F) {
+pub fn canonical_basis<V: Basis, F: FnMut(V) -> bool>(f: F) {
     Basis::canonical_basis(f)
 }
 
 /// Computes the basis of the orthonormal subspace of a given vector.
 #[inline(always)]
-pub fn orthonormal_subspace_basis<V: Basis, F: Fn(V) -> bool>(v: &V, f: F) {
+pub fn orthonormal_subspace_basis<V: Basis, F: FnMut(V) -> bool>(v: &V, f: F) {
     Basis::orthonormal_subspace_basis(v, f)
 }
 
