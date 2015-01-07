@@ -92,10 +92,10 @@ impl<N> Dim for vec::Vec0<N> {
 
 impl<N> Basis for vec::Vec0<N> {
     #[inline(always)]
-    fn canonical_basis(_: |vec::Vec0<N>| -> bool) { }
+    fn canonical_basis<F: Fn(vec::Vec0<N>) -> bool>(_: F) { }
 
     #[inline(always)]
-    fn orthonormal_subspace_basis(_: &vec::Vec0<N>, _: |vec::Vec0<N>| -> bool) { }
+    fn orthonormal_subspace_basis<F: Fn(vec::Vec0<N>) -> bool>(_: &vec::Vec0<N>, _: F) { }
 
     #[inline(always)]
     fn canonical_basis_element(_: uint) -> Option<vec::Vec0<N>> {

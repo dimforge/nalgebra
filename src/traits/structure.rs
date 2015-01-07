@@ -109,10 +109,10 @@ pub trait Bounded {
 /// Traits of objects which can form a basis (typically vectors).
 pub trait Basis {
     /// Iterates through the canonical basis of the space in which this object lives.
-    fn canonical_basis(|Self| -> bool);
+    fn canonical_basis<F: Fn(Self) -> bool>(F);
 
     /// Iterates through a basis of the subspace orthogonal to `self`.
-    fn orthonormal_subspace_basis(&Self, |Self| -> bool);
+    fn orthonormal_subspace_basis<F: Fn(Self) -> bool>(&Self, F);
 
     /// Gets the ith element of the canonical basis.
     fn canonical_basis_element(i: uint) -> Option<Self>;

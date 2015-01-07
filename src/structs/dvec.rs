@@ -55,7 +55,7 @@ impl<N: Clone> DVec<N> {
 impl<N> DVec<N> {
     /// Builds a vector filled with the result of a function.
     #[inline(always)]
-    pub fn from_fn(dim: uint, f: |uint| -> N) -> DVec<N> {
+    pub fn from_fn<F: Fn(uint) -> N>(dim: uint, f: F) -> DVec<N> {
         DVec { at: range(0, dim).map(|i| f(i)).collect() }
     }
 
