@@ -1,4 +1,4 @@
-#![macro_escape]
+#![macro_use]
 
 macro_rules! submat_impl(
     ($t: ident, $submat: ident) => (
