@@ -1,5 +1,3 @@
-#![feature(macro_rules)]
-
 extern crate "nalgebra" as na;
 
 use std::rand::random;

@@ -1,4 +1,4 @@
-#![macro_escape]
+#![macro_use]
 
 macro_rules! dvec_impl(
     ($dvec: ident) => (

@@ -1,4 +1,4 @@
-#![macro_escape]
+#![macro_use]
 
 macro_rules! bench_binop(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {

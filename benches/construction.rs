@@ -1,5 +1,3 @@
-#![feature(macro_rules)]
-
 extern crate test;
 extern crate "nalgebra" as na;
 

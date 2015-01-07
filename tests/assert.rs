@@ -1,9 +1,9 @@
 //! Assertion macro tests
 
-#![feature(phase)]
+#![feature(plugin)]
 
-#[phase(plugin)]
-extern crate nalgebra;
+#[plugin]
+#[macro_use]
 extern crate nalgebra;
 
 use nalgebra::{ApproxEq, Vec2};

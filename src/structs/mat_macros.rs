@@ -1,4 +1,4 @@
-#![macro_escape]
+#![macro_use]
 
 macro_rules! mat_impl(
   ($t: ident, $comp0: ident $(,$compN: ident)*) => (
