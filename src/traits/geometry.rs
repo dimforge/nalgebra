@@ -266,7 +266,7 @@ pub trait FromHomogeneous<U> {
 /// function.
 pub trait UniformSphereSample {
     /// Iterate through the samples.
-    fn sample<F: Fn(Self)>(F);
+    fn sample<F: FnMut(Self)>(F);
 }
 
 /// The zero element of a vector space, seen as an element of its embeding affine space.

@@ -481,7 +481,7 @@ macro_rules! small_dvec_from_impl (
         impl<N: Zero> $dvec<N> {
             /// Builds a vector filled with the result of a function.
             #[inline(always)]
-            pub fn from_fn<F: Fn(uint) -> N>(dim: uint, f: F) -> $dvec<N> {
+            pub fn from_fn<F: FnMut(uint) -> N>(dim: uint, mut f: F) -> $dvec<N> {
                 assert!(dim <= $dim);
 
                 let mut at: [N; $dim] = [ $( $zeros, )* ];
