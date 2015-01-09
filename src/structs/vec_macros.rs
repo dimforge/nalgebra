@@ -310,7 +310,7 @@ macro_rules! basis_impl(
         impl<N: Copy + BaseFloat + ApproxEq<N>> Basis for $t<N> {
             #[inline]
             fn canonical_basis<F: FnMut($t<N>) -> bool>(mut f: F) {
-                for i in range(0us, $dim) {
+                for i in (0us .. $dim) {
                     if !f(Basis::canonical_basis_element(i).unwrap()) { return }
                 }
             }
@@ -321,7 +321,7 @@ macro_rules! basis_impl(
                 // orthogonalization algorithm
                 let mut basis: Vec<$t<N>> = Vec::new();
 
-                for i in range(0us, $dim) {
+                for i in (0us .. $dim) {
                     let mut basis_element : $t<N> = ::zero();
 
                     unsafe {

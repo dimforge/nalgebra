@@ -22,8 +22,8 @@ pub fn householder_matrix<N, V, M>(dim: usize, start: usize, vec: V) -> M
 
     assert!(dim >= stop);
 
-    for j in range(start, stop) {
-        for i in range(start, stop) {
+    for j in (start .. stop) {
+        for i in (start .. stop) {
             unsafe {
                 let vv = vec.unsafe_at(i - start) * vec.unsafe_at(j - start);
                 let qkij = qk.unsafe_at((i, j));
@@ -50,7 +50,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 
     let iterations = min(rows - 1, cols);
 
-    for ite in range(0us, iterations) {
+    for ite in (0us .. iterations) {
         let mut v = r.col_slice(ite, ite, rows);
         let alpha =
             if unsafe { v.unsafe_at(ite) } >= ::zero() {
@@ -85,18 +85,18 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     // let mut shifter: M = Eye::new_identity(rows);
 
     let mut iter = 0us;
-    for _ in range(0, niter) {
+    for _ in (0 .. niter) {
         let mut stop = true;
 
-        for j in range(0, ::dim::<M>()) {
-            for i in range(0, j) {
+        for j in (0 .. ::dim::<M>()) {
+            for i in (0 .. j) {
                 if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
                     stop = false;
                     break;
                 }
             }
 
-            for i in range(j + 1, ::dim::<M>()) {
+            for i in (j + 1 .. ::dim::<M>()) {
                 if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
                     stop = false;
                     break;

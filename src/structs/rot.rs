@@ -270,8 +270,7 @@ Rotation<Vec3<N>> for Rot3<N> {
     }
 }
 
-impl<N: Clone + Rand + BaseFloat>
-Rand for Rot3<N> {
+impl<N: Clone + Rand + BaseFloat> Rand for Rot3<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rot3<N> {
         Rot3::new(rng.gen())

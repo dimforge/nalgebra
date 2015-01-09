@@ -47,7 +47,7 @@ impl<N: Clone> DVec<N> {
         assert!(dim <= vec.len());
 
         DVec {
-            at: vec.slice_to(dim).to_vec()
+            at: vec[.. dim].to_vec()
         }
     }
 }
@@ -56,7 +56,7 @@ impl<N> DVec<N> {
     /// Builds a vector filled with the result of a function.
     #[inline(always)]
     pub fn from_fn<F: FnMut(usize) -> N>(dim: usize, mut f: F) -> DVec<N> {
-        DVec { at: range(0, dim).map(|i| f(i)).collect() }
+        DVec { at: (0 .. dim).map(|i| f(i)).collect() }
     }
 
     #[inline]

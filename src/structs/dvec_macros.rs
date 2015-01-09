@@ -130,7 +130,7 @@ macro_rules! dvec_impl(
             fn axpy(&mut self, a: &N, x: &$dvec<N>) {
                 assert!(self.len() == x.len());
 
-                for i in range(0, x.len()) {
+                for i in (0 .. x.len()) {
                     unsafe {
                         let self_i = self.unsafe_at(i);
                         self.unsafe_set(i, self_i + *a * x.unsafe_at(i))
@@ -146,7 +146,7 @@ macro_rules! dvec_impl(
             pub fn canonical_basis_with_dim(dim: usize) -> Vec<$dvec<N>> {
                 let mut res : Vec<$dvec<N>> = Vec::new();
 
-                for i in range(0us, dim) {
+                for i in (0us .. dim) {
                     let mut basis_element : $dvec<N> = $dvec::new_zeros(dim);
 
                     basis_element.set(i, ::one());
@@ -165,7 +165,7 @@ macro_rules! dvec_impl(
                 let     dim                 = self.len();
                 let mut res : Vec<$dvec<N>> = Vec::new();
 
-                for i in range(0us, dim) {
+                for i in (0us .. dim) {
                     let mut basis_element : $dvec<N> = $dvec::new_zeros(self.len());
 
                     basis_element.set(i, ::one());
@@ -276,7 +276,7 @@ macro_rules! dvec_impl(
             fn dot(&self, other: &$dvec<N>) -> N {
                 assert!(self.len() == other.len());
                 let mut res: N = ::zero();
-                for i in range(0us, self.len()) {
+                for i in (0us .. self.len()) {
                     res = res + unsafe { self.unsafe_at(i) * other.unsafe_at(i) };
                 }
                 res
@@ -486,7 +486,7 @@ macro_rules! small_dvec_from_impl (
 
                 let mut at: [N; $dim] = [ $( $zeros, )* ];
 
-                for i in range(0, dim) {
+                for i in (0 .. dim) {
                     at[i] = f(i);
                 }
 
