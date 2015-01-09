@@ -93,39 +93,39 @@ macro_rules! ord_impl(
             #[inline]
             #[allow(unused_mut)] // otherwise there will be a warning for is_eq or Vec1.
             fn partial_cmp(&self, other: &$t<N>) -> POrdering {                
-                let mut first	  = true;
-                let mut is_lt     = false;
+                let mut first = true;
+                let mut is_lt = false;
                 let mut is_eq = false;
                 $(
-					if first {
-						is_lt = self.$compN <  other.$compN;
-						is_eq = self.$compN == other.$compN;
-						first = false;
-					}
-					else if is_lt { // <
-						if self.$compN > other.$compN {
-							return POrdering::NotComparable
-						}
-					}
-					else { // >=
-						if self.$compN < other.$compN {
-							return POrdering::NotComparable
-						}
-						else if self.$compN > other.$compN {
-							is_eq = false;
-						}
-					}
-				)+
-				
-				if is_lt {
-					POrdering::PartialLess
-				}
-				else if is_eq {
-					POrdering::PartialEqual
-				}
-				else {
-					POrdering::PartialGreater
-				}
+                    if first {
+                        is_lt = self.$compN <  other.$compN;
+                        is_eq = self.$compN == other.$compN;
+                        first = false;
+                    }
+                    else if is_lt { // <
+                        if self.$compN > other.$compN {
+                            return POrdering::NotComparable
+                        }
+                    }
+                    else { // >=
+                        if self.$compN < other.$compN {
+                            return POrdering::NotComparable
+                        }
+                        else if self.$compN > other.$compN {
+                            is_eq = false;
+                        }
+                    }
+                )+
+                
+                if is_lt {
+                    POrdering::PartialLess
+                }
+                else if is_eq {
+                    POrdering::PartialEqual
+                }
+                else {
+                    POrdering::PartialGreater
+                }
             }
 
             #[inline]
@@ -693,7 +693,7 @@ macro_rules! from_iterator_impl(
             #[inline]
             fn from_iter<I: Iterator<Item = N>>(mut $param0: I) -> $t<N> {
                 $t::new($param0.next().unwrap(),
-						$($paramN.next().unwrap()),+)
+                        $($paramN.next().unwrap()),+)
             }
         }
     )
