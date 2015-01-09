@@ -1,6 +1,6 @@
-//! Poisizes with dimensions known at compile-time.
+//! Points with dimensions known at compile-time.
 
-#![allow(missing_docs)] // we allow missing to avoid having to document the poisize components.
+#![allow(missing_docs)] // we allow missing to avoid having to document the point components.
 
 use std::mem;
 use std::slice::{Iter, IterMut};
@@ -14,28 +14,28 @@ use traits::geometry::{Orig, FromHomogeneous, ToHomogeneous};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 
 
-/// Poisize of dimension 0.
+/// Point of dimension 0.
 #[derive(Eq, PartialEq, RustcDecodable, Clone, Rand, Show, Copy)]
 pub struct Pnt0<N>;
 
 impl<N> Pnt0<N> {
-    /// Creates a new poisize.
+    /// Creates a new point.
     #[inline]
     pub fn new() -> Pnt0<N> {
         Pnt0
     }
 
-    /// Creates a new poisize. The parameter is not taken in account.
+    /// Creates a new point. The parameter is not taken in account.
     #[inline]
     pub fn new_repeat(_: N) -> Pnt0<N> {
         Pnt0
     }
 }
 
-/// Poisize of dimension 1.
+/// Point of dimension 1.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt1<N> {
-    /// First component of the poisize.
+    /// First component of the point.
     pub x: N
 }
 
@@ -70,12 +70,12 @@ pnt_to_homogeneous_impl!(Pnt1, Pnt2, y, x);
 pnt_from_homogeneous_impl!(Pnt1, Pnt2, y, x);
 num_float_pnt_impl!(Pnt1, Vec1);
 
-/// Poisize of dimension 2.
+/// Point of dimension 2.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt2<N> {
-    /// First component of the poisize.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the poisize.
+    /// Second component of the point.
     pub y: N
 }
 
@@ -110,14 +110,14 @@ pnt_to_homogeneous_impl!(Pnt2, Pnt3, z, x, y);
 pnt_from_homogeneous_impl!(Pnt2, Pnt3, z, x, y);
 num_float_pnt_impl!(Pnt2, Vec2);
 
-/// Poisize of dimension 3.
+/// Point of dimension 3.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt3<N> {
-    /// First component of the poisize.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the poisize.
+    /// Second component of the point.
     pub y: N,
-    /// Third component of the poisize.
+    /// Third component of the point.
     pub z: N
 }
 
@@ -152,16 +152,16 @@ pnt_to_homogeneous_impl!(Pnt3, Pnt4, w, x, y, z);
 pnt_from_homogeneous_impl!(Pnt3, Pnt4, w, x, y, z);
 num_float_pnt_impl!(Pnt3, Vec3);
 
-/// Poisize of dimension 4.
+/// Point of dimension 4.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt4<N> {
-    /// First component of the poisize.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the poisize.
+    /// Second component of the point.
     pub y: N,
-    /// Third component of the poisize.
+    /// Third component of the point.
     pub z: N,
-    /// Fourth component of the poisize.
+    /// Fourth component of the point.
     pub w: N
 }
 
@@ -196,18 +196,18 @@ pnt_to_homogeneous_impl!(Pnt4, Pnt5, a, x, y, z, w);
 pnt_from_homogeneous_impl!(Pnt4, Pnt5, a, x, y, z, w);
 num_float_pnt_impl!(Pnt4, Vec4);
 
-/// Poisize of dimension 5.
+/// Point of dimension 5.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt5<N> {
-    /// First component of the poisize.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the poisize.
+    /// Second component of the point.
     pub y: N,
-    /// Third component of the poisize.
+    /// Third component of the point.
     pub z: N,
-    /// Fourth component of the poisize.
+    /// Fourth component of the point.
     pub w: N,
-    /// Fifth of the poisize.
+    /// Fifth of the point.
     pub a: N
 }
 
@@ -242,20 +242,20 @@ pnt_to_homogeneous_impl!(Pnt5, Pnt6, b, x, y, z, w, a);
 pnt_from_homogeneous_impl!(Pnt5, Pnt6, b, x, y, z, w, a);
 num_float_pnt_impl!(Pnt5, Vec5);
 
-/// Poisize of dimension 6.
+/// Point of dimension 6.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Pnt6<N> {
-    /// First component of the poisize.
+    /// First component of the point.
     pub x: N,
-    /// Second component of the poisize.
+    /// Second component of the point.
     pub y: N,
-    /// Third component of the poisize.
+    /// Third component of the point.
     pub z: N,
-    /// Fourth component of the poisize.
+    /// Fourth component of the point.
     pub w: N,
-    /// Fifth of the poisize.
+    /// Fifth of the point.
     pub a: N,
-    /// Sixth component of the poisize.
+    /// Sixth component of the point.
     pub b: N
 }
 

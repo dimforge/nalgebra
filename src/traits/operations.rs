@@ -71,7 +71,7 @@ impl POrdering {
     }
 }
 
-/// Poisizewise ordering operations.
+/// Pointwise ordering operations.
 pub trait POrd {
     /// Returns the infimum of this value and another
     fn inf(&self, other: &Self) -> Self;

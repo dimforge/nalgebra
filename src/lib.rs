@@ -42,7 +42,7 @@ fn main() {
 an optimized set of tools for computer graphics and physics. Those features include:
 
 * Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
-* Poisizes with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
+* Points with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
 * Quaternions: `Quat`, `UnitQuat`.
@@ -315,7 +315,7 @@ pub fn orig<P: Orig>() -> P {
     Orig::orig()
 }
 
-/// Returns the center of two poisizes.
+/// Returns the center of two points.
 #[inline]
 pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy>(a: &P, b: &P) -> P {
     let _2 = one::<N>() + one();
@@ -325,13 +325,13 @@ pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy>(a: &P, b: &P) -> P {
 /*
  * FloatPnt
  */
-/// Returns the distance between two poisizes.
+/// Returns the distance between two points.
 #[inline(always)]
 pub fn dist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
     a.dist(b)
 }
 
-/// Returns the squared distance between two poisizes.
+/// Returns the squared distance between two points.
 #[inline(always)]
 pub fn sqdist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
     a.sqdist(b)
@@ -409,7 +409,7 @@ pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
  * Translate<P>
  */
 
-/// Applies a translation to a poisize.
+/// Applies a translation to a point.
 ///
 /// ```rust
 /// extern crate "nalgebra" as na;
@@ -429,7 +429,7 @@ pub fn translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
     m.translate(p)
 }
 
-/// Applies an inverse translation to a poisize.
+/// Applies an inverse translation to a point.
 ///
 /// ```rust
 /// extern crate "nalgebra" as na;
@@ -576,18 +576,18 @@ pub fn inv_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
  * RotationWithTranslation<LV, AV>
  */
 
-/// Rotates a copy of `m` by `amount` using `center` as the pivot poisize.
+/// Rotates a copy of `m` by `amount` using `center` as the pivot point.
 #[inline(always)]
-pub fn append_rotation_wrt_poisize<LV: Neg<Output = LV> + Copy,
+pub fn append_rotation_wrt_point<LV: Neg<Output = LV> + Copy,
                                  AV,
                                  M: RotationWithTranslation<LV, AV>>(
                                  m:      &M,
                                  amount: &AV,
                                  center: &LV) -> M {
-    RotationWithTranslation::append_rotation_wrt_poisize_cpy(m, amount, center)
+    RotationWithTranslation::append_rotation_wrt_point_cpy(m, amount, center)
 }
 
-/// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot poisize.
+/// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
 #[inline(always)]
 pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
                                   AV,
@@ -745,7 +745,7 @@ pub fn from_homogeneous<M, Res: FromHomogeneous<M>>(m: &M) -> Res {
 
 /// Samples the unit sphere living on the dimension as the samples types.
 ///
-/// The number of sampling poisize is implementation-specific. It is always uniform.
+/// The number of sampling point is implementation-specific. It is always uniform.
 #[inline(always)]
 pub fn sample_sphere<V: UniformSphereSample, F: FnMut(V)>(f: F) {
     UniformSphereSample::sample(f)

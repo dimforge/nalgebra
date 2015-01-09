@@ -16,7 +16,7 @@ pub trait BaseNum: Copy + Zero + One +
                    Absolute<Self> + Axpy<Self> {
 }
 
-/// Basic floating-poisize number numeric trait.
+/// Basic floating-point number numeric trait.
 pub trait BaseFloat: Float + BaseNum {
     /// Archimedes' constant.
     fn pi() -> Self;
@@ -226,13 +226,13 @@ pub trait IterableMut<N> {
 /*
  * Vec related traits.
  */
-/// Trait that relates a poisize of an affine space to a vector of the associated vector space.
-#[deprecated = "This will be removed in the future. Use poisize + vector operations instead."]
+/// Trait that relates a point of an affine space to a vector of the associated vector space.
+#[deprecated = "This will be removed in the future. Use point + vector operations instead."]
 pub trait VecAsPnt<P> {
-    /// Converts this poisize to its associated vector.
+    /// Converts this point to its associated vector.
     fn to_pnt(self) -> P;
 
-    /// Converts a reference to this poisize to a reference to its associated vector.
+    /// Converts a reference to this point to a reference to its associated vector.
     fn as_pnt<'a>(&'a self) -> &'a P;
 }
 
@@ -252,21 +252,21 @@ pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Basis {
 /*
  * Pnt related traits.
  */
-/// Trait that relates a poisize of an affine space to a vector of the associated vector space.
+/// Trait that relates a point of an affine space to a vector of the associated vector space.
 pub trait PntAsVec<V> {
-    /// Converts this poisize to its associated vector.
+    /// Converts this point to its associated vector.
     fn to_vec(self) -> V;
 
-    /// Converts a reference to this poisize to a reference to its associated vector.
+    /// Converts a reference to this point to a reference to its associated vector.
     fn as_vec<'a>(&'a self) -> &'a V;
 
     // NOTE: this is used in some places to overcome some limitations untill the trait reform is
     // done on rustc.
-    /// Sets the coordinates of this poisize to match those of a given vector.
+    /// Sets the coordinates of this point to match those of a given vector.
     fn set_coords(&mut self, coords: V);
 }
 
-/// Trait grouping most common operations on poisizes.
+/// Trait grouping most common operations on points.
 // XXX: the vector space element `V` should be an associated type. Though this would prevent V from
 // having bounds (they are not supported yet). So, for now, we will just use a type parameter.
 pub trait NumPnt<N, V>:
@@ -284,15 +284,15 @@ pub trait NumPnt<N, V>:
           Index<usize, Output = N> { // FIXME: + Sub<V, Self>
 }
 
-/// Trait of poisizes with components implementing the `BaseFloat` trait.
+/// Trait of points with components implementing the `BaseFloat` trait.
 pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> + Sized {
-    /// Computes the square distance between two poisizes.
+    /// Computes the square distance between two points.
     #[inline]
     fn sqdist(&self, other: &Self) -> N {
         (*self - *other).sqnorm()
     }
 
-    /// Computes the distance between two poisizes.
+    /// Computes the distance between two points.
     #[inline]
     fn dist(&self, other: &Self) -> N {
         (*self - *other).norm()

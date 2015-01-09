@@ -167,14 +167,14 @@ impl<N: Clone + BaseFloat> Rot3<N> {
 }
 
 impl<N: Clone + BaseFloat> Rot3<N> {
-    /// Reorient this matrix such that its local `x` axis poisizes to a given poisize. Note that the
+    /// Reorient this matrix such that its local `x` axis points to a given point. Note that the
     /// usually known `look_at` function does the same thing but with the `z` axis. See `look_at_z`
     /// for that.
     ///
     /// # Arguments
-    ///   * at - The poisize to look at. It is also the direction the matrix `x` axis will be aligned
+    ///   * at - The point to look at. It is also the direction the matrix `x` axis will be aligned
     ///   with
-    ///   * up - Vector poisizeing `up`. The only requirement of this parameter is to not be colinear
+    ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
         let xaxis = Norm::normalize_cpy(at);
@@ -187,11 +187,11 @@ impl<N: Clone + BaseFloat> Rot3<N> {
             xaxis.z        , yaxis.z        , zaxis.z)
     }
 
-    /// Reorient this matrix such that its local `z` axis poisizes to a given poisize.
+    /// Reorient this matrix such that its local `z` axis points to a given point.
     ///
     /// # Arguments
     ///   * at - The look direction, that is, direction the matrix `y` axis will be aligned with
-    ///   * up - Vector poisizeing `up`. The only requirement of this parameter is to not be colinear
+    ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at_z(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
         let zaxis = Norm::normalize_cpy(at);

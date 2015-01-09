@@ -96,7 +96,7 @@ impl<N: BaseFloat + Clone> Ortho3<N> {
         self.zfar = zfar
     }
 
-    /// Projects a poisize.
+    /// Projects a point.
     #[inline]
     pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
         // FIXME: optimize that
@@ -204,7 +204,7 @@ impl<N: BaseFloat> OrthoMat3<N> {
         self.mat.m34 = -(zfar + znear) / (zfar - znear);
     }
 
-    /// Projects a poisize.
+    /// Projects a point.
     #[inline]
     pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
         Pnt3::new(
