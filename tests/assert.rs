@@ -1,6 +1,7 @@
 //! Assertion macro tests
 
 #![feature(plugin)]
+#![allow(unstable)]
 
 #[plugin]
 #[macro_use]

@@ -81,7 +81,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
-// #![allow(unstable)]
+ #![allow(unstable)]
 #![warn(missing_docs)]
 #![feature(old_orphan_check)]
 #![feature(unboxed_closures)]
