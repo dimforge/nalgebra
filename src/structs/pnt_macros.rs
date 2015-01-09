@@ -1,19 +1,18 @@
 #![macro_use]
 
 macro_rules! orig_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $($compN: ident),+) => (
         impl<N: Zero> Orig for $t<N> {
             #[inline]
             fn orig() -> $t<N> {
                 $t {
-                    $comp0: ::zero()
-                    $(, $compN: ::zero() )*
+                    $($compN: ::zero() ),+
                 }
             }
 
             #[inline]
             fn is_orig(&self) -> bool {
-                self.$comp0.is_zero() $(&& self.$compN.is_zero() )*
+                $(self.$compN.is_zero() )&&+
             }
         }
     )
@@ -33,40 +32,39 @@ macro_rules! pnt_sub_impl(
 );
 
 macro_rules! pnt_add_vec_impl(
-    ($t: ident, $tv: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $tv: ident, $($compN: ident),+) => (
         impl<N: Copy + Add<N, Output = N>> Add<$tv<N>> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn add(self, right: $tv<N>) -> $t<N> {
-                $t::new(self.$comp0 + right.$comp0 $(, self.$compN + right.$compN)*)
+                $t::new($(self.$compN + right.$compN),+)
             }
         }
     )
 );
 
 macro_rules! pnt_sub_vec_impl(
-    ($t: ident, $tv: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $tv: ident, $($compN: ident),+) => (
         impl<N: Copy + Sub<N, Output = N>> Sub<$tv<N>> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn sub(self, right: $tv<N>) -> $t<N> {
-                $t::new(self.$comp0 - right.$comp0 $(, self.$compN - right.$compN)*)
+                $t::new($(self.$compN - right.$compN),+)
             }
         }
     )
 );
 
 macro_rules! pnt_as_vec_impl(
-    ($t: ident, $tv: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $tv: ident, $($compN: ident),+) => (
         impl<N> $t<N> {
             /// Converts this point to its associated vector.
             #[inline]
             pub fn to_vec(self) -> $tv<N> {
                 $tv::new(
-                    self.$comp0
-                    $(, self.$compN)*
+                    $(self.$compN),+
                 )
             }
 
@@ -80,8 +78,7 @@ macro_rules! pnt_as_vec_impl(
 
             #[inline]
             fn set_coords(&mut self, v: $tv<N>) {
-                self.$comp0 = v.$comp0;
-                $(self.$compN = v.$compN;)*
+                $(self.$compN = v.$compN;)+
             }
         }
 
@@ -105,13 +102,12 @@ macro_rules! pnt_as_vec_impl(
 );
 
 macro_rules! pnt_to_homogeneous_impl(
-    ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $t2: ident, $extra: ident, $($compN: ident),+) => (
         impl<N: Copy + One + Zero> ToHomogeneous<$t2<N>> for $t<N> {
             fn to_homogeneous(&self) -> $t2<N> {
                 let mut res: $t2<N> = Orig::orig();
 
-                res.$comp0    = self.$comp0;
-                $( res.$compN = self.$compN; )*
+                $( res.$compN = self.$compN; )+
                 res.$extra    = ::one();
 
                 res
@@ -121,13 +117,12 @@ macro_rules! pnt_to_homogeneous_impl(
 );
 
 macro_rules! pnt_from_homogeneous_impl(
-    ($t: ident, $t2: ident, $extra: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $t2: ident, $extra: ident, $($compN: ident),+) => (
         impl<N: Copy + Div<N, Output = N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N> {
             fn from(v: &$t2<N>) -> $t<N> {
                 let mut res: $t<N> = Orig::orig();
 
-                res.$comp0    = v.$comp0 / v.$extra;
-                $( res.$compN = v.$compN / v.$extra; )*
+                $( res.$compN = v.$compN / v.$extra; )+
 
                 res
             }

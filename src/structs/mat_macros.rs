@@ -1,13 +1,12 @@
 #![macro_use]
 
 macro_rules! mat_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+  ($t: ident, $($compN: ident),+) => (
     impl<N> $t<N> {
         #[inline]
-        pub fn new($comp0: N $(, $compN: N )*) -> $t<N> {
+        pub fn new($($compN: N ),+) -> $t<N> {
             $t {
-                $comp0: $comp0
-                $(, $compN: $compN )*
+                $($compN: $compN ),+
             }
         }
     }
@@ -76,76 +75,76 @@ macro_rules! at_fast_impl(
 );
 
 macro_rules! mat_cast_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $($compN: ident),+) => (
         impl<Nin: Copy, Nout: Copy + Cast<Nin>> Cast<$t<Nin>> for $t<Nout> {
             #[inline]
             fn from(v: $t<Nin>) -> $t<Nout> {
-                $t::new(Cast::from(v.$comp0) $(, Cast::from(v.$compN))*)
+                $t::new($(Cast::from(v.$compN)),+)
             }
         }
     )
 );
 
 macro_rules! add_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $($compN: ident),+) => (
         impl<N: Add<N, Output = N>> Add<$t<N>> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn add(self, right: $t<N>) -> $t<N> {
-                $t::new(self.$comp0 + right.$comp0 $(, self.$compN + right.$compN)*)
+                $t::new($(self.$compN + right.$compN),+)
             }
         }
     )
 );
 
 macro_rules! sub_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $($compN: ident),+) => (
         impl<N: Sub<N, Output = N>> Sub<$t<N>> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn sub(self, right: $t<N>) -> $t<N> {
-                $t::new(self.$comp0 - right.$comp0 $(, self.$compN - right.$compN)*)
+                $t::new($(self.$compN - right.$compN),+)
             }
         }
     )
 );
 
 macro_rules! mat_mul_scalar_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $($compN: ident),+) => (
         impl<N: Mul<N, Output = N>> Mul<N> for N {
             type Output = $t<N>;
 
             #[inline]
             fn mul(self, right: N) -> $t<N> {
-                $t::new(self.$comp0 * *right $(, self.$compN * *right)*)
+                $t::new($(self.$compN * *right),+)
             }
         }
     )
 );
 
 macro_rules! mat_div_scalar_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $($compN: ident),+) => (
         impl<N: Div<N, Output = N>> Div<N> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn div(self, right: N) -> $t<N> {
-                $t::new(self.$comp0 / *right $(, self.$compN / *right)*)
+                $t::new($(self.$compN / *right),+)
             }
         }
     )
 );
 
 macro_rules! mat_add_scalar_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $($compN: ident),+) => (
         impl<N: Add<N, Output = N>> Add<N> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn add(self, right: N) -> $t<N> {
-                $t::new(self.$comp0 + *right $(, self.$compN + *right)*)
+                $t::new($(self.$compN + *right),+)
             }
         }
     )
@@ -166,24 +165,24 @@ macro_rules! eye_impl(
 );
 
 macro_rules! mat_sub_scalar_impl(
-    ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+    ($t: ident, $($compN: ident),+) => (
         impl<N: Sub<N, Output = N> Sub<N> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn sub(self, right: &N) -> $t<N> {
-                $t::new(self.$comp0 - *right $(, self.$compN - *right)*)
+                $t::new($(self.$compN - *right),+)
             }
         }
     )
 );
 
 macro_rules! absolute_impl(
-  ($t: ident, $comp0: ident $(,$compN: ident)*) => (
+  ($t: ident, $($compN: ident),+) => (
     impl<N: Absolute<N>> Absolute<$t<N>> for $t<N> {
         #[inline]
         fn abs(m: &$t<N>) -> $t<N> {
-            $t::new(::abs(&m.$comp0) $(, ::abs(&m.$compN) )*)
+            $t::new($(::abs(&m.$compN) ),+)
         }
     }
   )
@@ -216,30 +215,29 @@ macro_rules! iterable_mut_impl(
 );
 
 macro_rules! one_impl(
-  ($t: ident, $value0: expr $(, $valueN: expr)* ) => (
+  ($t: ident, $($valueN: expr),+ ) => (
     impl<N: Copy + BaseNum> One for $t<N> {
         #[inline]
         fn one() -> $t<N> {
-            $t::new($value0() $(, $valueN() )*)
+            $t::new($($valueN() ),+)
         }
     }
   )
 );
 
 macro_rules! zero_impl(
-  ($t: ident, $comp0: ident $(, $compN: ident)* ) => (
+  ($t: ident, $($compN: ident),+ ) => (
     impl<N: Zero> Zero for $t<N> {
         #[inline]
         fn zero() -> $t<N> {
             $t {
-                $comp0: ::zero()
-                $(, $compN: ::zero() )*
+                $($compN: ::zero() ),+
             }
         }
 
         #[inline]
         fn is_zero(&self) -> bool {
-            ::is_zero(&self.$comp0) $(&& ::is_zero(&self.$compN) )*
+            $(::is_zero(&self.$compN) )&&+
         }
     }
   )

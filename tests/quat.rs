@@ -52,7 +52,7 @@ fn test_quat_to_axis_angle() {
 
         let q = UnitQuat::new(axis_angle);
 
-        println!("{} {}", q.rotation(), axis_angle);
+        println!("{:?} {:?}", q.rotation(), axis_angle);
         assert!(na::approx_eq(&q.rotation(), &axis_angle))
     }
 }
