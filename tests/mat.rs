@@ -54,9 +54,9 @@ macro_rules! test_qr_impl(
 // 
 //             let recomp = eigenvectors * diag * na::transpose(&eigenvectors);
 // 
-//             prisizeln!("eigenvalues: {}", eigenvalues);
-//             prisizeln!("   mat: {}", randmat);
-//             prisizeln!("recomp: {}", recomp);
+//             println!("eigenvalues: {}", eigenvalues);
+//             println!("   mat: {}", randmat);
+//             println!("recomp: {}", recomp);
 // 
 //             assert!(na::approx_eq_eps(&randmat,  &recomp, &1.0e-2));
 //         }
@@ -200,7 +200,7 @@ fn test_transpose_dmat() {
         8,
         4,
         &[
-            1us32,2,  3,  4,
+            1u32,2,  3,  4,
             5,   6,  7,  8,
             9,   10, 11, 12,
             13,  14, 15, 16,
@@ -242,7 +242,7 @@ fn test_dmat_from_vec() {
         ]
     );
 
-    prisizeln!("mat1: {:?}, mat2: {:?}", mat1, mat2);
+    println!("mat1: {:?}, mat2: {:?}", mat1, mat2);
 
     assert!(mat1 == mat2);
 }

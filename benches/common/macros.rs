@@ -8,8 +8,8 @@ macro_rules! bench_binop(
 
             let mut rng = IsaacRng::new_unseeded();
 
-            let elems1 =  Vec::from_fn(LEN, |_| rng.gen::<$t1>());
-            let elems2 =  Vec::from_fn(LEN, |_| rng.gen::<$t2>());
+            let elems1: Vec<$t1> = (0us .. LEN).map(|_| rng.gen::<$t1>()).collect();
+            let elems2: Vec<$t2> = (0us .. LEN).map(|_| rng.gen::<$t2>()).collect();
             let mut i = 0;
 
             bh.iter(|| {
@@ -31,8 +31,8 @@ macro_rules! bench_binop_na(
 
             let mut rng = IsaacRng::new_unseeded();
 
-            let elems1 =  Vec::from_fn(LEN, |_| rng.gen::<$t1>());
-            let elems2 =  Vec::from_fn(LEN, |_| rng.gen::<$t2>());
+            let elems1: Vec<$t1> = (0us .. LEN).map(|_| rng.gen::<$t1>()).collect();
+            let elems2: Vec<$t2> = (0us .. LEN).map(|_| rng.gen::<$t2>()).collect();
             let mut i = 0;
 
             bh.iter(|| {
@@ -54,7 +54,7 @@ macro_rules! bench_unop(
 
             let mut rng = IsaacRng::new_unseeded();
 
-            let elems =  Vec::from_fn(LEN, |_| rng.gen::<$t>());
+            let elems: Vec<$t> =  (0us .. LEN).map(|_| rng.gen::<$t>()).collect();
             let mut i = 0;
 
             bh.iter(|| {
@@ -76,7 +76,7 @@ macro_rules! bench_unop_self(
 
             let mut rng = IsaacRng::new_unseeded();
 
-            let mut elems =  Vec::from_fn(LEN, |_| rng.gen::<$t>());
+            let mut elems: Vec<$t> =  (0us .. LEN).map(|_| rng.gen::<$t>()).collect();
             let mut i = 0;
 
             bh.iter(|| {
@@ -91,14 +91,14 @@ macro_rules! bench_unop_self(
 );
 
 macro_rules! bench_construction(
-    ($name: ident, $constructor: path $(, $args: ident: $types: ty)*) => {
+    ($name: ident, $constructor: path, $( $args: ident: $types: ty),*) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 13;
 
             let mut rng = IsaacRng::new_unseeded();
 
-            $(let $args = Vec::from_fn(LEN, |_| rng.gen::<$types>());)*
+            $(let $args: Vec<$types> = (0us .. LEN).map(|_| rng.gen::<$types>()).collect();)*
             let mut i = 0;
 
             bh.iter(|| {
