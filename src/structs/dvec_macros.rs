@@ -395,7 +395,7 @@ macro_rules! dvec_impl(
 );
 
 macro_rules! small_dvec_impl (
-    ($dvec: ident, $dim: expr $(,$idx: expr)*) => (
+    ($dvec: ident, $dim: expr, $($idx: expr),*) => (
         impl<N> $dvec<N> {
             #[inline]
             pub fn len(&self) -> uint {
@@ -436,7 +436,7 @@ macro_rules! small_dvec_impl (
 );
 
 macro_rules! small_dvec_from_impl (
-    ($dvec: ident, $dim: expr $(,$zeros: expr)*) => (
+    ($dvec: ident, $dim: expr, $($zeros: expr),*) => (
         impl<N: Copy + Zero> $dvec<N> {
             /// Builds a vector filled with a constant.
             #[inline]

@@ -12,7 +12,7 @@ use std::mem;
 use structs::dvec::DVec;
 use traits::operations::{Inv, Transpose, Mean, Cov};
 use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
-use std::fmt::{Show, Formatter, Result};
+use std::fmt::{Show, Formatter, Result, String};
 
 
 /// Matrix with dimensions unknown at compile-time.
@@ -633,7 +633,7 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     }
 }
 
-impl<N: Show + Copy> Show for DMat<N> {
+impl<N: Show + Copy + String> Show for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
         for i in range(0u, self.nrows()) {
             for j in range(0u, self.ncols()) {
