@@ -71,7 +71,7 @@ impl POrdering {
     }
 }
 
-/// Pointwise ordering operations.
+/// Poisizewise ordering operations.
 pub trait POrd {
     /// Returns the infimum of this value and another
     fn inf(&self, other: &Self) -> Self;
@@ -193,8 +193,8 @@ impl ApproxEq<f32> for f32 {
         // Otherwise, differing signs should be not-equal, even if within ulps
         if self.signum() != other.signum() { return false; }
 
-        // IEEE754 floats are in the same order as 2s complement ints
-        // so this trick (subtracting the ints) works.
+        // IEEE754 floats are in the same order as 2s complement isizes
+        // so this trick (subtracting the isizes) works.
         let iself: i32 = unsafe { ::std::mem::transmute(*self) };
         let iother: i32 = unsafe { ::std::mem::transmute(*other) };
 
@@ -298,7 +298,7 @@ pub trait Mean<N> {
 /// Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.
 pub trait EigenQR<N, V>: SquareMat<N, V> {
     /// Computes the eigenvectors and eigenvalues of this matrix.
-    fn eigen_qr(&self, eps: &N, niter: uint) -> (Self, V);
+    fn eigen_qr(&self, eps: &N, niter: usize) -> (Self, V);
 }
 
 // XXX: those two traits should not exist since there is generalized operator overloading of Add
@@ -404,12 +404,12 @@ impl_absolute!(i8);
 impl_absolute!(i16);
 impl_absolute!(i32);
 impl_absolute!(i64);
-impl_absolute!(int);
+impl_absolute!(isize);
 impl_absolute_id!(u8);
 impl_absolute_id!(u16);
 impl_absolute_id!(u32);
 impl_absolute_id!(u64);
-impl_absolute_id!(uint);
+impl_absolute_id!(usize);
 
 macro_rules! impl_axpy(
     ($n: ty) => {
@@ -428,9 +428,9 @@ impl_axpy!(i8);
 impl_axpy!(i16);
 impl_axpy!(i32);
 impl_axpy!(i64);
-impl_axpy!(int);
+impl_axpy!(isize);
 impl_axpy!(u8);
 impl_axpy!(u16);
 impl_axpy!(u32);
 impl_axpy!(u64);
-impl_axpy!(uint);
+impl_axpy!(usize);

@@ -30,7 +30,7 @@ pub trait Translation<V> {
 }
 
 /// Trait of objects able to translate other objects. This is typically
-/// implemented by vectors to translate points.
+/// implemented by vectors to translate poisizes.
 pub trait Translate<V> {
     /// Apply a translation to an object.
     fn translate(&self, &V) -> V;
@@ -77,20 +77,20 @@ pub trait Rotate<V> {
 
 /// Various composition of rotation and translation.
 ///
-/// Utilities to make rotations with regard to a point different than the origin.  All those
+/// Utilities to make rotations with regard to a poisize different than the origin.  All those
 /// operations are the composition of rotations and translations.
 ///
 /// Those operations are automatically implemented in term of the `Rotation` and `Translation`
 /// traits.
 pub trait RotationWithTranslation<LV: Neg<Output = LV> + Copy, AV>: Rotation<AV> + Translation<LV> + Sized {
-    /// Applies a rotation centered on a specific point.
+    /// Applies a rotation centered on a specific poisize.
     ///
     /// # Arguments
     ///   * `t` - the object to be rotated.
     ///   * `amount` - the rotation to apply.
-    ///   * `point` - the center of rotation.
+    ///   * `poisize` - the center of rotation.
     #[inline]
-    fn append_rotation_wrt_point_cpy(&self, amount: &AV, center: &LV) -> Self {
+    fn append_rotation_wrt_poisize_cpy(&self, amount: &AV, center: &LV) -> Self {
         let mut res = Translation::append_translation_cpy(self, &-*center);
 
         res.append_rotation(amount);
@@ -107,7 +107,7 @@ pub trait RotationWithTranslation<LV: Neg<Output = LV> + Copy, AV>: Rotation<AV>
     ///   * `amount` - the rotation to be applied
     ///   * `center` - the new center of rotation
     #[inline]
-    fn append_rotation_wrt_point(&mut self, amount: &AV, center: &LV) {
+    fn append_rotation_wrt_poisize(&mut self, amount: &AV, center: &LV) {
         self.append_translation(&-*center);
         self.append_rotation(amount);
         self.append_translation(center);
@@ -120,7 +120,7 @@ pub trait RotationWithTranslation<LV: Neg<Output = LV> + Copy, AV>: Rotation<AV>
     ///   * `amount` - the rotation to apply.
     #[inline]
     fn append_rotation_wrt_center_cpy(&self, amount: &AV) -> Self {
-        RotationWithTranslation::append_rotation_wrt_point_cpy(self, amount, &self.translation())
+        RotationWithTranslation::append_rotation_wrt_poisize_cpy(self, amount, &self.translation())
     }
 
     /// Applies a rotation centered on the translation of `m`.
@@ -132,7 +132,7 @@ pub trait RotationWithTranslation<LV: Neg<Output = LV> + Copy, AV>: Rotation<AV>
     #[inline]
     fn append_rotation_wrt_center(&mut self, amount: &AV) {
         let center = self.translation();
-        self.append_rotation_wrt_point(amount, &center)
+        self.append_rotation_wrt_poisize(amount, &center)
     }
 }
 
@@ -274,6 +274,6 @@ pub trait UniformSphereSample {
 pub trait Orig {
     /// The trivial origin.
     fn orig() -> Self;
-    /// Returns true if this points is exactly the trivial origin.
+    /// Returns true if this poisizes is exactly the trivial origin.
     fn is_orig(&self) -> bool;
 }

@@ -60,7 +60,7 @@ macro_rules! pnt_sub_vec_impl(
 macro_rules! pnt_as_vec_impl(
     ($t: ident, $tv: ident, $($compN: ident),+) => (
         impl<N> $t<N> {
-            /// Converts this point to its associated vector.
+            /// Converts this poisize to its associated vector.
             #[inline]
             pub fn to_vec(self) -> $tv<N> {
                 $tv::new(
@@ -68,7 +68,7 @@ macro_rules! pnt_as_vec_impl(
                 )
             }
 
-            /// Converts a reference to this point to a reference to its associated vector.
+            /// Converts a reference to this poisize to a reference to its associated vector.
             #[inline]
             pub fn as_vec<'a>(&'a self) -> &'a $tv<N> {
                 unsafe {

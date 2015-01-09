@@ -42,7 +42,7 @@ fn main() {
 an optimized set of tools for computer graphics and physics. Those features include:
 
 * Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
-* Points with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
+* Poisizes with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
 * Quaternions: `Quat`, `UnitQuat`.
@@ -314,7 +314,7 @@ pub fn orig<P: Orig>() -> P {
     Orig::orig()
 }
 
-/// Returns the center of two points.
+/// Returns the center of two poisizes.
 #[inline]
 pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy>(a: &P, b: &P) -> P {
     let _2 = one::<N>() + one();
@@ -324,13 +324,13 @@ pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy>(a: &P, b: &P) -> P {
 /*
  * FloatPnt
  */
-/// Returns the distance between two points.
+/// Returns the distance between two poisizes.
 #[inline(always)]
 pub fn dist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
     a.dist(b)
 }
 
-/// Returns the squared distance between two points.
+/// Returns the squared distance between two poisizes.
 #[inline(always)]
 pub fn sqdist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
     a.sqdist(b)
@@ -408,7 +408,7 @@ pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
  * Translate<P>
  */
 
-/// Applies a translation to a point.
+/// Applies a translation to a poisize.
 ///
 /// ```rust
 /// extern crate "nalgebra" as na;
@@ -428,7 +428,7 @@ pub fn translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
     m.translate(p)
 }
 
-/// Applies an inverse translation to a point.
+/// Applies an inverse translation to a poisize.
 ///
 /// ```rust
 /// extern crate "nalgebra" as na;
@@ -575,18 +575,18 @@ pub fn inv_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
  * RotationWithTranslation<LV, AV>
  */
 
-/// Rotates a copy of `m` by `amount` using `center` as the pivot point.
+/// Rotates a copy of `m` by `amount` using `center` as the pivot poisize.
 #[inline(always)]
-pub fn append_rotation_wrt_point<LV: Neg<Output = LV> + Copy,
+pub fn append_rotation_wrt_poisize<LV: Neg<Output = LV> + Copy,
                                  AV,
                                  M: RotationWithTranslation<LV, AV>>(
                                  m:      &M,
                                  amount: &AV,
                                  center: &LV) -> M {
-    RotationWithTranslation::append_rotation_wrt_point_cpy(m, amount, center)
+    RotationWithTranslation::append_rotation_wrt_poisize_cpy(m, amount, center)
 }
 
-/// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
+/// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot poisize.
 #[inline(always)]
 pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
                                   AV,
@@ -744,7 +744,7 @@ pub fn from_homogeneous<M, Res: FromHomogeneous<M>>(m: &M) -> Res {
 
 /// Samples the unit sphere living on the dimension as the samples types.
 ///
-/// The number of sampling point is implementation-specific. It is always uniform.
+/// The number of sampling poisize is implementation-specific. It is always uniform.
 #[inline(always)]
 pub fn sample_sphere<V: UniformSphereSample, F: FnMut(V)>(f: F) {
     UniformSphereSample::sample(f)
@@ -837,7 +837,7 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
  */
 /// Computes the eigenvalues and eigenvectors of a square matrix usin the QR algorithm.
 #[inline(always)]
-pub fn eigen_qr<N, V, M: EigenQR<N, V>>(m: &M, eps: &N, niter: uint) -> (M, V) {
+pub fn eigen_qr<N, V, M: EigenQR<N, V>>(m: &M, eps: &N, niter: usize) -> (M, V) {
     EigenQR::eigen_qr(m, eps, niter)
 }
 
@@ -852,7 +852,7 @@ pub fn eigen_qr<N, V, M: EigenQR<N, V>>(m: &M, eps: &N, niter: uint) -> (M, V) {
  */
 /// Construct the identity matrix for a given dimension
 #[inline(always)]
-pub fn new_identity<M: Eye>(dim: uint) -> M {
+pub fn new_identity<M: Eye>(dim: usize) -> M {
     Eye::new_identity(dim)
 }
 
@@ -874,7 +874,7 @@ pub fn orthonormal_subspace_basis<V: Basis, F: FnMut(V) -> bool>(v: &V, f: F) {
 
 /// Gets the (0-based) i-th element of the canonical basis of V.
 #[inline]
-pub fn canonical_basis_element<V: Basis>(i: uint) -> Option<V> {
+pub fn canonical_basis_element<V: Basis>(i: usize) -> Option<V> {
     Basis::canonical_basis_element(i)
 }
 
@@ -902,7 +902,7 @@ pub fn diag<M: Diag<V>, V>(m: &M) -> V {
 ///
 /// Same as `Dim::dim::(None::<V>)`.
 #[inline(always)]
-pub fn dim<V: Dim>() -> uint {
+pub fn dim<V: Dim>() -> usize {
     Dim::dim(None::<V>)
 }
 

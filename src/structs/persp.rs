@@ -102,7 +102,7 @@ impl<N: BaseFloat + Clone> Persp3<N> {
         self.zfar = zfar;
     }
 
-    /// Projects a point.
+    /// Projects a poisize.
     #[inline]
     pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
         // FIXME: optimize that
@@ -231,7 +231,7 @@ impl<N: BaseFloat> PerspMat3<N> {
         self.mat.m34 = zfar * znear * _2 / (znear - zfar);
     }
 
-    /// Projects a point.
+    /// Projects a poisize.
     #[inline]
     pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
         let _1: N = ::one();

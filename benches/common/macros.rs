@@ -4,7 +4,7 @@ macro_rules! bench_binop(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            const LEN: uint = 1 << 13;
+            const LEN: usize = 1 << 13;
 
             let mut rng = IsaacRng::new_unseeded();
 
@@ -27,7 +27,7 @@ macro_rules! bench_binop_na(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            const LEN: uint = 1 << 13;
+            const LEN: usize = 1 << 13;
 
             let mut rng = IsaacRng::new_unseeded();
 
@@ -50,7 +50,7 @@ macro_rules! bench_unop(
     ($name: ident, $t: ty, $unop: ident) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            const LEN: uint = 1 << 13;
+            const LEN: usize = 1 << 13;
 
             let mut rng = IsaacRng::new_unseeded();
 
@@ -72,7 +72,7 @@ macro_rules! bench_unop_self(
     ($name: ident, $t: ty, $unop: ident) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            const LEN: uint = 1 << 13;
+            const LEN: usize = 1 << 13;
 
             let mut rng = IsaacRng::new_unseeded();
 
@@ -94,7 +94,7 @@ macro_rules! bench_construction(
     ($name: ident, $constructor: path $(, $args: ident: $types: ty)*) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            const LEN: uint = 1 << 13;
+            const LEN: usize = 1 << 13;
 
             let mut rng = IsaacRng::new_unseeded();
 

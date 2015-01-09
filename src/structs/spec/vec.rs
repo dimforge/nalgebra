@@ -48,12 +48,12 @@ impl<N: Neg<Output = N> + Zero + Copy> CrossMatrix<Mat3<N>> for Vec3<N> {
 // FIXME: implement this for all other vectors
 impl<N: Copy> Row<Vec1<N>> for Vec2<N> {
     #[inline]
-    fn nrows(&self) -> uint {
+    fn nrows(&self) -> usize {
         2
     }
 
     #[inline]
-    fn row(&self, i: uint) -> Vec1<N> {
+    fn row(&self, i: usize) -> Vec1<N> {
         match i {
             0 => Vec1::new(self.x),
             1 => Vec1::new(self.y),
@@ -62,7 +62,7 @@ impl<N: Copy> Row<Vec1<N>> for Vec2<N> {
     }
 
     #[inline]
-    fn set_row(&mut self, i: uint, r: Vec1<N>) {
+    fn set_row(&mut self, i: usize, r: Vec1<N>) {
         match i {
             0 => self.x = r.x,
             1 => self.y = r.x,
@@ -82,7 +82,7 @@ impl<N: One> Basis for Vec1<N> {
     fn orthonormal_subspace_basis<F: FnMut(Vec1<N>) -> bool>(_: &Vec1<N>, _: F) { }
 
     #[inline]
-    fn canonical_basis_element(i: uint) -> Option<Vec1<N>> {
+    fn canonical_basis_element(i: usize) -> Option<Vec1<N>> {
         if i == 0 {
             Some(Vec1::new(::one()))
         }
@@ -105,7 +105,7 @@ impl<N: Copy + One + Zero + Neg<Output = N>> Basis for Vec2<N> {
     }
 
     #[inline]
-    fn canonical_basis_element(i: uint) -> Option<Vec2<N>> {
+    fn canonical_basis_element(i: usize) -> Option<Vec2<N>> {
         if i == 0 {
             Some(Vec2::new(::one(), ::zero()))
         }
@@ -141,7 +141,7 @@ impl<N: BaseFloat> Basis for Vec3<N> {
     }
 
     #[inline]
-    fn canonical_basis_element(i: uint) -> Option<Vec3<N>> {
+    fn canonical_basis_element(i: usize) -> Option<Vec3<N>> {
         if i == 0 {
             Some(Vec3::new(::one(), ::zero(), ::zero()))
         }
