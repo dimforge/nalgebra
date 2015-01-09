@@ -8,7 +8,7 @@ use std::ops::{Add, Sub, Mul, Div, Neg, Rem, Index, IndexMut};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
-/// Basic integral numeric trait.
+/// Basic isizeegral numeric trait.
 pub trait BaseNum: Copy + Zero + One +
                    Add<Self, Output = Self> + Sub<Self, Output = Self> +
                    Mul<Self, Output = Self> + Div<Self, Output = Self> +
@@ -60,10 +60,10 @@ pub trait Cast<T> {
 /// Trait of matrices.
 ///
 /// A matrix has rows and columns and are able to multiply them.
-pub trait Mat<N, R, C>: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(uint, uint), Output = N> { }
+pub trait Mat<N, R, C>: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(usize, usize), Output = N> { }
 
 impl<N, M, R, C> Mat<N, R, C> for M
-    where M: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(uint, uint), Output = N> {
+    where M: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(usize, usize), Output = N> {
 }
 
 /// Trait implemented by square matrices.
@@ -78,7 +78,7 @@ impl<N, V, M> SquareMat<N, V> for M
 /// Trait for constructing the identity matrix
 pub trait Eye {
     /// Return the identity matrix of specified dimension
-    fn new_identity(dim: uint) -> Self;
+    fn new_identity(dim: usize) -> Self;
 }
 
 /// Additive identity.
@@ -115,17 +115,17 @@ pub trait Basis {
     fn orthonormal_subspace_basis<F: FnMut(Self) -> bool>(&Self, F);
 
     /// Gets the ith element of the canonical basis.
-    fn canonical_basis_element(i: uint) -> Option<Self>;
+    fn canonical_basis_element(i: usize) -> Option<Self>;
 }
 
 /// Trait to access rows of a matrix or a vector.
 pub trait Row<R> {
     /// The number of column of `self`.
-    fn nrows(&self) -> uint;
+    fn nrows(&self) -> usize;
     /// Reads the `i`-th row of `self`.
-    fn row(&self, i: uint) -> R;
+    fn row(&self, i: usize) -> R;
     /// Writes the `i`-th row of `self`.
-    fn set_row(&mut self, i: uint, R);
+    fn set_row(&mut self, i: usize, R);
 
     // FIXME: add iterators on rows: this could be a very good way to generalize _and_ optimize
     // a lot of operations.
@@ -134,13 +134,13 @@ pub trait Row<R> {
 /// Trait to access columns of a matrix or vector.
 pub trait Col<C> {
     /// The number of column of this matrix or vector.
-    fn ncols(&self) -> uint;
+    fn ncols(&self) -> usize;
 
     /// Reads the `i`-th column of `self`.
-    fn col(&self, i: uint) -> C;
+    fn col(&self, i: usize) -> C;
 
     /// Writes the `i`-th column of `self`.
-    fn set_col(&mut self, i: uint, C);
+    fn set_col(&mut self, i: usize, C);
 
     // FIXME: add iterators on columns: this could be a very good way to generalize _and_ optimize
     // a lot of operations.
@@ -149,19 +149,19 @@ pub trait Col<C> {
 /// Trait to access part of a column of a matrix
 pub trait ColSlice<C> {
     /// Returns a view to a slice of a column of a matrix.
-    fn col_slice(&self, col_id: uint, row_start: uint, row_end: uint) -> C;
+    fn col_slice(&self, col_id: usize, row_start: usize, row_end: usize) -> C;
 }
 
 /// Trait to access part of a row of a matrix
 pub trait RowSlice<R> {
     /// Returns a view to a slice of a row of a matrix.
-    fn row_slice(&self, row_id: uint, col_start: uint, col_end: uint) -> R;
+    fn row_slice(&self, row_id: usize, col_start: usize, col_end: usize) -> R;
 }
 
 /// Trait of objects having a spacial dimension known at compile time.
 pub trait Dim {
     /// The dimension of the object.
-    fn dim(unused_self: Option<Self>) -> uint;
+    fn dim(unused_self: Option<Self>) -> usize;
 }
 
 /// Trait to get the diagonal of square matrices.
@@ -241,7 +241,7 @@ pub trait NumVec<N>: Dim +
                      Sub<Self, Output = Self> + Add<Self, Output = Self> +
                      Mul<N, Output = Self> + Div<N, Output = Self> + 
                      Neg<Output = Self> +
-                     Index<uint, Output = N> +
+                     Index<usize, Output = N> +
                      Zero + PartialEq + Dot<N> + Axpy<N> {
 }
 
@@ -281,7 +281,7 @@ pub trait NumPnt<N, V>:
           Mul<N, Output = Self> +
           Div<N, Output = Self> +
           Add<V, Output = Self> +
-          Index<uint, Output = N> { // FIXME: + Sub<V, Self>
+          Index<usize, Output = N> { // FIXME: + Sub<V, Self>
 }
 
 /// Trait of points with components implementing the `BaseFloat` trait.
@@ -338,12 +338,12 @@ impl_zero_one!(i8, 0, 1);
 impl_zero_one!(i16, 0, 1);
 impl_zero_one!(i32, 0, 1);
 impl_zero_one!(i64, 0, 1);
-impl_zero_one!(int, 0, 1);
+impl_zero_one!(isize, 0, 1);
 impl_zero_one!(u8, 0, 1);
 impl_zero_one!(u16, 0, 1);
 impl_zero_one!(u32, 0, 1);
 impl_zero_one!(u64, 0, 1);
-impl_zero_one!(uint, 0, 1);
+impl_zero_one!(usize, 0, 1);
 
 
 // Bounded
@@ -369,12 +369,12 @@ impl_bounded!(i8, Int::min_value(), Int::max_value());
 impl_bounded!(i16, Int::min_value(), Int::max_value());
 impl_bounded!(i32, Int::min_value(), Int::max_value());
 impl_bounded!(i64, Int::min_value(), Int::max_value());
-impl_bounded!(int, Int::min_value(), Int::max_value());
+impl_bounded!(isize, Int::min_value(), Int::max_value());
 impl_bounded!(u8, Int::min_value(), Int::max_value());
 impl_bounded!(u16, Int::min_value(), Int::max_value());
 impl_bounded!(u32, Int::min_value(), Int::max_value());
 impl_bounded!(u64, Int::min_value(), Int::max_value());
-impl_bounded!(uint, Int::min_value(), Int::max_value());
+impl_bounded!(usize, Int::min_value(), Int::max_value());
 
 
 // BaseFloat

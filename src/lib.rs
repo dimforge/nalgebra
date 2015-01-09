@@ -81,6 +81,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
+ #![allow(unstable)]
 #![warn(missing_docs)]
 #![feature(old_orphan_check)]
 #![feature(unboxed_closures)]
@@ -837,7 +838,7 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
  */
 /// Computes the eigenvalues and eigenvectors of a square matrix usin the QR algorithm.
 #[inline(always)]
-pub fn eigen_qr<N, V, M: EigenQR<N, V>>(m: &M, eps: &N, niter: uint) -> (M, V) {
+pub fn eigen_qr<N, V, M: EigenQR<N, V>>(m: &M, eps: &N, niter: usize) -> (M, V) {
     EigenQR::eigen_qr(m, eps, niter)
 }
 
@@ -852,7 +853,7 @@ pub fn eigen_qr<N, V, M: EigenQR<N, V>>(m: &M, eps: &N, niter: uint) -> (M, V) {
  */
 /// Construct the identity matrix for a given dimension
 #[inline(always)]
-pub fn new_identity<M: Eye>(dim: uint) -> M {
+pub fn new_identity<M: Eye>(dim: usize) -> M {
     Eye::new_identity(dim)
 }
 
@@ -874,7 +875,7 @@ pub fn orthonormal_subspace_basis<V: Basis, F: FnMut(V) -> bool>(v: &V, f: F) {
 
 /// Gets the (0-based) i-th element of the canonical basis of V.
 #[inline]
-pub fn canonical_basis_element<V: Basis>(i: uint) -> Option<V> {
+pub fn canonical_basis_element<V: Basis>(i: usize) -> Option<V> {
     Basis::canonical_basis_element(i)
 }
 
@@ -902,7 +903,7 @@ pub fn diag<M: Diag<V>, V>(m: &M) -> V {
 ///
 /// Same as `Dim::dim::(None::<V>)`.
 #[inline(always)]
-pub fn dim<V: Dim>() -> uint {
+pub fn dim<V: Dim>() -> usize {
     Dim::dim(None::<V>)
 }
 

@@ -11,10 +11,10 @@ use std::ops::{Mul, Add, Sub};
 /// * `dim` - the dimension of the space the resulting matrix operates in
 /// * `start` - the starting dimension of the subspace of the reflexion
 /// * `vec` - the vector defining the reflection.
-pub fn householder_matrix<N, V, M>(dim: uint, start: uint, vec: V) -> M
+pub fn householder_matrix<N, V, M>(dim: usize, start: usize, vec: V) -> M
     where N: BaseFloat,
-          M: Eye + Indexable<(uint, uint), N>,
-          V: Indexable<uint, N> {
+          M: Eye + Indexable<(usize, usize), N>,
+          V: Indexable<usize, N> {
     let mut qk : M = Eye::new_identity(dim);
     let subdim = vec.shape();
 
@@ -22,8 +22,8 @@ pub fn householder_matrix<N, V, M>(dim: uint, start: uint, vec: V) -> M
 
     assert!(dim >= stop);
 
-    for j in range(start, stop) {
-        for i in range(start, stop) {
+    for j in (start .. stop) {
+        for i in (start .. stop) {
             unsafe {
                 let vv = vec.unsafe_at(i - start) * vec.unsafe_at(j - start);
                 let qkij = qk.unsafe_at((i, j));
@@ -40,8 +40,8 @@ pub fn householder_matrix<N, V, M>(dim: uint, start: uint, vec: V) -> M
 /// * `m` - matrix to decompose
 pub fn qr<N, V, M>(m: &M) -> (M, M)
     where N: BaseFloat,
-          V: Indexable<uint, N> + Norm<N>,
-          M: Copy + Eye + ColSlice<V> + Transpose + Indexable<(uint, uint), N> +
+          V: Indexable<usize, N> + Norm<N>,
+          M: Copy + Eye + ColSlice<V> + Transpose + Indexable<(usize, usize), N> +
              Mul<M, Output = M> {
     let (rows, cols) = m.shape();
     assert!(rows >= cols);
@@ -50,7 +50,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 
     let iterations = min(rows - 1, cols);
 
-    for ite in range(0u, iterations) {
+    for ite in (0us .. iterations) {
         let mut v = r.col_slice(ite, ite, rows);
         let alpha =
             if unsafe { v.unsafe_at(ite) } >= ::zero() {
@@ -74,29 +74,29 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 }
 
 /// Eigendecomposition of a square matrix using the qr algorithm.
-pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: uint) -> (M, V)
+pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     where N:  BaseFloat,
-          VS: Indexable<uint, N> + Norm<N>,
-          M:  Indexable<(uint, uint), N> + SquareMat<N, V> + Add<M, Output = M> +
+          VS: Indexable<usize, N> + Norm<N>,
+          M:  Indexable<(usize, usize), N> + SquareMat<N, V> + Add<M, Output = M> +
               Sub<M, Output = M> + ColSlice<VS> +
               ApproxEq<N> + Copy {
     let mut eigenvectors: M = ::one::<M>();
     let mut eigenvalues = *m;
     // let mut shifter: M = Eye::new_identity(rows);
 
-    let mut iter = 0u;
-    for _ in range(0, niter) {
+    let mut iter = 0us;
+    for _ in (0 .. niter) {
         let mut stop = true;
 
-        for j in range(0, ::dim::<M>()) {
-            for i in range(0, j) {
+        for j in (0 .. ::dim::<M>()) {
+            for i in (0 .. j) {
                 if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
                     stop = false;
                     break;
                 }
             }
 
-            for i in range(j + 1, ::dim::<M>()) {
+            for i in (j + 1 .. ::dim::<M>()) {
                 if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
                     stop = false;
                     break;

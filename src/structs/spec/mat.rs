@@ -132,12 +132,12 @@ impl<N: BaseNum> Det<N> for Mat3<N> {
 
 impl<N: Copy> Row<Vec3<N>> for Mat3<N> {
     #[inline]
-    fn nrows(&self) -> uint {
+    fn nrows(&self) -> usize {
         3
     }
 
     #[inline]
-    fn row(&self, i: uint) -> Vec3<N> {
+    fn row(&self, i: usize) -> Vec3<N> {
         match i {
             0 => Vec3::new(self.m11, self.m12, self.m13),
             1 => Vec3::new(self.m21, self.m22, self.m23),
@@ -147,7 +147,7 @@ impl<N: Copy> Row<Vec3<N>> for Mat3<N> {
     }
 
     #[inline]
-    fn set_row(&mut self, i: uint, r: Vec3<N>) {
+    fn set_row(&mut self, i: usize, r: Vec3<N>) {
         match i {
             0 => {
                 self.m11 = r.x;
@@ -172,12 +172,12 @@ impl<N: Copy> Row<Vec3<N>> for Mat3<N> {
 
 impl<N: Copy> Col<Vec3<N>> for Mat3<N> {
     #[inline]
-    fn ncols(&self) -> uint {
+    fn ncols(&self) -> usize {
         3
     }
 
     #[inline]
-    fn col(&self, i: uint) -> Vec3<N> {
+    fn col(&self, i: usize) -> Vec3<N> {
         match i {
             0 => Vec3::new(self.m11, self.m21, self.m31),
             1 => Vec3::new(self.m12, self.m22, self.m32),
@@ -187,7 +187,7 @@ impl<N: Copy> Col<Vec3<N>> for Mat3<N> {
     }
 
     #[inline]
-    fn set_col(&mut self, i: uint, r: Vec3<N>) {
+    fn set_col(&mut self, i: usize, r: Vec3<N>) {
         match i {
             0 => {
                 self.m11 = r.x;

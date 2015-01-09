@@ -62,13 +62,13 @@ macro_rules! at_fast_impl(
         impl<N: Copy> $t<N> {
             /// Unsafe read access to a vector element by index.
             #[inline]
-            pub unsafe fn at_fast(&self, i: uint) -> N {
+            pub unsafe fn at_fast(&self, i: usize) -> N {
                 (*self.as_array().get_unchecked(i))
             }
 
             /// Unsafe write access to a vector element by index.
             #[inline]
-            pub unsafe fn set_fast(&mut self, i: uint, val: N) {
+            pub unsafe fn set_fast(&mut self, i: usize, val: N) {
                 (*self.as_array_mut().get_unchecked_mut(i)) = val
             }
         }
@@ -78,74 +78,73 @@ macro_rules! at_fast_impl(
 // FIXME: N should be bounded by Ord instead of BaseFloat…
 // However, f32/f64 does not implement Ord…
 macro_rules! ord_impl(
-    ($t: ident, $($compN: ident),+) => (
+    ($t: ident, $comp0: ident, $($compN: ident),*) => (
         impl<N: BaseFloat + Copy> POrd for $t<N> {
             #[inline]
             fn inf(&self, other: &$t<N>) -> $t<N> {
-                $t::new($(self.$compN.min(other.$compN)),+)
+                $t::new(self.$comp0.min(other.$comp0)
+                        $(, self.$compN.min(other.$compN))*)
             }
 
             #[inline]
             fn sup(&self, other: &$t<N>) -> $t<N> {
-                $t::new($(self.$compN.max(other.$compN)),+)
+                $t::new(self.$comp0.max(other.$comp0)
+                        $(, self.$compN.max(other.$compN))*)
             }
 
             #[inline]
             #[allow(unused_mut)] // otherwise there will be a warning for is_eq or Vec1.
-            fn partial_cmp(&self, other: &$t<N>) -> POrdering {                
-                let mut first = true;
-                let mut is_lt = false;
-                let mut is_eq = false;
-                $(
-                    if first {
-                        is_lt = self.$compN <  other.$compN;
-                        is_eq = self.$compN == other.$compN;
-                        first = false;
-                    }
-                    else if is_lt { // <
+            fn partial_cmp(&self, other: &$t<N>) -> POrdering {
+                let is_lt     = self.$comp0 <  other.$comp0;
+                let mut is_eq = self.$comp0 == other.$comp0;
+
+                if is_lt { // <
+                    $(
                         if self.$compN > other.$compN {
                             return POrdering::NotComparable
                         }
-                    }
-                    else { // >=
+                     )*
+
+                    POrdering::PartialLess
+                }
+                else { // >=
+                    $(
                         if self.$compN < other.$compN {
                             return POrdering::NotComparable
                         }
                         else if self.$compN > other.$compN {
                             is_eq = false;
                         }
+
+                     )*
+
+                    if is_eq {
+                        POrdering::PartialEqual
                     }
-                )+
-                
-                if is_lt {
-                    POrdering::PartialLess
-                }
-                else if is_eq {
-                    POrdering::PartialEqual
-                }
-                else {
-                    POrdering::PartialGreater
+                    else {
+                        POrdering::PartialGreater
+                    }
                 }
             }
 
             #[inline]
             fn partial_lt(&self, other: &$t<N>) -> bool {
-                $(self.$compN < other.$compN)&&+
+                self.$comp0 < other.$comp0 $(&& self.$compN < other.$compN)*
             }
 
             #[inline]
             fn partial_le(&self, other: &$t<N>) -> bool {
-                $(self.$compN <= other.$compN)&&+
+                self.$comp0 <= other.$comp0 $(&& self.$compN <= other.$compN)*
             }
 
             #[inline]
             fn partial_gt(&self, other: &$t<N>) -> bool {
-                $(self.$compN > other.$compN)&&+
+                self.$comp0 > other.$comp0 $(&& self.$compN > other.$compN)*
             }
 
             #[inline]
             fn partial_ge(&self, other: &$t<N>) -> bool {
-                $(self.$compN >= other.$compN)&&+
+                self.$comp0 >= other.$comp0 $(&& self.$compN >= other.$compN)*
             }
         }
     )
@@ -182,42 +181,42 @@ macro_rules! vec_cast_impl(
 
 macro_rules! indexable_impl(
     ($t: ident, $dim: expr) => (
-        impl<N> Shape<uint> for $t<N> {
+        impl<N> Shape<usize> for $t<N> {
             #[inline]
-            fn shape(&self) -> uint {
+            fn shape(&self) -> usize {
                 $dim
             }
         }
 
-        impl<N: Copy> Indexable<uint, N> for $t<N> {
+        impl<N: Copy> Indexable<usize, N> for $t<N> {
             #[inline]
-            fn at(&self, i: uint) -> N {
+            fn at(&self, i: usize) -> N {
                 unsafe {
                     mem::transmute::<&$t<N>, &[N; $dim]>(self)[i]
                 }
             }
 
             #[inline]
-            fn set(&mut self, i: uint, val: N) {
+            fn set(&mut self, i: usize, val: N) {
                 unsafe {
                     mem::transmute::<&mut $t<N>, &mut [N; $dim]>(self)[i] = val
                 }
             }
 
             #[inline]
-            fn swap(&mut self, i1: uint, i2: uint) {
+            fn swap(&mut self, i1: usize, i2: usize) {
                 unsafe {
                     mem::transmute::<&mut $t<N>, &mut [N; $dim]>(self).swap(i1, i2)
                 }
             }
 
             #[inline]
-            unsafe fn unsafe_at(&self, i: uint) -> N {
+            unsafe fn unsafe_at(&self, i: usize) -> N {
                 (*mem::transmute::<&$t<N>, &[N; $dim]>(self).get_unchecked(i))
             }
 
             #[inline]
-            unsafe fn unsafe_set(&mut self, i: uint, val: N) {
+            unsafe fn unsafe_set(&mut self, i: usize, val: N) {
                 (*mem::transmute::<&mut $t<N>, &mut [N; $dim]>(self).get_unchecked_mut(i)) = val
             }
         }
@@ -226,18 +225,18 @@ macro_rules! indexable_impl(
 
 macro_rules! index_impl(
     ($t: ident) => (
-        impl<N> Index<uint> for $t<N> {
+        impl<N> Index<usize> for $t<N> {
             type Output = N;
 
-            fn index(&self, i: &uint) -> &N {
+            fn index(&self, i: &usize) -> &N {
                 &self.as_array()[*i]
             }
         }
 
-        impl<N> IndexMut<uint> for $t<N> {
+        impl<N> IndexMut<usize> for $t<N> {
             type Output = N;
 
-            fn index_mut(&mut self, i: &uint) -> &mut N {
+            fn index_mut(&mut self, i: &usize) -> &mut N {
                 &mut self.as_array_mut()[*i]
             }
         }
@@ -288,7 +287,7 @@ macro_rules! dim_impl(
     ($t: ident, $dim: expr) => (
         impl<N> Dim for $t<N> {
             #[inline]
-            fn dim(_: Option<$t<N>>) -> uint {
+            fn dim(_: Option<$t<N>>) -> usize {
                 $dim
             }
         }
@@ -299,7 +298,7 @@ macro_rules! container_impl(
     ($t: ident) => (
         impl<N> $t<N> {
             #[inline]
-            pub fn len(&self) -> uint {
+            pub fn len(&self) -> usize {
                 Dim::dim(None::<$t<N>>)
             }
         }
@@ -311,7 +310,7 @@ macro_rules! basis_impl(
         impl<N: Copy + BaseFloat + ApproxEq<N>> Basis for $t<N> {
             #[inline]
             fn canonical_basis<F: FnMut($t<N>) -> bool>(mut f: F) {
-                for i in range(0u, $dim) {
+                for i in (0us .. $dim) {
                     if !f(Basis::canonical_basis_element(i).unwrap()) { return }
                 }
             }
@@ -322,7 +321,7 @@ macro_rules! basis_impl(
                 // orthogonalization algorithm
                 let mut basis: Vec<$t<N>> = Vec::new();
 
-                for i in range(0u, $dim) {
+                for i in (0us .. $dim) {
                     let mut basis_element : $t<N> = ::zero();
 
                     unsafe {
@@ -352,7 +351,7 @@ macro_rules! basis_impl(
             }
 
             #[inline]
-            fn canonical_basis_element(i: uint) -> Option<$t<N>> {
+            fn canonical_basis_element(i: usize) -> Option<$t<N>> {
                 if i < $dim {
                     let mut basis_element : $t<N> = ::zero();
 

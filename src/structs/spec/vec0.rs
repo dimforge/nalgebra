@@ -20,52 +20,52 @@ impl<N> Zero for vec::Vec0<N> {
     }
 }
 
-impl<N> Index<uint> for vec::Vec0<N> {
+impl<N> Index<usize> for vec::Vec0<N> {
     type Output = N;
 
     #[inline]
-    fn index(&self, _: &uint) -> &N {
+    fn index(&self, _: &usize) -> &N {
         panic!("Canot index a Vec0.")
     }
 }
 
-impl<N> IndexMut<uint> for vec::Vec0<N> {
+impl<N> IndexMut<usize> for vec::Vec0<N> {
     type Output = N;
 
     #[inline]
-    fn index_mut(&mut self, _: &uint) -> &mut N {
+    fn index_mut(&mut self, _: &usize) -> &mut N {
         panic!("Canot index a Vec0.")
     }
 }
 
-impl<N> Shape<uint> for vec::Vec0<N> {
+impl<N> Shape<usize> for vec::Vec0<N> {
     #[inline]
-    fn shape(&self) -> uint {
+    fn shape(&self) -> usize {
         0
     }
 }
 
-impl<N> Indexable<uint, N> for vec::Vec0<N> {
+impl<N> Indexable<usize, N> for vec::Vec0<N> {
     #[inline]
-    fn at(&self, _: uint) -> N {
+    fn at(&self, _: usize) -> N {
         panic!("Cannot index a Vec0.")
     }
 
     #[inline]
-    fn set(&mut self, _: uint, _: N) {
+    fn set(&mut self, _: usize, _: N) {
     }
 
     #[inline]
-    fn swap(&mut self, _: uint, _: uint) {
+    fn swap(&mut self, _: usize, _: usize) {
     }
 
     #[inline]
-    unsafe fn unsafe_at(&self, _: uint) -> N {
+    unsafe fn unsafe_at(&self, _: usize) -> N {
         panic!("Cannot index a Vec0.")
     }
 
     #[inline]
-    unsafe fn unsafe_set(&mut self, _: uint, _: N) {
+    unsafe fn unsafe_set(&mut self, _: usize, _: N) {
     }
 }
 
@@ -85,7 +85,7 @@ impl<N: 'static> IterableMut<N> for vec::Vec0<N> {
 
 impl<N> Dim for vec::Vec0<N> {
     #[inline]
-    fn dim(_: Option<vec::Vec0<N>>) -> uint {
+    fn dim(_: Option<vec::Vec0<N>>) -> usize {
         0
     }
 }
@@ -98,7 +98,7 @@ impl<N> Basis for vec::Vec0<N> {
     fn orthonormal_subspace_basis<F: FnMut(vec::Vec0<N>) -> bool>(_: &vec::Vec0<N>, _: F) { }
 
     #[inline(always)]
-    fn canonical_basis_element(_: uint) -> Option<vec::Vec0<N>> {
+    fn canonical_basis_element(_: usize) -> Option<vec::Vec0<N>> {
         None
     }
 }

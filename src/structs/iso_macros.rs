@@ -43,7 +43,7 @@ macro_rules! dim_impl(
     ($t: ident, $dim: expr) => (
         impl<N> Dim for $t<N> {
             #[inline]
-            fn dim(_: Option<$t<N>>) -> uint {
+            fn dim(_: Option<$t<N>>) -> usize {
                 $dim
             }
         }

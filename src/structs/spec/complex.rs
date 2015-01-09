@@ -45,7 +45,7 @@ impl<N: Clone + BaseNum + BaseNumCast + Zero> Inv for Cmplx<N> {
 
 impl<N> Dim for Cmplx<N> {
     #[inline]
-    fn dim(unsused_self: Option<Cmplx<N>>) -> uint {
+    fn dim(unsused_self: Option<Cmplx<N>>) -> usize {
         2
     }
 }

@@ -71,7 +71,7 @@ macro_rules! dim_impl(
     ($t: ident, $dim: expr) => (
         impl<N> Dim for $t<N> {
             #[inline]
-            fn dim(_: Option<$t<N>>) -> uint {
+            fn dim(_: Option<$t<N>>) -> usize {
                 $dim
             }
         }
@@ -193,16 +193,16 @@ macro_rules! row_impl(
     ($t: ident, $tv: ident) => (
         impl<N: Copy + Zero> Row<$tv<N>> for $t<N> {
             #[inline]
-            fn nrows(&self) -> uint {
+            fn nrows(&self) -> usize {
                 self.submat.nrows()
             }
             #[inline]
-            fn row(&self, i: uint) -> $tv<N> {
+            fn row(&self, i: usize) -> $tv<N> {
                 self.submat.row(i)
             }
 
             #[inline]
-            fn set_row(&mut self, i: uint, row: $tv<N>) {
+            fn set_row(&mut self, i: usize, row: $tv<N>) {
                 self.submat.set_row(i, row);
             }
         }
@@ -213,16 +213,16 @@ macro_rules! col_impl(
     ($t: ident, $tv: ident) => (
         impl<N: Copy + Zero> Col<$tv<N>> for $t<N> {
             #[inline]
-            fn ncols(&self) -> uint {
+            fn ncols(&self) -> usize {
                 self.submat.ncols()
             }
             #[inline]
-            fn col(&self, i: uint) -> $tv<N> {
+            fn col(&self, i: usize) -> $tv<N> {
                 self.submat.col(i)
             }
 
             #[inline]
-            fn set_col(&mut self, i: uint, col: $tv<N>) {
+            fn set_col(&mut self, i: usize, col: $tv<N>) {
                 self.submat.set_col(i, col);
             }
         }
@@ -231,10 +231,10 @@ macro_rules! col_impl(
 
 macro_rules! index_impl(
     ($t: ident) => (
-        impl<N> Index<(uint, uint)> for $t<N> {
+        impl<N> Index<(usize, usize)> for $t<N> {
             type Output = N;
 
-            fn index(&self, i: &(uint, uint)) -> &N {
+            fn index(&self, i: &(usize, usize)) -> &N {
                 &self.submat[*i]
             }
         }

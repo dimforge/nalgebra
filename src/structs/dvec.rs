@@ -22,7 +22,7 @@ pub struct DVec<N> {
 impl<N> DVec<N> {
     /// Creates an uninitialized vec.
     #[inline]
-    pub unsafe fn new_uninitialized(dim: uint) -> DVec<N> {
+    pub unsafe fn new_uninitialized(dim: usize) -> DVec<N> {
         let mut vec = Vec::with_capacity(dim);
         vec.set_len(dim);
 
@@ -35,7 +35,7 @@ impl<N> DVec<N> {
 impl<N: Clone> DVec<N> {
     /// Builds a vector filled with a constant.
     #[inline]
-    pub fn from_elem(dim: uint, elem: N) -> DVec<N> {
+    pub fn from_elem(dim: usize, elem: N) -> DVec<N> {
         DVec { at: repeat(elem).take(dim).collect() }
     }
 
@@ -43,11 +43,11 @@ impl<N: Clone> DVec<N> {
     ///
     /// The vector must have at least `dim` elements.
     #[inline]
-    pub fn from_slice(dim: uint, vec: &[N]) -> DVec<N> {
+    pub fn from_slice(dim: usize, vec: &[N]) -> DVec<N> {
         assert!(dim <= vec.len());
 
         DVec {
-            at: vec.slice_to(dim).to_vec()
+            at: vec[.. dim].to_vec()
         }
     }
 }
@@ -55,12 +55,12 @@ impl<N: Clone> DVec<N> {
 impl<N> DVec<N> {
     /// Builds a vector filled with the result of a function.
     #[inline(always)]
-    pub fn from_fn<F: FnMut(uint) -> N>(dim: uint, mut f: F) -> DVec<N> {
-        DVec { at: range(0, dim).map(|i| f(i)).collect() }
+    pub fn from_fn<F: FnMut(usize) -> N>(dim: usize, mut f: F) -> DVec<N> {
+        DVec { at: (0 .. dim).map(|i| f(i)).collect() }
     }
 
     #[inline]
-    pub fn len(&self) -> uint {
+    pub fn len(&self) -> usize {
         self.at.len()
     }
 }
@@ -84,7 +84,7 @@ dvec_impl!(DVec);
 /// Stack-allocated, dynamically sized vector with a maximum size of 1.
 pub struct DVec1<N> {
     at:  [N; 1],
-    dim: uint
+    dim: usize
 }
 
 small_dvec_impl!(DVec1, 1, 0);
@@ -94,7 +94,7 @@ small_dvec_from_impl!(DVec1, 1, ::zero());
 /// Stack-allocated, dynamically sized vector with a maximum size of 2.
 pub struct DVec2<N> {
     at:  [N; 2],
-    dim: uint
+    dim: usize
 }
 
 small_dvec_impl!(DVec2, 2, 0, 1);
@@ -104,7 +104,7 @@ small_dvec_from_impl!(DVec2, 2, ::zero(), ::zero());
 /// Stack-allocated, dynamically sized vector with a maximum size of 3.
 pub struct DVec3<N> {
     at:  [N; 3],
-    dim: uint
+    dim: usize
 }
 
 small_dvec_impl!(DVec3, 3, 0, 1, 2);
@@ -114,7 +114,7 @@ small_dvec_from_impl!(DVec3, 3, ::zero(), ::zero(), ::zero());
 /// Stack-allocated, dynamically sized vector with a maximum size of 4.
 pub struct DVec4<N> {
     at:  [N; 4],
-    dim: uint
+    dim: usize
 }
 
 small_dvec_impl!(DVec4, 4, 0, 1, 2, 3);
@@ -124,7 +124,7 @@ small_dvec_from_impl!(DVec4, 4, ::zero(), ::zero(), ::zero(), ::zero());
 /// Stack-allocated, dynamically sized vector with a maximum size of 5.
 pub struct DVec5<N> {
     at:  [N; 5],
-    dim: uint
+    dim: usize
 }
 
 small_dvec_impl!(DVec5, 5, 0, 1, 2, 3, 4);
@@ -134,7 +134,7 @@ small_dvec_from_impl!(DVec5, 5, ::zero(), ::zero(), ::zero(), ::zero(), ::zero()
 /// Stack-allocated, dynamically sized vector with a maximum size of 6.
 pub struct DVec6<N> {
     at:  [N; 6],
-    dim: uint
+    dim: usize
 }
 
 small_dvec_impl!(DVec6, 6, 0, 1, 2, 3, 4, 5);

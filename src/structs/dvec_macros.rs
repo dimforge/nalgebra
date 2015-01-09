@@ -8,7 +8,7 @@ macro_rules! dvec_impl(
             /// # Arguments
             /// * `dim` - The dimension of the vector.
             #[inline]
-            pub fn new_zeros(dim: uint) -> $dvec<N> {
+            pub fn new_zeros(dim: usize) -> $dvec<N> {
                 $dvec::from_elem(dim, ::zero())
             }
 
@@ -34,16 +34,16 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N> Shape<uint> for $dvec<N> {
+        impl<N> Shape<usize> for $dvec<N> {
             #[inline]
-            fn shape(&self) -> uint {
+            fn shape(&self) -> usize {
                 self.len()
             }
         }
 
-        impl<N: Copy> Indexable<uint, N> for $dvec<N> {
+        impl<N: Copy> Indexable<usize, N> for $dvec<N> {
             #[inline]
-            fn at(&self, i: uint) -> N {
+            fn at(&self, i: usize) -> N {
                 assert!(i < self.len());
                 unsafe {
                     self.unsafe_at(i)
@@ -51,7 +51,7 @@ macro_rules! dvec_impl(
             }
 
             #[inline]
-            fn set(&mut self, i: uint, val: N) {
+            fn set(&mut self, i: usize, val: N) {
                 assert!(i < self.len());
                 unsafe {
                     self.unsafe_set(i, val);
@@ -59,36 +59,36 @@ macro_rules! dvec_impl(
             }
 
             #[inline]
-            fn swap(&mut self, i: uint, j: uint) {
+            fn swap(&mut self, i: usize, j: usize) {
                 assert!(i < self.len());
                 assert!(j < self.len());
                 self.as_mut_slice().swap(i, j);
             }
 
             #[inline]
-            unsafe fn unsafe_at(&self, i: uint) -> N {
+            unsafe fn unsafe_at(&self, i: usize) -> N {
                 *self.at.as_slice().get_unchecked(i)
             }
 
             #[inline]
-            unsafe fn unsafe_set(&mut self, i: uint, val: N) {
+            unsafe fn unsafe_set(&mut self, i: usize, val: N) {
                 *self.at.as_mut_slice().get_unchecked_mut(i) = val
             }
 
         }
 
-        impl<N> Index<uint> for $dvec<N> {
+        impl<N> Index<usize> for $dvec<N> {
             type Output = N;
 
-            fn index(&self, i: &uint) -> &N {
+            fn index(&self, i: &usize) -> &N {
                 &self.as_slice()[*i]
             }
         }
 
-        impl<N> IndexMut<uint> for $dvec<N> {
+        impl<N> IndexMut<usize> for $dvec<N> {
             type Output = N;
 
-            fn index_mut(&mut self, i: &uint) -> &mut N {
+            fn index_mut(&mut self, i: &usize) -> &mut N {
                 &mut self.as_mut_slice()[*i]
             }
         }
@@ -99,7 +99,7 @@ macro_rules! dvec_impl(
             /// # Arguments
             /// * `dim` - The dimension of the vector.
             #[inline]
-            pub fn new_ones(dim: uint) -> $dvec<N> {
+            pub fn new_ones(dim: usize) -> $dvec<N> {
                 $dvec::from_elem(dim, ::one())
             }
         }
@@ -107,7 +107,7 @@ macro_rules! dvec_impl(
         impl<N: Rand + Zero> $dvec<N> {
             /// Builds a vector filled with random values.
             #[inline]
-            pub fn new_random(dim: uint) -> $dvec<N> {
+            pub fn new_random(dim: usize) -> $dvec<N> {
                 $dvec::from_fn(dim, |&: _| rand::random())
             }
         }
@@ -130,7 +130,7 @@ macro_rules! dvec_impl(
             fn axpy(&mut self, a: &N, x: &$dvec<N>) {
                 assert!(self.len() == x.len());
 
-                for i in range(0, x.len()) {
+                for i in (0 .. x.len()) {
                     unsafe {
                         let self_i = self.unsafe_at(i);
                         self.unsafe_set(i, self_i + *a * x.unsafe_at(i))
@@ -143,10 +143,10 @@ macro_rules! dvec_impl(
             /// Computes the canonical basis for the given dimension. A canonical basis is a set of
             /// vectors, mutually orthogonal, with all its component equal to 0.0 except one which is equal
             /// to 1.0.
-            pub fn canonical_basis_with_dim(dim: uint) -> Vec<$dvec<N>> {
+            pub fn canonical_basis_with_dim(dim: usize) -> Vec<$dvec<N>> {
                 let mut res : Vec<$dvec<N>> = Vec::new();
 
-                for i in range(0u, dim) {
+                for i in (0us .. dim) {
                     let mut basis_element : $dvec<N> = $dvec::new_zeros(dim);
 
                     basis_element.set(i, ::one());
@@ -165,7 +165,7 @@ macro_rules! dvec_impl(
                 let     dim                 = self.len();
                 let mut res : Vec<$dvec<N>> = Vec::new();
 
-                for i in range(0u, dim) {
+                for i in (0us .. dim) {
                     let mut basis_element : $dvec<N> = $dvec::new_zeros(self.len());
 
                     basis_element.set(i, ::one());
@@ -276,7 +276,7 @@ macro_rules! dvec_impl(
             fn dot(&self, other: &$dvec<N>) -> N {
                 assert!(self.len() == other.len());
                 let mut res: N = ::zero();
-                for i in range(0u, self.len()) {
+                for i in (0us .. self.len()) {
                     res = res + unsafe { self.unsafe_at(i) * other.unsafe_at(i) };
                 }
                 res
@@ -398,7 +398,7 @@ macro_rules! small_dvec_impl (
     ($dvec: ident, $dim: expr, $($idx: expr),*) => (
         impl<N> $dvec<N> {
             #[inline]
-            pub fn len(&self) -> uint {
+            pub fn len(&self) -> usize {
                 self.dim
             }
         }
@@ -440,7 +440,7 @@ macro_rules! small_dvec_from_impl (
         impl<N: Copy + Zero> $dvec<N> {
             /// Builds a vector filled with a constant.
             #[inline]
-            pub fn from_elem(dim: uint, elem: N) -> $dvec<N> {
+            pub fn from_elem(dim: usize, elem: N) -> $dvec<N> {
                 assert!(dim <= $dim);
 
                 let mut at: [N; $dim] = [ $( $zeros, )* ];
@@ -461,7 +461,7 @@ macro_rules! small_dvec_from_impl (
             ///
             /// The vector must have at least `dim` elements.
             #[inline]
-            pub fn from_slice(dim: uint, vec: &[N]) -> $dvec<N> {
+            pub fn from_slice(dim: usize, vec: &[N]) -> $dvec<N> {
                 assert!(dim <= vec.len() && dim <= $dim);
 
                 // FIXME: not safe.
@@ -481,12 +481,12 @@ macro_rules! small_dvec_from_impl (
         impl<N: Zero> $dvec<N> {
             /// Builds a vector filled with the result of a function.
             #[inline(always)]
-            pub fn from_fn<F: FnMut(uint) -> N>(dim: uint, mut f: F) -> $dvec<N> {
+            pub fn from_fn<F: FnMut(usize) -> N>(dim: usize, mut f: F) -> $dvec<N> {
                 assert!(dim <= $dim);
 
                 let mut at: [N; $dim] = [ $( $zeros, )* ];
 
-                for i in range(0, dim) {
+                for i in (0 .. dim) {
                     at[i] = f(i);
                 }
 
