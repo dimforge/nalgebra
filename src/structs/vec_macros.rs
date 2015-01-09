@@ -78,74 +78,73 @@ macro_rules! at_fast_impl(
 // FIXME: N should be bounded by Ord instead of BaseFloat…
 // However, f32/f64 does not implement Ord…
 macro_rules! ord_impl(
-    ($t: ident, $($compN: ident),+) => (
+    ($t: ident, $comp0: ident, $($compN: ident),*) => (
         impl<N: BaseFloat + Copy> POrd for $t<N> {
             #[inline]
             fn inf(&self, other: &$t<N>) -> $t<N> {
-                $t::new($(self.$compN.min(other.$compN)),+)
+                $t::new(self.$comp0.min(other.$comp0)
+                        $(, self.$compN.min(other.$compN))*)
             }
 
             #[inline]
             fn sup(&self, other: &$t<N>) -> $t<N> {
-                $t::new($(self.$compN.max(other.$compN)),+)
+                $t::new(self.$comp0.max(other.$comp0)
+                        $(, self.$compN.max(other.$compN))*)
             }
 
             #[inline]
             #[allow(unused_mut)] // otherwise there will be a warning for is_eq or Vec1.
-            fn partial_cmp(&self, other: &$t<N>) -> POrdering {                
-                let mut first = true;
-                let mut is_lt = false;
-                let mut is_eq = false;
-                $(
-                    if first {
-                        is_lt = self.$compN <  other.$compN;
-                        is_eq = self.$compN == other.$compN;
-                        first = false;
-                    }
-                    else if is_lt { // <
+            fn partial_cmp(&self, other: &$t<N>) -> POrdering {
+                let is_lt     = self.$comp0 <  other.$comp0;
+                let mut is_eq = self.$comp0 == other.$comp0;
+
+                if is_lt { // <
+                    $(
                         if self.$compN > other.$compN {
                             return POrdering::NotComparable
                         }
-                    }
-                    else { // >=
+                     )*
+
+                    POrdering::PartialLess
+                }
+                else { // >=
+                    $(
                         if self.$compN < other.$compN {
                             return POrdering::NotComparable
                         }
                         else if self.$compN > other.$compN {
                             is_eq = false;
                         }
+
+                     )*
+
+                    if is_eq {
+                        POrdering::PartialEqual
                     }
-                )+
-                
-                if is_lt {
-                    POrdering::PartialLess
-                }
-                else if is_eq {
-                    POrdering::PartialEqual
-                }
-                else {
-                    POrdering::PartialGreater
+                    else {
+                        POrdering::PartialGreater
+                    }
                 }
             }
 
             #[inline]
             fn partial_lt(&self, other: &$t<N>) -> bool {
-                $(self.$compN < other.$compN)&&+
+                self.$comp0 < other.$comp0 $(&& self.$compN < other.$compN)*
             }
 
             #[inline]
             fn partial_le(&self, other: &$t<N>) -> bool {
-                $(self.$compN <= other.$compN)&&+
+                self.$comp0 <= other.$comp0 $(&& self.$compN <= other.$compN)*
             }
 
             #[inline]
             fn partial_gt(&self, other: &$t<N>) -> bool {
-                $(self.$compN > other.$compN)&&+
+                self.$comp0 > other.$comp0 $(&& self.$compN > other.$compN)*
             }
 
             #[inline]
             fn partial_ge(&self, other: &$t<N>) -> bool {
-                $(self.$compN >= other.$compN)&&+
+                self.$comp0 >= other.$comp0 $(&& self.$compN >= other.$compN)*
             }
         }
     )

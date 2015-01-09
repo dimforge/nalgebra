@@ -41,7 +41,7 @@ pub struct Vec1<N> {
 }
 
 new_impl!(Vec1, x);
-ord_impl!(Vec1, x);
+ord_impl!(Vec1, x,);
 vec_axis_impl!(Vec1, x);
 vec_cast_impl!(Vec1, x);
 as_array_impl!(Vec1, 1);

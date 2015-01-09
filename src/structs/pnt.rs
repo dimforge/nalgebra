@@ -41,7 +41,7 @@ pub struct Pnt1<N> {
 
 new_impl!(Pnt1, x);
 orig_impl!(Pnt1, x);
-ord_impl!(Pnt1, x);
+ord_impl!(Pnt1, x,);
 scalar_mul_impl!(Pnt1, x);
 scalar_div_impl!(Pnt1, x);
 scalar_add_impl!(Pnt1, x);
