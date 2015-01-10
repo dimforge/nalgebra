@@ -141,3 +141,17 @@ macro_rules! num_float_pnt_impl(
         }
     )
 );
+
+macro_rules! arbitrary_pnt_impl(
+    ($t: ident, $($compN: ident),*) => (
+        #[cfg(feature="arbitrary")]
+        impl<N: Arbitrary> Arbitrary for $t<N> {
+            #[inline]
+            fn arbitrary<G: Gen>(g: &mut G) -> $t<N> {
+                $t {
+                    $($compN: Arbitrary::arbitrary(g),)*
+                }
+            }
+        }
+    )
+);

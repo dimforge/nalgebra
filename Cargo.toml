@@ -15,5 +15,12 @@ license = "BSD-3-Clause"
 name = "nalgebra"
 path = "src/lib.rs"
 
+[features]
+# Generate arbitrary instances of nalgebra types for testing with quickcheck
+arbitrary = ["quickcheck"]
+
 [dependencies]
 rustc-serialize = "*"
+
+[dependencies.quickcheck]
+optional = true

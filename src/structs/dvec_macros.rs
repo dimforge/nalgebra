@@ -520,5 +520,13 @@ macro_rules! small_dvec_from_impl (
                 }
             }
         }
+
+        #[cfg(feature="arbitrary")]
+        impl<N: Arbitrary + Zero> Arbitrary for $dvec<N> {
+            #[inline]
+            fn arbitrary<G: Gen>(g: &mut G) -> $dvec<N> {
+                $dvec::from_fn(g.gen_range(0, $dim), |_| Arbitrary::arbitrary(g))
+            }
+        }
     )
 );

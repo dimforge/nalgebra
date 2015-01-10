@@ -2,6 +2,10 @@ use std::num;
 use traits::structure::BaseFloat;
 use structs::{Pnt3, Vec3, Mat4};
 
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
+
+
 /// A 3D orthographic projection stored without any matrix.
 ///
 /// Reading or modifying its individual properties is cheap but applying the transformation is costly.
@@ -44,6 +48,17 @@ impl<N: BaseFloat> Ortho3<N> {
     /// Build a `OrthoMat3` representing this projection.
     pub fn to_persp_mat(&self) -> OrthoMat3<N> {
         OrthoMat3::new(self.width, self.height, self.znear, self.zfar)
+    }
+}
+
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary + BaseFloat> Arbitrary for Ortho3<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> Ortho3<N> {
+        let width = reject(g, |x| !::is_zero(x));
+        let height = reject(g, |x| !::is_zero(x));
+        let znear = Arbitrary::arbitrary(g);
+        let zfar = reject(g, |&x: &N| !::is_zero(&(x - znear)));
+        Ortho3::new(width, height, znear, zfar)
     }
 }
 
@@ -231,4 +246,21 @@ impl<N: BaseFloat + Clone> OrthoMat3<N> {
     pub fn to_mat<'a>(&'a self) -> Mat4<N> {
         self.mat.clone()
     }
+}
+
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary + BaseFloat> Arbitrary for OrthoMat3<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> OrthoMat3<N> {
+        let x: Ortho3<N> = Arbitrary::arbitrary(g);
+        x.to_persp_mat()
+    }
+}
+
+
+/// Simple helper function for rejection sampling
+#[cfg(feature="arbitrary")]
+#[inline]
+pub fn reject<G: Gen, F: FnMut(&T) -> bool, T: Arbitrary>(g: &mut G, f: F) -> T {
+    use std::iter::repeat;
+    repeat(()).map(|_| Arbitrary::arbitrary(g)).filter(f).next().unwrap()
 }

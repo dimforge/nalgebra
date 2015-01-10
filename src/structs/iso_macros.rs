@@ -364,3 +364,17 @@ macro_rules! absolute_rotate_impl(
         }
     )
 );
+
+macro_rules! arbitrary_iso_impl(
+    ($t: ident) => (
+        #[cfg(feature="arbitrary")]
+        impl<N: Arbitrary + BaseFloat> Arbitrary for $t<N> {
+            fn arbitrary<G: Gen>(g: &mut G) -> $t<N> {
+                $t::new_with_rotmat(
+                    Arbitrary::arbitrary(g),
+                    Arbitrary::arbitrary(g)
+                )
+            }
+        }
+    )
+);

@@ -15,6 +15,10 @@ use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, Base
                         One, Bounded};
 use traits::geometry::{Norm, Rotation, Rotate, Transform};
 
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
+
+
 /// A quaternion.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
 pub struct Quat<N> {
@@ -145,6 +149,7 @@ impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>> for Quat<N> {
         self * right.inv_cpy().expect("Unable to invert the denominator.")
     }
 }
+
 
 /// A unit quaternion that can represent a 3D rotation.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Show, Copy)]
@@ -470,6 +475,14 @@ impl<N: BaseNum> Transform<Pnt3<N>> for UnitQuat<N> {
     }
 }
 
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary + BaseFloat> Arbitrary for UnitQuat<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> UnitQuat<N> {
+        UnitQuat::new(Arbitrary::arbitrary(g))
+    }
+}
+
+
 ord_impl!(Quat, w, i, j, k);
 vec_axis_impl!(Quat, w, i, j, k);
 vec_cast_impl!(Quat, w, i, j, k);
@@ -495,5 +508,6 @@ bounded_impl!(Quat, w, i, j, k);
 axpy_impl!(Quat, w, i, j, k);
 iterable_impl!(Quat, 4);
 iterable_mut_impl!(Quat, 4);
+arbitrary_impl!(Quat, w, i, j, k);
 
 dim_impl!(UnitQuat, 3);

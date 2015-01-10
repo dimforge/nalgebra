@@ -11,6 +11,8 @@ use traits::operations::{Absolute, Inv, Transpose, ApproxEq};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::pnt::{Pnt2, Pnt3, Pnt4};
 use structs::mat::{Mat2, Mat3, Mat4, Mat5};
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
 
 /// Two dimensional rotation matrix.
@@ -19,13 +21,13 @@ pub struct Rot2<N> {
     submat: Mat2<N>
 }
 
-impl<N: Clone + BaseFloat + Neg<Output = N> + Copy> Rot2<N> {
+impl<N: Clone + BaseFloat + Neg<Output = N>> Rot2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
     pub fn new(angle: Vec1<N>) -> Rot2<N> {
         let (sia, coa) = angle.x.sin_cos();
 
         Rot2 {
-            submat: Mat2::new(coa.clone(), -sia, sia.clone(), coa)
+            submat: Mat2::new(coa.clone(), -sia, sia, coa)
         }
     }
 }
@@ -86,6 +88,14 @@ impl<N: BaseFloat> AbsoluteRotate<Vec2<N>> for Rot2<N> {
         Vec2::new(m11 * v.x + m12 * v.y, m12 * v.x + m22 * v.y)
     }
 }
+
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary + Clone + BaseFloat + Neg<Output = N>> Arbitrary for Rot2<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> Rot2<N> {
+        Rot2::new(Arbitrary::arbitrary(g))
+    }
+}
+
 
 /*
  * 3d rotation
@@ -286,6 +296,14 @@ impl<N: BaseFloat> AbsoluteRotate<Vec3<N>> for Rot3<N> {
             ::abs(&self.submat.m31) * v.x + ::abs(&self.submat.m32) * v.y + ::abs(&self.submat.m33) * v.z)
     }
 }
+
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary + Clone + BaseFloat> Arbitrary for Rot3<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> Rot3<N> {
+        Rot3::new(Arbitrary::arbitrary(g))
+    }
+}
+
 
 /// Four dimensional rotation matrix.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]

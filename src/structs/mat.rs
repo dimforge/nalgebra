@@ -15,6 +15,8 @@ use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
 use traits::operations::{Absolute, Transpose, Inv, Outer, EigenQR};
 use traits::geometry::{ToHomogeneous, FromHomogeneous, Orig};
 use linalg;
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
 
 /// Special identity matrix. All its operation are no-ops.
@@ -72,6 +74,7 @@ to_homogeneous_impl!(Mat1, Mat2, 1, 2);
 from_homogeneous_impl!(Mat1, Mat2, 1, 2);
 outer_impl!(Vec1, Mat1);
 eigen_qr_impl!(Mat1, Vec1);
+arbitrary_impl!(Mat1, m11);
 
 /// Square matrix of dimension 2.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
@@ -120,6 +123,7 @@ to_homogeneous_impl!(Mat2, Mat3, 2, 3);
 from_homogeneous_impl!(Mat2, Mat3, 2, 3);
 outer_impl!(Vec2, Mat2);
 eigen_qr_impl!(Mat2, Vec2);
+arbitrary_impl!(Mat2, m11, m12, m21, m22);
 
 /// Square matrix of dimension 3.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
@@ -202,6 +206,11 @@ to_homogeneous_impl!(Mat3, Mat4, 3, 4);
 from_homogeneous_impl!(Mat3, Mat4, 3, 4);
 outer_impl!(Vec3, Mat3);
 eigen_qr_impl!(Mat3, Vec3);
+arbitrary_impl!(Mat3,
+    m11, m12, m13,
+    m21, m22, m23,
+    m31, m32, m33
+);
 
 /// Square matrix of dimension 4.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
@@ -302,6 +311,12 @@ to_homogeneous_impl!(Mat4, Mat5, 4, 5);
 from_homogeneous_impl!(Mat4, Mat5, 4, 5);
 outer_impl!(Vec4, Mat4);
 eigen_qr_impl!(Mat4, Vec4);
+arbitrary_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+);
 
 /// Square matrix of dimension 5.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
@@ -416,6 +431,13 @@ to_homogeneous_impl!(Mat5, Mat6, 5, 6);
 from_homogeneous_impl!(Mat5, Mat6, 5, 6);
 outer_impl!(Vec5, Mat5);
 eigen_qr_impl!(Mat5, Vec5);
+arbitrary_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+);
 
 /// Square matrix of dimension 6.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
@@ -532,3 +554,11 @@ row_slice_impl!(Mat6, Vec6, DVec6, 6);
 diag_impl!(Mat6, Vec6, 6);
 outer_impl!(Vec6, Mat6);
 eigen_qr_impl!(Mat6, Vec6);
+arbitrary_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+);

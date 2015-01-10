@@ -11,6 +11,8 @@ use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use traits::operations::{ApproxEq, Axpy};
 use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, BaseNum, Zero, One};
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
 /// Heap allocated, dynamically sized vector.
 #[derive(Eq, PartialEq, Show, Clone)]
@@ -75,6 +77,13 @@ impl<N> FromIterator<N> for DVec<N> {
         }
 
         res
+    }
+}
+
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary> Arbitrary for DVec<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> DVec<N> {
+        DVec { at: Arbitrary::arbitrary(g) }
     }
 }
 

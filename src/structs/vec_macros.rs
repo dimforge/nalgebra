@@ -844,3 +844,15 @@ macro_rules! absolute_vec_impl(
     }
   )
 );
+
+macro_rules! arbitrary_impl(
+    ($t: ident, $($compN: ident),*) => (
+        #[cfg(feature="arbitrary")]
+        impl<N: Arbitrary> Arbitrary for $t<N> {
+            #[inline]
+            fn arbitrary<G: Gen>(g: &mut G) -> $t<N> {
+                $t { $($compN: Arbitrary::arbitrary(g),)* }
+            }
+        }
+    )
+);
