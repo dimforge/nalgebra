@@ -1,1 +1,8 @@
 language: rust
+
+script:
+    - rustc --version
+    - cargo --version
+    - cargo build --verbose
+    - cargo test --verbose --features arbitrary
+    - cargo bench --verbose
