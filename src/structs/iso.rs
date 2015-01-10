@@ -15,6 +15,9 @@ use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::pnt::{Pnt2, Pnt3, Pnt4};
 use structs::rot::{Rot2, Rot3, Rot4};
 
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
+
 
 /// Two dimensional isometry.
 ///
@@ -112,6 +115,7 @@ translate_impl!(Iso2, Pnt2);
 iso_mul_iso_impl!(Iso2);
 iso_mul_pnt_impl!(Iso2, Pnt2);
 pnt_mul_iso_impl!(Iso2, Pnt2);
+arbitrary_iso_impl!(Iso2);
 
 iso_impl!(Iso3, Rot3, Vec3, Vec3);
 rotation_matrix_impl!(Iso3, Rot3, Vec3, Vec3);
@@ -131,6 +135,7 @@ translate_impl!(Iso3, Pnt3);
 iso_mul_iso_impl!(Iso3);
 iso_mul_pnt_impl!(Iso3, Pnt3);
 pnt_mul_iso_impl!(Iso3, Pnt3);
+arbitrary_iso_impl!(Iso3);
 
 // iso_impl!(Iso4, Rot4, Vec4, Vec4);
 // rotation_matrix_impl!(Iso4, Rot4, Vec4, Vec4);
@@ -150,3 +155,5 @@ translate_impl!(Iso4, Pnt4);
 iso_mul_iso_impl!(Iso4);
 iso_mul_pnt_impl!(Iso4, Pnt4);
 pnt_mul_iso_impl!(Iso4, Pnt4);
+// FIXME: as soon as Rot4<N>: Arbitrary
+// arbitrary_iso_impl!(Iso4);

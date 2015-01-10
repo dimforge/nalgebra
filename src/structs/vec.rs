@@ -14,6 +14,9 @@ use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, VecA
                         NumVec, FloatVec, BaseFloat, BaseNum, Zero, One, Bounded};
 use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
+
 
 /// Vector of dimension 0.
 #[derive(Eq, PartialEq, RustcDecodable, Clone, Rand, Show, Copy)]
@@ -81,6 +84,7 @@ transform_impl!(Vec1, Pnt1);
 vec_as_pnt_impl!(Vec1, Pnt1, x);
 num_float_vec_impl!(Vec1);
 absolute_vec_impl!(Vec1, x);
+arbitrary_impl!(Vec1, x);
 
 /// Vector of dimension 2.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
@@ -132,6 +136,7 @@ transform_impl!(Vec2, Pnt2);
 vec_as_pnt_impl!(Vec2, Pnt2, x, y);
 num_float_vec_impl!(Vec2);
 absolute_vec_impl!(Vec2, x, y);
+arbitrary_impl!(Vec2, x, y);
 
 /// Vector of dimension 3.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
@@ -185,6 +190,7 @@ transform_impl!(Vec3, Pnt3);
 vec_as_pnt_impl!(Vec3, Pnt3, x, y, z);
 num_float_vec_impl!(Vec3);
 absolute_vec_impl!(Vec3, x, y, z);
+arbitrary_impl!(Vec3, x, y, z);
 
 
 /// Vector of dimension 4.
@@ -241,6 +247,7 @@ transform_impl!(Vec4, Pnt4);
 vec_as_pnt_impl!(Vec4, Pnt4, x, y, z, w);
 num_float_vec_impl!(Vec4);
 absolute_vec_impl!(Vec4, x, y, z, w);
+arbitrary_impl!(Vec4, x, y, z, w);
 
 /// Vector of dimension 5.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
@@ -298,6 +305,7 @@ transform_impl!(Vec5, Pnt5);
 vec_as_pnt_impl!(Vec5, Pnt5, x, y, z, w, a);
 num_float_vec_impl!(Vec5);
 absolute_vec_impl!(Vec5, x, y, z, w, a);
+arbitrary_impl!(Vec5, x, y, z, w, a);
 
 /// Vector of dimension 6.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Show, Copy)]
@@ -355,3 +363,4 @@ transform_impl!(Vec6, Pnt6);
 vec_as_pnt_impl!(Vec6, Pnt6, x, y, z, w, a, b);
 num_float_vec_impl!(Vec6);
 absolute_vec_impl!(Vec6, x, y, z, w, a, b);
+arbitrary_impl!(Vec6, x, y, z, w, a, b);

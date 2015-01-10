@@ -89,6 +89,9 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 extern crate "rustc-serialize" as rustc_serialize;
 
+#[cfg(feature="arbitrary")]
+extern crate quickcheck;
+
 #[cfg(test)]
 extern crate test;
 

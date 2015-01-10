@@ -13,6 +13,8 @@ use structs::dvec::DVec;
 use traits::operations::{Inv, Transpose, Mean, Cov};
 use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
 use std::fmt::{Show, Formatter, Result, String};
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
 
 /// Matrix with dimensions unknown at compile-time.
@@ -701,5 +703,15 @@ impl<N: Copy + Sub<N, Output = N>> Sub<N> for DMat<N> {
         }
 
         res
+    }
+}
+
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary> Arbitrary for DMat<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> DMat<N> {
+        DMat::from_fn(
+            Arbitrary::arbitrary(g), Arbitrary::arbitrary(g),
+            |_, _| Arbitrary::arbitrary(g)
+        )
     }
 }

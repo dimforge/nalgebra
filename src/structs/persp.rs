@@ -1,6 +1,10 @@
 use traits::structure::BaseFloat;
 use structs::{Pnt3, Vec3, Mat4};
 
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
+
+
 /// A 3D perspective projection stored without any matrix.
 ///
 /// Reading or modifying its individual properties is cheap but applying the transformation is costly.
@@ -42,6 +46,16 @@ impl<N: BaseFloat> Persp3<N> {
     /// Build a `PerspMat3` representing this projection.
     pub fn to_persp_mat(&self) -> PerspMat3<N> {
         PerspMat3::new(self.aspect, self.fov, self.znear, self.zfar)
+    }
+}
+
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary + BaseFloat> Arbitrary for Persp3<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> Persp3<N> {
+        use structs::ortho::reject;
+        let znear = Arbitrary::arbitrary(g);
+        let zfar = reject(g, |&x: &N| !::is_zero(&(x - znear)));
+        Persp3::new(Arbitrary::arbitrary(g), Arbitrary::arbitrary(g), znear, zfar)
     }
 }
 
@@ -261,5 +275,13 @@ impl<N: BaseFloat + Clone> PerspMat3<N> {
     #[inline]
     pub fn to_mat<'a>(&'a self) -> Mat4<N> {
         self.mat.clone()
+    }
+}
+
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary + BaseFloat> Arbitrary for PerspMat3<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> PerspMat3<N> {
+        let x: Persp3<N> = Arbitrary::arbitrary(g);
+        x.to_persp_mat()
     }
 }
