@@ -460,16 +460,16 @@ macro_rules! impl_base_float(
     }
 );
 
-impl BaseNum for i8{}
-impl BaseNum for i16{}
-impl BaseNum for i32{}
-impl BaseNum for i64{}
-impl BaseNum for isize{}
-impl BaseNum for u8{}
-impl BaseNum for u16{}
-impl BaseNum for u32{}
-impl BaseNum for u64{}
-impl BaseNum for usize{}
+impl BaseNum for i8 { }
+impl BaseNum for i16 { }
+impl BaseNum for i32 { }
+impl BaseNum for i64 { }
+impl BaseNum for isize { }
+impl BaseNum for u8 { }
+impl BaseNum for u16 { }
+impl BaseNum for u32 { }
+impl BaseNum for u64 { }
+impl BaseNum for usize { }
 impl BaseNum for f32 { }
 impl BaseNum for f64 { }
 
