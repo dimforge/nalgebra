@@ -8,7 +8,7 @@ use std::ops::{Add, Sub, Mul, Div, Neg, Rem, Index, IndexMut};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
-/// Basic isizeegral numeric trait.
+/// Basic integral numeric trait.
 pub trait BaseNum: Copy + Zero + One +
                    Add<Self, Output = Self> + Sub<Self, Output = Self> +
                    Mul<Self, Output = Self> + Div<Self, Output = Self> +
@@ -460,6 +460,16 @@ macro_rules! impl_base_float(
     }
 );
 
+impl BaseNum for i8{}
+impl BaseNum for i16{}
+impl BaseNum for i32{}
+impl BaseNum for i64{}
+impl BaseNum for isize{}
+impl BaseNum for u8{}
+impl BaseNum for u16{}
+impl BaseNum for u32{}
+impl BaseNum for u64{}
+impl BaseNum for usize{}
 impl BaseNum for f32 { }
 impl BaseNum for f64 { }
 
