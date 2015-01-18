@@ -44,7 +44,7 @@
 <h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>nalgebra</a><wbr></span><span class='out-of-band'><a href='stability.html'>[stability]</a> <span id='render-detail'>
             <a id="collapse-all" href="#">[-]
             </a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-0' href='../src/nalgebra/src/lib.rs.html#1-986'>[src]</a></span></h1>
+        </span><a id='src-0' href='../src/nalgebra/lib.rs.html#1-938'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="nalgebra" class='section-header'><a
                            href="#nalgebra">nalgebra</a></h1>
@@ -67,13 +67,13 @@ out-of-place modifications.</p>
 <ul>
 <li>You can import the whole prelude using:</li>
 </ul>
-<pre class='rust '>
+<pre id='rust-example-rendered' class='rust '>
 <span class='kw'>use</span> <span class='ident'>nalgebra</span>::<span class='op'>*</span>;
 </pre>
 
 <p>The preferred way to use <strong>nalgebra</strong> is to import types and traits explicitly, and call
 free-functions using the <code>na::</code> prefix:</p>
-<pre class='rust '>
+<pre id='rust-example-rendered' class='rust '>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='string'>&quot;nalgebra&quot;</span> <span class='kw'>as</span> <span class='ident'>na</span>;
 <span class='kw'>use</span> <span class='ident'>na</span>::{<span class='ident'>Vec3</span>, <span class='ident'>Rot3</span>, <span class='ident'>Rotation</span>};
 
@@ -104,24 +104,8 @@ an optimized set of tools for computer graphics and physics. Those features incl
 <li>Dynamically sized (square or rectangular) matrix: <code>DMat</code>.</li>
 <li>A few methods for data analysis: <code>Cov</code>, <code>Mean</code>.</li>
 <li>Almost one trait per functionality: useful for generic programming.</li>
-<li>Operator overloading using the double trait dispatch
-<a href="http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/">trick</a>.
-For example, the following works:</li>
+<li>Operator overloading using multidispatch.</li>
 </ul>
-<pre class='rust '>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='string'>&quot;nalgebra&quot;</span> <span class='kw'>as</span> <span class='ident'>na</span>;
-<span class='kw'>use</span> <span class='ident'>na</span>::{<span class='ident'>Vec3</span>, <span class='ident'>Mat3</span>};
-
-<span class='kw'>fn</span> <span class='ident'>main</span>() {
-    <span class='kw'>let</span> <span class='ident'>v</span>: <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>zero</span>();
-    <span class='kw'>let</span> <span class='ident'>m</span>: <span class='ident'>Mat3</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>na</span>::<span class='ident'>one</span>();
-
-    <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>m</span> <span class='op'>*</span> <span class='ident'>v</span>;      <span class='comment'>// matrix-vector multiplication.</span>
-    <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>v</span> <span class='op'>*</span> <span class='ident'>m</span>;      <span class='comment'>// vector-matrix multiplication.</span>
-    <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>m</span> <span class='op'>*</span> <span class='ident'>m</span>;      <span class='comment'>// matrix-matrix multiplication.</span>
-    <span class='kw'>let</span> _ <span class='op'>=</span> <span class='ident'>v</span> <span class='op'>*</span> <span class='number'>2.0f64</span>; <span class='comment'>// vector-scalar multiplication.</span>
-}
-</pre>
 
 <h2 id="compilation" class='section-header'><a
                            href="#compilation">Compilation</a></h2>
@@ -129,7 +113,7 @@ For example, the following works:</li>
 and the official package manager: <a href="https://github.com/rust-lang/cargo">cargo</a>.</p>
 
 <p>Simply add the following to your <code>Cargo.toml</code> file:</p>
-<pre class='rust '>
+<pre id='rust-example-rendered' class='rust '>
 [<span class='ident'>dependencies</span>.<span class='ident'>nalgebra</span>]
 <span class='ident'>git</span> <span class='op'>=</span> <span class='string'>&quot;https://github.com/sebcrozet/nalgebra&quot;</span>
 </pre>
@@ -145,15 +129,7 @@ Feel free to add your project to this list if you happen to use <strong>nalgebra
 <li><a href="https://github.com/sebcrozet/kiss3d">kiss3d</a>: a minimalistic graphics engine.</li>
 <li><a href="https://github.com/sebcrozet/nrays">nrays</a>: a ray tracer.</li>
 </ul>
-</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
-<table>
-                    <tr>
-                        <td><a class='stability Unmarked' title='No stability level'></a><a class='mod' href='overload/index.html'
-                               title='nalgebra::overload'>overload</a></td>
-                        <td class='docblock short'><p>Traits to work around the language limitations related to operator overloading.</p>
-</td>
-                    </tr>
-                </table><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
+</div><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
 <table>
                     <tr>
                         <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.assert_approx_eq!.html'
@@ -167,6 +143,14 @@ Feel free to add your project to this list if you happen to use <strong>nalgebra
                                title='nalgebra::assert_approx_eq_eps!'>assert_approx_eq_eps!</a></td>
                         <td class='docblock short'><p>Asserts approximate equality within a given tolerance of two values with the
 <code>ApproxEq</code> trait.</p>
+</td>
+                    </tr>
+                
+                    <tr>
+                        <td><a class='stability Unmarked' title='No stability level'></a><a class='macro' href='macro.assert_approx_eq_ulps!.html'
+                               title='nalgebra::assert_approx_eq_ulps!'>assert_approx_eq_ulps!</a></td>
+                        <td class='docblock short'><p>Asserts approximate equality within a given tolerance of two values with the
+<code>ApproxEq</code> trait, with tolerance specified in ULPs.</p>
 </td>
                     </tr>
                 </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
