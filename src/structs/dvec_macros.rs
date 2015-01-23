@@ -130,7 +130,7 @@ macro_rules! dvec_impl(
             fn axpy(&mut self, a: &N, x: &$dvec<N>) {
                 assert!(self.len() == x.len());
 
-                for i in (0 .. x.len()) {
+                for i in (0us .. x.len()) {
                     unsafe {
                         let self_i = self.unsafe_at(i);
                         self.unsafe_set(i, self_i + *a * x.unsafe_at(i))
@@ -486,7 +486,7 @@ macro_rules! small_dvec_from_impl (
 
                 let mut at: [N; $dim] = [ $( $zeros, )* ];
 
-                for i in (0 .. dim) {
+                for i in (0us .. dim) {
                     at[i] = f(i);
                 }
 

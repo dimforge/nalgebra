@@ -85,11 +85,11 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     // let mut shifter: M = Eye::new_identity(rows);
 
     let mut iter = 0us;
-    for _ in (0 .. niter) {
+    for _ in (0us .. niter) {
         let mut stop = true;
 
-        for j in (0 .. ::dim::<M>()) {
-            for i in (0 .. j) {
+        for j in (0us .. ::dim::<M>()) {
+            for i in (0us .. j) {
                 if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
                     stop = false;
                     break;

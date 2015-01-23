@@ -12,7 +12,7 @@ use std::mem;
 use structs::dvec::DVec;
 use traits::operations::{Inv, Transpose, Mean, Cov};
 use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
-use std::fmt::{Show, Formatter, Result, String};
+use std::fmt::{Show, Debug, Formatter, Result, String};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -133,7 +133,7 @@ impl<N> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   (0 .. nrows * ncols).map(|i| { let m = i / nrows; f(i - m * nrows, m) }).collect()
+            mij:   (0us .. nrows * ncols).map(|i| { let m = i / nrows; f(i - m * nrows, m) }).collect()
         }
     }
 
@@ -591,7 +591,7 @@ impl<N: Copy + Clone + Zero>  Diag<DVec<N>> for DMat<N> {
 
         assert!(diag.len() == smallest_dim);
 
-        for i in (0 .. smallest_dim) {
+        for i in (0us .. smallest_dim) {
             unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
         }
     }
@@ -602,7 +602,7 @@ impl<N: Copy + Clone + Zero>  Diag<DVec<N>> for DMat<N> {
 
         let mut diag: DVec<N> = DVec::new_zeros(smallest_dim);
 
-        for i in (0 .. smallest_dim) {
+        for i in (0us .. smallest_dim) {
             unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
         }
 
@@ -634,7 +634,7 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     }
 }
 
-impl<N: Show + Copy + String> Show for DMat<N> {
+impl<N: Show + Copy + String> Debug for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
         for i in (0us .. self.nrows()) {
             for j in (0us .. self.ncols()) {

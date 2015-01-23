@@ -419,7 +419,7 @@ macro_rules! diag_impl(
 
             #[inline]
             fn set_diag(&mut self, diag: &$tv<N>) {
-                for i in (0 .. $dim) {
+                for i in (0us .. $dim) {
                     unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
                 }
             }
@@ -428,7 +428,7 @@ macro_rules! diag_impl(
             fn diag(&self) -> $tv<N> {
                 let mut diag: $tv<N> = ::zero();
 
-                for i in (0 .. $dim) {
+                for i in (0us .. $dim) {
                     unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
                 }
 
