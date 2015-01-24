@@ -12,7 +12,7 @@ use std::mem;
 use structs::dvec::DVec;
 use traits::operations::{Inv, Transpose, Mean, Cov};
 use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
-use std::fmt::{Show, Debug, Formatter, Result, String};
+use std::fmt::{Debug, Display, Formatter, Result};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -634,7 +634,7 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     }
 }
 
-impl<N: Show + Copy + String> Debug for DMat<N> {
+impl<N: Debug + Copy + Display> Debug for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
         for i in (0us .. self.nrows()) {
             for j in (0us .. self.ncols()) {

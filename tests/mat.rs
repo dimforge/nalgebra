@@ -127,7 +127,7 @@ fn test_inv_mat6() {
 fn test_rotation2() {
     for _ in (0us .. 10000) {
         let randmat: na::Rot2<f64> = na::one();
-        let ang    = Vec1::new(na::abs(&random::<f64>()) % BaseFloat::pi());
+        let ang    = Vec1::new(na::abs(&random::<f64>()) % <f64 as BaseFloat>::pi());
 
         assert!(na::approx_eq(&na::rotation(&na::append_rotation(&randmat, &ang)), &ang));
     }
@@ -145,7 +145,7 @@ fn test_inv_rotation3() {
     for _ in (0us .. 10000) {
         let randmat: Rot3<f64> = na::one();
         let dir:     Vec3<f64> = random();
-        let ang            = na::normalize(&dir) * (na::abs(&random::<f64>()) % BaseFloat::pi());
+        let ang            = na::normalize(&dir) * (na::abs(&random::<f64>()) % <f64 as BaseFloat>::pi());
         let rot            = na::append_rotation(&randmat, &ang);
 
         assert!(na::approx_eq(&(na::transpose(&rot) * rot), &na::one()));
