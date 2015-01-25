@@ -231,6 +231,42 @@ impl ApproxEq<f64> for f64 {
     }
 }
 
+impl<'a, N, T: ApproxEq<N>> ApproxEq<N> for &'a T {
+    fn approx_epsilon(_: Option<&'a T>) -> N {
+        ApproxEq::approx_epsilon(None::<T>)
+    }
+
+    fn approx_eq_eps(&self, other: &&'a T, approx_epsilon: &N) -> bool {
+        ApproxEq::approx_eq_eps(*self, *other, approx_epsilon)
+    }
+
+    fn approx_ulps(_: Option<&'a T>) -> u32 {
+        ApproxEq::approx_ulps(None::<T>)
+    }
+
+    fn approx_eq_ulps(&self, other: &&'a T, ulps: u32) -> bool {
+        ApproxEq::approx_eq_ulps(*self, *other, ulps)
+    }
+}
+
+impl<'a, N, T: ApproxEq<N>> ApproxEq<N> for &'a mut T {
+    fn approx_epsilon(_: Option<&'a mut T>) -> N {
+        ApproxEq::approx_epsilon(None::<T>)
+    }
+
+    fn approx_eq_eps(&self, other: &&'a mut T, approx_epsilon: &N) -> bool {
+        ApproxEq::approx_eq_eps(*self, *other, approx_epsilon)
+    }
+
+    fn approx_ulps(_: Option<&'a mut T>) -> u32 {
+        ApproxEq::approx_ulps(None::<T>)
+    }
+
+    fn approx_eq_ulps(&self, other: &&'a mut T, ulps: u32) -> bool {
+        ApproxEq::approx_eq_ulps(*self, *other, ulps)
+    }
+}
+
 /// Trait of objects having an absolute value.
 /// This is useful if the object does not have the same type as its absolute value.
 pub trait Absolute<A> {
