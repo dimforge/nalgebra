@@ -6,7 +6,7 @@ use std::cmp::Ordering;
 use traits::structure::SquareMat;
 
 /// Result of a partial ordering.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
 pub enum POrdering {
     /// Result of a strict comparison.
     PartialLess,

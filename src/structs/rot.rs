@@ -16,7 +16,7 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Two dimensional rotation matrix.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Hash, Copy)]
 pub struct Rot2<N> {
     submat: Mat2<N>
 }
@@ -101,7 +101,7 @@ impl<N: Arbitrary + Clone + BaseFloat + Neg<Output = N>> Arbitrary for Rot2<N> {
  * 3d rotation
  */
 /// Three dimensional rotation matrix.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Hash, Copy)]
 pub struct Rot3<N> {
     submat: Mat3<N>
 }
@@ -306,7 +306,7 @@ impl<N: Arbitrary + Clone + BaseFloat> Arbitrary for Rot3<N> {
 
 
 /// Four dimensional rotation matrix.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Show, Hash, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Hash, Copy)]
 pub struct Rot4<N> {
     submat: Mat4<N>
 }

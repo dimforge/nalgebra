@@ -15,7 +15,7 @@ use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, Base
 use quickcheck::{Arbitrary, Gen};
 
 /// Heap allocated, dynamically sized vector.
-#[derive(Eq, PartialEq, Show, Clone)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 pub struct DVec<N> {
     /// Components of the vector. Contains as much elements as the vector dimension.
     pub at: Vec<N>
