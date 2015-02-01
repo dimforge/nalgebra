@@ -13,6 +13,7 @@ fn assert_approx_eq_f64() {
     let a = 1.0f64;
     let b = 1.0f64 + 1.0e-12f64;
     assert_approx_eq!(a, b);
+    assert_approx_eq!(&a, &b);
 }
 
 #[test]
@@ -26,6 +27,7 @@ fn assert_approx_eq_vec2_f32_fail() {
 #[test]
 fn assert_approx_eq_eps_f32() {
     assert_approx_eq_eps!(1.0f32, 1.1, 0.2);
+    assert_approx_eq_eps!(&mut 1.0f32, &mut 1.1, 0.2);
 }
 
 #[test]
@@ -40,6 +42,7 @@ fn assert_approx_eq_ulps_f32() {
     let y = 1000000.1_f32;
     assert!(x != y);
     assert_approx_eq_ulps!(x, y, 3);
+    assert_approx_eq_ulps!(&x, &y, 3);
 }
 
 #[test]
