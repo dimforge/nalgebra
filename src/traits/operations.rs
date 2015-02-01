@@ -153,13 +153,13 @@ pub trait POrd {
 /// Trait for testing approximate equality
 pub trait ApproxEq<Eps>: Sized {
     /// Default epsilon for approximation.
-    fn approx_epsilon(unused_self: Option<Self>) -> Eps;
+    fn approx_epsilon(unused_mut: Option<Self>) -> Eps;
 
     /// Tests approximate equality using a custom epsilon.
     fn approx_eq_eps(&self, other: &Self, epsilon: &Eps) -> bool;
 
     /// Default ULPs for approximation.
-    fn approx_ulps(unused_self: Option<Self>) -> u32;
+    fn approx_ulps(unused_mut: Option<Self>) -> u32;
 
     /// Tests approximate equality using units in the last place (ULPs)
     fn approx_eq_ulps(&self, other: &Self, ulps: u32) -> bool;
@@ -278,10 +278,10 @@ pub trait Absolute<A> {
 /// Trait of objects having an inverse. Typically used to implement matrix inverse.
 pub trait Inv {
     /// Returns the inverse of `m`.
-    fn inv_cpy(&self) -> Option<Self>;
+    fn inv(&self) -> Option<Self>;
 
     /// In-place version of `inverse`.
-    fn inv(&mut self) -> bool;
+    fn inv_mut(&mut self) -> bool;
 }
 
 /// Trait of objects having a determinant. Typically used by square matrices.
@@ -293,10 +293,10 @@ pub trait Det<N> {
 /// Trait of objects which can be transposed.
 pub trait Transpose {
     /// Computes the transpose of a matrix.
-    fn transpose_cpy(&self) -> Self;
+    fn transpose(&self) -> Self;
 
     /// In-place version of `transposed`.
-    fn transpose(&mut self);
+    fn transpose_mut(&mut self);
 }
 
 /// Traits of objects having an outer product.

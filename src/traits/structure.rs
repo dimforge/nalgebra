@@ -161,7 +161,7 @@ pub trait RowSlice<R> {
 /// Trait of objects having a spacial dimension known at compile time.
 pub trait Dim {
     /// The dimension of the object.
-    fn dim(unused_self: Option<Self>) -> usize;
+    fn dim(unused_mut: Option<Self>) -> usize;
 }
 
 /// Trait to get the diagonal of square matrices.

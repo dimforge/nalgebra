@@ -31,7 +31,7 @@ fn main() {
     let     a = Vec3::new(1.0f64, 1.0, 1.0);
     let mut b = Rot3::new(na::zero());
 
-    b.append_rotation(&a);
+    b.append_rotation_mut(&a);
 
     assert!(na::approx_eq(&na::rotation(&b), &a));
 }
@@ -407,7 +407,7 @@ pub fn inv_translation<V, M: Translation<V>>(m: &M) -> V {
 /// Applies the translation `v` to a copy of `m`.
 #[inline(always)]
 pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
-    Translation::append_translation_cpy(m, v)
+    Translation::append_translation(m, v)
 }
 
 /*
@@ -509,7 +509,7 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
 /// ```
 #[inline(always)]
 pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
-    Rotation::append_rotation_cpy(m, v)
+    Rotation::append_rotation(m, v)
 }
 
 // FIXME: this example is a bit shity
@@ -529,7 +529,7 @@ pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 /// ```
 #[inline(always)]
 pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
-    Rotation::prepend_rotation_cpy(m, v)
+    Rotation::prepend_rotation(m, v)
 }
 
 /*
@@ -589,7 +589,7 @@ pub fn append_rotation_wrt_point<LV: Neg<Output = LV> + Copy,
                                  m:      &M,
                                  amount: &AV,
                                  center: &LV) -> M {
-    RotationWithTranslation::append_rotation_wrt_point_cpy(m, amount, center)
+    RotationWithTranslation::append_rotation_wrt_point(m, amount, center)
 }
 
 /// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
@@ -599,7 +599,7 @@ pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
                                   M: RotationWithTranslation<LV, AV>>(
                                   m:      &M,
                                   amount: &AV) -> M {
-    RotationWithTranslation::append_rotation_wrt_center_cpy(m, amount)
+    RotationWithTranslation::append_rotation_wrt_center(m, amount)
 }
 
 /*
@@ -641,7 +641,7 @@ pub fn inv_transformation<T, M: Transformation<T>>(m: &M) -> T {
 /// Gets a transformed copy of `m`.
 #[inline(always)]
 pub fn append_transformation<T, M: Transformation<T>>(m: &M, t: &T) -> M {
-    Transformation::append_transformation_cpy(m, t)
+    Transformation::append_transformation(m, t)
 }
 
 /*
@@ -689,7 +689,7 @@ pub fn sqnorm<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
 /// Gets the normalized version of a vector.
 #[inline(always)]
 pub fn normalize<V: Norm<N>, N: BaseFloat>(v: &V) -> V {
-    Norm::normalize_cpy(v)
+    Norm::normalize(v)
 }
 
 /*
@@ -795,7 +795,7 @@ pub fn abs<M: Absolute<Res>, Res>(m: &M) -> Res {
 /// Gets an inverted copy of a matrix.
 #[inline(always)]
 pub fn inv<M: Inv>(m: &M) -> Option<M> {
-    Inv::inv_cpy(m)
+    Inv::inv(m)
 }
 
 /*
@@ -805,7 +805,7 @@ pub fn inv<M: Inv>(m: &M) -> Option<M> {
 /// Gets a transposed copy of a matrix.
 #[inline(always)]
 pub fn transpose<M: Transpose>(m: &M) -> M {
-    Transpose::transpose_cpy(m)
+    Transpose::transpose(m)
 }
 
 /*

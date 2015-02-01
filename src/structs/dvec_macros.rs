@@ -184,7 +184,7 @@ macro_rules! dvec_impl(
                     };
 
                     if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &::zero()) {
-                        res.push(Norm::normalize_cpy(&elt));
+                        res.push(Norm::normalize(&elt));
                     }
                 }
 
@@ -290,14 +290,14 @@ macro_rules! dvec_impl(
             }
 
             #[inline]
-            fn normalize_cpy(&self) -> $dvec<N> {
+            fn normalize(&self) -> $dvec<N> {
                 let mut res : $dvec<N> = self.clone();
-                let _ = res.normalize();
+                let _ = res.normalize_mut();
                 res
             }
 
             #[inline]
-            fn normalize(&mut self) -> N {
+            fn normalize_mut(&mut self) -> N {
                 let l = Norm::norm(self);
 
                 for n in self.as_mut_slice().iter_mut() {

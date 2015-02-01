@@ -130,10 +130,10 @@ impl<N: BaseFloat> Basis for Vec3<N> {
     fn orthonormal_subspace_basis<F: FnMut(Vec3<N>) -> bool>(n: &Vec3<N>, mut f: F) {
         let a = 
             if n.x.abs() > n.y.abs() {
-                Norm::normalize_cpy(&Vec3::new(n.z, ::zero(), -n.x))
+                Norm::normalize(&Vec3::new(n.z, ::zero(), -n.x))
             }
             else {
-                Norm::normalize_cpy(&Vec3::new(::zero(), -n.z, n.y))
+                Norm::normalize(&Vec3::new(::zero(), -n.z, n.y))
             };
 
         if !f(Cross::cross(&a, n)) { return };

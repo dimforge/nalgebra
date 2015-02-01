@@ -63,10 +63,10 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
             let x = v.unsafe_at(0);
             v.unsafe_set(0, x - alpha);
         }
-        if !::is_zero(&v.normalize()) {
+        if !::is_zero(&v.normalize_mut()) {
             let qk: M = householder_matrix(rows, ite, v);
             r = qk * r;
-            q = q * Transpose::transpose_cpy(&qk);
+            q = q * Transpose::transpose(&qk);
         }
     }
 
