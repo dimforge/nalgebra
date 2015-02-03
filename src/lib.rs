@@ -98,7 +98,7 @@ extern crate quickcheck;
 extern crate test;
 
 use std::cmp;
-use std::ops::Neg;
+use std::ops::{Neg, Mul};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
@@ -608,7 +608,12 @@ pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
 
 /// Builds a rotation matrix from `r`.
 #[inline(always)]
-pub fn to_rot_mat<N, LV, AV, R: RotationMatrix<N, LV, AV>>(r: &R) -> R::Output {
+pub fn to_rot_mat<N, LV, AV, R, M>(r: &R) -> M
+    where R: RotationMatrix<N, LV, AV, Output=M>,
+          M: Mat<N, LV, AV> + Rotation<AV> + Col<LV> + Copy,
+          LV: Mul<M, Output=LV> + Copy,
+{
+    // FIXME: rust-lang/rust#20413
     r.to_rot_mat()
 }
 
