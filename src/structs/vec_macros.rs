@@ -341,7 +341,7 @@ macro_rules! basis_impl(
                     };
 
                     if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &::zero()) {
-                        let new_element = Norm::normalize_cpy(&elt);
+                        let new_element = Norm::normalize(&elt);
 
                         if !f(new_element) { return };
 
@@ -566,22 +566,22 @@ macro_rules! translation_impl(
             }
 
             #[inline]
-            fn append_translation(&mut self, t: &$t<N>) {
+            fn append_translation_mut(&mut self, t: &$t<N>) {
                 *self = *t + *self;
             }
 
             #[inline]
-            fn append_translation_cpy(&self, t: &$t<N>) -> $t<N> {
+            fn append_translation(&self, t: &$t<N>) -> $t<N> {
                 *t + *self
             }
 
             #[inline]
-            fn prepend_translation(&mut self, t: &$t<N>) {
+            fn prepend_translation_mut(&mut self, t: &$t<N>) {
                 *self = *self + *t;
             }
 
             #[inline]
-            fn prepend_translation_cpy(&self, t: &$t<N>) -> $t<N> {
+            fn prepend_translation(&self, t: &$t<N>) -> $t<N> {
                 *self + *t
             }
 
@@ -602,14 +602,14 @@ macro_rules! norm_impl(
             }
 
             #[inline]
-            fn normalize_cpy(&self) -> $t<N> {
+            fn normalize(&self) -> $t<N> {
                 let mut res : $t<N> = *self;
-                let _ = res.normalize();
+                let _ = res.normalize_mut();
                 res
             }
 
             #[inline]
-            fn normalize(&mut self) -> N {
+            fn normalize_mut(&mut self) -> N {
                 let l = Norm::norm(self);
 
                 $(self.$compN = self.$compN / l;)*

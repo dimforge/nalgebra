@@ -103,7 +103,7 @@ impl<N: Clone + Copy> DMat<N> {
         let mut res = DMat::from_col_vec(ncols, nrows, vec);
 
         // we transpose because the buffer is row_major
-        res.transpose();
+        res.transpose_mut();
 
         res
     }
@@ -370,9 +370,9 @@ impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<DMat<N>> for 
 
 impl<N: BaseNum + Clone> Inv for DMat<N> {
     #[inline]
-    fn inv_cpy(&self) -> Option<DMat<N>> {
+    fn inv(&self) -> Option<DMat<N>> {
         let mut res: DMat<N> = self.clone();
-        if res.inv() {
+        if res.inv_mut() {
             Some(res)
         }
         else {
@@ -380,7 +380,7 @@ impl<N: BaseNum + Clone> Inv for DMat<N> {
         }
     }
 
-    fn inv(&mut self) -> bool {
+    fn inv_mut(&mut self) -> bool {
         assert!(self.nrows == self.ncols);
 
         let dim              = self.nrows;
@@ -456,11 +456,11 @@ impl<N: BaseNum + Clone> Inv for DMat<N> {
 
 impl<N: Clone + Copy> Transpose for DMat<N> {
     #[inline]
-    fn transpose_cpy(&self) -> DMat<N> {
+    fn transpose(&self) -> DMat<N> {
         if self.nrows == self.ncols {
             let mut res = self.clone();
 
-            res.transpose();
+            res.transpose_mut();
 
             res
         }
@@ -480,7 +480,7 @@ impl<N: Clone + Copy> Transpose for DMat<N> {
     }
 
     #[inline]
-    fn transpose(&mut self) {
+    fn transpose_mut(&mut self) {
         if self.nrows == self.ncols {
             for i in (1us .. self.nrows) {
                 for j in (0us .. self.ncols - 1) {
@@ -495,7 +495,7 @@ impl<N: Clone + Copy> Transpose for DMat<N> {
         }
         else {
             // FIXME: implement a better algorithm which does that in-place.
-            *self = Transpose::transpose_cpy(self);
+            *self = Transpose::transpose(self);
         }
     }
 }
@@ -539,7 +539,7 @@ impl<N: BaseNum + Cast<f64> + Clone> Cov<DMat<N>> for DMat<N> {
         let fnormalizer: f64 = Cast::from(self.nrows() - 1);
         let normalizer: N    = Cast::from(fnormalizer);
         // FIXME: this will do 2 allocations for temporaries!
-        (Transpose::transpose_cpy(&centered) * centered) / normalizer
+        (Transpose::transpose(&centered) * centered) / normalizer
     }
 }
 

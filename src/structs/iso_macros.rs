@@ -115,22 +115,22 @@ macro_rules! translation_impl(
             }
 
             #[inline]
-            fn append_translation(&mut self, t: &$tv<N>) {
+            fn append_translation_mut(&mut self, t: &$tv<N>) {
                 self.translation = *t + self.translation
             }
 
             #[inline]
-            fn append_translation_cpy(&self, t: &$tv<N>) -> $t<N> {
+            fn append_translation(&self, t: &$tv<N>) -> $t<N> {
                 $t::new_with_rotmat(*t + self.translation, self.rotation)
             }
 
             #[inline]
-            fn prepend_translation(&mut self, t: &$tv<N>) {
+            fn prepend_translation_mut(&mut self, t: &$tv<N>) {
                 self.translation = self.translation + self.rotation * *t
             }
 
             #[inline]
-            fn prepend_translation_cpy(&self, t: &$tv<N>) -> $t<N> {
+            fn prepend_translation(&self, t: &$tv<N>) -> $t<N> {
                 $t::new_with_rotmat(self.translation + self.rotation * *t, self.rotation)
             }
 
@@ -172,7 +172,7 @@ macro_rules! rotation_impl(
             }
 
             #[inline]
-            fn append_rotation(&mut self, rot: &$tav<N>) {
+            fn append_rotation_mut(&mut self, rot: &$tav<N>) {
                 let delta = $trot::new(*rot);
 
                 self.rotation    = delta * self.rotation;
@@ -180,21 +180,21 @@ macro_rules! rotation_impl(
             }
 
             #[inline]
-            fn append_rotation_cpy(&self, rot: &$tav<N>) -> $t<N> {
+            fn append_rotation(&self, rot: &$tav<N>) -> $t<N> {
                 let delta = $trot::new(*rot);
 
                 $t::new_with_rotmat(delta * self.translation, delta * self.rotation)
             }
 
             #[inline]
-            fn prepend_rotation(&mut self, rot: &$tav<N>) {
+            fn prepend_rotation_mut(&mut self, rot: &$tav<N>) {
                 let delta = $trot::new(*rot);
 
                 self.rotation = self.rotation * delta;
             }
 
             #[inline]
-            fn prepend_rotation_cpy(&self, rot: &$tav<N>) -> $t<N> {
+            fn prepend_rotation(&self, rot: &$tav<N>) -> $t<N> {
                 let delta = $trot::new(*rot);
 
                 $t::new_with_rotmat(self.translation, self.rotation * delta)
@@ -234,22 +234,22 @@ macro_rules! transformation_impl(
 
             fn inv_transformation(&self) -> $t<N> {
                 // inversion will never fails
-                Inv::inv_cpy(self).unwrap()
+                Inv::inv(self).unwrap()
             }
 
-            fn append_transformation(&mut self, t: &$t<N>) {
+            fn append_transformation_mut(&mut self, t: &$t<N>) {
                 *self = *t * *self
             }
 
-            fn append_transformation_cpy(&self, t: &$t<N>) -> $t<N> {
+            fn append_transformation(&self, t: &$t<N>) -> $t<N> {
                 *t * *self
             }
 
-            fn prepend_transformation(&mut self, t: &$t<N>) {
+            fn prepend_transformation_mut(&mut self, t: &$t<N>) {
                 *self = *self * *t
             }
 
-            fn prepend_transformation_cpy(&self, t: &$t<N>) -> $t<N> {
+            fn prepend_transformation(&self, t: &$t<N>) -> $t<N> {
                 *self * *t
             }
 
@@ -280,17 +280,17 @@ macro_rules! inv_impl(
     ($t: ident) => (
         impl<N: BaseNum> Inv for $t<N> {
             #[inline]
-            fn inv(&mut self) -> bool {
-                self.rotation.inv();
+            fn inv_mut(&mut self) -> bool {
+                self.rotation.inv_mut();
                 self.translation = self.rotation * -self.translation;
                 // always succeed
                 true
             }
 
             #[inline]
-            fn inv_cpy(&self) -> Option<$t<N>> {
+            fn inv(&self) -> Option<$t<N>> {
                 let mut res = *self;
-                res.inv();
+                res.inv_mut();
                 // always succeed
                 Some(res)
             }

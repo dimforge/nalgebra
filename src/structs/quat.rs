@@ -61,9 +61,15 @@ impl<N> Quat<N> {
 }
 
 impl<N: Neg<Output = N> + Copy> Quat<N> {
+    /// Compute the conjugate of this quaternion.
+    #[inline]
+    pub fn conjugate(&self) -> Quat<N> {
+        Quat { w: self.w, i: -self.i, j: -self.j, k: -self.k }
+    }
+
     /// Replaces this quaternion by its conjugate.
     #[inline]
-    pub fn conjugate(&mut self) {
+    pub fn conjugate_mut(&mut self) {
         self.i = -self.i;
         self.j = -self.j;
         self.k = -self.k;
@@ -72,10 +78,10 @@ impl<N: Neg<Output = N> + Copy> Quat<N> {
 
 impl<N: BaseFloat + ApproxEq<N>> Inv for Quat<N> {
     #[inline]
-    fn inv_cpy(&self) -> Option<Quat<N>> {
+    fn inv(&self) -> Option<Quat<N>> {
         let mut res = *self;
 
-        if res.inv() {
+        if res.inv_mut() {
             Some(res)
         }
         else {
@@ -84,14 +90,14 @@ impl<N: BaseFloat + ApproxEq<N>> Inv for Quat<N> {
     }
 
     #[inline]
-    fn inv(&mut self) -> bool {
+    fn inv_mut(&mut self) -> bool {
         let sqnorm = Norm::sqnorm(self);
 
         if ApproxEq::approx_eq(&sqnorm, &::zero()) {
             false
         }
         else {
-            self.conjugate();
+            self.conjugate_mut();
             self.w = self.w / sqnorm;
             self.i = self.i / sqnorm;
             self.j = self.j / sqnorm;
@@ -109,13 +115,13 @@ impl<N: BaseFloat> Norm<N> for Quat<N> {
     }
 
     #[inline]
-    fn normalize_cpy(&self) -> Quat<N> {
+    fn normalize(&self) -> Quat<N> {
         let n = self.norm();
         Quat::new(self.w / n, self.i / n, self.j / n, self.k / n)
     }
 
     #[inline]
-    fn normalize(&mut self) -> N {
+    fn normalize_mut(&mut self) -> N {
         let n = Norm::norm(self);
 
         self.w = self.w / n;
@@ -146,7 +152,7 @@ impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>> for Quat<N> {
 
     #[inline]
     fn div(self, right: Quat<N>) -> Quat<N> {
-        self * right.inv_cpy().expect("Unable to invert the denominator.")
+        self * right.inv().expect("Unable to invert the denominator.")
     }
 }
 
@@ -273,16 +279,16 @@ impl<N: BaseNum> One for UnitQuat<N> {
 
 impl<N: Copy + Neg<Output = N>> Inv for UnitQuat<N> {
     #[inline]
-    fn inv_cpy(&self) -> Option<UnitQuat<N>> {
+    fn inv(&self) -> Option<UnitQuat<N>> {
         let mut cpy = *self;
 
-        cpy.inv();
+        cpy.inv_mut();
         Some(cpy)
     }
 
     #[inline]
-    fn inv(&mut self) -> bool {
-        self.q.conjugate();
+    fn inv_mut(&mut self) -> bool {
+        self.q.conjugate_mut();
 
         true
     }
@@ -366,7 +372,7 @@ impl<N: BaseNum> Mul<UnitQuat<N>> for Vec3<N> {
     fn mul(self, right: UnitQuat<N>) -> Vec3<N> {
         let mut inv_quat = right;
 
-        inv_quat.inv();
+        inv_quat.inv_mut();
 
         inv_quat * self
     }
@@ -386,7 +392,7 @@ impl<N: BaseFloat> Rotation<Vec3<N>> for UnitQuat<N> {
     fn rotation(&self) -> Vec3<N> {
         let _2 = ::one::<N>() + ::one();
         let mut v = *self.q.vector();
-        let ang = _2 * v.normalize().atan2(self.q.w);
+        let ang = _2 * v.normalize_mut().atan2(self.q.w);
 
         if ::is_zero(&ang) {
             ::zero()
@@ -402,22 +408,22 @@ impl<N: BaseFloat> Rotation<Vec3<N>> for UnitQuat<N> {
     }
 
     #[inline]
-    fn append_rotation(&mut self, amount: &Vec3<N>) {
-        *self = Rotation::append_rotation_cpy(self, amount)
+    fn append_rotation_mut(&mut self, amount: &Vec3<N>) {
+        *self = Rotation::append_rotation(self, amount)
     }
 
     #[inline]
-    fn append_rotation_cpy(&self, amount: &Vec3<N>) -> UnitQuat<N> {
+    fn append_rotation(&self, amount: &Vec3<N>) -> UnitQuat<N> {
         *self * UnitQuat::new(*amount)
     }
 
     #[inline]
-    fn prepend_rotation(&mut self, amount: &Vec3<N>) {
-        *self = Rotation::prepend_rotation_cpy(self, amount)
+    fn prepend_rotation_mut(&mut self, amount: &Vec3<N>) {
+        *self = Rotation::prepend_rotation(self, amount)
     }
 
     #[inline]
-    fn prepend_rotation_cpy(&self, amount: &Vec3<N>) -> UnitQuat<N> {
+    fn prepend_rotation(&self, amount: &Vec3<N>) -> UnitQuat<N> {
         UnitQuat::new(*amount) * *self
     }
 

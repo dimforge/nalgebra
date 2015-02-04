@@ -44,22 +44,22 @@ impl<N: BaseFloat + Clone> Rotation<Vec1<N>> for Rot2<N> {
     }
 
     #[inline]
-    fn append_rotation(&mut self, rot: &Vec1<N>) {
-        *self = Rotation::append_rotation_cpy(self, rot)
+    fn append_rotation_mut(&mut self, rot: &Vec1<N>) {
+        *self = Rotation::append_rotation(self, rot)
     }
 
     #[inline]
-    fn append_rotation_cpy(&self, rot: &Vec1<N>) -> Rot2<N> {
+    fn append_rotation(&self, rot: &Vec1<N>) -> Rot2<N> {
         Rot2::new(rot.clone()) * *self
     }
 
     #[inline]
-    fn prepend_rotation(&mut self, rot: &Vec1<N>) {
-        *self = Rotation::prepend_rotation_cpy(self, rot)
+    fn prepend_rotation_mut(&mut self, rot: &Vec1<N>) {
+        *self = Rotation::prepend_rotation(self, rot)
     }
 
     #[inline]
-    fn prepend_rotation_cpy(&self, rot: &Vec1<N>) -> Rot2<N> {
+    fn prepend_rotation(&self, rot: &Vec1<N>) -> Rot2<N> {
         *self * Rot2::new(rot.clone())
     }
 
@@ -119,7 +119,7 @@ impl<N: Clone + BaseFloat> Rot3<N> {
         }
         else {
             let mut axis   = axisangle;
-            let angle      = axis.normalize();
+            let angle      = axis.normalize_mut();
             let _1: N      = ::one();
             let ux         = axis.x.clone();
             let uy         = axis.y.clone();
@@ -187,8 +187,8 @@ impl<N: Clone + BaseFloat> Rot3<N> {
     ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
-        let xaxis = Norm::normalize_cpy(at);
-        let zaxis = Norm::normalize_cpy(&Cross::cross(up, &xaxis));
+        let xaxis = Norm::normalize(at);
+        let zaxis = Norm::normalize(&Cross::cross(up, &xaxis));
         let yaxis = Cross::cross(&zaxis, &xaxis);
 
         self.submat = Mat3::new(
@@ -204,8 +204,8 @@ impl<N: Clone + BaseFloat> Rot3<N> {
     ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at_z(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
-        let zaxis = Norm::normalize_cpy(at);
-        let xaxis = Norm::normalize_cpy(&Cross::cross(up, &zaxis));
+        let zaxis = Norm::normalize(at);
+        let xaxis = Norm::normalize(&Cross::cross(up, &zaxis));
         let yaxis = Cross::cross(&zaxis, &xaxis);
 
         self.submat = Mat3::new(
@@ -255,22 +255,22 @@ Rotation<Vec3<N>> for Rot3<N> {
 
 
     #[inline]
-    fn append_rotation(&mut self, rot: &Vec3<N>) {
-        *self = Rotation::append_rotation_cpy(self, rot)
+    fn append_rotation_mut(&mut self, rot: &Vec3<N>) {
+        *self = Rotation::append_rotation(self, rot)
     }
 
     #[inline]
-    fn append_rotation_cpy(&self, axisangle: &Vec3<N>) -> Rot3<N> {
+    fn append_rotation(&self, axisangle: &Vec3<N>) -> Rot3<N> {
         Rot3::new(axisangle.clone()) * *self
     }
 
     #[inline]
-    fn prepend_rotation(&mut self, rot: &Vec3<N>) {
-        *self = Rotation::prepend_rotation_cpy(self, rot)
+    fn prepend_rotation_mut(&mut self, rot: &Vec3<N>) {
+        *self = Rotation::prepend_rotation(self, rot)
     }
 
     #[inline]
-    fn prepend_rotation_cpy(&self, axisangle: &Vec3<N>) -> Rot3<N> {
+    fn prepend_rotation(&self, axisangle: &Vec3<N>) -> Rot3<N> {
         *self * Rot3::new(axisangle.clone())
     }
 
@@ -364,22 +364,22 @@ Rotation<Vec4<N>> for Rot4<N> {
     }
 
     #[inline]
-    fn append_rotation(&mut self, _: &Vec4<N>) {
+    fn append_rotation_mut(&mut self, _: &Vec4<N>) {
         panic!("Not yet implemented")
     }
 
     #[inline]
-    fn append_rotation_cpy(&self, _: &Vec4<N>) -> Rot4<N> {
+    fn append_rotation(&self, _: &Vec4<N>) -> Rot4<N> {
         panic!("Not yet implemented")
     }
 
     #[inline]
-    fn prepend_rotation(&mut self, _: &Vec4<N>) {
+    fn prepend_rotation_mut(&mut self, _: &Vec4<N>) {
         panic!("Not yet implemented")
     }
 
     #[inline]
-    fn prepend_rotation_cpy(&self, _: &Vec4<N>) -> Rot4<N> {
+    fn prepend_rotation(&self, _: &Vec4<N>) -> Rot4<N> {
         panic!("Not yet implemented")
     }
 

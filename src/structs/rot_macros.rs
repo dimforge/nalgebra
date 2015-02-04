@@ -157,17 +157,17 @@ macro_rules! inv_impl(
     ($t: ident) => (
         impl<N: Copy> Inv for $t<N> {
             #[inline]
-            fn inv(&mut self) -> bool {
-                self.transpose();
+            fn inv_mut(&mut self) -> bool {
+                self.transpose_mut();
 
                 // always succeed
                 true
             }
 
             #[inline]
-            fn inv_cpy(&self) -> Option<$t<N>> {
+            fn inv(&self) -> Option<$t<N>> {
                 // always succeed
-                Some(self.transpose_cpy())
+                Some(self.transpose())
             }
         }
     )
@@ -177,13 +177,13 @@ macro_rules! transpose_impl(
     ($t: ident) => (
         impl<N: Copy> Transpose for $t<N> {
             #[inline]
-            fn transpose_cpy(&self) -> $t<N> {
-                $t { submat: Transpose::transpose_cpy(&self.submat) }
+            fn transpose(&self) -> $t<N> {
+                $t { submat: Transpose::transpose(&self.submat) }
             }
 
             #[inline]
-            fn transpose(&mut self) {
-                self.submat.transpose()
+            fn transpose_mut(&mut self) {
+                self.submat.transpose_mut()
             }
         }
     )

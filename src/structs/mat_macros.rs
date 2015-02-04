@@ -532,9 +532,9 @@ macro_rules! inv_impl(
     impl<N: Copy + BaseNum>
     Inv for $t<N> {
         #[inline]
-        fn inv_cpy(&self) -> Option<$t<N>> {
+        fn inv(&self) -> Option<$t<N>> {
             let mut res : $t<N> = *self;
-            if res.inv() {
+            if res.inv_mut() {
                 Some(res)
             }
             else {
@@ -542,7 +542,7 @@ macro_rules! inv_impl(
             }
         }
 
-        fn inv(&mut self) -> bool {
+        fn inv_mut(&mut self) -> bool {
             let mut res: $t<N> = ::one();
 
             // inversion using Gauss-Jordan elimination
@@ -614,15 +614,15 @@ macro_rules! transpose_impl(
   ($t: ident, $dim: expr) => (
     impl<N: Copy> Transpose for $t<N> {
         #[inline]
-        fn transpose_cpy(&self) -> $t<N> {
+        fn transpose(&self) -> $t<N> {
             let mut res = *self;
 
-            res.transpose();
+            res.transpose_mut();
             res
         }
 
         #[inline]
-        fn transpose(&mut self) {
+        fn transpose_mut(&mut self) {
             for i in (1us .. $dim) {
                 for j in (0us .. i) {
                     self.swap((i, j), (j, i))

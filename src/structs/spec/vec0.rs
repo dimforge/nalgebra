@@ -167,22 +167,22 @@ impl<N: Copy + Add<N, Output = N> + Neg<Output = N>> Translation<vec::Vec0<N>> f
     }
 
     #[inline]
-    fn append_translation(&mut self, t: &vec::Vec0<N>) {
+    fn append_translation_mut(&mut self, t: &vec::Vec0<N>) {
         *self = *t + *self;
     }
 
     #[inline]
-    fn append_translation_cpy(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
+    fn append_translation(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
         *t + self
     }
 
     #[inline]
-    fn prepend_translation(&mut self, t: &vec::Vec0<N>) {
+    fn prepend_translation_mut(&mut self, t: &vec::Vec0<N>) {
         *self = *self + *t;
     }
 
     #[inline]
-    fn prepend_translation_cpy(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
+    fn prepend_translation(&self, t: &vec::Vec0<N>) -> vec::Vec0<N> {
         *self + *t
     }
 
@@ -203,12 +203,12 @@ impl<N: BaseFloat> Norm<N> for vec::Vec0<N> {
     }
 
     #[inline]
-    fn normalize_cpy(&self) -> vec::Vec0<N> {
+    fn normalize(&self) -> vec::Vec0<N> {
         ::zero()
     }
 
     #[inline]
-    fn normalize(&mut self) -> N {
+    fn normalize_mut(&mut self) -> N {
         ::zero()
     }
 }

@@ -8,9 +8,9 @@ use traits::structure::{Row, Col, BaseNum};
 // some specializations:
 impl<N: BaseNum + ApproxEq<N>> Inv for Mat1<N> {
     #[inline]
-    fn inv_cpy(&self) -> Option<Mat1<N>> {
+    fn inv(&self) -> Option<Mat1<N>> {
         let mut res = *self;
-        if res.inv() {
+        if res.inv_mut() {
             Some(res)
         }
         else {
@@ -19,7 +19,7 @@ impl<N: BaseNum + ApproxEq<N>> Inv for Mat1<N> {
     }
 
     #[inline]
-    fn inv(&mut self) -> bool {
+    fn inv_mut(&mut self) -> bool {
         if ApproxEq::approx_eq(&self.m11, &::zero()) {
             false
         }
@@ -34,9 +34,9 @@ impl<N: BaseNum + ApproxEq<N>> Inv for Mat1<N> {
 
 impl<N: BaseNum + ApproxEq<N>> Inv for Mat2<N> {
     #[inline]
-    fn inv_cpy(&self) -> Option<Mat2<N>> {
+    fn inv(&self) -> Option<Mat2<N>> {
         let mut res = *self;
-        if res.inv() {
+        if res.inv_mut() {
             Some(res)
         }
         else {
@@ -45,7 +45,7 @@ impl<N: BaseNum + ApproxEq<N>> Inv for Mat2<N> {
     }
 
     #[inline]
-    fn inv(&mut self) -> bool {
+    fn inv_mut(&mut self) -> bool {
         let det = Det::det(self);
 
         if ApproxEq::approx_eq(&det, &::zero()) {
@@ -63,10 +63,10 @@ impl<N: BaseNum + ApproxEq<N>> Inv for Mat2<N> {
 
 impl<N: BaseNum + ApproxEq<N>> Inv for Mat3<N> {
     #[inline]
-    fn inv_cpy(&self) -> Option<Mat3<N>> {
+    fn inv(&self) -> Option<Mat3<N>> {
         let mut res = *self;
 
-        if res.inv() {
+        if res.inv_mut() {
             Some(res)
         }
         else {
@@ -75,7 +75,7 @@ impl<N: BaseNum + ApproxEq<N>> Inv for Mat3<N> {
     }
 
     #[inline]
-    fn inv(&mut self) -> bool {
+    fn inv_mut(&mut self) -> bool {
         let minor_m12_m23 = self.m22 * self.m33 - self.m32 * self.m23;
         let minor_m11_m23 = self.m21 * self.m33 - self.m31 * self.m23;
         let minor_m11_m22 = self.m21 * self.m32 - self.m31 * self.m22;
