@@ -20,7 +20,8 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// A quaternion.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Quat<N> {
     /// The scalar component of the quaternion.
     pub w: N,
