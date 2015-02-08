@@ -278,8 +278,6 @@ impl<N> Index<(usize, usize)> for DMat<N> {
 }
 
 impl<N> IndexMut<(usize, usize)> for DMat<N> {
-    type Output = N;
-
     fn index_mut(&mut self, &(i, j): &(usize, usize)) -> &mut N {
         assert!(i < self.nrows);
         assert!(j < self.ncols);
