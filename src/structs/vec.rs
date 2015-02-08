@@ -19,7 +19,8 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Vector of dimension 0.
-#[derive(Eq, PartialEq, RustcDecodable, Clone, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcDecodable, Clone, Debug, Copy)]
+#[derive_Rand]
 pub struct Vec0<N>;
 
 impl<N> Vec0<N> {
@@ -37,7 +38,8 @@ impl<N> Vec0<N> {
 }
 
 /// Vector of dimension 1.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Vec1<N> {
     /// First component of the vector.
     pub x: N
@@ -87,7 +89,8 @@ absolute_vec_impl!(Vec1, x);
 arbitrary_impl!(Vec1, x);
 
 /// Vector of dimension 2.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Vec2<N> {
     /// First component of the vector.
     pub x: N,
@@ -139,7 +142,8 @@ absolute_vec_impl!(Vec2, x, y);
 arbitrary_impl!(Vec2, x, y);
 
 /// Vector of dimension 3.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Vec3<N> {
     /// First component of the vector.
     pub x: N,
@@ -194,7 +198,8 @@ arbitrary_impl!(Vec3, x, y, z);
 
 
 /// Vector of dimension 4.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Vec4<N> {
     /// First component of the vector.
     pub x: N,
@@ -250,7 +255,8 @@ absolute_vec_impl!(Vec4, x, y, z, w);
 arbitrary_impl!(Vec4, x, y, z, w);
 
 /// Vector of dimension 5.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Vec5<N> {
     /// First component of the vector.
     pub x: N,
@@ -308,7 +314,8 @@ absolute_vec_impl!(Vec5, x, y, z, w, a);
 arbitrary_impl!(Vec5, x, y, z, w, a);
 
 /// Vector of dimension 6.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Vec6<N> {
     /// First component of the vector.
     pub x: N,

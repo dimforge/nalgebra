@@ -17,7 +17,8 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Point of dimension 0.
-#[derive(Eq, PartialEq, RustcDecodable, Clone, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcDecodable, Clone, Debug, Copy)]
+#[derive_Rand]
 pub struct Pnt0<N>;
 
 impl<N> Pnt0<N> {
@@ -35,7 +36,8 @@ impl<N> Pnt0<N> {
 }
 
 /// Point of dimension 1.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Pnt1<N> {
     /// First component of the point.
     pub x: N
@@ -74,7 +76,8 @@ num_float_pnt_impl!(Pnt1, Vec1);
 arbitrary_pnt_impl!(Pnt1, x);
 
 /// Point of dimension 2.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Pnt2<N> {
     /// First component of the point.
     pub x: N,
@@ -115,7 +118,8 @@ num_float_pnt_impl!(Pnt2, Vec2);
 arbitrary_pnt_impl!(Pnt2, x, y);
 
 /// Point of dimension 3.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Pnt3<N> {
     /// First component of the point.
     pub x: N,
@@ -158,7 +162,8 @@ num_float_pnt_impl!(Pnt3, Vec3);
 arbitrary_pnt_impl!(Pnt3, x, y, z);
 
 /// Point of dimension 4.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Pnt4<N> {
     /// First component of the point.
     pub x: N,
@@ -203,7 +208,8 @@ num_float_pnt_impl!(Pnt4, Vec4);
 arbitrary_pnt_impl!(Pnt4, x, y, z, w);
 
 /// Point of dimension 5.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Pnt5<N> {
     /// First component of the point.
     pub x: N,
@@ -250,7 +256,8 @@ num_float_pnt_impl!(Pnt5, Vec5);
 arbitrary_pnt_impl!(Pnt5, x, y, z, w, a);
 
 /// Point of dimension 6.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[derive_Rand]
 pub struct Pnt6<N> {
     /// First component of the point.
     pub x: N,
