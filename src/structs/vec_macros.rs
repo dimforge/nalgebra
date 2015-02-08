@@ -234,8 +234,6 @@ macro_rules! index_impl(
         }
 
         impl<N> IndexMut<usize> for $t<N> {
-            type Output = N;
-
             fn index_mut(&mut self, i: &usize) -> &mut N {
                 &mut self.as_array_mut()[*i]
             }
