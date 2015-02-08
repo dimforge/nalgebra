@@ -86,8 +86,6 @@ macro_rules! dvec_impl(
         }
 
         impl<N> IndexMut<usize> for $dvec<N> {
-            type Output = N;
-
             fn index_mut(&mut self, i: &usize) -> &mut N {
                 &mut self.as_mut_slice()[*i]
             }

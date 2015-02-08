@@ -312,8 +312,6 @@ macro_rules! index_impl(
         }
 
         impl<N> IndexMut<(usize, usize)> for $t<N> {
-            type Output = N;
-
             fn index_mut(&mut self, &(i, j): &(usize, usize)) -> &mut N {
                 unsafe {
                     &mut mem::transmute::<&mut $t<N>, &mut [N; $dim * $dim]>(self)[i + j * $dim]
