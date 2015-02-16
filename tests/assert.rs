@@ -1,8 +1,8 @@
 //! Assertion macro tests
 
 #![feature(plugin)]
+#![plugin(nalgebra)]
 
-#[plugin]
 #[macro_use]
 extern crate nalgebra;
 
