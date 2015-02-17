@@ -2,8 +2,8 @@
 
 extern crate "nalgebra" as na;
 extern crate quickcheck;
+extern crate rand;
 
-use std::rand;
 use quickcheck::{Arbitrary, StdGen};
 use na::*;
 
