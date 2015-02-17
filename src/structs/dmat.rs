@@ -2,17 +2,14 @@
 
 #![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
 
-use std::cmp;
+use std::{cmp, mem};
 use std::iter::repeat;
-use std::rand::Rand;
-use std::rand;
 use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
-use traits::operations::ApproxEq;
-use std::mem;
-use structs::dvec::DVec;
-use traits::operations::{Inv, Transpose, Mean, Cov};
-use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
 use std::fmt::{Debug, Display, Formatter, Result};
+use rand::{self, Rand};
+use structs::dvec::DVec;
+use traits::operations::{ApproxEq, Inv, Transpose, Mean, Cov};
+use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 

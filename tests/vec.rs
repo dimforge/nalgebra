@@ -1,6 +1,7 @@
 extern crate "nalgebra" as na;
+extern crate rand;
 
-use std::rand::random;
+use rand::random;
 use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Iterable, IterableMut};
 
 macro_rules! test_iterator_impl(

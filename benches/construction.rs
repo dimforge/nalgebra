@@ -1,7 +1,8 @@
 extern crate test;
+extern crate rand;
 extern crate "nalgebra" as na;
 
-use std::rand::{IsaacRng, Rng};
+use rand::{IsaacRng, Rng};
 use test::Bencher;
 use na::{UnitQuat, Rot2, Rot3, Vec1, Vec3};
 

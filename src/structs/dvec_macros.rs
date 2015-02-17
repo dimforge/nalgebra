@@ -497,7 +497,7 @@ macro_rules! small_dvec_from_impl (
 
         impl<N: Zero> FromIterator<N> for $dvec<N> {
             #[inline]
-            fn from_iter<I: Iterator<Item = N>>(mut param: I) -> $dvec<N> {
+            fn from_iter<I: Iterator<Item = N>>(param: I) -> $dvec<N> {
                 let mut at: [N; $dim] = [ $( $zeros, )* ];
 
                 let mut dim = 0;

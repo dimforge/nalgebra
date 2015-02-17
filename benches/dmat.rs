@@ -1,3 +1,5 @@
+#![feature(test)]
+
 extern crate test;
 extern crate "nalgebra" as na;
 

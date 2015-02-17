@@ -1,6 +1,7 @@
 extern crate "nalgebra" as na;
+extern crate rand;
 
-use std::rand::random;
+use rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, Persp3, PerspMat3, Ortho3, OrthoMat3,
          DMat, DVec, Row, Col, BaseFloat};
 
