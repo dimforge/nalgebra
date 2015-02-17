@@ -1,7 +1,8 @@
 extern crate "nalgebra" as na;
+extern crate rand;
 
 use na::{Pnt3, Vec3, Rot3, UnitQuat, Rotation};
-use std::rand::random;
+use rand::random;
 
 #[test]
 fn test_quat_as_mat() {

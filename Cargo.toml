@@ -21,6 +21,7 @@ arbitrary = ["quickcheck"]
 
 [dependencies]
 rustc-serialize = "*"
+rand = "0.1"
 
 [dependencies.quickcheck]
 optional = true

@@ -2,12 +2,11 @@
 
 #![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
 
-use std::rand::Rand;
-use std::rand;
 use std::slice::{Iter, IterMut};
 use std::iter::FromIterator;
 use std::iter::repeat;
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
+use rand::{self, Rand};
 use traits::operations::{ApproxEq, Axpy};
 use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, BaseNum, Zero, One};

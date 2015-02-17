@@ -4,10 +4,10 @@
 
 use std::mem;
 use std::num;
-use std::rand::{Rand, Rng};
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use std::iter::FromIterator;
+use rand::{Rand, Rng};
 use structs::{Vec3, Pnt3, Rot3, Mat3};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
@@ -20,7 +20,7 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// A quaternion.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Quat<N> {
     /// The scalar component of the quaternion.
     pub w: N,
@@ -249,6 +249,9 @@ impl<N: BaseFloat> UnitQuat<N> {
         }
     }
 }
+
+rand_impl!(Quat, w, i, j, k);
+
 
 impl<N> UnitQuat<N> {
     /// Creates a new unit quaternion from a quaternion.

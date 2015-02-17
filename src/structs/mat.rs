@@ -4,8 +4,9 @@
 
 use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 use std::mem;
-use traits::operations::ApproxEq;
 use std::slice::{Iter, IterMut};
+use rand::{Rand, Rng};
+use traits::operations::ApproxEq;
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use structs::pnt::{Pnt1, Pnt4, Pnt5, Pnt6};
 use structs::dvec::{DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
@@ -20,7 +21,7 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Special identity matrix. All its operation are no-ops.
-#[derive(Eq, PartialEq, RustcDecodable, Clone, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcDecodable, Clone, Debug, Copy)]
 pub struct Identity;
 
 impl Identity {
@@ -32,7 +33,7 @@ impl Identity {
 }
 
 /// Square matrix of dimension 1.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat1<N> {
     pub m11: N
 }
@@ -75,9 +76,10 @@ from_homogeneous_impl!(Mat1, Mat2, 1, 2);
 outer_impl!(Vec1, Mat1);
 eigen_qr_impl!(Mat1, Vec1);
 arbitrary_impl!(Mat1, m11);
+rand_impl!(Mat1, m11);
 
 /// Square matrix of dimension 2.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat2<N> {
     pub m11: N, pub m21: N,
     pub m12: N, pub m22: N
@@ -124,9 +126,10 @@ from_homogeneous_impl!(Mat2, Mat3, 2, 3);
 outer_impl!(Vec2, Mat2);
 eigen_qr_impl!(Mat2, Vec2);
 arbitrary_impl!(Mat2, m11, m12, m21, m22);
+rand_impl!(Mat2, m11, m12, m21, m22);
 
 /// Square matrix of dimension 3.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat3<N> {
     pub m11: N, pub m21: N, pub m31: N,
     pub m12: N, pub m22: N, pub m32: N,
@@ -211,9 +214,14 @@ arbitrary_impl!(Mat3,
     m21, m22, m23,
     m31, m32, m33
 );
+rand_impl!(Mat3,
+    m11, m12, m13,
+    m21, m22, m23,
+    m31, m32, m33
+);
 
 /// Square matrix of dimension 4.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat4<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N,
@@ -317,9 +325,15 @@ arbitrary_impl!(Mat4,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
+rand_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+);
 
 /// Square matrix of dimension 5.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat5<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N,
@@ -438,9 +452,16 @@ arbitrary_impl!(Mat5,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
+rand_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+);
 
 /// Square matrix of dimension 6.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Rand, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat6<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N, pub m61: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N, pub m62: N,
@@ -555,6 +576,14 @@ diag_impl!(Mat6, Vec6, 6);
 outer_impl!(Vec6, Mat6);
 eigen_qr_impl!(Mat6, Vec6);
 arbitrary_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+);
+rand_impl!(Mat6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,

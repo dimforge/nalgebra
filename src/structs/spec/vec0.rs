@@ -2,6 +2,7 @@ use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator};
+use rand::{Rand, Rng};
 use traits::operations::ApproxEq;
 use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape, BaseFloat, BaseNum,
                         Zero, One, Bounded};
@@ -256,4 +257,9 @@ impl<N: Bounded> Bounded for vec::Vec0<N> {
     fn min_value() -> vec::Vec0<N> {
         vec::Vec0
     }
+}
+
+impl<N> Rand for vec::Vec0<N> {
+    #[inline]
+    fn rand<R: Rng>(_: &mut R) -> vec::Vec0<N> { vec::Vec0 }
 }

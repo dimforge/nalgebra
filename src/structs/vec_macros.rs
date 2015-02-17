@@ -854,3 +854,14 @@ macro_rules! arbitrary_impl(
         }
     )
 );
+
+macro_rules! rand_impl(
+    ($t: ident, $($compN: ident),*) => (
+        impl<N: Rand> Rand for $t<N> {
+            #[inline]
+            fn rand<R: Rng>(rng: &mut R) -> $t<N> {
+                $t { $($compN: Rand::rand(rng), )* }
+            }
+        }
+    )
+);
