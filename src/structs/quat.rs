@@ -195,12 +195,7 @@ impl<N: BaseFloat> UnitQuat<N> {
     /// The input quaternion will be normalized.
     #[inline]
     pub fn new_with_quat(q: Quat<N>) -> UnitQuat<N> {
-        let mut q = q;
-        let _ = q.normalize();
-
-        UnitQuat {
-            q: q
-        }
+        UnitQuat { q: q.normalize() }
     }
 
     /// Creates a new unit quaternion from Euler angles.
