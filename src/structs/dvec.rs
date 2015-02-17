@@ -68,14 +68,8 @@ impl<N> DVec<N> {
 
 impl<N> FromIterator<N> for DVec<N> {
     #[inline]
-    fn from_iter<I: Iterator<Item = N>>(mut param: I) -> DVec<N> {
-        let mut res = DVec { at: Vec::new() };
-
-        for e in param {
-            res.at.push(e)
-        }
-
-        res
+    fn from_iter<I: Iterator<Item = N>>(param: I) -> DVec<N> {
+        DVec { at: param.collect() }
     }
 }
 
