@@ -2,9 +2,10 @@
 
 #![allow(missing_docs)] // we allow missing to avoid having to document the point components.
 
+use std::marker::PhantomData;
 use std::mem;
 use std::slice::{Iter, IterMut};
-use std::iter::{Iterator, FromIterator};
+use std::iter::{Iterator, FromIterator, IntoIterator};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use rand::{Rand, Rng};
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
@@ -18,20 +19,20 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Point of dimension 0.
-#[derive(Eq, PartialEq, RustcDecodable, Clone, Debug, Copy)]
-pub struct Pnt0<N>;
+#[derive(Eq, PartialEq, Clone, Debug, Copy)]
+pub struct Pnt0<N>(pub PhantomData<N>);
 
 impl<N> Pnt0<N> {
     /// Creates a new point.
     #[inline]
     pub fn new() -> Pnt0<N> {
-        Pnt0
+        Pnt0(PhantomData)
     }
 
     /// Creates a new point. The parameter is not taken in account.
     #[inline]
     pub fn new_repeat(_: N) -> Pnt0<N> {
-        Pnt0
+        Pnt0(PhantomData)
     }
 }
 

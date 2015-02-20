@@ -3,7 +3,7 @@
 #![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
 
 use std::slice::{Iter, IterMut};
-use std::iter::FromIterator;
+use std::iter::{FromIterator, IntoIterator};
 use std::iter::repeat;
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use rand::{self, Rand};
@@ -68,8 +68,8 @@ impl<N> DVec<N> {
 
 impl<N> FromIterator<N> for DVec<N> {
     #[inline]
-    fn from_iter<I: Iterator<Item = N>>(param: I) -> DVec<N> {
-        DVec { at: param.collect() }
+    fn from_iter<I: IntoIterator<Item = N>>(param: I) -> DVec<N> {
+        DVec { at: param.into_iter().collect() }
     }
 }
 

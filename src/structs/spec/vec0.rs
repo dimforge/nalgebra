@@ -1,7 +1,8 @@
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
+use std::marker::PhantomData;
 use std::mem;
 use std::slice::{Iter, IterMut};
-use std::iter::{Iterator, FromIterator};
+use std::iter::{FromIterator, IntoIterator};
 use rand::{Rand, Rng};
 use traits::operations::ApproxEq;
 use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape, BaseFloat, BaseNum,
@@ -12,7 +13,7 @@ use structs::vec;
 impl<N> Zero for vec::Vec0<N> {
     #[inline]
     fn zero() -> vec::Vec0<N> {
-        vec::Vec0
+        vec::Vec0(PhantomData)
     }
 
     #[inline]
@@ -107,7 +108,7 @@ impl<N, T> Add<T> for vec::Vec0<N> {
 
     #[inline]
     fn add(self, _: T) -> vec::Vec0<N> {
-        vec::Vec0
+        vec::Vec0(PhantomData)
     }
 }
 
@@ -116,7 +117,7 @@ impl<N, T> Sub<T> for vec::Vec0<N> {
 
     #[inline]
     fn sub(self, _: T) -> vec::Vec0<N> {
-        vec::Vec0
+        vec::Vec0(PhantomData)
     }
 }
 
@@ -125,7 +126,7 @@ impl<N: Neg<Output = N> + Copy> Neg for vec::Vec0<N> {
 
     #[inline]
     fn neg(self) -> vec::Vec0<N> {
-        vec::Vec0
+        vec::Vec0(PhantomData)
     }
 }
 
@@ -141,7 +142,7 @@ impl<N, T> Mul<T> for vec::Vec0<N> {
 
     #[inline]
     fn mul(self, _: T) -> vec::Vec0<N> {
-        vec::Vec0
+        vec::Vec0(PhantomData)
     }
 }
 
@@ -150,7 +151,7 @@ impl<N, T> Div<T> for vec::Vec0<N> {
 
     #[inline]
     fn div(self, _: T) -> vec::Vec0<N> {
-        vec::Vec0
+        vec::Vec0(PhantomData)
     }
 }
 
@@ -236,30 +237,30 @@ impl<N: ApproxEq<N>> ApproxEq<N> for vec::Vec0<N> {
 impl<N: One> One for vec::Vec0<N> {
     #[inline]
     fn one() -> vec::Vec0<N> {
-        vec::Vec0
+        vec::Vec0(PhantomData)
     }
 }
 
 impl<N> FromIterator<N> for vec::Vec0<N> {
     #[inline]
-    fn from_iter<I: Iterator<Item = N>>(_: I) -> vec::Vec0<N> {
-        vec::Vec0
+    fn from_iter<I: IntoIterator<Item = N>>(_: I) -> vec::Vec0<N> {
+        vec::Vec0(PhantomData)
     }
 }
 
 impl<N: Bounded> Bounded for vec::Vec0<N> {
     #[inline]
     fn max_value() -> vec::Vec0<N> {
-        vec::Vec0
+        vec::Vec0(PhantomData)
     }
 
     #[inline]
     fn min_value() -> vec::Vec0<N> {
-        vec::Vec0
+        vec::Vec0(PhantomData)
     }
 }
 
 impl<N> Rand for vec::Vec0<N> {
     #[inline]
-    fn rand<R: Rng>(_: &mut R) -> vec::Vec0<N> { vec::Vec0 }
+    fn rand<R: Rng>(_: &mut R) -> vec::Vec0<N> { vec::Vec0(PhantomData) }
 }
