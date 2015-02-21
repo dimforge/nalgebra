@@ -417,7 +417,7 @@ macro_rules! diag_impl(
 
             #[inline]
             fn set_diag(&mut self, diag: &$tv<N>) {
-                for i in (0us .. $dim) {
+                for i in 0..$dim {
                     unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
                 }
             }
@@ -426,7 +426,7 @@ macro_rules! diag_impl(
             fn diag(&self) -> $tv<N> {
                 let mut diag: $tv<N> = ::zero();
 
-                for i in (0us .. $dim) {
+                for i in 0..$dim {
                     unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
                 }
 
@@ -445,12 +445,12 @@ macro_rules! mat_mul_mat_impl(
             // careful! we need to comute other * self here (self is the rhs).
             let mut res: $t<N> = ::zero();
 
-            for i in (0us .. $dim) {
-                for j in (0us .. $dim) {
+            for i in 0..$dim {
+                for j in 0..$dim {
                     let mut acc: N = ::zero();
 
                     unsafe {
-                        for k in (0us .. $dim) {
+                        for k in 0..$dim {
                             acc = acc + self.at_fast((i, k)) * right.at_fast((k, j));
                         }
 
@@ -474,8 +474,8 @@ macro_rules! vec_mul_mat_impl(
         fn mul(self, right: $t<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
 
-            for i in (0us .. $dim) {
-                for j in (0us .. $dim) {
+            for i in 0..$dim {
+                for j in 0..$dim {
                     unsafe {
                         let val = res.at_fast(i) + self.at_fast(j) * right.at_fast((j, i));
                         res.set_fast(i, val)
@@ -498,8 +498,8 @@ macro_rules! mat_mul_vec_impl(
         fn mul(self, right: $v<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
 
-            for i in (0us .. $dim) {
-                for j in (0us .. $dim) {
+            for i in 0..$dim {
+                for j in 0..$dim {
                     unsafe {
                         let val = res.at_fast(i) + self.at_fast((i, j)) * right.at_fast(j);
                         res.set_fast(i, val)
@@ -544,7 +544,7 @@ macro_rules! inv_impl(
             let mut res: $t<N> = ::one();
 
             // inversion using Gauss-Jordan elimination
-            for k in (0us .. $dim) {
+            for k in 0..$dim {
                 // search a non-zero value on the k-th column
                 // FIXME: would it be worth it to spend some more time searching for the
                 // max instead?
@@ -565,7 +565,7 @@ macro_rules! inv_impl(
 
                 // swap pivot line
                 if n0 != k {
-                    for j in (0us .. $dim) {
+                    for j in 0..$dim {
                         self.swap((n0, j), (k, j));
                         res.swap((n0, j), (k, j));
                     }
@@ -573,26 +573,26 @@ macro_rules! inv_impl(
 
                 let pivot = self.at((k, k));
 
-                for j in (k .. $dim) {
+                for j in k..$dim {
                     let selfval = self.at((k, j)) / pivot;
                     self.set((k, j), selfval);
                 }
 
-                for j in (0us .. $dim) {
+                for j in 0..$dim {
                     let resval = res.at((k, j)) / pivot;
                     res.set((k, j), resval);
                 }
 
-                for l in (0us .. $dim) {
+                for l in 0..$dim {
                     if l != k {
                         let normalizer = self.at((l, k));
 
-                        for j in (k .. $dim) {
+                        for j in k..$dim {
                             let selfval = self.at((l, j)) - self.at((k, j)) * normalizer;
                             self.set((l, j), selfval);
                         }
 
-                        for j in (0us .. $dim) {
+                        for j in 0..$dim {
                             let resval  = res.at((l, j)) - res.at((k, j)) * normalizer;
                             res.set((l, j), resval);
                         }
@@ -621,8 +621,8 @@ macro_rules! transpose_impl(
 
         #[inline]
         fn transpose_mut(&mut self) {
-            for i in (1us .. $dim) {
-                for j in (0us .. i) {
+            for i in 1..$dim {
+                for j in 0..i {
                     self.swap((i, j), (j, i))
                 }
             }
@@ -666,8 +666,8 @@ macro_rules! to_homogeneous_impl(
         fn to_homogeneous(&self) -> $t2<N> {
             let mut res: $t2<N> = ::one();
 
-            for i in (0us .. $dim) {
-                for j in (0us .. $dim) {
+            for i in 0..$dim {
+                for j in 0..$dim {
                     res.set((i, j), self.at((i, j)))
                 }
             }
@@ -685,8 +685,8 @@ macro_rules! from_homogeneous_impl(
         fn from(m: &$t2<N>) -> $t<N> {
             let mut res: $t<N> = ::one();
 
-            for i in (0us .. $dim2) {
-                for j in (0us .. $dim2) {
+            for i in 0..$dim2 {
+                for j in 0..$dim2 {
                     res.set((i, j), m.at((i, j)))
                 }
             }
@@ -706,8 +706,8 @@ macro_rules! outer_impl(
             #[inline]
             fn outer(&self, other: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = ::zero();
-                for i in (0us .. Dim::dim(None::<$t<N>>)) {
-                    for j in (0us .. Dim::dim(None::<$t<N>>)) {
+                for i in 0..Dim::dim(None::<$t<N>>) {
+                    for j in 0..Dim::dim(None::<$t<N>>) {
                         res.set((i, j), self.at(i) * other.at(j))
                     }
                 }

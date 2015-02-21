@@ -130,7 +130,7 @@ impl<N> DMat<N> {
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   (0us .. nrows * ncols).map(|i| { let m = i / nrows; f(i - m * nrows, m) }).collect()
+            mij:   (0..nrows * ncols).map(|i| { let m = i / nrows; f(i - m * nrows, m) }).collect()
         }
     }
 
@@ -157,7 +157,7 @@ impl<N> DMat<N> {
     /// The returned vector contains the matrix data in column-major order.
     #[inline]
     pub fn as_vec(&self) -> &[N] {
-        &self.mij[]
+        &self.mij
     }
 
     /// Gets a mutable reference to this matrix data.
@@ -180,7 +180,7 @@ impl<N: One + Zero + Clone + Copy> Eye for DMat<N> {
     fn new_identity(dim: usize) -> DMat<N> {
         let mut res = DMat::new_zeros(dim, dim);
 
-        for i in (0us .. dim) {
+        for i in 0..dim {
             let _1: N  = ::one();
             res[(i, i)]  = _1;
         }
@@ -237,7 +237,7 @@ impl<N: Copy> Indexable<(usize, usize), N> for DMat<N> {
     unsafe fn unsafe_at(&self, rowcol: (usize,  usize)) -> N {
         let (row, col) = rowcol;
 
-        *self.mij[].get_unchecked(self.offset(row, col))
+        *self.mij.get_unchecked(self.offset(row, col))
     }
 
     #[inline]
@@ -269,7 +269,7 @@ impl<N> Index<(usize, usize)> for DMat<N> {
         assert!(j < self.ncols);
 
         unsafe {
-            self.mij[].get_unchecked(self.offset(i, j))
+            self.mij.get_unchecked(self.offset(i, j))
         }
     }
 }
@@ -295,12 +295,12 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<DMat<N>> for 
 
         let mut res = unsafe { DMat::new_uninitialized(self.nrows, right.ncols) };
 
-        for i in (0us .. self.nrows) {
-            for j in (0us .. right.ncols) {
+        for i in 0..self.nrows {
+            for j in 0..right.ncols {
                 let mut acc: N = ::zero();
 
                 unsafe {
-                    for k in (0us .. self.ncols) {
+                    for k in 0..self.ncols {
                         acc = acc
                             + self.unsafe_at((i, k)) * right.unsafe_at((k, j));
                     }
@@ -322,10 +322,10 @@ impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<DVec<N>> for 
 
         let mut res : DVec<N> = unsafe { DVec::new_uninitialized(self.nrows) };
 
-        for i in (0us .. self.nrows) {
+        for i in 0..self.nrows {
             let mut acc: N = ::zero();
 
-            for j in (0us .. self.ncols) {
+            for j in 0..self.ncols {
                 unsafe {
                     acc = acc + self.unsafe_at((i, j)) * right.unsafe_at(j);
                 }
@@ -347,10 +347,10 @@ impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<DMat<N>> for 
 
         let mut res : DVec<N> = unsafe { DVec::new_uninitialized(right.ncols) };
 
-        for i in (0us .. right.ncols) {
+        for i in 0..right.ncols {
             let mut acc: N = ::zero();
 
-            for j in (0us .. right.nrows) {
+            for j in 0..right.nrows {
                 unsafe {
                     acc = acc + self.unsafe_at(j) * right.unsafe_at((j, i));
                 }
@@ -382,7 +382,7 @@ impl<N: BaseNum + Clone> Inv for DMat<N> {
         let mut res: DMat<N> = Eye::new_identity(dim);
 
         // inversion using Gauss-Jordan elimination
-        for k in (0us .. dim) {
+        for k in 0..dim {
             // search a non-zero value on the k-th column
             // FIXME: would it be worth it to spend some more time searching for the
             // max instead?
@@ -403,7 +403,7 @@ impl<N: BaseNum + Clone> Inv for DMat<N> {
 
             // swap pivot line
             if n0 != k {
-                for j in (0us .. dim) {
+                for j in 0..dim {
                     let off_n0_j = self.offset(n0, j);
                     let off_k_j  = self.offset(k, j);
 
@@ -415,26 +415,26 @@ impl<N: BaseNum + Clone> Inv for DMat<N> {
             unsafe {
                 let pivot = self.unsafe_at((k, k));
 
-                for j in (k .. dim) {
+                for j in k..dim {
                     let selfval = self.unsafe_at((k, j)) / pivot;
                     self.unsafe_set((k, j), selfval);
                 }
 
-                for j in (0us .. dim) {
+                for j in 0..dim {
                     let resval = res.unsafe_at((k, j)) / pivot;
                     res.unsafe_set((k, j), resval);
                 }
 
-                for l in (0us .. dim) {
+                for l in 0..dim {
                     if l != k {
                         let normalizer = self.unsafe_at((l, k));
 
-                        for j in (k .. dim) {
+                        for j in k..dim {
                             let selfval = self.unsafe_at((l, j)) - self.unsafe_at((k, j)) * normalizer;
                             self.unsafe_set((l, j), selfval);
                         }
 
-                        for j in (0us .. dim) {
+                        for j in 0..dim {
                             let resval = res.unsafe_at((l, j)) - res.unsafe_at((k, j)) * normalizer;
                             res.unsafe_set((l, j), resval);
                         }
@@ -462,8 +462,8 @@ impl<N: Clone + Copy> Transpose for DMat<N> {
         else {
             let mut res = unsafe { DMat::new_uninitialized(self.ncols, self.nrows) };
 
-            for i in (0us .. self.nrows) {
-                for j in (0us .. self.ncols) {
+            for i in 0..self.nrows {
+                for j in 0..self.ncols {
                     unsafe {
                         res.unsafe_set((j, i), self.unsafe_at((i, j)))
                     }
@@ -477,8 +477,8 @@ impl<N: Clone + Copy> Transpose for DMat<N> {
     #[inline]
     fn transpose_mut(&mut self) {
         if self.nrows == self.ncols {
-            for i in (1us .. self.nrows) {
-                for j in (0us .. self.ncols - 1) {
+            for i in 1..self.nrows {
+                for j in 0..self.ncols - 1 {
                     let off_i_j = self.offset(i, j);
                     let off_j_i = self.offset(j, i);
 
@@ -500,8 +500,8 @@ impl<N: BaseNum + Cast<f64> + Clone> Mean<DVec<N>> for DMat<N> {
         let mut res: DVec<N> = DVec::new_zeros(self.ncols);
         let normalizer: N    = Cast::from(1.0f64 / Cast::from(self.nrows));
 
-        for i in (0us .. self.nrows) {
-            for j in (0us .. self.ncols) {
+        for i in 0..self.nrows {
+            for j in 0..self.ncols {
                 unsafe {
                     let acc = res.unsafe_at(j) + self.unsafe_at((i, j)) * normalizer;
                     res.unsafe_set(j, acc);
@@ -522,8 +522,8 @@ impl<N: BaseNum + Cast<f64> + Clone> Cov<DMat<N>> for DMat<N> {
         let mean = self.mean();
 
         // FIXME: use the rows iterator when available
-        for i in (0us .. self.nrows) {
-            for j in (0us .. self.ncols) {
+        for i in 0..self.nrows {
+            for j in 0..self.ncols {
                 unsafe {
                     centered.unsafe_set((i, j), self.unsafe_at((i, j)) - mean.unsafe_at(j));
                 }
@@ -559,8 +559,8 @@ impl<N: Copy> RowSlice<DVec<N>> for DMat<N> {
         let mut slice : DVec<N> = unsafe {
             DVec::new_uninitialized(self.nrows)
         };
-        let mut slice_idx = 0us;
-        for col_id in (col_start .. col_end) {
+        let mut slice_idx = 0;
+        for col_id in col_start..col_end {
             unsafe {
                 slice.unsafe_set(slice_idx, self.unsafe_at((row_id, col_id)));
             }
@@ -586,7 +586,7 @@ impl<N: Copy + Clone + Zero>  Diag<DVec<N>> for DMat<N> {
 
         assert!(diag.len() == smallest_dim);
 
-        for i in (0us .. smallest_dim) {
+        for i in 0..smallest_dim {
             unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
         }
     }
@@ -597,7 +597,7 @@ impl<N: Copy + Clone + Zero>  Diag<DVec<N>> for DMat<N> {
 
         let mut diag: DVec<N> = DVec::new_zeros(smallest_dim);
 
-        for i in (0us .. smallest_dim) {
+        for i in 0..smallest_dim {
             unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
         }
 
@@ -631,8 +631,8 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
 
 impl<N: Debug + Copy + Display> Debug for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
-        for i in (0us .. self.nrows()) {
-            for j in (0us .. self.ncols()) {
+        for i in 0..self.nrows() {
+            for j in 0..self.ncols() {
                 let _ = write!(form, "{} ", self[(i, j)]);
             }
             let _ = write!(form, "\n");

@@ -57,7 +57,7 @@ impl<N> DVec<N> {
     /// Builds a vector filled with the result of a function.
     #[inline(always)]
     pub fn from_fn<F: FnMut(usize) -> N>(dim: usize, mut f: F) -> DVec<N> {
-        DVec { at: (0us .. dim).map(|i| f(i)).collect() }
+        DVec { at: (0..dim).map(|i| f(i)).collect() }
     }
 
     #[inline]
