@@ -3,9 +3,10 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
 
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
+use std::marker::PhantomData;
 use std::mem;
 use std::slice::{Iter, IterMut};
-use std::iter::{Iterator, FromIterator};
+use std::iter::{Iterator, FromIterator, IntoIterator};
 use rand::{Rand, Rng};
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv, Absolute};
@@ -20,20 +21,20 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Vector of dimension 0.
-#[derive(Eq, PartialEq, RustcDecodable, Clone, Debug, Copy)]
-pub struct Vec0<N>;
+#[derive(Eq, PartialEq, Clone, Debug, Copy)]
+pub struct Vec0<N>(pub PhantomData<N>);
 
 impl<N> Vec0<N> {
     /// Creates a new vector.
     #[inline]
     pub fn new() -> Vec0<N> {
-        Vec0
+        Vec0(PhantomData)
     }
 
     /// Creates a new vector. The parameter is not taken in account.
     #[inline]
     pub fn new_repeat(_: N) -> Vec0<N> {
-        Vec0
+        Vec0(PhantomData)
     }
 }
 

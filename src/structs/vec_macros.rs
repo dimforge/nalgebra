@@ -680,7 +680,8 @@ macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident) => (
         impl<N> FromIterator<N> for $t<N> {
             #[inline]
-            fn from_iter<I: Iterator<Item = N>>(mut $param0: I) -> $t<N> {
+            fn from_iter<I: IntoIterator<Item = N>>($param0: I) -> $t<N> {
+                let mut $param0 = $param0.into_iter();
                 $t::new($param0.next().unwrap())
             }
         }
@@ -688,7 +689,8 @@ macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident, $($paramN: ident),+) => (
         impl<N> FromIterator<N> for $t<N> {
             #[inline]
-            fn from_iter<I: Iterator<Item = N>>(mut $param0: I) -> $t<N> {
+            fn from_iter<I: IntoIterator<Item = N>>($param0: I) -> $t<N> {
+                let mut $param0 = $param0.into_iter();
                 $t::new($param0.next().unwrap(),
                         $($paramN.next().unwrap()),+)
             }
