@@ -48,9 +48,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
     let mut q : M = Eye::new_identity(rows);
     let mut r = *m;
 
-    let iterations = min(rows - 1, cols);
-
-    for ite in (0us .. iterations) {
+    for ite in 0..min(rows - 1, cols) {
         let mut v = r.col_slice(ite, ite, rows);
         let alpha =
             if unsafe { v.unsafe_at(ite) } >= ::zero() {
@@ -84,19 +82,19 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     let mut eigenvalues = *m;
     // let mut shifter: M = Eye::new_identity(rows);
 
-    let mut iter = 0us;
-    for _ in (0us .. niter) {
+    let mut iter = 0;
+    for _ in 0..niter {
         let mut stop = true;
 
-        for j in (0us .. ::dim::<M>()) {
-            for i in (0us .. j) {
+        for j in 0..::dim::<M>() {
+            for i in 0..j {
                 if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
                     stop = false;
                     break;
                 }
             }
 
-            for i in (j + 1 .. ::dim::<M>()) {
+            for i in j + 1..::dim::<M>() {
                 if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
                     stop = false;
                     break;
