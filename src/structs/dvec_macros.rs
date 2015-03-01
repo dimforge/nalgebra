@@ -106,7 +106,7 @@ macro_rules! dvec_impl(
             /// Builds a vector filled with random values.
             #[inline]
             pub fn new_random(dim: usize) -> $dvec<N> {
-                $dvec::from_fn(dim, |&: _| rand::random())
+                $dvec::from_fn(dim, |_| rand::random())
             }
         }
 
