@@ -319,13 +319,13 @@ macro_rules! dvec_impl(
 
             #[inline]
             fn approx_eq_eps(&self, other: &$dvec<N>, epsilon: &N) -> bool {
-                let zip = self.as_slice().iter().zip(other.as_slice().iter());
+                let mut zip = self.as_slice().iter().zip(other.as_slice().iter());
                 zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
             }
 
             #[inline]
             fn approx_eq_ulps(&self, other: &$dvec<N>, ulps: u32) -> bool {
-                let zip = self.as_slice().iter().zip(other.as_slice().iter());
+                let mut zip = self.as_slice().iter().zip(other.as_slice().iter());
                 zip.all(|(a, b)| ApproxEq::approx_eq_ulps(a, b, ulps))
             }
         }
