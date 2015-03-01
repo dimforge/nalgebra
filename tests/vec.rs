@@ -6,7 +6,7 @@ use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Iterable, IterableMut};
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
-        for _ in (0us .. 10000) {
+        for _ in (0usize .. 10000) {
             let v: $t      = random();
             let mut mv: $t = v.clone();
             let n: $n      = random();
@@ -24,7 +24,7 @@ macro_rules! test_iterator_impl(
 
 macro_rules! test_commut_dot_impl(
     ($t: ty) => (
-        for _ in (0us .. 10000) {
+        for _ in (0usize .. 10000) {
             let v1 : $t = random();
             let v2 : $t = random();
 
@@ -35,7 +35,7 @@ macro_rules! test_commut_dot_impl(
 
 macro_rules! test_scalar_op_impl(
     ($t: ty, $n: ty) => (
-        for _ in (0us .. 10000) {
+        for _ in (0usize .. 10000) {
             let v1 : $t = random();
             let n  : $n = random();
 
@@ -58,7 +58,7 @@ macro_rules! test_scalar_op_impl(
 
 macro_rules! test_basis_impl(
     ($t: ty) => (
-        for _ in (0us .. 10000) {
+        for _ in (0usize .. 10000) {
             na::canonical_basis(|e1: $t| {
                 na::canonical_basis(|e2: $t| {
                     assert!(e1 == e2 || na::approx_eq(&na::dot(&e1, &e2), &na::zero()));
@@ -76,7 +76,7 @@ macro_rules! test_basis_impl(
 
 macro_rules! test_subspace_basis_impl(
     ($t: ty) => (
-        for _ in (0us .. 10000) {
+        for _ in (0usize .. 10000) {
             let v : $t = random();
             let v1     = na::normalize(&v);
 
@@ -100,7 +100,7 @@ macro_rules! test_subspace_basis_impl(
 
 #[test]
 fn test_cross_vec3() {
-    for _ in (0us .. 10000) {
+    for _ in (0usize .. 10000) {
         let v1 : Vec3<f64> = random();
         let v2 : Vec3<f64> = random();
         let v3 : Vec3<f64> = na::cross(&v1, &v2);
