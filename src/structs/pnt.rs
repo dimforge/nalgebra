@@ -19,6 +19,7 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Point of dimension 0.
+#[repr(C)]
 #[derive(Eq, PartialEq, Clone, Debug, Copy)]
 pub struct Pnt0<N>(pub PhantomData<N>);
 
@@ -37,6 +38,7 @@ impl<N> Pnt0<N> {
 }
 
 /// Point of dimension 1.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt1<N> {
     /// First component of the point.
@@ -77,6 +79,7 @@ arbitrary_pnt_impl!(Pnt1, x);
 rand_impl!(Pnt1, x);
 
 /// Point of dimension 2.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt2<N> {
     /// First component of the point.
@@ -119,6 +122,7 @@ arbitrary_pnt_impl!(Pnt2, x, y);
 rand_impl!(Pnt2, x, y);
 
 /// Point of dimension 3.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt3<N> {
     /// First component of the point.
@@ -163,6 +167,7 @@ arbitrary_pnt_impl!(Pnt3, x, y, z);
 rand_impl!(Pnt3, x, y, z);
 
 /// Point of dimension 4.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt4<N> {
     /// First component of the point.
@@ -209,6 +214,7 @@ arbitrary_pnt_impl!(Pnt4, x, y, z, w);
 rand_impl!(Pnt4, x, y, z, w);
 
 /// Point of dimension 5.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt5<N> {
     /// First component of the point.
@@ -257,6 +263,7 @@ arbitrary_pnt_impl!(Pnt5, x, y, z, w, a);
 rand_impl!(Pnt5, x, y, z, w, a);
 
 /// Point of dimension 6.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt6<N> {
     /// First component of the point.
