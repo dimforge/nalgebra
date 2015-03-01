@@ -20,6 +20,7 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// A quaternion.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Quat<N> {
     /// The scalar component of the quaternion.
@@ -158,6 +159,7 @@ impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>> for Quat<N> {
 
 
 /// A unit quaternion that can represent a 3D rotation.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct UnitQuat<N> {
     q: Quat<N>
