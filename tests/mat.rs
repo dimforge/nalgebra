@@ -7,7 +7,7 @@ use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, Persp3, PerspMat3
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
-    for _ in (0us .. 10000) {
+    for _ in (0usize .. 10000) {
       let randmat : $t = random();
 
       match na::inv(&randmat) {
@@ -20,7 +20,7 @@ macro_rules! test_inv_mat_impl(
 
 macro_rules! test_transpose_mat_impl(
   ($t: ty) => (
-    for _ in (0us .. 10000) {
+    for _ in (0usize .. 10000) {
       let randmat : $t = random();
 
       assert!(na::transpose(&na::transpose(&randmat)) == randmat);
@@ -30,7 +30,7 @@ macro_rules! test_transpose_mat_impl(
 
 macro_rules! test_qr_impl(
   ($t: ty) => (
-    for _ in (0us .. 10000) {
+    for _ in (0usize .. 10000) {
       let randmat : $t = random();
 
       let (q, r) = na::qr(&randmat);
@@ -44,7 +44,7 @@ macro_rules! test_qr_impl(
 // NOTE: deactivated untile we get a better convergence rate.
 // macro_rules! test_eigen_qr_impl(
 //     ($t: ty) => {
-//         for _ in (0us .. 10000) {
+//         for _ in (0usize .. 10000) {
 //             let randmat : $t = random();
 //             // Make it symetric so that we can recompose the matrix to test at the end.
 //             let randmat = na::transpose(&randmat) * randmat;
@@ -126,7 +126,7 @@ fn test_inv_mat6() {
 
 #[test]
 fn test_rotation2() {
-    for _ in (0us .. 10000) {
+    for _ in (0usize .. 10000) {
         let randmat: na::Rot2<f64> = na::one();
         let ang    = Vec1::new(na::abs(&random::<f64>()) % <f64 as BaseFloat>::pi());
 
@@ -143,7 +143,7 @@ fn test_index_mat2() {
 
 #[test]
 fn test_inv_rotation3() {
-    for _ in (0us .. 10000) {
+    for _ in (0usize .. 10000) {
         let randmat: Rot3<f64> = na::one();
         let dir:     Vec3<f64> = random();
         let ang            = na::normalize(&dir) * (na::abs(&random::<f64>()) % <f64 as BaseFloat>::pi());
@@ -251,7 +251,7 @@ fn test_dmat_from_vec() {
 /* FIXME: review qr decomposition to make it work with DMat.
 #[test]
 fn test_qr() {
-    for _ in (0us .. 10) {
+    for _ in (0usize .. 10) {
         let dim1: usize = random();
         let dim2: usize = random();
         let rows = min(40, max(dim1, dim2));
