@@ -21,6 +21,7 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Special identity matrix. All its operation are no-ops.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcDecodable, Clone, Debug, Copy)]
 pub struct Identity;
 
@@ -33,6 +34,7 @@ impl Identity {
 }
 
 /// Square matrix of dimension 1.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat1<N> {
     pub m11: N
@@ -79,6 +81,7 @@ arbitrary_impl!(Mat1, m11);
 rand_impl!(Mat1, m11);
 
 /// Square matrix of dimension 2.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat2<N> {
     pub m11: N, pub m21: N,
@@ -129,6 +132,7 @@ arbitrary_impl!(Mat2, m11, m12, m21, m22);
 rand_impl!(Mat2, m11, m12, m21, m22);
 
 /// Square matrix of dimension 3.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat3<N> {
     pub m11: N, pub m21: N, pub m31: N,
@@ -221,6 +225,7 @@ rand_impl!(Mat3,
 );
 
 /// Square matrix of dimension 4.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat4<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N,
@@ -333,6 +338,7 @@ rand_impl!(Mat4,
 );
 
 /// Square matrix of dimension 5.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat5<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N,
@@ -461,6 +467,7 @@ rand_impl!(Mat5,
 );
 
 /// Square matrix of dimension 6.
+#[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Mat6<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N, pub m61: N,
