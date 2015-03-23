@@ -23,14 +23,14 @@ macro_rules! dvec_impl(
             /// Slices this vector.
             #[inline]
             pub fn as_slice<'a>(&'a self) -> &'a [N] {
-                self.at.slice_to(self.len())
+                &self.at[.. self.len()]
             }
 
             /// Mutably slices this vector.
             #[inline]
             pub fn as_mut_slice<'a>(&'a mut self) -> &'a mut [N] {
                 let len = self.len();
-                self.at.slice_to_mut(len)
+                &mut self.at[.. len]
             }
         }
 
@@ -443,7 +443,7 @@ macro_rules! small_dvec_from_impl (
 
                 let mut at: [N; $dim] = [ $( $zeros, )* ];
 
-                for n in at.slice_to_mut(dim).iter_mut() {
+                for n in &mut at[.. dim] {
                     *n = elem;
                 }
 

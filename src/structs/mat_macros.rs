@@ -327,7 +327,7 @@ macro_rules! col_slice_impl(
             fn col_slice(&self, cid: usize, rstart: usize, rend: usize) -> $slice<N> {
                 let col = self.col(cid);
 
-                $slice::from_slice(rend - rstart, col.as_array().slice(rstart, rend))
+                $slice::from_slice(rend - rstart, &col.as_array()[rstart .. rend])
             }
         }
     )
@@ -368,7 +368,7 @@ macro_rules! row_slice_impl(
             fn row_slice(&self, rid: usize, cstart: usize, cend: usize) -> $slice<N> {
                 let row = self.row(rid);
 
-                $slice::from_slice(cend - cstart, row.as_array().slice(cstart, cend))
+                $slice::from_slice(cend - cstart, &row.as_array()[cstart .. cend])
             }
         }
     )
