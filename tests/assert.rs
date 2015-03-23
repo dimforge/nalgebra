@@ -14,7 +14,7 @@ fn assert_approx_eq_f64() {
 }
 
 #[test]
-#[should_fail]
+#[should_panic]
 fn assert_approx_eq_vec2_f32_fail() {
     let a = Vec2::new(1.0f32, 0.0);
     let b = Vec2::new(1.1f32, 0.1);
@@ -28,7 +28,7 @@ fn assert_approx_eq_eps_f32() {
 }
 
 #[test]
-#[should_fail]
+#[should_panic]
 fn assert_approx_eq_eps_f64_fail() {
     assert_approx_eq_eps!(1.0f64, 1.1, 0.05);
 }
@@ -43,7 +43,7 @@ fn assert_approx_eq_ulps_f32() {
 }
 
 #[test]
-#[should_fail]
+#[should_panic]
 fn assert_approx_eq_ulps_f32_fail() {
     let x = 1000000_f32;
     let y = 1000000.1_f32;
@@ -59,7 +59,7 @@ fn assert_approx_eq_ulps_f64() {
 }
 
 #[test]
-#[should_fail]
+#[should_panic]
 fn assert_approx_eq_ulps_f64_fail() {
     let x = 1000000_f64;
     let y = 1000000.0000000003_f64;
