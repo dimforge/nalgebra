@@ -264,7 +264,7 @@ impl<N> Shape<(usize, usize)> for DMat<N> {
 impl<N> Index<(usize, usize)> for DMat<N> {
     type Output = N;
 
-    fn index(&self, &(i, j): &(usize, usize)) -> &N {
+    fn index(&self, (i, j): (usize, usize)) -> &N {
         assert!(i < self.nrows);
         assert!(j < self.ncols);
 
@@ -275,7 +275,7 @@ impl<N> Index<(usize, usize)> for DMat<N> {
 }
 
 impl<N> IndexMut<(usize, usize)> for DMat<N> {
-    fn index_mut(&mut self, &(i, j): &(usize, usize)) -> &mut N {
+    fn index_mut(&mut self, (i, j): (usize, usize)) -> &mut N {
         assert!(i < self.nrows);
         assert!(j < self.ncols);
 

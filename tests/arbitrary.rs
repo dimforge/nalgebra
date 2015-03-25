@@ -1,6 +1,6 @@
 #![cfg(feature="arbitrary")]
 
-extern crate "nalgebra" as na;
+extern crate nalgebra as na;
 extern crate quickcheck;
 extern crate rand;
 

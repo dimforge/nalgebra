@@ -234,8 +234,8 @@ macro_rules! index_impl(
         impl<N> Index<(usize, usize)> for $t<N> {
             type Output = N;
 
-            fn index(&self, i: &(usize, usize)) -> &N {
-                &self.submat[*i]
+            fn index(&self, i: (usize, usize)) -> &N {
+                &self.submat[i]
             }
         }
     )

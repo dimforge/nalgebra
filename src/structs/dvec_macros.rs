@@ -67,7 +67,7 @@ macro_rules! dvec_impl(
 
             #[inline]
             unsafe fn unsafe_at(&self, i: usize) -> N {
-                *self.at.as_slice().get_unchecked(i)
+                *self.at[..].get_unchecked(i)
             }
 
             #[inline]
@@ -80,14 +80,14 @@ macro_rules! dvec_impl(
         impl<N> Index<usize> for $dvec<N> {
             type Output = N;
 
-            fn index(&self, i: &usize) -> &N {
-                &self.as_slice()[*i]
+            fn index(&self, i: usize) -> &N {
+                &self.as_slice()[i]
             }
         }
 
         impl<N> IndexMut<usize> for $dvec<N> {
-            fn index_mut(&mut self, i: &usize) -> &mut N {
-                &mut self.as_mut_slice()[*i]
+            fn index_mut(&mut self, i: usize) -> &mut N {
+                &mut self.as_mut_slice()[i]
             }
         }
 

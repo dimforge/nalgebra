@@ -26,14 +26,14 @@ impl<N> Index<usize> for vec::Vec0<N> {
     type Output = N;
 
     #[inline]
-    fn index(&self, _: &usize) -> &N {
+    fn index(&self, _: usize) -> &N {
         panic!("Canot index a Vec0.")
     }
 }
 
 impl<N> IndexMut<usize> for vec::Vec0<N> {
     #[inline]
-    fn index_mut(&mut self, _: &usize) -> &mut N {
+    fn index_mut(&mut self, _: usize) -> &mut N {
         panic!("Canot index a Vec0.")
     }
 }

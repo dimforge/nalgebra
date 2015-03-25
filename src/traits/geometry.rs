@@ -142,6 +142,7 @@ impl<LV: Neg<Output = LV> + Copy, AV, M: Rotation<AV> + Translation<LV>> Rotatio
 /// Trait of transformation having a rotation extractable as a rotation matrix. This can typically
 /// be implemented by quaternions to convert them to a rotation matrix.
 pub trait RotationMatrix<N, LV, AV> : Rotation<AV> {
+    /// The output rotation matrix type.
     type Output: Mat<N, LV, LV> + Rotation<AV>;
 
     /// Gets the rotation matrix represented by `self`.
@@ -230,6 +231,7 @@ pub trait Norm<N: BaseFloat> {
  * Trait of elements having a cross product.
  */
 pub trait Cross {
+    /// The cross product output.
     type Output;
 
     /// Computes the cross product between two elements (usually vectors).

@@ -1,4 +1,4 @@
-extern crate "nalgebra" as na;
+extern crate nalgebra as na;
 extern crate rand;
 
 use rand::random;

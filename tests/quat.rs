@@ -1,4 +1,4 @@
-extern crate "nalgebra" as na;
+extern crate nalgebra as na;
 extern crate rand;
 
 use na::{Pnt3, Vec3, Rot3, UnitQuat, Rotation};

@@ -85,9 +85,10 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![feature(unboxed_closures)]
 #![feature(core)]
 #![feature(std_misc)]
+#![feature(test)]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
-extern crate "rustc-serialize" as rustc_serialize;
+extern crate rustc_serialize;
 extern crate rand;
 
 #[cfg(feature="arbitrary")]
