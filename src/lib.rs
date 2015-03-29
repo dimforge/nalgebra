@@ -24,7 +24,7 @@ The preferred way to use **nalgebra** is to import types and traits explicitly, 
 free-functions using the `na::` prefix:
 
 ```.rust
-extern crate "nalgebra" as na;
+extern crate nalgebra as na;
 use na::{Vec3, Rot3, Rotation};
 
 fn main() {
@@ -371,7 +371,7 @@ pub fn perspective3d<N: BaseFloat + Cast<f64> + Zero + One>(width: N, height: N,
 /// Gets the translation applicable by `m`.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{Vec3, Iso3};
 ///
 /// fn main() {
@@ -389,7 +389,7 @@ pub fn translation<V, M: Translation<V>>(m: &M) -> V {
 /// Gets the inverse translation applicable by `m`.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{Vec3, Iso3};
 ///
 /// fn main() {
@@ -417,7 +417,7 @@ pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
 /// Applies a translation to a point.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{Pnt3, Vec3, Iso3};
 ///
 /// fn main() {
@@ -437,7 +437,7 @@ pub fn translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
 /// Applies an inverse translation to a point.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{Pnt3, Vec3, Iso3};
 ///
 /// fn main() {
@@ -460,7 +460,7 @@ pub fn inv_translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
 /// Gets the rotation applicable by `m`.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{Vec3, Rot3};
 ///
 /// fn main() {
@@ -478,7 +478,7 @@ pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
 /// Gets the inverse rotation applicable by `m`.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{Vec3, Rot3};
 ///
 /// fn main() {
@@ -496,7 +496,7 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
 /// Applies the rotation `v` to a copy of `m`.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{Vec3, Rot3};
 ///
 /// fn main() {
@@ -516,7 +516,7 @@ pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 /// Pre-applies the rotation `v` to a copy of `m`.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{Vec3, Rot3};
 ///
 /// fn main() {
@@ -539,7 +539,7 @@ pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 /// Applies a rotation to a vector.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{BaseFloat, Rot3, Vec3};
 ///
 /// fn main() {
@@ -560,7 +560,7 @@ pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 /// Applies an inverse rotation to a vector.
 ///
 /// ```rust
-/// extern crate "nalgebra" as na;
+/// extern crate nalgebra as na;
 /// use na::{BaseFloat, Rot3, Vec3};
 ///
 /// fn main() {
