@@ -72,7 +72,7 @@ macro_rules! dvec_impl(
 
             #[inline]
             unsafe fn unsafe_set(&mut self, i: usize, val: N) {
-                *self.at.as_mut_slice().get_unchecked_mut(i) = val
+                *self.at[..].get_unchecked_mut(i) = val
             }
 
         }

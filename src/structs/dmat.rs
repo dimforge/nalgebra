@@ -164,7 +164,7 @@ impl<N> DMat<N> {
     /// The returned vector contains the matrix data in column-major order.
     #[inline]
     pub fn as_mut_vec(&mut self) -> &mut [N] {
-         self.mij.as_mut_slice()
+         &mut self.mij[..]
     }
 }
 
@@ -217,7 +217,7 @@ impl<N: Copy> Indexable<(usize, usize), N> for DMat<N> {
     unsafe fn unsafe_set(&mut self, rowcol: (usize, usize), val: N) {
         let (row, col) = rowcol;
         let offset = self.offset(row, col);
-        *self.mij.as_mut_slice().get_unchecked_mut(offset) = val
+        *self.mij[..].get_unchecked_mut(offset) = val
     }
 
     /// Reads the value of a component of the matrix.
@@ -249,7 +249,7 @@ impl<N: Copy> Indexable<(usize, usize), N> for DMat<N> {
         let count = self.mij.len();
         assert!(offset1 < count);
         assert!(offset2 < count);
-        self.mij.as_mut_slice().swap(offset1, offset2);
+        self.mij[..].swap(offset1, offset2);
     }
 
 }
@@ -282,7 +282,7 @@ impl<N> IndexMut<(usize, usize)> for DMat<N> {
         let offset = self.offset(i, j);
 
         unsafe {
-            self.mij.as_mut_slice().get_unchecked_mut(offset)
+            self.mij[..].get_unchecked_mut(offset)
         }
     }
 }
@@ -407,8 +407,8 @@ impl<N: BaseNum + Clone> Inv for DMat<N> {
                     let off_n0_j = self.offset(n0, j);
                     let off_k_j  = self.offset(k, j);
 
-                    self.mij.as_mut_slice().swap(off_n0_j, off_k_j);
-                    res.mij.as_mut_slice().swap(off_n0_j, off_k_j);
+                    self.mij[..].swap(off_n0_j, off_k_j);
+                    res.mij[..].swap(off_n0_j, off_k_j);
                 }
             }
 
@@ -482,7 +482,7 @@ impl<N: Clone + Copy> Transpose for DMat<N> {
                     let off_i_j = self.offset(i, j);
                     let off_j_i = self.offset(j, i);
 
-                    self.mij.as_mut_slice().swap(off_i_j, off_j_i);
+                    self.mij[..].swap(off_i_j, off_j_i);
                 }
             }
 
