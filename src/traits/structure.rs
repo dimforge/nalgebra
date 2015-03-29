@@ -1,8 +1,7 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
-use std::f32;
-use std::f64;
-use std::num::{Int, Float};
+use std::{f32, f64, i8, i16, i32, i64, u8, u16, u32, u64, isize, usize};
+use std::num::Float;
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Neg, Rem, Index, IndexMut};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
@@ -363,18 +362,18 @@ macro_rules! impl_bounded(
     }
 );
 
-impl_bounded!(f32, Float::min_value(), Float::max_value());
-impl_bounded!(f64, Float::min_value(), Float::max_value());
-impl_bounded!(i8, Int::min_value(), Int::max_value());
-impl_bounded!(i16, Int::min_value(), Int::max_value());
-impl_bounded!(i32, Int::min_value(), Int::max_value());
-impl_bounded!(i64, Int::min_value(), Int::max_value());
-impl_bounded!(isize, Int::min_value(), Int::max_value());
-impl_bounded!(u8, Int::min_value(), Int::max_value());
-impl_bounded!(u16, Int::min_value(), Int::max_value());
-impl_bounded!(u32, Int::min_value(), Int::max_value());
-impl_bounded!(u64, Int::min_value(), Int::max_value());
-impl_bounded!(usize, Int::min_value(), Int::max_value());
+impl_bounded!(f32, f32::MIN, f32::MAX);
+impl_bounded!(f64, f64::MIN, f64::MAX);
+impl_bounded!(i8, i8::MIN, i8::MAX);
+impl_bounded!(i16, i16::MIN, i16::MAX);
+impl_bounded!(i32, i32::MIN, i32::MAX);
+impl_bounded!(i64, i64::MIN, i64::MAX);
+impl_bounded!(isize, isize::MIN, isize::MAX);
+impl_bounded!(u8, u8::MIN, u8::MAX);
+impl_bounded!(u16, u16::MIN, u16::MAX);
+impl_bounded!(u32, u32::MIN, u32::MAX);
+impl_bounded!(u64, u64::MIN, u64::MAX);
+impl_bounded!(usize, usize::MIN, usize::MAX);
 
 
 // BaseFloat

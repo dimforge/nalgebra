@@ -82,10 +82,8 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
 #![warn(missing_docs)]
-#![feature(unboxed_closures)]
 #![feature(core)]
-#![feature(std_misc)]
-#![feature(test)]
+#![cfg_attr(test, feature(test))]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
 extern crate rustc_serialize;
