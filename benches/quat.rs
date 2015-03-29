@@ -2,7 +2,7 @@
 
 extern crate test;
 extern crate rand;
-extern crate "nalgebra" as na;
+extern crate nalgebra as na;
 
 use rand::{IsaacRng, Rng};
 use test::Bencher;
