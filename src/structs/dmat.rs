@@ -498,7 +498,7 @@ impl<N: Clone + Copy> Transpose for DMat<N> {
 impl<N: BaseNum + Cast<f64> + Clone> Mean<DVec<N>> for DMat<N> {
     fn mean(&self) -> DVec<N> {
         let mut res: DVec<N> = DVec::new_zeros(self.ncols);
-        let normalizer: N    = Cast::from(1.0f64 / Cast::from(self.nrows));
+        let normalizer: N    = Cast::from(1.0f64 / self.nrows as f64);
 
         for i in 0..self.nrows {
             for j in 0..self.ncols {

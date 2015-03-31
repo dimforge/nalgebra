@@ -541,7 +541,7 @@ pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 /// use na::{BaseFloat, Rot3, Vec3};
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * BaseFloat::pi()));
+///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * <f64 as BaseFloat>::pi()));
 ///     let v  = Vec3::new(1.0, 0.0, 0.0);
 ///
 ///     let tv = na::rotate(&t, &v);
@@ -562,7 +562,7 @@ pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 /// use na::{BaseFloat, Rot3, Vec3};
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * BaseFloat::pi()));
+///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * <f64 as BaseFloat>::pi()));
 ///     let v  = Vec3::new(1.0, 0.0, 0.0);
 ///
 ///     let tv = na::inv_rotate(&t, &v);
