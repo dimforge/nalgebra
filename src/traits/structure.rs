@@ -425,7 +425,7 @@ macro_rules! impl_base_float(
 
             /// 2.0 / sqrt(pi).
             fn frac_2_sqrtpi() -> $n {
-                $n::consts::FRAC_2_SQRTPI
+                $n::consts::FRAC_2_SQRT_PI
             }
 
 
