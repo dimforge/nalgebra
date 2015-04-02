@@ -1,5 +1,4 @@
-use std::num;
-use traits::structure::BaseFloat;
+use traits::structure::{BaseFloat, Cast};
 use structs::{Pnt3, Vec3, Mat4};
 
 #[cfg(feature="arbitrary")]
@@ -162,13 +161,13 @@ impl<N: BaseFloat> OrthoMat3<N> {
     /// The width of the view cuboid.
     #[inline]
     pub fn width(&self) -> N {
-        num::cast::<f64, N>(2.0).unwrap() / self.mat.m11
+        <N as Cast<f64>>::from(2.0) / self.mat.m11
     }
 
     /// The height of the view cuboid.
     #[inline]
     pub fn height(&self) -> N {
-        num::cast::<f64, N>(2.0).unwrap() / self.mat.m22
+        <N as Cast<f64>>::from(2.0) / self.mat.m22
     }
 
     /// The near plane offset of the view cuboid.
@@ -187,14 +186,14 @@ impl<N: BaseFloat> OrthoMat3<N> {
     #[inline]
     pub fn set_width(&mut self, width: N) {
         assert!(!::is_zero(&width));
-        self.mat.m11 = num::cast::<f64, N>(2.0).unwrap() / width;
+        self.mat.m11 = <N as Cast<f64>>::from(2.0) / width;
     }
 
     /// Sets the height of the view cuboid.
     #[inline]
     pub fn set_height(&mut self, height: N) {
         assert!(!::is_zero(&height));
-        self.mat.m22 = num::cast::<f64, N>(2.0).unwrap() / height;
+        self.mat.m22 = <N as Cast<f64>>::from(2.0) / height;
     }
 
     /// Sets the near plane offset of the view cuboid.
@@ -215,7 +214,7 @@ impl<N: BaseFloat> OrthoMat3<N> {
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
         assert!(!::is_zero(&(zfar - znear)));
-        self.mat.m33 = -num::cast::<f64, N>(2.0).unwrap() / (zfar - znear);
+        self.mat.m33 = -<N as Cast<f64>>::from(2.0) / (zfar - znear);
         self.mat.m34 = -(zfar + znear) / (zfar - znear);
     }
 

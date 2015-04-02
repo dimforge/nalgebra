@@ -16,7 +16,7 @@ pub trait BaseNum: Copy + Zero + One +
 }
 
 /// Basic floating-point number numeric trait.
-pub trait BaseFloat: Float + BaseNum {
+pub trait BaseFloat: Float + Cast<f64> + BaseNum {
     /// Archimedes' constant.
     fn pi() -> Self;
     /// 2.0 * pi.
