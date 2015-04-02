@@ -387,7 +387,7 @@ macro_rules! impl_base_float(
 
             /// 2.0 * pi.
             fn two_pi() -> $n {
-                $n::consts::PI_2
+                2.0 * $n::consts::PI
             }
 
             /// pi / 2.0.
