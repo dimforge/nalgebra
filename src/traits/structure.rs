@@ -36,7 +36,7 @@ pub trait BaseFloat: Float + Cast<f64> + BaseNum {
     /// 2.0 / pi.
     fn frac_2_pi() -> Self;
     /// 2.0 / sqrt(pi).
-    fn frac_2_sqrtpi() -> Self;
+    fn frac_2_sqrt_pi() -> Self;
 
     /// Euler's number.
     fn e() -> Self;
@@ -424,8 +424,8 @@ macro_rules! impl_base_float(
             }
 
             /// 2.0 / sqrt(pi).
-            fn frac_2_sqrtpi() -> $n {
-                $n::consts::FRAC_2_SQRTPI
+            fn frac_2_sqrt_pi() -> $n {
+                $n::consts::FRAC_2_SQRT_PI
             }
 
 
