@@ -364,7 +364,7 @@ impl<N: BaseNum> Mul<Pnt3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum> Mul<UnitQuat<N>> for Vec3<N> {
+impl<N: BaseNum + Neg<Output = N>> Mul<UnitQuat<N>> for Vec3<N> {
     type Output = Vec3<N>;
 
     #[inline]
@@ -377,7 +377,7 @@ impl<N: BaseNum> Mul<UnitQuat<N>> for Vec3<N> {
     }
 }
 
-impl<N: BaseNum> Mul<UnitQuat<N>> for Pnt3<N> {
+impl<N: BaseNum + Neg<Output = N>> Mul<UnitQuat<N>> for Pnt3<N> {
     type Output = Pnt3<N>;
 
     #[inline]
@@ -432,7 +432,7 @@ impl<N: BaseFloat> Rotation<Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum> Rotate<Vec3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Neg<Output = N>> Rotate<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn rotate(&self, v: &Vec3<N>) -> Vec3<N> {
         *self * *v
@@ -444,7 +444,7 @@ impl<N: BaseNum> Rotate<Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum> Rotate<Pnt3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Neg<Output = N>> Rotate<Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn rotate(&self, p: &Pnt3<N>) -> Pnt3<N> {
         *self * *p
@@ -456,7 +456,7 @@ impl<N: BaseNum> Rotate<Pnt3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum> Transform<Vec3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Neg<Output = N>> Transform<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn transform(&self, v: &Vec3<N>) -> Vec3<N> {
         *self * *v
@@ -468,7 +468,7 @@ impl<N: BaseNum> Transform<Vec3<N>> for UnitQuat<N> {
     }
 }
 
-impl<N: BaseNum> Transform<Pnt3<N>> for UnitQuat<N> {
+impl<N: BaseNum + Neg<Output = N>> Transform<Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn transform(&self, p: &Pnt3<N>) -> Pnt3<N> {
         *self * *p

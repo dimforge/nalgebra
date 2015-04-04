@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul};
+use std::ops::{Add, Mul, Neg};
 use structs::vec::{Vec2, Vec3};
 use structs::pnt::{Pnt2, Pnt3};
 use structs::mat::{Mat1, Mat2, Mat3};
@@ -32,7 +32,7 @@ impl<N: BaseNum + ApproxEq<N>> Inv for Mat1<N> {
     }
 }
 
-impl<N: BaseNum + ApproxEq<N>> Inv for Mat2<N> {
+impl<N: BaseNum + Neg<Output = N> + ApproxEq<N>> Inv for Mat2<N> {
     #[inline]
     fn inv(&self) -> Option<Mat2<N>> {
         let mut res = *self;
@@ -61,7 +61,7 @@ impl<N: BaseNum + ApproxEq<N>> Inv for Mat2<N> {
     }
 }
 
-impl<N: BaseNum + ApproxEq<N>> Inv for Mat3<N> {
+impl<N: BaseNum + Neg<Output = N> + ApproxEq<N>> Inv for Mat3<N> {
     #[inline]
     fn inv(&self) -> Option<Mat3<N>> {
         let mut res = *self;

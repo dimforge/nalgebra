@@ -3,7 +3,7 @@
 use std::{f32, f64, i8, i16, i32, i64, u8, u16, u32, u64, isize, usize};
 use std::num::Float;
 use std::slice::{Iter, IterMut};
-use std::ops::{Add, Sub, Mul, Div, Neg, Rem, Index, IndexMut};
+use std::ops::{Add, Sub, Mul, Div, Rem, Index, IndexMut};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
@@ -11,7 +11,7 @@ use traits::geometry::{Dot, Norm, Orig};
 pub trait BaseNum: Copy + Zero + One +
                    Add<Self, Output = Self> + Sub<Self, Output = Self> +
                    Mul<Self, Output = Self> + Div<Self, Output = Self> +
-                   Rem<Self, Output = Self> + Neg<Output = Self> + PartialEq +
+                   Rem<Self, Output = Self> + PartialEq +
                    Absolute<Self> + Axpy<Self> {
 }
 
@@ -239,7 +239,6 @@ pub trait VecAsPnt<P> {
 pub trait NumVec<N>: Dim +
                      Sub<Self, Output = Self> + Add<Self, Output = Self> +
                      Mul<N, Output = Self> + Div<N, Output = Self> + 
-                     Neg<Output = Self> +
                      Index<usize, Output = N> +
                      Zero + PartialEq + Dot<N> + Axpy<N> {
 }
@@ -276,7 +275,6 @@ pub trait NumPnt<N, V>:
           PartialEq +
           Axpy<N> +
           Sub<Self, Output = V> +
-          Neg<Output = Self>    +
           Mul<N, Output = Self> +
           Div<N, Output = Self> +
           Add<V, Output = Self> +

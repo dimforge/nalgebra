@@ -2,7 +2,7 @@
 
 #![allow(missing_docs)]
 
-use std::ops::{Add, Sub, Mul};
+use std::ops::{Add, Sub, Mul, Neg};
 
 use rand::{Rand, Rng};
 use structs::mat::{Mat3, Mat4, Mat5};

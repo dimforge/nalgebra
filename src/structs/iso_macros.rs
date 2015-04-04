@@ -278,7 +278,7 @@ macro_rules! transform_impl(
 
 macro_rules! inv_impl(
     ($t: ident) => (
-        impl<N: BaseNum> Inv for $t<N> {
+        impl<N: BaseNum + Neg<Output = N>> Inv for $t<N> {
             #[inline]
             fn inv_mut(&mut self) -> bool {
                 self.rotation.inv_mut();
