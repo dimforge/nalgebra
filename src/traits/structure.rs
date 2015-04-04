@@ -16,7 +16,7 @@ pub trait BaseNum: Copy + Zero + One +
 }
 
 /// Basic floating-point number numeric trait.
-pub trait BaseFloat: Float + BaseNum {
+pub trait BaseFloat: Float + Cast<f64> + BaseNum {
     /// Archimedes' constant.
     fn pi() -> Self;
     /// 2.0 * pi.
@@ -387,7 +387,7 @@ macro_rules! impl_base_float(
 
             /// 2.0 * pi.
             fn two_pi() -> $n {
-                $n::consts::PI_2
+                2.0 * $n::consts::PI
             }
 
             /// pi / 2.0.

@@ -3,7 +3,6 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch trait.
 
 use std::mem;
-use std::num;
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use std::iter::{FromIterator, IntoIterator};
@@ -176,7 +175,7 @@ impl<N: BaseFloat> UnitQuat<N> {
         }
         else {
             let ang    = sqang.sqrt();
-            let (s, c) = (ang / num::cast(2.0f64).unwrap()).sin_cos();
+            let (s, c) = (ang / Cast::from(2.0)).sin_cos();
 
             let s_ang = s / ang;
 
@@ -205,7 +204,7 @@ impl<N: BaseFloat> UnitQuat<N> {
     /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
     #[inline]
     pub fn new_with_euler_angles(roll: N, pitch: N, yaw: N) -> UnitQuat<N> {
-        let _0_5: N  = num::cast(0.5f64).unwrap();
+        let _0_5: N  = Cast::from(0.5);
         let (sr, cr) = (roll * _0_5).sin_cos();
         let (sp, cp) = (pitch * _0_5).sin_cos();
         let (sy, cy) = (yaw * _0_5).sin_cos();
@@ -223,7 +222,7 @@ impl<N: BaseFloat> UnitQuat<N> {
 
     /// Builds a rotation matrix from this quaternion.
     pub fn to_rot(&self) -> Rot3<N> {
-        let _2: N = num::cast(2.0f64).unwrap();
+        let _2: N = Cast::from(2.0);
         let ww = self.q.w * self.q.w;
         let ii = self.q.i * self.q.i;
         let jj = self.q.j * self.q.j;
