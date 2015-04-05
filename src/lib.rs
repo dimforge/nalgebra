@@ -85,6 +85,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![cfg_attr(test, feature(test))]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
+extern crate num;
 extern crate rustc_serialize;
 extern crate rand;
 
