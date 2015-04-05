@@ -1,9 +1,9 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
 use std::{f32, f64, i8, i16, i32, i64, u8, u16, u32, u64, isize, usize};
-use std::num::Float;
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Rem, Index, IndexMut};
+use num::Float;
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 

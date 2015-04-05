@@ -87,6 +87,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 extern crate rustc_serialize;
 extern crate rand;
+extern crate num;
 
 #[cfg(feature="arbitrary")]
 extern crate quickcheck;
