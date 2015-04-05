@@ -191,7 +191,9 @@ impl<N: Copy + Add<N, Output = N> + Neg<Output = N>> Translation<vec::Vec0<N>> f
     }
 }
 
-impl<N: BaseFloat> Norm<N> for vec::Vec0<N> {
+impl<N: BaseFloat> Norm for vec::Vec0<N> {
+    type N = N;
+
     #[inline]
     fn sqnorm(&self) -> N {
         ::zero()
