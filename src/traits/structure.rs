@@ -1,7 +1,7 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
+use num::Float;
 use std::{f32, f64, i8, i16, i32, i64, u8, u16, u32, u64, isize, usize};
-use std::num::Float;
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Rem, Index, IndexMut};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
@@ -16,7 +16,8 @@ pub trait BaseNum: Copy + Zero + One +
 }
 
 /// Basic floating-point number numeric trait.
-pub trait BaseFloat: Float + Cast<f64> + BaseNum {
+/// (Note: Clone could be a constraint on BaseNum instead)
+pub trait BaseFloat: Float + Clone + Cast<f64> + BaseNum {
     /// Archimedes' constant.
     fn pi() -> Self;
     /// 2.0 * pi.
