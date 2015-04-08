@@ -40,7 +40,7 @@ pub fn householder_matrix<N, V, M>(dim: usize, start: usize, vec: V) -> M
 /// * `m` - matrix to decompose
 pub fn qr<N, V, M>(m: &M) -> (M, M)
     where N: BaseFloat,
-          V: Indexable<usize, N> + Norm<N>,
+          V: Indexable<usize, N> + Norm<N = N>,
           M: Copy + Eye + ColSlice<V> + Transpose + Indexable<(usize, usize), N> +
              Mul<M, Output = M> {
     let (rows, cols) = m.shape();
@@ -74,7 +74,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 /// Eigendecomposition of a square matrix using the qr algorithm.
 pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     where N:  BaseFloat,
-          VS: Indexable<usize, N> + Norm<N>,
+          VS: Indexable<usize, N> + Norm<N = N>,
           M:  Indexable<(usize, usize), N> + SquareMat<N, V> + Add<M, Output = M> +
               Sub<M, Output = M> + ColSlice<VS> +
               ApproxEq<N> + Copy {

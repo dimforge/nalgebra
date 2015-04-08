@@ -1,5 +1,6 @@
 //! Traits giving structural informations on linear algebra objects or the space they live in.
 
+use num::Float;
 use std::{f32, f64, i8, i16, i32, i64, u8, u16, u32, u64, isize, usize};
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Rem, Index, IndexMut};
@@ -16,7 +17,8 @@ pub trait BaseNum: Copy + Zero + One +
 }
 
 /// Basic floating-point number numeric trait.
-pub trait BaseFloat: Float + Cast<f64> + BaseNum {
+/// (Note: Clone could be a constraint on BaseNum instead)
+pub trait BaseFloat: Float + Clone + Cast<f64> + BaseNum {
     /// Archimedes' constant.
     fn pi() -> Self;
     /// 2.0 * pi.
@@ -244,7 +246,7 @@ pub trait NumVec<N>: Dim +
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
-pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Basis {
+pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N = N> + Basis {
 }
 
 /*
@@ -282,7 +284,7 @@ pub trait NumPnt<N, V>:
 }
 
 /// Trait of points with components implementing the `BaseFloat` trait.
-pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> + Sized {
+pub trait FloatPnt<N: BaseFloat, V: Norm<N = N>>: NumPnt<N, V> + Sized {
     /// Computes the square distance between two points.
     #[inline]
     fn sqdist(&self, other: &Self) -> N {

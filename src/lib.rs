@@ -85,6 +85,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![cfg_attr(test, feature(test))]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
+extern crate num;
 extern crate rustc_serialize;
 extern crate rand;
 extern crate num;
@@ -330,13 +331,13 @@ pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy>(a: &P, b: &P) -> P {
  */
 /// Returns the distance between two points.
 #[inline(always)]
-pub fn dist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
+pub fn dist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N = N>>(a: &P, b: &P) -> N {
     a.dist(b)
 }
 
 /// Returns the squared distance between two points.
 #[inline(always)]
-pub fn sqdist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
+pub fn sqdist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N = N>>(a: &P, b: &P) -> N {
     a.sqdist(b)
 }
 
@@ -679,19 +680,19 @@ pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
 
 /// Computes the L2 norm of a vector.
 #[inline(always)]
-pub fn norm<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
+pub fn norm<V: Norm<N = N>, N: BaseFloat>(v: &V) -> N {
     Norm::norm(v)
 }
 
 /// Computes the squared L2 norm of a vector.
 #[inline(always)]
-pub fn sqnorm<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
+pub fn sqnorm<V: Norm<N = N>, N: BaseFloat>(v: &V) -> N {
     Norm::sqnorm(v)
 }
 
 /// Gets the normalized version of a vector.
 #[inline(always)]
-pub fn normalize<V: Norm<N>, N: BaseFloat>(v: &V) -> V {
+pub fn normalize<V: Norm<N = N>, N: BaseFloat>(v: &V) -> V {
     Norm::normalize(v)
 }
 
