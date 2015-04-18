@@ -190,20 +190,6 @@ macro_rules! indexable_impl(
 
         impl<N: Copy> Indexable<usize, N> for $t<N> {
             #[inline]
-            fn at(&self, i: usize) -> N {
-                unsafe {
-                    mem::transmute::<&$t<N>, &[N; $dim]>(self)[i]
-                }
-            }
-
-            #[inline]
-            fn set(&mut self, i: usize, val: N) {
-                unsafe {
-                    mem::transmute::<&mut $t<N>, &mut [N; $dim]>(self)[i] = val
-                }
-            }
-
-            #[inline]
             fn swap(&mut self, i1: usize, i2: usize) {
                 unsafe {
                     mem::transmute::<&mut $t<N>, &mut [N; $dim]>(self).swap(i1, i2)
@@ -792,7 +778,6 @@ macro_rules! transform_impl(
 macro_rules! vec_as_pnt_impl(
     ($tv: ident, $t: ident, $($compN: ident),+) => (
         impl<N> $tv<N> {
-            #[deprecated = "use `na::orig() + this_vector` instead."]
             #[inline]
             pub fn to_pnt(self) -> $t<N> {
                 $t::new(
@@ -800,24 +785,11 @@ macro_rules! vec_as_pnt_impl(
                 )
             }
 
-            #[deprecated = "use `&(na::orig() + *this_vector)` instead."]
             #[inline]
             pub fn as_pnt(&self) -> &$t<N> {
                 unsafe {
                     mem::transmute(self)
                 }
-            }
-        }
-
-        impl<N> VecAsPnt<$t<N>> for $tv<N> {
-            #[inline]
-            fn to_pnt(self) -> $t<N> {
-                self.to_pnt()
-            }
-
-            #[inline]
-            fn as_pnt(&self) -> &$t<N> {
-                self.as_pnt()
             }
         }
     )

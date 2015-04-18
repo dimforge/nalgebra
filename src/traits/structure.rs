@@ -173,12 +173,6 @@ pub trait Shape<I>: Index<I> {
 /// Thus, this is the same as the `I` trait but without the syntactic sugar and with a method
 /// to write to a specific index.
 pub trait Indexable<I, N>: Shape<I> + IndexMut<I, Output = N> {
-    #[deprecated = "use the Index `[]` overloaded operator instead"]
-    /// Reads the `i`-th element of `self`.
-    fn at(&self, i: I) -> N;
-    #[deprecated = "use the IndexMut `[]` overloaded operator instead"]
-    /// Writes to the `i`-th element of `self`.
-    fn set(&mut self, i: I, N);
     /// Swaps the `i`-th element of `self` with its `j`-th element.
     fn swap(&mut self, i: I, j: I);
 
@@ -211,16 +205,6 @@ pub trait IterableMut<N> {
 /*
  * Vec related traits.
  */
-/// Trait that relates a point of an affine space to a vector of the associated vector space.
-#[deprecated = "This will be removed in the future. Use point + vector operations instead."]
-pub trait VecAsPnt<P> {
-    /// Converts this point to its associated vector.
-    fn to_pnt(self) -> P;
-
-    /// Converts a reference to this point to a reference to its associated vector.
-    fn as_pnt<'a>(&'a self) -> &'a P;
-}
-
 /// Trait grouping most common operations on vectors.
 pub trait NumVec<N>: Dim +
                      Sub<Self, Output = Self> + Add<Self, Output = Self> +

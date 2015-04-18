@@ -47,15 +47,6 @@ impl<N> Shape<usize> for vec::Vec0<N> {
 
 impl<N> Indexable<usize, N> for vec::Vec0<N> {
     #[inline]
-    fn at(&self, _: usize) -> N {
-        panic!("Cannot index a Vec0.")
-    }
-
-    #[inline]
-    fn set(&mut self, _: usize, _: N) {
-    }
-
-    #[inline]
     fn swap(&mut self, _: usize, _: usize) {
     }
 

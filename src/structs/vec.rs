@@ -13,8 +13,8 @@ use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, 
                          ScalarDiv, Absolute};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
-use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, VecAsPnt, Shape,
-                        NumVec, FloatVec, BaseFloat, BaseNum, Bounded};
+use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, Shape, NumVec,
+                        FloatVec, BaseFloat, BaseNum, Bounded};
 use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 
 #[cfg(feature="arbitrary")]

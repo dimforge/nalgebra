@@ -144,8 +144,7 @@ pub use traits::{
     Transform, Transformation,
     Translate, Translation,
     Transpose,
-    UniformSphereSample,
-    VecAsPnt,
+    UniformSphereSample
 };
 
 pub use structs::{
@@ -333,28 +332,6 @@ pub fn dist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
 #[inline(always)]
 pub fn sqdist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
     a.sqdist(b)
-}
-
-/*
- * Perspective
- */
-/// Computes a projection matrix given the frustrum near plane width, height, the field of
-/// view, and the distance to the clipping planes (`znear` and `zfar`).
-#[deprecated = "Use `Persp3::new(width / height, fov, znear, zfar).as_mat()` instead"]
-pub fn perspective3d<N: BaseFloat + Cast<f64> + Zero + One>(width: N, height: N, fov: N, znear: N, zfar: N) -> Mat4<N> {
-    let aspect = width / height;
-
-    let _1: N = one();
-    let sy    = _1 / (fov * cast(0.5)).tan();
-    let sx    = -sy / aspect;
-    let sz    = -(zfar + znear) / (znear - zfar);
-    let tz    = zfar * znear * cast(2.0) / (znear - zfar);
-
-    Mat4::new(
-        sx,     zero(), zero(), zero(),
-        zero(), sy,     zero(), zero(),
-        zero(), zero(), sz,     tz,
-        zero(), zero(), one(),  zero())
 }
 
 /*

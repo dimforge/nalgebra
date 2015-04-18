@@ -199,38 +199,12 @@ impl<N> DMat<N> {
 }
 
 impl<N: Copy> Indexable<(usize, usize), N> for DMat<N> {
-    /// Changes the value of a component of the matrix.
-    ///
-    /// # Arguments
-    /// * `rowcol` - 0-based tuple (row, col)  to be changed
-    #[inline]
-    fn set(&mut self, rowcol: (usize,  usize), val: N) {
-        let (row, col) = rowcol;
-        assert!(row < self.nrows);
-        assert!(col < self.ncols);
-
-        let offset = self.offset(row, col);
-        self.mij[offset] = val
-    }
-
     /// Just like `set` without bounds checking.
     #[inline]
     unsafe fn unsafe_set(&mut self, rowcol: (usize, usize), val: N) {
         let (row, col) = rowcol;
         let offset = self.offset(row, col);
         *self.mij[..].get_unchecked_mut(offset) = val
-    }
-
-    /// Reads the value of a component of the matrix.
-    ///
-    /// # Arguments
-    /// * `rowcol` - 0-based tuple (row, col)  to be read
-    #[inline]
-    fn at(&self, rowcol: (usize, usize)) -> N {
-        let (row, col) = rowcol;
-        assert!(row < self.nrows);
-        assert!(col < self.ncols);
-        unsafe { self.unsafe_at((row, col)) }
     }
 
     /// Just like `at` without bounds checking.

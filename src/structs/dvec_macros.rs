@@ -43,22 +43,6 @@ macro_rules! dvec_impl(
 
         impl<N: Copy> Indexable<usize, N> for $dvec<N> {
             #[inline]
-            fn at(&self, i: usize) -> N {
-                assert!(i < self.len());
-                unsafe {
-                    self.unsafe_at(i)
-                }
-            }
-
-            #[inline]
-            fn set(&mut self, i: usize, val: N) {
-                assert!(i < self.len());
-                unsafe {
-                    self.unsafe_set(i, val);
-                }
-            }
-
-            #[inline]
             fn swap(&mut self, i: usize, j: usize) {
                 assert!(i < self.len());
                 assert!(j < self.len());
@@ -147,7 +131,7 @@ macro_rules! dvec_impl(
                 for i in 0..dim {
                     let mut basis_element : $dvec<N> = $dvec::new_zeros(dim);
 
-                    basis_element.set(i, ::one());
+                    basis_element[i] = ::one();
 
                     res.push(basis_element);
                 }
@@ -166,7 +150,7 @@ macro_rules! dvec_impl(
                 for i in 0..dim {
                     let mut basis_element : $dvec<N> = $dvec::new_zeros(self.len());
 
-                    basis_element.set(i, ::one());
+                    basis_element[i] = ::one();
 
                     if res.len() == dim - 1 {
                         break;
