@@ -4,9 +4,10 @@
 
 use std::ops::{Mul, Neg, Index};
 use rand::{Rand, Rng};
+use num::{Zero, One};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
                        Norm, Cross};
-use traits::structure::{Cast, Dim, Row, Col, BaseFloat, BaseNum, Zero, One};
+use traits::structure::{Cast, Dim, Row, Col, BaseFloat, BaseNum, };
 use traits::operations::{Absolute, Inv, Transpose, ApproxEq};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::pnt::{Pnt2, Pnt3, Pnt4};

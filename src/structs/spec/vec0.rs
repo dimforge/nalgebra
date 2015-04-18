@@ -4,9 +4,9 @@ use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{FromIterator, IntoIterator};
 use rand::{Rand, Rng};
+use num::{Zero, One};
 use traits::operations::ApproxEq;
-use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape, BaseFloat, BaseNum,
-                        Zero, One, Bounded};
+use traits::structure::{Iterable, IterableMut, Indexable, Basis, Dim, Shape, BaseFloat, BaseNum, Bounded};
 use traits::geometry::{Translation, Dot, Norm};
 use structs::vec;
 

@@ -5,8 +5,9 @@
 use std::ops::{Add, Sub, Mul, Neg};
 
 use rand::{Rand, Rng};
+use num::One;
 use structs::mat::{Mat3, Mat4, Mat5};
-use traits::structure::{Cast, Dim, Col, BaseFloat, BaseNum, One};
+use traits::structure::{Cast, Dim, Col, BaseFloat, BaseNum};
 use traits::operations::{Inv, ApproxEq};
 use traits::geometry::{RotationMatrix, Rotation, Rotate, AbsoluteRotate, Transform, Transformation,
                        Translate, Translation, ToHomogeneous};

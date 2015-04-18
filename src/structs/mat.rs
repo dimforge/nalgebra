@@ -6,13 +6,14 @@ use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 use std::mem;
 use std::slice::{Iter, IterMut};
 use rand::{Rand, Rng};
+use num::{Zero, One};
 use traits::operations::ApproxEq;
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use structs::pnt::{Pnt1, Pnt4, Pnt5, Pnt6};
 use structs::dvec::{DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
 
 use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
-                        Eye, ColSlice, RowSlice, Diag, Shape, BaseFloat, BaseNum, Zero, One};
+                        Eye, ColSlice, RowSlice, Diag, Shape, BaseFloat, BaseNum};
 use traits::operations::{Absolute, Transpose, Inv, Outer, EigenQR};
 use traits::geometry::{ToHomogeneous, FromHomogeneous, Orig};
 use linalg;

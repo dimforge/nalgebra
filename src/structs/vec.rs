@@ -8,12 +8,13 @@ use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};
 use rand::{Rand, Rng};
+use num::{Zero, One};
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv, Absolute};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
 use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, VecAsPnt, Shape,
-                        NumVec, FloatVec, BaseFloat, BaseNum, Zero, One, Bounded};
+                        NumVec, FloatVec, BaseFloat, BaseNum, Bounded};
 use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 
 #[cfg(feature="arbitrary")]

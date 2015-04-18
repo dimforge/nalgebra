@@ -1,7 +1,7 @@
 use std::ops::Mul;
+use num::{Zero, One};
 use structs::mat;
 use traits::operations::{Inv, Transpose};
-use traits::structure::{Zero, One};
 use traits::geometry::{Translation, Translate, Rotation, Rotate, Transformation, Transform,
                        AbsoluteRotate};
 

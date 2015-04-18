@@ -82,7 +82,6 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
 #![warn(missing_docs)]
-#![cfg_attr(test, feature(test))]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
 extern crate rustc_serialize;
@@ -92,11 +91,9 @@ extern crate num;
 #[cfg(feature="arbitrary")]
 extern crate quickcheck;
 
-#[cfg(test)]
-extern crate test;
-
 use std::cmp;
 use std::ops::{Neg, Mul};
+use num::{Zero, One};
 pub use traits::{
     Absolute,
     AbsoluteRotate,
@@ -131,7 +128,6 @@ pub use traits::{
     Norm,
     NumPnt,
     NumVec,
-    One,
     Orig,
     Outer,
     POrd,
@@ -150,7 +146,6 @@ pub use traits::{
     Transpose,
     UniformSphereSample,
     VecAsPnt,
-    Zero
 };
 
 pub use structs::{
