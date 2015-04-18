@@ -3,7 +3,7 @@
 use std::{f32, f64, i8, i16, i32, i64, u8, u16, u32, u64, isize, usize};
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Rem, Index, IndexMut};
-use num::Float;
+use num::{Float, Zero, One};
 use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
@@ -78,20 +78,6 @@ impl<N, V, M> SquareMat<N, V> for M
 pub trait Eye {
     /// Return the identity matrix of specified dimension
     fn new_identity(dim: usize) -> Self;
-}
-
-/// Additive identity.
-pub trait Zero {
-    /// Returns the additive identity.
-    fn zero() -> Self;
-    /// Tests if `self` is exactly zero.
-    fn is_zero(&self) -> bool;
-}
-
-/// Multiplicative identity.
-pub trait One {
-    /// Returns the multiplicative identity.
-    fn one() -> Self;
 }
 
 /// Types that have maximum and minimum value.
@@ -303,46 +289,6 @@ pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> + Sized {
  *
  *
  */
-
-
-
-// Zero and One
-macro_rules! impl_zero_one(
-    ($n: ty, $zero: expr, $one: expr) => {
-        impl Zero for $n {
-            #[inline]
-            fn zero() -> $n {
-                $zero
-            }
-
-            #[inline]
-            fn is_zero(&self) -> bool {
-                *self == $zero
-            }
-        }
-
-        impl One for $n {
-            fn one() -> $n {
-                $one
-            }
-        }
-    }
-);
-
-impl_zero_one!(f32, 0.0, 1.0);
-impl_zero_one!(f64, 0.0, 1.0);
-impl_zero_one!(i8, 0, 1);
-impl_zero_one!(i16, 0, 1);
-impl_zero_one!(i32, 0, 1);
-impl_zero_one!(i64, 0, 1);
-impl_zero_one!(isize, 0, 1);
-impl_zero_one!(u8, 0, 1);
-impl_zero_one!(u16, 0, 1);
-impl_zero_one!(u32, 0, 1);
-impl_zero_one!(u64, 0, 1);
-impl_zero_one!(usize, 0, 1);
-
-
 // Bounded
 macro_rules! impl_bounded(
     ($n: ty, $min: expr, $max: expr) => {

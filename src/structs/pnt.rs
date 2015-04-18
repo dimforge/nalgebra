@@ -8,10 +8,11 @@ use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use rand::{Rand, Rng};
+use num::{Zero, One};
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
 use traits::structure::{Cast, Dim, Indexable, Iterable, IterableMut, PntAsVec, Shape,
-                        NumPnt, FloatPnt, BaseFloat, BaseNum, Zero, One, Bounded};
+                        NumPnt, FloatPnt, BaseFloat, BaseNum, Bounded};
 use traits::geometry::{Orig, FromHomogeneous, ToHomogeneous};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 #[cfg(feature="arbitrary")]

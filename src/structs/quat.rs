@@ -7,11 +7,12 @@ use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use std::iter::{FromIterator, IntoIterator};
 use rand::{Rand, Rng};
+use num::{Zero, One};
 use structs::{Vec3, Pnt3, Rot3, Mat3};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
                          ScalarDiv};
-use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat, BaseNum, Zero,
-                        One, Bounded};
+use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat, BaseNum,
+                        Bounded};
 use traits::geometry::{Norm, Rotation, Rotate, Transform};
 
 #[cfg(feature="arbitrary")]

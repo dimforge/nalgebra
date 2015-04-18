@@ -651,7 +651,8 @@ macro_rules! approx_eq_impl(
 
 macro_rules! zero_one_impl(
     ($t: ident, $($compN: ident),+) => (
-        impl<N: One> One for $t<N> {
+        impl<N> One for $t<N>
+            where N: Copy + One + Sub<N, Output = N> + Add<N, Output = N> {
             #[inline]
             fn one() -> $t<N> {
                 $t {

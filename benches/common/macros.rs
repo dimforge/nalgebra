@@ -8,8 +8,8 @@ macro_rules! bench_binop(
 
             let mut rng = IsaacRng::new_unseeded();
 
-            let elems1: Vec<$t1> = (0us .. LEN).map(|_| rng.gen::<$t1>()).collect();
-            let elems2: Vec<$t2> = (0us .. LEN).map(|_| rng.gen::<$t2>()).collect();
+            let elems1: Vec<$t1> = (0usize .. LEN).map(|_| rng.gen::<$t1>()).collect();
+            let elems2: Vec<$t2> = (0usize .. LEN).map(|_| rng.gen::<$t2>()).collect();
             let mut i = 0;
 
             bh.iter(|| {
@@ -31,8 +31,8 @@ macro_rules! bench_binop_na(
 
             let mut rng = IsaacRng::new_unseeded();
 
-            let elems1: Vec<$t1> = (0us .. LEN).map(|_| rng.gen::<$t1>()).collect();
-            let elems2: Vec<$t2> = (0us .. LEN).map(|_| rng.gen::<$t2>()).collect();
+            let elems1: Vec<$t1> = (0usize .. LEN).map(|_| rng.gen::<$t1>()).collect();
+            let elems2: Vec<$t2> = (0usize .. LEN).map(|_| rng.gen::<$t2>()).collect();
             let mut i = 0;
 
             bh.iter(|| {
@@ -54,7 +54,7 @@ macro_rules! bench_unop(
 
             let mut rng = IsaacRng::new_unseeded();
 
-            let elems: Vec<$t> =  (0us .. LEN).map(|_| rng.gen::<$t>()).collect();
+            let elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.gen::<$t>()).collect();
             let mut i = 0;
 
             bh.iter(|| {
@@ -76,7 +76,7 @@ macro_rules! bench_unop_self(
 
             let mut rng = IsaacRng::new_unseeded();
 
-            let mut elems: Vec<$t> =  (0us .. LEN).map(|_| rng.gen::<$t>()).collect();
+            let mut elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.gen::<$t>()).collect();
             let mut i = 0;
 
             bh.iter(|| {
@@ -98,7 +98,7 @@ macro_rules! bench_construction(
 
             let mut rng = IsaacRng::new_unseeded();
 
-            $(let $args: Vec<$types> = (0us .. LEN).map(|_| rng.gen::<$types>()).collect();)*
+            $(let $args: Vec<$types> = (0usize .. LEN).map(|_| rng.gen::<$types>()).collect();)*
             let mut i = 0;
 
             bh.iter(|| {

@@ -1,5 +1,6 @@
 use std::ops::{Sub, Mul, Neg};
-use traits::structure::{Cast, Row, Basis, BaseFloat, Zero, One};
+use num::{Zero, One};
+use traits::structure::{Cast, Row, Basis, BaseFloat};
 use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::mat::Mat3;
@@ -228,7 +229,8 @@ static SAMPLES_3_F64: [Vec3<f64>; 42] = [
     Vec3 { x: 0.162456 , y: 0.499995 , z: 0.850654 }
 ];
 
-impl<N: One + Copy> UniformSphereSample for Vec1<N> {
+impl<N> UniformSphereSample for Vec1<N>
+    where Vec1<N>: One {
     #[inline(always)]
     fn sample<F: FnMut(Vec1<N>)>(mut f: F) {
         f(::one())

@@ -7,9 +7,10 @@ use std::iter::repeat;
 use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 use std::fmt::{Debug, Display, Formatter, Result};
 use rand::{self, Rand};
+use num::{Zero, One};
 use structs::dvec::DVec;
 use traits::operations::{ApproxEq, Inv, Transpose, Mean, Cov};
-use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, Zero, One, BaseNum};
+use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, BaseNum};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
