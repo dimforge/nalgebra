@@ -265,20 +265,6 @@ macro_rules! indexable_impl(
 
     impl<N: Copy> Indexable<(usize, usize), N> for $t<N> {
         #[inline]
-        fn at(&self, (i, j): (usize, usize)) -> N {
-            unsafe {
-                mem::transmute::<&$t<N>, &[N; $dim * $dim]>(self)[i + j * $dim]
-            }
-        }
-
-        #[inline]
-        fn set(&mut self, (i, j): (usize, usize), val: N) {
-            unsafe {
-                mem::transmute::<&mut $t<N>, &mut [N; $dim * $dim]>(self)[i + j * $dim] = val
-            }
-        }
-
-        #[inline]
         fn swap(&mut self, (i1, j1): (usize, usize), (i2, j2): (usize, usize)) {
             unsafe {
               mem::transmute::<&mut $t<N>, &mut [N; $dim * $dim]>(self)
@@ -344,7 +330,7 @@ macro_rules! row_impl(
         #[inline]
         fn set_row(&mut self, row: usize, v: $tv<N>) {
             for (i, e) in v.iter().enumerate() {
-                self.set((row, i), *e);
+                self[(row, i)] = *e;
             }
         }
 
@@ -353,7 +339,7 @@ macro_rules! row_impl(
             let mut res: $tv<N> = ::zero();
 
             for (i, e) in res.iter_mut().enumerate() {
-                *e = self.at((row, i));
+                *e = self[(row, i)];
             }
 
             res
@@ -385,7 +371,7 @@ macro_rules! col_impl(
         #[inline]
         fn set_col(&mut self, col: usize, v: $tv<N>) {
             for (i, e) in v.iter().enumerate() {
-                self.set((i, col), *e);
+                self[(i, col)] = *e;
             }
         }
 
@@ -394,7 +380,7 @@ macro_rules! col_impl(
             let mut res: $tv<N> = ::zero();
 
             for (i, e) in res.iter_mut().enumerate() {
-                *e = self.at((i, col));
+                *e = self[(i, col)];
             }
 
             res
@@ -552,7 +538,7 @@ macro_rules! inv_impl(
                 let mut n0 = k; // index of a non-zero entry
 
                 while n0 != $dim {
-                    if self.at((n0, k)) != ::zero() {
+                    if self[(n0, k)] != ::zero() {
                         break;
                     }
 
@@ -571,30 +557,30 @@ macro_rules! inv_impl(
                     }
                 }
 
-                let pivot = self.at((k, k));
+                let pivot = self[(k, k)];
 
                 for j in k..$dim {
-                    let selfval = self.at((k, j)) / pivot;
-                    self.set((k, j), selfval);
+                    let selfval = self[(k, j)] / pivot;
+                    self[(k, j)] = selfval;
                 }
 
                 for j in 0..$dim {
-                    let resval = res.at((k, j)) / pivot;
-                    res.set((k, j), resval);
+                    let resval = res[(k, j)] / pivot;
+                    res[(k, j)] = resval;
                 }
 
                 for l in 0..$dim {
                     if l != k {
-                        let normalizer = self.at((l, k));
+                        let normalizer = self[(l, k)];
 
                         for j in k..$dim {
-                            let selfval = self.at((l, j)) - self.at((k, j)) * normalizer;
-                            self.set((l, j), selfval);
+                            let selfval = self[(l, j)] - self[(k, j)] * normalizer;
+                            self[(l, j)] = selfval;
                         }
 
                         for j in 0..$dim {
-                            let resval  = res.at((l, j)) - res.at((k, j)) * normalizer;
-                            res.set((l, j), resval);
+                            let resval  = res[(l, j)] - res[(k, j)] * normalizer;
+                            res[(l, j)] = resval;
                         }
                     }
                 }
@@ -668,7 +654,7 @@ macro_rules! to_homogeneous_impl(
 
             for i in 0..$dim {
                 for j in 0..$dim {
-                    res.set((i, j), self.at((i, j)))
+                    res[(i, j)] = self[(i, j)]
                 }
             }
 
@@ -687,7 +673,7 @@ macro_rules! from_homogeneous_impl(
 
             for i in 0..$dim2 {
                 for j in 0..$dim2 {
-                    res.set((i, j), m.at((i, j)))
+                    res[(i, j)] = m[(i, j)]
                 }
             }
 
@@ -708,7 +694,7 @@ macro_rules! outer_impl(
                 let mut res: $m<N> = ::zero();
                 for i in 0..Dim::dim(None::<$t<N>>) {
                     for j in 0..Dim::dim(None::<$t<N>>) {
-                        res.set((i, j), self.at(i) * other.at(j))
+                        res[(i, j)] = self[i] * other[j]
                     }
                 }
                 res
