@@ -1,6 +1,6 @@
 //! Low level operations on vectors and matrices.
 
-use std::num::{Float, SignedInt};
+use num::{Float, Signed};
 use std::ops::Mul;
 use std::cmp::Ordering;
 use traits::structure::SquareMat;
