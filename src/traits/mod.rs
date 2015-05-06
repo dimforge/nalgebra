@@ -8,8 +8,8 @@ pub use traits::structure::{FloatVec, FloatPnt, Basis, Cast, Col, Dim, Indexable
                             IterableMut, Mat, SquareMat, Row, NumVec, NumPnt, PntAsVec, ColSlice,
                             RowSlice, Diag, Eye, Shape, BaseFloat, BaseNum, Bounded};
 
-pub use traits::operations::{Absolute, ApproxEq, Axpy, Cov, Det, Inv, LMul, Mean, Outer, POrd,
-                             RMul, ScalarAdd, ScalarSub, ScalarMul, ScalarDiv, Transpose, EigenQR};
+pub use traits::operations::{Absolute, ApproxEq, Axpy, Cov, Det, Inv, Mean, Outer, POrd, Transpose,
+                             EigenQR};
 pub use traits::operations::POrdering;
 
 pub mod geometry;

@@ -9,8 +9,7 @@ use std::iter::{FromIterator, IntoIterator};
 use rand::{Rand, Rng};
 use num::{Zero, One};
 use structs::{Vec3, Pnt3, Rot3, Mat3};
-use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy, ScalarAdd, ScalarSub, ScalarMul,
-                         ScalarDiv};
+use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy};
 use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat, BaseNum,
                         Bounded};
 use traits::geometry::{Norm, Rotation, Rotate, Transform};
@@ -506,7 +505,6 @@ scalar_sub_impl!(Quat, w, i, j, k);
 scalar_mul_impl!(Quat, w, i, j, k);
 scalar_div_impl!(Quat, w, i, j, k);
 neg_impl!(Quat, w, i, j, k);
-scalar_ops_impl!(Quat, w, i, j, k);
 zero_one_impl!(Quat, w, i, j, k);
 approx_eq_impl!(Quat, w, i, j, k);
 from_iterator_impl!(Quat, iterator, iterator, iterator, iterator);

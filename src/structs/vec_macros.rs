@@ -504,38 +504,6 @@ macro_rules! dot_impl(
     )
 );
 
-macro_rules! scalar_ops_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Mul<N, Output = N>> ScalarMul<N> for $t<N> {
-            #[inline]
-            fn mul_s(&self, other: &N) -> $t<N> {
-                $t::new($(self.$compN * *other),+)
-            }
-        }
-
-        impl<N: Copy + Div<N, Output = N>> ScalarDiv<N> for $t<N> {
-            #[inline]
-            fn div_s(&self, other: &N) -> $t<N> {
-                $t::new($(self.$compN / *other),+)
-            }
-        }
-
-        impl<N: Copy + Add<N, Output = N>> ScalarAdd<N> for $t<N> {
-            #[inline]
-            fn add_s(&self, other: &N) -> $t<N> {
-                $t::new($(self.$compN + *other),+)
-            }
-        }
-
-        impl<N: Copy + Sub<N, Output = N>> ScalarSub<N> for $t<N> {
-            #[inline]
-            fn sub_s(&self, other: &N) -> $t<N> {
-                $t::new($(self.$compN - *other),+)
-            }
-        }
-    )
-);
-
 macro_rules! translation_impl(
     ($t: ident) => (
         impl<N: Copy + Add<N, Output = N> + Neg<Output = N>> Translation<$t<N>> for $t<N> {

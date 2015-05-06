@@ -1,7 +1,6 @@
 //! Low level operations on vectors and matrices.
 
 use num::{Float, Signed};
-use std::ops::Mul;
 use std::cmp::Ordering;
 use traits::structure::SquareMat;
 
@@ -335,68 +334,6 @@ pub trait Mean<N> {
 pub trait EigenQR<N, V>: SquareMat<N, V> {
     /// Computes the eigenvectors and eigenvalues of this matrix.
     fn eigen_qr(&self, eps: &N, niter: usize) -> (Self, V);
-}
-
-// XXX: those two traits should not exist since there is generalized operator overloading of Add
-// and Sub.
-// However, using the same trait multiple time as a trait bound (ex: impl<T: Add<N, V> + Add<V, V>)
-// does not work properly, mainly because the way we are doing generalized operator overloading is
-// verry hacky.
-//
-// Hopefully, this will be fixed on a future version of the language!
-/// Trait of objects having a right multiplication with another element.
-pub trait RMul<V> {
-    /// Computes `self * v`
-    fn rmul(&self, v: &V) -> V;
-}
-
-impl<M: Copy + Mul<T, Output = T>, T: Copy> RMul<T> for M {
-    fn rmul(&self, v: &T) -> T {
-        *self * *v
-    }
-}
-
-/// Trait of objects having a left multiplication with another element.
-pub trait LMul<V> {
-    /// Computes `v * self`
-    fn lmul(&self, &V) -> V;
-}
-
-impl<T: Copy + Mul<M, Output = T>, M: Copy> LMul<T> for M {
-    fn lmul(&self, v: &T) -> T {
-        *v * *self
-    }
-}
-
-// XXX: those traits should not exist since there is generalized operator overloading of Add and
-// Sub.
-// However, using the same trait multiple time as a trait bound (ex: impl<T: Add<N, V> + Add<V, V>)
-// does not work properly, mainly because the way we are doing generalized operator overloading is
-// verry hacky.
-//
-// Hopefully, this will be fixed on a future version of the language!
-/// Trait of objects having an addition with a scalar.
-pub trait ScalarAdd<N> {
-    /// Gets the result of `self + n`.
-    fn add_s(&self, n: &N) -> Self;
-}
-
-/// Trait of objects having a subtraction with a scalar.
-pub trait ScalarSub<N> {
-    /// Gets the result of `self - n`.
-    fn sub_s(&self, n: &N) -> Self;
-}
-
-/// Trait of objects having a multiplication with a scalar.
-pub trait ScalarMul<N> {
-    /// Gets the result of `self * n`.
-    fn mul_s(&self, n: &N) -> Self;
-}
-
-/// Trait of objects having a division by a scalar.
-pub trait ScalarDiv<N> {
-    /// Gets the result of `self / n`.
-    fn div_s(&self, n: &N) -> Self;
 }
 
 /// Trait of objects implementing the `y = ax + y` operation.
