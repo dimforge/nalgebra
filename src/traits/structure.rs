@@ -2,7 +2,7 @@
 
 use std::{f32, f64, i8, i16, i32, i64, u8, u16, u32, u64, isize, usize};
 use std::slice::{Iter, IterMut};
-use std::ops::{Add, Sub, Mul, Div, Rem, Index, IndexMut};
+use std::ops::{Add, Sub, Mul, Div, Rem, Index, IndexMut, Neg};
 use num::{Float, Zero, One};
 use traits::operations::{Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
@@ -16,7 +16,7 @@ pub trait BaseNum: Copy + Zero + One +
 }
 
 /// Basic floating-point number numeric trait.
-pub trait BaseFloat: Float + Cast<f64> + BaseNum {
+pub trait BaseFloat: Float + Cast<f64> + BaseNum + Neg {
     /// Archimedes' constant.
     fn pi() -> Self;
     /// 2.0 * pi.
@@ -215,7 +215,7 @@ pub trait NumVec<N>: Dim +
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
-pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Basis {
+pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Neg<Output = Self> + Basis {
 }
 
 /*
