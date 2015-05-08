@@ -214,7 +214,7 @@ pub trait NumVec<N>: Dim +
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
-pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Basis {
+pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Neg<Output = Self> + Basis {
 }
 
 /*
