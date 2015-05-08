@@ -4,7 +4,7 @@ use std::{f32, f64, i8, i16, i32, i64, u8, u16, u32, u64, isize, usize};
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Rem, Index, IndexMut};
 use num::{Float, Zero, One};
-use traits::operations::{RMul, LMul, Axpy, Transpose, Inv, Absolute};
+use traits::operations::{Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
 
 /// Basic integral numeric trait.
@@ -59,11 +59,12 @@ pub trait Cast<T> {
 /// Trait of matrices.
 ///
 /// A matrix has rows and columns and are able to multiply them.
-pub trait Mat<N, R, C>: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(usize, usize), Output = N> { }
+pub trait Mat<N, R, C: Mul<Self>>: Row<R> + Col<C> + Mul<R> + Index<(usize, usize), Output = N> { }
 
 impl<N, M, R, C> Mat<N, R, C> for M
-    where M: Row<R> + Col<C> + RMul<R> + LMul<C> + Index<(usize, usize), Output = N> {
-}
+    where M: Row<R> + Col<C> + Mul<R> + Index<(usize, usize), Output = N>,
+          C: Mul<M>,
+{}
 
 /// Trait implemented by square matrices.
 pub trait SquareMat<N, V>: Mat<N, V, V> +
