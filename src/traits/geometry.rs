@@ -211,23 +211,23 @@ pub trait Dot<N> {
 /// Traits of objects having an euclidian norm.
 pub trait Norm {
     /// N is the type of the normal
-    type N: BaseFloat;
+    type Output: BaseFloat;
     /// Computes the norm of `self`.
     #[inline]
-    fn norm(&self) -> Self::N {
+    fn norm(&self) -> Self::Output {
         self.sqnorm().sqrt()
     }
 
     /// Computes the squared norm of `self`.
     ///
     /// This is usually faster than computing the norm itself.
-    fn sqnorm(&self) -> Self::N;
+    fn sqnorm(&self) -> Self::Output;
 
     /// Gets the normalized version of a copy of `v`.
     fn normalize(&self) -> Self;
 
     /// Normalizes `self`.
-    fn normalize_mut(&mut self) -> Self::N;
+    fn normalize_mut(&mut self) -> Self::Output;
 }
 
 /**

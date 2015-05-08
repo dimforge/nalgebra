@@ -548,7 +548,7 @@ macro_rules! translation_impl(
 macro_rules! norm_impl(
     ($t: ident, $($compN: ident),+) => (
         impl<N: Copy + BaseFloat> Norm for $t<N> {
-            type N = N;
+            type Output = N;
 
             #[inline]
             fn sqnorm(&self) -> N {

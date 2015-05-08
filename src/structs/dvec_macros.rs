@@ -266,7 +266,7 @@ macro_rules! dvec_impl(
         }
 
         impl<N: BaseFloat> Norm for $dvec<N> {
-            type N = N;
+            type Output = N;
             
             #[inline]
             fn sqnorm(&self) -> N {

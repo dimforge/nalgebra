@@ -183,7 +183,7 @@ impl<N: Copy + Add<N, Output = N> + Neg<Output = N>> Translation<vec::Vec0<N>> f
 }
 
 impl<N: BaseFloat> Norm for vec::Vec0<N> {
-    type N = N;
+    type Output = N;
 
     #[inline]
     fn sqnorm(&self) -> N {
