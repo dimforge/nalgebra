@@ -265,7 +265,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: BaseFloat> Norm<N> for $dvec<N> {
+        impl<N: BaseFloat> Norm for $dvec<N> {
+            type N = N;
+            
             #[inline]
             fn sqnorm(&self) -> N {
                 Dot::dot(self, self)

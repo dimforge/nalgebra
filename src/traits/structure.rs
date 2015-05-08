@@ -215,7 +215,7 @@ pub trait NumVec<N>: Dim +
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
-pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Neg<Output = Self> + Basis {
+pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N=N> + Neg<Output = Self> + Basis {
 }
 
 /*
@@ -253,7 +253,7 @@ pub trait NumPnt<N, V>:
 }
 
 /// Trait of points with components implementing the `BaseFloat` trait.
-pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> + Sized {
+pub trait FloatPnt<N: BaseFloat, V: Norm<N=N>>: NumPnt<N, V> + Sized {
     /// Computes the square distance between two points.
     #[inline]
     fn sqdist(&self, other: &Self) -> N {
