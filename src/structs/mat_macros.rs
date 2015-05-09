@@ -292,7 +292,7 @@ macro_rules! index_impl(
 
             fn index(&self, (i, j): (usize, usize)) -> &N {
                 unsafe {
-                    &mem::transmute::<&$t<N>, &mut [N; $dim * $dim]>(self)[i + j * $dim]
+                    &mem::transmute::<&$t<N>, & [N; $dim * $dim]>(self)[i + j * $dim]
                 }
             }
         }
