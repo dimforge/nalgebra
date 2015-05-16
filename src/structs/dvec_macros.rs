@@ -94,7 +94,8 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N> Iterable<N> for $dvec<N> {
+        impl<N> Iterable for $dvec<N> {
+            type Output = N;
             #[inline]
             fn iter<'l>(&'l self) -> Iter<'l, N> {
                 self.as_slice().iter()

@@ -190,7 +190,9 @@ macro_rules! absolute_impl(
 
 macro_rules! iterable_impl(
   ($t: ident, $dim: expr) => (
-    impl<N> Iterable<N> for $t<N> {
+    impl<N> Iterable for $t<N> {
+        type Output = N;
+
         #[inline]
         fn iter<'l>(&'l self) -> Iter<'l, N> {
             unsafe {
