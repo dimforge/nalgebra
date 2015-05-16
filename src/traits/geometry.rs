@@ -1,6 +1,7 @@
 //! Traits of operations having a well-known or explicit geometric meaning.
 
 use std::ops::Neg;
+use num::traits::Float;
 use traits::structure::{BaseFloat, Mat};
 
 /// Trait of object which represent a translation, and to wich new translation
@@ -208,23 +209,25 @@ pub trait Dot<N> {
 }
 
 /// Traits of objects having an euclidian norm.
-pub trait Norm<N: BaseFloat> {
+pub trait Norm {
+    /// N is the type of the normal
+    type Output: BaseFloat;
     /// Computes the norm of `self`.
     #[inline]
-    fn norm(&self) -> N {
+    fn norm(&self) -> Self::Output {
         self.sqnorm().sqrt()
     }
 
     /// Computes the squared norm of `self`.
     ///
     /// This is usually faster than computing the norm itself.
-    fn sqnorm(&self) -> N;
+    fn sqnorm(&self) -> Self::Output;
 
     /// Gets the normalized version of a copy of `v`.
     fn normalize(&self) -> Self;
 
     /// Normalizes `self`.
-    fn normalize_mut(&mut self) -> N;
+    fn normalize_mut(&mut self) -> Self::Output;
 }
 
 /**

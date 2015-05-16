@@ -59,12 +59,11 @@ pub trait Cast<T> {
 /// Trait of matrices.
 ///
 /// A matrix has rows and columns and are able to multiply them.
-pub trait Mat<N, R, C: Mul<Self>>: Row<R> + Col<C> + Mul<R> + Index<(usize, usize), Output = N> { }
+pub trait Mat<N, R, C>: Row<R> + Col<C> + Index<(usize, usize), Output = N> { }
 
 impl<N, M, R, C> Mat<N, R, C> for M
-    where M: Row<R> + Col<C> + Mul<R> + Index<(usize, usize), Output = N>,
-          C: Mul<M>,
-{}
+    where M: Row<R> + Col<C> + Index<(usize, usize), Output = N> {
+}
 
 /// Trait implemented by square matrices.
 pub trait SquareMat<N, V>: Mat<N, V, V> +
@@ -190,9 +189,11 @@ pub trait Indexable<I, N>: Shape<I> + IndexMut<I, Output = N> {
 /// This is a workaround of current Rust limitations.
 ///
 /// Traits of objects which can be iterated through like a vector.
-pub trait Iterable<N> {
+pub trait Iterable {
+    /// Iterable output type
+    type Output;
     /// Gets a vector-like read-only iterator.
-    fn iter<'l>(&'l self) -> Iter<'l, N>;
+    fn iter<'l>(&'l self) -> Iter<'l, Self::Output>;
 }
 
 /// This is a workaround of current Rust limitations.
@@ -215,7 +216,7 @@ pub trait NumVec<N>: Dim +
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
-pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Neg<Output = Self> + Basis {
+pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<Output=N> + Neg<Output = Self> + Basis {
 }
 
 /*
@@ -253,7 +254,7 @@ pub trait NumPnt<N, V>:
 }
 
 /// Trait of points with components implementing the `BaseFloat` trait.
-pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> + Sized {
+pub trait FloatPnt<N: BaseFloat, V: Norm<Output=N>>: NumPnt<N, V> + Sized {
     /// Computes the square distance between two points.
     #[inline]
     fn sqdist(&self, other: &Self) -> N {

@@ -94,7 +94,8 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N> Iterable<N> for $dvec<N> {
+        impl<N> Iterable for $dvec<N> {
+            type Output = N;
             #[inline]
             fn iter<'l>(&'l self) -> Iter<'l, N> {
                 self.as_slice().iter()
@@ -265,7 +266,9 @@ macro_rules! dvec_impl(
             }
         }
 
-        impl<N: BaseFloat> Norm<N> for $dvec<N> {
+        impl<N: BaseFloat> Norm for $dvec<N> {
+            type Output = N;
+            
             #[inline]
             fn sqnorm(&self) -> N {
                 Dot::dot(self, self)

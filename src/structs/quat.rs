@@ -108,7 +108,9 @@ impl<N: BaseFloat + ApproxEq<N>> Inv for Quat<N> {
     }
 }
 
-impl<N: BaseFloat> Norm<N> for Quat<N> {
+impl<N: BaseFloat> Norm for Quat<N> {
+    type Output = N;
+
     #[inline]
     fn sqnorm(&self) -> N {
         self.w * self.w + self.i * self.i + self.j * self.j + self.k * self.k
