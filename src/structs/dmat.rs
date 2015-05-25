@@ -10,7 +10,7 @@ use rand::{self, Rand};
 use num::{Zero, One};
 use structs::dvec::DVec;
 use traits::operations::{ApproxEq, Inv, Transpose, Mean, Cov};
-use traits::structure::{Cast, ColSlice, RowSlice, Diag, Eye, Indexable, Shape, BaseNum};
+use traits::structure::{Cast, ColSlice, RowSlice, Diag, DiagMut, Eye, Indexable, Shape, BaseNum};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -556,17 +556,6 @@ impl<N: Copy + Clone + Zero>  Diag<DVec<N>> for DMat<N> {
     }
 
     #[inline]
-    fn set_diag(&mut self, diag: &DVec<N>) {
-        let smallest_dim = cmp::min(self.nrows, self.ncols);
-
-        assert!(diag.len() == smallest_dim);
-
-        for i in 0..smallest_dim {
-            unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
-        }
-    }
-
-    #[inline]
     fn diag(&self) -> DVec<N> {
         let smallest_dim = cmp::min(self.nrows, self.ncols);
 
@@ -577,6 +566,19 @@ impl<N: Copy + Clone + Zero>  Diag<DVec<N>> for DMat<N> {
         }
 
         diag
+    }
+}
+
+impl<N: Copy + Clone + Zero>  DiagMut<DVec<N>> for DMat<N> {
+    #[inline]
+    fn set_diag(&mut self, diag: &DVec<N>) {
+        let smallest_dim = cmp::min(self.nrows, self.ncols);
+
+        assert!(diag.len() == smallest_dim);
+
+        for i in 0..smallest_dim {
+            unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
+        }
     }
 }
 

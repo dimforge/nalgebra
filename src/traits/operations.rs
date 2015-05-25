@@ -299,9 +299,12 @@ pub trait Transpose {
 }
 
 /// Traits of objects having an outer product.
-pub trait Outer<M> {
+pub trait Outer {
+    /// Result type of the outer product.
+    type OuterProductType;
+
     /// Computes the outer product: `a * b`
-    fn outer(&self, other: &Self) -> M;
+    fn outer(&self, other: &Self) -> Self::OuterProductType;
 }
 
 /// Trait for computing the covariance of a set of data.

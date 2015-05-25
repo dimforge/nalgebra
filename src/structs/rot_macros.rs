@@ -102,6 +102,38 @@ macro_rules! one_impl(
     )
 );
 
+macro_rules! eye_impl(
+    ($t: ident) => (
+        impl<N: BaseNum> Eye for $t<N> {
+            #[inline]
+            fn new_identity(dim: usize) -> $t<N> {
+                if dim != ::dim::<$t<N>>() {
+                    panic!("Dimension mismatch: should be {}, got {}.", ::dim::<$t<N>>(), dim);
+                }
+                else {
+                    ::one()
+                }
+            }
+        }
+    )
+);
+
+macro_rules! diag_impl(
+    ($t: ident, $tv: ident) => (
+        impl<N: Copy + Zero> Diag<$tv<N>> for $t<N> {
+            #[inline]
+            fn from_diag(diag: &$tv<N>) -> $t<N> {
+                $t { submat: Diag::from_diag(diag) }
+            }
+
+            #[inline]
+            fn diag(&self) -> $tv<N> {
+                self.submat.diag()
+            }
+        }
+    )
+);
+
 macro_rules! rot_mul_rot_impl(
     ($t: ident) => (
         impl<N: BaseNum> Mul<$t<N>> for $t<N> {

@@ -6,7 +6,8 @@ pub use traits::geometry::{AbsoluteRotate, Cross, CrossMatrix, Dot, FromHomogene
 
 pub use traits::structure::{FloatVec, FloatPnt, Basis, Cast, Col, Dim, Indexable, Iterable,
                             IterableMut, Mat, SquareMat, Row, NumVec, NumPnt, PntAsVec, ColSlice,
-                            RowSlice, Diag, Eye, Shape, BaseFloat, BaseNum, Bounded};
+                            RowSlice, Diag, DiagMut, Eye, Repeat, Shape, BaseFloat, BaseNum,
+                            Bounded};
 
 pub use traits::operations::{Absolute, ApproxEq, Axpy, Cov, Det, Inv, Mean, Outer, POrd, Transpose,
                              EigenQR};

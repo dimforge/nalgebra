@@ -227,12 +227,12 @@ macro_rules! index_impl(
     )
 );
 
-macro_rules! new_repeat_impl(
+macro_rules! repeat_impl(
     ($t: ident, $param: ident, $($compN: ident),+) => (
-        impl<N: Copy> $t<N> {
+        impl<N: Copy> Repeat<N> for $t<N> {
             /// Creates a new vector with all its components equal to a given value.
             #[inline]
-            pub fn new_repeat($param: N) -> $t<N> {
+            fn repeat($param: N) -> $t<N> {
                 $t{
                     $($compN: $param ),+
                 }

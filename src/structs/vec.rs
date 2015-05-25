@@ -13,7 +13,7 @@ use traits::operations::{ApproxEq, POrd, POrdering, Axpy, Absolute};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
 use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, Shape, NumVec,
-                        FloatVec, BaseFloat, BaseNum, Bounded};
+                        FloatVec, BaseFloat, BaseNum, Bounded, Repeat};
 use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 
 #[cfg(feature="arbitrary")]
@@ -31,10 +31,11 @@ impl<N> Vec0<N> {
     pub fn new() -> Vec0<N> {
         Vec0(PhantomData)
     }
+}
 
-    /// Creates a new vector. The parameter is not taken in account.
+impl<N> Repeat<N> for Vec0<N> {
     #[inline]
-    pub fn new_repeat(_: N) -> Vec0<N> {
+    fn repeat(_: N) -> Vec0<N> {
         Vec0(PhantomData)
     }
 }
@@ -55,7 +56,7 @@ as_array_impl!(Vec1, 1);
 index_impl!(Vec1);
 indexable_impl!(Vec1, 1);
 at_fast_impl!(Vec1, 1);
-new_repeat_impl!(Vec1, val, x);
+repeat_impl!(Vec1, val, x);
 dim_impl!(Vec1, 1);
 container_impl!(Vec1);
 // (specialized); basis_impl!(Vec1, 1);
@@ -108,7 +109,7 @@ as_array_impl!(Vec2, 2);
 index_impl!(Vec2);
 indexable_impl!(Vec2, 2);
 at_fast_impl!(Vec2, 2);
-new_repeat_impl!(Vec2, val, x, y);
+repeat_impl!(Vec2, val, x, y);
 dim_impl!(Vec2, 2);
 container_impl!(Vec2);
 // (specialized); basis_impl!(Vec2, 1);
@@ -163,7 +164,7 @@ as_array_impl!(Vec3, 3);
 index_impl!(Vec3);
 indexable_impl!(Vec3, 3);
 at_fast_impl!(Vec3, 3);
-new_repeat_impl!(Vec3, val, x, y, z);
+repeat_impl!(Vec3, val, x, y, z);
 dim_impl!(Vec3, 3);
 container_impl!(Vec3);
 // (specialized); basis_impl!(Vec3, 1);
@@ -221,7 +222,7 @@ as_array_impl!(Vec4, 4);
 index_impl!(Vec4);
 indexable_impl!(Vec4, 4);
 at_fast_impl!(Vec4, 4);
-new_repeat_impl!(Vec4, val, x, y, z, w);
+repeat_impl!(Vec4, val, x, y, z, w);
 dim_impl!(Vec4, 4);
 container_impl!(Vec4);
 basis_impl!(Vec4, 4);
@@ -280,7 +281,7 @@ as_array_impl!(Vec5, 5);
 index_impl!(Vec5);
 indexable_impl!(Vec5, 5);
 at_fast_impl!(Vec5, 5);
-new_repeat_impl!(Vec5, val, x, y, z, w, a);
+repeat_impl!(Vec5, val, x, y, z, w, a);
 dim_impl!(Vec5, 5);
 container_impl!(Vec5);
 basis_impl!(Vec5, 5);
@@ -341,7 +342,7 @@ as_array_impl!(Vec6, 6);
 index_impl!(Vec6);
 indexable_impl!(Vec6, 6);
 at_fast_impl!(Vec6, 6);
-new_repeat_impl!(Vec6, val, x, y, z, w, a, b);
+repeat_impl!(Vec6, val, x, y, z, w, a, b);
 dim_impl!(Vec6, 6);
 container_impl!(Vec6);
 basis_impl!(Vec6, 6);

@@ -1,7 +1,7 @@
 //! Traits of operations having a well-known or explicit geometric meaning.
 
 use std::ops::Neg;
-use traits::structure::{BaseFloat, Mat};
+use traits::structure::{BaseFloat, SquareMat};
 
 /// Trait of object which represent a translation, and to wich new translation
 /// can be appended.
@@ -143,7 +143,7 @@ impl<LV: Neg<Output = LV> + Copy, AV, M: Rotation<AV> + Translation<LV>> Rotatio
 /// be implemented by quaternions to convert them to a rotation matrix.
 pub trait RotationMatrix<N, LV, AV> : Rotation<AV> {
     /// The output rotation matrix type.
-    type Output: Mat<N, LV, LV> + Rotation<AV>;
+    type Output: SquareMat<N, LV> + Rotation<AV>;
 
     /// Gets the rotation matrix represented by `self`.
     fn to_rot_mat(&self) -> Self::Output;
@@ -232,10 +232,10 @@ pub trait Norm<N: BaseFloat> {
  */
 pub trait Cross {
     /// The cross product output.
-    type Output;
+    type CrossProductType;
 
     /// Computes the cross product between two elements (usually vectors).
-    fn cross(&self, other: &Self) -> Self::Output;
+    fn cross(&self, other: &Self) -> Self::CrossProductType;
 }
 
 /**

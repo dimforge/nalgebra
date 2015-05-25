@@ -12,8 +12,8 @@ use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use structs::pnt::{Pnt1, Pnt4, Pnt5, Pnt6};
 use structs::dvec::{DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
 
-use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable,
-                        Eye, ColSlice, RowSlice, Diag, Shape, BaseFloat, BaseNum};
+use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable, Eye, ColSlice,
+                        RowSlice, Diag, DiagMut, Shape, BaseFloat, BaseNum, Repeat};
 use traits::operations::{Absolute, Transpose, Inv, Outer, EigenQR};
 use traits::geometry::{ToHomogeneous, FromHomogeneous, Orig};
 use linalg;
@@ -23,7 +23,7 @@ use quickcheck::{Arbitrary, Gen};
 
 /// Special identity matrix. All its operation are no-ops.
 #[repr(C)]
-#[derive(Eq, PartialEq, RustcDecodable, Clone, Debug, Copy)]
+#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
 pub struct Identity;
 
 impl Identity {
@@ -44,6 +44,7 @@ pub struct Mat1<N> {
 eye_impl!(Mat1, 1, m11);
 
 mat_impl!(Mat1, m11);
+repeat_impl!(Mat1, m11);
 as_array_impl!(Mat1, 1);
 mat_cast_impl!(Mat1, m11);
 add_impl!(Mat1, m11);
@@ -93,6 +94,8 @@ eye_impl!(Mat2, 2, m11, m22);
 
 mat_impl!(Mat2, m11, m12,
                 m21, m22);
+repeat_impl!(Mat2, m11, m12,
+                   m21, m22);
 as_array_impl!(Mat2, 2);
 mat_cast_impl!(Mat2, m11, m12,
                      m21, m22);
@@ -146,6 +149,9 @@ eye_impl!(Mat3, 3, m11, m22, m33);
 mat_impl!(Mat3, m11, m12, m13,
                 m21, m22, m23,
                 m31, m32, m33);
+repeat_impl!(Mat3, m11, m12, m13,
+                   m21, m22, m23,
+                   m31, m32, m33);
 as_array_impl!(Mat3, 3);
 mat_cast_impl!(Mat3, m11, m12, m13,
                      m21, m22, m23,
@@ -238,6 +244,12 @@ pub struct Mat4<N> {
 eye_impl!(Mat4, 4, m11, m22, m33, m44);
 
 mat_impl!(Mat4,
+  m11, m12, m13, m14,
+  m21, m22, m23, m24,
+  m31, m32, m33, m34,
+  m41, m42, m43, m44
+);
+repeat_impl!(Mat4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
@@ -352,6 +364,13 @@ pub struct Mat5<N> {
 eye_impl!(Mat5, 5, m11, m22, m33, m44, m55);
 
 mat_impl!(Mat5,
+  m11, m12, m13, m14, m15,
+  m21, m22, m23, m24, m25,
+  m31, m32, m33, m34, m35,
+  m41, m42, m43, m44, m45,
+  m51, m52, m53, m54, m55
+);
+repeat_impl!(Mat5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
@@ -482,6 +501,14 @@ pub struct Mat6<N> {
 eye_impl!(Mat6, 6, m11, m22, m33, m44, m55, m66);
 
 mat_impl!(Mat6,
+  m11, m12, m13, m14, m15, m16,
+  m21, m22, m23, m24, m25, m26,
+  m31, m32, m33, m34, m35, m36,
+  m41, m42, m43, m44, m45, m46,
+  m51, m52, m53, m54, m55, m56,
+  m61, m62, m63, m64, m65, m66
+);
+repeat_impl!(Mat6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,

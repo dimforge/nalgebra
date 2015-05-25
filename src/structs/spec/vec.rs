@@ -6,7 +6,7 @@ use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::mat::Mat3;
 
 impl<N: Copy + Mul<N, Output = N> + Sub<N, Output = N>> Cross for Vec2<N> {
-    type Output = Vec1<N>;
+    type CrossProductType = Vec1<N>;
 
     #[inline]
     fn cross(&self, other: &Vec2<N>) -> Vec1<N> {
@@ -23,7 +23,7 @@ impl<N: Neg<Output = N> + Copy> CrossMatrix<Vec2<N>> for Vec2<N> {
 }
 
 impl<N: Copy + Mul<N, Output = N> + Sub<N, Output = N>> Cross for Vec3<N> {
-    type Output = Vec3<N>;
+    type CrossProductType = Vec3<N>;
 
     #[inline]
     fn cross(&self, other: &Vec3<N>) -> Vec3<N> {

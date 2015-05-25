@@ -92,7 +92,7 @@ extern crate num;
 extern crate quickcheck;
 
 use std::cmp;
-use std::ops::{Neg, Mul};
+use std::ops::Neg;
 use num::{Zero, One};
 pub use traits::{
     Absolute,
@@ -132,6 +132,7 @@ pub use traits::{
     POrd,
     POrdering,
     PntAsVec,
+    Repeat,
     Rotate, Rotation, RotationMatrix, RotationWithTranslation,
     Row,
     Shape,
@@ -575,9 +576,8 @@ pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
 /// Builds a rotation matrix from `r`.
 #[inline(always)]
 pub fn to_rot_mat<N, LV, AV, R, M>(r: &R) -> M
-    where R: RotationMatrix<N, LV, AV, Output=M>,
-          M: Mat<N, LV, AV> + Rotation<AV> + Col<LV> + Copy,
-          LV: Mul<M, Output=LV> + Copy,
+    where R: RotationMatrix<N, LV, AV, Output = M>,
+          M: SquareMat<N, LV> + Rotation<AV> + Copy
 {
     // FIXME: rust-lang/rust#20413
     r.to_rot_mat()
@@ -678,7 +678,7 @@ pub fn det<M: Det<N>, N>(m: &M) -> N {
 
 /// Computes the cross product of two vectors.
 #[inline(always)]
-pub fn cross<LV: Cross>(a: &LV, b: &LV) -> LV::Output {
+pub fn cross<LV: Cross>(a: &LV, b: &LV) -> LV::CrossProductType {
     Cross::cross(a, b)
 }
 
@@ -785,7 +785,7 @@ pub fn transpose<M: Transpose>(m: &M) -> M {
 
 /// Computes the outer product of two vectors.
 #[inline(always)]
-pub fn outer<V: Outer<M>, M>(a: &V, b: &V) -> M {
+pub fn outer<V: Outer>(a: &V, b: &V) -> V::OuterProductType {
     Outer::outer(a, b)
 }
 
@@ -831,6 +831,18 @@ pub fn eigen_qr<N, V, M: EigenQR<N, V>>(m: &M, eps: &N, niter: usize) -> (M, V) 
 #[inline(always)]
 pub fn new_identity<M: Eye>(dim: usize) -> M {
     Eye::new_identity(dim)
+}
+
+
+/*
+ * Repeat
+ */
+/// Create an object by repeating a value.
+///
+/// Same as `Identity::new()`.
+#[inline(always)]
+pub fn repeat<N, T: Repeat<N>>(val: N) -> T {
+    Repeat::repeat(val)
 }
 
 /*
