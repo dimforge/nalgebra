@@ -11,7 +11,7 @@ use rand::{Rand, Rng};
 use num::{Zero, One};
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy};
 use traits::structure::{Cast, Dim, Indexable, Iterable, IterableMut, PntAsVec, Shape,
-                        NumPnt, FloatPnt, BaseFloat, BaseNum, Bounded};
+                        NumPnt, FloatPnt, BaseFloat, BaseNum, Bounded, Repeat};
 use traits::geometry::{Orig, FromHomogeneous, ToHomogeneous};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 #[cfg(feature="arbitrary")]
@@ -29,10 +29,11 @@ impl<N> Pnt0<N> {
     pub fn new() -> Pnt0<N> {
         Pnt0(PhantomData)
     }
+}
 
-    /// Creates a new point. The parameter is not taken in account.
+impl<N> Repeat<N> for Pnt0<N> {
     #[inline]
-    pub fn new_repeat(_: N) -> Pnt0<N> {
+    fn repeat(_: N) -> Pnt0<N> {
         Pnt0(PhantomData)
     }
 }
@@ -57,7 +58,7 @@ as_array_impl!(Pnt1, 1);
 index_impl!(Pnt1);
 indexable_impl!(Pnt1, 1);
 at_fast_impl!(Pnt1, 1);
-new_repeat_impl!(Pnt1, val, x);
+repeat_impl!(Pnt1, val, x);
 dim_impl!(Pnt1, 1);
 container_impl!(Pnt1);
 pnt_as_vec_impl!(Pnt1, Vec1, x);
@@ -99,7 +100,7 @@ as_array_impl!(Pnt2, 2);
 index_impl!(Pnt2);
 indexable_impl!(Pnt2, 2);
 at_fast_impl!(Pnt2, 2);
-new_repeat_impl!(Pnt2, val, x, y);
+repeat_impl!(Pnt2, val, x, y);
 dim_impl!(Pnt2, 2);
 container_impl!(Pnt2);
 pnt_as_vec_impl!(Pnt2, Vec2, x, y);
@@ -143,7 +144,7 @@ as_array_impl!(Pnt3, 3);
 index_impl!(Pnt3);
 indexable_impl!(Pnt3, 3);
 at_fast_impl!(Pnt3, 3);
-new_repeat_impl!(Pnt3, val, x, y, z);
+repeat_impl!(Pnt3, val, x, y, z);
 dim_impl!(Pnt3, 3);
 container_impl!(Pnt3);
 pnt_as_vec_impl!(Pnt3, Vec3, x, y, z);
@@ -189,7 +190,7 @@ as_array_impl!(Pnt4, 4);
 index_impl!(Pnt4);
 indexable_impl!(Pnt4, 4);
 at_fast_impl!(Pnt4, 4);
-new_repeat_impl!(Pnt4, val, x, y, z, w);
+repeat_impl!(Pnt4, val, x, y, z, w);
 dim_impl!(Pnt4, 4);
 container_impl!(Pnt4);
 pnt_as_vec_impl!(Pnt4, Vec4, x, y, z, w);
@@ -237,7 +238,7 @@ as_array_impl!(Pnt5, 5);
 index_impl!(Pnt5);
 indexable_impl!(Pnt5, 5);
 at_fast_impl!(Pnt5, 5);
-new_repeat_impl!(Pnt5, val, x, y, z, w, a);
+repeat_impl!(Pnt5, val, x, y, z, w, a);
 dim_impl!(Pnt5, 5);
 container_impl!(Pnt5);
 pnt_as_vec_impl!(Pnt5, Vec5, x, y, z, w, a);
@@ -287,7 +288,7 @@ as_array_impl!(Pnt6, 6);
 index_impl!(Pnt6);
 indexable_impl!(Pnt6, 6);
 at_fast_impl!(Pnt6, 6);
-new_repeat_impl!(Pnt6, val, x, y, z, w, a, b);
+repeat_impl!(Pnt6, val, x, y, z, w, a, b);
 dim_impl!(Pnt6, 6);
 container_impl!(Pnt6);
 pnt_as_vec_impl!(Pnt6, Vec6, x, y, z, w, a, b);

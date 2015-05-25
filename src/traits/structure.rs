@@ -59,12 +59,14 @@ pub trait Cast<T> {
 /// Trait of matrices.
 ///
 /// A matrix has rows and columns and are able to multiply them.
-pub trait Mat<N, R, C: Mul<Self>>: Row<R> + Col<C> + Mul<R> + Index<(usize, usize), Output = N> { }
+pub trait Mat<N, R, C: Mul<Self, Output = R>>: Row<R> + Col<C> + Mul<R, Output = C> +
+                                               Index<(usize, usize), Output = N>
+{ }
 
 impl<N, M, R, C> Mat<N, R, C> for M
-    where M: Row<R> + Col<C> + Mul<R> + Index<(usize, usize), Output = N>,
-          C: Mul<M>,
-{}
+    where M: Row<R> + Col<C> + Mul<R, Output = C> + Index<(usize, usize), Output = N>,
+          C: Mul<M, Output = R>,
+{ }
 
 /// Trait implemented by square matrices.
 pub trait SquareMat<N, V>: Mat<N, V, V> +
@@ -79,6 +81,12 @@ impl<N, V, M> SquareMat<N, V> for M
 pub trait Eye {
     /// Return the identity matrix of specified dimension
     fn new_identity(dim: usize) -> Self;
+}
+
+/// Trait for constructiong an object repeating a value.
+pub trait Repeat<N> {
+    /// Returns a value with filled by `val`.
+    fn repeat(val: N) -> Self;
 }
 
 /// Types that have maximum and minimum value.
@@ -155,11 +163,14 @@ pub trait Diag<V> {
     /// Creates a new matrix with the given diagonal.
     fn from_diag(diag: &V) -> Self;
 
-    /// Sets the diagonal of this matrix.
-    fn set_diag(&mut self, diag: &V);
-
     /// The diagonal of this matrix.
     fn diag(&self) -> V;
+}
+
+/// Trait to set the diagonal of square matrices.
+pub trait DiagMut<V>: Diag<V> {
+    /// Sets the diagonal of this matrix.
+    fn set_diag(&mut self, diag: &V);
 }
 
 /// The shape of an indexable object.

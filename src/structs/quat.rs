@@ -11,7 +11,7 @@ use num::{Zero, One};
 use structs::{Vec3, Pnt3, Rot3, Mat3};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy};
 use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat, BaseNum,
-                        Bounded};
+                        Bounded, Repeat};
 use traits::geometry::{Norm, Rotation, Rotate, Transform};
 
 #[cfg(feature="arbitrary")]
@@ -495,7 +495,7 @@ as_array_impl!(Quat, 4);
 index_impl!(Quat);
 indexable_impl!(Quat, 4);
 at_fast_impl!(Quat, 4);
-new_repeat_impl!(Quat, val, w, i, j, k);
+repeat_impl!(Quat, val, w, i, j, k);
 dim_impl!(Quat, 3);
 container_impl!(Quat);
 add_impl!(Quat, w, i, j, k);

@@ -164,6 +164,18 @@ macro_rules! eye_impl(
     )
 );
 
+macro_rules! repeat_impl(
+    ($t: ident, $($compN: ident),+) => (
+        impl<N: Copy> Repeat<N> for $t<N> {
+            fn repeat(val: N) -> $t<N> {
+                $t {
+                    $($compN: val ),+
+                }
+            }
+        }
+    )
+);
+
 macro_rules! mat_sub_scalar_impl(
     ($t: ident, $($compN: ident),+) => (
         impl<N: Sub<N, Output = N> Sub<N> for $t<N> {
@@ -402,13 +414,6 @@ macro_rules! diag_impl(
             }
 
             #[inline]
-            fn set_diag(&mut self, diag: &$tv<N>) {
-                for i in 0..$dim {
-                    unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
-                }
-            }
-
-            #[inline]
             fn diag(&self) -> $tv<N> {
                 let mut diag: $tv<N> = ::zero();
 
@@ -417,6 +422,15 @@ macro_rules! diag_impl(
                 }
 
                 diag
+            }
+        }
+
+        impl<N: Copy + Zero> DiagMut<$tv<N>> for $t<N> {
+            #[inline]
+            fn set_diag(&mut self, diag: &$tv<N>) {
+                for i in 0..$dim {
+                    unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
+                }
             }
         }
     )
@@ -688,7 +702,9 @@ macro_rules! from_homogeneous_impl(
 
 macro_rules! outer_impl(
     ($t: ident, $m: ident) => (
-        impl<N: Copy + Mul<N, Output = N> + Zero> Outer<$m<N>> for $t<N> {
+        impl<N: Copy + Mul<N, Output = N> + Zero> Outer for $t<N> {
+            type OuterProductType = $m<N>;
+
             #[inline]
             fn outer(&self, other: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = ::zero();
