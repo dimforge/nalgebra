@@ -133,7 +133,7 @@ pub use traits::{
     POrdering,
     PntAsVec,
     Repeat,
-    Rotate, Rotation, RotationMatrix, RotationWithTranslation,
+    Rotate, Rotation, RotationMatrix, RotationWithTranslation, RotationTo,
     Row,
     Shape,
     SquareMat,
@@ -567,6 +567,21 @@ pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
                                   m:      &M,
                                   amount: &AV) -> M {
     RotationWithTranslation::append_rotation_wrt_center(m, amount)
+}
+
+/*
+ * RotationTo
+ */
+/// Computes the angle of the rotation needed to transfom `a` to `b`.
+#[inline(always)]
+pub fn angle_between<V: RotationTo>(a: &V, b: &V) -> V::AngleType {
+    a.angle_to(b)
+}
+
+/// Computes the rotation needed to transform `a` to `b`.
+#[inline(always)]
+pub fn rotation_between<V: RotationTo>(a: &V, b: &V) -> V::DeltaRotationType {
+    a.rotation_to(b)
 }
 
 /*

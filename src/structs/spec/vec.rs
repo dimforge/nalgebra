@@ -1,9 +1,50 @@
 use std::ops::{Sub, Mul, Neg};
 use num::{Zero, One};
 use traits::structure::{Cast, Row, Basis, BaseFloat};
-use traits::geometry::{Norm, Cross, CrossMatrix, UniformSphereSample};
+use traits::geometry::{Norm, Cross, CrossMatrix, RotationTo, UniformSphereSample};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
 use structs::mat::Mat3;
+use structs::rot::{Rot2, Rot3};
+
+impl<N: BaseFloat> RotationTo for Vec2<N> {
+    type AngleType = N;
+    type DeltaRotationType = Rot2<N>;
+
+    #[inline]
+    fn angle_to(&self, other: &Self) -> N {
+        ::cross(self, other).x.atan2(::dot(self, other))
+    }
+
+    #[inline]
+    fn rotation_to(&self, other: &Self) -> Rot2<N> {
+        Rot2::new(Vec1::new(self.angle_to(other)))
+    }
+}
+
+impl<N: BaseFloat> RotationTo for Vec3<N> {
+    type AngleType = N;
+    type DeltaRotationType = Rot3<N>;
+
+    #[inline]
+    fn angle_to(&self, other: &Self) -> N {
+        ::cross(self, other).norm().atan2(::dot(self, other))
+    }
+
+    #[inline]
+    fn rotation_to(&self, other: &Self) -> Rot3<N> {
+        let mut axis = ::cross(self, other);
+        let norm = axis.normalize_mut();
+
+        if ::is_zero(&norm) {
+            ::one()
+        }
+        else {
+            let axis_angle = axis * norm.atan2(::dot(self, other));
+
+            Rot3::new(axis_angle)
+        }
+    }
+}
 
 impl<N: Copy + Mul<N, Output = N> + Sub<N, Output = N>> Cross for Vec2<N> {
     type CrossProductType = Vec1<N>;

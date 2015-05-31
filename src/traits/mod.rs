@@ -1,8 +1,9 @@
 //! Mathematical traits.
 
 pub use traits::geometry::{AbsoluteRotate, Cross, CrossMatrix, Dot, FromHomogeneous, Norm, Orig,
-                           Rotate, Rotation, RotationMatrix, RotationWithTranslation, ToHomogeneous,
-                           Transform, Transformation, Translate, Translation, UniformSphereSample};
+                           Rotate, Rotation, RotationMatrix, RotationWithTranslation, RotationTo,
+                           ToHomogeneous, Transform, Transformation, Translate, Translation,
+                           UniformSphereSample};
 
 pub use traits::structure::{FloatVec, FloatPnt, Basis, Cast, Col, Dim, Indexable, Iterable,
                             IterableMut, Mat, SquareMat, Row, NumVec, NumPnt, PntAsVec, ColSlice,

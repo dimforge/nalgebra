@@ -64,6 +64,22 @@ pub trait Rotation<V> {
     fn set_rotation(&mut self, V);
 }
 
+/// Trait of object that can be rotated to be superimposed with another one of the same nature.
+pub trait RotationTo {
+    /// Type of the angle between two elements.
+    type AngleType;
+
+    /// Type of the rotation between two elements.
+    type DeltaRotationType;
+
+    /// Computes an angle nedded to transform the first element to the second one using a
+    /// rotation.
+    fn angle_to(&self, other: &Self) -> Self::AngleType;
+
+    /// Computes the smallest rotation needed to transform the first element to the second one.
+    fn rotation_to(&self, other: &Self) -> Self::DeltaRotationType;
+}
+
 /// Trait of objects able to rotate other objects.
 ///
 /// This is typically implemented by matrices which rotate vectors.

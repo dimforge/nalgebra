@@ -79,7 +79,7 @@ macro_rules! at_fast_impl(
 // However, f32/f64 does not implement Ord…
 macro_rules! ord_impl(
     ($t: ident, $comp0: ident, $($compN: ident),*) => (
-        impl<N: BaseFloat + Copy> POrd for $t<N> {
+        impl<N: BaseFloat> POrd for $t<N> {
             #[inline]
             fn inf(&self, other: &$t<N>) -> $t<N> {
                 $t::new(self.$comp0.min(other.$comp0)
@@ -291,7 +291,7 @@ macro_rules! container_impl(
 
 macro_rules! basis_impl(
     ($t: ident, $dim: expr) => (
-        impl<N: Copy + BaseFloat + ApproxEq<N>> Basis for $t<N> {
+        impl<N: BaseFloat + ApproxEq<N>> Basis for $t<N> {
             #[inline]
             fn canonical_basis<F: FnMut($t<N>) -> bool>(mut f: F) {
                 for i in 0..$dim {
@@ -547,7 +547,7 @@ macro_rules! translation_impl(
 
 macro_rules! norm_impl(
     ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + BaseFloat> Norm<N> for $t<N> {
+        impl<N: BaseFloat> Norm<N> for $t<N> {
             #[inline]
             fn sqnorm(&self) -> N {
                 Dot::dot(self, self)
