@@ -2,7 +2,7 @@ extern crate nalgebra as na;
 extern crate rand;
 
 use rand::random;
-use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Iterable, IterableMut};
+use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Rot2, Rot3, Iterable, IterableMut};
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
@@ -316,4 +316,66 @@ fn test_outer_vec3() {
             4.0, 5.0, 6.0,
             8.0, 10.0, 12.0,
             12.0, 15.0, 18.0));
+}
+
+
+#[test]
+fn test_vec3_rotation_between() {
+    for _ in (0usize .. 10000) {
+        let v1: Vec3<f64> = random();
+
+        let mut v2: Vec3<f64> = random();
+        v2 = na::normalize(&v2) * na::norm(&v1);
+
+        let rot = na::rotation_between(&v1, &v2);
+
+        assert!(na::approx_eq(&(rot * v1), &v2))
+    }
+}
+
+#[test]
+fn test_vec3_angle_between() {
+    for _ in (0usize .. 10000) {
+        let vec: Vec3<f64> = random();
+        let other: Vec3<f64> = random();
+
+        // Ensure the axis we are using is orthogonal to `vec`.
+        let axis_ang = na::cross(&vec, &other);
+        let ang      = na::norm(&axis_ang);
+        let rot      = Rot3::new(axis_ang);
+
+        let delta = na::angle_between(&vec, &(rot * vec));
+
+        assert!(na::approx_eq(&ang, &delta))
+    }
+}
+
+
+#[test]
+fn test_vec2_rotation_between() {
+    for _ in (0usize .. 10000) {
+        let v1: Vec2<f64> = random();
+
+        let mut v2: Vec2<f64> = random();
+        v2 = na::normalize(&v2) * na::norm(&v1);
+
+        let rot = na::rotation_between(&v1, &v2);
+
+        assert!(na::approx_eq(&(rot * v1), &v2))
+    }
+}
+
+#[test]
+fn test_vec2_angle_between() {
+    for _ in (0usize .. 10000) {
+        let axis_ang: Vec1<f64> = random();
+        let ang = na::norm(&axis_ang);
+
+        let rot: Rot2<f64> = Rot2::new(axis_ang);
+        let vec: Vec2<f64> = random();
+
+        let delta = na::angle_between(&vec, &(rot * vec));
+
+        assert!(na::approx_eq(&ang, &delta))
+    }
 }

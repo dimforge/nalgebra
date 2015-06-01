@@ -69,3 +69,24 @@ fn test_quat_euler_angles() {
         assert!(na::approx_eq(&q.to_rot(), &m))
     }
 }
+
+#[test]
+fn test_quat_rotation_between() {
+    let q1: UnitQuat<f64> = random();
+    let q2: UnitQuat<f64> = random();
+
+    let delta = na::rotation_between(&q1, &q2);
+
+    assert!(na::approx_eq(&(delta * q1), &q2))
+}
+
+#[test]
+fn test_quat_angle_between() {
+    let q1: UnitQuat<f64> = random();
+    let q2: UnitQuat<f64> = random();
+
+    let delta = na::rotation_between(&q1, &q2);
+    let delta_angle = na::angle_between(&q1, &q2);
+
+    assert!(na::approx_eq(&na::norm(&na::rotation(&delta)), &delta_angle))
+}

@@ -5,8 +5,8 @@
 use std::ops::{Mul, Neg, Index};
 use rand::{Rand, Rng};
 use num::{Zero, One};
-use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Transform, ToHomogeneous,
-                       Norm, Cross};
+use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, RotationTo, Transform,
+                       ToHomogeneous, Norm, Cross};
 use traits::structure::{Cast, Dim, Row, Col, BaseFloat, BaseNum, Eye, Diag};
 use traits::operations::{Absolute, Inv, Transpose, ApproxEq};
 use structs::vec::{Vec1, Vec2, Vec3, Vec4};
@@ -68,6 +68,21 @@ impl<N: BaseFloat + Clone> Rotation<Vec1<N>> for Rot2<N> {
     #[inline]
     fn set_rotation(&mut self, rot: Vec1<N>) {
         *self = Rot2::new(rot)
+    }
+}
+
+impl<N: BaseFloat> RotationTo for Rot2<N> {
+    type AngleType = N;
+    type DeltaRotationType = Rot2<N>;
+
+    #[inline]
+    fn angle_to(&self, other: &Self) -> N {
+        self.rotation_to(other).rotation().norm()
+    }
+
+    #[inline]
+    fn rotation_to(&self, other: &Self) -> Rot2<N> {
+        *other * ::inv(self).unwrap()
     }
 }
 
@@ -280,6 +295,22 @@ Rotation<Vec3<N>> for Rot3<N> {
     #[inline]
     fn set_rotation(&mut self, axisangle: Vec3<N>) {
         *self = Rot3::new(axisangle)
+    }
+}
+
+impl<N: BaseFloat> RotationTo for Rot3<N> {
+    type AngleType = N;
+    type DeltaRotationType = Rot3<N>;
+
+    #[inline]
+    fn angle_to(&self, other: &Self) -> N {
+        // FIXME: refactor to avoid the normalization of the rotation axisangle vector.
+        self.rotation_to(other).rotation().norm()
+    }
+
+    #[inline]
+    fn rotation_to(&self, other: &Self) -> Rot3<N> {
+        *other * ::inv(self).unwrap()
     }
 }
 

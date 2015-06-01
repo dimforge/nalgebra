@@ -12,7 +12,7 @@ use structs::{Vec3, Pnt3, Rot3, Mat3};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy};
 use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat, BaseNum,
                         Bounded, Repeat};
-use traits::geometry::{Norm, Rotation, Rotate, Transform};
+use traits::geometry::{Norm, Rotation, Rotate, RotationTo, Transform};
 
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
@@ -453,6 +453,24 @@ impl<N: BaseNum + Neg<Output = N>> Rotate<Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn inv_rotate(&self, p: &Pnt3<N>) -> Pnt3<N> {
         *p * *self
+    }
+}
+
+impl<N: BaseFloat + ApproxEq<N>> RotationTo for UnitQuat<N> {
+    type AngleType = N;
+    type DeltaRotationType = UnitQuat<N>;
+
+    #[inline]
+    fn angle_to(&self, other: &Self) -> N {
+        let delta = self.rotation_to(other);
+        let _2    = ::one::<N>() + ::one();
+
+        _2 * delta.q.vector().norm().atan2(delta.q.w)
+    }
+
+    #[inline]
+    fn rotation_to(&self, other: &Self) -> UnitQuat<N> {
+        *other / *self
     }
 }
 
