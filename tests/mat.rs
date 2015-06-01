@@ -2,8 +2,8 @@ extern crate nalgebra as na;
 extern crate rand;
 
 use rand::random;
-use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot3, Persp3, PerspMat3, Ortho3, OrthoMat3,
-         DMat, DVec, Row, Col, BaseFloat};
+use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot2, Rot3, Persp3, PerspMat3, Ortho3,
+         OrthoMat3, DMat, DVec, Row, Col, BaseFloat};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -151,6 +151,48 @@ fn test_inv_rotation3() {
 
         assert!(na::approx_eq(&(na::transpose(&rot) * rot), &na::one()));
     }
+}
+
+#[test]
+fn test_rot3_rotation_between() {
+    let r1: Rot3<f64> = random();
+    let r2: Rot3<f64> = random();
+
+    let delta = na::rotation_between(&r1, &r2);
+
+    assert!(na::approx_eq(&(delta * r1), &r2))
+}
+
+#[test]
+fn test_rot3_angle_between() {
+    let r1: Rot3<f64> = random();
+    let r2: Rot3<f64> = random();
+
+    let delta = na::rotation_between(&r1, &r2);
+    let delta_angle = na::angle_between(&r1, &r2);
+
+    assert!(na::approx_eq(&na::norm(&na::rotation(&delta)), &delta_angle))
+}
+
+#[test]
+fn test_rot2_rotation_between() {
+    let r1: Rot2<f64> = random();
+    let r2: Rot2<f64> = random();
+
+    let delta = na::rotation_between(&r1, &r2);
+
+    assert!(na::approx_eq(&(delta * r1), &r2))
+}
+
+#[test]
+fn test_rot2_angle_between() {
+    let r1: Rot2<f64> = random();
+    let r2: Rot2<f64> = random();
+
+    let delta = na::rotation_between(&r1, &r2);
+    let delta_angle = na::angle_between(&r1, &r2);
+
+    assert!(na::approx_eq(&na::norm(&na::rotation(&delta)), &delta_angle))
 }
 
 #[test]
