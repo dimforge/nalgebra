@@ -290,6 +290,70 @@ fn test_dmat_from_vec() {
     assert!(mat1 == mat2);
 }
 
+#[test]
+fn test_dmat_addition() {
+    let mat1 = DMat::from_row_vec(
+        2,
+        2,
+        &[
+            1.0, 2.0,
+            3.0, 4.0
+        ]
+    );
+
+    let mat2 = DMat::from_row_vec(
+        2,
+        2,
+        &[
+            10.0, 20.0,
+            30.0, 40.0
+        ]
+    );
+
+    let res = DMat::from_row_vec(
+        2,
+        2,
+        &[
+            11.0, 22.0,
+            33.0, 44.0
+        ]
+    );
+
+    assert!((mat1 + mat2) == res);
+}
+
+#[test]
+fn test_dmat_subtraction() {
+    let mat1 = DMat::from_row_vec(
+        2,
+        2,
+        &[
+            1.0, 2.0,
+            3.0, 4.0
+        ]
+    );
+
+    let mat2 = DMat::from_row_vec(
+        2,
+        2,
+        &[
+            10.0, 20.0,
+            30.0, 40.0
+        ]
+    );
+
+    let res = DMat::from_row_vec(
+        2,
+        2,
+        &[
+            -09.0, -18.0,
+            -27.0, -36.0
+        ]
+    );
+
+    assert!((mat1 - mat2) == res);
+}
+
 /* FIXME: review qr decomposition to make it work with DMat.
 #[test]
 fn test_qr() {
