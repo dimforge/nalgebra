@@ -663,6 +663,24 @@ impl<N: Copy + Add<N, Output = N>> Add<N> for DMat<N> {
     }
 }
 
+impl<N: Copy + Add<N, Output = N>> Add<DMat<N>> for DMat<N> {
+    type Output = DMat<N>;
+
+    #[inline]
+    fn add(self, right: DMat<N>) -> DMat<N> {
+        assert!(self.nrows == right.nrows && self.ncols == right.ncols,
+                "Unable to add matrices with different dimensions.");
+
+        let mut res = self;
+
+        for (mij, right_ij) in res.mij.iter_mut().zip(right.mij.iter()) {
+            *mij = *mij + *right_ij;
+        }
+
+        res
+    }
+}
+
 impl<N: Copy + Sub<N, Output = N>> Sub<N> for DMat<N> {
     type Output = DMat<N>;
 
@@ -672,6 +690,24 @@ impl<N: Copy + Sub<N, Output = N>> Sub<N> for DMat<N> {
 
         for mij in res.mij.iter_mut() {
             *mij = *mij - right;
+        }
+
+        res
+    }
+}
+
+impl<N: Copy + Sub<N, Output = N>> Sub<DMat<N>> for DMat<N> {
+    type Output = DMat<N>;
+
+    #[inline]
+    fn sub(self, right: DMat<N>) -> DMat<N> {
+        assert!(self.nrows == right.nrows && self.ncols == right.ncols,
+                "Unable to subtract matrices with different dimensions.");
+
+        let mut res = self;
+
+        for (mij, right_ij) in res.mij.iter_mut().zip(right.mij.iter()) {
+            *mij = *mij - *right_ij;
         }
 
         res
