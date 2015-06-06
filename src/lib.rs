@@ -54,17 +54,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Almost one trait per functionality: useful for generic programming.
 * Operator overloading using multidispatch.
 
-## Compilation
-You will need the last nightly build of the [rust compiler](http://www.rust-lang.org)
-and the official package manager: [cargo](https://github.com/rust-lang/cargo).
-
-Simply add the following to your `Cargo.toml` file:
-
-```.ignore
-[dependencies.nalgebra]
-git = "https://github.com/sebcrozet/nalgebra"
-```
-
 
 ## **nalgebra** in use
 Here are some projects using **nalgebra**.
