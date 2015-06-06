@@ -337,19 +337,31 @@
 <span id="295">295</span>
 <span id="296">296</span>
 <span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Points with dimensions known at compile-time.</span>
 
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span> <span class='comment'>// we allow missing to avoid having to document the point components.</span>
 
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>marker</span>::<span class='ident'>PhantomData</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::{<span class='ident'>Iter</span>, <span class='ident'>IterMut</span>};
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::{<span class='ident'>Iterator</span>, <span class='ident'>FromIterator</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::{<span class='ident'>Iterator</span>, <span class='ident'>FromIterator</span>, <span class='ident'>IntoIterator</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Add</span>, <span class='ident'>Sub</span>, <span class='ident'>Mul</span>, <span class='ident'>Div</span>, <span class='ident'>Neg</span>, <span class='ident'>Index</span>, <span class='ident'>IndexMut</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>ApproxEq</span>, <span class='ident'>POrd</span>, <span class='ident'>POrdering</span>, <span class='ident'>Axpy</span>, <span class='ident'>ScalarAdd</span>, <span class='ident'>ScalarSub</span>, <span class='ident'>ScalarMul</span>,
-                         <span class='ident'>ScalarDiv</span>};
+<span class='kw'>use</span> <span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
+<span class='kw'>use</span> <span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>ApproxEq</span>, <span class='ident'>POrd</span>, <span class='ident'>POrdering</span>, <span class='ident'>Axpy</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Indexable</span>, <span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>PntAsVec</span>, <span class='ident'>Shape</span>,
-                        <span class='ident'>NumPnt</span>, <span class='ident'>FloatPnt</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>Zero</span>, <span class='ident'>One</span>, <span class='ident'>Bounded</span>};
+                        <span class='ident'>NumPnt</span>, <span class='ident'>FloatPnt</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>Bounded</span>, <span class='ident'>Repeat</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Orig</span>, <span class='ident'>FromHomogeneous</span>, <span class='ident'>ToHomogeneous</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>vec</span>::{<span class='ident'>Vec1</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec5</span>, <span class='ident'>Vec6</span>};
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;arbitrary&quot;</span>)]</span>
@@ -357,25 +369,28 @@
 
 
 <span class='doccomment'>/// Point of dimension 0.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Pnt0</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>;
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Pnt0</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>(<span class='kw'>pub</span> <span class='ident'>PhantomData</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>);
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='ident'>Pnt0</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Creates a new point.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>Pnt0</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='ident'>Pnt0</span>
+        <span class='ident'>Pnt0</span>(<span class='ident'>PhantomData</span>)
     }
+}
 
-    <span class='doccomment'>/// Creates a new point. The parameter is not taken in account.</span>
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='ident'>Repeat</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Pnt0</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_repeat</span>(_: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>Pnt0</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='ident'>Pnt0</span>
+    <span class='kw'>fn</span> <span class='ident'>repeat</span>(_: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>Pnt0</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+        <span class='ident'>Pnt0</span>(<span class='ident'>PhantomData</span>)
     }
 }
 
 <span class='doccomment'>/// Point of dimension 1.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Pnt1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// First component of the point.</span>
     <span class='kw'>pub</span> <span class='ident'>x</span>: <span class='ident'>N</span>
@@ -393,7 +408,7 @@
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>);
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='number'>1</span>);
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='number'>1</span>);
-<span class='macro'>new_repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>val</span>, <span class='ident'>x</span>);
+<span class='macro'>repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>val</span>, <span class='ident'>x</span>);
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='number'>1</span>);
 <span class='macro'>container_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>);
 <span class='macro'>pnt_as_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Vec1</span>, <span class='ident'>x</span>);
@@ -401,7 +416,6 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>);
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Vec1</span>, <span class='ident'>x</span>);
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Vec1</span>, <span class='ident'>x</span>);
-<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>);
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>);
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>iterator</span>);
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>);
@@ -412,9 +426,11 @@
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Pnt2</span>, <span class='ident'>y</span>, <span class='ident'>x</span>);
 <span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>Vec1</span>);
 <span class='macro'>arbitrary_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>);
+<span class='macro'>rand_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt1</span>, <span class='ident'>x</span>);
 
 <span class='doccomment'>/// Point of dimension 2.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Pnt2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// First component of the point.</span>
     <span class='kw'>pub</span> <span class='ident'>x</span>: <span class='ident'>N</span>,
@@ -434,7 +450,7 @@
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>);
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='number'>2</span>);
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='number'>2</span>);
-<span class='macro'>new_repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
+<span class='macro'>repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='number'>2</span>);
 <span class='macro'>container_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>);
 <span class='macro'>pnt_as_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
@@ -442,7 +458,6 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Vec2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
-<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>);
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
@@ -453,9 +468,11 @@
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Pnt3</span>, <span class='ident'>z</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
 <span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>Vec2</span>);
 <span class='macro'>arbitrary_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
+<span class='macro'>rand_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt2</span>, <span class='ident'>x</span>, <span class='ident'>y</span>);
 
 <span class='doccomment'>/// Point of dimension 3.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Pnt3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// First component of the point.</span>
     <span class='kw'>pub</span> <span class='ident'>x</span>: <span class='ident'>N</span>,
@@ -477,7 +494,7 @@
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>);
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='number'>3</span>);
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='number'>3</span>);
-<span class='macro'>new_repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
+<span class='macro'>repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='number'>3</span>);
 <span class='macro'>container_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>);
 <span class='macro'>pnt_as_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
@@ -485,7 +502,6 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Vec3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
-<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>);
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
@@ -496,9 +512,11 @@
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Pnt4</span>, <span class='ident'>w</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
 <span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>Vec3</span>);
 <span class='macro'>arbitrary_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
+<span class='macro'>rand_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt3</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
 
 <span class='doccomment'>/// Point of dimension 4.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Pnt4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// First component of the point.</span>
     <span class='kw'>pub</span> <span class='ident'>x</span>: <span class='ident'>N</span>,
@@ -522,7 +540,7 @@
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>);
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='number'>4</span>);
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='number'>4</span>);
-<span class='macro'>new_repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
+<span class='macro'>repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='number'>4</span>);
 <span class='macro'>container_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>);
 <span class='macro'>pnt_as_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
@@ -530,7 +548,6 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Vec4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
-<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>);
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
@@ -541,9 +558,11 @@
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Pnt5</span>, <span class='ident'>a</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
 <span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>Vec4</span>);
 <span class='macro'>arbitrary_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
+<span class='macro'>rand_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt4</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
 
 <span class='doccomment'>/// Point of dimension 5.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Pnt5</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// First component of the point.</span>
     <span class='kw'>pub</span> <span class='ident'>x</span>: <span class='ident'>N</span>,
@@ -569,7 +588,7 @@
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>);
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='number'>5</span>);
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='number'>5</span>);
-<span class='macro'>new_repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
+<span class='macro'>repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='number'>5</span>);
 <span class='macro'>container_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>);
 <span class='macro'>pnt_as_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
@@ -577,7 +596,6 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Vec5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
-<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>);
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
@@ -588,9 +606,11 @@
 <span class='macro'>pnt_from_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Pnt6</span>, <span class='ident'>b</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
 <span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>Vec5</span>);
 <span class='macro'>arbitrary_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
+<span class='macro'>rand_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt5</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
 
 <span class='doccomment'>/// Point of dimension 6.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Rand</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Pnt6</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// First component of the point.</span>
     <span class='kw'>pub</span> <span class='ident'>x</span>: <span class='ident'>N</span>,
@@ -618,7 +638,7 @@
 <span class='macro'>index_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>);
 <span class='macro'>indexable_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>);
 <span class='macro'>at_fast_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>);
-<span class='macro'>new_repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
+<span class='macro'>repeat_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>val</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>);
 <span class='macro'>container_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>);
 <span class='macro'>pnt_as_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
@@ -626,7 +646,6 @@
 <span class='macro'>neg_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
 <span class='macro'>pnt_add_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
 <span class='macro'>pnt_sub_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>Vec6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
-<span class='macro'>scalar_ops_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
 <span class='macro'>from_iterator_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>, <span class='ident'>iterator</span>);
 <span class='macro'>bounded_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
@@ -635,6 +654,7 @@
 <span class='macro'>iterable_mut_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='number'>6</span>);
 <span class='macro'>num_float_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>Vec6</span>);
 <span class='macro'>arbitrary_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
+<span class='macro'>rand_impl</span><span class='macro'>!</span>(<span class='ident'>Pnt6</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

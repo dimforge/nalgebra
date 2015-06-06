@@ -982,6 +982,7 @@
 <span id="940">940</span>
 <span id="941">941</span>
 <span id="942">942</span>
+<span id="943">943</span>
 </pre><pre class='rust '>
 <span class='doccomment'>/*!
 # nalgebra
@@ -1009,14 +1010,14 @@ The preferred way to use **nalgebra** is to import types and traits explicitly, 
 free-functions using the `na::` prefix:
 
 ```.rust
-extern crate &quot;nalgebra&quot; as na;
+extern crate nalgebra as na;
 use na::{Vec3, Rot3, Rotation};
 
 fn main() {
     let     a = Vec3::new(1.0f64, 1.0, 1.0);
     let mut b = Rot3::new(na::zero());
 
-    b.append_rotation(&amp;a);
+    b.append_rotation_mut(&amp;a);
 
     assert!(na::approx_eq(&amp;na::rotation(&amp;b), &amp;a));
 }
@@ -1066,21 +1067,19 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>deny</span>(<span class='ident'>non_upper_case_globals</span>)]</span>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>deny</span>(<span class='ident'>unused_qualifications</span>)]</span>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>deny</span>(<span class='ident'>unused_results</span>)]</span>
- <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>unstable</span>)]</span>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>warn</span>(<span class='ident'>missing_docs</span>)]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>feature</span>(<span class='ident'>unboxed_closures</span>)]</span>
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>doc</span>(<span class='ident'>html_root_url</span> <span class='op'>=</span> <span class='string'>&quot;http://nalgebra.org/doc&quot;</span>)]</span>
 
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='string'>&quot;rustc-serialize&quot;</span> <span class='kw'>as</span> <span class='ident'>rustc_serialize</span>;
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>rustc_serialize</span>;
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>rand</span>;
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>num</span>;
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;arbitrary&quot;</span>)]</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>quickcheck</span>;
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>test</span>;
-
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cmp</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Neg</span>;
+<span class='kw'>use</span> <span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>traits</span>::{
     <span class='ident'>Absolute</span>,
     <span class='ident'>AbsoluteRotate</span>,
@@ -1109,32 +1108,26 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
     <span class='ident'>Inv</span>,
     <span class='ident'>Iterable</span>,
     <span class='ident'>IterableMut</span>,
-    <span class='ident'>LMul</span>,
     <span class='ident'>Mat</span>,
     <span class='ident'>Mean</span>,
     <span class='ident'>Norm</span>,
     <span class='ident'>NumPnt</span>,
     <span class='ident'>NumVec</span>,
-    <span class='ident'>One</span>,
     <span class='ident'>Orig</span>,
     <span class='ident'>Outer</span>,
     <span class='ident'>POrd</span>,
     <span class='ident'>POrdering</span>,
     <span class='ident'>PntAsVec</span>,
-    <span class='ident'>RMul</span>,
-    <span class='ident'>Rotate</span>, <span class='ident'>Rotation</span>, <span class='ident'>RotationMatrix</span>, <span class='ident'>RotationWithTranslation</span>,
+    <span class='ident'>Repeat</span>,
+    <span class='ident'>Rotate</span>, <span class='ident'>Rotation</span>, <span class='ident'>RotationMatrix</span>, <span class='ident'>RotationWithTranslation</span>, <span class='ident'>RotationTo</span>,
     <span class='ident'>Row</span>,
-    <span class='ident'>ScalarAdd</span>, <span class='ident'>ScalarSub</span>,
-    <span class='ident'>ScalarMul</span>, <span class='ident'>ScalarDiv</span>,
     <span class='ident'>Shape</span>,
     <span class='ident'>SquareMat</span>,
     <span class='ident'>ToHomogeneous</span>,
     <span class='ident'>Transform</span>, <span class='ident'>Transformation</span>,
     <span class='ident'>Translate</span>, <span class='ident'>Translation</span>,
     <span class='ident'>Transpose</span>,
-    <span class='ident'>UniformSphereSample</span>,
-    <span class='ident'>VecAsPnt</span>,
-    <span class='ident'>Zero</span>
+    <span class='ident'>UniformSphereSample</span>
 };
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>structs</span>::{
@@ -1325,35 +1318,13 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 }
 
 <span class='comment'>/*
- * Perspective
- */</span>
-<span class='doccomment'>/// Computes a projection matrix given the frustrum near plane width, height, the field of</span>
-<span class='doccomment'>/// view, and the distance to the clipping planes (`znear` and `zfar`).</span>
-<span class='attribute'>#[<span class='ident'>deprecated</span> <span class='op'>=</span> <span class='string'>&quot;Use `Persp3::new(width / height, fov, znear, zfar).as_mat()` instead&quot;</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>perspective3d</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span> <span class='op'>+</span> <span class='ident'>Cast</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Zero</span> <span class='op'>+</span> <span class='ident'>One</span><span class='op'>&gt;</span>(<span class='ident'>width</span>: <span class='ident'>N</span>, <span class='ident'>height</span>: <span class='ident'>N</span>, <span class='ident'>fov</span>: <span class='ident'>N</span>, <span class='ident'>znear</span>: <span class='ident'>N</span>, <span class='ident'>zfar</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>Mat4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='kw'>let</span> <span class='ident'>aspect</span> <span class='op'>=</span> <span class='ident'>width</span> <span class='op'>/</span> <span class='ident'>height</span>;
-
-    <span class='kw'>let</span> <span class='ident'>_1</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>one</span>();
-    <span class='kw'>let</span> <span class='ident'>sy</span>    <span class='op'>=</span> <span class='ident'>_1</span> <span class='op'>/</span> (<span class='ident'>fov</span> <span class='op'>*</span> <span class='ident'>cast</span>(<span class='number'>0.5</span>)).<span class='ident'>tan</span>();
-    <span class='kw'>let</span> <span class='ident'>sx</span>    <span class='op'>=</span> <span class='op'>-</span><span class='ident'>sy</span> <span class='op'>/</span> <span class='ident'>aspect</span>;
-    <span class='kw'>let</span> <span class='ident'>sz</span>    <span class='op'>=</span> <span class='op'>-</span>(<span class='ident'>zfar</span> <span class='op'>+</span> <span class='ident'>znear</span>) <span class='op'>/</span> (<span class='ident'>znear</span> <span class='op'>-</span> <span class='ident'>zfar</span>);
-    <span class='kw'>let</span> <span class='ident'>tz</span>    <span class='op'>=</span> <span class='ident'>zfar</span> <span class='op'>*</span> <span class='ident'>znear</span> <span class='op'>*</span> <span class='ident'>cast</span>(<span class='number'>2.0</span>) <span class='op'>/</span> (<span class='ident'>znear</span> <span class='op'>-</span> <span class='ident'>zfar</span>);
-
-    <span class='ident'>Mat4</span>::<span class='ident'>new</span>(
-        <span class='ident'>sx</span>,     <span class='ident'>zero</span>(), <span class='ident'>zero</span>(), <span class='ident'>zero</span>(),
-        <span class='ident'>zero</span>(), <span class='ident'>sy</span>,     <span class='ident'>zero</span>(), <span class='ident'>zero</span>(),
-        <span class='ident'>zero</span>(), <span class='ident'>zero</span>(), <span class='ident'>sz</span>,     <span class='ident'>tz</span>,
-        <span class='ident'>zero</span>(), <span class='ident'>zero</span>(), <span class='ident'>one</span>(),  <span class='ident'>zero</span>())
-}
-
-<span class='comment'>/*
  * Translation&lt;V&gt;
  */</span>
 
 <span class='doccomment'>/// Gets the translation applicable by `m`.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{Vec3, Iso3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
@@ -1371,7 +1342,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Gets the inverse translation applicable by `m`.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{Vec3, Iso3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
@@ -1389,7 +1360,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Applies the translation `v` to a copy of `m`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append_translation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
-    <span class='ident'>Translation</span>::<span class='ident'>append_translation_cpy</span>(<span class='ident'>m</span>, <span class='ident'>v</span>)
+    <span class='ident'>Translation</span>::<span class='ident'>append_translation</span>(<span class='ident'>m</span>, <span class='ident'>v</span>)
 }
 
 <span class='comment'>/*
@@ -1399,7 +1370,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Applies a translation to a point.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{Pnt3, Vec3, Iso3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
@@ -1419,7 +1390,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Applies an inverse translation to a point.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{Pnt3, Vec3, Iso3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
@@ -1442,7 +1413,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Gets the rotation applicable by `m`.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{Vec3, Rot3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
@@ -1460,7 +1431,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Gets the inverse rotation applicable by `m`.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{Vec3, Rot3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
@@ -1478,7 +1449,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Applies the rotation `v` to a copy of `m`.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{Vec3, Rot3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
@@ -1491,14 +1462,14 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append_rotation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
-    <span class='ident'>Rotation</span>::<span class='ident'>append_rotation_cpy</span>(<span class='ident'>m</span>, <span class='ident'>v</span>)
+    <span class='ident'>Rotation</span>::<span class='ident'>append_rotation</span>(<span class='ident'>m</span>, <span class='ident'>v</span>)
 }
 
 <span class='comment'>// FIXME: this example is a bit shity</span>
 <span class='doccomment'>/// Pre-applies the rotation `v` to a copy of `m`.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{Vec3, Rot3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
@@ -1511,7 +1482,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
-    <span class='ident'>Rotation</span>::<span class='ident'>prepend_rotation_cpy</span>(<span class='ident'>m</span>, <span class='ident'>v</span>)
+    <span class='ident'>Rotation</span>::<span class='ident'>prepend_rotation</span>(<span class='ident'>m</span>, <span class='ident'>v</span>)
 }
 
 <span class='comment'>/*
@@ -1521,11 +1492,11 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Applies a rotation to a vector.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{BaseFloat, Rot3, Vec3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * BaseFloat::pi()));</span>
+<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * &lt;f64 as BaseFloat&gt;::pi()));</span>
 <span class='doccomment'>///     let v  = Vec3::new(1.0, 0.0, 0.0);</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>///     let tv = na::rotate(&amp;t, &amp;v);</span>
@@ -1542,11 +1513,11 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Applies an inverse rotation to a vector.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// extern crate &quot;nalgebra&quot; as na;</span>
+<span class='doccomment'>/// extern crate nalgebra as na;</span>
 <span class='doccomment'>/// use na::{BaseFloat, Rot3, Vec3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * BaseFloat::pi()));</span>
+<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * &lt;f64 as BaseFloat&gt;::pi()));</span>
 <span class='doccomment'>///     let v  = Vec3::new(1.0, 0.0, 0.0);</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>///     let tv = na::inv_rotate(&amp;t, &amp;v);</span>
@@ -1571,7 +1542,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
                                  <span class='ident'>m</span>:      <span class='kw-2'>&amp;</span><span class='ident'>M</span>,
                                  <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>,
                                  <span class='ident'>center</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
-    <span class='ident'>RotationWithTranslation</span>::<span class='ident'>append_rotation_wrt_point_cpy</span>(<span class='ident'>m</span>, <span class='ident'>amount</span>, <span class='ident'>center</span>)
+    <span class='ident'>RotationWithTranslation</span>::<span class='ident'>append_rotation_wrt_point</span>(<span class='ident'>m</span>, <span class='ident'>amount</span>, <span class='ident'>center</span>)
 }
 
 <span class='doccomment'>/// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.</span>
@@ -1581,7 +1552,22 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
                                   <span class='ident'>M</span>: <span class='ident'>RotationWithTranslation</span><span class='op'>&lt;</span><span class='ident'>LV</span>, <span class='ident'>AV</span><span class='op'>&gt;&gt;</span>(
                                   <span class='ident'>m</span>:      <span class='kw-2'>&amp;</span><span class='ident'>M</span>,
                                   <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
-    <span class='ident'>RotationWithTranslation</span>::<span class='ident'>append_rotation_wrt_center_cpy</span>(<span class='ident'>m</span>, <span class='ident'>amount</span>)
+    <span class='ident'>RotationWithTranslation</span>::<span class='ident'>append_rotation_wrt_center</span>(<span class='ident'>m</span>, <span class='ident'>amount</span>)
+}
+
+<span class='comment'>/*
+ * RotationTo
+ */</span>
+<span class='doccomment'>/// Computes the angle of the rotation needed to transfom `a` to `b`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>angle_between</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>RotationTo</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>::<span class='ident'>AngleType</span> {
+    <span class='ident'>a</span>.<span class='ident'>angle_to</span>(<span class='ident'>b</span>)
+}
+
+<span class='doccomment'>/// Computes the rotation needed to transform `a` to `b`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>rotation_between</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>RotationTo</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>::<span class='ident'>DeltaRotationType</span> {
+    <span class='ident'>a</span>.<span class='ident'>rotation_to</span>(<span class='ident'>b</span>)
 }
 
 <span class='comment'>/*
@@ -1590,7 +1576,11 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 <span class='doccomment'>/// Builds a rotation matrix from `r`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_rot_mat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>R</span>: <span class='ident'>RotationMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>AV</span><span class='op'>&gt;&gt;</span>(<span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>R</span>::<span class='ident'>Output</span> {
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_rot_mat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>R</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span>
+    <span class='kw'>where</span> <span class='ident'>R</span>: <span class='ident'>RotationMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span>,
+          <span class='ident'>M</span>: <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Copy</span>
+{
+    <span class='comment'>// FIXME: rust-lang/rust#20413</span>
     <span class='ident'>r</span>.<span class='ident'>to_rot_mat</span>()
 }
 
@@ -1623,7 +1613,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Gets a transformed copy of `m`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>append_transformation</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>M</span>: <span class='ident'>Transformation</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
-    <span class='ident'>Transformation</span>::<span class='ident'>append_transformation_cpy</span>(<span class='ident'>m</span>, <span class='ident'>t</span>)
+    <span class='ident'>Transformation</span>::<span class='ident'>append_transformation</span>(<span class='ident'>m</span>, <span class='ident'>t</span>)
 }
 
 <span class='comment'>/*
@@ -1671,7 +1661,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Gets the normalized version of a vector.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>normalize</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span>: <span class='ident'>BaseFloat</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
-    <span class='ident'>Norm</span>::<span class='ident'>normalize_cpy</span>(<span class='ident'>v</span>)
+    <span class='ident'>Norm</span>::<span class='ident'>normalize</span>(<span class='ident'>v</span>)
 }
 
 <span class='comment'>/*
@@ -1689,7 +1679,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 <span class='doccomment'>/// Computes the cross product of two vectors.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cross</span><span class='op'>&lt;</span><span class='ident'>LV</span>: <span class='ident'>Cross</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>) <span class='op'>-&gt;</span> <span class='ident'>LV</span>::<span class='ident'>Output</span> {
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cross</span><span class='op'>&lt;</span><span class='ident'>LV</span>: <span class='ident'>Cross</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>) <span class='op'>-&gt;</span> <span class='ident'>LV</span>::<span class='ident'>CrossProductType</span> {
     <span class='ident'>Cross</span>::<span class='ident'>cross</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
@@ -1777,7 +1767,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Gets an inverted copy of a matrix.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Inv</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span> {
-    <span class='ident'>Inv</span>::<span class='ident'>inv_cpy</span>(<span class='ident'>m</span>)
+    <span class='ident'>Inv</span>::<span class='ident'>inv</span>(<span class='ident'>m</span>)
 }
 
 <span class='comment'>/*
@@ -1787,7 +1777,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// Gets a transposed copy of a matrix.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>transpose</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Transpose</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
-    <span class='ident'>Transpose</span>::<span class='ident'>transpose_cpy</span>(<span class='ident'>m</span>)
+    <span class='ident'>Transpose</span>::<span class='ident'>transpose</span>(<span class='ident'>m</span>)
 }
 
 <span class='comment'>/*
@@ -1796,7 +1786,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 <span class='doccomment'>/// Computes the outer product of two vectors.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>outer</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Outer</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>outer</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Outer</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>::<span class='ident'>OuterProductType</span> {
     <span class='ident'>Outer</span>::<span class='ident'>outer</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
@@ -1842,6 +1832,18 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_identity</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Eye</span><span class='op'>&gt;</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
     <span class='ident'>Eye</span>::<span class='ident'>new_identity</span>(<span class='ident'>dim</span>)
+}
+
+
+<span class='comment'>/*
+ * Repeat
+ */</span>
+<span class='doccomment'>/// Create an object by repeating a value.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Same as `Identity::new()`.</span>
+<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>repeat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>T</span>: <span class='ident'>Repeat</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>val</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
+    <span class='ident'>Repeat</span>::<span class='ident'>repeat</span>(<span class='ident'>val</span>)
 }
 
 <span class='comment'>/*

@@ -319,11 +319,29 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Traits of operations having a well-known or explicit geometric meaning.</span>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Neg</span>;
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>BaseFloat</span>, <span class='ident'>Mat</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>BaseFloat</span>, <span class='ident'>SquareMat</span>};
 
 <span class='doccomment'>/// Trait of object which represent a translation, and to wich new translation</span>
 <span class='doccomment'>/// can be appended.</span>
@@ -336,16 +354,16 @@
     <span class='kw'>fn</span> <span class='ident'>inv_translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>;
 
     <span class='doccomment'>/// Appends a translation to this object.</span>
-    <span class='kw'>fn</span> <span class='ident'>append_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
+    <span class='kw'>fn</span> <span class='ident'>append_translation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
 
     <span class='doccomment'>/// Appends the translation `amount` to a copy of `t`.</span>
-    <span class='kw'>fn</span> <span class='ident'>append_translation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>append_translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 
     <span class='doccomment'>/// Prepends a translation to this object.</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
+    <span class='kw'>fn</span> <span class='ident'>prepend_translation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
 
     <span class='doccomment'>/// Prepends the translation `amount` to a copy of `t`.</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_translation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>prepend_translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 
     <span class='doccomment'>/// Sets the translation.</span>
     <span class='kw'>fn</span> <span class='ident'>set_translation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>V</span>);
@@ -371,19 +389,35 @@
     <span class='kw'>fn</span> <span class='ident'>inv_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>;
 
     <span class='doccomment'>/// Appends a rotation to this object.</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
+    <span class='kw'>fn</span> <span class='ident'>append_rotation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
 
     <span class='doccomment'>/// Appends the rotation `amount` to a copy of `t`.</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 
     <span class='doccomment'>/// Prepends a rotation to this object.</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
+    <span class='kw'>fn</span> <span class='ident'>prepend_rotation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
 
     <span class='doccomment'>/// Prepends the rotation `amount` to a copy of `t`.</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 
     <span class='doccomment'>/// Sets the rotation of `self`.</span>
     <span class='kw'>fn</span> <span class='ident'>set_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>V</span>);
+}
+
+<span class='doccomment'>/// Trait of object that can be rotated to be superimposed with another one of the same nature.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>RotationTo</span> {
+    <span class='doccomment'>/// Type of the angle between two elements.</span>
+    <span class='kw'>type</span> <span class='ident'>AngleType</span>;
+
+    <span class='doccomment'>/// Type of the rotation between two elements.</span>
+    <span class='kw'>type</span> <span class='ident'>DeltaRotationType</span>;
+
+    <span class='doccomment'>/// Computes an angle nedded to transform the first element to the second one using a</span>
+    <span class='doccomment'>/// rotation.</span>
+    <span class='kw'>fn</span> <span class='ident'>angle_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>AngleType</span>;
+
+    <span class='doccomment'>/// Computes the smallest rotation needed to transform the first element to the second one.</span>
+    <span class='kw'>fn</span> <span class='ident'>rotation_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>DeltaRotationType</span>;
 }
 
 <span class='doccomment'>/// Trait of objects able to rotate other objects.</span>
@@ -412,11 +446,11 @@
     <span class='doccomment'>///   * `amount` - the rotation to apply.</span>
     <span class='doccomment'>///   * `point` - the center of rotation.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_point_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>, <span class='ident'>center</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='ident'>Translation</span>::<span class='ident'>append_translation_cpy</span>(<span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='op'>-</span><span class='op'>*</span><span class='ident'>center</span>);
+    <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_point</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>, <span class='ident'>center</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='ident'>Translation</span>::<span class='ident'>append_translation</span>(<span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='op'>-</span><span class='op'>*</span><span class='ident'>center</span>);
 
-        <span class='ident'>res</span>.<span class='ident'>append_rotation</span>(<span class='ident'>amount</span>);
-        <span class='ident'>res</span>.<span class='ident'>append_translation</span>(<span class='ident'>center</span>);
+        <span class='ident'>res</span>.<span class='ident'>append_rotation_mut</span>(<span class='ident'>amount</span>);
+        <span class='ident'>res</span>.<span class='ident'>append_translation_mut</span>(<span class='ident'>center</span>);
 
         <span class='ident'>res</span>
     }
@@ -429,10 +463,10 @@
     <span class='doccomment'>///   * `amount` - the rotation to be applied</span>
     <span class='doccomment'>///   * `center` - the new center of rotation</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_point</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>, <span class='ident'>center</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>) {
-        <span class='self'>self</span>.<span class='ident'>append_translation</span>(<span class='kw-2'>&amp;</span><span class='op'>-</span><span class='op'>*</span><span class='ident'>center</span>);
-        <span class='self'>self</span>.<span class='ident'>append_rotation</span>(<span class='ident'>amount</span>);
-        <span class='self'>self</span>.<span class='ident'>append_translation</span>(<span class='ident'>center</span>);
+    <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_point_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>, <span class='ident'>center</span>: <span class='kw-2'>&amp;</span><span class='ident'>LV</span>) {
+        <span class='self'>self</span>.<span class='ident'>append_translation_mut</span>(<span class='kw-2'>&amp;</span><span class='op'>-</span><span class='op'>*</span><span class='ident'>center</span>);
+        <span class='self'>self</span>.<span class='ident'>append_rotation_mut</span>(<span class='ident'>amount</span>);
+        <span class='self'>self</span>.<span class='ident'>append_translation_mut</span>(<span class='ident'>center</span>);
     }
 
     <span class='doccomment'>/// Applies a rotation centered on the translation of `m`.</span>
@@ -441,8 +475,8 @@
     <span class='doccomment'>///   * `t` - the object to be rotated.</span>
     <span class='doccomment'>///   * `amount` - the rotation to apply.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_center_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span> {
-        <span class='ident'>RotationWithTranslation</span>::<span class='ident'>append_rotation_wrt_point_cpy</span>(<span class='self'>self</span>, <span class='ident'>amount</span>, <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>translation</span>())
+    <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_center</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
+        <span class='ident'>RotationWithTranslation</span>::<span class='ident'>append_rotation_wrt_point</span>(<span class='self'>self</span>, <span class='ident'>amount</span>, <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>translation</span>())
     }
 
     <span class='doccomment'>/// Applies a rotation centered on the translation of `m`.</span>
@@ -452,9 +486,9 @@
     <span class='doccomment'>/// # Arguments</span>
     <span class='doccomment'>///   * `amount` - the rotation to apply.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_center</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>) {
+    <span class='kw'>fn</span> <span class='ident'>append_rotation_wrt_center_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>AV</span>) {
         <span class='kw'>let</span> <span class='ident'>center</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>translation</span>();
-        <span class='self'>self</span>.<span class='ident'>append_rotation_wrt_point</span>(<span class='ident'>amount</span>, <span class='kw-2'>&amp;</span><span class='ident'>center</span>)
+        <span class='self'>self</span>.<span class='ident'>append_rotation_wrt_point_mut</span>(<span class='ident'>amount</span>, <span class='kw-2'>&amp;</span><span class='ident'>center</span>)
     }
 }
 
@@ -464,7 +498,8 @@
 <span class='doccomment'>/// Trait of transformation having a rotation extractable as a rotation matrix. This can typically</span>
 <span class='doccomment'>/// be implemented by quaternions to convert them to a rotation matrix.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>RotationMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>AV</span><span class='op'>&gt;</span> : <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Output</span>: <span class='ident'>Mat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>LV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span>;
+    <span class='doccomment'>/// The output rotation matrix type.</span>
+    <span class='kw'>type</span> <span class='ident'>Output</span>: <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span>;
 
     <span class='doccomment'>/// Gets the rotation matrix represented by `self`.</span>
     <span class='kw'>fn</span> <span class='ident'>to_rot_mat</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span>;
@@ -495,16 +530,16 @@
     <span class='kw'>fn</span> <span class='ident'>inv_transformation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span>;
 
     <span class='doccomment'>/// Appends a transformation to this object.</span>
-    <span class='kw'>fn</span> <span class='ident'>append_transformation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>M</span>);
+    <span class='kw'>fn</span> <span class='ident'>append_transformation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>M</span>);
 
     <span class='doccomment'>/// Appends the transformation `amount` to a copy of `t`.</span>
-    <span class='kw'>fn</span> <span class='ident'>append_transformation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>append_transformation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 
     <span class='doccomment'>/// Prepends a transformation to this object.</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_transformation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>M</span>);
+    <span class='kw'>fn</span> <span class='ident'>prepend_transformation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='ident'>M</span>);
 
     <span class='doccomment'>/// Prepends the transformation `amount` to a copy of `t`.</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_transformation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>prepend_transformation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>amount</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 
     <span class='doccomment'>/// Sets the transformation of `self`.</span>
     <span class='kw'>fn</span> <span class='ident'>set_transformation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>M</span>);
@@ -525,7 +560,7 @@
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Dot</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Computes the dot (inner) product of two vectors.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>dot</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
+    <span class='kw'>fn</span> <span class='ident'>dot</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
 }
 
 <span class='doccomment'>/// Traits of objects having an euclidian norm.</span>
@@ -542,20 +577,21 @@
     <span class='kw'>fn</span> <span class='ident'>sqnorm</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
 
     <span class='doccomment'>/// Gets the normalized version of a copy of `v`.</span>
-    <span class='kw'>fn</span> <span class='ident'>normalize_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>normalize</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 
     <span class='doccomment'>/// Normalizes `self`.</span>
-    <span class='kw'>fn</span> <span class='ident'>normalize</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
+    <span class='kw'>fn</span> <span class='ident'>normalize_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span>;
 }
 
 <span class='doccomment'>/**
  * Trait of elements having a cross product.
  */</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Cross</span> {
-    <span class='kw'>type</span> <span class='ident'>Output</span>;
+    <span class='doccomment'>/// The cross product output.</span>
+    <span class='kw'>type</span> <span class='ident'>CrossProductType</span>;
 
     <span class='doccomment'>/// Computes the cross product between two elements (usually vectors).</span>
-    <span class='kw'>fn</span> <span class='ident'>cross</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span>;
+    <span class='kw'>fn</span> <span class='ident'>cross</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>CrossProductType</span>;
 }
 
 <span class='doccomment'>/**
@@ -579,7 +615,7 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// Note that this this is not required that `from` is the inverse of `to_homogeneous`.</span>
     <span class='doccomment'>/// Typically, `from` will remove some informations unrecoverable by `to_homogeneous`.</span>
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='kw-2'>&amp;</span><span class='ident'>U</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='kw-2'>&amp;</span><span class='ident'>U</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 }
 
 <span class='doccomment'>/// Trait of vectors able to sample a unit sphere.</span>
@@ -588,14 +624,14 @@
 <span class='doccomment'>/// function.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>UniformSphereSample</span> {
     <span class='doccomment'>/// Iterate through the samples.</span>
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>F</span>: <span class='ident'>FnMut</span>(<span class='ident'>Self</span>)<span class='op'>&gt;</span>(<span class='ident'>F</span>);
+    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>F</span>: <span class='ident'>FnMut</span>(<span class='kw'>Self</span>)<span class='op'>&gt;</span>(<span class='ident'>F</span>);
 }
 
 <span class='doccomment'>/// The zero element of a vector space, seen as an element of its embeding affine space.</span>
 <span class='comment'>// XXX: once associated types are suported, move this to the `AnyPnt` trait.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Orig</span> {
     <span class='doccomment'>/// The trivial origin.</span>
-    <span class='kw'>fn</span> <span class='ident'>orig</span>() <span class='op'>-&gt;</span> <span class='ident'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>orig</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
     <span class='doccomment'>/// Returns true if this points is exactly the trivial origin.</span>
     <span class='kw'>fn</span> <span class='ident'>is_orig</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
 }

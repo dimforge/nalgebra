@@ -495,16 +495,58 @@
 <span id="453">453</span>
 <span id="454">454</span>
 <span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Rotations matrices.</span>
 
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Mul</span>, <span class='ident'>Neg</span>, <span class='ident'>Index</span>};
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Rotate</span>, <span class='ident'>Rotation</span>, <span class='ident'>AbsoluteRotate</span>, <span class='ident'>RotationMatrix</span>, <span class='ident'>Transform</span>, <span class='ident'>ToHomogeneous</span>,
-                       <span class='ident'>Norm</span>, <span class='ident'>Cross</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Row</span>, <span class='ident'>Col</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>Zero</span>, <span class='ident'>One</span>};
+<span class='kw'>use</span> <span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
+<span class='kw'>use</span> <span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Rotate</span>, <span class='ident'>Rotation</span>, <span class='ident'>AbsoluteRotate</span>, <span class='ident'>RotationMatrix</span>, <span class='ident'>RotationTo</span>, <span class='ident'>Transform</span>,
+                       <span class='ident'>ToHomogeneous</span>, <span class='ident'>Norm</span>, <span class='ident'>Cross</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Row</span>, <span class='ident'>Col</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>Eye</span>, <span class='ident'>Diag</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Absolute</span>, <span class='ident'>Inv</span>, <span class='ident'>Transpose</span>, <span class='ident'>ApproxEq</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>vec</span>::{<span class='ident'>Vec1</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec4</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>pnt</span>::{<span class='ident'>Pnt2</span>, <span class='ident'>Pnt3</span>, <span class='ident'>Pnt4</span>};
@@ -514,7 +556,8 @@
 
 
 <span class='doccomment'>/// Two dimensional rotation matrix.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>, <span class='ident'>Hash</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>Hash</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='ident'>submat</span>: <span class='ident'>Mat2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
 }
@@ -542,28 +585,43 @@
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rotation</span>::<span class='ident'>append_rotation_cpy</span>(<span class='self'>self</span>, <span class='ident'>rot</span>)
+    <span class='kw'>fn</span> <span class='ident'>append_rotation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rotation</span>::<span class='ident'>append_rotation</span>(<span class='self'>self</span>, <span class='ident'>rot</span>)
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
         <span class='ident'>Rot2</span>::<span class='ident'>new</span>(<span class='ident'>rot</span>.<span class='ident'>clone</span>()) <span class='op'>*</span> <span class='op'>*</span><span class='self'>self</span>
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rotation</span>::<span class='ident'>prepend_rotation_cpy</span>(<span class='self'>self</span>, <span class='ident'>rot</span>)
+    <span class='kw'>fn</span> <span class='ident'>prepend_rotation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rotation</span>::<span class='ident'>prepend_rotation</span>(<span class='self'>self</span>, <span class='ident'>rot</span>)
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
         <span class='op'>*</span><span class='self'>self</span> <span class='op'>*</span> <span class='ident'>Rot2</span>::<span class='ident'>new</span>(<span class='ident'>rot</span>.<span class='ident'>clone</span>())
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>set_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rot</span>: <span class='ident'>Vec1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
         <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rot2</span>::<span class='ident'>new</span>(<span class='ident'>rot</span>)
+    }
+}
+
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span><span class='op'>&gt;</span> <span class='ident'>RotationTo</span> <span class='kw'>for</span> <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='kw'>type</span> <span class='ident'>AngleType</span> <span class='op'>=</span> <span class='ident'>N</span>;
+    <span class='kw'>type</span> <span class='ident'>DeltaRotationType</span> <span class='op'>=</span> <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>;
+
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>angle_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
+        <span class='self'>self</span>.<span class='ident'>rotation_to</span>(<span class='ident'>other</span>).<span class='ident'>rotation</span>().<span class='ident'>norm</span>()
+    }
+
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>rotation_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+        <span class='op'>*</span><span class='ident'>other</span> <span class='op'>*</span> ::<span class='ident'>inv</span>(<span class='self'>self</span>).<span class='ident'>unwrap</span>()
     }
 }
 
@@ -599,7 +657,8 @@
  * 3d rotation
  */</span>
 <span class='doccomment'>/// Three dimensional rotation matrix.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>, <span class='ident'>Hash</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>Hash</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='ident'>submat</span>: <span class='ident'>Mat3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
 }
@@ -617,7 +676,7 @@
         }
         <span class='kw'>else</span> {
             <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>axis</span>   <span class='op'>=</span> <span class='ident'>axisangle</span>;
-            <span class='kw'>let</span> <span class='ident'>angle</span>      <span class='op'>=</span> <span class='ident'>axis</span>.<span class='ident'>normalize</span>();
+            <span class='kw'>let</span> <span class='ident'>angle</span>      <span class='op'>=</span> <span class='ident'>axis</span>.<span class='ident'>normalize_mut</span>();
             <span class='kw'>let</span> <span class='ident'>_1</span>: <span class='ident'>N</span>      <span class='op'>=</span> ::<span class='ident'>one</span>();
             <span class='kw'>let</span> <span class='ident'>ux</span>         <span class='op'>=</span> <span class='ident'>axis</span>.<span class='ident'>x</span>.<span class='ident'>clone</span>();
             <span class='kw'>let</span> <span class='ident'>uy</span>         <span class='op'>=</span> <span class='ident'>axis</span>.<span class='ident'>y</span>.<span class='ident'>clone</span>();
@@ -685,8 +744,8 @@
     <span class='doccomment'>///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear</span>
     <span class='doccomment'>///   with `at`. Non-colinearity is not checked.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
-        <span class='kw'>let</span> <span class='ident'>xaxis</span> <span class='op'>=</span> <span class='ident'>Norm</span>::<span class='ident'>normalize_cpy</span>(<span class='ident'>at</span>);
-        <span class='kw'>let</span> <span class='ident'>zaxis</span> <span class='op'>=</span> <span class='ident'>Norm</span>::<span class='ident'>normalize_cpy</span>(<span class='kw-2'>&amp;</span><span class='ident'>Cross</span>::<span class='ident'>cross</span>(<span class='ident'>up</span>, <span class='kw-2'>&amp;</span><span class='ident'>xaxis</span>));
+        <span class='kw'>let</span> <span class='ident'>xaxis</span> <span class='op'>=</span> <span class='ident'>Norm</span>::<span class='ident'>normalize</span>(<span class='ident'>at</span>);
+        <span class='kw'>let</span> <span class='ident'>zaxis</span> <span class='op'>=</span> <span class='ident'>Norm</span>::<span class='ident'>normalize</span>(<span class='kw-2'>&amp;</span><span class='ident'>Cross</span>::<span class='ident'>cross</span>(<span class='ident'>up</span>, <span class='kw-2'>&amp;</span><span class='ident'>xaxis</span>));
         <span class='kw'>let</span> <span class='ident'>yaxis</span> <span class='op'>=</span> <span class='ident'>Cross</span>::<span class='ident'>cross</span>(<span class='kw-2'>&amp;</span><span class='ident'>zaxis</span>, <span class='kw-2'>&amp;</span><span class='ident'>xaxis</span>);
 
         <span class='self'>self</span>.<span class='ident'>submat</span> <span class='op'>=</span> <span class='ident'>Mat3</span>::<span class='ident'>new</span>(
@@ -702,8 +761,8 @@
     <span class='doccomment'>///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear</span>
     <span class='doccomment'>///   with `at`. Non-colinearity is not checked.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at_z</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>at</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>up</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
-        <span class='kw'>let</span> <span class='ident'>zaxis</span> <span class='op'>=</span> <span class='ident'>Norm</span>::<span class='ident'>normalize_cpy</span>(<span class='ident'>at</span>);
-        <span class='kw'>let</span> <span class='ident'>xaxis</span> <span class='op'>=</span> <span class='ident'>Norm</span>::<span class='ident'>normalize_cpy</span>(<span class='kw-2'>&amp;</span><span class='ident'>Cross</span>::<span class='ident'>cross</span>(<span class='ident'>up</span>, <span class='kw-2'>&amp;</span><span class='ident'>zaxis</span>));
+        <span class='kw'>let</span> <span class='ident'>zaxis</span> <span class='op'>=</span> <span class='ident'>Norm</span>::<span class='ident'>normalize</span>(<span class='ident'>at</span>);
+        <span class='kw'>let</span> <span class='ident'>xaxis</span> <span class='op'>=</span> <span class='ident'>Norm</span>::<span class='ident'>normalize</span>(<span class='kw-2'>&amp;</span><span class='ident'>Cross</span>::<span class='ident'>cross</span>(<span class='ident'>up</span>, <span class='kw-2'>&amp;</span><span class='ident'>zaxis</span>));
         <span class='kw'>let</span> <span class='ident'>yaxis</span> <span class='op'>=</span> <span class='ident'>Cross</span>::<span class='ident'>cross</span>(<span class='kw-2'>&amp;</span><span class='ident'>zaxis</span>, <span class='kw-2'>&amp;</span><span class='ident'>xaxis</span>);
 
         <span class='self'>self</span>.<span class='ident'>submat</span> <span class='op'>=</span> <span class='ident'>Mat3</span>::<span class='ident'>new</span>(
@@ -753,28 +812,44 @@
 
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rotation</span>::<span class='ident'>append_rotation_cpy</span>(<span class='self'>self</span>, <span class='ident'>rot</span>)
+    <span class='kw'>fn</span> <span class='ident'>append_rotation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rotation</span>::<span class='ident'>append_rotation</span>(<span class='self'>self</span>, <span class='ident'>rot</span>)
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>axisangle</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>axisangle</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
         <span class='ident'>Rot3</span>::<span class='ident'>new</span>(<span class='ident'>axisangle</span>.<span class='ident'>clone</span>()) <span class='op'>*</span> <span class='op'>*</span><span class='self'>self</span>
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
-        <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rotation</span>::<span class='ident'>prepend_rotation_cpy</span>(<span class='self'>self</span>, <span class='ident'>rot</span>)
+    <span class='kw'>fn</span> <span class='ident'>prepend_rotation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+        <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rotation</span>::<span class='ident'>prepend_rotation</span>(<span class='self'>self</span>, <span class='ident'>rot</span>)
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>axisangle</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>axisangle</span>: <span class='kw-2'>&amp;</span><span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
         <span class='op'>*</span><span class='self'>self</span> <span class='op'>*</span> <span class='ident'>Rot3</span>::<span class='ident'>new</span>(<span class='ident'>axisangle</span>.<span class='ident'>clone</span>())
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>set_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>axisangle</span>: <span class='ident'>Vec3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
         <span class='op'>*</span><span class='self'>self</span> <span class='op'>=</span> <span class='ident'>Rot3</span>::<span class='ident'>new</span>(<span class='ident'>axisangle</span>)
+    }
+}
+
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span><span class='op'>&gt;</span> <span class='ident'>RotationTo</span> <span class='kw'>for</span> <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='kw'>type</span> <span class='ident'>AngleType</span> <span class='op'>=</span> <span class='ident'>N</span>;
+    <span class='kw'>type</span> <span class='ident'>DeltaRotationType</span> <span class='op'>=</span> <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>;
+
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>angle_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
+        <span class='comment'>// FIXME: refactor to avoid the normalization of the rotation axisangle vector.</span>
+        <span class='self'>self</span>.<span class='ident'>rotation_to</span>(<span class='ident'>other</span>).<span class='ident'>rotation</span>().<span class='ident'>norm</span>()
+    }
+
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>rotation_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+        <span class='op'>*</span><span class='ident'>other</span> <span class='op'>*</span> ::<span class='ident'>inv</span>(<span class='self'>self</span>).<span class='ident'>unwrap</span>()
     }
 }
 
@@ -804,7 +879,8 @@
 
 
 <span class='doccomment'>/// Four dimensional rotation matrix.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>, <span class='ident'>Hash</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>Hash</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Rot4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='ident'>submat</span>: <span class='ident'>Mat4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
 }
@@ -862,22 +938,22 @@
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+    <span class='kw'>fn</span> <span class='ident'>append_rotation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
         <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Not yet implemented&quot;</span>)
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
         <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Not yet implemented&quot;</span>)
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
+    <span class='kw'>fn</span> <span class='ident'>prepend_rotation_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) {
         <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Not yet implemented&quot;</span>)
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation_cpy</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>Vec4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Rot4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
         <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Not yet implemented&quot;</span>)
     }
 
@@ -902,6 +978,7 @@
 <span class='macro'>rot_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>, <span class='ident'>Pnt2</span>);
 <span class='macro'>pnt_mul_rot_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>, <span class='ident'>Pnt2</span>);
 <span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>);
+<span class='macro'>eye_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>);
 <span class='macro'>rotation_matrix_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec1</span>);
 <span class='macro'>col_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>, <span class='ident'>Vec2</span>);
 <span class='macro'>row_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>, <span class='ident'>Vec2</span>);
@@ -911,6 +988,7 @@
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>);
 <span class='macro'>transpose_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>);
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>);
+<span class='macro'>diag_impl</span><span class='macro'>!</span>(<span class='ident'>Rot2</span>, <span class='ident'>Vec2</span>);
 
 <span class='macro'>submat_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>, <span class='ident'>Mat3</span>);
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Pnt3</span>);
@@ -922,6 +1000,7 @@
 <span class='macro'>rot_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>, <span class='ident'>Pnt3</span>);
 <span class='macro'>pnt_mul_rot_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>, <span class='ident'>Pnt3</span>);
 <span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>);
+<span class='macro'>eye_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>);
 <span class='macro'>rotation_matrix_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec3</span>);
 <span class='macro'>col_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>, <span class='ident'>Vec3</span>);
 <span class='macro'>row_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>, <span class='ident'>Vec3</span>);
@@ -931,6 +1010,7 @@
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>);
 <span class='macro'>transpose_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>);
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>);
+<span class='macro'>diag_impl</span><span class='macro'>!</span>(<span class='ident'>Rot3</span>, <span class='ident'>Vec3</span>);
 
 <span class='macro'>submat_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>, <span class='ident'>Mat4</span>);
 <span class='macro'>rotate_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Pnt4</span>);
@@ -942,6 +1022,7 @@
 <span class='macro'>rot_mul_pnt_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>, <span class='ident'>Pnt4</span>);
 <span class='macro'>pnt_mul_rot_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>, <span class='ident'>Pnt4</span>);
 <span class='macro'>one_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>);
+<span class='macro'>eye_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>);
 <span class='macro'>rotation_matrix_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec4</span>);
 <span class='macro'>col_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>, <span class='ident'>Vec4</span>);
 <span class='macro'>row_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>, <span class='ident'>Vec4</span>);
@@ -951,6 +1032,7 @@
 <span class='macro'>inv_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>);
 <span class='macro'>transpose_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>);
 <span class='macro'>approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>);
+<span class='macro'>diag_impl</span><span class='macro'>!</span>(<span class='ident'>Rot4</span>, <span class='ident'>Vec4</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

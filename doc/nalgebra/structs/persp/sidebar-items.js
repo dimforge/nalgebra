@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Persp3","A 3D perspective projection stored without any matrix."],["PerspMat3","A 3D perspective projection stored as a 4D matrix."]]});

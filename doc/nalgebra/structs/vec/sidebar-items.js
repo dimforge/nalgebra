@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Vec0","Vector of dimension 0."],["Vec1","Vector of dimension 1."],["Vec2","Vector of dimension 2."],["Vec3","Vector of dimension 3."],["Vec4","Vector of dimension 4."],["Vec5","Vector of dimension 5."],["Vec6","Vector of dimension 6."]]});

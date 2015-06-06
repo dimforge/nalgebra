@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Ortho3","A 3D orthographic projection stored without any matrix."],["OrthoMat3","A 3D orthographic projection stored as a 4D matrix."]]});

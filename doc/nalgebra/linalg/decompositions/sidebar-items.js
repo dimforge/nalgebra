@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["householder_matrix","Get the householder matrix corresponding to a reflexion to the hyperplane defined by `vec`. It can be a reflexion contained in a subspace."],["qr","QR decomposition using Householder reflections."]]});

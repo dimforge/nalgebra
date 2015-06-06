@@ -199,16 +199,21 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Isometric transformations.</span>
 
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Add</span>, <span class='ident'>Sub</span>, <span class='ident'>Mul</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Add</span>, <span class='ident'>Sub</span>, <span class='ident'>Mul</span>, <span class='ident'>Neg</span>};
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
+<span class='kw'>use</span> <span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
+<span class='kw'>use</span> <span class='ident'>num</span>::<span class='ident'>One</span>;
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>mat</span>::{<span class='ident'>Mat3</span>, <span class='ident'>Mat4</span>, <span class='ident'>Mat5</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Col</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>One</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Cast</span>, <span class='ident'>Dim</span>, <span class='ident'>Col</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Inv</span>, <span class='ident'>ApproxEq</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>RotationMatrix</span>, <span class='ident'>Rotation</span>, <span class='ident'>Rotate</span>, <span class='ident'>AbsoluteRotate</span>, <span class='ident'>Transform</span>, <span class='ident'>Transformation</span>,
                        <span class='ident'>Translate</span>, <span class='ident'>Translation</span>, <span class='ident'>ToHomogeneous</span>};
@@ -225,7 +230,8 @@
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// This is the composition of a rotation followed by a translation.</span>
 <span class='doccomment'>/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Iso2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// The rotation applicable by this isometry.</span>
     <span class='kw'>pub</span> <span class='ident'>rotation</span>:    <span class='ident'>Rot2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
@@ -237,7 +243,8 @@
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// This is the composition of a rotation followed by a translation.</span>
 <span class='doccomment'>/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Iso3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// The rotation applicable by this isometry.</span>
     <span class='kw'>pub</span> <span class='ident'>rotation</span>:    <span class='ident'>Rot3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
@@ -248,7 +255,8 @@
 <span class='doccomment'>/// Four dimensional isometry.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Show</span>, <span class='ident'>Copy</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>, <span class='ident'>RustcDecodable</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Iso4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// The rotation applicable by this isometry.</span>
     <span class='kw'>pub</span> <span class='ident'>rotation</span>:    <span class='ident'>Rot4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,

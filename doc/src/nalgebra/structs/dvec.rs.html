@@ -184,31 +184,25 @@
 <span id="142">142</span>
 <span id="143">143</span>
 <span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Vector with dimensions unknown at compile-time.</span>
 
 <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span> <span class='comment'>// we hide doc to not have to document the $trhs double dispatch trait.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rand</span>::<span class='ident'>Rand</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rand</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::{<span class='ident'>Iter</span>, <span class='ident'>IterMut</span>};
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::<span class='ident'>FromIterator</span>;
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::{<span class='ident'>FromIterator</span>, <span class='ident'>IntoIterator</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::<span class='ident'>repeat</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Add</span>, <span class='ident'>Sub</span>, <span class='ident'>Mul</span>, <span class='ident'>Div</span>, <span class='ident'>Neg</span>, <span class='ident'>Index</span>, <span class='ident'>IndexMut</span>};
+<span class='kw'>use</span> <span class='ident'>rand</span>::{<span class='self'>self</span>, <span class='ident'>Rand</span>};
+<span class='kw'>use</span> <span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>ApproxEq</span>, <span class='ident'>Axpy</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Dot</span>, <span class='ident'>Norm</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>Indexable</span>, <span class='ident'>Shape</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>, <span class='ident'>Zero</span>, <span class='ident'>One</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Iterable</span>, <span class='ident'>IterableMut</span>, <span class='ident'>Indexable</span>, <span class='ident'>Shape</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>};
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;arbitrary&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>quickcheck</span>::{<span class='ident'>Arbitrary</span>, <span class='ident'>Gen</span>};
 
 <span class='doccomment'>/// Heap allocated, dynamically sized vector.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Show</span>, <span class='ident'>Clone</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Debug</span>, <span class='ident'>Clone</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Components of the vector. Contains as much elements as the vector dimension.</span>
     <span class='kw'>pub</span> <span class='ident'>at</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
@@ -251,7 +245,7 @@
     <span class='doccomment'>/// Builds a vector filled with the result of a function.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_fn</span><span class='op'>&lt;</span><span class='ident'>F</span>: <span class='ident'>FnMut</span>(<span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>, <span class='kw-2'>mut</span> <span class='ident'>f</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='ident'>DVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='ident'>DVec</span> { <span class='ident'>at</span>: (<span class='number'>0</span> .. <span class='ident'>dim</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>i</span><span class='op'>|</span> <span class='ident'>f</span>(<span class='ident'>i</span>)).<span class='ident'>collect</span>() }
+        <span class='ident'>DVec</span> { <span class='ident'>at</span>: (<span class='number'>0</span>..<span class='ident'>dim</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>i</span><span class='op'>|</span> <span class='ident'>f</span>(<span class='ident'>i</span>)).<span class='ident'>collect</span>() }
     }
 
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
@@ -262,14 +256,8 @@
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='ident'>FromIterator</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>DVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from_iter</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='ident'>Iterator</span><span class='op'>&lt;</span><span class='ident'>Item</span> <span class='op'>=</span> <span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='kw-2'>mut</span> <span class='ident'>param</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='ident'>DVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='ident'>DVec</span> { <span class='ident'>at</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>() };
-
-        <span class='kw'>for</span> <span class='ident'>e</span> <span class='kw'>in</span> <span class='ident'>param</span> {
-            <span class='ident'>res</span>.<span class='ident'>at</span>.<span class='ident'>push</span>(<span class='ident'>e</span>)
-        }
-
-        <span class='ident'>res</span>
+    <span class='kw'>fn</span> <span class='ident'>from_iter</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='ident'>IntoIterator</span><span class='op'>&lt;</span><span class='ident'>Item</span> <span class='op'>=</span> <span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>param</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='ident'>DVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+        <span class='ident'>DVec</span> { <span class='ident'>at</span>: <span class='ident'>param</span>.<span class='ident'>into_iter</span>().<span class='ident'>collect</span>() }
     }
 }
 

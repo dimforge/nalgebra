@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["DMat","Matrix with dimensions unknown at compile-time."]]});
