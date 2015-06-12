@@ -16,13 +16,23 @@ name = "nalgebra"
 path = "src/lib.rs"
 
 [features]
+default = ["rustc-serialize"]
+serde-serialize = ["serde", "serde_macros"]
 # Generate arbitrary instances of nalgebra types for testing with quickcheck
 arbitrary = ["quickcheck"]
 
 [dependencies]
-rustc-serialize = "*"
 rand = "*"
 num = "*"
+
+[dependencies.rustc-serialize]
+optional = true
+
+[dependencies.serde]
+optional = true
+
+[dependencies.serde_macros]
+optional = true
 
 [dependencies.quickcheck]
 optional = true

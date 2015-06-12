@@ -5,7 +5,9 @@ use std::cmp::Ordering;
 use traits::structure::SquareMat;
 
 /// Result of a partial ordering.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Debug, Copy)]
 pub enum POrdering {
     /// Result of a strict comparison.
     PartialLess,

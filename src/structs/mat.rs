@@ -23,7 +23,9 @@ use quickcheck::{Arbitrary, Gen};
 
 /// Special identity matrix. All its operation are no-ops.
 #[repr(C)]
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Debug, Copy)]
 pub struct Identity;
 
 impl Identity {
@@ -36,7 +38,9 @@ impl Identity {
 
 /// Square matrix of dimension 1.
 #[repr(C)]
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Mat1<N> {
     pub m11: N
 }
@@ -84,7 +88,9 @@ rand_impl!(Mat1, m11);
 
 /// Square matrix of dimension 2.
 #[repr(C)]
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Mat2<N> {
     pub m11: N, pub m21: N,
     pub m12: N, pub m22: N
@@ -137,7 +143,9 @@ rand_impl!(Mat2, m11, m12, m21, m22);
 
 /// Square matrix of dimension 3.
 #[repr(C)]
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Mat3<N> {
     pub m11: N, pub m21: N, pub m31: N,
     pub m12: N, pub m22: N, pub m32: N,
@@ -233,7 +241,9 @@ rand_impl!(Mat3,
 
 /// Square matrix of dimension 4.
 #[repr(C)]
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Mat4<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N,
@@ -352,7 +362,9 @@ rand_impl!(Mat4,
 
 /// Square matrix of dimension 5.
 #[repr(C)]
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Mat5<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N,
@@ -488,7 +500,9 @@ rand_impl!(Mat5,
 
 /// Square matrix of dimension 6.
 #[repr(C)]
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Mat6<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N, pub m61: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N, pub m62: N,
