@@ -5,4 +5,3 @@ script:
     - cargo --version
     - cargo build --verbose
     - cargo test --verbose --features arbitrary
-    - cargo bench --verbose
