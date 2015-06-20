@@ -700,6 +700,15 @@ impl<N: Copy + Add<N, Output = N>> Add<DMat<N>> for DMat<N> {
     }
 }
 
+impl<'a, N: Copy + Add<N, Output = N>> Add<DMat<N>> for &'a DMat<N> {
+    type Output = DMat<N>;
+
+    #[inline]
+    fn add(self, right: DMat<N>) -> DMat<N> {
+        right + self
+    }
+}
+
 impl<'a, N: Copy + Add<N, Output = N>> Add<&'a DMat<N>> for DMat<N> {
     type Output = DMat<N>;
 
@@ -739,6 +748,15 @@ impl<N: Copy + Sub<N, Output = N>> Sub<DMat<N>> for DMat<N> {
     #[inline]
     fn sub(self, right: DMat<N>) -> DMat<N> {
         self - (&right)
+    }
+}
+
+impl<'a, N: Copy + Sub<N, Output = N>> Sub<DMat<N>> for &'a DMat<N> {
+    type Output = DMat<N>;
+
+    #[inline]
+    fn sub(self, right: DMat<N>) -> DMat<N> {
+        right - self
     }
 }
 
