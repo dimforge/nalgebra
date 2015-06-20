@@ -265,7 +265,35 @@ impl<N> IndexMut<(usize, usize)> for DMat<N> {
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<DMat<N>> for DMat<N> {
     type Output = DMat<N>;
 
+    #[inline]
     fn mul(self, right: DMat<N>) -> DMat<N> {
+        (&self) * (&right)
+    }
+}
+
+impl<'a, N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<&'a DMat<N>> for DMat<N> {
+    type Output = DMat<N>;
+
+    #[inline]
+    fn mul(self, right: &'a DMat<N>) -> DMat<N> {
+        (&self) * right
+    }
+}
+
+impl<'a, N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<DMat<N>> for &'a DMat<N> {
+    type Output = DMat<N>;
+
+    #[inline]
+    fn mul(self, right: DMat<N>) -> DMat<N> {
+        right * self
+    }
+}
+
+impl<'a, N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<&'a DMat<N>> for &'a DMat<N> {
+    type Output = DMat<N>;
+
+    #[inline]
+    fn mul(self, right: &DMat<N>) -> DMat<N> {
         assert!(self.ncols == right.nrows);
 
         let mut res = unsafe { DMat::new_uninitialized(self.nrows, right.ncols) };
@@ -668,6 +696,15 @@ impl<N: Copy + Add<N, Output = N>> Add<DMat<N>> for DMat<N> {
 
     #[inline]
     fn add(self, right: DMat<N>) -> DMat<N> {
+        self + (&right)
+    }
+}
+
+impl<'a, N: Copy + Add<N, Output = N>> Add<&'a DMat<N>> for DMat<N> {
+    type Output = DMat<N>;
+
+    #[inline]
+    fn add(self, right: &'a DMat<N>) -> DMat<N> {
         assert!(self.nrows == right.nrows && self.ncols == right.ncols,
                 "Unable to add matrices with different dimensions.");
 
@@ -701,6 +738,15 @@ impl<N: Copy + Sub<N, Output = N>> Sub<DMat<N>> for DMat<N> {
 
     #[inline]
     fn sub(self, right: DMat<N>) -> DMat<N> {
+        self - (&right)
+    }
+}
+
+impl<'a, N: Copy + Sub<N, Output = N>> Sub<&'a DMat<N>> for DMat<N> {
+    type Output = DMat<N>;
+
+    #[inline]
+    fn sub(self, right: &'a DMat<N>) -> DMat<N> {
         assert!(self.nrows == right.nrows && self.ncols == right.ncols,
                 "Unable to subtract matrices with different dimensions.");
 
