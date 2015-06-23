@@ -323,6 +323,38 @@ fn test_dmat_addition() {
 }
 
 #[test]
+fn test_dmat_multiplication() {
+   let mat1 = DMat::from_row_vec(
+        2,
+        2,
+        &[
+            1.0, 2.0,
+            3.0, 4.0
+        ]
+    );
+
+    let mat2 = DMat::from_row_vec(
+        2,
+        2,
+        &[
+            10.0, 20.0,
+            30.0, 40.0
+        ]
+    );
+
+    let res = DMat::from_row_vec(
+        2,
+        2,
+        &[
+            70.0, 100.0,
+            150.0, 220.0
+        ]
+    );
+
+    assert!((mat1 * mat2) == res);
+}
+
+#[test]
 fn test_dmat_subtraction() {
     let mat1 = DMat::from_row_vec(
         2,
