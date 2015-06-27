@@ -41,33 +41,34 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>RotationTo</a><wbr></span><span class='out-of-band'><span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-106404' href='../src/nalgebra/traits/geometry.rs.html#68-81'>[src]</a></span></h1>
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>RotationTo</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-106836' class='srclink' href='../src/nalgebra/traits/geometry.rs.html#68-81' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait RotationTo {
     type AngleType;
     type DeltaRotationType;
-
     fn <a href='#tymethod.angle_to' class='fnname'>angle_to</a>(&amp;self, other: &amp;Self) -&gt; Self::<a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>AngleType</a>;
     fn <a href='#tymethod.rotation_to' class='fnname'>rotation_to</a>(&amp;self, other: &amp;Self) -&gt; Self::<a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>DeltaRotationType</a>;
 }</pre><div class='docblock'><p>Trait of object that can be rotated to be superimposed with another one of the same nature.</p>
 </div>
             <h2 id='associated-types'>Associated Types</h2>
             <div class='methods'>
-        <h3 id='associatedtype.AngleType' class='method'><a class='stability Unmarked' title='No stability level'></a><code>type AngleType</code></h3><div class='docblock'><p>Type of the angle between two elements.</p>
-</div><h3 id='associatedtype.DeltaRotationType' class='method'><a class='stability Unmarked' title='No stability level'></a><code>type DeltaRotationType</code></h3><div class='docblock'><p>Type of the rotation between two elements.</p>
+        <h3 id='associatedtype.AngleType' class='method stab '><code>type AngleType</code></h3><div class='docblock'><p>Type of the angle between two elements.</p>
+</div><h3 id='associatedtype.DeltaRotationType' class='method stab '><code>type DeltaRotationType</code></h3><div class='docblock'><p>Type of the rotation between two elements.</p>
 </div></div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.angle_to' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.angle_to' class='fnname'>angle_to</a>(&amp;self, other: &amp;Self) -&gt; Self::<a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>AngleType</a></code></h3><div class='docblock'><p>Computes an angle nedded to transform the first element to the second one using a
+        <h3 id='tymethod.angle_to' class='method stab '><code>fn <a href='#tymethod.angle_to' class='fnname'>angle_to</a>(&amp;self, other: &amp;Self) -&gt; Self::<a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>AngleType</a></code></h3><div class='docblock'><p>Computes an angle nedded to transform the first element to the second one using a
 rotation.</p>
-</div><h3 id='tymethod.rotation_to' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.rotation_to' class='fnname'>rotation_to</a>(&amp;self, other: &amp;Self) -&gt; Self::<a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>DeltaRotationType</a></code></h3><div class='docblock'><p>Computes the smallest rotation needed to transform the first element to the second one.</p>
+</div><h3 id='tymethod.rotation_to' class='method stab '><code>fn <a href='#tymethod.rotation_to' class='fnname'>rotation_to</a>(&amp;self, other: &amp;Self) -&gt; Self::<a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>DeltaRotationType</a></code></h3><div class='docblock'><p>Computes the smallest rotation needed to transform the first element to the second one.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>RotationTo</a> for <a class='struct' href='../nalgebra/struct.UnitQuat.html' title='nalgebra::UnitQuat'>UnitQuat</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>RotationTo</a> for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>RotationTo</a> for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>RotationTo</a> for <a class='struct' href='../nalgebra/struct.UnitQuat.html' title='nalgebra::UnitQuat'>UnitQuat</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>RotationTo</a> for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationTo.html' title='nalgebra::RotationTo'>RotationTo</a> for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/nalgebra/trait.RotationTo.js">
                       </script></section>
@@ -102,6 +103,10 @@ rotation.</p>
                 <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
             </p>
         </div>
     </div>

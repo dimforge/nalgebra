@@ -41,10 +41,12 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>BaseFloat</a><wbr></span><span class='out-of-band'><span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-106875' href='../src/nalgebra/traits/structure.rs.html#19-51'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait BaseFloat: <a class='trait' href='../num/traits/trait.Float.html' title='num::traits::Float'>Float</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a> {
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>BaseFloat</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-107307' class='srclink' href='../src/nalgebra/traits/structure.rs.html#19-51' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait BaseFloat: <a class='trait' href='http://doc.rust-lang.org/num/num/traits/trait.Float.html' title='num::traits::Float'>Float</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a> {
     fn <a href='#tymethod.pi' class='fnname'>pi</a>() -&gt; Self;
     fn <a href='#tymethod.two_pi' class='fnname'>two_pi</a>() -&gt; Self;
     fn <a href='#tymethod.frac_pi_2' class='fnname'>frac_pi_2</a>() -&gt; Self;
@@ -64,26 +66,26 @@
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.pi' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.pi' class='fnname'>pi</a>() -&gt; Self</code></h3><div class='docblock'><p>Archimedes&#39; constant.</p>
-</div><h3 id='tymethod.two_pi' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.two_pi' class='fnname'>two_pi</a>() -&gt; Self</code></h3><div class='docblock'><p>2.0 * pi.</p>
-</div><h3 id='tymethod.frac_pi_2' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.frac_pi_2' class='fnname'>frac_pi_2</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 2.0.</p>
-</div><h3 id='tymethod.frac_pi_3' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.frac_pi_3' class='fnname'>frac_pi_3</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 3.0.</p>
-</div><h3 id='tymethod.frac_pi_4' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.frac_pi_4' class='fnname'>frac_pi_4</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 4.0.</p>
-</div><h3 id='tymethod.frac_pi_6' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.frac_pi_6' class='fnname'>frac_pi_6</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 6.0.</p>
-</div><h3 id='tymethod.frac_pi_8' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.frac_pi_8' class='fnname'>frac_pi_8</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 8.0.</p>
-</div><h3 id='tymethod.frac_1_pi' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.frac_1_pi' class='fnname'>frac_1_pi</a>() -&gt; Self</code></h3><div class='docblock'><p>1.0 / pi.</p>
-</div><h3 id='tymethod.frac_2_pi' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.frac_2_pi' class='fnname'>frac_2_pi</a>() -&gt; Self</code></h3><div class='docblock'><p>2.0 / pi.</p>
-</div><h3 id='tymethod.frac_2_sqrt_pi' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.frac_2_sqrt_pi' class='fnname'>frac_2_sqrt_pi</a>() -&gt; Self</code></h3><div class='docblock'><p>2.0 / sqrt(pi).</p>
-</div><h3 id='tymethod.e' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.e' class='fnname'>e</a>() -&gt; Self</code></h3><div class='docblock'><p>Euler&#39;s number.</p>
-</div><h3 id='tymethod.log2_e' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.log2_e' class='fnname'>log2_e</a>() -&gt; Self</code></h3><div class='docblock'><p>log2(e).</p>
-</div><h3 id='tymethod.log10_e' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.log10_e' class='fnname'>log10_e</a>() -&gt; Self</code></h3><div class='docblock'><p>log10(e).</p>
-</div><h3 id='tymethod.ln_2' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.ln_2' class='fnname'>ln_2</a>() -&gt; Self</code></h3><div class='docblock'><p>ln(2.0).</p>
-</div><h3 id='tymethod.ln_10' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.ln_10' class='fnname'>ln_10</a>() -&gt; Self</code></h3><div class='docblock'><p>ln(10.0).</p>
+        <h3 id='tymethod.pi' class='method stab '><code>fn <a href='#tymethod.pi' class='fnname'>pi</a>() -&gt; Self</code></h3><div class='docblock'><p>Archimedes&#39; constant.</p>
+</div><h3 id='tymethod.two_pi' class='method stab '><code>fn <a href='#tymethod.two_pi' class='fnname'>two_pi</a>() -&gt; Self</code></h3><div class='docblock'><p>2.0 * pi.</p>
+</div><h3 id='tymethod.frac_pi_2' class='method stab '><code>fn <a href='#tymethod.frac_pi_2' class='fnname'>frac_pi_2</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 2.0.</p>
+</div><h3 id='tymethod.frac_pi_3' class='method stab '><code>fn <a href='#tymethod.frac_pi_3' class='fnname'>frac_pi_3</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 3.0.</p>
+</div><h3 id='tymethod.frac_pi_4' class='method stab '><code>fn <a href='#tymethod.frac_pi_4' class='fnname'>frac_pi_4</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 4.0.</p>
+</div><h3 id='tymethod.frac_pi_6' class='method stab '><code>fn <a href='#tymethod.frac_pi_6' class='fnname'>frac_pi_6</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 6.0.</p>
+</div><h3 id='tymethod.frac_pi_8' class='method stab '><code>fn <a href='#tymethod.frac_pi_8' class='fnname'>frac_pi_8</a>() -&gt; Self</code></h3><div class='docblock'><p>pi / 8.0.</p>
+</div><h3 id='tymethod.frac_1_pi' class='method stab '><code>fn <a href='#tymethod.frac_1_pi' class='fnname'>frac_1_pi</a>() -&gt; Self</code></h3><div class='docblock'><p>1.0 / pi.</p>
+</div><h3 id='tymethod.frac_2_pi' class='method stab '><code>fn <a href='#tymethod.frac_2_pi' class='fnname'>frac_2_pi</a>() -&gt; Self</code></h3><div class='docblock'><p>2.0 / pi.</p>
+</div><h3 id='tymethod.frac_2_sqrt_pi' class='method stab '><code>fn <a href='#tymethod.frac_2_sqrt_pi' class='fnname'>frac_2_sqrt_pi</a>() -&gt; Self</code></h3><div class='docblock'><p>2.0 / sqrt(pi).</p>
+</div><h3 id='tymethod.e' class='method stab '><code>fn <a href='#tymethod.e' class='fnname'>e</a>() -&gt; Self</code></h3><div class='docblock'><p>Euler&#39;s number.</p>
+</div><h3 id='tymethod.log2_e' class='method stab '><code>fn <a href='#tymethod.log2_e' class='fnname'>log2_e</a>() -&gt; Self</code></h3><div class='docblock'><p>log2(e).</p>
+</div><h3 id='tymethod.log10_e' class='method stab '><code>fn <a href='#tymethod.log10_e' class='fnname'>log10_e</a>() -&gt; Self</code></h3><div class='docblock'><p>log10(e).</p>
+</div><h3 id='tymethod.ln_2' class='method stab '><code>fn <a href='#tymethod.ln_2' class='fnname'>ln_2</a>() -&gt; Self</code></h3><div class='docblock'><p>ln(2.0).</p>
+</div><h3 id='tymethod.ln_10' class='method stab '><code>fn <a href='#tymethod.ln_10' class='fnname'>ln_10</a>() -&gt; Self</code></h3><div class='docblock'><p>ln(10.0).</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> for <a href='http://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> for <a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></li>
+    <li><code>impl <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> for <a href='http://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> for <a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/nalgebra/trait.BaseFloat.js">
                       </script></section>
@@ -118,6 +120,10 @@
                 <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
             </p>
         </div>
     </div>

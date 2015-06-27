@@ -41,9 +41,11 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Transformation</a><wbr></span><span class='out-of-band'><span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-106614' href='../src/nalgebra/traits/geometry.rs.html#185-206'>[src]</a></span></h1>
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Transformation</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-107046' class='srclink' href='../src/nalgebra/traits/geometry.rs.html#185-206' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Transformation&lt;M&gt; {
     fn <a href='#tymethod.transformation' class='fnname'>transformation</a>(&amp;self) -&gt; M;
     fn <a href='#tymethod.inv_transformation' class='fnname'>inv_transformation</a>(&amp;self) -&gt; M;
@@ -59,19 +61,19 @@ be appended.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.transformation' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.transformation' class='fnname'>transformation</a>(&amp;self) -&gt; M</code></h3><div class='docblock'><p>Gets the transformation of <code>self</code>.</p>
-</div><h3 id='tymethod.inv_transformation' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.inv_transformation' class='fnname'>inv_transformation</a>(&amp;self) -&gt; M</code></h3><div class='docblock'><p>Gets the inverse transformation of <code>self</code>.</p>
-</div><h3 id='tymethod.append_transformation_mut' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.append_transformation_mut' class='fnname'>append_transformation_mut</a>(&amp;mut self, &amp;M)</code></h3><div class='docblock'><p>Appends a transformation to this object.</p>
-</div><h3 id='tymethod.append_transformation' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.append_transformation' class='fnname'>append_transformation</a>(&amp;self, amount: &amp;M) -&gt; Self</code></h3><div class='docblock'><p>Appends the transformation <code>amount</code> to a copy of <code>t</code>.</p>
-</div><h3 id='tymethod.prepend_transformation_mut' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.prepend_transformation_mut' class='fnname'>prepend_transformation_mut</a>(&amp;mut self, &amp;M)</code></h3><div class='docblock'><p>Prepends a transformation to this object.</p>
-</div><h3 id='tymethod.prepend_transformation' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.prepend_transformation' class='fnname'>prepend_transformation</a>(&amp;self, amount: &amp;M) -&gt; Self</code></h3><div class='docblock'><p>Prepends the transformation <code>amount</code> to a copy of <code>t</code>.</p>
-</div><h3 id='tymethod.set_transformation' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.set_transformation' class='fnname'>set_transformation</a>(&amp;mut self, M)</code></h3><div class='docblock'><p>Sets the transformation of <code>self</code>.</p>
+        <h3 id='tymethod.transformation' class='method stab '><code>fn <a href='#tymethod.transformation' class='fnname'>transformation</a>(&amp;self) -&gt; M</code></h3><div class='docblock'><p>Gets the transformation of <code>self</code>.</p>
+</div><h3 id='tymethod.inv_transformation' class='method stab '><code>fn <a href='#tymethod.inv_transformation' class='fnname'>inv_transformation</a>(&amp;self) -&gt; M</code></h3><div class='docblock'><p>Gets the inverse transformation of <code>self</code>.</p>
+</div><h3 id='tymethod.append_transformation_mut' class='method stab '><code>fn <a href='#tymethod.append_transformation_mut' class='fnname'>append_transformation_mut</a>(&amp;mut self, &amp;M)</code></h3><div class='docblock'><p>Appends a transformation to this object.</p>
+</div><h3 id='tymethod.append_transformation' class='method stab '><code>fn <a href='#tymethod.append_transformation' class='fnname'>append_transformation</a>(&amp;self, amount: &amp;M) -&gt; Self</code></h3><div class='docblock'><p>Appends the transformation <code>amount</code> to a copy of <code>t</code>.</p>
+</div><h3 id='tymethod.prepend_transformation_mut' class='method stab '><code>fn <a href='#tymethod.prepend_transformation_mut' class='fnname'>prepend_transformation_mut</a>(&amp;mut self, &amp;M)</code></h3><div class='docblock'><p>Prepends a transformation to this object.</p>
+</div><h3 id='tymethod.prepend_transformation' class='method stab '><code>fn <a href='#tymethod.prepend_transformation' class='fnname'>prepend_transformation</a>(&amp;self, amount: &amp;M) -&gt; Self</code></h3><div class='docblock'><p>Prepends the transformation <code>amount</code> to a copy of <code>t</code>.</p>
+</div><h3 id='tymethod.set_transformation' class='method stab '><code>fn <a href='#tymethod.set_transformation' class='fnname'>set_transformation</a>(&amp;mut self, M)</code></h3><div class='docblock'><p>Sets the transformation of <code>self</code>.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Transformation.html' title='nalgebra::Transformation'>Transformation</a>&lt;<a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Transformation.html' title='nalgebra::Transformation'>Transformation</a>&lt;<a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Transformation.html' title='nalgebra::Transformation'>Transformation</a>&lt;<a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Transformation.html' title='nalgebra::Transformation'>Transformation</a>&lt;<a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Transformation.html' title='nalgebra::Transformation'>Transformation</a>&lt;<a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Transformation.html' title='nalgebra::Transformation'>Transformation</a>&lt;<a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/nalgebra/trait.Transformation.js">
                       </script></section>
@@ -106,6 +108,10 @@ be appended.</p>
                 <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
             </p>
         </div>
     </div>

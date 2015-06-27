@@ -41,9 +41,11 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Basis</a><wbr></span><span class='out-of-band'><span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-107059' href='../src/nalgebra/traits/structure.rs.html#104-113'>[src]</a></span></h1>
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Basis</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-107491' class='srclink' href='../src/nalgebra/traits/structure.rs.html#104-113' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Basis {
     fn <a href='#tymethod.canonical_basis' class='fnname'>canonical_basis</a>&lt;F: <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(F);
     fn <a href='#tymethod.orthonormal_subspace_basis' class='fnname'>orthonormal_subspace_basis</a>&lt;F: <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(&amp;Self, F);
@@ -52,15 +54,15 @@
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.canonical_basis' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.canonical_basis' class='fnname'>canonical_basis</a>&lt;F: <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(F)</code></h3><div class='docblock'><p>Iterates through the canonical basis of the space in which this object lives.</p>
-</div><h3 id='tymethod.orthonormal_subspace_basis' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.orthonormal_subspace_basis' class='fnname'>orthonormal_subspace_basis</a>&lt;F: <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(&amp;Self, F)</code></h3><div class='docblock'><p>Iterates through a basis of the subspace orthogonal to <code>self</code>.</p>
-</div><h3 id='tymethod.canonical_basis_element' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.canonical_basis_element' class='fnname'>canonical_basis_element</a>(i: <a href='http://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></h3><div class='docblock'><p>Gets the ith element of the canonical basis.</p>
+        <h3 id='tymethod.canonical_basis' class='method stab '><code>fn <a href='#tymethod.canonical_basis' class='fnname'>canonical_basis</a>&lt;F: <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(F)</code></h3><div class='docblock'><p>Iterates through the canonical basis of the space in which this object lives.</p>
+</div><h3 id='tymethod.orthonormal_subspace_basis' class='method stab '><code>fn <a href='#tymethod.orthonormal_subspace_basis' class='fnname'>orthonormal_subspace_basis</a>&lt;F: <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(&amp;Self, F)</code></h3><div class='docblock'><p>Iterates through a basis of the subspace orthogonal to <code>self</code>.</p>
+</div><h3 id='tymethod.canonical_basis_element' class='method stab '><code>fn <a href='#tymethod.canonical_basis_element' class='fnname'>canonical_basis_element</a>(i: <a href='http://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></h3><div class='docblock'><p>Gets the ith element of the canonical basis.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> for <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> for <a class='struct' href='../nalgebra/struct.Vec5.html' title='nalgebra::Vec5'>Vec5</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> for <a class='struct' href='../nalgebra/struct.Vec6.html' title='nalgebra::Vec6'>Vec6</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> for <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> for <a class='struct' href='../nalgebra/struct.Vec5.html' title='nalgebra::Vec5'>Vec5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> for <a class='struct' href='../nalgebra/struct.Vec6.html' title='nalgebra::Vec6'>Vec6</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/nalgebra/trait.Basis.js">
                       </script></section>
@@ -95,6 +97,10 @@
                 <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
             </p>
         </div>
     </div>

@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["getdtablesize",""],["ioctl",""],["madvise",""],["mincore",""]]});

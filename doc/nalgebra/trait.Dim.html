@@ -41,45 +41,47 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Dim</a><wbr></span><span class='out-of-band'><span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-107184' href='../src/nalgebra/traits/structure.rs.html#156-159'>[src]</a></span></h1>
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Dim</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-107616' class='srclink' href='../src/nalgebra/traits/structure.rs.html#156-159' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Dim {
     fn <a href='#tymethod.dim' class='fnname'>dim</a>(unused_mut: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>;
 }</pre><div class='docblock'><p>Trait of objects having a spacial dimension known at compile time.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.dim' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.dim' class='fnname'>dim</a>(unused_mut: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h3><div class='docblock'><p>The dimension of the object.</p>
+        <h3 id='tymethod.dim' class='method stab '><code>fn <a href='#tymethod.dim' class='fnname'>dim</a>(unused_mut: <a class='enum' href='http://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='http://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h3><div class='docblock'><p>The dimension of the object.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec1.html' title='nalgebra::Vec1'>Vec1</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec5.html' title='nalgebra::Vec5'>Vec5</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec6.html' title='nalgebra::Vec6'>Vec6</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt1.html' title='nalgebra::Pnt1'>Pnt1</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt2.html' title='nalgebra::Pnt2'>Pnt2</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt4.html' title='nalgebra::Pnt4'>Pnt4</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt5.html' title='nalgebra::Pnt5'>Pnt5</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt6.html' title='nalgebra::Pnt6'>Pnt6</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Quat.html' title='nalgebra::Quat'>Quat</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.UnitQuat.html' title='nalgebra::UnitQuat'>UnitQuat</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat1.html' title='nalgebra::Mat1'>Mat1</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat2.html' title='nalgebra::Mat2'>Mat2</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat3.html' title='nalgebra::Mat3'>Mat3</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat4.html' title='nalgebra::Mat4'>Mat4</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat5.html' title='nalgebra::Mat5'>Mat5</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat6.html' title='nalgebra::Mat6'>Mat6</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Rot4.html' title='nalgebra::Rot4'>Rot4</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec1.html' title='nalgebra::Vec1'>Vec1</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec5.html' title='nalgebra::Vec5'>Vec5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Vec6.html' title='nalgebra::Vec6'>Vec6</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt1.html' title='nalgebra::Pnt1'>Pnt1</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt2.html' title='nalgebra::Pnt2'>Pnt2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt4.html' title='nalgebra::Pnt4'>Pnt4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt5.html' title='nalgebra::Pnt5'>Pnt5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Pnt6.html' title='nalgebra::Pnt6'>Pnt6</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Quat.html' title='nalgebra::Quat'>Quat</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.UnitQuat.html' title='nalgebra::UnitQuat'>UnitQuat</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat1.html' title='nalgebra::Mat1'>Mat1</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat2.html' title='nalgebra::Mat2'>Mat2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat3.html' title='nalgebra::Mat3'>Mat3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat4.html' title='nalgebra::Mat4'>Mat4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat5.html' title='nalgebra::Mat5'>Mat5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Mat6.html' title='nalgebra::Mat6'>Mat6</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Rot4.html' title='nalgebra::Rot4'>Rot4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/nalgebra/trait.Dim.js">
                       </script></section>
@@ -114,6 +116,10 @@
                 <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
             </p>
         </div>
     </div>

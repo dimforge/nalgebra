@@ -41,16 +41,18 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>CrossMatrix</a><wbr></span><span class='out-of-band'><span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-106756' href='../src/nalgebra/traits/geometry.rs.html#260-264'>[src]</a></span></h1>
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>CrossMatrix</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-107188' class='srclink' href='../src/nalgebra/traits/geometry.rs.html#260-264' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait CrossMatrix&lt;M&gt; {
     fn <a href='#tymethod.cross_matrix' class='fnname'>cross_matrix</a>(&amp;self) -&gt; M;
 }</pre><div class='docblock'><p>Trait of elements having a cross product operation which can be expressed as a matrix.</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.cross_matrix' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.cross_matrix' class='fnname'>cross_matrix</a>(&amp;self) -&gt; M</code></h3><div class='docblock'><p>The matrix associated to any cross product with this vector. I.e. <code>v.cross(anything)</code> =
+        <h3 id='tymethod.cross_matrix' class='method stab '><code>fn <a href='#tymethod.cross_matrix' class='fnname'>cross_matrix</a>(&amp;self) -&gt; M</code></h3><div class='docblock'><p>The matrix associated to any cross product with this vector. I.e. <code>v.cross(anything)</code> =
 <code>v.cross_matrix().rmul(anything)</code>.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
@@ -89,6 +91,10 @@
                 <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
             </p>
         </div>
     </div>

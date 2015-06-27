@@ -41,9 +41,11 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>AbsoluteRotate</a><wbr></span><span class='out-of-band'><span id='render-detail'>
-            <a id="collapse-all" href="#">[-]</a>&nbsp;<a id="expand-all" href="#">[+]</a>
-        </span><a id='src-106601' href='../src/nalgebra/traits/geometry.rs.html#172-179'>[src]</a></span></h1>
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>AbsoluteRotate</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-107033' class='srclink' href='../src/nalgebra/traits/geometry.rs.html#172-179' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait AbsoluteRotate&lt;V&gt; {
     fn <a href='#tymethod.absolute_rotate' class='fnname'>absolute_rotate</a>(&amp;self, v: &amp;V) -&gt; V;
 }</pre><div class='docblock'><p>Composition of a rotation and an absolute value.</p>
@@ -53,19 +55,19 @@ doing so is not easy in generic code as it can be a cause of type over-parametri
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.absolute_rotate' class='method'><a class='stability Unmarked' title='No stability level'></a><code>fn <a href='#tymethod.absolute_rotate' class='fnname'>absolute_rotate</a>(&amp;self, v: &amp;V) -&gt; V</code></h3><div class='docblock'><p>This is the same as:</p>
-<pre id='rust-example-rendered' class='rust '>
+        <h3 id='tymethod.absolute_rotate' class='method stab '><code>fn <a href='#tymethod.absolute_rotate' class='fnname'>absolute_rotate</a>(&amp;self, v: &amp;V) -&gt; V</code></h3><div class='docblock'><p>This is the same as:</p>
+<pre class='rust rust-example-rendered'>
     <span class='self'>self</span>.<span class='ident'>rotation_matrix</span>().<span class='ident'>absolute</span>().<span class='ident'>rmul</span>(<span class='ident'>v</span>)
 </pre>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot4.html' title='nalgebra::Rot4'>Rot4</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
-<li><a class='stability Unmarked' title='No stability level'></a><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot4.html' title='nalgebra::Rot4'>Rot4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.AbsoluteRotate.html' title='nalgebra::AbsoluteRotate'>AbsoluteRotate</a>&lt;<a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/nalgebra/trait.AbsoluteRotate.js">
                       </script></section>
@@ -100,6 +102,10 @@ doing so is not easy in generic code as it can be a cause of type over-parametri
                 <code>struct</code>, <code>enum</code>,
                 <code>trait</code>, <code>typedef</code> (or
                 <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
             </p>
         </div>
     </div>
