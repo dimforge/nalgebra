@@ -10,7 +10,7 @@ bench:
 	cargo bench
 
 doc:
-	cargo doc
+	cargo doc --no-deps
 
 clean:
 	cargo clean
