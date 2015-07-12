@@ -354,6 +354,40 @@ fn test_dmat_multiplication() {
     assert!((mat1 * mat2) == res);
 }
 
+// Tests multiplication of rectangular (non-square) matrices.
+#[test]
+fn test_dmat_multiplication_rect() {
+    let mat1 = DMat::from_row_vec(
+        1,
+        2,
+        &[
+            1.0, 2.0,
+        ]
+    );
+
+    let mat2 = DMat::from_row_vec(
+        2,
+        3,
+        &[
+            3.0, 4.0, 5.0,
+            6.0, 7.0, 8.0,
+        ]
+    );
+
+    let res = DMat::from_row_vec(
+        1,
+        3,
+        &[
+            15.0, 18.0, 21.0,
+        ]
+    );
+
+   assert!((mat1.clone() * mat2.clone()) == res);
+   assert!((&mat1 * mat2.clone()) == res);
+   assert!((mat1.clone() * &mat2) == res);
+   assert!((&mat1 * &mat2) == res);
+}
+
 #[test]
 fn test_dmat_subtraction() {
     let mat1 = DMat::from_row_vec(
