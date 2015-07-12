@@ -1,4 +1,7 @@
-# nalgebra
+[![Build Status](https://travis-ci.org/sebcrozet/nalgebra.svg?branch=master)](https://travis-ci.org/sebcrozet/nalgebra)
+
+nalgebra
+========
 
 **nalgebra** is a low-dimensional linear algebra library written for Rust targeting:
 
