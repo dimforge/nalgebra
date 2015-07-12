@@ -285,11 +285,11 @@ impl<'a, N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<DMat<N>> 
 
     #[inline]
     fn mul(self, right: DMat<N>) -> DMat<N> {
-        right * self
+        self * (&right)
     }
 }
 
-impl<'a, N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<&'a DMat<N>> for &'a DMat<N> {
+impl<'a, 'b, N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<&'b DMat<N>> for &'a DMat<N> {
     type Output = DMat<N>;
 
     #[inline]
