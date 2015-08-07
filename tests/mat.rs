@@ -659,6 +659,19 @@ fn test_cholesky_not_spd() {
 }
 
 #[test]
+fn test_cholesky_not_symmetric() {
+    
+    let a : Mat2<f64> = Mat2::<f64>::new(1.0, 1.0, -1.0, 1.0);
+
+    let result = na::cholesky(&a);
+
+    match result {
+        Ok(_) => assert!(false),
+        Err(_) => assert!(true),
+    }
+}
+
+#[test]
 fn test_cholesky_mat1() {
     test_cholesky_impl!(Mat1<f64>);
 }

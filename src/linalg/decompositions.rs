@@ -127,7 +127,11 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
               Sub<M, Output = M> + ColSlice<VS> +
               ApproxEq<N> + Copy {
 
-    let mut out = m.clone();
+    let mut out = m.clone().transpose();
+
+    if !ApproxEq::approx_eq(&out, &m) {
+        return Err("Cholesky: Input matrix is not symmetric");
+    }
 
     for i in 0..out.nrows() {
         for j in 0..(i+1) {
