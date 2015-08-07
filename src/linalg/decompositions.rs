@@ -115,3 +115,50 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
 
     (eigenvectors, eigenvalues.diag())
 }
+
+/// Cholesky decomposition G of a square symmetric positive definite matrix A, such that A = G * G^T
+///
+/// # Arguments
+/// * `m` - square symmetric positive definite matrix to decompose
+pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
+    where N:  BaseFloat,
+          VS: Indexable<usize, N> + Norm<N>,
+          M:  Indexable<(usize, usize), N> + SquareMat<N, V> + Add<M, Output = M> +
+              Sub<M, Output = M> + ColSlice<VS> +
+              ApproxEq<N> + Copy {
+
+    let mut out = m.clone();
+
+    for i in 0..out.nrows() {
+        for j in 0..(i+1) {
+
+            let mut sum: N = out[(i,j)];
+
+            for k in 0..j {
+                sum = sum - out[(i, k)] * out[(j, k)];
+            }
+
+            if i > j {
+                out[(i, j)] = sum / out[(j, j)];
+            }
+            else if i < j {
+                out[(i,j)] = N::zero();
+            }
+            else if sum > N::zero() {
+                out[(i,i)] = sum.sqrt();
+            }
+            else {
+                return Err("Cholesky: Input matrix is not positive definite to machine precision");
+            }
+        }
+    }
+
+    for i in 0..out.nrows() {
+        for j in i+1..out.ncols() {
+            out[(i,j)] = N::zero();
+        }
+
+    }
+
+    return Ok(out);
+}
