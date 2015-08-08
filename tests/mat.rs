@@ -54,13 +54,11 @@ macro_rules! test_cholesky_impl(
 
       let result = na::cholesky(&randmat);
 
-      match result {
-        Ok(v) => {
-                    let recomp = v * na::transpose(&v);
-                    assert!(na::approx_eq(&randmat,  &recomp));
-                 },
-        Err(_) => assert!(false),
-      }
+      assert!(result.is_ok());
+
+      let v = result.unwrap();
+      let recomp = v * na::transpose(&v);
+      assert!(na::approx_eq(&randmat,  &recomp));
     }
   );
 );
