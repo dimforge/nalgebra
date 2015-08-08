@@ -145,9 +145,6 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
             if i > j {
                 out[(i, j)] = sum / out[(j, j)];
             }
-            else if i < j {
-                out[(i,j)] = N::zero();
-            }
             else if sum > N::zero() {
                 out[(i,i)] = sum.sqrt();
             }
