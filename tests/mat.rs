@@ -633,16 +633,13 @@ fn test_cholesky_const() {
 
     let result = na::cholesky(&a);
 
-    match result {
-        Ok(v) => {
-                    assert!(na::approx_eq(&v, &g));
+    assert!(result.is_ok());
 
-                    let recomp = v * na::transpose(&v);
-                    assert!(na::approx_eq(&recomp, &a));
-                 },
+    let v = result.unwrap();
+    assert!(na::approx_eq(&v, &g));
 
-        Err(_) => assert!(false),
-    }
+    let recomp = v * na::transpose(&v);
+    assert!(na::approx_eq(&recomp, &a));
 }
 
 #[test]
@@ -652,10 +649,7 @@ fn test_cholesky_not_spd() {
 
     let result = na::cholesky(&a);
 
-    match result {
-        Ok(_) => assert!(false),
-        Err(_) => assert!(true),
-    }
+    assert!(result.is_err());
 }
 
 #[test]
@@ -665,10 +659,7 @@ fn test_cholesky_not_symmetric() {
 
     let result = na::cholesky(&a);
 
-    match result {
-        Ok(_) => assert!(false),
-        Err(_) => assert!(true),
-    }
+    assert!(result.is_err());
 }
 
 #[test]
