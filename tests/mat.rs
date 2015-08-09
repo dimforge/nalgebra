@@ -3,7 +3,7 @@ extern crate rand;
 
 use rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot2, Rot3, Persp3, PerspMat3, Ortho3,
-         OrthoMat3, DMat, DVec, Row, Col, BaseFloat};
+         OrthoMat3, DMat, DVec, Row, Col, BaseFloat, Diag};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -36,6 +36,28 @@ macro_rules! test_qr_impl(
       let (q, r) = na::qr(&randmat);
       let recomp = q * r;
 
+      assert!(na::approx_eq(&randmat,  &recomp));
+    }
+  );
+);
+
+macro_rules! test_cholesky_impl(
+  ($t: ty) => (
+    for _ in (0usize .. 10000) {
+      
+      // construct symmetric positive definite matrix
+      let mut randmat : $t = random();
+      let mut diagmat : $t = Diag::from_diag(&na::diag(&randmat));
+
+      diagmat = na::abs(&diagmat) + 1.0;
+      randmat = randmat * diagmat * na::transpose(&randmat);
+
+      let result = na::cholesky(&randmat);
+
+      assert!(result.is_ok());
+
+      let v = result.unwrap();
+      let recomp = v * na::transpose(&v);
       assert!(na::approx_eq(&randmat,  &recomp));
     }
   );
@@ -599,4 +621,71 @@ fn test_ortho() {
     assert!(na::approx_eq(&pm.width(),  &0.1));
     assert!(na::approx_eq(&pm.znear(),  &24.0));
     assert!(na::approx_eq(&pm.zfar(),   &61.0));
+}
+
+#[test]
+fn test_cholesky_const() {
+    
+    let a : Mat3<f64> = Mat3::<f64>::new(1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 3.0);
+    let g : Mat3<f64> = Mat3::<f64>::new(1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0);
+
+    let result = na::cholesky(&a);
+
+    assert!(result.is_ok());
+
+    let v = result.unwrap();
+    assert!(na::approx_eq(&v, &g));
+
+    let recomp = v * na::transpose(&v);
+    assert!(na::approx_eq(&recomp, &a));
+}
+
+#[test]
+fn test_cholesky_not_spd() {
+    
+    let a : Mat3<f64> = Mat3::<f64>::new(1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0, 1.0, 1.0);
+
+    let result = na::cholesky(&a);
+
+    assert!(result.is_err());
+}
+
+#[test]
+fn test_cholesky_not_symmetric() {
+    
+    let a : Mat2<f64> = Mat2::<f64>::new(1.0, 1.0, -1.0, 1.0);
+
+    let result = na::cholesky(&a);
+
+    assert!(result.is_err());
+}
+
+#[test]
+fn test_cholesky_mat1() {
+    test_cholesky_impl!(Mat1<f64>);
+}
+
+#[test]
+fn test_cholesky_mat2() {
+    test_cholesky_impl!(Mat2<f64>);
+}
+
+#[test]
+fn test_cholesky_mat3() {
+    test_cholesky_impl!(Mat3<f64>);
+}
+
+#[test]
+fn test_cholesky_mat4() {
+    test_cholesky_impl!(Mat4<f64>);
+}
+
+#[test]
+fn test_cholesky_mat5() {
+    test_cholesky_impl!(Mat5<f64>);
+}
+
+#[test]
+fn test_cholesky_mat6() {
+    test_cholesky_impl!(Mat6<f64>);
 }
