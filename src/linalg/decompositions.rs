@@ -133,12 +133,12 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
         return Err("Cholesky: Input matrix is not symmetric");
     }
 
-    for i in 0..out.nrows() {
-        for j in 0..(i+1) {
+    for i in 0 .. out.nrows() {
+        for j in 0 .. (i + 1) {
 
-            let mut sum: N = out[(i,j)];
+            let mut sum: N = out[(i, j)];
 
-            for k in 0..j {
+            for k in 0 .. j {
                 sum = sum - out[(i, k)] * out[(j, k)];
             }
 
@@ -146,7 +146,7 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
                 out[(i, j)] = sum / out[(j, j)];
             }
             else if sum > N::zero() {
-                out[(i,i)] = sum.sqrt();
+                out[(i, i)] = sum.sqrt();
             }
             else {
                 return Err("Cholesky: Input matrix is not positive definite to machine precision");
@@ -154,11 +154,10 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
         }
     }
 
-    for i in 0..out.nrows() {
-        for j in i+1..out.ncols() {
-            out[(i,j)] = N::zero();
+    for i in 0 .. out.nrows() {
+        for j in i + 1 .. out.ncols() {
+            out[(i, j)] = N::zero();
         }
-
     }
 
     return Ok(out);
