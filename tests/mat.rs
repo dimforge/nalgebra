@@ -3,7 +3,7 @@ extern crate rand;
 
 use rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot2, Rot3, Persp3, PerspMat3, Ortho3,
-         OrthoMat3, DMat, DVec, Row, Col, BaseFloat, Diag};
+         OrthoMat3, DMat, DVec, Row, Col, BaseFloat, Diag, Transpose, RowSlice};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -688,4 +688,19 @@ fn test_cholesky_mat5() {
 #[test]
 fn test_cholesky_mat6() {
     test_cholesky_impl!(Mat6<f64>);
+}
+
+#[test]
+fn test_transpose_square_mat() {
+    let col_major_mat = &[0, 1, 2, 3,
+                          0, 1, 2, 3,
+                          0, 1, 2, 3,
+                          0, 1, 2, 3];
+    let num_rows = 4;
+    let num_cols = 4;
+    let mut mat = DMat::from_col_vec(num_rows, num_cols, col_major_mat);
+    mat.transpose_mut();
+    for i in 0..num_rows {
+        assert_eq!(&[0, 1, 2, 3], mat.row_slice(i, 0, num_cols).as_slice());
+    }
 }
