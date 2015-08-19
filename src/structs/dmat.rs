@@ -2,7 +2,7 @@
 
 #![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
 
-use std::{cmp, mem};
+use std::cmp;
 use std::iter::repeat;
 use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 use std::fmt::{Debug, Display, Formatter, Result};
@@ -480,16 +480,15 @@ impl<N: Clone + Copy> Transpose for DMat<N> {
     #[inline]
     fn transpose_mut(&mut self) {
         if self.nrows == self.ncols {
-            for i in 1..self.nrows {
-                for j in 0..self.ncols - 1 {
+            let n = self.nrows;
+            for i in 0..n - 1 {
+                for j in i + 1..n {
                     let off_i_j = self.offset(i, j);
                     let off_j_i = self.offset(j, i);
 
                     self.mij[..].swap(off_i_j, off_j_i);
                 }
             }
-
-            mem::swap(&mut self.nrows, &mut self.ncols);
         }
         else {
             // FIXME: implement a better algorithm which does that in-place.
