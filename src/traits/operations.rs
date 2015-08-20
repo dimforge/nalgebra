@@ -1,6 +1,7 @@
 //! Low level operations on vectors and matrices.
 
 use num::{Float, Signed};
+use std::ops::Mul;
 use std::cmp::Ordering;
 use traits::structure::SquareMat;
 
@@ -275,7 +276,7 @@ pub trait Absolute<A> {
 }
 
 /// Trait of objects having an inverse. Typically used to implement matrix inverse.
-pub trait Inv {
+pub trait Inv: Sized {
     /// Returns the inverse of `m`.
     fn inv(&self) -> Option<Self>;
 
@@ -334,7 +335,7 @@ pub trait Mean<N> {
 }
 
 /// Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.
-pub trait EigenQR<N, V>: SquareMat<N, V> {
+pub trait EigenQR<N, V: Mul<Self, Output = V>>: SquareMat<N, V> {
     /// Computes the eigenvectors and eigenvalues of this matrix.
     fn eigen_qr(&self, eps: &N, niter: usize) -> (Self, V);
 }
