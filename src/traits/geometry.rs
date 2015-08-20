@@ -1,6 +1,6 @@
 //! Traits of operations having a well-known or explicit geometric meaning.
 
-use std::ops::Neg;
+use std::ops::{Neg, Mul};
 use traits::structure::{BaseFloat, SquareMat};
 
 /// Trait of object which represent a translation, and to wich new translation
@@ -157,7 +157,7 @@ impl<LV: Neg<Output = LV> + Copy, AV, M: Rotation<AV> + Translation<LV>> Rotatio
 
 /// Trait of transformation having a rotation extractable as a rotation matrix. This can typically
 /// be implemented by quaternions to convert them to a rotation matrix.
-pub trait RotationMatrix<N, LV, AV> : Rotation<AV> {
+pub trait RotationMatrix<N, LV: Mul<Self::Output, Output = LV>, AV> : Rotation<AV> {
     /// The output rotation matrix type.
     type Output: SquareMat<N, LV> + Rotation<AV>;
 
@@ -282,7 +282,7 @@ pub trait FromHomogeneous<U> {
 ///
 /// The number of sample must be sufficient to approximate a sphere using a support mapping
 /// function.
-pub trait UniformSphereSample {
+pub trait UniformSphereSample : Sized {
     /// Iterate through the samples.
     fn sample<F: FnMut(Self)>(F);
 }

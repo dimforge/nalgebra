@@ -81,7 +81,7 @@ extern crate num;
 extern crate quickcheck;
 
 use std::cmp;
-use std::ops::Neg;
+use std::ops::{Neg, Mul};
 use num::{Zero, One};
 pub use traits::{
     Absolute,
@@ -301,7 +301,7 @@ pub fn orig<P: Orig>() -> P {
 
 /// Returns the center of two points.
 #[inline]
-pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy>(a: &P, b: &P) -> P {
+pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy + Norm<N>>(a: &P, b: &P) -> P {
     let _2 = one::<N>() + one();
     (*a + *b.as_vec()) / _2
 }
@@ -582,7 +582,8 @@ pub fn rotation_between<V: RotationTo>(a: &V, b: &V) -> V::DeltaRotationType {
 #[inline(always)]
 pub fn to_rot_mat<N, LV, AV, R, M>(r: &R) -> M
     where R: RotationMatrix<N, LV, AV, Output = M>,
-          M: SquareMat<N, LV> + Rotation<AV> + Copy
+          M: SquareMat<N, LV> + Rotation<AV> + Copy,
+          LV: Mul<M, Output = LV>
 {
     // FIXME: rust-lang/rust#20413
     r.to_rot_mat()
@@ -819,7 +820,9 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
  */
 /// Computes the eigenvalues and eigenvectors of a square matrix usin the QR algorithm.
 #[inline(always)]
-pub fn eigen_qr<N, V, M: EigenQR<N, V>>(m: &M, eps: &N, niter: usize) -> (M, V) {
+pub fn eigen_qr<N, V, M>(m: &M, eps: &N, niter: usize) -> (M, V)
+    where V: Mul<M, Output = V>,
+          M: EigenQR<N, V> {
     EigenQR::eigen_qr(m, eps, niter)
 }
 

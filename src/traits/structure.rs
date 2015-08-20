@@ -59,7 +59,8 @@ pub trait Cast<T> {
 /// Trait of matrices.
 ///
 /// A matrix has rows and columns and are able to multiply them.
-pub trait Mat<N, R, C: Mul<Self, Output = R>>: Row<R> + Col<C> + Mul<R, Output = C> +
+pub trait Mat<N, R, C: Mul<Self, Output = R>>: Sized +
+                                               Row<R> + Col<C> + Mul<R, Output = C> +
                                                Index<(usize, usize), Output = N>
 { }
 
@@ -69,12 +70,14 @@ impl<N, M, R, C> Mat<N, R, C> for M
 { }
 
 /// Trait implemented by square matrices.
-pub trait SquareMat<N, V>: Mat<N, V, V> +
-                           Mul<Self, Output = Self> + Eye + Transpose + Diag<V> + Inv + Dim + One {
+pub trait SquareMat<N, V: Mul<Self, Output = V>>: Mat<N, V, V> +
+                                                  Mul<Self, Output = Self> +
+                                                  Eye + Transpose + Diag<V> + Inv + Dim + One {
 }
 
 impl<N, V, M> SquareMat<N, V> for M
-    where M: Mat<N, V, V> + Mul<M, Output = M> + Eye + Transpose + Diag<V> + Inv + Dim + One {
+    where M: Mat<N, V, V> + Mul<M, Output = M> + Eye + Transpose + Diag<V> + Inv + Dim + One,
+          V: Mul<M, Output = V> {
 }
 
 /// Trait for constructing the identity matrix
@@ -101,7 +104,7 @@ pub trait Bounded {
 
 // FIXME: return an iterator instead
 /// Traits of objects which can form a basis (typically vectors).
-pub trait Basis {
+pub trait Basis: Sized {
     /// Iterates through the canonical basis of the space in which this object lives.
     fn canonical_basis<F: FnMut(Self) -> bool>(F);
 
@@ -153,7 +156,7 @@ pub trait RowSlice<R> {
 }
 
 /// Trait of objects having a spacial dimension known at compile time.
-pub trait Dim {
+pub trait Dim: Sized {
     /// The dimension of the object.
     fn dim(unused_mut: Option<Self>) -> usize;
 }

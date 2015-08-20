@@ -74,6 +74,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 /// Eigendecomposition of a square matrix using the qr algorithm.
 pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     where N:  BaseFloat,
+          V:  Mul<M, Output = V>,
           VS: Indexable<usize, N> + Norm<N>,
           M:  Indexable<(usize, usize), N> + SquareMat<N, V> + Add<M, Output = M> +
               Sub<M, Output = M> + ColSlice<VS> +
@@ -122,6 +123,7 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
 /// * `m` - square symmetric positive definite matrix to decompose
 pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
     where N:  BaseFloat,
+          V:  Mul<M, Output = V>,
           VS: Indexable<usize, N> + Norm<N>,
           M:  Indexable<(usize, usize), N> + SquareMat<N, V> + Add<M, Output = M> +
               Sub<M, Output = M> + ColSlice<VS> +
