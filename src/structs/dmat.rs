@@ -559,7 +559,7 @@ impl<N: Copy> RowSlice<DVec<N>> for DMat<N> {
         assert!(col_start < col_end);
         assert!(col_end <= self.ncols);
         let mut slice : DVec<N> = unsafe {
-            DVec::new_uninitialized(self.nrows)
+            DVec::new_uninitialized(col_end - col_start)
         };
         let mut slice_idx = 0;
         for col_id in col_start..col_end {
