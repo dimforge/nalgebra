@@ -3,7 +3,7 @@ extern crate rand;
 
 use rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot2, Rot3, Persp3, PerspMat3, Ortho3,
-         OrthoMat3, DMat, DVec, Row, Col, BaseFloat, Diag, Transpose, RowSlice};
+         OrthoMat3, DMat, DVec, Row, Col, BaseFloat, Diag, Transpose, RowSlice, ColSlice};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -277,6 +277,49 @@ fn test_transpose_dmat() {
     );
 
     assert!(na::transpose(&na::transpose(&mat)) == mat);
+}
+
+#[test]
+fn test_row_slice_dmat() {
+    let mat = DMat::from_row_vec(
+        5,
+        4,
+        &[
+            1u32,2,  3,  4,
+            5,   6,  7,  8,
+            9,   10, 11, 12,
+            13,  14, 15, 16,
+            17,  18, 19, 20,
+        ]
+    );
+
+    assert_eq!(&DVec::from_slice(4, &[1u32, 2, 3, 4]), &mat.row_slice(0, 0, 4));
+    assert_eq!(&DVec::from_slice(2, &[1u32, 2]), &mat.row_slice(0, 0, 2));
+    assert_eq!(&DVec::from_slice(2, &[10u32, 11]), &mat.row_slice(2, 1, 3));
+    assert_eq!(&DVec::from_slice(2, &[19u32, 20]), &mat.row_slice(4, 2, 4));
+}
+
+#[test]
+fn test_col_slice_dmat() {
+    let mat = DMat::from_row_vec(
+        8,
+        4,
+        &[
+            1u32,2,  3,  4,
+            5,   6,  7,  8,
+            9,   10, 11, 12,
+            13,  14, 15, 16,
+            17,  18, 19, 20,
+            21,  22, 23, 24,
+            25,  26, 27, 28,
+            29,  30, 31, 32
+        ]
+    );
+
+    assert_eq!(&DVec::from_slice(8, &[1u32, 5, 9, 13, 17, 21, 25, 29]), &mat.col_slice(0, 0, 8));
+    assert_eq!(&DVec::from_slice(3, &[1u32, 5, 9]), &mat.col_slice(0, 0, 3));
+    assert_eq!(&DVec::from_slice(5, &[11u32, 15, 19, 23, 27]), &mat.col_slice(2, 2, 7));
+    assert_eq!(&DVec::from_slice(2, &[28u32, 32]), &mat.col_slice(3, 6, 8));
 }
 
 #[test]
