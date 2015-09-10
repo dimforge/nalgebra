@@ -633,11 +633,11 @@ impl<N: ApproxEq<N>> ApproxEq<N> for DMat<N> {
     }
 }
 
-impl<N: Debug + Copy + Display> Debug for DMat<N> {
+impl<N: Debug + Copy> Debug for DMat<N> {
     fn fmt(&self, form:&mut Formatter) -> Result {
         for i in 0..self.nrows() {
             for j in 0..self.ncols() {
-                let _ = write!(form, "{} ", self[(i, j)]);
+                let _ = write!(form, "{:?} ", self[(i, j)]);
             }
             let _ = write!(form, "\n");
         }
