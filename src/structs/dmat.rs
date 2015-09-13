@@ -5,7 +5,7 @@
 use std::cmp;
 use std::iter::repeat;
 use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
-use std::fmt::{Debug, Display, Formatter, Result};
+use std::fmt::{Debug, Formatter, Result};
 use rand::{self, Rand};
 use num::{Zero, One};
 use structs::dvec::DVec;
