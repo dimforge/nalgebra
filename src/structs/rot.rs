@@ -195,41 +195,47 @@ impl<N: Clone + BaseFloat> Rot3<N> {
 }
 
 impl<N: Clone + BaseFloat> Rot3<N> {
-    /// Reorient this matrix such that its local `x` axis points to a given point. Note that the
-    /// usually known `look_at` function does the same thing but with the `z` axis. See `look_at_z`
-    /// for that.
+    /// Create a new matrix and orient it such that its local `x` axis points to a given point.
+    /// Note that the usually known `look_at` function does the same thing but with the `z` axis.
+    /// See `look_at_z` for that.
     ///
     /// # Arguments
     ///   * at - The point to look at. It is also the direction the matrix `x` axis will be aligned
     ///   with
     ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
-    pub fn look_at(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
+    pub fn look_at(at: &Vec3<N>, up: &Vec3<N>) -> Rot3<N> {
         let xaxis = Norm::normalize(at);
         let zaxis = Norm::normalize(&Cross::cross(up, &xaxis));
         let yaxis = Cross::cross(&zaxis, &xaxis);
 
-        self.submat = Mat3::new(
-            xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
-            xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
-            xaxis.z        , yaxis.z        , zaxis.z)
+        unsafe {
+            Rot3::new_with_mat(Mat3::new(
+                xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
+                xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
+                xaxis.z        , yaxis.z        , zaxis.z)
+            )
+        }
     }
 
-    /// Reorient this matrix such that its local `z` axis points to a given point.
+    /// Create a new matrix and orient it such that its local `z` axis points to a given point.
     ///
     /// # Arguments
     ///   * at - The look direction, that is, direction the matrix `y` axis will be aligned with
     ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
-    pub fn look_at_z(&mut self, at: &Vec3<N>, up: &Vec3<N>) {
+    pub fn look_at_z(at: &Vec3<N>, up: &Vec3<N>) -> Rot3<N> {
         let zaxis = Norm::normalize(at);
         let xaxis = Norm::normalize(&Cross::cross(up, &zaxis));
         let yaxis = Cross::cross(&zaxis, &xaxis);
 
-        self.submat = Mat3::new(
-            xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
-            xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
-            xaxis.z        , yaxis.z        , zaxis.z)
+        unsafe {
+            Rot3::new_with_mat(Mat3::new(
+                xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
+                xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
+                xaxis.z        , yaxis.z        , zaxis.z)
+            )
+        }
     }
 }
 
