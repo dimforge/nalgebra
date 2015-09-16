@@ -70,7 +70,7 @@ impl<N: Clone + BaseFloat> Iso3<N> {
     ///   * up - Vector pointing up. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at(&mut self, eye: &Pnt3<N>, at: &Pnt3<N>, up: &Vec3<N>) {
-        self.rotation.look_at(&(*at - *eye), up);
+        self.rotation = Rot3::look_at(&(*at - *eye), up);
         self.translation = eye.as_vec().clone();
     }
 
@@ -84,7 +84,7 @@ impl<N: Clone + BaseFloat> Iso3<N> {
     ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
     pub fn look_at_z(&mut self, eye: &Pnt3<N>, at: &Pnt3<N>, up: &Vec3<N>) {
-        self.rotation.look_at_z(&(*at - *eye), up);
+        self.rotation = Rot3::look_at_z(&(*at - *eye), up);
         self.translation = eye.as_vec().clone();
     }
 }
