@@ -3,7 +3,7 @@ extern crate rand;
 
 use rand::random;
 use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot2, Rot3, Persp3, PerspMat3, Ortho3,
-         OrthoMat3, DMat, DVec, Row, Col, BaseFloat, Diag, Transpose, RowSlice, ColSlice};
+         OrthoMat3, DMat, DVec, Row, Col, BaseFloat, Diag, Transpose, RowSlice, ColSlice, Shape};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -63,28 +63,49 @@ macro_rules! test_cholesky_impl(
   );
 );
 
-// NOTE: deactivated untile we get a better convergence rate.
-// macro_rules! test_eigen_qr_impl(
-//     ($t: ty) => {
-//         for _ in (0usize .. 10000) {
-//             let randmat : $t = random();
-//             // Make it symetric so that we can recompose the matrix to test at the end.
-//             let randmat = na::transpose(&randmat) * randmat;
-// 
-//             let (eigenvectors, eigenvalues) = na::eigen_qr(&randmat, &Float::epsilon(), 100);
-// 
-//             let diag: $t = Diag::from_diag(&eigenvalues);
-// 
-//             let recomp = eigenvectors * diag * na::transpose(&eigenvectors);
-// 
-//             println!("eigenvalues: {}", eigenvalues);
-//             println!("   mat: {}", randmat);
-//             println!("recomp: {}", recomp);
-// 
-//             assert!(na::approx_eq_eps(&randmat,  &recomp, &1.0e-2));
-//         }
-//     }
-// )
+macro_rules! test_hessenberg_impl(
+  ($t: ty) => (
+    for _ in (0usize .. 10000) {
+      
+      let randmat : $t = random();
+
+      let (q, h) = na::hessenberg(&randmat);
+      let recomp = q * h * na::transpose(&q);
+
+      let (rows, cols) = h.shape();
+
+      // Check if `h` has zero entries below the first subdiagonal
+      if cols > 2 {
+          for j in 0..(cols-2) {
+              for i in (j+2)..rows {
+                  assert!(na::approx_eq(&h[(i,j)], &0.0f64));
+              }
+          }
+      }
+
+      assert!(na::approx_eq(&randmat,  &recomp));
+    }
+  );
+);
+
+macro_rules! test_eigen_qr_impl(
+    ($t: ty) => {
+        for _ in (0usize .. 10000) {
+            let randmat : $t = random();
+            // Make it symetric so that we can recompose the matrix to test at the end.
+            let randmat = na::transpose(&randmat) * randmat;
+            let (eigenvectors, eigenvalues) = na::eigen_qr(&randmat, &1e-13, 100);
+ 
+            let diag: $t = Diag::from_diag(&eigenvalues);
+            let recomp = eigenvectors * diag * na::transpose(&eigenvectors);
+            println!("eigenvalues: {:?}", eigenvalues);
+            println!("   mat: {:?}", randmat);
+            println!("recomp: {:?}", recomp);
+
+            assert!(na::approx_eq_eps(&randmat,  &recomp, &1.0e-2));
+        }
+    }
+);
 
 #[test]
 fn test_transpose_mat1() {
@@ -532,36 +553,35 @@ fn test_qr_mat6() {
     test_qr_impl!(Mat6<f64>);
 }
 
-// NOTE: deactivated until we get a better convergence rate.
-// #[test]
-// fn test_eigen_qr_mat1() {
-//     test_eigen_qr_impl!(Mat1<f64>);
-// }
-// 
-// #[test]
-// fn test_eigen_qr_mat2() {
-//     test_eigen_qr_impl!(Mat2<f64>);
-// }
-// 
-// #[test]
-// fn test_eigen_qr_mat3() {
-//     test_eigen_qr_impl!(Mat3<f64>);
-// }
-// 
-// #[test]
-// fn test_eigen_qr_mat4() {
-//     test_eigen_qr_impl!(Mat4<f64>);
-// }
-// 
-// #[test]
-// fn test_eigen_qr_mat5() {
-//     test_eigen_qr_impl!(Mat5<f64>);
-// }
-// 
-// #[test]
-// fn test_eigen_qr_mat6() {
-//     test_eigen_qr_impl!(Mat6<f64>);
-// }
+#[test]
+fn test_eigen_qr_mat1() {
+    test_eigen_qr_impl!(Mat1<f64>);
+}
+
+#[test]
+fn test_eigen_qr_mat2() {
+    test_eigen_qr_impl!(Mat2<f64>);
+}
+
+#[test]
+fn test_eigen_qr_mat3() {
+    test_eigen_qr_impl!(Mat3<f64>);
+}
+
+#[test]
+fn test_eigen_qr_mat4() {
+    test_eigen_qr_impl!(Mat4<f64>);
+}
+
+#[test]
+fn test_eigen_qr_mat5() {
+    test_eigen_qr_impl!(Mat5<f64>);
+}
+
+#[test]
+fn test_eigen_qr_mat6() {
+    test_eigen_qr_impl!(Mat6<f64>);
+}
 
 #[test]
 fn test_from_fn() {
@@ -731,6 +751,36 @@ fn test_cholesky_mat5() {
 #[test]
 fn test_cholesky_mat6() {
     test_cholesky_impl!(Mat6<f64>);
+}
+
+#[test]
+fn test_hessenberg_mat1() {
+    test_hessenberg_impl!(Mat1<f64>);
+}
+
+#[test]
+fn test_hessenberg_mat2() {
+    test_hessenberg_impl!(Mat2<f64>);
+}
+
+#[test]
+fn test_hessenberg_mat3() {
+    test_hessenberg_impl!(Mat3<f64>);
+}
+
+#[test]
+fn test_hessenberg_mat4() {
+    test_hessenberg_impl!(Mat4<f64>);
+}
+
+#[test]
+fn test_hessenberg_mat5() {
+    test_hessenberg_impl!(Mat5<f64>);
+}
+
+#[test]
+fn test_hessenberg_mat6() {
+    test_hessenberg_impl!(Mat6<f64>);
 }
 
 #[test]
