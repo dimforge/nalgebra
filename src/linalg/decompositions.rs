@@ -1,5 +1,5 @@
 use traits::operations::{Transpose, ApproxEq};
-use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat, BaseFloat};
+use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat, BaseFloat, Cast};
 use traits::geometry::Norm;
 use std::cmp::min;
 use std::ops::{Mul, Add, Sub};
@@ -71,7 +71,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
     (q, r)
 }
 
-/// Eigendecomposition of a square matrix using the qr algorithm.
+/// Eigendecomposition of a square symmetric matrix using the qr algorithm
 pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     where N:  BaseFloat,
           V:  Mul<M, Output = V>,
@@ -79,39 +79,165 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
           M:  Indexable<(usize, usize), N> + SquareMat<N, V> + Add<M, Output = M> +
               Sub<M, Output = M> + ColSlice<VS> +
               ApproxEq<N> + Copy {
-    let mut eigenvectors: M = ::one::<M>();
-    let mut eigenvalues = *m;
-    // let mut shifter: M = Eye::new_identity(rows);
+
+    let (mut eigenvectors, mut eigenvalues) = hessenberg(m);
+
+    // Allocate arrays for Givens rotation components
+    let mut c = Vec::<N>::with_capacity(::dim::<M>()-1);
+    let mut s = Vec::<N>::with_capacity(::dim::<M>()-1);
+
+    if ::dim::<M>() == 1 {
+        return (eigenvectors, eigenvalues.diag());
+    }
+
+    unsafe { 
+        c.set_len(::dim::<M>()-1);
+        s.set_len(::dim::<M>()-1);
+    }
 
     let mut iter = 0;
-    for _ in 0..niter {
-        let mut stop = true;
+    let mut curdim = ::dim::<M>()-1;
 
-        for j in 0..::dim::<M>() {
-            for i in 0..j {
-                if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
-                    stop = false;
-                    break;
+    for _ in 0..::dim::<M>() {
+
+        let mut stop = false;
+
+        while !stop && iter < niter {
+
+            let lambda;
+
+            unsafe {
+                let a = eigenvalues.unsafe_at((curdim-1, curdim-1));
+                let b = eigenvalues.unsafe_at((curdim-1, curdim));
+                let c = eigenvalues.unsafe_at((curdim, curdim-1));
+                let d = eigenvalues.unsafe_at((curdim, curdim));
+
+                let trace = a + d;
+                let det = a * d - b * c;
+
+                let constquarter: N = Cast::from(0.25f64);
+                let consthalf: N = Cast::from(0.5f64);
+
+                let e = (constquarter * trace * trace - det).sqrt();
+
+                let lambda1 = consthalf * trace + e;
+                let lambda2 = consthalf * trace - e;
+
+                if (lambda1 - d).abs() < (lambda2 - d).abs() {
+                    lambda = lambda1;
+                }
+                else {
+                    lambda = lambda2;
+                }
+
+            }
+
+            // Shift matrix
+            for k in 0..curdim+1 {
+                unsafe { 
+                    let a = eigenvalues.unsafe_at((k,k));
+                    eigenvalues.unsafe_set((k,k), a - lambda);
+                }
+            }
+            
+
+            // Givens rotation from left
+            for k in 0..curdim {
+                let x_i = unsafe { eigenvalues.unsafe_at((k,k)) };
+                let x_j = unsafe { eigenvalues.unsafe_at((k+1,k)) };
+                let r = (x_i*x_i + x_j*x_j).sqrt();
+                let ctmp = x_i / r;
+                let stmp = -x_j / r;
+
+                c[k] = ctmp;
+                s[k] = stmp;
+
+                for j in k..(curdim+1) {
+
+                    unsafe {
+                        let a = eigenvalues.unsafe_at((k,j));
+                        let b = eigenvalues.unsafe_at((k+1,j));
+
+                        eigenvalues.unsafe_set((k,j), ctmp * a - stmp * b);
+                        eigenvalues.unsafe_set((k+1,j), stmp * a + ctmp * b);
+                    }
+
                 }
             }
 
-            for i in j + 1..::dim::<M>() {
-                if unsafe { eigenvalues.unsafe_at((i, j)) }.abs() >= *eps {
+            // Givens rotation from right applied to eigenvalues
+            for k in 0..curdim {
+                for i in 0..(k+2) {
+
+                    unsafe {
+                        let a = eigenvalues.unsafe_at((i,k));
+                        let b = eigenvalues.unsafe_at((i,k+1));
+
+
+                        eigenvalues.unsafe_set((i,k), c[k] * a - s[k] * b);
+                        eigenvalues.unsafe_set((i,k+1), s[k] * a + c[k] * b);
+                    }
+                }
+
+            }
+
+            
+            // Shift back
+            for k in 0..curdim+1 {
+                unsafe { 
+                    let a = eigenvalues.unsafe_at((k,k));
+                    eigenvalues.unsafe_set((k,k), a + lambda);
+                }
+            }
+            
+
+            // Givens rotation from right applied to eigenvectors
+            for k in 0..curdim {
+                for i in 0..::dim::<M>() {
+
+                    unsafe {
+                        let a = eigenvectors.unsafe_at((i,k));
+                        let b = eigenvectors.unsafe_at((i,k+1));
+
+
+                        eigenvectors.unsafe_set((i,k), c[k] * a - s[k] * b);
+                        eigenvectors.unsafe_set((i,k+1), s[k] * a + c[k] * b);
+                    }
+                }
+            }
+
+            iter = iter + 1;
+
+            stop = true;
+
+            for j in 0..curdim {
+
+                // Check last row
+                if unsafe { eigenvalues.unsafe_at((curdim, j)) }.abs() >= *eps {
+                    stop = false;
+                    break;
+                }
+
+                // Check last column
+                if unsafe { eigenvalues.unsafe_at((j, curdim)) }.abs() >= *eps {
                     stop = false;
                     break;
                 }
             }
         }
+
 
         if stop {
-            break;
+
+            if curdim > 1 {
+                curdim = curdim - 1;
+            }
+            else {
+                break;
+            }
+
         }
-        iter = iter + 1;
 
-        let (q, r) = qr(&eigenvalues);;
-
-        eigenvalues  = r * q;
-        eigenvectors = eigenvectors * q;
     }
 
     (eigenvectors, eigenvalues.diag())
@@ -163,4 +289,49 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
     }
 
     return Ok(out);
+}
+
+/// Hessenberg
+/// Returns the matrix m in Hessenberg form and the corresponding similarity transformation
+///
+/// # Arguments
+/// * `m` - matrix to transform
+///
+/// # Returns
+/// * First return value `q` - Similarity matrix p such that q * h * q^T = m
+/// * Second return value `h` - Matrix m in Hessenberg form
+pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
+    where N: BaseFloat,
+          V: Indexable<usize, N> + Norm<N>,
+          M: Copy + Eye + ColSlice<V> + Transpose + Indexable<(usize, usize), N> +
+             Mul<M, Output = M> {
+    
+    let mut h = m.clone();
+    let (rows, cols) = h.shape();
+
+    let mut q : M = Eye::new_identity(cols);
+
+    if cols <= 2 {
+        return (q, h);
+    }
+
+    for ite in 0..(cols-2) {
+        let mut v = h.col_slice(ite, ite+1, rows);
+
+        let alpha = Norm::norm(&v);
+
+        unsafe {
+            let x = v.unsafe_at(0);
+            v.unsafe_set(0, x - alpha);
+        }
+
+        if !::is_zero(&v.normalize_mut()) {
+            let p: M = householder_matrix(rows, ite+1, v);
+
+            q = q * p;
+            h = p * h * p;
+        }
+    }
+
+    return (q, h);
 }

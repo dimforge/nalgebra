@@ -151,7 +151,8 @@ pub use structs::{
 pub use linalg::{
     qr,
     householder_matrix,
-    cholesky
+    cholesky,
+    hessenberg
 };
 
 mod structs;
