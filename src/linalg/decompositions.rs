@@ -1,7 +1,7 @@
 use traits::operations::{Transpose, ApproxEq};
 use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat, BaseFloat, Cast};
 use traits::geometry::Norm;
-use std::cmp::min;
+use std::cmp;
 use std::ops::{Mul, Add, Sub};
 
 /// Get the householder matrix corresponding to a reflexion to the hyperplane
@@ -22,8 +22,8 @@ pub fn householder_matrix<N, V, M>(dim: usize, start: usize, vec: V) -> M
 
     assert!(dim >= stop);
 
-    for j in (start .. stop) {
-        for i in (start .. stop) {
+    for j in start .. stop {
+        for i in start .. stop {
             unsafe {
                 let vv = vec.unsafe_at(i - start) * vec.unsafe_at(j - start);
                 let qkij = qk.unsafe_at((i, j));
@@ -48,7 +48,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
     let mut q : M = Eye::new_identity(rows);
     let mut r = *m;
 
-    for ite in 0..min(rows - 1, cols) {
+    for ite in 0 .. cmp::min(rows - 1, cols) {
         let mut v = r.col_slice(ite, ite, rows);
         let alpha =
             if unsafe { v.unsafe_at(ite) } >= ::zero() {
@@ -83,22 +83,22 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     let (mut eigenvectors, mut eigenvalues) = hessenberg(m);
 
     // Allocate arrays for Givens rotation components
-    let mut c = Vec::<N>::with_capacity(::dim::<M>()-1);
-    let mut s = Vec::<N>::with_capacity(::dim::<M>()-1);
+    let mut c = Vec::<N>::with_capacity(::dim::<M>() - 1);
+    let mut s = Vec::<N>::with_capacity(::dim::<M>() - 1);
 
     if ::dim::<M>() == 1 {
         return (eigenvectors, eigenvalues.diag());
     }
 
     unsafe { 
-        c.set_len(::dim::<M>()-1);
-        s.set_len(::dim::<M>()-1);
+        c.set_len(::dim::<M>() - 1);
+        s.set_len(::dim::<M>() - 1);
     }
 
     let mut iter = 0;
-    let mut curdim = ::dim::<M>()-1;
+    let mut curdim = ::dim::<M>() - 1;
 
-    for _ in 0..::dim::<M>() {
+    for _ in 0 .. ::dim::<M>() {
 
         let mut stop = false;
 
@@ -107,9 +107,9 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
             let lambda;
 
             unsafe {
-                let a = eigenvalues.unsafe_at((curdim-1, curdim-1));
-                let b = eigenvalues.unsafe_at((curdim-1, curdim));
-                let c = eigenvalues.unsafe_at((curdim, curdim-1));
+                let a = eigenvalues.unsafe_at((curdim - 1, curdim - 1));
+                let b = eigenvalues.unsafe_at((curdim - 1, curdim));
+                let c = eigenvalues.unsafe_at((curdim, curdim - 1));
                 let d = eigenvalues.unsafe_at((curdim, curdim));
 
                 let trace = a + d;
@@ -133,49 +133,49 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
             }
 
             // Shift matrix
-            for k in 0..curdim+1 {
+            for k in 0 .. curdim + 1 {
                 unsafe { 
-                    let a = eigenvalues.unsafe_at((k,k));
-                    eigenvalues.unsafe_set((k,k), a - lambda);
+                    let a = eigenvalues.unsafe_at((k, k));
+                    eigenvalues.unsafe_set((k, k), a - lambda);
                 }
             }
             
 
             // Givens rotation from left
-            for k in 0..curdim {
-                let x_i = unsafe { eigenvalues.unsafe_at((k,k)) };
-                let x_j = unsafe { eigenvalues.unsafe_at((k+1,k)) };
-                let r = (x_i*x_i + x_j*x_j).sqrt();
+            for k in 0 .. curdim {
+                let x_i = unsafe { eigenvalues.unsafe_at((k, k)) };
+                let x_j = unsafe { eigenvalues.unsafe_at((k + 1, k)) };
+                let r = (x_i * x_i + x_j * x_j).sqrt();
                 let ctmp = x_i / r;
                 let stmp = -x_j / r;
 
                 c[k] = ctmp;
                 s[k] = stmp;
 
-                for j in k..(curdim+1) {
+                for j in k .. (curdim + 1) {
 
                     unsafe {
-                        let a = eigenvalues.unsafe_at((k,j));
-                        let b = eigenvalues.unsafe_at((k+1,j));
+                        let a = eigenvalues.unsafe_at((k, j));
+                        let b = eigenvalues.unsafe_at((k + 1, j));
 
-                        eigenvalues.unsafe_set((k,j), ctmp * a - stmp * b);
-                        eigenvalues.unsafe_set((k+1,j), stmp * a + ctmp * b);
+                        eigenvalues.unsafe_set((k, j), ctmp * a - stmp * b);
+                        eigenvalues.unsafe_set((k + 1, j), stmp * a + ctmp * b);
                     }
 
                 }
             }
 
             // Givens rotation from right applied to eigenvalues
-            for k in 0..curdim {
-                for i in 0..(k+2) {
+            for k in 0 .. curdim {
+                for i in 0 .. (k + 2) {
 
                     unsafe {
-                        let a = eigenvalues.unsafe_at((i,k));
-                        let b = eigenvalues.unsafe_at((i,k+1));
+                        let a = eigenvalues.unsafe_at((i, k));
+                        let b = eigenvalues.unsafe_at((i, k + 1));
 
 
-                        eigenvalues.unsafe_set((i,k), c[k] * a - s[k] * b);
-                        eigenvalues.unsafe_set((i,k+1), s[k] * a + c[k] * b);
+                        eigenvalues.unsafe_set((i, k), c[k] * a - s[k] * b);
+                        eigenvalues.unsafe_set((i, k + 1), s[k] * a + c[k] * b);
                     }
                 }
 
@@ -183,25 +183,25 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
 
             
             // Shift back
-            for k in 0..curdim+1 {
+            for k in 0 .. curdim + 1 {
                 unsafe { 
-                    let a = eigenvalues.unsafe_at((k,k));
-                    eigenvalues.unsafe_set((k,k), a + lambda);
+                    let a = eigenvalues.unsafe_at((k, k));
+                    eigenvalues.unsafe_set((k, k), a + lambda);
                 }
             }
             
 
             // Givens rotation from right applied to eigenvectors
-            for k in 0..curdim {
-                for i in 0..::dim::<M>() {
+            for k in 0 .. curdim {
+                for i in 0 .. ::dim::<M>() {
 
                     unsafe {
-                        let a = eigenvectors.unsafe_at((i,k));
-                        let b = eigenvectors.unsafe_at((i,k+1));
+                        let a = eigenvectors.unsafe_at((i, k));
+                        let b = eigenvectors.unsafe_at((i, k + 1));
 
 
-                        eigenvectors.unsafe_set((i,k), c[k] * a - s[k] * b);
-                        eigenvectors.unsafe_set((i,k+1), s[k] * a + c[k] * b);
+                        eigenvectors.unsafe_set((i, k), c[k] * a - s[k] * b);
+                        eigenvectors.unsafe_set((i, k + 1), s[k] * a + c[k] * b);
                     }
                 }
             }
@@ -210,7 +210,7 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
 
             stop = true;
 
-            for j in 0..curdim {
+            for j in 0 .. curdim {
 
                 // Check last row
                 if unsafe { eigenvalues.unsafe_at((curdim, j)) }.abs() >= *eps {
@@ -315,8 +315,8 @@ pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
         return (q, h);
     }
 
-    for ite in 0..(cols-2) {
-        let mut v = h.col_slice(ite, ite+1, rows);
+    for ite in 0 .. (cols - 2) {
+        let mut v = h.col_slice(ite, ite + 1, rows);
 
         let alpha = Norm::norm(&v);
 
@@ -326,7 +326,7 @@ pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
         }
 
         if !::is_zero(&v.normalize_mut()) {
-            let p: M = householder_matrix(rows, ite+1, v);
+            let p: M = householder_matrix(rows, ite + 1, v);
 
             q = q * p;
             h = p * h * p;
