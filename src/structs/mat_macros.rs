@@ -702,7 +702,7 @@ macro_rules! from_homogeneous_impl(
 
 macro_rules! outer_impl(
     ($t: ident, $m: ident) => (
-        impl<N: Copy + Mul<N, Output = N> + Zero> Outer for $t<N> {
+        impl<N: Copy + Debug + Mul<N, Output = N> + Zero> Outer for $t<N> {
             type OuterProductType = $m<N>;
 
             #[inline]
