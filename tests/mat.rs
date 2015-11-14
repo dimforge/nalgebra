@@ -104,6 +104,21 @@ macro_rules! test_eigen_qr_impl(
 
             assert!(na::approx_eq_eps(&randmat,  &recomp, &1.0e-2));
         }
+
+        for _ in (0usize .. 10000) {
+            let randmat : $t = random();
+            // Take only diagonal part
+            let randmat: $t = Diag::from_diag(&randmat.diag());
+            let (eigenvectors, eigenvalues) = na::eigen_qr(&randmat, &1e-13, 100);
+ 
+            let diag: $t = Diag::from_diag(&eigenvalues);
+            let recomp = eigenvectors * diag * na::transpose(&eigenvectors);
+            println!("eigenvalues: {:?}", eigenvalues);
+            println!("   mat: {:?}", randmat);
+            println!("recomp: {:?}", recomp);
+
+            assert!(na::approx_eq_eps(&randmat,  &recomp, &1.0e-2));
+        }
     }
 );
 

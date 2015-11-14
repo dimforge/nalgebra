@@ -145,9 +145,23 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
             for k in 0 .. curdim {
                 let x_i = unsafe { eigenvalues.unsafe_at((k, k)) };
                 let x_j = unsafe { eigenvalues.unsafe_at((k + 1, k)) };
-                let r = (x_i * x_i + x_j * x_j).sqrt();
-                let ctmp = x_i / r;
-                let stmp = -x_j / r;
+
+                let ctmp;
+                let stmp;
+
+                if x_j.abs() < *eps {
+                    ctmp = N::one();
+                    stmp = N::zero();
+                }
+                else if x_i.abs() < *eps {
+                    ctmp = N::zero();
+                    stmp = -N::one();
+                }
+                else {
+                    let r = x_i.hypot(x_j);
+                    ctmp = x_i / r;
+                    stmp = -x_j / r;
+                }
 
                 c[k] = ctmp;
                 s[k] = stmp;
