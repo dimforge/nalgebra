@@ -19,6 +19,7 @@ use traits::geometry::{ToHomogeneous, FromHomogeneous, Orig};
 use linalg;
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
+use std::fmt::Debug;
 
 
 /// Special identity matrix. All its operation are no-ops.

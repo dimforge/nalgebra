@@ -4,6 +4,7 @@ use num::{Float, Signed};
 use std::ops::Mul;
 use std::cmp::Ordering;
 use traits::structure::SquareMat;
+use std::fmt::Debug;
 
 /// Result of a partial ordering.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
@@ -300,9 +301,9 @@ pub trait Transpose {
 }
 
 /// Traits of objects having an outer product.
-pub trait Outer {
+pub trait Outer : Debug {
     /// Result type of the outer product.
-    type OuterProductType;
+    type OuterProductType : Debug;
 
     /// Computes the outer product: `a * b`
     fn outer(&self, other: &Self) -> Self::OuterProductType;
