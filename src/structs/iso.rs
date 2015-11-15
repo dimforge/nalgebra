@@ -69,9 +69,8 @@ impl<N: Clone + BaseFloat> Iso3<N> {
     ///   aligned with.
     ///   * up - Vector pointing up. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
-    pub fn look_at(&mut self, eye: &Pnt3<N>, at: &Pnt3<N>, up: &Vec3<N>) {
-        self.rotation = Rot3::look_at(&(*at - *eye), up);
-        self.translation = eye.as_vec().clone();
+    pub fn look_at(eye: &Pnt3<N>, at: &Pnt3<N>, up: &Vec3<N>) -> Iso3<N> {
+        Iso3::new_with_rotmat(eye.as_vec().clone(), Rot3::look_at(&(*at - *eye), up))
     }
 
     /// Reorient and translate this transformation such that its local `z` axis points to a given
@@ -83,9 +82,8 @@ impl<N: Clone + BaseFloat> Iso3<N> {
     ///   aligned with
     ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
     ///   with `at`. Non-colinearity is not checked.
-    pub fn look_at_z(&mut self, eye: &Pnt3<N>, at: &Pnt3<N>, up: &Vec3<N>) {
-        self.rotation = Rot3::look_at_z(&(*at - *eye), up);
-        self.translation = eye.as_vec().clone();
+    pub fn look_at_z(eye: &Pnt3<N>, at: &Pnt3<N>, up: &Vec3<N>) -> Iso3<N> {
+        Iso3::new_with_rotmat(eye.as_vec().clone(), Rot3::look_at_z(&(*at - *eye), up))
     }
 }
 
