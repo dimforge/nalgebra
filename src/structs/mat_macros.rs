@@ -13,43 +13,40 @@ macro_rules! mat_impl(
   )
 );
 
-macro_rules! as_array_impl(
+macro_rules! conversion_impl(
     ($t: ident, $dim: expr) => (
-        impl<N> $t<N> {
-            /// View this matrix as a column-major array of arrays.
+        impl<N> AsRef<[[N; $dim]; $dim]> for $t<N> {
             #[inline]
-            pub fn as_array(&self) -> &[[N; $dim]; $dim] {
+            fn as_ref(&self) -> &[[N; $dim]; $dim] {
                 unsafe {
                     mem::transmute(self)
                 }
             }
+        }
 
-            /// View this matrix as a column-major mutable array of arrays.
+        impl<N> AsMut<[[N; $dim]; $dim]> for $t<N> {
             #[inline]
-            pub fn as_array_mut<'a>(&'a mut self) -> &'a mut [[N; $dim]; $dim] {
+            fn as_mut(&mut self) -> &mut [[N; $dim]; $dim] {
                 unsafe {
                     mem::transmute(self)
                 }
             }
+        }
 
-            // FIXME: because of https://github.com/rust-lang/rust/issues/16418 we cannot do the
-            // array-to-mat conversion by-value:
-            //
-            // pub fn from_array(array: [N; $dim]) -> $t<N>
-
-            /// View a column-major array of array as a vector.
+        impl<'a, N> From<&'a [[N; $dim]; $dim]> for &'a $t<N> {
             #[inline]
-            pub fn from_array_ref(array: &[[N; $dim]; $dim]) -> &$t<N> {
+            fn from(arr: &'a [[N; $dim]; $dim]) -> &'a $t<N> {
                 unsafe {
-                    mem::transmute(array)
+                    mem::transmute(arr)
                 }
             }
+        }
 
-            /// View a column-major array of array as a mutable vector.
+        impl<'a, N> From<&'a mut [[N; $dim]; $dim]> for &'a mut $t<N> {
             #[inline]
-            pub fn from_array_mut(array: &mut [[N; $dim]; $dim]) -> &mut $t<N> {
+            fn from(arr: &'a mut [[N; $dim]; $dim]) -> &'a mut $t<N> {
                 unsafe {
-                    mem::transmute(array)
+                    mem::transmute(arr)
                 }
             }
         }
@@ -325,7 +322,7 @@ macro_rules! col_slice_impl(
             fn col_slice(&self, cid: usize, rstart: usize, rend: usize) -> $slice<N> {
                 let col = self.col(cid);
 
-                $slice::from_slice(rend - rstart, &col.as_array()[rstart .. rend])
+                $slice::from_slice(rend - rstart, &col.as_ref()[rstart .. rend])
             }
         }
     )
@@ -366,7 +363,7 @@ macro_rules! row_slice_impl(
             fn row_slice(&self, rid: usize, cstart: usize, cend: usize) -> $slice<N> {
                 let row = self.row(rid);
 
-                $slice::from_slice(cend - cstart, &row.as_array()[cstart .. cend])
+                $slice::from_slice(cend - cstart, &row.as_ref()[cstart .. cend])
             }
         }
     )

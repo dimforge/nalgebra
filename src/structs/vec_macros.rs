@@ -14,43 +14,40 @@ macro_rules! new_impl(
     );
 );
 
-macro_rules! as_array_impl(
+macro_rules! conversion_impl(
     ($t: ident, $dim: expr) => (
-        impl<N> $t<N> {
-            /// View this vector as an array.
+        impl<N> AsRef<[N; $dim]> for $t<N> {
             #[inline]
-            pub fn as_array(&self) -> &[N; $dim] {
+            fn as_ref(&self) -> &[N; $dim] {
                 unsafe {
                     mem::transmute(self)
                 }
             }
+        }
 
-            /// View this vector as a mutable array.
+        impl<N> AsMut<[N; $dim]> for $t<N> {
             #[inline]
-            pub fn as_array_mut(&mut self) -> &mut [N; $dim] {
+            fn as_mut(&mut self) -> &mut [N; $dim] {
                 unsafe {
                     mem::transmute(self)
                 }
             }
+        }
 
-            // FIXME: because of https://github.com/rust-lang/rust/issues/16418 we cannot do the
-            // array-to-vec conversion by-value:
-            //
-            // pub fn from_array(array: [N; $dim]) -> $t<N>
-
-            /// View an array as a vector.
+        impl<'a, N> From<&'a [N; $dim]> for &'a $t<N> {
             #[inline]
-            pub fn from_array_ref(array: &[N; $dim]) -> &$t<N> {
+            fn from(arr: &'a [N; $dim]) -> &'a $t<N> {
                 unsafe {
-                    mem::transmute(array)
+                    mem::transmute(arr)
                 }
             }
+        }
 
-            /// View an array as a vector.
+        impl<'a, N> From<&'a mut [N; $dim]> for &'a mut $t<N> {
             #[inline]
-            pub fn from_array_mut(array: &mut [N; $dim]) -> &mut $t<N> {
+            fn from(arr: &'a mut [N; $dim]) -> &'a mut $t<N> {
                 unsafe {
-                    mem::transmute(array)
+                    mem::transmute(arr)
                 }
             }
         }
@@ -63,13 +60,13 @@ macro_rules! at_fast_impl(
             /// Unsafe read access to a vector element by index.
             #[inline]
             pub unsafe fn at_fast(&self, i: usize) -> N {
-                (*self.as_array().get_unchecked(i))
+                (*self.as_ref().get_unchecked(i))
             }
 
             /// Unsafe write access to a vector element by index.
             #[inline]
             pub unsafe fn set_fast(&mut self, i: usize, val: N) {
-                (*self.as_array_mut().get_unchecked_mut(i)) = val
+                (*self.as_mut().get_unchecked_mut(i)) = val
             }
         }
     )
@@ -215,13 +212,13 @@ macro_rules! index_impl(
             type Output = N;
 
             fn index(&self, i: usize) -> &N {
-                &self.as_array()[i]
+                &self.as_ref()[i]
             }
         }
 
         impl<N> IndexMut<usize> for $t<N> {
             fn index_mut(&mut self, i: usize) -> &mut N {
-                &mut self.as_array_mut()[i]
+                &mut self.as_mut()[i]
             }
         }
     )
