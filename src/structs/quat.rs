@@ -12,7 +12,7 @@ use structs::{Vec3, Pnt3, Rot3, Mat3};
 use traits::operations::{ApproxEq, Inv, POrd, POrdering, Axpy};
 use traits::structure::{Cast, Indexable, Iterable, IterableMut, Dim, Shape, BaseFloat, BaseNum,
                         Bounded, Repeat};
-use traits::geometry::{Norm, Rotation, Rotate, RotationTo, Transform};
+use traits::geometry::{Norm, Rotation, RotationMatrix, Rotate, RotationTo, Transform};
 
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
@@ -156,6 +156,8 @@ impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>> for Quat<N> {
     }
 }
 
+rand_impl!(Quat, w, i, j, k);
+
 
 /// A unit quaternion that can represent a 3D rotation.
 #[repr(C)]
@@ -245,8 +247,6 @@ impl<N: BaseFloat> UnitQuat<N> {
         }
     }
 }
-
-rand_impl!(Quat, w, i, j, k);
 
 
 impl<N> UnitQuat<N> {
@@ -429,6 +429,15 @@ impl<N: BaseFloat> Rotation<Vec3<N>> for UnitQuat<N> {
     #[inline]
     fn set_rotation(&mut self, v: Vec3<N>) {
         *self = UnitQuat::new(v)
+    }
+}
+
+impl<N: BaseFloat> RotationMatrix<N, Vec3<N>, Vec3<N>> for UnitQuat<N> {
+    type Output = Rot3<N>;
+
+    #[inline]
+    fn to_rot_mat(&self) -> Rot3<N> {
+        self.to_rot()
     }
 }
 
