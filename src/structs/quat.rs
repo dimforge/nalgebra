@@ -518,7 +518,7 @@ impl<N: Arbitrary + BaseFloat> Arbitrary for UnitQuat<N> {
 ord_impl!(Quat, w, i, j, k);
 vec_axis_impl!(Quat, w, i, j, k);
 vec_cast_impl!(Quat, w, i, j, k);
-as_array_impl!(Quat, 4);
+conversion_impl!(Quat, 4);
 index_impl!(Quat);
 indexable_impl!(Quat, 4);
 at_fast_impl!(Quat, 4);

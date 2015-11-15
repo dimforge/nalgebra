@@ -45,7 +45,7 @@ eye_impl!(Mat1, 1, m11);
 
 mat_impl!(Mat1, m11);
 repeat_impl!(Mat1, m11);
-as_array_impl!(Mat1, 1);
+conversion_impl!(Mat1, 1);
 mat_cast_impl!(Mat1, m11);
 add_impl!(Mat1, m11);
 sub_impl!(Mat1, m11);
@@ -96,7 +96,7 @@ mat_impl!(Mat2, m11, m12,
                 m21, m22);
 repeat_impl!(Mat2, m11, m12,
                    m21, m22);
-as_array_impl!(Mat2, 2);
+conversion_impl!(Mat2, 2);
 mat_cast_impl!(Mat2, m11, m12,
                      m21, m22);
 add_impl!(Mat2, m11, m12, m21, m22);
@@ -152,7 +152,7 @@ mat_impl!(Mat3, m11, m12, m13,
 repeat_impl!(Mat3, m11, m12, m13,
                    m21, m22, m23,
                    m31, m32, m33);
-as_array_impl!(Mat3, 3);
+conversion_impl!(Mat3, 3);
 mat_cast_impl!(Mat3, m11, m12, m13,
                      m21, m22, m23,
                      m31, m32, m33);
@@ -255,7 +255,7 @@ repeat_impl!(Mat4,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-as_array_impl!(Mat4, 4);
+conversion_impl!(Mat4, 4);
 mat_cast_impl!(Mat4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
@@ -377,7 +377,7 @@ repeat_impl!(Mat5,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-as_array_impl!(Mat5, 5);
+conversion_impl!(Mat5, 5);
 mat_cast_impl!(Mat5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
@@ -516,7 +516,7 @@ repeat_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-as_array_impl!(Mat6, 6);
+conversion_impl!(Mat6, 6);
 mat_cast_impl!(Mat6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
