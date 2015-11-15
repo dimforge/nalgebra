@@ -24,17 +24,17 @@
 
     
 
-    <section class="sidebar">
+    <nav class="sidebar">
         
         
-    </section>
+    </nav>
 
     <nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
                        type="search">
             </div>
         </form>
@@ -452,10 +452,12 @@
 <span id="410">410</span>
 <span id="411">411</span>
 <span id="412">412</span>
+<span id="413">413</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Low level operations on vectors and matrices.</span>
 
 <span class='kw'>use</span> <span class='ident'>num</span>::{<span class='ident'>Float</span>, <span class='ident'>Signed</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Mul</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cmp</span>::<span class='ident'>Ordering</span>;
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::<span class='ident'>SquareMat</span>;
 
@@ -730,7 +732,7 @@
 }
 
 <span class='doccomment'>/// Trait of objects having an inverse. Typically used to implement matrix inverse.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Inv</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Inv</span>: <span class='ident'>Sized</span> {
     <span class='doccomment'>/// Returns the inverse of `m`.</span>
     <span class='kw'>fn</span> <span class='ident'>inv</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span>;
 
@@ -789,7 +791,7 @@
 }
 
 <span class='doccomment'>/// Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>EigenQR</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span>: <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>EigenQR</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>V</span><span class='op'>&gt;&gt;</span>: <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Computes the eigenvectors and eigenvalues of this matrix.</span>
     <span class='kw'>fn</span> <span class='ident'>eigen_qr</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>eps</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>, <span class='ident'>niter</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> (<span class='kw'>Self</span>, <span class='ident'>V</span>);
 }
@@ -871,40 +873,49 @@
 
     <section class="footer"></section>
 
-    <div id="help" class="hidden">
-        <div class="shortcuts">
-            <h1>Keyboard shortcuts</h1>
-            <dl>
-                <dt>?</dt>
-                <dd>Show this help dialog</dd>
-                <dt>S</dt>
-                <dd>Focus the search field</dd>
-                <dt>&larrb;</dt>
-                <dd>Move up in search results</dd>
-                <dt>&rarrb;</dt>
-                <dd>Move down in search results</dd>
-                <dt>&#9166;</dt>
-                <dd>Go to active search result</dd>
-            </dl>
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
         </div>
-        <div class="infos">
-            <h1>Search tricks</h1>
-            <p>
-                Prefix searches with a type followed by a colon (e.g.
-                <code>fn:</code>) to restrict the search to a given type.
-            </p>
-            <p>
-                Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code>, <code>enum</code>,
-                <code>trait</code>, <code>typedef</code> (or
-                <code>tdef</code>).
-            </p>
-            <p>
-                Search functions by type signature (e.g.
-                <code>vec -> usize</code>)
-            </p>
-        </div>
-    </div>
+    </aside>
 
     
 

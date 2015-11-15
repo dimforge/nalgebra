@@ -12,11 +12,14 @@
 /*globals $: true, rootPath: true */
 
 document.addEventListener('DOMContentLoaded', function() {
+    'use strict';
+
     if (!window.playgroundUrl) {
         return;
     }
 
-    var elements = document.querySelectorAll('pre.rust');
+    var featureRegexp = new RegExp('^\s*#!\\[feature\\(\.*?\\)\\]');
+    var elements = document.querySelectorAll('pre.rust-example-rendered');
 
     Array.prototype.forEach.call(elements, function(el) {
         el.onmouseover = function(e) {
@@ -29,8 +32,14 @@ document.addEventListener('DOMContentLoaded', function() {
             a.setAttribute('class', 'test-arrow');
 
             var code = el.previousElementSibling.textContent;
+
+            var channel = '';
+            if (featureRegexp.test(code)) {
+                channel = '&version=nightly';
+            }
+
             a.setAttribute('href', window.playgroundUrl + '?code=' +
-                           encodeURIComponent(code));
+                           encodeURIComponent(code) + channel);
             a.setAttribute('target', '_blank');
 
             el.appendChild(a);

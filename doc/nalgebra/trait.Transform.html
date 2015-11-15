@@ -24,17 +24,17 @@
 
     
 
-    <section class="sidebar">
+    <nav class="sidebar">
         
         <p class='location'><a href='index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'Transform', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
-    </section>
+    </nav>
 
     <nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
                        type="search">
             </div>
         </form>
@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-107107' class='srclink' href='../src/nalgebra/traits/geometry.rs.html#211-217' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-15059' class='srclink' href='../src/nalgebra/traits/geometry.rs.html#211-217' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Transform&lt;V&gt; {
     fn <a href='#tymethod.transform' class='fnname'>transform</a>(&amp;self, &amp;V) -&gt; V;
     fn <a href='#tymethod.inv_transform' class='fnname'>inv_transform</a>(&amp;self, &amp;V) -&gt; V;
@@ -60,14 +60,14 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt1.html' title='nalgebra::Pnt1'>Pnt1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec1.html' title='nalgebra::Vec1'>Vec1</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt2.html' title='nalgebra::Pnt2'>Pnt2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt4.html' title='nalgebra::Pnt4'>Pnt4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt5.html' title='nalgebra::Pnt5'>Pnt5</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec5.html' title='nalgebra::Vec5'>Vec5</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt6.html' title='nalgebra::Pnt6'>Pnt6</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec6.html' title='nalgebra::Vec6'>Vec6</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a>&lt;Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.UnitQuat.html' title='nalgebra::UnitQuat'>UnitQuat</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='http://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a>&lt;Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.UnitQuat.html' title='nalgebra::UnitQuat'>UnitQuat</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt1.html' title='nalgebra::Pnt1'>Pnt1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec1.html' title='nalgebra::Vec1'>Vec1</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt2.html' title='nalgebra::Pnt2'>Pnt2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt4.html' title='nalgebra::Pnt4'>Pnt4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt5.html' title='nalgebra::Pnt5'>Pnt5</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec5.html' title='nalgebra::Vec5'>Vec5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt6.html' title='nalgebra::Pnt6'>Pnt6</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec6.html' title='nalgebra::Vec6'>Vec6</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a>&lt;Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.UnitQuat.html' title='nalgebra::UnitQuat'>UnitQuat</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a>&lt;Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.UnitQuat.html' title='nalgebra::UnitQuat'>UnitQuat</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a>&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a>&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt2.html' title='nalgebra::Pnt2'>Pnt2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a>&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
@@ -84,40 +84,49 @@
 
     <section class="footer"></section>
 
-    <div id="help" class="hidden">
-        <div class="shortcuts">
-            <h1>Keyboard shortcuts</h1>
-            <dl>
-                <dt>?</dt>
-                <dd>Show this help dialog</dd>
-                <dt>S</dt>
-                <dd>Focus the search field</dd>
-                <dt>&larrb;</dt>
-                <dd>Move up in search results</dd>
-                <dt>&rarrb;</dt>
-                <dd>Move down in search results</dd>
-                <dt>&#9166;</dt>
-                <dd>Go to active search result</dd>
-            </dl>
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
         </div>
-        <div class="infos">
-            <h1>Search tricks</h1>
-            <p>
-                Prefix searches with a type followed by a colon (e.g.
-                <code>fn:</code>) to restrict the search to a given type.
-            </p>
-            <p>
-                Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code>, <code>enum</code>,
-                <code>trait</code>, <code>typedef</code> (or
-                <code>tdef</code>).
-            </p>
-            <p>
-                Search functions by type signature (e.g.
-                <code>vec -> usize</code>)
-            </p>
-        </div>
-    </div>
+    </aside>
 
     
 

@@ -24,17 +24,17 @@
 
     
 
-    <section class="sidebar">
+    <nav class="sidebar">
         
         <p class='location'><a href='index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'RotationMatrix', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
-    </section>
+    </nav>
 
     <nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
                 <input class="search-input" name="search"
                        autocomplete="off"
-                       placeholder="Click or press 'S' to search, '?' for more options..."
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
                        type="search">
             </div>
         </form>
@@ -45,8 +45,8 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-107014' class='srclink' href='../src/nalgebra/traits/geometry.rs.html#160-166' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait RotationMatrix&lt;N, LV, AV&gt;: <a class='trait' href='../nalgebra/trait.Rotation.html' title='nalgebra::Rotation'>Rotation</a>&lt;AV&gt; {
+        </span><a id='src-15026' class='srclink' href='../src/nalgebra/traits/geometry.rs.html#160-166' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait RotationMatrix&lt;N, LV: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;Self::<a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>Output</a>, Output=LV&gt;, AV&gt;: <a class='trait' href='../nalgebra/trait.Rotation.html' title='nalgebra::Rotation'>Rotation</a>&lt;AV&gt; {
     type Output: <a class='trait' href='../nalgebra/trait.SquareMat.html' title='nalgebra::SquareMat'>SquareMat</a>&lt;N, LV&gt; + <a class='trait' href='../nalgebra/trait.Rotation.html' title='nalgebra::Rotation'>Rotation</a>&lt;AV&gt;;
     fn <a href='#tymethod.to_rot_mat' class='fnname'>to_rot_mat</a>(&amp;self) -&gt; Self::<a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>Output</a>;
 }</pre><div class='docblock'><p>Trait of transformation having a rotation extractable as a rotation matrix. This can typically
@@ -62,11 +62,12 @@ be implemented by quaternions to convert them to a rotation matrix.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/num/num/traits/trait.Zero.html' title='num::traits::Zero'>Zero</a> + <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec1.html' title='nalgebra::Vec1'>Vec1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/num/num/traits/trait.Zero.html' title='num::traits::Zero'>Zero</a> + <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/num/num/traits/trait.Zero.html' title='num::traits::Zero'>Zero</a> + <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot4.html' title='nalgebra::Rot4'>Rot4</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec1.html' title='nalgebra::Vec1'>Vec1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.UnitQuat.html' title='nalgebra::UnitQuat'>UnitQuat</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/num/num/traits/trait.Zero.html' title='num::traits::Zero'>Zero</a> + <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec1.html' title='nalgebra::Vec1'>Vec1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/num/num/traits/trait.Zero.html' title='num::traits::Zero'>Zero</a> + <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/num/num/traits/trait.Zero.html' title='num::traits::Zero'>Zero</a> + <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec4.html' title='nalgebra::Vec4'>Vec4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot4.html' title='nalgebra::Rot4'>Rot4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec2.html' title='nalgebra::Vec2'>Vec2</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec1.html' title='nalgebra::Vec1'>Vec1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.RotationMatrix.html' title='nalgebra::RotationMatrix'>RotationMatrix</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;, <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/nalgebra/trait.RotationMatrix.js">
                       </script></section>
@@ -74,40 +75,49 @@ be implemented by quaternions to convert them to a rotation matrix.</p>
 
     <section class="footer"></section>
 
-    <div id="help" class="hidden">
-        <div class="shortcuts">
-            <h1>Keyboard shortcuts</h1>
-            <dl>
-                <dt>?</dt>
-                <dd>Show this help dialog</dd>
-                <dt>S</dt>
-                <dd>Focus the search field</dd>
-                <dt>&larrb;</dt>
-                <dd>Move up in search results</dd>
-                <dt>&rarrb;</dt>
-                <dd>Move down in search results</dd>
-                <dt>&#9166;</dt>
-                <dd>Go to active search result</dd>
-            </dl>
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
         </div>
-        <div class="infos">
-            <h1>Search tricks</h1>
-            <p>
-                Prefix searches with a type followed by a colon (e.g.
-                <code>fn:</code>) to restrict the search to a given type.
-            </p>
-            <p>
-                Accepted types are: <code>fn</code>, <code>mod</code>,
-                <code>struct</code>, <code>enum</code>,
-                <code>trait</code>, <code>typedef</code> (or
-                <code>tdef</code>).
-            </p>
-            <p>
-                Search functions by type signature (e.g.
-                <code>vec -> usize</code>)
-            </p>
-        </div>
-    </div>
+    </aside>
 
     
 
