@@ -73,9 +73,17 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 #![warn(missing_docs)]
 #![doc(html_root_url = "http://nalgebra.org/doc")]
 
-extern crate rustc_serialize;
+#![cfg_attr(feature = "serde-serialize", feature(custom_derive, plugin))]
+#![cfg_attr(feature = "serde-serialize", plugin(serde_macros))]
+
 extern crate rand;
 extern crate num;
+
+#[cfg(feature = "rustc-serialize")]
+extern crate rustc_serialize;
+
+#[cfg(feature = "serde-serialize")]
+extern crate serde;
 
 #[cfg(feature="arbitrary")]
 extern crate quickcheck;

@@ -8,7 +8,9 @@ use quickcheck::{Arbitrary, Gen};
 /// A 3D perspective projection stored without any matrix.
 ///
 /// Reading or modifying its individual properties is cheap but applying the transformation is costly.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Debug, Copy)]
 pub struct Persp3<N> {
     aspect: N,
     fov:    N,
@@ -19,7 +21,9 @@ pub struct Persp3<N> {
 /// A 3D perspective projection stored as a 4D matrix.
 ///
 /// Reading or modifying its individual properties is costly but applying the transformation is cheap.
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
+#[cfg_attr(feature = "rustc-serialize", derive(RustcEncodable, RustcDecodable))]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Debug, Copy)]
 pub struct PerspMat3<N> {
     mat: Mat4<N>
 }
