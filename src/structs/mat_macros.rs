@@ -682,8 +682,8 @@ macro_rules! from_homogeneous_impl(
         fn from(m: &$t2<N>) -> $t<N> {
             let mut res: $t<N> = ::one();
 
-            for i in 0..$dim2 {
-                for j in 0..$dim2 {
+            for i in 0..$dim {
+                for j in 0..$dim {
                     res[(i, j)] = m[(i, j)]
                 }
             }
