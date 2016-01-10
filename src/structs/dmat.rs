@@ -10,7 +10,7 @@ use rand::{self, Rand};
 use num::{Zero, One};
 use structs::dvec::DVec;
 use traits::operations::{ApproxEq, Inv, Transpose, Mean, Cov};
-use traits::structure::{Cast, ColSlice, RowSlice, Diag, DiagMut, Eye, Indexable, Shape, BaseNum};
+use traits::structure::{Cast, Col, ColSlice, Row, RowSlice, Diag, DiagMut, Eye, Indexable, Shape, BaseNum};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -541,6 +541,38 @@ impl<N: BaseNum + Cast<f64> + Clone> Cov<DMat<N>> for DMat<N> {
     }
 }
 
+impl<N: Copy + Zero> Col<DVec<N>> for DMat<N> {
+    #[inline]
+    fn ncols(&self) -> usize {
+        self.ncols
+    }
+
+    #[inline]
+    fn set_col(&mut self, col_id: usize, v: DVec<N>) {
+        assert!(col_id < self.ncols);
+        assert!(self.nrows == v.len());
+
+        for (i, e) in v[..].iter().enumerate() {
+            unsafe {
+                self.unsafe_set((i, col_id), *e);
+            }
+        }
+    }
+
+    #[inline]
+    fn col(&self, col_id: usize) -> DVec<N> {
+        let mut res: DVec<N> = unsafe {
+            DVec::new_uninitialized(self.nrows)
+        };
+
+        for (row_id, e) in res[..].iter_mut().enumerate() {
+            *e = unsafe { self.unsafe_at((row_id, col_id)) };
+        }
+
+        res
+    }
+}
+
 impl<N: Copy + Clone> ColSlice<DVec<N>> for DMat<N> {
     fn col_slice(&self, col_id :usize, row_start: usize, row_end: usize) -> DVec<N> {
         assert!(col_id < self.ncols);
@@ -553,6 +585,38 @@ impl<N: Copy + Clone> ColSlice<DVec<N>> for DMat<N> {
         let slice = DVec::from_slice(row_end - row_start, &self.mij[start .. stop]);
 
         slice
+    }
+}
+
+impl<N: Copy + Zero> Row<DVec<N>> for DMat<N> {
+    #[inline]
+    fn nrows(&self) -> usize {
+        self.nrows
+    }
+
+    #[inline]
+    fn set_row(&mut self, row_id: usize, v: DVec<N>) {
+        assert!(row_id < self.nrows);
+        assert!(self.ncols == v.len());
+
+        for (i, e) in v[..].iter().enumerate() {
+            unsafe {
+                self.unsafe_set((row_id, i), *e);
+            }
+        }
+    }
+
+    #[inline]
+    fn row(&self, row_id: usize) -> DVec<N> {
+        let mut res: DVec<N> = unsafe {
+            DVec::new_uninitialized(self.ncols)
+        };
+
+        for (col_id, e) in res[..].iter_mut().enumerate() {
+            *e = unsafe { self.unsafe_at((row_id, col_id)) };
+        }
+
+        res
     }
 }
 

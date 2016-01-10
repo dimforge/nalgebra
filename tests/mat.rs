@@ -316,6 +316,33 @@ fn test_transpose_dmat() {
 }
 
 #[test]
+fn test_row_dmat() {
+    let mat = DMat::from_row_vec(
+        8,
+        4,
+        &[
+            1u32,2,  3,  4,
+            5,   6,  7,  8,
+            9,   10, 11, 12,
+            13,  14, 15, 16,
+            17,  18, 19, 20,
+            21,  22, 23, 24,
+            25,  26, 27, 28,
+            29,  30, 31, 32
+        ]
+    );
+
+    assert_eq!(&DVec::from_slice(4, &[1u32,  2,  3,  4]),  &mat.row(0));
+    assert_eq!(&DVec::from_slice(4, &[5u32,  6,  7,  8]),  &mat.row(1));
+    assert_eq!(&DVec::from_slice(4, &[9u32,  10, 11, 12]), &mat.row(2));
+    assert_eq!(&DVec::from_slice(4, &[13u32, 14, 15, 16]), &mat.row(3));
+    assert_eq!(&DVec::from_slice(4, &[17u32, 18, 19, 20]), &mat.row(4));
+    assert_eq!(&DVec::from_slice(4, &[21u32, 22, 23, 24]), &mat.row(5));
+    assert_eq!(&DVec::from_slice(4, &[25u32, 26, 27, 28]), &mat.row(6));
+    assert_eq!(&DVec::from_slice(4, &[29u32, 30, 31, 32]), &mat.row(7));
+}
+
+#[test]
 fn test_row_slice_dmat() {
     let mat = DMat::from_row_vec(
         5,
@@ -333,6 +360,29 @@ fn test_row_slice_dmat() {
     assert_eq!(&DVec::from_slice(2, &[1u32, 2]), &mat.row_slice(0, 0, 2));
     assert_eq!(&DVec::from_slice(2, &[10u32, 11]), &mat.row_slice(2, 1, 3));
     assert_eq!(&DVec::from_slice(2, &[19u32, 20]), &mat.row_slice(4, 2, 4));
+}
+
+#[test]
+fn test_col_dmat() {
+    let mat = DMat::from_row_vec(
+        8,
+        4,
+        &[
+            1u32,2,  3,  4,
+            5,   6,  7,  8,
+            9,   10, 11, 12,
+            13,  14, 15, 16,
+            17,  18, 19, 20,
+            21,  22, 23, 24,
+            25,  26, 27, 28,
+            29,  30, 31, 32
+        ]
+    );
+
+    assert_eq!(&DVec::from_slice(8, &[1u32, 5, 9,  13, 17, 21, 25, 29]), &mat.col(0));
+    assert_eq!(&DVec::from_slice(8, &[2u32, 6, 10, 14, 18, 22, 26, 30]), &mat.col(1));
+    assert_eq!(&DVec::from_slice(8, &[3u32, 7, 11, 15, 19, 23, 27, 31]), &mat.col(2));
+    assert_eq!(&DVec::from_slice(8, &[4u32, 8, 12, 16, 20, 24, 28, 32]), &mat.col(3));
 }
 
 #[test]
