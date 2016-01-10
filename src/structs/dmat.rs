@@ -10,7 +10,7 @@ use rand::{self, Rand};
 use num::{Zero, One};
 use structs::dvec::DVec;
 use traits::operations::{ApproxEq, Inv, Transpose, Mean, Cov};
-use traits::structure::{Cast, ColSlice, RowSlice, Diag, DiagMut, Eye, Indexable, Shape, BaseNum};
+use traits::structure::{Cast, Col, Row, ColSlice, RowSlice, Diag, DiagMut, Eye, Indexable, Shape, BaseNum};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -135,18 +135,6 @@ impl<N> DMat<N> {
         }
     }
 
-    /// The number of row on the matrix.
-    #[inline]
-    pub fn nrows(&self) -> usize {
-        self.nrows
-    }
-
-    /// The number of columns on the matrix.
-    #[inline]
-    pub fn ncols(&self) -> usize {
-        self.ncols
-    }
-
     /// Transforms this matrix isizeo an array. This consumes the matrix and is O(1).
     /// The returned vector contains the matrix data in column-major order.
     #[inline]
@@ -227,6 +215,72 @@ impl<N: Copy> Indexable<(usize, usize), N> for DMat<N> {
         self.mij[..].swap(offset1, offset2);
     }
 
+}
+
+impl<N: Copy> Col<DVec<N>> for DMat<N> {
+    /// The number of columns on the matrix.
+    #[inline]
+    fn ncols(&self) -> usize {
+        self.ncols
+    }
+
+    /// The `i`-th column of matrix.
+    #[inline]
+    fn col(&self, col_id: usize) -> DVec<N> {
+        assert!(col_id < self.ncols);
+
+        let start = self.offset(0, col_id);
+        let stop = self.offset(self.nrows, col_id);
+        DVec::from_slice(self.nrows, &self.mij[start .. stop])
+    }
+
+    /// Writes the `i`-th column of matrix.
+    #[inline]
+    fn set_col(&mut self, col_id: usize, col: DVec<N>) {
+        assert!(col_id < self.ncols);
+
+        for row_id in 0..self.nrows {
+            unsafe {
+                self.unsafe_set((row_id, col_id), col.unsafe_at(row_id));
+            }
+        }
+    }
+}
+
+impl<N: Copy> Row<DVec<N>> for DMat<N> {
+    /// The number of row on the matrix.
+    #[inline]
+    fn nrows(&self) -> usize {
+        self.nrows
+    }
+
+    /// The `i`-th row of matrix.
+    #[inline]
+    fn row(&self, row_id: usize) -> DVec<N> {
+        assert!(row_id < self.nrows);
+
+        let mut slice : DVec<N> = unsafe {
+            DVec::new_uninitialized(self.ncols)
+        };
+        for col_id in 0..self.ncols {
+            unsafe {
+                slice.unsafe_set(col_id, self.unsafe_at((row_id, col_id)));
+            }
+        }
+        slice
+    }
+
+    /// Writes the `i`-th row of matrix.
+    #[inline]
+    fn set_row(&mut self, row_id: usize, row: DVec<N>) {
+        assert!(row_id < self.nrows);
+
+        for col_id in 0..self.ncols {
+            unsafe {
+                self.unsafe_set((row_id, col_id), row.unsafe_at(col_id));
+            }
+        }
+    }
 }
 
 impl<N> Shape<(usize, usize)> for DMat<N> {

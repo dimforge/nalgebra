@@ -521,6 +521,90 @@ fn test_dmat_subtraction() {
     assert!((mat1 - mat2) == res);
 }
 
+#[test]
+fn test_dmat_col() {
+    let mat = DMat::from_row_vec(
+        3,
+        3,
+        &[
+            1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0,
+            7.0, 8.0, 9.0,
+        ]
+    );
+
+    assert!(mat.col(1) == DVec::from_slice(3, &[2.0, 5.0, 8.0]));
+}
+
+#[test]
+fn test_dmat_set_col() {
+    let mut mat = DMat::from_row_vec(
+        3,
+        3,
+        &[
+            1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0,
+            7.0, 8.0, 9.0,
+        ]
+    );
+
+    mat.set_col(1, DVec::from_slice(3, &[12.0, 15.0, 18.0]));
+
+    let expected = DMat::from_row_vec(
+        3,
+        3,
+        &[
+            1.0, 12.0, 3.0,
+            4.0, 15.0, 6.0,
+            7.0, 18.0, 9.0,
+        ]
+    );
+
+    assert!(mat == expected);
+}
+
+#[test]
+fn test_dmat_row() {
+    let mat = DMat::from_row_vec(
+        3,
+        3,
+        &[
+            1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0,
+            7.0, 8.0, 9.0,
+        ]
+    );
+
+    assert!(mat.row(1) == DVec::from_slice(3, &[4.0, 5.0, 6.0]));
+}
+
+#[test]
+fn test_dmat_set_row() {
+    let mut mat = DMat::from_row_vec(
+        3,
+        3,
+        &[
+            1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0,
+            7.0, 8.0, 9.0,
+        ]
+    );
+
+    mat.set_row(1, DVec::from_slice(3, &[14.0, 15.0, 16.0]));
+
+    let expected = DMat::from_row_vec(
+        3,
+        3,
+        &[
+            1.0, 2.0, 3.0,
+            14.0, 15.0, 16.0,
+            7.0, 8.0, 9.0,
+        ]
+    );
+
+    assert!(mat == expected);
+}
+
 /* FIXME: review qr decomposition to make it work with DMat.
 #[test]
 fn test_qr() {
