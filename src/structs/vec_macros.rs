@@ -208,16 +208,16 @@ macro_rules! indexable_impl(
 
 macro_rules! index_impl(
     ($t: ident) => (
-        impl<N> Index<usize> for $t<N> {
-            type Output = N;
+        impl<N, T> Index<T> for $t<N> where [N]: Index<T> {
+            type Output = <[N] as Index<T>>::Output;
 
-            fn index(&self, i: usize) -> &N {
+            fn index(&self, i: T) -> &<[N] as Index<T>>::Output {
                 &self.as_ref()[i]
             }
         }
 
-        impl<N> IndexMut<usize> for $t<N> {
-            fn index_mut(&mut self, i: usize) -> &mut N {
+        impl<N, T> IndexMut<T> for $t<N> where [N]: IndexMut<T> {
+            fn index_mut(&mut self, i: T) -> &mut <[N] as Index<T>>::Output {
                 &mut self.as_mut()[i]
             }
         }
@@ -801,6 +801,18 @@ macro_rules! rand_impl(
             #[inline]
             fn rand<R: Rng>(rng: &mut R) -> $t<N> {
                 $t { $($compN: Rand::rand(rng), )* }
+            }
+        }
+    )
+);
+
+macro_rules! mean_impl(
+    ($t: ident) => (
+        impl<N: BaseFloat + Cast<f64>> Mean<N> for $t<N> {
+            #[inline]
+            fn mean(&self) -> N {
+                let normalizer = ::cast(1.0f64 / self.len() as f64);
+                self.iter().fold(::zero(), |acc, x| acc + *x * normalizer)
             }
         }
     )

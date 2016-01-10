@@ -135,7 +135,7 @@ pub use traits::{
 
 pub use structs::{
     Identity,
-    DMat,
+    DMat, DMat1, DMat2,  DMat3,  DMat4,  DMat5,  DMat6,
     DVec, DVec1, DVec2,  DVec3,  DVec4,  DVec5,  DVec6,
     Iso2, Iso3, Iso4,
     Mat1, Mat2, Mat3, Mat4,

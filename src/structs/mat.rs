@@ -14,7 +14,7 @@ use structs::dvec::{DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
 
 use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable, Eye, ColSlice,
                         RowSlice, Diag, DiagMut, Shape, BaseFloat, BaseNum, Repeat};
-use traits::operations::{Absolute, Transpose, Inv, Outer, EigenQR};
+use traits::operations::{Absolute, Transpose, Inv, Outer, EigenQR, Mean};
 use traits::geometry::{ToHomogeneous, FromHomogeneous, Orig};
 use linalg;
 #[cfg(feature="arbitrary")]
@@ -81,6 +81,7 @@ outer_impl!(Vec1, Mat1);
 eigen_qr_impl!(Mat1, Vec1);
 arbitrary_impl!(Mat1, m11);
 rand_impl!(Mat1, m11);
+mean_impl!(Mat1, Vec1, 1);
 
 /// Square matrix of dimension 2.
 #[repr(C)]
@@ -134,6 +135,7 @@ outer_impl!(Vec2, Mat2);
 eigen_qr_impl!(Mat2, Vec2);
 arbitrary_impl!(Mat2, m11, m12, m21, m22);
 rand_impl!(Mat2, m11, m12, m21, m22);
+mean_impl!(Mat2, Vec2, 2);
 
 /// Square matrix of dimension 3.
 #[repr(C)]
@@ -230,6 +232,7 @@ rand_impl!(Mat3,
     m21, m22, m23,
     m31, m32, m33
 );
+mean_impl!(Mat3, Vec3, 3);
 
 /// Square matrix of dimension 4.
 #[repr(C)]
@@ -349,6 +352,7 @@ rand_impl!(Mat4,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
+mean_impl!(Mat4, Vec4, 4);
 
 /// Square matrix of dimension 5.
 #[repr(C)]
@@ -485,6 +489,7 @@ rand_impl!(Mat5,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
+mean_impl!(Mat5, Vec5, 5);
 
 /// Square matrix of dimension 6.
 #[repr(C)]
@@ -626,3 +631,4 @@ rand_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
+mean_impl!(Mat6, Vec6, 6);

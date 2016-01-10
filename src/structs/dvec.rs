@@ -6,11 +6,12 @@ use std::slice::{Iter, IterMut};
 use std::iter::{FromIterator, IntoIterator};
 use std::iter::repeat;
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
+use std::mem;
 use rand::{self, Rand};
 use num::{Zero, One};
-use traits::operations::{ApproxEq, Axpy};
+use traits::operations::{ApproxEq, Axpy, Mean};
 use traits::geometry::{Dot, Norm};
-use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, BaseNum};
+use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, BaseNum, Cast};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 

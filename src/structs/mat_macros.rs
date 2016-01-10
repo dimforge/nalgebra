@@ -726,3 +726,26 @@ macro_rules! eigen_qr_impl(
         }
     )
 );
+
+
+macro_rules! mean_impl(
+    ($t: ident, $v: ident, $dim: expr) => (
+        impl<N: BaseNum + Cast<f64> + Clone> Mean<$v<N>> for $t<N> {
+            fn mean(&self) -> $v<N> {
+                let mut res: $v<N> = ::zero();
+                let normalizer: N  = Cast::from(1.0f64 / $dim as f64);
+        
+                for i in 0 .. $dim {
+                    for j in 0 .. $dim {
+                        unsafe {
+                            let acc = res.unsafe_at(j) + self.unsafe_at((i, j)) * normalizer;
+                            res.unsafe_set(j, acc);
+                        }
+                    }
+                }
+        
+                res
+            }
+        }
+    )
+);
