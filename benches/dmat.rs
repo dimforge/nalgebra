@@ -13,7 +13,7 @@ macro_rules! bench_mul_dmat(
                 let a:     DMat<f64> = DMat::new_random($nrows, $ncols);
                 let mut b: DMat<f64> = DMat::new_random($nrows, $ncols);
 
-                for _ in (0usize .. 1000) {
+                for _ in 0usize .. 1000 {
                     // XXX: the clone here is highly undesirable!
                     b = a.clone() * b;
                 }
@@ -55,7 +55,7 @@ macro_rules! bench_mul_dmat_dvec(
                 let m : DMat<f64>     = DMat::new_random($nrows, $ncols);
                 let mut v : DVec<f64> = DVec::new_random($ncols);
 
-                for _ in (0usize .. 1000) {
+                for _ in 0usize .. 1000 {
                     // XXX: the clone here is highly undesirable!
                     v = m.clone() * v
                 }

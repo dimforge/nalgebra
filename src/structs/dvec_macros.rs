@@ -15,20 +15,20 @@ macro_rules! dvec_impl(
             /// Tests if all components of the vector are zeroes.
             #[inline]
             pub fn is_zero(&self) -> bool {
-                self.as_slice().iter().all(|e| e.is_zero())
+                self.as_ref().iter().all(|e| e.is_zero())
             }
         }
 
         impl<N> $dvec<N> {
             /// Slices this vector.
             #[inline]
-            pub fn as_slice<'a>(&'a self) -> &'a [N] {
+            pub fn as_ref<'a>(&'a self) -> &'a [N] {
                 &self.at[.. self.len()]
             }
 
             /// Mutably slices this vector.
             #[inline]
-            pub fn as_mut_slice<'a>(&'a mut self) -> &'a mut [N] {
+            pub fn as_mut<'a>(&'a mut self) -> &'a mut [N] {
                 let len = self.len();
                 &mut self.at[.. len]
             }
@@ -46,7 +46,7 @@ macro_rules! dvec_impl(
             fn swap(&mut self, i: usize, j: usize) {
                 assert!(i < self.len());
                 assert!(j < self.len());
-                self.as_mut_slice().swap(i, j);
+                self.as_mut().swap(i, j);
             }
 
             #[inline]
@@ -61,17 +61,17 @@ macro_rules! dvec_impl(
 
         }
 
-        impl<N> Index<usize> for $dvec<N> {
-            type Output = N;
+        impl<N, T> Index<T> for $dvec<N> where [N]: Index<T> {
+            type Output = <[N] as Index<T>>::Output;
 
-            fn index(&self, i: usize) -> &N {
-                &self.as_slice()[i]
+            fn index(&self, i: T) -> &<[N] as Index<T>>::Output {
+                &self.as_ref()[i]
             }
         }
 
-        impl<N> IndexMut<usize> for $dvec<N> {
-            fn index_mut(&mut self, i: usize) -> &mut N {
-                &mut self.as_mut_slice()[i]
+        impl<N, T> IndexMut<T> for $dvec<N> where [N]: IndexMut<T> {
+            fn index_mut(&mut self, i: T) -> &mut <[N] as Index<T>>::Output {
+                &mut self.as_mut()[i]
             }
         }
 
@@ -97,14 +97,14 @@ macro_rules! dvec_impl(
         impl<N> Iterable<N> for $dvec<N> {
             #[inline]
             fn iter<'l>(&'l self) -> Iter<'l, N> {
-                self.as_slice().iter()
+                self.as_ref().iter()
             }
         }
 
         impl<N> IterableMut<N> for $dvec<N> {
             #[inline]
             fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
-                self.as_mut_slice().iter_mut()
+                self.as_mut().iter_mut()
             }
         }
 
@@ -185,7 +185,7 @@ macro_rules! dvec_impl(
 
                 let mut res = self;
 
-                for (left, right) in res.as_mut_slice().iter_mut().zip(right.as_slice().iter()) {
+                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
                     *left = *left * *right
                 }
 
@@ -202,7 +202,7 @@ macro_rules! dvec_impl(
 
                 let mut res = self;
 
-                for (left, right) in res.as_mut_slice().iter_mut().zip(right.as_slice().iter()) {
+                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
                     *left = *left / *right
                 }
 
@@ -219,7 +219,7 @@ macro_rules! dvec_impl(
 
                 let mut res = self;
 
-                for (left, right) in res.as_mut_slice().iter_mut().zip(right.as_slice().iter()) {
+                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
                     *left = *left + *right
                 }
 
@@ -236,7 +236,7 @@ macro_rules! dvec_impl(
 
                 let mut res = self;
 
-                for (left, right) in res.as_mut_slice().iter_mut().zip(right.as_slice().iter()) {
+                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
                     *left = *left - *right
                 }
 
@@ -249,7 +249,7 @@ macro_rules! dvec_impl(
 
             #[inline]
             fn neg(self) -> $dvec<N> {
-                FromIterator::from_iter(self.as_slice().iter().map(|a| -*a))
+                FromIterator::from_iter(self.as_ref().iter().map(|a| -*a))
             }
         }
 
@@ -282,7 +282,7 @@ macro_rules! dvec_impl(
             fn normalize_mut(&mut self) -> N {
                 let l = Norm::norm(self);
 
-                for n in self.as_mut_slice().iter_mut() {
+                for n in self.as_mut().iter_mut() {
                     *n = *n / l;
                 }
 
@@ -303,13 +303,13 @@ macro_rules! dvec_impl(
 
             #[inline]
             fn approx_eq_eps(&self, other: &$dvec<N>, epsilon: &N) -> bool {
-                let mut zip = self.as_slice().iter().zip(other.as_slice().iter());
+                let mut zip = self.as_ref().iter().zip(other.as_ref().iter());
                 zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
             }
 
             #[inline]
             fn approx_eq_ulps(&self, other: &$dvec<N>, ulps: u32) -> bool {
-                let mut zip = self.as_slice().iter().zip(other.as_slice().iter());
+                let mut zip = self.as_ref().iter().zip(other.as_ref().iter());
                 zip.all(|(a, b)| ApproxEq::approx_eq_ulps(a, b, ulps))
             }
         }
@@ -321,7 +321,7 @@ macro_rules! dvec_impl(
             fn mul(self, right: N) -> $dvec<N> {
                 let mut res = self;
 
-                for e in res.as_mut_slice().iter_mut() {
+                for e in res.as_mut().iter_mut() {
                     *e = *e * right
                 }
 
@@ -336,7 +336,7 @@ macro_rules! dvec_impl(
             fn div(self, right: N) -> $dvec<N> {
                 let mut res = self;
 
-                for e in res.as_mut_slice().iter_mut() {
+                for e in res.as_mut().iter_mut() {
                     *e = *e / right
                 }
 
@@ -351,7 +351,7 @@ macro_rules! dvec_impl(
             fn add(self, right: N) -> $dvec<N> {
                 let mut res = self;
 
-                for e in res.as_mut_slice().iter_mut() {
+                for e in res.as_mut().iter_mut() {
                     *e = *e + right
                 }
 
@@ -366,7 +366,7 @@ macro_rules! dvec_impl(
             fn sub(self, right: N) -> $dvec<N> {
                 let mut res = self;
 
-                for e in res.as_mut_slice().iter_mut() {
+                for e in res.as_mut().iter_mut() {
                     *e = *e - right
                 }
 
@@ -392,7 +392,7 @@ macro_rules! small_dvec_impl (
                     return false; // FIXME: fail instead?
                 }
 
-                for (a, b) in self.as_slice().iter().zip(other.as_slice().iter()) {
+                for (a, b) in self.as_ref().iter().zip(other.as_ref().iter()) {
                     if *a != *b {
                         return false;
                     }

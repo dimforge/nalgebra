@@ -7,7 +7,7 @@ use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot2, Rot3, Persp3, Per
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
       let randmat : $t = random();
 
       match na::inv(&randmat) {
@@ -20,7 +20,7 @@ macro_rules! test_inv_mat_impl(
 
 macro_rules! test_transpose_mat_impl(
   ($t: ty) => (
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
       let randmat : $t = random();
 
       assert!(na::transpose(&na::transpose(&randmat)) == randmat);
@@ -30,7 +30,7 @@ macro_rules! test_transpose_mat_impl(
 
 macro_rules! test_qr_impl(
   ($t: ty) => (
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
       let randmat : $t = random();
 
       let (q, r) = na::qr(&randmat);
@@ -43,7 +43,7 @@ macro_rules! test_qr_impl(
 
 macro_rules! test_cholesky_impl(
   ($t: ty) => (
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
       
       // construct symmetric positive definite matrix
       let mut randmat : $t = random();
@@ -65,7 +65,7 @@ macro_rules! test_cholesky_impl(
 
 macro_rules! test_hessenberg_impl(
   ($t: ty) => (
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
       
       let randmat : $t = random();
 
@@ -90,7 +90,7 @@ macro_rules! test_hessenberg_impl(
 
 macro_rules! test_eigen_qr_impl(
     ($t: ty) => {
-        for _ in (0usize .. 10000) {
+        for _ in 0usize .. 10000 {
             let randmat : $t = random();
             // Make it symetric so that we can recompose the matrix to test at the end.
             let randmat = na::transpose(&randmat) * randmat;
@@ -105,7 +105,7 @@ macro_rules! test_eigen_qr_impl(
             assert!(na::approx_eq_eps(&randmat,  &recomp, &1.0e-2));
         }
 
-        for _ in (0usize .. 10000) {
+        for _ in 0usize .. 10000 {
             let randmat : $t = random();
             // Take only diagonal part
             let randmat: $t = Diag::from_diag(&randmat.diag());
@@ -184,7 +184,7 @@ fn test_inv_mat6() {
 
 #[test]
 fn test_rotation2() {
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
         let randmat: na::Rot2<f64> = na::one();
         let ang    = Vec1::new(na::abs(&random::<f64>()) % <f64 as BaseFloat>::pi());
 
@@ -201,7 +201,7 @@ fn test_index_mat2() {
 
 #[test]
 fn test_inv_rotation3() {
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
         let randmat: Rot3<f64> = na::one();
         let dir:     Vec3<f64> = random();
         let ang            = na::normalize(&dir) * (na::abs(&random::<f64>()) % <f64 as BaseFloat>::pi());
@@ -524,7 +524,7 @@ fn test_dmat_subtraction() {
 /* FIXME: review qr decomposition to make it work with DMat.
 #[test]
 fn test_qr() {
-    for _ in (0usize .. 10) {
+    for _ in 0usize .. 10 {
         let dim1: usize = random();
         let dim2: usize = random();
         let rows = min(40, max(dim1, dim2));
@@ -809,6 +809,6 @@ fn test_transpose_square_mat() {
     let mut mat = DMat::from_col_vec(num_rows, num_cols, col_major_mat);
     mat.transpose_mut();
     for i in 0..num_rows {
-        assert_eq!(&[0, 1, 2, 3], mat.row_slice(i, 0, num_cols).as_slice());
+        assert_eq!(&[0, 1, 2, 3], &mat.row_slice(i, 0, num_cols)[..]);
     }
 }

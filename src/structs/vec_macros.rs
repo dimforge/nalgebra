@@ -208,16 +208,16 @@ macro_rules! indexable_impl(
 
 macro_rules! index_impl(
     ($t: ident) => (
-        impl<N> Index<usize> for $t<N> {
-            type Output = N;
+        impl<N, T> Index<T> for $t<N> where [N]: Index<T> {
+            type Output = <[N] as Index<T>>::Output;
 
-            fn index(&self, i: usize) -> &N {
+            fn index(&self, i: T) -> &<[N] as Index<T>>::Output {
                 &self.as_ref()[i]
             }
         }
 
-        impl<N> IndexMut<usize> for $t<N> {
-            fn index_mut(&mut self, i: usize) -> &mut N {
+        impl<N, T> IndexMut<T> for $t<N> where [N]: IndexMut<T> {
+            fn index_mut(&mut self, i: T) -> &mut <[N] as Index<T>>::Output {
                 &mut self.as_mut()[i]
             }
         }
