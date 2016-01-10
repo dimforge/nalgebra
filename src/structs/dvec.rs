@@ -6,6 +6,7 @@ use std::slice::{Iter, IterMut};
 use std::iter::{FromIterator, IntoIterator};
 use std::iter::repeat;
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
+use std::mem;
 use rand::{self, Rand};
 use num::{Zero, One};
 use traits::operations::{ApproxEq, Axpy, Mean};

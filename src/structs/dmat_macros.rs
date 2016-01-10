@@ -1,7 +1,7 @@
 #![macro_use]
 
 macro_rules! dmat_impl(
-    ($dmat: ident) => (
+    ($dmat: ident, $dvec: ident) => (
         impl<N: Zero + Clone + Copy> $dmat<N> {
             /// Builds a matrix filled with zeros.
             ///
@@ -219,13 +219,13 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<DVec<N>> for $dmat<N> {
-            type Output = DVec<N>;
+        impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<$dvec<N>> for $dmat<N> {
+            type Output = $dvec<N>;
 
-            fn mul(self, right: DVec<N>) -> DVec<N> {
-                assert!(self.ncols == right.at.len());
+            fn mul(self, right: $dvec<N>) -> $dvec<N> {
+                assert!(self.ncols == right.len());
 
-                let mut res : DVec<N> = unsafe { DVec::new_uninitialized(self.nrows) };
+                let mut res : $dvec<N> = unsafe { $dvec::new_uninitialized(self.nrows) };
 
                 for i in 0..self.nrows {
                     let mut acc: N = ::zero();
@@ -236,7 +236,9 @@ macro_rules! dmat_impl(
                         }
                     }
 
-                    res.at[i] = acc;
+                    unsafe {
+                        res.unsafe_set(i, acc);
+                    }
                 }
 
                 res
@@ -244,13 +246,13 @@ macro_rules! dmat_impl(
         }
 
 
-        impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<$dmat<N>> for DVec<N> {
-            type Output = DVec<N>;
+        impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<$dmat<N>> for $dvec<N> {
+            type Output = $dvec<N>;
 
-            fn mul(self, right: $dmat<N>) -> DVec<N> {
-                assert!(right.nrows == self.at.len());
+            fn mul(self, right: $dmat<N>) -> $dvec<N> {
+                assert!(right.nrows == self.len());
 
-                let mut res : DVec<N> = unsafe { DVec::new_uninitialized(right.ncols) };
+                let mut res : $dvec<N> = unsafe { $dvec::new_uninitialized(right.ncols) };
 
                 for i in 0..right.ncols {
                     let mut acc: N = ::zero();
@@ -261,7 +263,9 @@ macro_rules! dmat_impl(
                         }
                     }
 
-                    res.at[i] = acc;
+                    unsafe {
+                        res.unsafe_set(i, acc);
+                    }
                 }
 
                 res
@@ -399,10 +403,10 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: BaseNum + Cast<f64> + Clone> Mean<DVec<N>> for $dmat<N> {
-            fn mean(&self) -> DVec<N> {
-                let mut res: DVec<N> = DVec::new_zeros(self.ncols);
-                let normalizer: N    = Cast::from(1.0f64 / self.nrows as f64);
+        impl<N: BaseNum + Cast<f64> + Clone> Mean<$dvec<N>> for $dmat<N> {
+            fn mean(&self) -> $dvec<N> {
+                let mut res: $dvec<N> = $dvec::new_zeros(self.ncols);
+                let normalizer: N     = Cast::from(1.0f64 / self.nrows as f64);
 
                 for i in 0 .. self.nrows {
                     for j in 0 .. self.ncols {
@@ -443,14 +447,14 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Zero> Col<DVec<N>> for $dmat<N> {
+        impl<N: Copy + Zero> Col<$dvec<N>> for $dmat<N> {
             #[inline]
             fn ncols(&self) -> usize {
                 self.ncols
             }
 
             #[inline]
-            fn set_col(&mut self, col_id: usize, v: DVec<N>) {
+            fn set_col(&mut self, col_id: usize, v: $dvec<N>) {
                 assert!(col_id < self.ncols);
                 assert!(self.nrows == v.len());
 
@@ -462,9 +466,9 @@ macro_rules! dmat_impl(
             }
 
             #[inline]
-            fn col(&self, col_id: usize) -> DVec<N> {
-                let mut res: DVec<N> = unsafe {
-                    DVec::new_uninitialized(self.nrows)
+            fn col(&self, col_id: usize) -> $dvec<N> {
+                let mut res: $dvec<N> = unsafe {
+                    $dvec::new_uninitialized(self.nrows)
                 };
 
                 for (row_id, e) in res[..].iter_mut().enumerate() {
@@ -475,8 +479,8 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Clone> ColSlice<DVec<N>> for $dmat<N> {
-            fn col_slice(&self, col_id :usize, row_start: usize, row_end: usize) -> DVec<N> {
+        impl<N: Copy + Clone + Zero> ColSlice<$dvec<N>> for $dmat<N> {
+            fn col_slice(&self, col_id :usize, row_start: usize, row_end: usize) -> $dvec<N> {
                 assert!(col_id < self.ncols);
                 assert!(row_start < row_end);
                 assert!(row_end <= self.nrows);
@@ -484,20 +488,20 @@ macro_rules! dmat_impl(
                 // We can init from slice thanks to the matrix being column-major.
                 let start= self.offset(row_start, col_id);
                 let stop = self.offset(row_end, col_id);
-                let slice = DVec::from_slice(row_end - row_start, &self.mij[start .. stop]);
+                let slice = $dvec::from_slice(row_end - row_start, &self.mij[start .. stop]);
 
                 slice
             }
         }
 
-        impl<N: Copy + Zero> Row<DVec<N>> for $dmat<N> {
+        impl<N: Copy + Zero> Row<$dvec<N>> for $dmat<N> {
             #[inline]
             fn nrows(&self) -> usize {
                 self.nrows
             }
 
             #[inline]
-            fn set_row(&mut self, row_id: usize, v: DVec<N>) {
+            fn set_row(&mut self, row_id: usize, v: $dvec<N>) {
                 assert!(row_id < self.nrows);
                 assert!(self.ncols == v.len());
 
@@ -509,9 +513,9 @@ macro_rules! dmat_impl(
             }
 
             #[inline]
-            fn row(&self, row_id: usize) -> DVec<N> {
-                let mut res: DVec<N> = unsafe {
-                    DVec::new_uninitialized(self.ncols)
+            fn row(&self, row_id: usize) -> $dvec<N> {
+                let mut res: $dvec<N> = unsafe {
+                    $dvec::new_uninitialized(self.ncols)
                 };
 
                 for (col_id, e) in res[..].iter_mut().enumerate() {
@@ -522,14 +526,14 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy> RowSlice<DVec<N>> for $dmat<N> {
-            fn row_slice(&self, row_id :usize, col_start: usize, col_end: usize) -> DVec<N> {
+        impl<N: Copy> RowSlice<$dvec<N>> for $dmat<N> {
+            fn row_slice(&self, row_id :usize, col_start: usize, col_end: usize) -> $dvec<N> {
                 assert!(row_id < self.nrows);
                 assert!(col_start < col_end);
                 assert!(col_end <= self.ncols);
 
-                let mut slice : DVec<N> = unsafe {
-                    DVec::new_uninitialized(col_end - col_start)
+                let mut slice : $dvec<N> = unsafe {
+                    $dvec::new_uninitialized(col_end - col_start)
                 };
                 let mut slice_idx = 0;
                 for col_id in col_start..col_end {
@@ -543,9 +547,9 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Clone + Zero> Diag<DVec<N>> for $dmat<N> {
+        impl<N: Copy + Clone + Zero> Diag<$dvec<N>> for $dmat<N> {
             #[inline]
-            fn from_diag(diag: &DVec<N>) -> $dmat<N> {
+            fn from_diag(diag: &$dvec<N>) -> $dmat<N> {
                 let mut res = $dmat::new_zeros(diag.len(), diag.len());
 
                 res.set_diag(diag);
@@ -554,10 +558,10 @@ macro_rules! dmat_impl(
             }
 
             #[inline]
-            fn diag(&self) -> DVec<N> {
+            fn diag(&self) -> $dvec<N> {
                 let smallest_dim = cmp::min(self.nrows, self.ncols);
 
-                let mut diag: DVec<N> = DVec::new_zeros(smallest_dim);
+                let mut diag: $dvec<N> = $dvec::new_zeros(smallest_dim);
 
                 for i in 0..smallest_dim {
                     unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
@@ -567,9 +571,9 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Clone + Zero>  DiagMut<DVec<N>> for $dmat<N> {
+        impl<N: Copy + Clone + Zero> DiagMut<$dvec<N>> for $dmat<N> {
             #[inline]
-            fn set_diag(&mut self, diag: &DVec<N>) {
+            fn set_diag(&mut self, diag: &$dvec<N>) {
                 let smallest_dim = cmp::min(self.nrows, self.ncols);
 
                 assert!(diag.len() == smallest_dim);
@@ -761,7 +765,7 @@ macro_rules! dmat_impl(
 );
 
 macro_rules! small_dmat_impl (
-    ($dmat: ident, $dim: expr, $($idx: expr),*) => (
+    ($dmat: ident, $dvec: ident, $dim: expr, $($idx: expr),*) => (
         impl<N: PartialEq> PartialEq for $dmat<N> {
             #[inline]
             fn eq(&self, other: &$dmat<N>) -> bool {
@@ -792,7 +796,7 @@ macro_rules! small_dmat_impl (
             }
         }
 
-        dmat_impl!($dmat);
+        dmat_impl!($dmat, $dvec);
     )
 );
 

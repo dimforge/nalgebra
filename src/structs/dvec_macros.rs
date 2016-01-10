@@ -387,9 +387,23 @@ macro_rules! dvec_impl(
 macro_rules! small_dvec_impl (
     ($dvec: ident, $dim: expr, $($idx: expr),*) => (
         impl<N> $dvec<N> {
+            /// The number of elements of this vector.
             #[inline]
             pub fn len(&self) -> usize {
                 self.dim
+            }
+
+            /// Creates an uninitialized vec of dimension `dim`.
+            #[inline]
+            pub unsafe fn new_uninitialized(dim: usize) -> $dvec<N> {
+                assert!(dim <= $dim, "The chosen dimension is too high for that type of \
+                                      stack-allocated dynamic vector. Consider using the \
+                                      heap-allocated vector: DVec.");
+
+                $dvec {
+                    at:  mem::uninitialized(),
+                    dim: dim
+                }
             }
         }
 

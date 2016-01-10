@@ -9,7 +9,7 @@ use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 use std::fmt::{Debug, Formatter, Result};
 use rand::{self, Rand};
 use num::{Zero, One};
-use structs::dvec::DVec;
+use structs::dvec::{DVec, DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
 use traits::operations::{ApproxEq, Inv, Transpose, Mean, Cov};
 use traits::structure::{Cast, Col, ColSlice, Row, RowSlice, Diag, DiagMut, Eye, Indexable, Shape, BaseNum};
 #[cfg(feature="arbitrary")]
@@ -128,7 +128,7 @@ impl<N> DMat<N> {
     }
 }
 
-dmat_impl!(DMat);
+dmat_impl!(DMat, DVec);
 
 
 pub struct DMat1<N> {
@@ -137,7 +137,7 @@ pub struct DMat1<N> {
     mij:   [N; 1 * 1],
 }
 
-small_dmat_impl!(DMat1, 1, 0);
+small_dmat_impl!(DMat1, DVec1, 1, 0);
 small_dmat_from_impl!(DMat1, 1, ::zero());
 
 
@@ -147,8 +147,8 @@ pub struct DMat2<N> {
     mij:   [N; 2 * 2],
 }
 
-small_dmat_impl!(DMat2, 2, 0, 1,
-                           2, 3);
+small_dmat_impl!(DMat2, DVec2, 2, 0, 1,
+                                  2, 3);
 small_dmat_from_impl!(DMat2, 2, ::zero(), ::zero(),
                                 ::zero(), ::zero());
 
@@ -159,9 +159,9 @@ pub struct DMat3<N> {
     mij:   [N; 3 * 3],
 }
 
-small_dmat_impl!(DMat3, 3, 0, 1, 2,
-                           3, 4, 5,
-                           6, 7, 8);
+small_dmat_impl!(DMat3, DVec3, 3, 0, 1, 2,
+                                  3, 4, 5,
+                                  6, 7, 8);
 small_dmat_from_impl!(DMat3, 3, ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero());
@@ -173,10 +173,10 @@ pub struct DMat4<N> {
     mij:   [N; 4 * 4],
 }
 
-small_dmat_impl!(DMat4, 4,  0,  1,  2,  3,
-                            4,  5,  6,  7,
-                            8,  9,  10, 11,
-                            12, 13, 14, 15);
+small_dmat_impl!(DMat4, DVec4, 4,  0,  1,  2,  3,
+                                   4,  5,  6,  7,
+                                   8,  9,  10, 11,
+                                   12, 13, 14, 15);
 small_dmat_from_impl!(DMat4, 4, ::zero(), ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero(), ::zero(),
@@ -189,11 +189,11 @@ pub struct DMat5<N> {
     mij:   [N; 5 * 5],
 }
 
-small_dmat_impl!(DMat5, 5, 0,  1,  2,  3,  4,
-                           5,  6,  7,  8,  9,
-                           10, 11, 12, 13, 14,
-                           15, 16, 17, 18, 19,
-                           20, 21, 22, 23, 24);
+small_dmat_impl!(DMat5, DVec5, 5, 0,  1,  2,  3,  4,
+                                  5,  6,  7,  8,  9,
+                                  10, 11, 12, 13, 14,
+                                  15, 16, 17, 18, 19,
+                                  20, 21, 22, 23, 24);
 small_dmat_from_impl!(DMat5, 5, ::zero(), ::zero(), ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero(), ::zero(), ::zero(),
@@ -207,12 +207,12 @@ pub struct DMat6<N> {
     mij:   [N; 6 * 6],
 }
 
-small_dmat_impl!(DMat6, 6, 0,  1,  2,  3,  4,  5,
-                           6,  7,  8,  9,  10, 11,
-                           12, 13, 14, 15, 16, 17,
-                           18, 19, 20, 21, 22, 23,
-                           24, 25, 26, 27, 28, 29,
-                           30, 31, 32, 33, 34, 35);
+small_dmat_impl!(DMat6, DVec6, 6, 0,  1,  2,  3,  4,  5,
+                                  6,  7,  8,  9,  10, 11,
+                                  12, 13, 14, 15, 16, 17,
+                                  18, 19, 20, 21, 22, 23,
+                                  24, 25, 26, 27, 28, 29,
+                                  30, 31, 32, 33, 34, 35);
 small_dmat_from_impl!(DMat6, 6, ::zero(), ::zero(), ::zero(), ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero(), ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero(), ::zero(), ::zero(), ::zero(),
