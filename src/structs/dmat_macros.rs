@@ -454,28 +454,23 @@ macro_rules! dmat_impl(
             }
 
             #[inline]
-            fn set_col(&mut self, col_id: usize, v: $dvec<N>) {
+            fn set_col(&mut self, col_id: usize, col: $dvec<N>) {
                 assert!(col_id < self.ncols);
-                assert!(self.nrows == v.len());
+                assert!(col.len() == self.nrows);
 
-                for (i, e) in v[..].iter().enumerate() {
+                for row_id in 0 .. self.nrows {
                     unsafe {
-                        self.unsafe_set((i, col_id), *e);
+                        self.unsafe_set((row_id, col_id), col.unsafe_at(row_id));
                     }
                 }
             }
 
-            #[inline]
             fn col(&self, col_id: usize) -> $dvec<N> {
-                let mut res: $dvec<N> = unsafe {
-                    $dvec::new_uninitialized(self.nrows)
-                };
+                assert!(col_id < self.ncols);
 
-                for (row_id, e) in res[..].iter_mut().enumerate() {
-                    *e = unsafe { self.unsafe_at((row_id, col_id)) };
-                }
-
-                res
+                let start = self.offset(0, col_id);
+                let stop  = self.offset(self.nrows, col_id);
+                $dvec::from_slice(self.nrows, &self.mij[start .. stop])
             }
         }
 
@@ -486,8 +481,8 @@ macro_rules! dmat_impl(
                 assert!(row_end <= self.nrows);
 
                 // We can init from slice thanks to the matrix being column-major.
-                let start= self.offset(row_start, col_id);
-                let stop = self.offset(row_end, col_id);
+                let start = self.offset(row_start, col_id);
+                let stop  = self.offset(row_end, col_id);
                 let slice = $dvec::from_slice(row_end - row_start, &self.mij[start .. stop]);
 
                 slice
@@ -501,28 +496,31 @@ macro_rules! dmat_impl(
             }
 
             #[inline]
-            fn set_row(&mut self, row_id: usize, v: $dvec<N>) {
+            fn set_row(&mut self, row_id: usize, row: $dvec<N>) {
                 assert!(row_id < self.nrows);
-                assert!(self.ncols == v.len());
+                assert!(row.len() == self.ncols);
 
-                for (i, e) in v[..].iter().enumerate() {
+                for col_id in 0 .. self.ncols {
                     unsafe {
-                        self.unsafe_set((row_id, i), *e);
+                        self.unsafe_set((row_id, col_id), row.unsafe_at(col_id));
                     }
                 }
             }
 
             #[inline]
             fn row(&self, row_id: usize) -> $dvec<N> {
-                let mut res: $dvec<N> = unsafe {
+                assert!(row_id < self.nrows);
+
+                let mut slice : $dvec<N> = unsafe {
                     $dvec::new_uninitialized(self.ncols)
                 };
 
-                for (col_id, e) in res[..].iter_mut().enumerate() {
-                    *e = unsafe { self.unsafe_at((row_id, col_id)) };
+                for col_id in 0 .. self.ncols {
+                    unsafe {
+                        slice.unsafe_set(col_id, self.unsafe_at((row_id, col_id)));
+                    }
                 }
-
-                res
+                slice
             }
         }
 
@@ -536,7 +534,7 @@ macro_rules! dmat_impl(
                     $dvec::new_uninitialized(col_end - col_start)
                 };
                 let mut slice_idx = 0;
-                for col_id in col_start..col_end {
+                for col_id in col_start .. col_end {
                     unsafe {
                         slice.unsafe_set(slice_idx, self.unsafe_at((row_id, col_id)));
                     }
