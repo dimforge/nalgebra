@@ -325,7 +325,7 @@ pub trait Cov<M> {
     }
 }
 
-/// Trait for computing the covariance of a set of data.
+/// Trait for computing the mean of a set of data.
 pub trait Mean<N> {
     /// Computes the mean of the observations stored by `v`.
     /// 

@@ -290,6 +290,14 @@ macro_rules! dvec_impl(
             }
         }
 
+        impl<N: BaseFloat + Cast<f64>> Mean<N> for $dvec<N> {
+            #[inline]
+            fn mean(&self) -> N {
+                let normalizer = ::cast(1.0f64 / self.len() as f64);
+                self.iter().fold(::zero(), |acc, x| acc + *x * normalizer)
+            }
+        }
+
         impl<N: ApproxEq<N>> ApproxEq<N> for $dvec<N> {
             #[inline]
             fn approx_epsilon(_: Option<$dvec<N>>) -> N {

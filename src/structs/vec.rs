@@ -9,7 +9,7 @@ use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};
 use rand::{Rand, Rng};
 use num::{Zero, One};
-use traits::operations::{ApproxEq, POrd, POrdering, Axpy, Absolute};
+use traits::operations::{ApproxEq, POrd, POrdering, Axpy, Absolute, Mean};
 use traits::geometry::{Transform, Rotate, FromHomogeneous, ToHomogeneous, Dot, Norm,
                        Translation, Translate};
 use traits::structure::{Basis, Cast, Dim, Indexable, Iterable, IterableMut, Shape, NumVec,
@@ -90,6 +90,7 @@ num_float_vec_impl!(Vec1);
 absolute_vec_impl!(Vec1, x);
 arbitrary_impl!(Vec1, x);
 rand_impl!(Vec1, x);
+mean_impl!(Vec1);
 
 /// Vector of dimension 2.
 #[repr(C)]
@@ -143,6 +144,7 @@ num_float_vec_impl!(Vec2);
 absolute_vec_impl!(Vec2, x, y);
 arbitrary_impl!(Vec2, x, y);
 rand_impl!(Vec2, x, y);
+mean_impl!(Vec2);
 
 /// Vector of dimension 3.
 #[repr(C)]
@@ -198,6 +200,7 @@ num_float_vec_impl!(Vec3);
 absolute_vec_impl!(Vec3, x, y, z);
 arbitrary_impl!(Vec3, x, y, z);
 rand_impl!(Vec3, x, y, z);
+mean_impl!(Vec3);
 
 
 /// Vector of dimension 4.
@@ -256,6 +259,7 @@ num_float_vec_impl!(Vec4);
 absolute_vec_impl!(Vec4, x, y, z, w);
 arbitrary_impl!(Vec4, x, y, z, w);
 rand_impl!(Vec4, x, y, z, w);
+mean_impl!(Vec4);
 
 /// Vector of dimension 5.
 #[repr(C)]
@@ -315,6 +319,7 @@ num_float_vec_impl!(Vec5);
 absolute_vec_impl!(Vec5, x, y, z, w, a);
 arbitrary_impl!(Vec5, x, y, z, w, a);
 rand_impl!(Vec5, x, y, z, w, a);
+mean_impl!(Vec5);
 
 /// Vector of dimension 6.
 #[repr(C)]
@@ -374,3 +379,4 @@ num_float_vec_impl!(Vec6);
 absolute_vec_impl!(Vec6, x, y, z, w, a, b);
 arbitrary_impl!(Vec6, x, y, z, w, a, b);
 rand_impl!(Vec6, x, y, z, w, a, b);
+mean_impl!(Vec6);

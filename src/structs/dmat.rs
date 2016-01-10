@@ -502,8 +502,8 @@ impl<N: BaseNum + Cast<f64> + Clone> Mean<DVec<N>> for DMat<N> {
         let mut res: DVec<N> = DVec::new_zeros(self.ncols);
         let normalizer: N    = Cast::from(1.0f64 / self.nrows as f64);
 
-        for i in 0..self.nrows {
-            for j in 0..self.ncols {
+        for i in 0 .. self.nrows {
+            for j in 0 .. self.ncols {
                 unsafe {
                     let acc = res.unsafe_at(j) + self.unsafe_at((i, j)) * normalizer;
                     res.unsafe_set(j, acc);
@@ -524,8 +524,8 @@ impl<N: BaseNum + Cast<f64> + Clone> Cov<DMat<N>> for DMat<N> {
         let mean = self.mean();
 
         // FIXME: use the rows iterator when available
-        for i in 0..self.nrows {
-            for j in 0..self.ncols {
+        for i in 0 .. self.nrows {
+            for j in 0 .. self.ncols {
                 unsafe {
                     centered.unsafe_set((i, j), self.unsafe_at((i, j)) - mean.unsafe_at(j));
                 }
@@ -535,6 +535,7 @@ impl<N: BaseNum + Cast<f64> + Clone> Cov<DMat<N>> for DMat<N> {
         // FIXME: return a triangular matrix?
         let fnormalizer: f64 = Cast::from(self.nrows() - 1);
         let normalizer: N    = Cast::from(fnormalizer);
+
         // FIXME: this will do 2 allocations for temporaries!
         (Transpose::transpose(&centered) * centered) / normalizer
     }
@@ -545,10 +546,12 @@ impl<N: Copy + Clone> ColSlice<DVec<N>> for DMat<N> {
         assert!(col_id < self.ncols);
         assert!(row_start < row_end);
         assert!(row_end <= self.nrows);
-        // we can init from slice thanks to the matrix being column major
+
+        // We can init from slice thanks to the matrix being column-major.
         let start= self.offset(row_start, col_id);
         let stop = self.offset(row_end, col_id);
         let slice = DVec::from_slice(row_end - row_start, &self.mij[start .. stop]);
+
         slice
     }
 }
@@ -558,6 +561,7 @@ impl<N: Copy> RowSlice<DVec<N>> for DMat<N> {
         assert!(row_id < self.nrows);
         assert!(col_start < col_end);
         assert!(col_end <= self.ncols);
+
         let mut slice : DVec<N> = unsafe {
             DVec::new_uninitialized(col_end - col_start)
         };
@@ -568,11 +572,12 @@ impl<N: Copy> RowSlice<DVec<N>> for DMat<N> {
             }
             slice_idx += 1;
         }
+
         slice
     }
 }
 
-impl<N: Copy + Clone + Zero>  Diag<DVec<N>> for DMat<N> {
+impl<N: Copy + Clone + Zero> Diag<DVec<N>> for DMat<N> {
     #[inline]
     fn from_diag(diag: &DVec<N>) -> DMat<N> {
         let mut res = DMat::new_zeros(diag.len(), diag.len());
