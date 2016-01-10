@@ -55,15 +55,10 @@ impl<N: Clone + Copy> DMat<N> {
     /// Note that `from_col_vec` is much faster than `from_row_vec` since a `DMat` stores its data
     /// in column-major order.
     ///
-    /// The vector must have at least `nrows * ncols` elements.
+    /// The vector must have exactly `nrows * ncols` elements.
     #[inline]
     pub fn from_row_vec(nrows: usize, ncols: usize, vec: &[N]) -> DMat<N> {
-        let mut res = DMat::from_col_vec(ncols, nrows, vec);
-
-        // we transpose because the buffer is row_major
-        res.transpose_mut();
-
-        res
+        DMat::from_row_iter(nrows, ncols, vec.to_vec())
     }
 
     /// Builds a matrix filled with the components provided by a vector.
@@ -71,15 +66,45 @@ impl<N: Clone + Copy> DMat<N> {
     /// Note that `from_col_vec` is much faster than `from_row_vec` since a `DMat` stores its data
     /// in column-major order.
     ///
-    /// The vector must have at least `nrows * ncols` elements.
+    /// The vector must have exactly `nrows * ncols` elements.
     #[inline]
     pub fn from_col_vec(nrows: usize, ncols: usize, vec: &[N]) -> DMat<N> {
-        assert!(nrows * ncols == vec.len());
+        DMat::from_col_iter(nrows, ncols, vec.to_vec())
+    }
+
+    /// Builds a matrix filled with the components provided by a source that may be moved into an iterator.
+    /// The source contains the matrix data in row-major order.
+    /// Note that `from_col_iter` is much faster than `from_row_iter` since a `DMat` stores its data
+    /// in column-major order.
+    ///
+    /// The source must have exactly `nrows * ncols` elements.
+    #[inline]
+    pub fn from_row_iter<I: IntoIterator<Item = N>>(nrows: usize, ncols: usize, param: I) -> DMat<N> {
+        let mut res = DMat::from_col_iter(ncols, nrows, param);
+
+        // we transpose because the buffer is row_major
+        res.transpose_mut();
+
+        res
+    }
+
+
+    /// Builds a matrix filled with the components provided by a source that may be moved into an iterator.
+    /// The source contains the matrix data in column-major order.
+    /// Note that `from_col_iter` is much faster than `from_row_iter` since a `DMat` stores its data
+    /// in column-major order.
+    ///
+    /// The source must have exactly `nrows * ncols` elements.
+    #[inline]
+    pub fn from_col_iter<I: IntoIterator<Item = N>>(nrows: usize, ncols: usize, param: I) -> DMat<N> {
+        let mij: Vec<N> = param.into_iter().collect();
+
+        assert!(nrows * ncols == mij.len(), "The ammount of data provided does not matches the matrix size.");
 
         DMat {
             nrows: nrows,
             ncols: ncols,
-            mij:   vec.to_vec()
+            mij:   mij
         }
     }
 }
