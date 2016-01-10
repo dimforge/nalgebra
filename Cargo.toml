@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.5.0"
+version = "0.5.1"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ] # FIXME: add the contributors.
 
 description = "Linear algebra library for computer physics, computer graphics and general low-dimensional linear algebra for Rust."
@@ -20,9 +20,9 @@ path = "src/lib.rs"
 arbitrary = ["quickcheck"]
 
 [dependencies]
-rustc-serialize = "*"
-rand = "*"
-num = "*"
+rustc-serialize = "0.3.*"
+rand = "0.3.*"
+num = "0.1.*"
 
 [dependencies.quickcheck]
 optional = true
