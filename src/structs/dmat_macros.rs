@@ -753,7 +753,7 @@ macro_rules! dmat_impl(
         }
 
         #[cfg(feature="arbitrary")]
-        impl<N: Arbitrary> Arbitrary for $dmat<N> {
+        impl<N: Copy + Zero + Arbitrary> Arbitrary for $dmat<N> {
             fn arbitrary<G: Gen>(g: &mut G) -> $dmat<N> {
                 $dmat::from_fn(
                     Arbitrary::arbitrary(g), Arbitrary::arbitrary(g),
