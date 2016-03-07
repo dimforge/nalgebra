@@ -26,3 +26,4 @@ num = "0.1.*"
 
 [dependencies.quickcheck]
 optional = true
+version = "0.2.*"
