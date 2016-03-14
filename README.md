@@ -12,6 +12,14 @@ nalgebra
 An on-line version of this documentation is available [here](http://nalgebra.org).
 
 ## Using **nalgebra**
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies.nalgebra]
+git = "https://github.com/sebcrozet/nalgebra.git"
+```
+
 All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.
 This module re-exports everything and includes free functions for all traits methods doing
 out-of-place modifications.
