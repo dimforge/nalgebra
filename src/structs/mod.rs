@@ -35,7 +35,7 @@ mod sim;
 mod persp;
 mod ortho;
 
-// specialization for some 1d, 2d and 3d operations
+// Specialization for some 1d, 2d and 3d operations.
 #[doc(hidden)]
 mod spec {
     mod identity;
