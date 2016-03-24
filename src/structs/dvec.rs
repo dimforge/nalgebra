@@ -62,6 +62,7 @@ impl<N> DVec<N> {
         DVec { at: (0..dim).map(|i| f(i)).collect() }
     }
 
+    /// The vector length.
     #[inline]
     pub fn len(&self) -> usize {
         self.at.len()

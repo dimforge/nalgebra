@@ -76,6 +76,7 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 extern crate rustc_serialize;
 extern crate rand;
 extern crate num;
+extern crate generic_array;
 
 #[cfg(feature="arbitrary")]
 extern crate quickcheck;
@@ -141,7 +142,7 @@ pub use structs::{
     Mat1, Mat2, Mat3, Mat4,
     Mat5, Mat6,
     Rot2, Rot3, Rot4,
-    Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
+    VecN, Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
     Pnt0, Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6,
     Persp3, PerspMat3,
     Ortho3, OrthoMat3,

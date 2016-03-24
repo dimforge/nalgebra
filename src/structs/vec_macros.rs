@@ -74,7 +74,7 @@ macro_rules! at_fast_impl(
 
 // FIXME: N should be bounded by Ord instead of BaseFloat…
 // However, f32/f64 does not implement Ord…
-macro_rules! ord_impl(
+macro_rules! pord_impl(
     ($t: ident, $comp0: ident, $($compN: ident),*) => (
         impl<N: BaseFloat> POrd for $t<N> {
             #[inline]

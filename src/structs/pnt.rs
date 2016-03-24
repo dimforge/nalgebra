@@ -48,7 +48,7 @@ pub struct Pnt1<N> {
 
 new_impl!(Pnt1, x);
 orig_impl!(Pnt1, x);
-ord_impl!(Pnt1, x,);
+pord_impl!(Pnt1, x,);
 scalar_mul_impl!(Pnt1, x);
 scalar_div_impl!(Pnt1, x);
 scalar_add_impl!(Pnt1, x);
@@ -90,7 +90,7 @@ pub struct Pnt2<N> {
 
 new_impl!(Pnt2, x, y);
 orig_impl!(Pnt2, x, y);
-ord_impl!(Pnt2, x, y);
+pord_impl!(Pnt2, x, y);
 scalar_mul_impl!(Pnt2, x, y);
 scalar_div_impl!(Pnt2, x, y);
 scalar_add_impl!(Pnt2, x, y);
@@ -134,7 +134,7 @@ pub struct Pnt3<N> {
 
 new_impl!(Pnt3, x, y, z);
 orig_impl!(Pnt3, x, y, z);
-ord_impl!(Pnt3, x, y, z);
+pord_impl!(Pnt3, x, y, z);
 scalar_mul_impl!(Pnt3, x, y, z);
 scalar_div_impl!(Pnt3, x, y, z);
 scalar_add_impl!(Pnt3, x, y, z);
@@ -180,7 +180,7 @@ pub struct Pnt4<N> {
 
 new_impl!(Pnt4, x, y, z, w);
 orig_impl!(Pnt4, x, y, z, w);
-ord_impl!(Pnt4, x, y, z, w);
+pord_impl!(Pnt4, x, y, z, w);
 scalar_mul_impl!(Pnt4, x, y, z, w);
 scalar_div_impl!(Pnt4, x, y, z, w);
 scalar_add_impl!(Pnt4, x, y, z, w);
@@ -228,7 +228,7 @@ pub struct Pnt5<N> {
 
 new_impl!(Pnt5, x, y, z, w, a);
 orig_impl!(Pnt5, x, y, z, w, a);
-ord_impl!(Pnt5, x, y, z, w, a);
+pord_impl!(Pnt5, x, y, z, w, a);
 scalar_mul_impl!(Pnt5, x, y, z, w, a);
 scalar_div_impl!(Pnt5, x, y, z, w, a);
 scalar_add_impl!(Pnt5, x, y, z, w, a);
@@ -278,7 +278,7 @@ pub struct Pnt6<N> {
 
 new_impl!(Pnt6, x, y, z, w, a, b);
 orig_impl!(Pnt6, x, y, z, w, a, b);
-ord_impl!(Pnt6, x, y, z, w, a, b);
+pord_impl!(Pnt6, x, y, z, w, a, b);
 scalar_mul_impl!(Pnt6, x, y, z, w, a, b);
 scalar_div_impl!(Pnt6, x, y, z, w, a, b);
 scalar_add_impl!(Pnt6, x, y, z, w, a, b);

@@ -1,8 +1,10 @@
-extern crate nalgebra as na;
 extern crate rand;
+extern crate typenum;
+extern crate nalgebra as na;
 
 use rand::random;
-use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Rot2, Rot3, Iterable, IterableMut};
+use typenum::U10;
+use na::{VecN, Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Rot2, Rot3, Iterable, IterableMut};
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
@@ -316,6 +318,15 @@ fn test_outer_vec3() {
             4.0, 5.0, 6.0,
             8.0, 10.0, 12.0,
             12.0, 15.0, 18.0));
+}
+
+#[test]
+fn test_vecn10_add_mul() {
+    for _ in 0usize .. 10000 {
+        let v1: VecN<f64, U10> = random();
+
+        assert!(na::approx_eq(&(v1 + v1), &(v1 * 2.0)))
+    }
 }
 
 
