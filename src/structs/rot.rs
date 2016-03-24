@@ -9,9 +9,9 @@ use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, Rotatio
                        ToHomogeneous, Norm, Cross};
 use traits::structure::{Cast, Dim, Row, Col, BaseFloat, BaseNum, Eye, Diag};
 use traits::operations::{Absolute, Inv, Transpose, ApproxEq};
-use structs::vec::{Vec1, Vec2, Vec3, Vec4};
-use structs::pnt::{Pnt2, Pnt3, Pnt4};
-use structs::mat::{Mat2, Mat3, Mat4, Mat5};
+use structs::vec::{Vec1, Vec2, Vec3};
+use structs::pnt::{Pnt2, Pnt3};
+use structs::mat::{Mat2, Mat3, Mat4};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -345,92 +345,6 @@ impl<N: Arbitrary + Clone + BaseFloat> Arbitrary for Rot3<N> {
 }
 
 
-/// Four dimensional rotation matrix.
-#[repr(C)]
-#[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Hash, Copy)]
-pub struct Rot4<N> {
-    submat: Mat4<N>
-}
-
-// impl<N> Rot4<N> {
-//     pub fn new(left_iso: Quat<N>, right_iso: Quat<N>) -> Rot4<N> {
-//         assert!(left_iso.is_unit());
-//         assert!(right_iso.is_unright);
-//
-//         let mat_left_iso = Mat4::new(
-//             left_iso.x, -left_iso.y, -left_iso.z, -left_iso.w,
-//             left_iso.y,  left_iso.x, -left_iso.w,  left_iso.z,
-//             left_iso.z,  left_iso.w,  left_iso.x, -left_iso.y,
-//             left_iso.w, -left_iso.z,  left_iso.y,  left_iso.x);
-//         let mat_right_iso = Mat4::new(
-//             right_iso.x, -right_iso.y, -right_iso.z, -right_iso.w,
-//             right_iso.y,  right_iso.x,  right_iso.w, -right_iso.z,
-//             right_iso.z, -right_iso.w,  right_iso.x,  right_iso.y,
-//             right_iso.w,  right_iso.z, -right_iso.y,  right_iso.x);
-//
-//         Rot4 {
-//             submat: mat_left_iso * mat_right_iso
-//         }
-//     }
-// }
-
-impl<N: BaseFloat> AbsoluteRotate<Vec4<N>> for Rot4<N> {
-    #[inline]
-    fn absolute_rotate(&self, v: &Vec4<N>) -> Vec4<N> {
-        Vec4::new(
-            ::abs(&self.submat.m11) * v.x + ::abs(&self.submat.m12) * v.y +
-            ::abs(&self.submat.m13) * v.z + ::abs(&self.submat.m14) * v.w,
-
-            ::abs(&self.submat.m21) * v.x + ::abs(&self.submat.m22) * v.y +
-            ::abs(&self.submat.m23) * v.z + ::abs(&self.submat.m24) * v.w,
-
-            ::abs(&self.submat.m31) * v.x + ::abs(&self.submat.m32) * v.y +
-            ::abs(&self.submat.m33) * v.z + ::abs(&self.submat.m34) * v.w,
-
-            ::abs(&self.submat.m41) * v.x + ::abs(&self.submat.m42) * v.y +
-            ::abs(&self.submat.m43) * v.z + ::abs(&self.submat.m44) * v.w)
-    }
-}
-
-impl<N: BaseFloat + Clone>
-Rotation<Vec4<N>> for Rot4<N> {
-    #[inline]
-    fn rotation(&self) -> Vec4<N> {
-        panic!("Not yet implemented")
-    }
-
-    #[inline]
-    fn inv_rotation(&self) -> Vec4<N> {
-        panic!("Not yet implemented")
-    }
-
-    #[inline]
-    fn append_rotation_mut(&mut self, _: &Vec4<N>) {
-        panic!("Not yet implemented")
-    }
-
-    #[inline]
-    fn append_rotation(&self, _: &Vec4<N>) -> Rot4<N> {
-        panic!("Not yet implemented")
-    }
-
-    #[inline]
-    fn prepend_rotation_mut(&mut self, _: &Vec4<N>) {
-        panic!("Not yet implemented")
-    }
-
-    #[inline]
-    fn prepend_rotation(&self, _: &Vec4<N>) -> Rot4<N> {
-        panic!("Not yet implemented")
-    }
-
-    #[inline]
-    fn set_rotation(&mut self, _: Vec4<N>) {
-        panic!("Not yet implemented")
-    }
-}
-
-
 /*
  * Common implementations.
  */
@@ -478,25 +392,3 @@ inv_impl!(Rot3);
 transpose_impl!(Rot3);
 approx_eq_impl!(Rot3);
 diag_impl!(Rot3, Vec3);
-
-submat_impl!(Rot4, Mat4);
-rotate_impl!(Rot4, Vec4, Pnt4);
-transform_impl!(Rot4, Vec4, Pnt4);
-dim_impl!(Rot4, 4);
-rot_mul_rot_impl!(Rot4);
-rot_mul_vec_impl!(Rot4, Vec4);
-vec_mul_rot_impl!(Rot4, Vec4);
-rot_mul_pnt_impl!(Rot4, Pnt4);
-pnt_mul_rot_impl!(Rot4, Pnt4);
-one_impl!(Rot4);
-eye_impl!(Rot4);
-rotation_matrix_impl!(Rot4, Vec4, Vec4);
-col_impl!(Rot4, Vec4);
-row_impl!(Rot4, Vec4);
-index_impl!(Rot4);
-absolute_impl!(Rot4, Mat4);
-to_homogeneous_impl!(Rot4, Mat5);
-inv_impl!(Rot4);
-transpose_impl!(Rot4);
-approx_eq_impl!(Rot4);
-diag_impl!(Rot4, Vec4);

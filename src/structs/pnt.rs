@@ -2,7 +2,6 @@
 
 #![allow(missing_docs)] // we allow missing to avoid having to document the point components.
 
-use std::marker::PhantomData;
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};
@@ -17,29 +16,6 @@ use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-
-/// Point of dimension 0.
-///
-/// The main differance between a point and a vector is that a vector is not affected by
-/// translations.
-#[repr(C)]
-#[derive(Eq, PartialEq, Clone, Debug, Copy)]
-pub struct Pnt0<N>(pub PhantomData<N>);
-
-impl<N> Pnt0<N> {
-    /// Creates a new point.
-    #[inline]
-    pub fn new() -> Pnt0<N> {
-        Pnt0(PhantomData)
-    }
-}
-
-impl<N> Repeat<N> for Pnt0<N> {
-    #[inline]
-    fn repeat(_: N) -> Pnt0<N> {
-        Pnt0(PhantomData)
-    }
-}
 
 /// Point of dimension 1.
 ///

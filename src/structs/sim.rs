@@ -12,6 +12,9 @@ use structs::pnt::{Pnt2, Pnt3};
 use structs::rot::{Rot2, Rot3};
 use structs::iso::{Iso2, Iso3};
 
+#[cfg(feature="arbitrary")]
+use quickcheck::{Arbitrary, Gen};
+
 // FIXME: the name is not explicit at all but coherent with the other tree-letters names…
 /// A two-dimensional similarity transformation.
 ///

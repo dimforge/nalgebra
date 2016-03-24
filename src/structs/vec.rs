@@ -3,7 +3,6 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
 
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
-use std::marker::PhantomData;
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};
@@ -19,29 +18,6 @@ use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-
-/// Vector of dimension 0.
-///
-/// The main differance between a point and a vector is that a vector is not affected by
-/// translations.
-#[repr(C)]
-#[derive(Eq, PartialEq, Clone, Debug, Copy)]
-pub struct Vec0<N>(pub PhantomData<N>);
-
-impl<N> Vec0<N> {
-    /// Creates a new vector.
-    #[inline]
-    pub fn new() -> Vec0<N> {
-        Vec0(PhantomData)
-    }
-}
-
-impl<N> Repeat<N> for Vec0<N> {
-    #[inline]
-    fn repeat(_: N) -> Vec0<N> {
-        Vec0(PhantomData)
-    }
-}
 
 /// Vector of dimension 1.
 ///
