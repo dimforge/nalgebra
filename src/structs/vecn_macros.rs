@@ -13,7 +13,7 @@ macro_rules! vecn_dvec_common_impl(
         impl<N $(, $param: ArrayLength<N>)*> AsRef<[N]> for $vecn<N $(, $param)*> {
             #[inline]
             fn as_ref(&self) -> &[N] {
-                &self[.. self.len()]
+                &self.at[.. self.len()]
             }
         }
 
@@ -21,7 +21,7 @@ macro_rules! vecn_dvec_common_impl(
             #[inline]
             fn as_mut(&mut self) -> &mut [N] {
                 let len = self.len();
-                &mut self[.. len]
+                &mut self.at[.. len]
             }
         }
 
