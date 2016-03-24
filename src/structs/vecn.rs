@@ -19,6 +19,9 @@ pub struct VecN<N, D: ArrayLength<N>> {
     pub at: GenericArray<N, D>
 }
 
+unsafe impl<N: Send, D: ArrayLength<N>> Send for VecN<N, D> {
+}
+
 impl<N: Clone, D: ArrayLength<N>> Clone for VecN<N, D> {
     fn clone(&self) -> VecN<N, D> {
         VecN::new(self.at.clone())
@@ -106,6 +109,14 @@ impl<N: Copy + Zero, D: ArrayLength<N>> Zero for VecN<N, D> {
     #[inline]
     fn is_zero(&self) -> bool {
         self.iter().all(|e| e.is_zero())
+    }
+}
+
+#[cfg(feature="arbitrary")]
+impl<N: Arbitrary + Zero + Copy, D: 'static + ArrayLength<N>> Arbitrary for VecN<N, D> {
+    #[inline]
+    fn arbitrary<G: Gen>(g: &mut G) -> VecN<N, D> {
+        (0 .. D::to_usize()).map(|_| Arbitrary::arbitrary(g)).collect()
     }
 }
 
