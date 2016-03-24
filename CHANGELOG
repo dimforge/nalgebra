@@ -4,7 +4,7 @@ documented in this file (sorry I didn't maintain one before).
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.6.0] - 2016-03-24
+## [unreleased] [0.6.0]
 ### Added
   * Dependency to [generic-array](https://crates.io/crates/generic-array)
   * Staticly sized vectors with user-defined sizes: `VecN`.
@@ -14,3 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
   * Zero-sized elements `Vec0`, `Pnt0`.
   * Incomplete 4-dimensional transformations `Rot4` and `Iso4`.
+
+### Modified
+  * Vectors are now multipliable à isometries. This will result into a pure rotation (this is how
+  vectors differ from point semantically: they design directions so they are not translatable).
