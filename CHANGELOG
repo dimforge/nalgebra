@@ -1,0 +1,16 @@
+# Change Log
+All notable changes to `nalgebra`, starting with the version 0.6.0 will be
+documented in this file (sorry I didn't maintain one before).
+
+This project adheres to [Semantic Versioning](http://semver.org/).
+
+## [0.6.0] - 2016-03-24
+### Added
+  * Dependency to [generic-array](https://crates.io/crates/generic-array)
+  * Staticly sized vectors with user-defined sizes: `VecN`.
+  * Similarity transformations (an uniform scale followed by a rotation followed
+    by a translation): `Sim2`, `Sim3`.
+
+### Removed
+  * Zero-sized elements `Vec0`, `Pnt0`.
+  * Incomplete 4-dimensional transformations `Rot4` and `Iso4`.
