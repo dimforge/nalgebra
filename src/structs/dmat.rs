@@ -1,7 +1,5 @@
 //! Matrix with dimensions unknown at compile-time.
 
-#![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
-
 use std::cmp;
 use std::mem;
 use std::iter::repeat;
@@ -131,6 +129,7 @@ impl<N> DMat<N> {
 dmat_impl!(DMat, DVec);
 
 
+/// A stack-allocated dynamically sized matrix with at most one row and column.
 pub struct DMat1<N> {
     nrows: usize,
     ncols: usize,
@@ -141,6 +140,7 @@ small_dmat_impl!(DMat1, DVec1, 1, 0);
 small_dmat_from_impl!(DMat1, 1, ::zero());
 
 
+/// A stack-allocated dynamically sized square or rectangular matrix with at most 2 rows and columns.
 pub struct DMat2<N> {
     nrows: usize,
     ncols: usize,
@@ -153,6 +153,7 @@ small_dmat_from_impl!(DMat2, 2, ::zero(), ::zero(),
                                 ::zero(), ::zero());
 
 
+/// A stack-allocated dynamically sized square or rectangular matrix with at most 3 rows and columns.
 pub struct DMat3<N> {
     nrows: usize,
     ncols: usize,
@@ -167,6 +168,7 @@ small_dmat_from_impl!(DMat3, 3, ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero());
 
 
+/// A stack-allocated dynamically sized square or rectangular matrix with at most 4 rows and columns.
 pub struct DMat4<N> {
     nrows: usize,
     ncols: usize,
@@ -183,6 +185,7 @@ small_dmat_from_impl!(DMat4, 4, ::zero(), ::zero(), ::zero(), ::zero(),
                                 ::zero(), ::zero(), ::zero(), ::zero());
 
 
+/// A stack-allocated dynamically sized square or rectangular matrix with at most 5 rows and columns.
 pub struct DMat5<N> {
     nrows: usize,
     ncols: usize,
@@ -201,6 +204,7 @@ small_dmat_from_impl!(DMat5, 5, ::zero(), ::zero(), ::zero(), ::zero(), ::zero()
                                 ::zero(), ::zero(), ::zero(), ::zero(), ::zero());
 
 
+/// A stack-allocated dynamically sized square or rectangular matrix with at most 6 rows and columns.
 pub struct DMat6<N> {
     nrows: usize,
     ncols: usize,

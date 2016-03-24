@@ -1,7 +1,5 @@
 //! Rotations matrices.
 
-#![allow(missing_docs)]
-
 use std::ops::{Mul, Neg, Index};
 use rand::{Rand, Rng};
 use num::{Zero, One};

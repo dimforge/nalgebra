@@ -3,16 +3,16 @@
 
 **nalgebra** is a low-dimensional linear algebra library written for Rust targeting:
 
-* general-purpose linear algebra (still lacks a lot of features…).
+* low-dimensional general-purpose linear algebra (still lacks a lot of features…).
 * real time computer graphics.
 * real time computer physics.
 
-An on-line version of this documentation is available [here](http://nalgebra.org).
+An on-line version of this documentation is available [here](http://nalgebra.org/doc/nalgebra).
 
 ## Using **nalgebra**
-All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.
-This module re-exports everything and includes free functions for all traits methods doing
-out-of-place modifications.
+All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.  This
+module re-exports everything and includes free functions for all traits methods performing
+out-of-place operations.
 
 * You can import the whole prelude using:
 
@@ -47,8 +47,8 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`
 * Quaternions: `Quat`, `UnitQuat`.
-* Isometries (translation * rotation): `Iso2`, `Iso3`
-* Similarity transformations (translation * rotation * uniform scale): `Sim2`, `Sim3`.
+* Isometries (translation ⨯ rotation): `Iso2`, `Iso3`
+* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Sim2`, `Sim3`.
 * 3D projections for computer graphics: `Persp3`, `PerspMat3`, `Ortho3`, `OrthoMat3`.
 * Dynamically sized heap-allocated vector: `DVec`.
 * Dynamically sized stack-allocated vectors with a maximum size: `DVec1` to `DVec6`.

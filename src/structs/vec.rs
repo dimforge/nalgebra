@@ -1,7 +1,5 @@
 //! Vectors with dimension known at compile-time.
 
-#![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
-
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
 use std::mem;
 use std::slice::{Iter, IterMut};

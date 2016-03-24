@@ -1,7 +1,5 @@
 //! Points with dimension known at compile-time.
 
-#![allow(missing_docs)] // we allow missing to avoid having to document the point components.
-
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};

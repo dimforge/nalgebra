@@ -278,6 +278,7 @@ macro_rules! dim_impl(
 macro_rules! container_impl(
     ($t: ident) => (
         impl<N> $t<N> {
+            /// The dimension of this entity.
             #[inline]
             pub fn len(&self) -> usize {
                 Dim::dim(None::<$t<N>>)
@@ -291,18 +292,18 @@ macro_rules! basis_impl(
         impl<N: BaseFloat + ApproxEq<N>> Basis for $t<N> {
             #[inline]
             fn canonical_basis<F: FnMut($t<N>) -> bool>(mut f: F) {
-                for i in 0..$dim {
+                for i in 0 .. $dim {
                     if !f(Basis::canonical_basis_element(i).unwrap()) { return }
                 }
             }
 
             #[inline]
             fn orthonormal_subspace_basis<F: FnMut($t<N>) -> bool>(n: &$t<N>, mut f: F) {
-                // compute the basis of the orthogonal subspace using Gram-Schmidt
-                // orthogonalization algorithm
+                // Compute the basis of the orthogonal subspace using Gram-Schmidt
+                // orthogonalization algorithm.
                 let mut basis: Vec<$t<N>> = Vec::new();
 
-                for i in 0..$dim {
+                for i in 0 .. $dim {
                     let mut basis_element : $t<N> = ::zero();
 
                     unsafe {
@@ -743,6 +744,7 @@ macro_rules! transform_impl(
 macro_rules! vec_as_pnt_impl(
     ($tv: ident, $t: ident, $($compN: ident),+) => (
         impl<N> $tv<N> {
+            /// Converts this vector to a point.
             #[inline]
             pub fn to_pnt(self) -> $t<N> {
                 $t::new(
@@ -750,6 +752,7 @@ macro_rules! vec_as_pnt_impl(
                 )
             }
 
+            /// Reinterprets this vector as a point.
             #[inline]
             pub fn as_pnt(&self) -> &$t<N> {
                 unsafe {

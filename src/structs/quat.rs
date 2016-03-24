@@ -1,7 +1,5 @@
 //! Quaternion definition.
 
-#![allow(missing_docs)] // we allow missing to avoid having to document the dispatch trait.
-
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};

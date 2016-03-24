@@ -3,6 +3,7 @@
 macro_rules! submat_impl(
     ($t: ident, $submat: ident) => (
         impl<N> $t<N> {
+            /// This rotation's underlying matrix.
             #[inline]
             pub fn submat<'r>(&'r self) -> &'r $submat<N> {
                 &self.submat

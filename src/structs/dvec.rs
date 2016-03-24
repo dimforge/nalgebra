@@ -1,7 +1,5 @@
 //! Vector with dimensions unknown at compile-time.
 
-#![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
-
 use std::slice::{Iter, IterMut};
 use std::iter::{FromIterator, IntoIterator};
 use std::iter::repeat;
