@@ -6,8 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased] [0.6.0]
 ### Added
-  * Dependency to [generic-array](https://crates.io/crates/generic-array)
-  * Staticly sized vectors with user-defined sizes: `VecN`.
+  * (feature=generic_sizes): Dependency to [generic-array](https://crates.io/crates/generic-array)
+  * (feature=ganedic_sizes): Staticly sized vectors with user-defined sizes: `VecN`.
   * Similarity transformations (an uniform scale followed by a rotation followed
     by a translation): `Sim2`, `Sim3`.
 

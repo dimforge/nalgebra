@@ -42,7 +42,7 @@ fn main() {
 an optimized set of tools for computer graphics and physics. Those features include:
 
 * Vectors with predefined static sizes: `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
-* Vector with a user-defined static size: `VecN`.
+* Vector with a user-defined static size: `VecN` (available only with the `generic_sizes` feature).
 * Points with static sizes: `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`
@@ -78,6 +78,8 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 extern crate rustc_serialize;
 extern crate rand;
 extern crate num;
+
+#[cfg(feature="generic_sizes")]
 extern crate generic_array;
 
 #[cfg(feature="arbitrary")]
@@ -136,6 +138,9 @@ pub use traits::{
     UniformSphereSample
 };
 
+#[cfg(feature="generic_sizes")]
+pub use structs::VecN;
+
 pub use structs::{
     Identity,
     DMat, DMat1, DMat2,  DMat3,  DMat4,  DMat5,  DMat6,
@@ -145,7 +150,7 @@ pub use structs::{
     Mat1, Mat2, Mat3, Mat4,
     Mat5, Mat6,
     Rot2, Rot3,
-    VecN, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
+    Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
     Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6,
     Persp3, PerspMat3,
     Ortho3, OrthoMat3,

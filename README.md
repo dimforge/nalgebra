@@ -45,7 +45,7 @@ fn main() {
 an optimized set of tools for computer graphics and physics. Those features include:
 
 * Vectors with predefined static sizes: `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
-* Vector with a user-defined static size: `VecN`.
+* Vector with a user-defined static size: `VecN` (available only with the `generic_sizes` feature).
 * Points with static sizes: `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`

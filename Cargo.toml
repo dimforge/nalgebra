@@ -18,14 +18,21 @@ path = "src/lib.rs"
 [features]
 # Generate arbitrary instances of nalgebra types for testing with quickcheck
 arbitrary = [ "quickcheck" ]
+generic_sizes = [ "generic-array", "typenum" ]
 
 [dependencies]
 rustc-serialize = "0.3.*"
 rand = "0.3.*"
-num = "0.1.*"
-generic-array = "0.2.*"
-typenum = "1.3.*"
+num  = "0.1.*"
+
+[dependencies.generic-array]
+optional = true
+version  = "0.2.*"
+
+[dependencies.typenum]
+optional = true
+version  = "1.3.*"
 
 [dependencies.quickcheck]
 optional = true
-version = "0.2.*"
+version  = "0.2.*"
