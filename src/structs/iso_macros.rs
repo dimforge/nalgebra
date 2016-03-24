@@ -3,7 +3,7 @@
 macro_rules! iso_impl(
     ($t: ident, $submat: ident, $subvec: ident, $subrotvec: ident) => (
         impl<N: BaseFloat> $t<N> {
-            /// Creates a new isometry from a rotation matrix and a vector.
+            /// Creates a new isometry from an axis-angle rotation, and a vector.
             #[inline]
             pub fn new(translation: $subvec<N>, rotation: $subrotvec<N>) -> $t<N> {
                 $t {
@@ -89,6 +89,19 @@ macro_rules! iso_mul_pnt_impl(
     )
 );
 
+macro_rules! iso_mul_vec_impl(
+    ($t: ident, $tv: ident) => (
+        impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
+            type Output = $tv<N>;
+
+            #[inline]
+            fn mul(self, right: $tv<N>) -> $tv<N> {
+                self.rotation * right
+            }
+        }
+    )
+);
+
 macro_rules! pnt_mul_iso_impl(
     ($t: ident, $tv: ident) => (
         impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
@@ -96,6 +109,18 @@ macro_rules! pnt_mul_iso_impl(
             #[inline]
             fn mul(self, right: $t<N>) -> $tv<N> {
                 (self + right.translation) * right.rotation
+            }
+        }
+    )
+);
+
+macro_rules! vec_mul_iso_impl(
+    ($t: ident, $tv: ident) => (
+        impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
+            type Output = $tv<N>;
+            #[inline]
+            fn mul(self, right: $t<N>) -> $tv<N> {
+                self * right.rotation
             }
         }
     )

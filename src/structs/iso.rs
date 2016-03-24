@@ -1,7 +1,3 @@
-//! Isometric transformations.
-
-#![allow(missing_docs)]
-
 use std::ops::{Add, Sub, Mul, Neg};
 
 use rand::{Rand, Rng};
@@ -22,7 +18,8 @@ use quickcheck::{Arbitrary, Gen};
 
 /// Two dimensional isometry.
 ///
-/// This is the composition of a rotation followed by a translation.
+/// This is the composition of a rotation followed by a translation. Vectors `Vec2` are not
+/// affected by the translational component of this transformation while points `Pnt2` are.
 /// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
@@ -35,7 +32,8 @@ pub struct Iso2<N> {
 
 /// Three dimensional isometry.
 ///
-/// This is the composition of a rotation followed by a translation.
+/// This is the composition of a rotation followed by a translation. Vectors `Vec3` are not
+/// affected by the translational component of this transformation while points `Pnt3` are.
 /// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
@@ -48,6 +46,8 @@ pub struct Iso3<N> {
 
 /// Four dimensional isometry.
 ///
+/// This is the composition of a rotation followed by a translation. Vectors `Vec4` are not
+/// affected by the translational component of this transformation while points `Pnt4` are.
 /// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
@@ -117,6 +117,8 @@ translate_impl!(Iso2, Pnt2);
 iso_mul_iso_impl!(Iso2);
 iso_mul_pnt_impl!(Iso2, Pnt2);
 pnt_mul_iso_impl!(Iso2, Pnt2);
+iso_mul_vec_impl!(Iso2, Vec2);
+vec_mul_iso_impl!(Iso2, Vec2);
 arbitrary_iso_impl!(Iso2);
 
 iso_impl!(Iso3, Rot3, Vec3, Vec3);
@@ -137,6 +139,8 @@ translate_impl!(Iso3, Pnt3);
 iso_mul_iso_impl!(Iso3);
 iso_mul_pnt_impl!(Iso3, Pnt3);
 pnt_mul_iso_impl!(Iso3, Pnt3);
+iso_mul_vec_impl!(Iso3, Vec3);
+vec_mul_iso_impl!(Iso3, Vec3);
 arbitrary_iso_impl!(Iso3);
 
 // iso_impl!(Iso4, Rot4, Vec4, Vec4);
@@ -157,5 +161,7 @@ translate_impl!(Iso4, Pnt4);
 iso_mul_iso_impl!(Iso4);
 iso_mul_pnt_impl!(Iso4, Pnt4);
 pnt_mul_iso_impl!(Iso4, Pnt4);
+iso_mul_vec_impl!(Iso4, Vec4);
+vec_mul_iso_impl!(Iso4, Vec4);
 // FIXME: as soon as Rot4<N>: Arbitrary
 // arbitrary_iso_impl!(Iso4);

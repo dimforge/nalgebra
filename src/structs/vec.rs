@@ -1,4 +1,4 @@
-//! Vectors with dimensions known at compile-time.
+//! Vectors with dimension known at compile-time.
 
 #![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
 
@@ -21,6 +21,9 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Vector of dimension 0.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, Clone, Debug, Copy)]
 pub struct Vec0<N>(pub PhantomData<N>);
@@ -41,6 +44,9 @@ impl<N> Repeat<N> for Vec0<N> {
 }
 
 /// Vector of dimension 1.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec1<N> {
@@ -93,6 +99,9 @@ rand_impl!(Vec1, x);
 mean_impl!(Vec1);
 
 /// Vector of dimension 2.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec2<N> {
@@ -147,6 +156,9 @@ rand_impl!(Vec2, x, y);
 mean_impl!(Vec2);
 
 /// Vector of dimension 3.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec3<N> {
@@ -204,6 +216,9 @@ mean_impl!(Vec3);
 
 
 /// Vector of dimension 4.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec4<N> {
@@ -262,6 +277,9 @@ rand_impl!(Vec4, x, y, z, w);
 mean_impl!(Vec4);
 
 /// Vector of dimension 5.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec5<N> {
@@ -322,6 +340,9 @@ rand_impl!(Vec5, x, y, z, w, a);
 mean_impl!(Vec5);
 
 /// Vector of dimension 6.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec6<N> {

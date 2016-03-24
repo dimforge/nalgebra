@@ -41,18 +41,20 @@ fn main() {
 **nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
 an optimized set of tools for computer graphics and physics. Those features include:
 
-* Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
+* Vectors with predefined static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
+* Vector with a user-defined static size: `VecN`.
 * Points with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
 * Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
 * Quaternions: `Quat`, `UnitQuat`.
-* Isometries: `Iso2`, `Iso3`, `Iso4`.
+* Isometries (translation * rotation): `Iso2`, `Iso3`, `Iso4`.
+* Similarity transformations (translation * rotation * uniform scale): `Sim2`, `Sim3`.
 * 3D projections for computer graphics: `Persp3`, `PerspMat3`, `Ortho3`, `OrthoMat3`.
-* Dynamically sized vector: `DVec`.
-* Dynamically sized (square or rectangular) matrix: `DMat`.
+* Dynamically sized heap-allocated vector: `DVec`.
+* Dynamically sized stack-allocated vectors with a maximum size: `DVec1` to `DVec6`.
+* Dynamically sized heap-allocated (square or rectangular) matrix: `DMat`.
 * A few methods for data analysis: `Cov`, `Mean`.
 * Almost one trait per functionality: useful for generic programming.
-* Operator overloading using multidispatch.
 
 
 ## **nalgebra** in use
@@ -139,6 +141,7 @@ pub use structs::{
     DMat, DMat1, DMat2,  DMat3,  DMat4,  DMat5,  DMat6,
     DVec, DVec1, DVec2,  DVec3,  DVec4,  DVec5,  DVec6,
     Iso2, Iso3, Iso4,
+    Sim2, Sim3,
     Mat1, Mat2, Mat3, Mat4,
     Mat5, Mat6,
     Rot2, Rot3, Rot4,

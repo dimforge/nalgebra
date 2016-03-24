@@ -1,4 +1,4 @@
-//! Points with dimensions known at compile-time.
+//! Points with dimension known at compile-time.
 
 #![allow(missing_docs)] // we allow missing to avoid having to document the point components.
 
@@ -19,6 +19,9 @@ use quickcheck::{Arbitrary, Gen};
 
 
 /// Point of dimension 0.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, Clone, Debug, Copy)]
 pub struct Pnt0<N>(pub PhantomData<N>);
@@ -39,6 +42,9 @@ impl<N> Repeat<N> for Pnt0<N> {
 }
 
 /// Point of dimension 1.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt1<N> {
@@ -79,6 +85,9 @@ arbitrary_pnt_impl!(Pnt1, x);
 rand_impl!(Pnt1, x);
 
 /// Point of dimension 2.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt2<N> {
@@ -121,6 +130,9 @@ arbitrary_pnt_impl!(Pnt2, x, y);
 rand_impl!(Pnt2, x, y);
 
 /// Point of dimension 3.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt3<N> {
@@ -165,6 +177,9 @@ arbitrary_pnt_impl!(Pnt3, x, y, z);
 rand_impl!(Pnt3, x, y, z);
 
 /// Point of dimension 4.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt4<N> {
@@ -211,6 +226,9 @@ arbitrary_pnt_impl!(Pnt4, x, y, z, w);
 rand_impl!(Pnt4, x, y, z, w);
 
 /// Point of dimension 5.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt5<N> {
@@ -259,6 +277,9 @@ arbitrary_pnt_impl!(Pnt5, x, y, z, w, a);
 rand_impl!(Pnt5, x, y, z, w, a);
 
 /// Point of dimension 6.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt6<N> {
