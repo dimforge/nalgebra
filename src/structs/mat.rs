@@ -2,6 +2,7 @@
 
 #![allow(missing_docs)] // we allow missing to avoid having to document the mij components.
 
+use std::fmt;
 use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
 use std::mem;
 use std::slice::{Iter, IterMut};
@@ -82,6 +83,7 @@ eigen_qr_impl!(Mat1, Vec1);
 arbitrary_impl!(Mat1, m11);
 rand_impl!(Mat1, m11);
 mean_impl!(Mat1, Vec1, 1);
+mat_display_impl!(Mat1, 1);
 
 /// Square matrix of dimension 2.
 #[repr(C)]
@@ -136,6 +138,7 @@ eigen_qr_impl!(Mat2, Vec2);
 arbitrary_impl!(Mat2, m11, m12, m21, m22);
 rand_impl!(Mat2, m11, m12, m21, m22);
 mean_impl!(Mat2, Vec2, 2);
+mat_display_impl!(Mat2, 2);
 
 /// Square matrix of dimension 3.
 #[repr(C)]
@@ -233,6 +236,7 @@ rand_impl!(Mat3,
     m31, m32, m33
 );
 mean_impl!(Mat3, Vec3, 3);
+mat_display_impl!(Mat3, 3);
 
 /// Square matrix of dimension 4.
 #[repr(C)]
@@ -353,6 +357,7 @@ rand_impl!(Mat4,
   m41, m42, m43, m44
 );
 mean_impl!(Mat4, Vec4, 4);
+mat_display_impl!(Mat4, 4);
 
 /// Square matrix of dimension 5.
 #[repr(C)]
@@ -490,6 +495,7 @@ rand_impl!(Mat5,
   m51, m52, m53, m54, m55
 );
 mean_impl!(Mat5, Vec5, 5);
+mat_display_impl!(Mat5, 5);
 
 /// Square matrix of dimension 6.
 #[repr(C)]
@@ -632,3 +638,4 @@ rand_impl!(Mat6,
   m61, m62, m63, m64, m65, m66
 );
 mean_impl!(Mat6, Vec6, 6);
+mat_display_impl!(Mat6, 6);

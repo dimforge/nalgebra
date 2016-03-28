@@ -820,3 +820,25 @@ macro_rules! mean_impl(
         }
     )
 );
+
+macro_rules! vec_display_impl(
+    ($t: ident) => (
+        impl<N: fmt::Display> fmt::Display for $t<N> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                try!(write!(f, "("));
+
+                let mut it = self.iter();
+
+                let precision = f.precision().unwrap_or(8);
+
+                try!(write!(f, "{:.*}", precision, *it.next().unwrap()));
+
+                for comp in it {
+                    try!(write!(f, ", {:.*}", precision, *comp));
+                }
+
+                write!(f, ")")
+            }
+        }
+    )
+);

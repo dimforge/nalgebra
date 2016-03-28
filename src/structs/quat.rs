@@ -1,5 +1,6 @@
 //! Quaternion definition.
 
+use std::fmt;
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
@@ -151,6 +152,12 @@ impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>> for Quat<N> {
     #[inline]
     fn div(self, right: Quat<N>) -> Quat<N> {
         self * right.inv().expect("Unable to invert the denominator.")
+    }
+}
+
+impl<N: fmt::Display> fmt::Display for Quat<N> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Quaternion {} − ({}, {}, {})", self.w, self.i, self.j, self.k)
     }
 }
 
@@ -502,6 +509,12 @@ impl<N: BaseNum + Neg<Output = N>> Transform<Pnt3<N>> for UnitQuat<N> {
     #[inline]
     fn inv_transform(&self, p: &Pnt3<N>) -> Pnt3<N> {
         *p * *self
+    }
+}
+
+impl<N: fmt::Display> fmt::Display for UnitQuat<N> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Unit quaternion {} − ({}, {}, {})", self.q.w, self.q.i, self.q.j, self.q.k)
     }
 }
 

@@ -41,11 +41,11 @@ impl<N: BaseFloat> Ortho3<N> {
 
     /// Builds a 4D projection matrix (using homogeneous coordinates) for this projection.
     pub fn to_mat(&self) -> Mat4<N> {
-        self.to_persp_mat().mat
+        self.to_ortho_mat().mat
     }
 
     /// Build a `OrthoMat3` representing this projection.
-    pub fn to_persp_mat(&self) -> OrthoMat3<N> {
+    pub fn to_ortho_mat(&self) -> OrthoMat3<N> {
         OrthoMat3::new(self.width, self.height, self.znear, self.zfar)
     }
 }
@@ -114,14 +114,14 @@ impl<N: BaseFloat + Clone> Ortho3<N> {
     #[inline]
     pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
         // FIXME: optimize that
-        self.to_persp_mat().project_pnt(p)
+        self.to_ortho_mat().project_pnt(p)
     }
 
     /// Projects a vector.
     #[inline]
     pub fn project_vec(&self, p: &Vec3<N>) -> Vec3<N> {
         // FIXME: optimize that
-        self.to_persp_mat().project_vec(p)
+        self.to_ortho_mat().project_vec(p)
     }
 }
 
@@ -251,7 +251,7 @@ impl<N: BaseFloat + Clone> OrthoMat3<N> {
 impl<N: Arbitrary + BaseFloat> Arbitrary for OrthoMat3<N> {
     fn arbitrary<G: Gen>(g: &mut G) -> OrthoMat3<N> {
         let x: Ortho3<N> = Arbitrary::arbitrary(g);
-        x.to_persp_mat()
+        x.to_ortho_mat()
     }
 }
 

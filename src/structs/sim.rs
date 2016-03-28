@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::{Mul, Neg};
 
 use rand::{Rand, Rng};
@@ -64,6 +65,7 @@ sim_to_homogeneous_impl!(Sim2, Mat3);
 sim_approx_eq_impl!(Sim2);
 sim_rand_impl!(Sim2);
 sim_arbitrary_impl!(Sim2);
+sim_display_impl!(Sim2);
 
 sim_impl!(Sim3, Iso3, Rot3, Vec3, Vec3);
 dim_impl!(Sim3, 3);
@@ -81,3 +83,4 @@ sim_to_homogeneous_impl!(Sim3, Mat4);
 sim_approx_eq_impl!(Sim3);
 sim_rand_impl!(Sim3);
 sim_arbitrary_impl!(Sim3);
+sim_display_impl!(Sim3);

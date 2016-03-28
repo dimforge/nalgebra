@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::{Add, Sub, Mul, Neg};
 
 use rand::{Rand, Rng};
@@ -44,33 +45,37 @@ pub struct Iso3<N> {
 }
 
 impl<N: Clone + BaseFloat> Iso3<N> {
-    /// Reorient and translate this transformation such that its local `x` axis points to a given
-    /// direction.  Note that the usually known `look_at` function does the same thing but with the
-    /// `z` axis. See `look_at_z` for that.
+    /// Creates an isometry that corresponds to the local frame of an observer standing at the
+    /// point `eye` and looking toward `target`.
+    ///
+    /// It maps the view direction `target - eye` to the positive `z` axis and the origin to the
+    /// `eye`.
     ///
     /// # Arguments
-    ///   * eye - The new translation of the transformation.
-    ///   * at - The point to look at. `at - eye` is the direction the matrix `x` axis will be
-    ///   aligned with.
-    ///   * up - Vector pointing up. The only requirement of this parameter is to not be colinear
-    ///   with `at`. Non-colinearity is not checked.
+    ///   * eye - The observer position.
+    ///   * target - The target position.
+    ///   * up - Vertical direction. The only requirement of this parameter is to not be collinear
+    ///   to `eye - at`. Non-collinearity is not checked.
     #[inline]
-    pub fn look_at(eye: &Pnt3<N>, at: &Pnt3<N>, up: &Vec3<N>) -> Iso3<N> {
-        Iso3::new_with_rotmat(eye.as_vec().clone(), Rot3::look_at(&(*at - *eye), up))
+    pub fn new_observer_frame(eye: &Pnt3<N>, target: &Pnt3<N>, up: &Vec3<N>) -> Iso3<N> {
+        let new_rotmat = Rot3::new_observer_frame(&(*target - *eye), up);
+        Iso3::new_with_rotmat(eye.as_vec().clone(), new_rotmat)
     }
 
-    /// Reorient and translate this transformation such that its local `z` axis points to a given
-    /// direction.
+    /// Builds a look-at view matrix.
+    ///
+    /// This conforms to the common notion of "look-at" matrix from the computer graphics
+    /// community. Its maps the view direction `target - eye` to the **negative** `z` axis and the
+    /// `eye` to the origin.
     ///
     /// # Arguments
-    ///   * eye - The new translation of the transformation.
-    ///   * at - The point to look at. `at - eye` is the direction the matrix `x` axis will be
-    ///   aligned with
-    ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
-    ///   with `at`. Non-colinearity is not checked.
+    ///   * eye - The eye position.
+    ///   * target - The target position.
+    ///   * up - The vertical view direction. It must not be to collinear to `eye - target`.
     #[inline]
-    pub fn look_at_z(eye: &Pnt3<N>, at: &Pnt3<N>, up: &Vec3<N>) -> Iso3<N> {
-        Iso3::new_with_rotmat(eye.as_vec().clone(), Rot3::look_at_z(&(*at - *eye), up))
+    pub fn new_look_at(eye: &Pnt3<N>, target: &Pnt3<N>, up: &Vec3<N>) -> Iso3<N> {
+        let new_rotmat = Rot3::new_look_at(&(*target - *eye), up);
+        Iso3::new_with_rotmat(new_rotmat * (-*eye.as_vec()), new_rotmat)
     }
 }
 
@@ -95,6 +100,7 @@ pnt_mul_iso_impl!(Iso2, Pnt2);
 iso_mul_vec_impl!(Iso2, Vec2);
 vec_mul_iso_impl!(Iso2, Vec2);
 arbitrary_iso_impl!(Iso2);
+iso_display_impl!(Iso2);
 
 iso_impl!(Iso3, Rot3, Vec3, Vec3);
 rotation_matrix_impl!(Iso3, Rot3, Vec3, Vec3);
@@ -117,3 +123,4 @@ pnt_mul_iso_impl!(Iso3, Pnt3);
 iso_mul_vec_impl!(Iso3, Vec3);
 vec_mul_iso_impl!(Iso3, Vec3);
 arbitrary_iso_impl!(Iso3);
+iso_display_impl!(Iso3);

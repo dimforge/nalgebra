@@ -1,6 +1,7 @@
 //! Points with dimension known at compile-time.
 
 use std::mem;
+use std::fmt;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
@@ -57,6 +58,7 @@ pnt_from_homogeneous_impl!(Pnt1, Pnt2, y, x);
 num_float_pnt_impl!(Pnt1, Vec1);
 arbitrary_pnt_impl!(Pnt1, x);
 rand_impl!(Pnt1, x);
+pnt_display_impl!(Pnt1);
 
 /// Point of dimension 2.
 ///
@@ -102,6 +104,7 @@ pnt_from_homogeneous_impl!(Pnt2, Pnt3, z, x, y);
 num_float_pnt_impl!(Pnt2, Vec2);
 arbitrary_pnt_impl!(Pnt2, x, y);
 rand_impl!(Pnt2, x, y);
+pnt_display_impl!(Pnt2);
 
 /// Point of dimension 3.
 ///
@@ -149,6 +152,7 @@ pnt_from_homogeneous_impl!(Pnt3, Pnt4, w, x, y, z);
 num_float_pnt_impl!(Pnt3, Vec3);
 arbitrary_pnt_impl!(Pnt3, x, y, z);
 rand_impl!(Pnt3, x, y, z);
+pnt_display_impl!(Pnt3);
 
 /// Point of dimension 4.
 ///
@@ -198,6 +202,7 @@ pnt_from_homogeneous_impl!(Pnt4, Pnt5, a, x, y, z, w);
 num_float_pnt_impl!(Pnt4, Vec4);
 arbitrary_pnt_impl!(Pnt4, x, y, z, w);
 rand_impl!(Pnt4, x, y, z, w);
+pnt_display_impl!(Pnt4);
 
 /// Point of dimension 5.
 ///
@@ -249,6 +254,7 @@ pnt_from_homogeneous_impl!(Pnt5, Pnt6, b, x, y, z, w, a);
 num_float_pnt_impl!(Pnt5, Vec5);
 arbitrary_pnt_impl!(Pnt5, x, y, z, w, a);
 rand_impl!(Pnt5, x, y, z, w, a);
+pnt_display_impl!(Pnt5);
 
 /// Point of dimension 6.
 ///
@@ -300,3 +306,4 @@ iterable_mut_impl!(Pnt6, 6);
 num_float_pnt_impl!(Pnt6, Vec6);
 arbitrary_pnt_impl!(Pnt6, x, y, z, w, a, b);
 rand_impl!(Pnt6, x, y, z, w, a, b);
+pnt_display_impl!(Pnt6);

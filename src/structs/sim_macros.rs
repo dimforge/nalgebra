@@ -118,7 +118,7 @@ macro_rules! sim_mul_sim_impl(
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
                 $t::new_with_rotmat(
-                    self.isometry.translation + self.isometry.rotation * (right.isometry.translation * right.scale),
+                    self.isometry.translation + self.isometry.rotation * (right.isometry.translation * self.scale),
                     self.isometry.rotation * right.isometry.rotation,
                     self.scale * right.scale)
             }
@@ -174,10 +174,11 @@ macro_rules! sim_inv_impl(
             fn inv_mut(&mut self) -> bool {
                 self.scale = ::one::<N>() / self.scale;
                 self.isometry.inv_mut();
-                // We multiply by self.scale because the scale has been inverted on the previous line.
+                // We multiply (instead of dividing) by self.scale because it has already been
+                // inverted.
                 self.isometry.translation = self.isometry.translation * self.scale;
 
-                // always succeed
+                // Always succeed.
                 true
             }
 
@@ -186,7 +187,7 @@ macro_rules! sim_inv_impl(
                 let mut res = *self;
                 res.inv_mut();
 
-                // always succeed
+                // Always succeed.
                 Some(res)
             }
         }
@@ -243,7 +244,12 @@ macro_rules! sim_rand_impl(
         impl<N: Rand + BaseFloat> Rand for $t<N> {
             #[inline]
             fn rand<R: Rng>(rng: &mut R) -> $t<N> {
-                $t::new_with_iso(rng.gen(), rng.gen())
+                let mut scale: N = rng.gen();
+                while scale.is_zero() {
+                    scale = rng.gen();
+                }
+
+                $t::new_with_iso(rng.gen(), scale)
             }
         }
     )
@@ -258,6 +264,31 @@ macro_rules! sim_arbitrary_impl(
                     Arbitrary::arbitrary(g),
                     Arbitrary::arbitrary(g)
                 )
+            }
+        }
+    )
+);
+
+macro_rules! sim_display_impl(
+    ($t: ident) => (
+        impl<N: fmt::Display + BaseFloat> fmt::Display for $t<N> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                try!(writeln!(f, "Similarity transformation {{"));
+
+                if let Some(precision) = f.precision() {
+                    try!(writeln!(f, "... scale factor: {:.*}", precision, self.scale));
+                    try!(writeln!(f, "... translation: {:.*}", precision, self.isometry.translation));
+                    try!(writeln!(f, "... rotation matrix:"));
+                    try!(write!(f, "{:.*}", precision, *self.isometry.rotation.submat()));
+                }
+                else {
+                    try!(writeln!(f, "... scale factor: {}", self.scale));
+                    try!(writeln!(f, "... translation: {}", self.isometry.translation));
+                    try!(writeln!(f, "... rotation matrix:"));
+                    try!(write!(f, "{}", *self.isometry.rotation.submat()));
+                }
+
+                writeln!(f, "}}")
             }
         }
     )

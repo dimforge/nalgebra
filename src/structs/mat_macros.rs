@@ -749,3 +749,56 @@ macro_rules! mean_impl(
         }
     )
 );
+
+macro_rules! mat_display_impl(
+    ($t: ident, $dim: expr) => (
+        impl<N: fmt::Display + BaseFloat> fmt::Display for $t<N> {
+            // XXX: will will not always work correctly due to rounding errors.
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                fn integral_length<N: BaseFloat>(val: &N) -> usize {
+                    let mut res = 1;
+                    let mut curr: N = ::cast(10.0f64);
+
+                    while curr <= *val {
+                        curr = curr * ::cast(10.0f64);
+                        res = res + 1;
+                    }
+
+                    if val.is_sign_negative() {
+                        res + 1
+                    }
+                    else {
+                        res
+                    }
+                }
+
+                let mut max_decimal_length = 0;
+                let mut decimal_lengths: $t<usize> = ::zero();
+                for i in 0 .. $dim {
+                    for j in 0 .. $dim {
+                        decimal_lengths[(i, j)] = integral_length(&self[(i, j)].clone());
+                        max_decimal_length = ::max(max_decimal_length, decimal_lengths[(i, j)]);
+                    }
+                }
+
+                let precision = f.precision().unwrap_or(3);
+                let max_number_length = max_decimal_length + precision + 1;
+
+                try!(writeln!(f, "  ┌ {:>width$} ┐", "", width = max_number_length * $dim + $dim - 1));
+
+                for i in 0 .. $dim {
+                    try!(write!(f, "  │"));
+                    for j in 0 .. $dim {
+                        let number_length = decimal_lengths[(i, j)] + precision + 1;
+                        let pad = max_number_length - number_length;
+                        try!(write!(f, " {:>thepad$}", "", thepad = pad));
+                        try!(write!(f, "{:.*}", precision, (*self)[(i, j)]));
+                    }
+                    try!(writeln!(f, " │"));
+                }
+
+                writeln!(f, "  └ {:>width$} ┘", "", width = max_number_length * $dim + $dim - 1)
+            }
+        }
+    )
+);

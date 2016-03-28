@@ -1,5 +1,6 @@
 //! Rotations matrices.
 
+use std::fmt;
 use std::ops::{Mul, Neg, Index};
 use rand::{Rand, Rng};
 use num::{Zero, One};
@@ -193,47 +194,42 @@ impl<N: Clone + BaseFloat> Rot3<N> {
 }
 
 impl<N: Clone + BaseFloat> Rot3<N> {
-    /// Create a new matrix and orient it such that its local `x` axis points to a given point.
-    /// Note that the usually known `look_at` function does the same thing but with the `z` axis.
-    /// See `look_at_z` for that.
+    /// Creates a rotation that corresponds to the local frame of an observer standing at the
+    /// origin and looking toward `dir`.
+    ///
+    /// It maps the view direction `dir` to the positive `z` axis.
     ///
     /// # Arguments
-    ///   * at - The point to look at. It is also the direction the matrix `x` axis will be aligned
-    ///   with
-    ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
-    ///   with `at`. Non-colinearity is not checked.
-    pub fn look_at(at: &Vec3<N>, up: &Vec3<N>) -> Rot3<N> {
-        let xaxis = Norm::normalize(at);
-        let zaxis = Norm::normalize(&Cross::cross(up, &xaxis));
-        let yaxis = Cross::cross(&zaxis, &xaxis);
+    ///   * dir - The look direction, that is, direction the matrix `z` axis will be aligned with.
+    ///   * up - The vertical direction. The only requirement of this parameter is to not be
+    ///   collinear
+    ///   to `dir`. Non-collinearity is not checked.
+    #[inline]
+    pub fn new_observer_frame(dir: &Vec3<N>, up: &Vec3<N>) -> Rot3<N> {
+        let zaxis = Norm::normalize(dir);
+        let xaxis = Norm::normalize(&Cross::cross(up, &zaxis));
+        let yaxis = Norm::normalize(&Cross::cross(&zaxis, &xaxis));
 
         unsafe {
             Rot3::new_with_mat(Mat3::new(
                 xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
                 xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
-                xaxis.z        , yaxis.z        , zaxis.z)
-            )
+                xaxis.z        , yaxis.z        , zaxis.z))
         }
     }
 
-    /// Create a new matrix and orient it such that its local `z` axis points to a given point.
+    /// Builds a look-at view matrix with no translational component.
+    ///
+    /// This conforms to the common notion of "look-at" matrix from the computer graphics community.
+    /// Its maps the view direction `dir` to the **negative** `z` axis.
     ///
     /// # Arguments
-    ///   * at - The look direction, that is, direction the matrix `y` axis will be aligned with
-    ///   * up - Vector pointing `up`. The only requirement of this parameter is to not be colinear
-    ///   with `at`. Non-colinearity is not checked.
-    pub fn look_at_z(at: &Vec3<N>, up: &Vec3<N>) -> Rot3<N> {
-        let zaxis = Norm::normalize(at);
-        let xaxis = Norm::normalize(&Cross::cross(up, &zaxis));
-        let yaxis = Cross::cross(&zaxis, &xaxis);
-
-        unsafe {
-            Rot3::new_with_mat(Mat3::new(
-                xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
-                xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
-                xaxis.z        , yaxis.z        , zaxis.z)
-            )
-        }
+    ///   * dir - The view direction.
+    ///   * up - The vertical direction. The only requirement of this parameter is to not be
+    ///   collinear to `dir`.
+    #[inline]
+    pub fn new_look_at(dir: &Vec3<N>, up: &Vec3<N>) -> Rot3<N> {
+        Rot3::new_observer_frame(&(-*dir), up).inv().unwrap()
     }
 }
 
@@ -368,6 +364,7 @@ inv_impl!(Rot2);
 transpose_impl!(Rot2);
 approx_eq_impl!(Rot2);
 diag_impl!(Rot2, Vec2);
+rot_display_impl!(Rot2);
 
 submat_impl!(Rot3, Mat3);
 rotate_impl!(Rot3, Vec3, Pnt3);
@@ -390,3 +387,4 @@ inv_impl!(Rot3);
 transpose_impl!(Rot3);
 approx_eq_impl!(Rot3);
 diag_impl!(Rot3, Vec3);
+rot_display_impl!(Rot3);

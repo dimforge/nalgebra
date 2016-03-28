@@ -403,3 +403,26 @@ macro_rules! arbitrary_iso_impl(
         }
     )
 );
+
+macro_rules! iso_display_impl(
+    ($t: ident) => (
+        impl<N: fmt::Display + BaseFloat> fmt::Display for $t<N> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                try!(writeln!(f, "Isometry {{"));
+
+                if let Some(precision) = f.precision() {
+                    try!(writeln!(f, "... translation: {:.*}", precision, self.translation));
+                    try!(writeln!(f, "... rotation matrix:"));
+                    try!(write!(f, "{:.*}", precision, *self.rotation.submat()));
+                }
+                else {
+                    try!(writeln!(f, "... translation: {}", self.translation));
+                    try!(writeln!(f, "... rotation matrix:"));
+                    try!(write!(f, "{}", *self.rotation.submat()));
+                }
+
+                writeln!(f, "}}")
+            }
+        }
+    )
+);

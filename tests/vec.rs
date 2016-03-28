@@ -1,10 +1,16 @@
 extern crate rand;
+#[cfg(feature="generic_sizes")]
 extern crate typenum;
 extern crate nalgebra as na;
 
 use rand::random;
+use na::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Rot2, Rot3, Iterable, IterableMut};
+
+#[cfg(feature="generic_sizes")]
 use typenum::U10;
-use na::{VecN, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Rot2, Rot3, Iterable, IterableMut};
+#[cfg(feature="generic_sizes")]
+use na::VecN;
+
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
@@ -295,6 +301,7 @@ fn test_outer_vec3() {
             12.0, 15.0, 18.0));
 }
 
+#[cfg(feature="generic_sizes")]
 #[test]
 fn test_vecn10_add_mul() {
     for _ in 0usize .. 10000 {

@@ -326,3 +326,17 @@ macro_rules! absolute_impl(
         }
     )
 );
+
+macro_rules! rot_display_impl(
+    ($t: ident) => (
+        impl<N: fmt::Display + BaseFloat> fmt::Display for $t<N> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                let precision = f.precision().unwrap_or(3);
+
+                try!(writeln!(f, "Rotation matrix {{"));
+                try!(write!(f, "{:.*}", precision, self.submat));
+                writeln!(f, "}}")
+            }
+        }
+    )
+);

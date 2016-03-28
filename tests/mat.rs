@@ -2,8 +2,8 @@ extern crate nalgebra as na;
 extern crate rand;
 
 use rand::random;
-use na::{Vec1, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, Rot2, Rot3, Persp3, PerspMat3, Ortho3,
-         OrthoMat3, DMat, DVec, Row, Col, BaseFloat, Diag, Transpose, RowSlice, ColSlice, Shape};
+use na::{Rot2, Rot3, Iso2, Iso3, Sim2, Sim3, Vec3, Mat1, Mat2, Mat3, Mat4, Mat5, Mat6, DMat, DVec,
+         Row, Col, Diag, Transpose, RowSlice, ColSlice, Shape};
 
 macro_rules! test_inv_mat_impl(
   ($t: ty) => (
@@ -12,7 +12,9 @@ macro_rules! test_inv_mat_impl(
 
       match na::inv(&randmat) {
           None    => { },
-          Some(i) => assert!(na::approx_eq(&(i * randmat), &na::one()))
+          Some(i) => {
+              assert!(na::approx_eq(&(i * randmat), &na::one()))
+          }
       }
     }
   );
@@ -183,13 +185,33 @@ fn test_inv_mat6() {
 }
 
 #[test]
-fn test_rotation2() {
-    for _ in 0usize .. 10000 {
-        let randmat: na::Rot2<f64> = na::one();
-        let ang    = Vec1::new(na::abs(&random::<f64>()) % <f64 as BaseFloat>::pi());
+fn test_inv_rot2() {
+    test_inv_mat_impl!(Rot2<f64>);
+}
 
-        assert!(na::approx_eq(&na::rotation(&na::append_rotation(&randmat, &ang)), &ang));
-    }
+#[test]
+fn test_inv_rot3() {
+    test_inv_mat_impl!(Rot3<f64>);
+}
+
+#[test]
+fn test_inv_iso2() {
+    test_inv_mat_impl!(Iso2<f64>);
+}
+
+#[test]
+fn test_inv_iso3() {
+    test_inv_mat_impl!(Iso3<f64>);
+}
+
+#[test]
+fn test_inv_sim2() {
+    test_inv_mat_impl!(Sim2<f64>);
+}
+
+#[test]
+fn test_inv_sim3() {
+    test_inv_mat_impl!(Sim3<f64>);
 }
 
 #[test]
@@ -199,59 +221,6 @@ fn test_index_mat2() {
   assert!(mat[(0, 1)] == na::transpose(&mat)[(1, 0)]);
 }
 
-#[test]
-fn test_inv_rotation3() {
-    for _ in 0usize .. 10000 {
-        let randmat: Rot3<f64> = na::one();
-        let dir:     Vec3<f64> = random();
-        let ang            = na::normalize(&dir) * (na::abs(&random::<f64>()) % <f64 as BaseFloat>::pi());
-        let rot            = na::append_rotation(&randmat, &ang);
-
-        assert!(na::approx_eq(&(na::transpose(&rot) * rot), &na::one()));
-    }
-}
-
-#[test]
-fn test_rot3_rotation_between() {
-    let r1: Rot3<f64> = random();
-    let r2: Rot3<f64> = random();
-
-    let delta = na::rotation_between(&r1, &r2);
-
-    assert!(na::approx_eq(&(delta * r1), &r2))
-}
-
-#[test]
-fn test_rot3_angle_between() {
-    let r1: Rot3<f64> = random();
-    let r2: Rot3<f64> = random();
-
-    let delta = na::rotation_between(&r1, &r2);
-    let delta_angle = na::angle_between(&r1, &r2);
-
-    assert!(na::approx_eq(&na::norm(&na::rotation(&delta)), &delta_angle))
-}
-
-#[test]
-fn test_rot2_rotation_between() {
-    let r1: Rot2<f64> = random();
-    let r2: Rot2<f64> = random();
-
-    let delta = na::rotation_between(&r1, &r2);
-
-    assert!(na::approx_eq(&(delta * r1), &r2))
-}
-
-#[test]
-fn test_rot2_angle_between() {
-    let r1: Rot2<f64> = random();
-    let r2: Rot2<f64> = random();
-
-    let delta = na::rotation_between(&r1, &r2);
-    let delta_angle = na::angle_between(&r1, &r2);
-
-    assert!(na::approx_eq(&na::norm(&na::rotation(&delta)), &delta_angle))
-}
 
 #[test]
 fn test_mean_dmat() {
@@ -753,86 +722,6 @@ fn test_row_3() {
 
     assert!(second_row == Vec3::new(3.0, 4.0, 5.0));
     assert!(second_col == Vec3::new(1.0, 4.0, 7.0));
-}
-
-#[test]
-fn test_persp() {
-    let mut p  = Persp3::new(42.0f64, 0.5, 1.5, 10.0);
-    let mut pm = PerspMat3::new(42.0f64, 0.5, 1.5, 10.0);
-    assert!(p.to_mat() == pm.to_mat());
-    assert!(p.aspect() == 42.0);
-    assert!(p.fov()    == 0.5);
-    assert!(p.znear()  == 1.5);
-    assert!(p.zfar()   == 10.0);
-    assert!(na::approx_eq(&pm.aspect(), &42.0));
-    assert!(na::approx_eq(&pm.fov(),    &0.5));
-    assert!(na::approx_eq(&pm.znear(),  &1.5));
-    assert!(na::approx_eq(&pm.zfar(),   &10.0));
-
-    p.set_fov(0.1);
-    pm.set_fov(0.1);
-    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
-
-    p.set_znear(24.0);
-    pm.set_znear(24.0);
-    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
-
-    p.set_zfar(61.0);
-    pm.set_zfar(61.0);
-    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
-
-    p.set_aspect(23.0);
-    pm.set_aspect(23.0);
-    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
-
-    assert!(p.aspect() == 23.0);
-    assert!(p.fov()    == 0.1);
-    assert!(p.znear()  == 24.0);
-    assert!(p.zfar()   == 61.0);
-    assert!(na::approx_eq(&pm.aspect(), &23.0));
-    assert!(na::approx_eq(&pm.fov(),    &0.1));
-    assert!(na::approx_eq(&pm.znear(),  &24.0));
-    assert!(na::approx_eq(&pm.zfar(),   &61.0));
-}
-
-#[test]
-fn test_ortho() {
-    let mut p  = Ortho3::new(42.0f64, 0.5, 1.5, 10.0);
-    let mut pm = OrthoMat3::new(42.0f64, 0.5, 1.5, 10.0);
-    assert!(p.to_mat() == pm.to_mat());
-    assert!(p.width()  == 42.0);
-    assert!(p.height() == 0.5);
-    assert!(p.znear()  == 1.5);
-    assert!(p.zfar()   == 10.0);
-    assert!(na::approx_eq(&pm.width(),  &42.0));
-    assert!(na::approx_eq(&pm.height(), &0.5));
-    assert!(na::approx_eq(&pm.znear(),  &1.5));
-    assert!(na::approx_eq(&pm.zfar(),   &10.0));
-
-    p.set_width(0.1);
-    pm.set_width(0.1);
-    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
-
-    p.set_znear(24.0);
-    pm.set_znear(24.0);
-    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
-
-    p.set_zfar(61.0);
-    pm.set_zfar(61.0);
-    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
-
-    p.set_height(23.0);
-    pm.set_height(23.0);
-    assert!(na::approx_eq(&p.to_mat(), pm.as_mat()));
-
-    assert!(p.height() == 23.0);
-    assert!(p.width()  == 0.1);
-    assert!(p.znear()  == 24.0);
-    assert!(p.zfar()   == 61.0);
-    assert!(na::approx_eq(&pm.height(), &23.0));
-    assert!(na::approx_eq(&pm.width(),  &0.1));
-    assert!(na::approx_eq(&pm.znear(),  &24.0));
-    assert!(na::approx_eq(&pm.zfar(),   &61.0));
 }
 
 #[test]
