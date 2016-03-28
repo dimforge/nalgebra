@@ -2,29 +2,21 @@ extern crate nalgebra as na;
 extern crate rand;
 
 use rand::random;
-use na::{Pnt3, Vec3, Vec1, Rot2, Rot3, Persp3, PerspMat3, Ortho3, OrthoMat3, Iso2, Iso3, BaseFloat,
-         Sim2, Sim3};
+use na::{Pnt2, Pnt3, Vec3, Vec1, Rot2, Rot3, Persp3, PerspMat3, Ortho3, OrthoMat3, Iso2, Iso3,
+         Sim2, Sim3, BaseFloat, Transform};
 
 macro_rules! test_transform_inv_transform_impl(
   ($t: ty, $p: ty) => (
     for _ in 0usize .. 10000 {
       let randmat: $t = random();
-      let randvec: $p = random();
+      let expected: $p = random();
 
-      let tvec = randmat.transform(&randvec);
-      let original = randmat.inv_transform(&randvec);
+      let computed = randmat.inv_transform(&randmat.transform(&expected));
 
-      assert!(na::approx_eq(&randvec, &original));
+      assert!(na::approx_eq(&computed, &expected));
     }
   );
 );
-
-test_transform_inv_transform_impl!(Rot2, Pnt2);
-test_transform_inv_transform_impl!(Rot3, Pnt3);
-test_transform_inv_transform_impl!(Iso2, Pnt2);
-test_transform_inv_transform_impl!(Iso3, Pnt3);
-test_transform_inv_transform_impl!(Sim2, Pnt2);
-test_transform_inv_transform_impl!(Sim3, Pnt3);
 
 #[test]
 fn test_rotation2() {
@@ -217,4 +209,34 @@ fn test_ortho() {
     assert!(na::approx_eq(&pm.width(),  &0.1));
     assert!(na::approx_eq(&pm.znear(),  &24.0));
     assert!(na::approx_eq(&pm.zfar(),   &61.0));
+}
+
+#[test]
+fn test_transform_inv_transform_rot2() {
+    test_transform_inv_transform_impl!(Rot2<f32>, Pnt2<f32>);
+}
+
+#[test]
+fn test_transform_inv_transform_rot3() {
+    test_transform_inv_transform_impl!(Rot3<f32>, Pnt3<f32>);
+}
+
+#[test]
+fn test_transform_inv_transform_iso2() {
+    test_transform_inv_transform_impl!(Iso2<f32>, Pnt2<f32>);
+}
+
+#[test]
+fn test_transform_inv_transform_iso3() {
+    test_transform_inv_transform_impl!(Iso3<f32>, Pnt3<f32>);
+}
+
+#[test]
+fn test_transform_inv_transform_sim2() {
+    test_transform_inv_transform_impl!(Sim2<f32>, Pnt2<f32>);
+}
+
+#[test]
+fn test_transform_inv_transform_sim3() {
+    test_transform_inv_transform_impl!(Sim3<f32>, Pnt3<f32>);
 }

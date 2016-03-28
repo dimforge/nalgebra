@@ -126,6 +126,62 @@ macro_rules! sim_mul_sim_impl(
     )
 );
 
+macro_rules! sim_mul_iso_impl(
+    ($t: ident, $ti: ident) => (
+        impl<N: BaseFloat> Mul<$ti<N>> for $t<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn mul(self, right: $ti<N>) -> $t<N> {
+                $t::new_with_rotmat(
+                    self.isometry.translation + self.isometry.rotation * (right.translation * self.scale),
+                    self.isometry.rotation * right.rotation,
+                    self.scale)
+            }
+        }
+
+        impl<N: BaseFloat> Mul<$t<N>> for $ti<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn mul(self, right: $t<N>) -> $t<N> {
+                $t::new_with_rotmat(
+                    self.translation + self.rotation * right.isometry.translation,
+                    self.rotation * right.isometry.rotation,
+                    right.scale)
+            }
+        }
+    )
+);
+
+macro_rules! sim_mul_rot_impl(
+    ($t: ident, $tr: ident) => (
+        impl<N: BaseFloat> Mul<$tr<N>> for $t<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn mul(self, right: $tr<N>) -> $t<N> {
+                $t::new_with_rotmat(
+                    self.isometry.translation,
+                    self.isometry.rotation * right,
+                    self.scale)
+            }
+        }
+
+        impl<N: BaseFloat> Mul<$t<N>> for $tr<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn mul(self, right: $t<N>) -> $t<N> {
+                $t::new_with_rotmat(
+                    self * right.isometry.translation,
+                    self * right.isometry.rotation,
+                    right.scale)
+            }
+        }
+    )
+);
+
 macro_rules! sim_mul_pnt_vec_impl(
     ($t: ident, $tv: ident) => (
         impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
@@ -133,19 +189,15 @@ macro_rules! sim_mul_pnt_vec_impl(
 
             #[inline]
             fn mul(self, right: $tv<N>) -> $tv<N> {
-                self.isometry * (right * self.scale)
+                (self.isometry * right) * self.scale
             }
         }
-    )
-);
 
-macro_rules! pnt_vec_mul_sim_impl(
-    ($t: ident, $tv: ident) => (
         impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
             type Output = $tv<N>;
             #[inline]
             fn mul(self, right: $t<N>) -> $tv<N> {
-                self * right.isometry * right.scale
+                (self * right.scale) * right.isometry
             }
         }
     )
@@ -161,7 +213,7 @@ macro_rules! sim_transform_impl(
 
             #[inline]
             fn inv_transform(&self, p: &$tp<N>) -> $tp<N> {
-                self.isometry.inv_transform(p) / self.scale
+                self.isometry.inv_transform(&(*p / self.scale))
             }
         }
     )

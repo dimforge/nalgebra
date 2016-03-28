@@ -76,6 +76,30 @@ macro_rules! iso_mul_iso_impl(
     )
 );
 
+macro_rules! iso_mul_rot_impl(
+    ($t: ident, $tr: ident) => (
+        impl<N: BaseFloat> Mul<$tr<N>> for $t<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn mul(self, right: $tr<N>) -> $t<N> {
+                $t::new_with_rotmat(self.translation, self.rotation * right)
+            }
+        }
+
+        impl<N: BaseFloat> Mul<$t<N>> for $tr<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn mul(self, right: $t<N>) -> $t<N> {
+                $t::new_with_rotmat(
+                    self * right.translation,
+                    self * right.rotation)
+            }
+        }
+    )
+);
+
 macro_rules! iso_mul_pnt_impl(
     ($t: ident, $tv: ident) => (
         impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
@@ -84,6 +108,14 @@ macro_rules! iso_mul_pnt_impl(
             #[inline]
             fn mul(self, right: $tv<N>) -> $tv<N> {
                 self.rotation * right + self.translation
+            }
+        }
+
+        impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
+            type Output = $tv<N>;
+            #[inline]
+            fn mul(self, right: $t<N>) -> $tv<N> {
+                (self + right.translation) * right.rotation
             }
         }
     )
@@ -99,23 +131,7 @@ macro_rules! iso_mul_vec_impl(
                 self.rotation * right
             }
         }
-    )
-);
 
-macro_rules! pnt_mul_iso_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
-            type Output = $tv<N>;
-            #[inline]
-            fn mul(self, right: $t<N>) -> $tv<N> {
-                (self + right.translation) * right.rotation
-            }
-        }
-    )
-);
-
-macro_rules! vec_mul_iso_impl(
-    ($t: ident, $tv: ident) => (
         impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
             type Output = $tv<N>;
             #[inline]
