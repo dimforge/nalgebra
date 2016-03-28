@@ -189,17 +189,13 @@ macro_rules! sim_mul_pnt_vec_impl(
 
             #[inline]
             fn mul(self, right: $tv<N>) -> $tv<N> {
-                (self.isometry * right) * self.scale
+                self.isometry * (right * self.scale)
             }
         }
 
-        impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
-            type Output = $tv<N>;
-            #[inline]
-            fn mul(self, right: $t<N>) -> $tv<N> {
-                (self * right.scale) * right.isometry
-            }
-        }
+
+        // NOTE: there is no viable pre-multiplication definition because of the translation
+        // component.
     )
 );
 
@@ -208,12 +204,12 @@ macro_rules! sim_transform_impl(
         impl<N: BaseNum> Transform<$tp<N>> for $t<N> {
             #[inline]
             fn transform(&self, p: &$tp<N>) -> $tp<N> {
-                self.isometry.transform(p) * self.scale
+                self.isometry.transform(&(*p * self.scale))
             }
 
             #[inline]
             fn inv_transform(&self, p: &$tp<N>) -> $tp<N> {
-                self.isometry.inv_transform(&(*p / self.scale))
+                self.isometry.inv_transform(p) / self.scale
             }
         }
     )

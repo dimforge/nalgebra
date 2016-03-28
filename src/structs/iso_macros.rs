@@ -111,13 +111,8 @@ macro_rules! iso_mul_pnt_impl(
             }
         }
 
-        impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
-            type Output = $tv<N>;
-            #[inline]
-            fn mul(self, right: $t<N>) -> $tv<N> {
-                (self + right.translation) * right.rotation
-            }
-        }
+        // NOTE: there is no viable pre-multiplication definition because of the translation
+        // component.
     )
 );
 
@@ -129,14 +124,6 @@ macro_rules! iso_mul_vec_impl(
             #[inline]
             fn mul(self, right: $tv<N>) -> $tv<N> {
                 self.rotation * right
-            }
-        }
-
-        impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
-            type Output = $tv<N>;
-            #[inline]
-            fn mul(self, right: $t<N>) -> $tv<N> {
-                self * right.rotation
             }
         }
     )

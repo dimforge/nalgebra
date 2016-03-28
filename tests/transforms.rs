@@ -2,21 +2,8 @@ extern crate nalgebra as na;
 extern crate rand;
 
 use rand::random;
-use na::{Pnt2, Pnt3, Vec3, Vec1, Rot2, Rot3, Persp3, PerspMat3, Ortho3, OrthoMat3, Iso2, Iso3,
-         Sim2, Sim3, BaseFloat, Transform};
-
-macro_rules! test_transform_inv_transform_impl(
-  ($t: ty, $p: ty) => (
-    for _ in 0usize .. 10000 {
-      let randmat: $t = random();
-      let expected: $p = random();
-
-      let computed = randmat.inv_transform(&randmat.transform(&expected));
-
-      assert!(na::approx_eq(&computed, &expected));
-    }
-  );
-);
+use na::{Pnt2, Pnt3, Vec2, Vec3, Vec1, Rot2, Rot3, Persp3, PerspMat3, Ortho3, OrthoMat3, Iso2,
+         Iso3, Sim2, Sim3, BaseFloat, Transform};
 
 #[test]
 fn test_rotation2() {
@@ -211,32 +198,73 @@ fn test_ortho() {
     assert!(na::approx_eq(&pm.zfar(),   &61.0));
 }
 
-#[test]
-fn test_transform_inv_transform_rot2() {
-    test_transform_inv_transform_impl!(Rot2<f32>, Pnt2<f32>);
-}
+macro_rules! test_transform_inv_transform_impl(
+  ($fnname: ident, $t: ty, $p: ty) => (
+    #[test]
+    fn $fnname() {
+        for _ in 0usize .. 10000 {
+          let randmat: $t = random();
+          let expected: $p = random();
+    
+          let computed = randmat.inv_transform(&randmat.transform(&expected));
+          println!("computed: {}, expected: {}", computed, expected);
+    
+          assert!(na::approx_eq(&computed, &expected));
+        }
+    }
+  );
+);
 
-#[test]
-fn test_transform_inv_transform_rot3() {
-    test_transform_inv_transform_impl!(Rot3<f32>, Pnt3<f32>);
-}
+test_transform_inv_transform_impl!(test_transform_inv_transform_rot2, Rot2<f64>, Pnt2<f64>);
+test_transform_inv_transform_impl!(test_transform_inv_transform_rot3, Rot3<f64>, Pnt3<f64>);
+test_transform_inv_transform_impl!(test_transform_inv_transform_iso2, Iso2<f64>, Pnt2<f64>);
+test_transform_inv_transform_impl!(test_transform_inv_transform_iso3, Iso3<f64>, Pnt3<f64>);
+test_transform_inv_transform_impl!(test_transform_inv_transform_sim2, Sim2<f64>, Pnt2<f64>);
+test_transform_inv_transform_impl!(test_transform_inv_transform_sim3, Sim3<f64>, Pnt3<f64>);
 
-#[test]
-fn test_transform_inv_transform_iso2() {
-    test_transform_inv_transform_impl!(Iso2<f32>, Pnt2<f32>);
-}
+macro_rules! test_transform_mul_assoc(
+  ($fnname: ident, $t1: ty, $t2: ty, $p: ty) => (
+    #[test]
+    fn $fnname() {
+        for _ in 0usize .. 10000 {
+          let t1: $t1 = random();
+          let t2: $t2 = random();
+          let p:  $p  = random();
 
-#[test]
-fn test_transform_inv_transform_iso3() {
-    test_transform_inv_transform_impl!(Iso3<f32>, Pnt3<f32>);
-}
+          let t1p  = t1 * p;
+          let t2p  = t2 * p;
+          let t1t2 = t1 * t2;
+          let t2t1 = t2 * t1;
+    
+          assert!(na::approx_eq(&(t1t2 * p), &(t1 * t2p)));
+          assert!(na::approx_eq(&(t2t1 * p), &(t2 * t1p)));
+        }
+    }
+  );
+);
 
-#[test]
-fn test_transform_inv_transform_sim2() {
-    test_transform_inv_transform_impl!(Sim2<f32>, Pnt2<f32>);
-}
+test_transform_mul_assoc!(test_transform_inv_transform_sim3_sim3_pnt3, Sim3<f64>, Sim3<f64>, Pnt3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim3_iso3_pnt3, Sim3<f64>, Iso3<f64>, Pnt3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim3_rot3_pnt3, Sim3<f64>, Rot3<f64>, Pnt3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_iso3_iso3_pnt3, Iso3<f64>, Iso3<f64>, Pnt3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_iso3_rot3_pnt3, Iso3<f64>, Rot3<f64>, Pnt3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_rot3_rot3_pnt3, Rot3<f64>, Rot3<f64>, Pnt3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim3_sim3_vec3, Sim3<f64>, Sim3<f64>, Vec3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim3_iso3_vec3, Sim3<f64>, Iso3<f64>, Vec3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim3_rot3_vec3, Sim3<f64>, Rot3<f64>, Vec3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_iso3_iso3_vec3, Iso3<f64>, Iso3<f64>, Vec3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_iso3_rot3_vec3, Iso3<f64>, Rot3<f64>, Vec3<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_rot3_rot3_vec3, Rot3<f64>, Rot3<f64>, Vec3<f64>);
 
-#[test]
-fn test_transform_inv_transform_sim3() {
-    test_transform_inv_transform_impl!(Sim3<f32>, Pnt3<f32>);
-}
+test_transform_mul_assoc!(test_transform_inv_transform_sim2_sim2_pnt2, Sim2<f64>, Sim2<f64>, Pnt2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim2_iso2_pnt2, Sim2<f64>, Iso2<f64>, Pnt2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim2_rot2_pnt2, Sim2<f64>, Rot2<f64>, Pnt2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_iso2_iso2_pnt2, Iso2<f64>, Iso2<f64>, Pnt2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_iso2_rot2_pnt2, Iso2<f64>, Rot2<f64>, Pnt2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_rot2_rot2_pnt2, Rot2<f64>, Rot2<f64>, Pnt2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim2_sim2_vec2, Sim2<f64>, Sim2<f64>, Vec2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim2_iso2_vec2, Sim2<f64>, Iso2<f64>, Vec2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_sim2_rot2_vec2, Sim2<f64>, Rot2<f64>, Vec2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_iso2_iso2_vec2, Iso2<f64>, Iso2<f64>, Vec2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_iso2_rot2_vec2, Iso2<f64>, Rot2<f64>, Vec2<f64>);
+test_transform_mul_assoc!(test_transform_inv_transform_rot2_rot2_vec2, Rot2<f64>, Rot2<f64>, Vec2<f64>);
