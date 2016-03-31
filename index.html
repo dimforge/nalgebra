@@ -6,9 +6,8 @@
     <title>nalgebra by sebcrozet</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -16,71 +15,64 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1 class="header">nalgebra</h1>
-        <p class="header">Linear algebra library for computer physics, computer graphics and data analysis for Rust.</p>
+        <h1>nalgebra</h1>
+        <p>Linear algebra library for computer physics, computer graphics and data analysis for Rust.</p>
+
+        <p class="view"><a href="https://github.com/sebcrozet/nalgebra">View the Project on GitHub <small>sebcrozet/nalgebra</small></a></p>
+
 
         <ul>
-          <li class="download"><a class="buttons" href="https://github.com/sebcrozet/nalgebra/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/sebcrozet/nalgebra/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/sebcrozet/nalgebra">View On GitHub</a></li>
+          <li><a href="https://github.com/sebcrozet/nalgebra/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/sebcrozet/nalgebra/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/sebcrozet/nalgebra">View On <strong>GitHub</strong></a></li>
         </ul>
-
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/sebcrozet">sebcrozet</a></p>
-
-
       </header>
       <section>
         <h1>
-<a name="about-nalgebra" class="anchor" href="#about-nalgebra"><span class="octicon octicon-link"></span></a>About nalgebra</h1>
+<a id="about-nalgebra" class="anchor" href="#about-nalgebra" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>About nalgebra</h1>
 
 <p><strong>nalgebra</strong> is a linear algebra library written for Rust targeting:</p>
 
 <ul>
-<li>general-purpose linear algebra (still misses a lot of features…).</li>
-<li>real time computer graphics.</li>
-<li>real time computer physics.</li>
-</ul><h2>
-<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+<li>General-purpose linear algebra (still misses a lot of features…).</li>
+<li>Real time computer graphics (CG).</li>
+<li>Real time computer physics.</li>
+</ul>
 
-<p><strong>nalgebra</strong> is meant to be a general-purpose linear algebra library (but is very far from that…),
-and keeps an optimized set of tools for computational graphics and physics. Those features include:</p>
+<p>For more informations and to get help, check out the <a href="doc/nalgebra">online documentation</a> and the official <a href="http://users.nphysics.org">user forum</a> (shared with <strong>ncollide</strong> and <strong>nphysics</strong>).</p>
+
+<h2>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h2>
+
+<p><strong>nalgebra</strong> is meant to be a general-purpose, low-dimensional, linear algebra library, with
+an optimized set of tools for computer graphics and physics. Those features include:</p>
 
 <ul>
-<li>Vectors with static sizes: <code>Vec0</code>, <code>Vec1</code>, <code>Vec2</code>, <code>Vec3</code>, <code>Vec4</code>, <code>Vec5</code>, <code>Vec6</code>.</li>
+<li>Vectors with predefined static sizes: <code>Vec1</code>, to <code>Vec6</code>.</li>
+<li>Vector with a user-defined static size: <code>VecN</code> (available only with the <code>generic_sizes</code> feature).</li>
+<li>Points with static sizes: <code>Pnt1</code>, <code>Pnt2</code>, <code>Pnt3</code>, <code>Pnt4</code>, <code>Pnt5</code>, <code>Pnt6</code>.</li>
 <li>Square matrices with static sizes: <code>Mat1</code>, <code>Mat2</code>, <code>Mat3</code>, <code>Mat4</code>, <code>Mat5</code>, <code>Mat6</code>.</li>
-<li>Rotation matrices: <code>Rot2</code>, <code>Rot3</code>, <code>Rot4</code>.</li>
-<li>Isometries: <code>Iso2</code>, <code>Iso3</code>, <code>Iso4</code>.</li>
-<li>Dynamically sized vector: <code>DVec</code>.</li>
-<li>Dynamically sized (square or rectangular) matrix: <code>DMat</code>.</li>
-<li>A few methods for data analysis: <code>Cov</code>, <code>Mean</code>.</li>
-<li>Some matrix factorization algorithms: QR decomposition, ...</li>
+<li>Rotation matrices: <code>Rot2</code>, <code>Rot3</code>
+</li>
+<li>Quaternions: <code>Quat</code>, <code>UnitQuat</code>.</li>
+<li>Isometries (translation ⨯ rotation): <code>Iso2</code>, <code>Iso3</code>
+</li>
+<li>Similarity transformations : <code>Sim2</code>, <code>Sim3</code>.</li>
+<li>3D projections for CG: <code>Persp3</code>, <code>PerspMat3</code>, <code>Ortho3</code>, <code>OrthoMat3</code>.</li>
+<li>Dynamically sized heap-allocated vector: <code>DVec</code>.</li>
+<li>Dynamically sized stack-allocated vectors: <code>DVec1</code> to <code>DVec6</code>.</li>
+<li>Dynamically sized heap-allocated matrix: <code>DMat</code>.</li>
+<li>Linear algebra and data analysis operators: <code>Cov</code>, <code>Mean</code>, <code>qr</code>, <code>cholesky</code>.</li>
 <li>Almost one trait per functionality: useful for generic programming.</li>
-<li>Operator overloading using the double trait dispatch
-<a href="http://smallcultfollowing.com/babysteps/blog/2012/10/04/refining-traits-slash-impls/">trick</a>.
-For example, the following works:</li>
-</ul><div class="highlight highlight-rust"><pre><span class="k">extern</span> <span class="k">mod</span> <span class="n">nalgebra</span><span class="p">;</span>
-<span class="k">use</span> <span class="n">nalgebra</span><span class="o">::</span><span class="n">na</span><span class="o">::</span><span class="p">{</span><span class="n">Vec3</span><span class="p">,</span> <span class="n">Mat3</span><span class="p">};</span>
-<span class="k">use</span> <span class="n">nalgebra</span><span class="o">::</span><span class="n">na</span><span class="p">;</span>
-
-<span class="k">fn</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="n">v</span><span class="o">:</span> <span class="n">Vec3</span><span class="o">&lt;</span><span class="k">f64</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">na</span><span class="o">::</span><span class="n">zero</span><span class="p">();</span>
-    <span class="k">let</span> <span class="n">m</span><span class="o">:</span> <span class="n">Mat3</span><span class="o">&lt;</span><span class="k">f64</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">na</span><span class="o">::</span><span class="n">one</span><span class="p">();</span>
-
-    <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">v</span><span class="p">;</span>   <span class="c1">// matrix-vector multiplication.</span>
-    <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">m</span><span class="p">;</span>   <span class="c1">// vector-matrix multiplication.</span>
-    <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">m</span><span class="p">;</span>   <span class="c1">// matrix-matrix multiplication.</span>
-    <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="m">2.0</span><span class="p">;</span> <span class="c1">// vector-scalar multiplication.</span>
-<span class="p">}</span>
-</pre></div>
-
-<p>For more, check out the <a href="doc/nalgebra">online documentation</a>.</p>
+</ul>
       </section>
       <footer>
-        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+        <p>This project is maintained by <a href="https://github.com/sebcrozet">sebcrozet</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		          <script type="text/javascript">
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
