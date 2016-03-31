@@ -108,7 +108,7 @@ impl<N: Clone + Copy> DMat<N> {
 }
 
 impl<N> DMat<N> {
-    /// Builds a matrix using an initialization function.
+    /// Builds a matrix filled with the results of a function applied to each of its component coordinates.
     #[inline(always)]
     pub fn from_fn<F: FnMut(usize, usize) -> N>(nrows: usize, ncols: usize, mut f: F) -> DMat<N> {
         DMat {

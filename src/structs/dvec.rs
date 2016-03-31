@@ -54,7 +54,7 @@ impl<N: Clone> DVec<N> {
 }
 
 impl<N> DVec<N> {
-    /// Builds a vector filled with the result of a function.
+    /// Builds a vector filled with the results of a function applied to each of its component coordinates.
     #[inline(always)]
     pub fn from_fn<F: FnMut(usize) -> N>(dim: usize, mut f: F) -> DVec<N> {
         DVec { at: (0..dim).map(|i| f(i)).collect() }
