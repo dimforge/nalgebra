@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Sim2","A two-dimensional similarity transformation."],["Sim3","A three-dimensional similarity transformation."]]});

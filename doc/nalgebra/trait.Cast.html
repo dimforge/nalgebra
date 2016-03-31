@@ -9,6 +9,7 @@
 
     <title>nalgebra::Cast - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -42,10 +43,10 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Cast</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-15132' class='srclink' href='../src/nalgebra/traits/structure.rs.html#54-57' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-19404' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#54-57' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Cast&lt;T&gt; {
     fn <a href='#tymethod.from' class='fnname'>from</a>(t: T) -&gt; Self;
 }</pre><div class='docblock'><p>Traits of objects which can be created from an object of type <code>T</code>.</p>
@@ -76,8 +77,8 @@
 <li><code>impl&lt;Nin: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a>, Nout: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;Nin&gt;&gt; <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a class='struct' href='../nalgebra/struct.Mat5.html' title='nalgebra::Mat5'>Mat5</a>&lt;Nin&gt;&gt; for <a class='struct' href='../nalgebra/struct.Mat5.html' title='nalgebra::Mat5'>Mat5</a>&lt;Nout&gt;</code></li>
 <li><code>impl&lt;Nin: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a>, Nout: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;Nin&gt;&gt; <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a class='struct' href='../nalgebra/struct.Mat6.html' title='nalgebra::Mat6'>Mat6</a>&lt;Nin&gt;&gt; for <a class='struct' href='../nalgebra/struct.Mat6.html' title='nalgebra::Mat6'>Mat6</a>&lt;Nout&gt;</code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.Cast.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.Cast.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -120,7 +121,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -136,6 +137,6 @@
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

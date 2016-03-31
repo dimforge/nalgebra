@@ -9,6 +9,7 @@
 
     <title>nalgebra::Translate - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -42,10 +43,10 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Translate</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-14957' class='srclink' href='../src/nalgebra/traits/geometry.rs.html#34-40' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-19229' class='srclink' href='../src/nalgebra/src/traits/geometry.rs.html#34-40' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Translate&lt;V&gt; {
     fn <a href='#tymethod.translate' class='fnname'>translate</a>(&amp;self, &amp;V) -&gt; V;
     fn <a href='#tymethod.inv_translate' class='fnname'>inv_translate</a>(&amp;self, &amp;V) -&gt; V;
@@ -67,10 +68,9 @@ implemented by vectors to translate points.</p>
 <li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Translate.html' title='nalgebra::Translate'>Translate</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt6.html' title='nalgebra::Pnt6'>Pnt6</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Vec6.html' title='nalgebra::Vec6'>Vec6</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Translate.html' title='nalgebra::Translate'>Translate</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt2.html' title='nalgebra::Pnt2'>Pnt2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Translate.html' title='nalgebra::Translate'>Translate</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;N, Output=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;N, Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Translate.html' title='nalgebra::Translate'>Translate</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt4.html' title='nalgebra::Pnt4'>Pnt4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.Translate.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.Translate.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -113,7 +113,7 @@ implemented by vectors to translate points.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -129,6 +129,6 @@ implemented by vectors to translate points.</p>
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

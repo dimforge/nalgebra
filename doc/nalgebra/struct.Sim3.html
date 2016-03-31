@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Sim3` struct in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Sim3">
+
+    <title>nalgebra::Sim3 - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'Sim3', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>nalgebra</a>::<wbr><a class='struct' href=''>Sim3</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-17365' class='srclink' href='../src/nalgebra/src/structs/sim.rs.html#45-50' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Sim3&lt;N&gt; {
+    pub isometry: <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;,
+    // some fields omitted
+}</pre><div class='docblock'><p>A three-dimensional similarity transformation.</p>
+
+<p>This is a composition of a scale, followed by a rotation, followed by a translation.
+Vectors <code>Vec3</code> are not affected by the translational component of this transformation while
+points <code>Pnt3</code> are.
+Similarity transformations conserve angles. Distances are multiplied by some constant (the
+scale factor). The scale factor cannot be zero.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                             <td id='structfield.isometry'><code>isometry</code></td><td><div class='docblock'><p>The isometry applicable by this similarity transformation.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(translation: <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;, rotation: <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;, scale: N) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Creates a new similarity transformation from a vector, an axis-angle rotation, and a scale factor.</p>
+
+<p>The scale factor may be negative but not zero.</p>
+</div><h4 id='method.new_with_rotmat' class='method'><code>fn <a href='#method.new_with_rotmat' class='fnname'>new_with_rotmat</a>(translation: <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;, rotation: <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;, scale: N) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Creates a new similarity transformation from a rotation matrix, a vector, and a scale factor.</p>
+
+<p>The scale factor may be negative but not zero.</p>
+</div><h4 id='method.new_with_iso' class='method'><code>fn <a href='#method.new_with_iso' class='fnname'>new_with_iso</a>(isometry: <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;, scale: N) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Creates a new similarity transformation from an isometry and a scale factor.</p>
+
+<p>The scale factor may be negative but not zero.</p>
+</div></div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.scale' class='method'><code>fn <a href='#method.scale' class='fnname'>scale</a>(&amp;self) -&gt; N</code></h4>
+<div class='docblock'><p>The scale factor of this similarity transformation.</p>
+</div><h4 id='method.inv_scale' class='method'><code>fn <a href='#method.inv_scale' class='fnname'>inv_scale</a>(&amp;self) -&gt; N</code></h4>
+<div class='docblock'><p>The inverse scale factor of this similarity transformation.</p>
+</div><h4 id='method.append_scale_mut' class='method'><code>fn <a href='#method.append_scale_mut' class='fnname'>append_scale_mut</a>(&amp;mut self, s: &amp;N)</code></h4>
+<div class='docblock'><p>Appends in-place a scale to this similarity transformation.</p>
+</div><h4 id='method.append_scale' class='method'><code>fn <a href='#method.append_scale' class='fnname'>append_scale</a>(&amp;self, s: &amp;N) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Appends a scale to this similarity transformation.</p>
+</div><h4 id='method.prepend_scale_mut' class='method'><code>fn <a href='#method.prepend_scale_mut' class='fnname'>prepend_scale_mut</a>(&amp;mut self, s: &amp;N)</code></h4>
+<div class='docblock'><p>Prepends in-place a scale to this similarity transformation.</p>
+</div><h4 id='method.prepend_scale' class='method'><code>fn <a href='#method.prepend_scale' class='fnname'>prepend_scale</a>(&amp;self, s: &amp;N) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Prepends a scale to this similarity transformation.</p>
+</div><h4 id='method.set_scale' class='method'><code>fn <a href='#method.set_scale' class='fnname'>set_scale</a>(&amp;mut self, s: N)</code></h4>
+<div class='docblock'><p>Sets the scale of this similarity transformation.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.dim' class='method'><code>fn <a href='../nalgebra/trait.Dim.html#method.dim' class='fnname'>dim</a>(_: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='http://rust-num.github.io/num/num/traits/trait.One.html' title='num::traits::One'>One</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.one' class='method'><code>fn <a href='http://rust-num.github.io/num/num/traits/trait.One.html#method.one' class='fnname'>one</a>() -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='associatedtype.Output' class='type'><code>type Output = <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<h4 id='method.mul' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#method.mul' class='fnname'>mul</a>(self, right: <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;<a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='associatedtype.Output-1' class='type'><code>type Output = <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<h4 id='method.mul-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#method.mul' class='fnname'>mul</a>(self, right: <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;<a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='associatedtype.Output-2' class='type'><code>type Output = <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<h4 id='method.mul-2' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#method.mul' class='fnname'>mul</a>(self, right: <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='associatedtype.Output-3' class='type'><code>type Output = <a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;</code></h4>
+<h4 id='method.mul-3' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#method.mul' class='fnname'>mul</a>(self, right: <a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;<a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='associatedtype.Output-4' class='type'><code>type Output = <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;</code></h4>
+<h4 id='method.mul-4' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#method.mul' class='fnname'>mul</a>(self, right: <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Vec3.html' title='nalgebra::Vec3'>Vec3</a>&lt;N&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Transformation.html' title='nalgebra::Transformation'>Transformation</a>&lt;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.transformation' class='method'><code>fn <a href='../nalgebra/trait.Transformation.html#method.transformation' class='fnname'>transformation</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<h4 id='method.inv_transformation' class='method'><code>fn <a href='../nalgebra/trait.Transformation.html#method.inv_transformation' class='fnname'>inv_transformation</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<h4 id='method.append_transformation_mut' class='method'><code>fn <a href='../nalgebra/trait.Transformation.html#method.append_transformation_mut' class='fnname'>append_transformation_mut</a>(&amp;mut self, t: &amp;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;)</code></h4>
+<h4 id='method.append_transformation' class='method'><code>fn <a href='../nalgebra/trait.Transformation.html#method.append_transformation' class='fnname'>append_transformation</a>(&amp;self, t: &amp;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<h4 id='method.prepend_transformation_mut' class='method'><code>fn <a href='../nalgebra/trait.Transformation.html#method.prepend_transformation_mut' class='fnname'>prepend_transformation_mut</a>(&amp;mut self, t: &amp;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;)</code></h4>
+<h4 id='method.prepend_transformation' class='method'><code>fn <a href='../nalgebra/trait.Transformation.html#method.prepend_transformation' class='fnname'>prepend_transformation</a>(&amp;self, t: &amp;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<h4 id='method.set_transformation' class='method'><code>fn <a href='../nalgebra/trait.Transformation.html#method.set_transformation' class='fnname'>set_transformation</a>(&amp;mut self, t: <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;)</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a>&gt; <a class='trait' href='../nalgebra/trait.Transform.html' title='nalgebra::Transform'>Transform</a>&lt;<a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.transform' class='method'><code>fn <a href='../nalgebra/trait.Transform.html#method.transform' class='fnname'>transform</a>(&amp;self, p: &amp;<a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;</code></h4>
+<h4 id='method.inv_transform' class='method'><code>fn <a href='../nalgebra/trait.Transform.html#method.inv_transform' class='fnname'>inv_transform</a>(&amp;self, p: &amp;<a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Pnt3.html' title='nalgebra::Pnt3'>Pnt3</a>&lt;N&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a>&lt;Output=N&gt;&gt; <a class='trait' href='../nalgebra/trait.Inv.html' title='nalgebra::Inv'>Inv</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.inv_mut' class='method'><code>fn <a href='../nalgebra/trait.Inv.html#method.inv_mut' class='fnname'>inv_mut</a>(&amp;mut self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.inv' class='method'><code>fn <a href='../nalgebra/trait.Inv.html#method.inv' class='fnname'>inv</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a>&gt; <a class='trait' href='../nalgebra/trait.ToHomogeneous.html' title='nalgebra::ToHomogeneous'>ToHomogeneous</a>&lt;<a class='struct' href='../nalgebra/struct.Mat4.html' title='nalgebra::Mat4'>Mat4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.to_homogeneous' class='method'><code>fn <a href='../nalgebra/trait.ToHomogeneous.html#method.to_homogeneous' class='fnname'>to_homogeneous</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.Mat4.html' title='nalgebra::Mat4'>Mat4</a>&lt;N&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.approx_epsilon' class='method'><code>fn <a href='../nalgebra/trait.ApproxEq.html#method.approx_epsilon' class='fnname'>approx_epsilon</a>(_: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;&gt;) -&gt; N</code></h4>
+<h4 id='method.approx_ulps' class='method'><code>fn <a href='../nalgebra/trait.ApproxEq.html#method.approx_ulps' class='fnname'>approx_ulps</a>(_: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h4>
+<h4 id='method.approx_eq_eps' class='method'><code>fn <a href='../nalgebra/trait.ApproxEq.html#method.approx_eq_eps' class='fnname'>approx_eq_eps</a>(&amp;self, other: &amp;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;, epsilon: &amp;N) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.approx_eq_ulps' class='method'><code>fn <a href='../nalgebra/trait.ApproxEq.html#method.approx_eq_ulps' class='fnname'>approx_eq_ulps</a>(&amp;self, other: &amp;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;, ulps: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.approx_eq' class='method'><code>fn <a href='../nalgebra/trait.ApproxEq.html#method.approx_eq' class='fnname'>approx_eq</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/rand/rand/trait.Rand.html' title='rand::Rand'>Rand</a> + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/rand/rand/trait.Rand.html' title='rand::Rand'>Rand</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.rand' class='method'><code>fn <a href='https://doc.rust-lang.org/rand/rand/trait.Rand.html#method.rand' class='fnname'>rand</a>&lt;R: <a class='trait' href='https://doc.rust-lang.org/rand/rand/trait.Rng.html' title='rand::Rng'>Rng</a>&gt;(rng: &amp;mut R) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a> + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#method.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'></div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.fmt-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a>&gt; <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.decode' class='method'><code>fn <a href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html#method.decode' class='fnname'>decode</a>&lt;__DN: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decoder.html' title='rustc_serialize::serialize::Decoder'>Decoder</a>&gt;(__arg_0: &amp;mut __DN) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;, __DN::Error&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a>&gt; <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__SN: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __SN) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __SN::Error&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></h3><div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "nalgebra";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

@@ -9,6 +9,7 @@
 
     <title>nalgebra::FloatPnt - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -42,10 +43,10 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>FloatPnt</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-15267' class='srclink' href='../src/nalgebra/traits/structure.rs.html#270-282' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-19539' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#270-282' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait FloatPnt&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>, V: <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt;&gt;: <a class='trait' href='../nalgebra/trait.NumPnt.html' title='nalgebra::NumPnt'>NumPnt</a>&lt;N, V&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
     fn <a href='#method.sqdist' class='fnname'>sqdist</a>(&amp;self, other: &amp;Self) -&gt; N { ... }
     fn <a href='#method.dist' class='fnname'>dist</a>(&amp;self, other: &amp;Self) -&gt; N { ... }
@@ -65,8 +66,8 @@
 <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatPnt.html' title='nalgebra::FloatPnt'>FloatPnt</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec5.html' title='nalgebra::Vec5'>Vec5</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Pnt5.html' title='nalgebra::Pnt5'>Pnt5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
 <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatPnt.html' title='nalgebra::FloatPnt'>FloatPnt</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec6.html' title='nalgebra::Vec6'>Vec6</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Pnt6.html' title='nalgebra::Pnt6'>Pnt6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.FloatPnt.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.FloatPnt.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -109,7 +110,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -125,6 +126,6 @@
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

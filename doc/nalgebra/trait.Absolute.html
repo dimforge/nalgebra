@@ -9,6 +9,7 @@
 
     <title>nalgebra::Absolute - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -42,10 +43,10 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Absolute</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-15548' class='srclink' href='../src/nalgebra/traits/operations.rs.html#272-276' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-19819' class='srclink' href='../src/nalgebra/src/traits/operations.rs.html#272-276' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Absolute&lt;A&gt; {
     fn <a href='#tymethod.abs' class='fnname'>abs</a>(&amp;Self) -&gt; A;
 }</pre><div class='docblock'><p>Trait of objects having an absolute value.
@@ -72,22 +73,21 @@ Typically, this will make all component of a matrix or vector positive.</p>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='struct' href='../nalgebra/struct.Mat6.html' title='nalgebra::Mat6'>Mat6</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Mat6.html' title='nalgebra::Mat6'>Mat6</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='struct' href='../nalgebra/struct.Mat2.html' title='nalgebra::Mat2'>Mat2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='struct' href='../nalgebra/struct.Mat3.html' title='nalgebra::Mat3'>Mat3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='struct' href='../nalgebra/struct.Mat4.html' title='nalgebra::Mat4'>Mat4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rot4.html' title='nalgebra::Rot4'>Rot4</a>&lt;N&gt;</code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.i8.html'>i8</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.i8.html'>i8</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.i16.html'>i16</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.i16.html'>i16</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.i64.html'>i64</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.i64.html'>i64</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.isize.html'>isize</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.isize.html'>isize</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.u64.html'>u64</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.u64.html'>u64</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i8.html'>i8</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i8.html'>i8</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i16.html'>i16</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i16.html'>i16</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i64.html'>i64</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i64.html'>i64</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.isize.html'>isize</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.isize.html'>isize</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u64.html'>u64</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u64.html'>u64</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.Absolute.html' title='nalgebra::Absolute'>Absolute</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.Absolute.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.Absolute.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -130,7 +130,7 @@ Typically, this will make all component of a matrix or vector positive.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -146,6 +146,6 @@ Typically, this will make all component of a matrix or vector positive.</p>
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

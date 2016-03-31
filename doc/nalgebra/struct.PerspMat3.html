@@ -9,6 +9,7 @@
 
     <title>nalgebra::PerspMat3 - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -42,17 +43,19 @@
 
     <section id='main' class="content struct">
 <h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>nalgebra</a>::<wbr><a class='struct' href=''>PerspMat3</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-13511' class='srclink' href='../src/nalgebra/structs/persp.rs.html#23-25' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-17929' class='srclink' href='../src/nalgebra/src/structs/persp.rs.html#27-29' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct PerspMat3&lt;N&gt; {
     // some fields omitted
 }</pre><div class='docblock'><p>A 3D perspective projection stored as a 4D matrix.</p>
 
-<p>Reading or modifying its individual properties is costly but applying the transformation is cheap.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(aspect: N, fov: N, znear: N, zfar: N) -&gt; <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h4>
-<div class='docblock'><p>Creates a new persepctive matrix from the aspect ratio, field of view, and near/far planes.</p>
+<p>This maps a frustrum to the unit cube with corners varying from <code>(-1, -1, -1)</code> to
+<code>(1, 1, 1)</code>. Reading or modifying its individual properties is costly but applying the
+transformation is cheap.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(aspect: N, fovy: N, znear: N, zfar: N) -&gt; <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h4>
+<div class='docblock'><p>Creates a new perspective matrix from the aspect ratio, y field of view, and near/far planes.</p>
 </div><h4 id='method.new_with_mat' class='method'><code>unsafe fn <a href='#method.new_with_mat' class='fnname'>new_with_mat</a>(mat: <a class='struct' href='../nalgebra/struct.Mat4.html' title='nalgebra::Mat4'>Mat4</a>&lt;N&gt;) -&gt; <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h4>
 <div class='docblock'><p>Creates a new perspective projection matrix from a 4D matrix.</p>
 
@@ -61,8 +64,8 @@
 <div class='docblock'><p>Returns a reference to the 4D matrix (using homogeneous coordinates) of this projection.</p>
 </div><h4 id='method.aspect' class='method'><code>fn <a href='#method.aspect' class='fnname'>aspect</a>(&amp;self) -&gt; N</code></h4>
 <div class='docblock'><p>Gets the <code>width / height</code> aspect ratio of the view frustrum.</p>
-</div><h4 id='method.fov' class='method'><code>fn <a href='#method.fov' class='fnname'>fov</a>(&amp;self) -&gt; N</code></h4>
-<div class='docblock'><p>Gets the field of view of the view frustrum.</p>
+</div><h4 id='method.fovy' class='method'><code>fn <a href='#method.fovy' class='fnname'>fovy</a>(&amp;self) -&gt; N</code></h4>
+<div class='docblock'><p>Gets the y field of view of the view frustrum.</p>
 </div><h4 id='method.znear' class='method'><code>fn <a href='#method.znear' class='fnname'>znear</a>(&amp;self) -&gt; N</code></h4>
 <div class='docblock'><p>Gets the near plane offset of the view frustrum.</p>
 </div><h4 id='method.zfar' class='method'><code>fn <a href='#method.zfar' class='fnname'>zfar</a>(&amp;self) -&gt; N</code></h4>
@@ -70,8 +73,8 @@
 </div><h4 id='method.set_aspect' class='method'><code>fn <a href='#method.set_aspect' class='fnname'>set_aspect</a>(&amp;mut self, aspect: N)</code></h4>
 <div class='docblock'><p>Updates this projection matrix with a new <code>width / height</code> aspect ratio of the view
 frustrum.</p>
-</div><h4 id='method.set_fov' class='method'><code>fn <a href='#method.set_fov' class='fnname'>set_fov</a>(&amp;mut self, fov: N)</code></h4>
-<div class='docblock'><p>Updates this projection with a new field of view of the view frustrum.</p>
+</div><h4 id='method.set_fovy' class='method'><code>fn <a href='#method.set_fovy' class='fnname'>set_fovy</a>(&amp;mut self, fovy: N)</code></h4>
+<div class='docblock'><p>Updates this projection with a new y field of view of the view frustrum.</p>
 </div><h4 id='method.set_znear' class='method'><code>fn <a href='#method.set_znear' class='fnname'>set_znear</a>(&amp;mut self, znear: N)</code></h4>
 <div class='docblock'><p>Updates this projection matrix with a new near plane offset of the view frustrum.</p>
 </div><h4 id='method.set_zfar' class='method'><code>fn <a href='#method.set_zfar' class='fnname'>set_zfar</a>(&amp;mut self, zfar: N)</code></h4>
@@ -86,11 +89,11 @@ frustrum.</p>
 <div class='docblock'><p>Returns the 4D matrix (using homogeneous coordinates) of this projection.</p>
 </div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'></div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
 </div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a>&gt; <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.decode' class='method'><code>fn <a href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html#method.decode' class='fnname'>decode</a>&lt;__D: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decoder.html' title='rustc_serialize::serialize::Decoder'>Decoder</a>&gt;(__arg_0: &amp;mut __D) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;, __D::Error&gt;</code></h4>
-</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a>&gt; <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
-</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a>&gt; <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.decode' class='method'><code>fn <a href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html#method.decode' class='fnname'>decode</a>&lt;__DN: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decoder.html' title='rustc_serialize::serialize::Decoder'>Decoder</a>&gt;(__arg_0: &amp;mut __DN) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;, __DN::Error&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a>&gt; <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__SN: <a class='trait' href='http://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __SN) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __SN::Error&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
 </div><h3 class='impl'><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='struct' href='../nalgebra/struct.PerspMat3.html' title='nalgebra::PerspMat3'>PerspMat3</a>&lt;N&gt;</code></h3><div class='impl-items'></div></section>
     <section id='search' class="content hidden"></section>
 
@@ -134,7 +137,7 @@ frustrum.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -150,6 +153,6 @@ frustrum.</p>
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@
 
     <title>nalgebra::assert_approx_eq! - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -42,22 +43,14 @@
 
     <section id='main' class="content macro">
 <h1 class='fqn'><span class='in-band'><a href='index.html'>nalgebra</a>::<wbr><a class='macro' href=''>assert_approx_eq!</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-16158' class='srclink' href='../src/nalgebra/macros/assert.rs.html#33-43' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-20429' class='srclink' href='../src/nalgebra/src/macros/assert.rs.html#33-43' title='goto source code'>[src]</a></span></h1>
 <pre class='rust macro'>
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>assert_approx_eq</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>given</span>: <span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>expected</span>: <span class='ident'>expr</span>) <span class='op'>=&gt;</span> ({
-        <span class='kw'>let</span> (<span class='ident'>given_val</span>, <span class='ident'>expected_val</span>) <span class='op'>=</span> (<span class='kw-2'>&amp;</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>given</span>), <span class='kw-2'>&amp;</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>expected</span>));
-        <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>ApproxEq</span>::<span class='ident'>approx_eq</span>(<span class='ident'>given_val</span>, <span class='ident'>expected_val</span>) {
-            <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;assertion failed: `left ≈ right` (left: `{:?}`, right: `{:?}`, tolerance: `{:?}`)&quot;</span>,
-                <span class='op'>*</span><span class='ident'>given_val</span>, <span class='op'>*</span><span class='ident'>expected_val</span>,
-                <span class='ident'>ApproxEq</span>::<span class='ident'>approx_epsilon</span>(<span class='prelude-val'>Some</span>(<span class='op'>*</span><span class='ident'>given_val</span>))
-            )
-        }
-    })
-);</pre>
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>assert_approx_eq</span> {
+    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>given</span>: <span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>expected</span>: <span class='ident'>expr</span>) <span class='op'>=&gt;</span> { ... };
+}</pre>
 <div class='docblock'><p>Asserts approximate equality of two values with the <code>ApproxEq</code> trait.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
@@ -102,7 +95,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -118,6 +111,6 @@
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@
 
     <title>nalgebra::ApproxEq - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -42,33 +43,39 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>ApproxEq</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-15477' class='srclink' href='../src/nalgebra/traits/operations.rs.html#154-172' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-19748' class='srclink' href='../src/nalgebra/src/traits/operations.rs.html#154-172' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait ApproxEq&lt;Eps&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
     fn <a href='#tymethod.approx_epsilon' class='fnname'>approx_epsilon</a>(unused_mut: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; Eps;
-    fn <a href='#tymethod.approx_eq_eps' class='fnname'>approx_eq_eps</a>(&amp;self, other: &amp;Self, epsilon: &amp;Eps) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
-    fn <a href='#tymethod.approx_ulps' class='fnname'>approx_ulps</a>(unused_mut: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>;
-    fn <a href='#tymethod.approx_eq_ulps' class='fnname'>approx_eq_ulps</a>(&amp;self, other: &amp;Self, ulps: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+    fn <a href='#tymethod.approx_eq_eps' class='fnname'>approx_eq_eps</a>(&amp;self, other: &amp;Self, epsilon: &amp;Eps) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+    fn <a href='#tymethod.approx_ulps' class='fnname'>approx_ulps</a>(unused_mut: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>;
+    fn <a href='#tymethod.approx_eq_ulps' class='fnname'>approx_eq_ulps</a>(&amp;self, other: &amp;Self, ulps: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
 
-    fn <a href='#method.approx_eq' class='fnname'>approx_eq</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.approx_eq' class='fnname'>approx_eq</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
 }</pre><div class='docblock'><p>Trait for testing approximate equality</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
         <h3 id='tymethod.approx_epsilon' class='method stab '><code>fn <a href='#tymethod.approx_epsilon' class='fnname'>approx_epsilon</a>(unused_mut: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; Eps</code></h3><div class='docblock'><p>Default epsilon for approximation.</p>
-</div><h3 id='tymethod.approx_eq_eps' class='method stab '><code>fn <a href='#tymethod.approx_eq_eps' class='fnname'>approx_eq_eps</a>(&amp;self, other: &amp;Self, epsilon: &amp;Eps) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Tests approximate equality using a custom epsilon.</p>
-</div><h3 id='tymethod.approx_ulps' class='method stab '><code>fn <a href='#tymethod.approx_ulps' class='fnname'>approx_ulps</a>(unused_mut: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h3><div class='docblock'><p>Default ULPs for approximation.</p>
-</div><h3 id='tymethod.approx_eq_ulps' class='method stab '><code>fn <a href='#tymethod.approx_eq_ulps' class='fnname'>approx_eq_ulps</a>(&amp;self, other: &amp;Self, ulps: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Tests approximate equality using units in the last place (ULPs)</p>
+</div><h3 id='tymethod.approx_eq_eps' class='method stab '><code>fn <a href='#tymethod.approx_eq_eps' class='fnname'>approx_eq_eps</a>(&amp;self, other: &amp;Self, epsilon: &amp;Eps) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Tests approximate equality using a custom epsilon.</p>
+</div><h3 id='tymethod.approx_ulps' class='method stab '><code>fn <a href='#tymethod.approx_ulps' class='fnname'>approx_ulps</a>(unused_mut: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h3><div class='docblock'><p>Default ULPs for approximation.</p>
+</div><h3 id='tymethod.approx_eq_ulps' class='method stab '><code>fn <a href='#tymethod.approx_eq_ulps' class='fnname'>approx_eq_ulps</a>(&amp;self, other: &amp;Self, ulps: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Tests approximate equality using units in the last place (ULPs)</p>
 </div></div>
             <h2 id='provided-methods'>Provided Methods</h2>
             <div class='methods'>
-        <h3 id='method.approx_eq' class='method stab '><code>fn <a href='#method.approx_eq' class='fnname'>approx_eq</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Tests approximate equality.</p>
+        <h3 id='method.approx_eq' class='method stab '><code>fn <a href='#method.approx_eq' class='fnname'>approx_eq</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Tests approximate equality.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
     <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DMat.html' title='nalgebra::DMat'>DMat</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DMat1.html' title='nalgebra::DMat1'>DMat1</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DMat2.html' title='nalgebra::DMat2'>DMat2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DMat3.html' title='nalgebra::DMat3'>DMat3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DMat4.html' title='nalgebra::DMat4'>DMat4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DMat5.html' title='nalgebra::DMat5'>DMat5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DMat6.html' title='nalgebra::DMat6'>DMat6</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVec.html' title='nalgebra::DVec'>DVec</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVec1.html' title='nalgebra::DVec1'>DVec1</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVec2.html' title='nalgebra::DVec2'>DVec2</a>&lt;N&gt;</code></li>
@@ -98,17 +105,17 @@
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Mat6.html' title='nalgebra::Mat6'>Mat6</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Rot2.html' title='nalgebra::Rot2'>Rot2</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Rot3.html' title='nalgebra::Rot3'>Rot3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Rot4.html' title='nalgebra::Rot4'>Rot4</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Iso2.html' title='nalgebra::Iso2'>Iso2</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Iso3.html' title='nalgebra::Iso3'>Iso3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Iso4.html' title='nalgebra::Iso4'>Iso4</a>&lt;N&gt;</code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></li>
-<li><code>impl <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; for <a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Sim2.html' title='nalgebra::Sim2'>Sim2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Sim3.html' title='nalgebra::Sim3'>Sim3</a>&lt;N&gt;</code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></li>
+<li><code>impl <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></li>
 <li><code>impl&lt;'a, N, T: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for &amp;'a T</code></li>
 <li><code>impl&lt;'a, N, T: <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; for &amp;'a mut T</code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.ApproxEq.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.ApproxEq.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -151,7 +158,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -167,6 +174,6 @@
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

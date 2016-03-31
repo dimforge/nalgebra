@@ -9,6 +9,7 @@
 
     <title>nalgebra::NumPnt - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -42,11 +43,11 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>NumPnt</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-15264' class='srclink' href='../src/nalgebra/traits/structure.rs.html#255-267' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait NumPnt&lt;N, V&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='../nalgebra/trait.PntAsVec.html' title='nalgebra::PntAsVec'>PntAsVec</a>&lt;V&gt; + <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> + <a class='trait' href='../nalgebra/trait.Orig.html' title='nalgebra::Orig'>Orig</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='../nalgebra/trait.Axpy.html' title='nalgebra::Axpy'>Axpy</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;Self, Output=V&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;N, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;N, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;V, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html' title='core::ops::Index'>Index</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, Output=N&gt; { }</pre><div class='docblock'><p>Trait grouping most common operations on points.</p>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-19536' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#255-267' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait NumPnt&lt;N, V&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='../nalgebra/trait.PntAsVec.html' title='nalgebra::PntAsVec'>PntAsVec</a>&lt;V&gt; + <a class='trait' href='../nalgebra/trait.Dim.html' title='nalgebra::Dim'>Dim</a> + <a class='trait' href='../nalgebra/trait.Orig.html' title='nalgebra::Orig'>Orig</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='../nalgebra/trait.Axpy.html' title='nalgebra::Axpy'>Axpy</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;Self, Output=V&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;N, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;N, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;V, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html' title='core::ops::Index'>Index</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, Output=N&gt; { }</pre><div class='docblock'><p>Trait grouping most common operations on points.</p>
 </div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
@@ -57,8 +58,8 @@
 <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.NumPnt.html' title='nalgebra::NumPnt'>NumPnt</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec5.html' title='nalgebra::Vec5'>Vec5</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Pnt5.html' title='nalgebra::Pnt5'>Pnt5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
 <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.NumPnt.html' title='nalgebra::NumPnt'>NumPnt</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vec6.html' title='nalgebra::Vec6'>Vec6</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Pnt6.html' title='nalgebra::Pnt6'>Pnt6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.NumPnt.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.NumPnt.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -101,7 +102,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -117,6 +118,6 @@
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

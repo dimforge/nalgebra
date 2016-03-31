@@ -9,6 +9,7 @@
 
     <title>nalgebra::POrd - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -42,19 +43,19 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>POrd</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-15440' class='srclink' href='../src/nalgebra/traits/operations.rs.html#75-151' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-19711' class='srclink' href='../src/nalgebra/src/traits/operations.rs.html#75-151' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait POrd {
     fn <a href='#tymethod.inf' class='fnname'>inf</a>(&amp;self, other: &amp;Self) -&gt; Self;
     fn <a href='#tymethod.sup' class='fnname'>sup</a>(&amp;self, other: &amp;Self) -&gt; Self;
     fn <a href='#tymethod.partial_cmp' class='fnname'>partial_cmp</a>(&amp;self, other: &amp;Self) -&gt; <a class='enum' href='../nalgebra/enum.POrdering.html' title='nalgebra::POrdering'>POrdering</a>;
 
-    fn <a href='#method.partial_le' class='fnname'>partial_le</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
-    fn <a href='#method.partial_lt' class='fnname'>partial_lt</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
-    fn <a href='#method.partial_ge' class='fnname'>partial_ge</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
-    fn <a href='#method.partial_gt' class='fnname'>partial_gt</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.partial_le' class='fnname'>partial_le</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.partial_lt' class='fnname'>partial_lt</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.partial_ge' class='fnname'>partial_ge</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.partial_gt' class='fnname'>partial_gt</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
     fn <a href='#method.partial_min' class='fnname'>partial_min</a>&lt;'a&gt;(&amp;'a self, other: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a Self&gt; { ... }
     fn <a href='#method.partial_max' class='fnname'>partial_max</a>&lt;'a&gt;(&amp;'a self, other: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a Self&gt; { ... }
     fn <a href='#method.partial_clamp' class='fnname'>partial_clamp</a>&lt;'a&gt;(&amp;'a self, min: &amp;'a Self, max: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a Self&gt; { ... }
@@ -68,10 +69,10 @@
 </div></div>
             <h2 id='provided-methods'>Provided Methods</h2>
             <div class='methods'>
-        <h3 id='method.partial_le' class='method stab '><code>fn <a href='#method.partial_le' class='fnname'>partial_le</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns <code>true</code> iff <code>self</code> and <code>other</code> are comparable and <code>self &lt;= other</code>.</p>
-</div><h3 id='method.partial_lt' class='method stab '><code>fn <a href='#method.partial_lt' class='fnname'>partial_lt</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns <code>true</code> iff <code>self</code> and <code>other</code> are comparable and <code>self &lt; other</code>.</p>
-</div><h3 id='method.partial_ge' class='method stab '><code>fn <a href='#method.partial_ge' class='fnname'>partial_ge</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns <code>true</code> iff <code>self</code> and <code>other</code> are comparable and <code>self &gt;= other</code>.</p>
-</div><h3 id='method.partial_gt' class='method stab '><code>fn <a href='#method.partial_gt' class='fnname'>partial_gt</a>(&amp;self, other: &amp;Self) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns <code>true</code> iff <code>self</code> and <code>other</code> are comparable and <code>self &gt; other</code>.</p>
+        <h3 id='method.partial_le' class='method stab '><code>fn <a href='#method.partial_le' class='fnname'>partial_le</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns <code>true</code> iff <code>self</code> and <code>other</code> are comparable and <code>self &lt;= other</code>.</p>
+</div><h3 id='method.partial_lt' class='method stab '><code>fn <a href='#method.partial_lt' class='fnname'>partial_lt</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns <code>true</code> iff <code>self</code> and <code>other</code> are comparable and <code>self &lt; other</code>.</p>
+</div><h3 id='method.partial_ge' class='method stab '><code>fn <a href='#method.partial_ge' class='fnname'>partial_ge</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns <code>true</code> iff <code>self</code> and <code>other</code> are comparable and <code>self &gt;= other</code>.</p>
+</div><h3 id='method.partial_gt' class='method stab '><code>fn <a href='#method.partial_gt' class='fnname'>partial_gt</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns <code>true</code> iff <code>self</code> and <code>other</code> are comparable and <code>self &gt; other</code>.</p>
 </div><h3 id='method.partial_min' class='method stab '><code>fn <a href='#method.partial_min' class='fnname'>partial_min</a>&lt;'a&gt;(&amp;'a self, other: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a Self&gt;</code></h3><div class='docblock'><p>Return the minimum of <code>self</code> and <code>other</code> if they are comparable.</p>
 </div><h3 id='method.partial_max' class='method stab '><code>fn <a href='#method.partial_max' class='fnname'>partial_max</a>&lt;'a&gt;(&amp;'a self, other: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a Self&gt;</code></h3><div class='docblock'><p>Return the maximum of <code>self</code> and <code>other</code> if they are comparable.</p>
 </div><h3 id='method.partial_clamp' class='method stab '><code>fn <a href='#method.partial_clamp' class='fnname'>partial_clamp</a>&lt;'a&gt;(&amp;'a self, min: &amp;'a Self, max: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a Self&gt;</code></h3><div class='docblock'><p>Clamp <code>value</code> between <code>min</code> and <code>max</code>. Returns <code>None</code> if <code>value</code> is not comparable to
@@ -93,8 +94,8 @@
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.POrd.html' title='nalgebra::POrd'>POrd</a> for <a class='struct' href='../nalgebra/struct.Pnt6.html' title='nalgebra::Pnt6'>Pnt6</a>&lt;N&gt;</code></li>
 <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.POrd.html' title='nalgebra::POrd'>POrd</a> for <a class='struct' href='../nalgebra/struct.Quat.html' title='nalgebra::Quat'>Quat</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.POrd.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.POrd.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -137,7 +138,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -153,6 +154,6 @@
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>
