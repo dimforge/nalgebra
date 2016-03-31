@@ -1,7 +1,6 @@
 //! Quaternion definition.
 
-#![allow(missing_docs)] // we allow missing to avoid having to document the dispatch trait.
-
+use std::fmt;
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
@@ -153,6 +152,12 @@ impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>> for Quat<N> {
     #[inline]
     fn div(self, right: Quat<N>) -> Quat<N> {
         self * right.inv().expect("Unable to invert the denominator.")
+    }
+}
+
+impl<N: fmt::Display> fmt::Display for Quat<N> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Quaternion {} − ({}, {}, {})", self.w, self.i, self.j, self.k)
     }
 }
 
@@ -507,6 +512,12 @@ impl<N: BaseNum + Neg<Output = N>> Transform<Pnt3<N>> for UnitQuat<N> {
     }
 }
 
+impl<N: fmt::Display> fmt::Display for UnitQuat<N> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Unit quaternion {} − ({}, {}, {})", self.q.w, self.q.i, self.q.j, self.q.k)
+    }
+}
+
 #[cfg(feature="arbitrary")]
 impl<N: Arbitrary + BaseFloat> Arbitrary for UnitQuat<N> {
     fn arbitrary<G: Gen>(g: &mut G) -> UnitQuat<N> {
@@ -515,7 +526,7 @@ impl<N: Arbitrary + BaseFloat> Arbitrary for UnitQuat<N> {
 }
 
 
-ord_impl!(Quat, w, i, j, k);
+pord_impl!(Quat, w, i, j, k);
 vec_axis_impl!(Quat, w, i, j, k);
 vec_cast_impl!(Quat, w, i, j, k);
 conversion_impl!(Quat, 4);

@@ -1,8 +1,16 @@
-extern crate nalgebra as na;
 extern crate rand;
+#[cfg(feature="generic_sizes")]
+extern crate typenum;
+extern crate nalgebra as na;
 
 use rand::random;
-use na::{Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Rot2, Rot3, Iterable, IterableMut};
+use na::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Rot2, Rot3, Iterable, IterableMut};
+
+#[cfg(feature="generic_sizes")]
+use typenum::U10;
+#[cfg(feature="generic_sizes")]
+use na::VecN;
+
 
 macro_rules! test_iterator_impl(
     ($t: ty, $n: ty) => (
@@ -111,11 +119,6 @@ fn test_cross_vec3() {
 }
 
 #[test]
-fn test_commut_dot_vec0() {
-    test_commut_dot_impl!(Vec0<f64>);
-}
-
-#[test]
 fn test_commut_dot_vec1() {
     test_commut_dot_impl!(Vec1<f64>);
 }
@@ -143,11 +146,6 @@ fn test_commut_dot_vec5() {
 #[test]
 fn test_commut_dot_vec6() {
     test_commut_dot_impl!(Vec6<f64>);
-}
-
-#[test]
-fn test_basis_vec0() {
-    test_basis_impl!(Vec0<f64>);
 }
 
 #[test]
@@ -181,11 +179,6 @@ fn test_basis_vec6() {
 }
 
 #[test]
-fn test_subspace_basis_vec0() {
-    test_subspace_basis_impl!(Vec0<f64>);
-}
-
-#[test]
 fn test_subspace_basis_vec1() {
     test_subspace_basis_impl!(Vec1<f64>);
 }
@@ -216,11 +209,6 @@ fn test_subspace_basis_vec6() {
 }
 
 #[test]
-fn test_scalar_op_vec0() {
-    test_scalar_op_impl!(Vec0<f64>, f64);
-}
-
-#[test]
 fn test_scalar_op_vec1() {
     test_scalar_op_impl!(Vec1<f64>, f64);
 }
@@ -248,11 +236,6 @@ fn test_scalar_op_vec5() {
 #[test]
 fn test_scalar_op_vec6() {
     test_scalar_op_impl!(Vec6<f64>, f64);
-}
-
-#[test]
-fn test_iterator_vec0() {
-    test_iterator_impl!(Vec0<f64>, f64);
 }
 
 #[test]
@@ -316,6 +299,16 @@ fn test_outer_vec3() {
             4.0, 5.0, 6.0,
             8.0, 10.0, 12.0,
             12.0, 15.0, 18.0));
+}
+
+#[cfg(feature="generic_sizes")]
+#[test]
+fn test_vecn10_add_mul() {
+    for _ in 0usize .. 10000 {
+        let v1: VecN<f64, U10> = random();
+
+        assert!(na::approx_eq(&(v1 + v1), &(v1 * 2.0)))
+    }
 }
 
 

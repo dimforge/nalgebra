@@ -1,12 +1,10 @@
-//! Vectors with dimensions known at compile-time.
-
-#![allow(missing_docs)] // we allow missing to avoid having to document the dispatch traits.
+//! Vectors with dimension known at compile-time.
 
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
-use std::marker::PhantomData;
 use std::mem;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};
+use std::fmt;
 use rand::{Rand, Rng};
 use num::{Zero, One};
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy, Absolute, Mean};
@@ -20,27 +18,10 @@ use structs::pnt::{Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6};
 use quickcheck::{Arbitrary, Gen};
 
 
-/// Vector of dimension 0.
-#[repr(C)]
-#[derive(Eq, PartialEq, Clone, Debug, Copy)]
-pub struct Vec0<N>(pub PhantomData<N>);
-
-impl<N> Vec0<N> {
-    /// Creates a new vector.
-    #[inline]
-    pub fn new() -> Vec0<N> {
-        Vec0(PhantomData)
-    }
-}
-
-impl<N> Repeat<N> for Vec0<N> {
-    #[inline]
-    fn repeat(_: N) -> Vec0<N> {
-        Vec0(PhantomData)
-    }
-}
-
 /// Vector of dimension 1.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec1<N> {
@@ -49,7 +30,7 @@ pub struct Vec1<N> {
 }
 
 new_impl!(Vec1, x);
-ord_impl!(Vec1, x,);
+pord_impl!(Vec1, x,);
 vec_axis_impl!(Vec1, x);
 vec_cast_impl!(Vec1, x);
 conversion_impl!(Vec1, 1);
@@ -91,8 +72,12 @@ absolute_vec_impl!(Vec1, x);
 arbitrary_impl!(Vec1, x);
 rand_impl!(Vec1, x);
 mean_impl!(Vec1);
+vec_display_impl!(Vec1);
 
 /// Vector of dimension 2.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec2<N> {
@@ -103,7 +88,7 @@ pub struct Vec2<N> {
 }
 
 new_impl!(Vec2, x, y);
-ord_impl!(Vec2, x, y);
+pord_impl!(Vec2, x, y);
 vec_axis_impl!(Vec2, x, y);
 vec_cast_impl!(Vec2, x, y);
 conversion_impl!(Vec2, 2);
@@ -145,8 +130,12 @@ absolute_vec_impl!(Vec2, x, y);
 arbitrary_impl!(Vec2, x, y);
 rand_impl!(Vec2, x, y);
 mean_impl!(Vec2);
+vec_display_impl!(Vec2);
 
 /// Vector of dimension 3.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec3<N> {
@@ -159,7 +148,7 @@ pub struct Vec3<N> {
 }
 
 new_impl!(Vec3, x, y, z);
-ord_impl!(Vec3, x, y, z);
+pord_impl!(Vec3, x, y, z);
 vec_axis_impl!(Vec3, x, y, z);
 vec_cast_impl!(Vec3, x, y, z);
 conversion_impl!(Vec3, 3);
@@ -201,9 +190,13 @@ absolute_vec_impl!(Vec3, x, y, z);
 arbitrary_impl!(Vec3, x, y, z);
 rand_impl!(Vec3, x, y, z);
 mean_impl!(Vec3);
+vec_display_impl!(Vec3);
 
 
 /// Vector of dimension 4.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec4<N> {
@@ -218,7 +211,7 @@ pub struct Vec4<N> {
 }
 
 new_impl!(Vec4, x, y, z, w);
-ord_impl!(Vec4, x, y, z, w);
+pord_impl!(Vec4, x, y, z, w);
 vec_axis_impl!(Vec4, x, y, z, w);
 vec_cast_impl!(Vec4, x, y, z, w);
 conversion_impl!(Vec4, 4);
@@ -260,8 +253,12 @@ absolute_vec_impl!(Vec4, x, y, z, w);
 arbitrary_impl!(Vec4, x, y, z, w);
 rand_impl!(Vec4, x, y, z, w);
 mean_impl!(Vec4);
+vec_display_impl!(Vec4);
 
 /// Vector of dimension 5.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec5<N> {
@@ -278,7 +275,7 @@ pub struct Vec5<N> {
 }
 
 new_impl!(Vec5, x, y, z, w, a);
-ord_impl!(Vec5, x, y, z, w, a);
+pord_impl!(Vec5, x, y, z, w, a);
 vec_axis_impl!(Vec5, x, y, z, w, a);
 vec_cast_impl!(Vec5, x, y, z, w, a);
 conversion_impl!(Vec5, 5);
@@ -320,8 +317,12 @@ absolute_vec_impl!(Vec5, x, y, z, w, a);
 arbitrary_impl!(Vec5, x, y, z, w, a);
 rand_impl!(Vec5, x, y, z, w, a);
 mean_impl!(Vec5);
+vec_display_impl!(Vec5);
 
 /// Vector of dimension 6.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Vec6<N> {
@@ -340,7 +341,7 @@ pub struct Vec6<N> {
 }
 
 new_impl!(Vec6, x, y, z, w, a, b);
-ord_impl!(Vec6, x, y, z, w, a, b);
+pord_impl!(Vec6, x, y, z, w, a, b);
 vec_axis_impl!(Vec6, x, y, z, w, a, b);
 vec_cast_impl!(Vec6, x, y, z, w, a, b);
 conversion_impl!(Vec6, 6);
@@ -380,3 +381,4 @@ absolute_vec_impl!(Vec6, x, y, z, w, a, b);
 arbitrary_impl!(Vec6, x, y, z, w, a, b);
 rand_impl!(Vec6, x, y, z, w, a, b);
 mean_impl!(Vec6);
+vec_display_impl!(Vec6);

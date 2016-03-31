@@ -3,16 +3,16 @@
 
 **nalgebra** is a low-dimensional linear algebra library written for Rust targeting:
 
-* general-purpose linear algebra (still lacks a lot of features…).
+* low-dimensional general-purpose linear algebra (still lacks a lot of features…).
 * real time computer graphics.
 * real time computer physics.
 
-An on-line version of this documentation is available [here](http://nalgebra.org).
+An on-line version of this documentation is available [here](http://nalgebra.org/doc/nalgebra).
 
 ## Using **nalgebra**
-All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.
-This module re-exports everything and includes free functions for all traits methods doing
-out-of-place modifications.
+All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.  This
+module re-exports everything and includes free functions for all traits methods performing
+out-of-place operations.
 
 * You can import the whole prelude using:
 
@@ -41,18 +41,20 @@ fn main() {
 **nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
 an optimized set of tools for computer graphics and physics. Those features include:
 
-* Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
-* Points with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
+* Vectors with predefined static sizes: `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
+* Vector with a user-defined static size: `VecN` (available only with the `generic_sizes` feature).
+* Points with static sizes: `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
-* Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
+* Rotation matrices: `Rot2`, `Rot3`
 * Quaternions: `Quat`, `UnitQuat`.
-* Isometries: `Iso2`, `Iso3`, `Iso4`.
+* Isometries (translation ⨯ rotation): `Iso2`, `Iso3`
+* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Sim2`, `Sim3`.
 * 3D projections for computer graphics: `Persp3`, `PerspMat3`, `Ortho3`, `OrthoMat3`.
-* Dynamically sized vector: `DVec`.
-* Dynamically sized (square or rectangular) matrix: `DMat`.
-* A few methods for data analysis: `Cov`, `Mean`.
+* Dynamically sized heap-allocated vector: `DVec`.
+* Dynamically sized stack-allocated vectors with a maximum size: `DVec1` to `DVec6`.
+* Dynamically sized heap-allocated (square or rectangular) matrix: `DMat`.
+* Linear algebra and data analysis operators: `Cov`, `Mean`, `qr`, `cholesky`.
 * Almost one trait per functionality: useful for generic programming.
-* Operator overloading using multidispatch.
 
 
 ## **nalgebra** in use
@@ -76,6 +78,9 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 extern crate rustc_serialize;
 extern crate rand;
 extern crate num;
+
+#[cfg(feature="generic_sizes")]
+extern crate generic_array;
 
 #[cfg(feature="arbitrary")]
 extern crate quickcheck;
@@ -133,16 +138,20 @@ pub use traits::{
     UniformSphereSample
 };
 
+#[cfg(feature="generic_sizes")]
+pub use structs::VecN;
+
 pub use structs::{
     Identity,
     DMat, DMat1, DMat2,  DMat3,  DMat4,  DMat5,  DMat6,
     DVec, DVec1, DVec2,  DVec3,  DVec4,  DVec5,  DVec6,
-    Iso2, Iso3, Iso4,
+    Iso2, Iso3,
+    Sim2, Sim3,
     Mat1, Mat2, Mat3, Mat4,
     Mat5, Mat6,
-    Rot2, Rot3, Rot4,
-    Vec0, Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
-    Pnt0, Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6,
+    Rot2, Rot3,
+    Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
+    Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6,
     Persp3, PerspMat3,
     Ortho3, OrthoMat3,
     Quat, UnitQuat

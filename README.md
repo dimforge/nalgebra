@@ -9,12 +9,12 @@ nalgebra
 * real time computer graphics.
 * real time computer physics.
 
-An on-line version of this documentation is available [here](http://nalgebra.org).
+An on-line version of this documentation is available [here](http://nalgebra.org/doc/nalgebra).
 
 ## Using **nalgebra**
-All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.
-This module re-exports everything and includes free functions for all traits methods doing
-out-of-place modifications.
+All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.  This
+module re-exports everything and includes free functions for all traits methods performing
+out-of-place operations.
 
 * You can import the whole prelude using:
 
@@ -44,15 +44,17 @@ fn main() {
 **nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
 an optimized set of tools for computer graphics and physics. Those features include:
 
-* Vectors with static sizes: `Vec0`, `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
-* Points with static sizes: `Pnt0`, `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
+* Vectors with predefined static sizes: `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
+* Vector with a user-defined static size: `VecN` (available only with the `generic_sizes` feature).
+* Points with static sizes: `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
 * Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
-* Rotation matrices: `Rot2`, `Rot3`, `Rot4`.
+* Rotation matrices: `Rot2`, `Rot3`
 * Quaternions: `Quat`, `UnitQuat`.
-* Isometries: `Iso2`, `Iso3`, `Iso4`.
+* Isometries (translation ⨯ rotation): `Iso2`, `Iso3`
+* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Sim2`, `Sim3`.
 * 3D projections for computer graphics: `Persp3`, `PerspMat3`, `Ortho3`, `OrthoMat3`.
-* Dynamically sized vector: `DVec`.
-* Dynamically sized (square or rectangular) matrix: `DMat`.
-* A few methods for data analysis: `Cov`, `Mean`.
+* Dynamically sized heap-allocated vector: `DVec`.
+* Dynamically sized stack-allocated vectors with a maximum size: `DVec1` to `DVec6`.
+* Dynamically sized heap-allocated (square or rectangular) matrix: `DMat`.
+* Linear algebra and data analysis operators: `Cov`, `Mean`, `qr`, `cholesky`.
 * Almost one trait per functionality: useful for generic programming.
-* Operator overloading using multidispatch.

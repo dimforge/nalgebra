@@ -1,7 +1,7 @@
 tmp=_git_distcheck
 
 all:
-	cargo build --release
+	cargo build --release --features arbitrary
 
 test:
 	cargo test

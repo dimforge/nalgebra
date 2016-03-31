@@ -3,6 +3,7 @@
 macro_rules! submat_impl(
     ($t: ident, $submat: ident) => (
         impl<N> $t<N> {
+            /// This rotation's underlying matrix.
             #[inline]
             pub fn submat<'r>(&'r self) -> &'r $submat<N> {
                 &self.submat
@@ -321,6 +322,20 @@ macro_rules! absolute_impl(
             #[inline]
             fn abs(m: &$t<N>) -> $tm<N> {
                 Absolute::abs(&m.submat)
+            }
+        }
+    )
+);
+
+macro_rules! rot_display_impl(
+    ($t: ident) => (
+        impl<N: fmt::Display + BaseFloat> fmt::Display for $t<N> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                let precision = f.precision().unwrap_or(3);
+
+                try!(writeln!(f, "Rotation matrix {{"));
+                try!(write!(f, "{:.*}", precision, self.submat));
+                writeln!(f, "}}")
             }
         }
     )

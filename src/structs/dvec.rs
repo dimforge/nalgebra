@@ -1,7 +1,5 @@
 //! Vector with dimensions unknown at compile-time.
 
-#![allow(missing_docs)] // we hide doc to not have to document the $trhs double dispatch trait.
-
 use std::slice::{Iter, IterMut};
 use std::iter::{FromIterator, IntoIterator};
 use std::iter::repeat;
@@ -56,12 +54,13 @@ impl<N: Clone> DVec<N> {
 }
 
 impl<N> DVec<N> {
-    /// Builds a vector filled with the result of a function.
+    /// Builds a vector filled with the results of a function applied to each of its component coordinates.
     #[inline(always)]
     pub fn from_fn<F: FnMut(usize) -> N>(dim: usize, mut f: F) -> DVec<N> {
         DVec { at: (0..dim).map(|i| f(i)).collect() }
     }
 
+    /// The vector length.
     #[inline]
     pub fn len(&self) -> usize {
         self.at.len()

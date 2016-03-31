@@ -3,7 +3,7 @@
 macro_rules! iso_impl(
     ($t: ident, $submat: ident, $subvec: ident, $subrotvec: ident) => (
         impl<N: BaseFloat> $t<N> {
-            /// Creates a new isometry from a rotation matrix and a vector.
+            /// Creates a new isometry from an axis-angle rotation, and a vector.
             #[inline]
             pub fn new(translation: $subvec<N>, rotation: $subrotvec<N>) -> $t<N> {
                 $t {
@@ -76,6 +76,30 @@ macro_rules! iso_mul_iso_impl(
     )
 );
 
+macro_rules! iso_mul_rot_impl(
+    ($t: ident, $tr: ident) => (
+        impl<N: BaseFloat> Mul<$tr<N>> for $t<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn mul(self, right: $tr<N>) -> $t<N> {
+                $t::new_with_rotmat(self.translation, self.rotation * right)
+            }
+        }
+
+        impl<N: BaseFloat> Mul<$t<N>> for $tr<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn mul(self, right: $t<N>) -> $t<N> {
+                $t::new_with_rotmat(
+                    self * right.translation,
+                    self * right.rotation)
+            }
+        }
+    )
+);
+
 macro_rules! iso_mul_pnt_impl(
     ($t: ident, $tv: ident) => (
         impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
@@ -86,16 +110,20 @@ macro_rules! iso_mul_pnt_impl(
                 self.rotation * right + self.translation
             }
         }
+
+        // NOTE: there is no viable pre-multiplication definition because of the translation
+        // component.
     )
 );
 
-macro_rules! pnt_mul_iso_impl(
+macro_rules! iso_mul_vec_impl(
     ($t: ident, $tv: ident) => (
-        impl<N: BaseNum> Mul<$t<N>> for $tv<N> {
+        impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
             type Output = $tv<N>;
+
             #[inline]
-            fn mul(self, right: $t<N>) -> $tv<N> {
-                (self + right.translation) * right.rotation
+            fn mul(self, right: $tv<N>) -> $tv<N> {
+                self.rotation * right
             }
         }
     )
@@ -374,6 +402,29 @@ macro_rules! arbitrary_iso_impl(
                     Arbitrary::arbitrary(g),
                     Arbitrary::arbitrary(g)
                 )
+            }
+        }
+    )
+);
+
+macro_rules! iso_display_impl(
+    ($t: ident) => (
+        impl<N: fmt::Display + BaseFloat> fmt::Display for $t<N> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                try!(writeln!(f, "Isometry {{"));
+
+                if let Some(precision) = f.precision() {
+                    try!(writeln!(f, "... translation: {:.*}", precision, self.translation));
+                    try!(writeln!(f, "... rotation matrix:"));
+                    try!(write!(f, "{:.*}", precision, *self.rotation.submat()));
+                }
+                else {
+                    try!(writeln!(f, "... translation: {}", self.translation));
+                    try!(writeln!(f, "... rotation matrix:"));
+                    try!(write!(f, "{}", *self.rotation.submat()));
+                }
+
+                writeln!(f, "}}")
             }
         }
     )

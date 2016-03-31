@@ -1,9 +1,7 @@
-//! Points with dimensions known at compile-time.
+//! Points with dimension known at compile-time.
 
-#![allow(missing_docs)] // we allow missing to avoid having to document the point components.
-
-use std::marker::PhantomData;
 use std::mem;
+use std::fmt;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};
 use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
@@ -18,27 +16,10 @@ use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
 use quickcheck::{Arbitrary, Gen};
 
 
-/// Point of dimension 0.
-#[repr(C)]
-#[derive(Eq, PartialEq, Clone, Debug, Copy)]
-pub struct Pnt0<N>(pub PhantomData<N>);
-
-impl<N> Pnt0<N> {
-    /// Creates a new point.
-    #[inline]
-    pub fn new() -> Pnt0<N> {
-        Pnt0(PhantomData)
-    }
-}
-
-impl<N> Repeat<N> for Pnt0<N> {
-    #[inline]
-    fn repeat(_: N) -> Pnt0<N> {
-        Pnt0(PhantomData)
-    }
-}
-
 /// Point of dimension 1.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt1<N> {
@@ -48,7 +29,7 @@ pub struct Pnt1<N> {
 
 new_impl!(Pnt1, x);
 orig_impl!(Pnt1, x);
-ord_impl!(Pnt1, x,);
+pord_impl!(Pnt1, x,);
 scalar_mul_impl!(Pnt1, x);
 scalar_div_impl!(Pnt1, x);
 scalar_add_impl!(Pnt1, x);
@@ -77,8 +58,12 @@ pnt_from_homogeneous_impl!(Pnt1, Pnt2, y, x);
 num_float_pnt_impl!(Pnt1, Vec1);
 arbitrary_pnt_impl!(Pnt1, x);
 rand_impl!(Pnt1, x);
+pnt_display_impl!(Pnt1);
 
 /// Point of dimension 2.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt2<N> {
@@ -90,7 +75,7 @@ pub struct Pnt2<N> {
 
 new_impl!(Pnt2, x, y);
 orig_impl!(Pnt2, x, y);
-ord_impl!(Pnt2, x, y);
+pord_impl!(Pnt2, x, y);
 scalar_mul_impl!(Pnt2, x, y);
 scalar_div_impl!(Pnt2, x, y);
 scalar_add_impl!(Pnt2, x, y);
@@ -119,8 +104,12 @@ pnt_from_homogeneous_impl!(Pnt2, Pnt3, z, x, y);
 num_float_pnt_impl!(Pnt2, Vec2);
 arbitrary_pnt_impl!(Pnt2, x, y);
 rand_impl!(Pnt2, x, y);
+pnt_display_impl!(Pnt2);
 
 /// Point of dimension 3.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt3<N> {
@@ -134,7 +123,7 @@ pub struct Pnt3<N> {
 
 new_impl!(Pnt3, x, y, z);
 orig_impl!(Pnt3, x, y, z);
-ord_impl!(Pnt3, x, y, z);
+pord_impl!(Pnt3, x, y, z);
 scalar_mul_impl!(Pnt3, x, y, z);
 scalar_div_impl!(Pnt3, x, y, z);
 scalar_add_impl!(Pnt3, x, y, z);
@@ -163,8 +152,12 @@ pnt_from_homogeneous_impl!(Pnt3, Pnt4, w, x, y, z);
 num_float_pnt_impl!(Pnt3, Vec3);
 arbitrary_pnt_impl!(Pnt3, x, y, z);
 rand_impl!(Pnt3, x, y, z);
+pnt_display_impl!(Pnt3);
 
 /// Point of dimension 4.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt4<N> {
@@ -180,7 +173,7 @@ pub struct Pnt4<N> {
 
 new_impl!(Pnt4, x, y, z, w);
 orig_impl!(Pnt4, x, y, z, w);
-ord_impl!(Pnt4, x, y, z, w);
+pord_impl!(Pnt4, x, y, z, w);
 scalar_mul_impl!(Pnt4, x, y, z, w);
 scalar_div_impl!(Pnt4, x, y, z, w);
 scalar_add_impl!(Pnt4, x, y, z, w);
@@ -209,8 +202,12 @@ pnt_from_homogeneous_impl!(Pnt4, Pnt5, a, x, y, z, w);
 num_float_pnt_impl!(Pnt4, Vec4);
 arbitrary_pnt_impl!(Pnt4, x, y, z, w);
 rand_impl!(Pnt4, x, y, z, w);
+pnt_display_impl!(Pnt4);
 
 /// Point of dimension 5.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt5<N> {
@@ -228,7 +225,7 @@ pub struct Pnt5<N> {
 
 new_impl!(Pnt5, x, y, z, w, a);
 orig_impl!(Pnt5, x, y, z, w, a);
-ord_impl!(Pnt5, x, y, z, w, a);
+pord_impl!(Pnt5, x, y, z, w, a);
 scalar_mul_impl!(Pnt5, x, y, z, w, a);
 scalar_div_impl!(Pnt5, x, y, z, w, a);
 scalar_add_impl!(Pnt5, x, y, z, w, a);
@@ -257,8 +254,12 @@ pnt_from_homogeneous_impl!(Pnt5, Pnt6, b, x, y, z, w, a);
 num_float_pnt_impl!(Pnt5, Vec5);
 arbitrary_pnt_impl!(Pnt5, x, y, z, w, a);
 rand_impl!(Pnt5, x, y, z, w, a);
+pnt_display_impl!(Pnt5);
 
 /// Point of dimension 6.
+///
+/// The main differance between a point and a vector is that a vector is not affected by
+/// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Pnt6<N> {
@@ -278,7 +279,7 @@ pub struct Pnt6<N> {
 
 new_impl!(Pnt6, x, y, z, w, a, b);
 orig_impl!(Pnt6, x, y, z, w, a, b);
-ord_impl!(Pnt6, x, y, z, w, a, b);
+pord_impl!(Pnt6, x, y, z, w, a, b);
 scalar_mul_impl!(Pnt6, x, y, z, w, a, b);
 scalar_div_impl!(Pnt6, x, y, z, w, a, b);
 scalar_add_impl!(Pnt6, x, y, z, w, a, b);
@@ -305,3 +306,4 @@ iterable_mut_impl!(Pnt6, 6);
 num_float_pnt_impl!(Pnt6, Vec6);
 arbitrary_pnt_impl!(Pnt6, x, y, z, w, a, b);
 rand_impl!(Pnt6, x, y, z, w, a, b);
+pnt_display_impl!(Pnt6);

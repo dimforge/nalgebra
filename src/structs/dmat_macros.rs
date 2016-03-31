@@ -19,6 +19,7 @@ macro_rules! dmat_impl(
                 self.mij.iter().all(|e| e.is_zero())
             }
 
+            /// Set this matrix components to zero.
             #[inline]
             pub fn reset(&mut self) {
                 for mij in self.mij.iter_mut() {
@@ -881,7 +882,8 @@ macro_rules! small_dmat_from_impl(
             }
         }
 
-        impl<N> $dmat<N> {
+        impl<N: Copy> $dmat<N> {
+            /// Creates a new matrix with uninitialized components (with `mem::uninitialized()`).
             #[inline]
             pub unsafe fn new_uninitialized(nrows: usize, ncols: usize) -> $dmat<N> {
                 assert!(nrows <= $dim);

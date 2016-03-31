@@ -155,3 +155,24 @@ macro_rules! arbitrary_pnt_impl(
         }
     )
 );
+
+macro_rules! pnt_display_impl(
+    ($t: ident) => (
+        impl<N: fmt::Display> fmt::Display for $t<N> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                // FIXME: differenciate them from vectors ?
+                try!(write!(f, "("));
+
+                let mut it = self.iter();
+
+                try!(write!(f, "{}", *it.next().unwrap()));
+
+                for comp in it {
+                    try!(write!(f, ", {}", *comp));
+                }
+
+                write!(f, ")")
+            }
+        }
+    )
+);
