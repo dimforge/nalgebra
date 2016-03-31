@@ -16,7 +16,7 @@ use structs::rot::{Rot2, Rot3};
 use quickcheck::{Arbitrary, Gen};
 
 
-/// Two dimensional isometry.
+/// Two dimensional **direct** isometry.
 ///
 /// This is the composition of a rotation followed by a translation. Vectors `Vec2` are not
 /// affected by the translational component of this transformation while points `Pnt2` are.
@@ -30,7 +30,7 @@ pub struct Iso2<N> {
     pub translation: Vec2<N>
 }
 
-/// Three dimensional isometry.
+/// Three dimensional **direct** isometry.
 ///
 /// This is the composition of a rotation followed by a translation. Vectors `Vec3` are not
 /// affected by the translational component of this transformation while points `Pnt3` are.
@@ -62,20 +62,40 @@ impl<N: Clone + BaseFloat> Iso3<N> {
         Iso3::new_with_rotmat(eye.as_vec().clone(), new_rotmat)
     }
 
-    /// Builds a look-at view matrix.
+    /// Builds a right-handed look-at view matrix.
     ///
-    /// This conforms to the common notion of "look-at" matrix from the computer graphics
-    /// community. Its maps the view direction `target - eye` to the **negative** `z` axis and the
-    /// `eye` to the origin.
+    /// This conforms to the common notion of right handed look-at matrix from the computer
+    /// graphics community.
     ///
     /// # Arguments
     ///   * eye - The eye position.
     ///   * target - The target position.
-    ///   * up - The vertical view direction. It must not be to collinear to `eye - target`.
+    ///   * up - A vector approximately aligned with required the vertical axis. The only
+    ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
-    pub fn new_look_at(eye: &Pnt3<N>, target: &Pnt3<N>, up: &Vec3<N>) -> Iso3<N> {
-        let new_rotmat = Rot3::new_look_at(&(*target - *eye), up);
-        Iso3::new_with_rotmat(new_rotmat * (-*eye.as_vec()), new_rotmat)
+    pub fn look_at_rh(eye: &Pnt3<N>, target: &Pnt3<N>, up: &Vec3<N>) -> Iso3<N> {
+        let rot   = Rot3::look_at_rh(&(*target - *eye), up);
+        let trans = rot * (-*eye);
+
+        Iso3::new_with_rotmat(trans.to_vec(), rot)
+    }
+
+    /// Builds a left-handed look-at view matrix.
+    ///
+    /// This conforms to the common notion of left handed look-at matrix from the computer
+    /// graphics community.
+    ///
+    /// # Arguments
+    ///   * eye - The eye position.
+    ///   * target - The target position.
+    ///   * up - A vector approximately aligned with required the vertical axis. The only
+    ///   requirement of this parameter is to not be collinear to `target - eye`.
+    #[inline]
+    pub fn look_at_lh(eye: &Pnt3<N>, target: &Pnt3<N>, up: &Vec3<N>) -> Iso3<N> {
+        let rot   = Rot3::look_at_lh(&(*target - *eye), up);
+        let trans = rot * (-*eye);
+
+        Iso3::new_with_rotmat(trans.to_vec(), rot)
     }
 }
 

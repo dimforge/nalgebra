@@ -218,18 +218,35 @@ impl<N: Clone + BaseFloat> Rot3<N> {
         }
     }
 
-    /// Builds a look-at view matrix with no translational component.
+
+    /// Builds a right-handed look-at view matrix without translation.
     ///
-    /// This conforms to the common notion of "look-at" matrix from the computer graphics community.
-    /// Its maps the view direction `dir` to the **negative** `z` axis.
+    /// This conforms to the common notion of right handed look-at matrix from the computer
+    /// graphics community.
     ///
     /// # Arguments
-    ///   * dir - The view direction.
-    ///   * up - The vertical direction. The only requirement of this parameter is to not be
-    ///   collinear to `dir`.
+    ///   * eye - The eye position.
+    ///   * target - The target position.
+    ///   * up - A vector approximately aligned with required the vertical axis. The only
+    ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
-    pub fn new_look_at(dir: &Vec3<N>, up: &Vec3<N>) -> Rot3<N> {
+    pub fn look_at_rh(dir: &Vec3<N>, up: &Vec3<N>) -> Rot3<N> {
         Rot3::new_observer_frame(&(-*dir), up).inv().unwrap()
+    }
+
+    /// Builds a left-handed look-at view matrix without translation.
+    ///
+    /// This conforms to the common notion of left handed look-at matrix from the computer
+    /// graphics community.
+    ///
+    /// # Arguments
+    ///   * eye - The eye position.
+    ///   * target - The target position.
+    ///   * up - A vector approximately aligned with required the vertical axis. The only
+    ///   requirement of this parameter is to not be collinear to `target - eye`.
+    #[inline]
+    pub fn look_at_lh(dir: &Vec3<N>, up: &Vec3<N>) -> Rot3<N> {
+        Rot3::new_observer_frame(&(*dir), up).inv().unwrap()
     }
 }
 
