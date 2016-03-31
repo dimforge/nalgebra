@@ -67,7 +67,7 @@ impl<N: Arbitrary + BaseFloat> Arbitrary for Ortho3<N> {
         let top    = reject(g, |x: &N| *x > bottom);
         let znear  = Arbitrary::arbitrary(g);
         let zfar   = reject(g, |x: &N| *x > znear);
-        Ortho3::new(width, height, znear, zfar)
+        Ortho3::new(left, right, bottom, top, znear, zfar)
     }
 }
 
