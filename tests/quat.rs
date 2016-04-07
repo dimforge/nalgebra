@@ -6,7 +6,7 @@ use rand::random;
 
 #[test]
 fn test_quat_as_mat() {
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
         let axis_angle: Vec3<f64> = random();
 
         assert!(na::approx_eq(&UnitQuat::new(axis_angle).to_rot(), &Rot3::new(axis_angle)))
@@ -15,7 +15,7 @@ fn test_quat_as_mat() {
 
 #[test]
 fn test_quat_mul_vec_or_pnt_as_mat() {
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
         let axis_angle: Vec3<f64> = random();
         let vec: Vec3<f64> = random();
         let pnt: Pnt3<f64> = random();
@@ -32,7 +32,7 @@ fn test_quat_mul_vec_or_pnt_as_mat() {
 
 #[test]
 fn test_quat_div_quat() {
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
         let axis_angle1: Vec3<f64> = random();
         let axis_angle2: Vec3<f64> = random();
 
@@ -48,7 +48,7 @@ fn test_quat_div_quat() {
 
 #[test]
 fn test_quat_to_axis_angle() {
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
         let axis_angle: Vec3<f64> = random();
 
         let q = UnitQuat::new(axis_angle);
@@ -60,7 +60,7 @@ fn test_quat_to_axis_angle() {
 
 #[test]
 fn test_quat_euler_angles() {
-    for _ in (0usize .. 10000) {
+    for _ in 0usize .. 10000 {
         let angles: Vec3<f64> = random();
 
         let q = UnitQuat::new_with_euler_angles(angles.x, angles.y, angles.z);
