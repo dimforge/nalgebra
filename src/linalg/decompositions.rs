@@ -22,8 +22,8 @@ pub fn householder_matrix<N, V, M>(dim: usize, start: usize, vec: V) -> M
 
     assert!(dim >= stop);
 
-    for j in (start .. stop) {
-        for i in (start .. stop) {
+    for j in start .. stop {
+        for i in start .. stop {
             unsafe {
                 let vv = vec.unsafe_at(i - start) * vec.unsafe_at(j - start);
                 let qkij = qk.unsafe_at((i, j));
