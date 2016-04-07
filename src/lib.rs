@@ -315,7 +315,7 @@ pub fn center<N: BaseFloat, P: FloatPnt<N>>(a: &P, b: &P) -> P
         where <P as PntAsVec>::Vec: Norm<N>
 {
     let _2 = one::<N>() + one();
-    (*a + *b.as_vec()) / _2
+    (*a + b.to_vec()) / _2
 }
 
 /*
