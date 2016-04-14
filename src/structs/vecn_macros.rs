@@ -264,6 +264,36 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        impl<$($param : ArrayLength<N>),*> Mul<$vecn<f32 $(, $param)*>> for f32 {
+            type Output = $vecn<f32 $(, $param)*>;
+
+            #[inline]
+            fn mul(self, right: $vecn<f32 $(, $param)*>) -> $vecn<f32 $(, $param)*> {
+                let mut res = right;
+
+                for e in res.as_mut().iter_mut() {
+                    *e = self * *e;
+                }
+
+                res
+            }
+        }
+
+        impl<$($param : ArrayLength<N>),*> Mul<$vecn<f64 $(, $param)*>> for f64 {
+            type Output = $vecn<f64 $(, $param)*>;
+
+            #[inline]
+            fn mul(self, right: $vecn<f64 $(, $param)*>) -> $vecn<f64 $(, $param)*> {
+                let mut res = right;
+
+                for e in res.as_mut().iter_mut() {
+                    *e = self * *e;
+                }
+
+                res
+            }
+        }
+
         impl<N: Copy + Div<N, Output = N> + Zero $(, $param : ArrayLength<N>)*> Div<N> for $vecn<N $(, $param)*> {
             type Output = $vecn<N $(, $param)*>;
 
@@ -294,6 +324,36 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        impl<$($param : ArrayLength<f32>),*> Add<$vecn<f32 $(, $param)*>> for f32 {
+            type Output = $vecn<f32 $(, $param)*>;
+
+            #[inline]
+            fn add(self, right: $vecn<f32 $(, $param)*>) -> $vecn<f32 $(, $param)*> {
+                let mut res = right;
+
+                for e in res.as_mut().iter_mut() {
+                    *e = self + *e;
+                }
+
+                res
+            }
+        }
+
+        impl<$($param : ArrayLength<f64>),*> Add<$vecn<f64 $(, $param)*>> for f64 {
+            type Output = $vecn<f64 $(, $param)*>;
+
+            #[inline]
+            fn add(self, right: $vecn<f64 $(, $param)*>) -> $vecn<f64 $(, $param)*> {
+                let mut res = right;
+
+                for e in res.as_mut().iter_mut() {
+                    *e = self + *e;
+                }
+
+                res
+            }
+        }
+
         impl<N: Copy + Sub<N, Output = N> + Zero $(, $param : ArrayLength<N>)*> Sub<N> for $vecn<N $(, $param)*> {
             type Output = $vecn<N $(, $param)*>;
 
@@ -303,6 +363,36 @@ macro_rules! vecn_dvec_common_impl(
 
                 for e in res.as_mut().iter_mut() {
                     *e = *e - right
+                }
+
+                res
+            }
+        }
+
+        impl<$($param : ArrayLength<f32>),*> Sub<$vecn<f32 $(, $param)*>> for f32 {
+            type Output = $vecn<f32 $(, $param)*>;
+
+            #[inline]
+            fn sub(self, right: $vecn<f32 $(, $param)*>) -> $vecn<f32 $(, $param)*> {
+                let mut res = right;
+
+                for e in res.as_mut().iter_mut() {
+                    *e = self - *e;
+                }
+
+                res
+            }
+        }
+
+        impl<$($param : ArrayLength<f64>),*> Sub<$vecn<f64 $(, $param)*>> for f64 {
+            type Output = $vecn<f64 $(, $param)*>;
+
+            #[inline]
+            fn sub(self, right: $vecn<f64 $(, $param)*>) -> $vecn<f64 $(, $param)*> {
+                let mut res = right;
+
+                for e in res.as_mut().iter_mut() {
+                    *e = self - *e;
                 }
 
                 res

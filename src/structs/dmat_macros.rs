@@ -634,6 +634,36 @@ macro_rules! dmat_impl(
             }
         }
 
+        impl Mul<$dmat<f32>> for f32 {
+            type Output = $dmat<f32>;
+
+            #[inline]
+            fn mul(self, right: $dmat<f32>) -> $dmat<f32> {
+                let mut res = right;
+
+                for mij in res.mij.iter_mut() {
+                    *mij = self * *mij;
+                }
+
+                res
+            }
+        }
+
+        impl Mul<$dmat<f64>> for f64 {
+            type Output = $dmat<f64>;
+
+            #[inline]
+            fn mul(self, right: $dmat<f64>) -> $dmat<f64> {
+                let mut res = right;
+
+                for mij in res.mij.iter_mut() {
+                    *mij = self * *mij;
+                }
+
+                res
+            }
+        }
+
         impl<N: Copy + Div<N, Output = N>> Div<N> for $dmat<N> {
             type Output = $dmat<N>;
 
@@ -658,6 +688,36 @@ macro_rules! dmat_impl(
 
                 for mij in res.mij.iter_mut() {
                     *mij = *mij + right;
+                }
+
+                res
+            }
+        }
+
+        impl Add<$dmat<f32>> for f32 {
+            type Output = $dmat<f32>;
+
+            #[inline]
+            fn add(self, right: $dmat<f32>) -> $dmat<f32> {
+                let mut res = right;
+
+                for mij in res.mij.iter_mut() {
+                    *mij = self + *mij;
+                }
+
+                res
+            }
+        }
+
+        impl Add<$dmat<f64>> for f64 {
+            type Output = $dmat<f64>;
+
+            #[inline]
+            fn add(self, right: $dmat<f64>) -> $dmat<f64> {
+                let mut res = right;
+
+                for mij in res.mij.iter_mut() {
+                    *mij = self + *mij;
                 }
 
                 res
@@ -709,6 +769,36 @@ macro_rules! dmat_impl(
 
                 for mij in res.mij.iter_mut() {
                     *mij = *mij - right;
+                }
+
+                res
+            }
+        }
+
+        impl Sub<$dmat<f32>> for f32 {
+            type Output = $dmat<f32>;
+
+            #[inline]
+            fn sub(self, right: $dmat<f32>) -> $dmat<f32> {
+                let mut res = right;
+
+                for mij in res.mij.iter_mut() {
+                    *mij = self - *mij;
+                }
+
+                res
+            }
+        }
+
+        impl Sub<$dmat<f64>> for f64 {
+            type Output = $dmat<f64>;
+
+            #[inline]
+            fn sub(self, right: $dmat<f64>) -> $dmat<f64> {
+                let mut res = right;
+
+                for mij in res.mij.iter_mut() {
+                    *mij = self - *mij;
                 }
 
                 res
