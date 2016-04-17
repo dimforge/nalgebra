@@ -5,9 +5,9 @@ nalgebra
 
 **nalgebra** is a low-dimensional linear algebra library written for Rust targeting:
 
-* general-purpose linear algebra (still lacks a lot of features…).
-* real time computer graphics.
-* real time computer physics.
+* General-purpose linear algebra (still lacks a lot of features…)
+* Real time computer graphics.
+* Real time computer physics.
 
 An on-line version of this documentation is available [here](http://nalgebra.org/doc/nalgebra).
 

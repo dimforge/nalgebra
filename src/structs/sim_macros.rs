@@ -123,6 +123,15 @@ macro_rules! sim_mul_sim_impl(
                     self.scale * right.scale)
             }
         }
+
+        impl<N: BaseFloat> MulAssign<$t<N>> for $t<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: $t<N>) {
+                self.isometry.translation += self.isometry.rotation * (right.isometry.translation * self.scale);
+                self.isometry.rotation    *= right.isometry.rotation;
+                self.scale                *= right.scale;
+            }
+        }
     )
 );
 
@@ -137,6 +146,14 @@ macro_rules! sim_mul_iso_impl(
                     self.isometry.translation + self.isometry.rotation * (right.translation * self.scale),
                     self.isometry.rotation * right.rotation,
                     self.scale)
+            }
+        }
+
+        impl<N: BaseFloat> MulAssign<$ti<N>> for $t<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: $ti<N>) {
+                self.isometry.translation += self.isometry.rotation * (right.translation * self.scale);
+                self.isometry.rotation    *= right.rotation;
             }
         }
 
@@ -165,6 +182,13 @@ macro_rules! sim_mul_rot_impl(
                     self.isometry.translation,
                     self.isometry.rotation * right,
                     self.scale)
+            }
+        }
+
+        impl<N: BaseFloat> MulAssign<$tr<N>> for $t<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: $tr<N>) {
+                self.isometry.rotation *= right;
             }
         }
 

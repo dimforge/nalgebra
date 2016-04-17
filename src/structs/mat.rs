@@ -3,7 +3,7 @@
 #![allow(missing_docs)] // we allow missing to avoid having to document the mij components.
 
 use std::fmt;
-use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
+use std::ops::{Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign, Index, IndexMut};
 use std::mem;
 use std::slice::{Iter, IterMut};
 use rand::{Rand, Rng};

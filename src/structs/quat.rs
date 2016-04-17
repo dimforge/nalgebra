@@ -3,7 +3,7 @@
 use std::fmt;
 use std::mem;
 use std::slice::{Iter, IterMut};
-use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
+use std::ops::{Add, Sub, Mul, Div, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Index, IndexMut};
 use std::iter::{FromIterator, IntoIterator};
 use rand::{Rand, Rng};
 use num::{Zero, One};
@@ -146,12 +146,27 @@ impl<N> Mul<Quat<N>> for Quat<N>
     }
 }
 
+impl<N> MulAssign<Quat<N>> for Quat<N>
+    where N: Copy + Mul<N, Output = N> + Sub<N, Output = N> + Add<N, Output = N> {
+    #[inline]
+    fn mul_assign(&mut self, right: Quat<N>) {
+        *self = *self * right;
+    }
+}
+
 impl<N: ApproxEq<N> + BaseFloat> Div<Quat<N>> for Quat<N> {
     type Output = Quat<N>;
 
     #[inline]
     fn div(self, right: Quat<N>) -> Quat<N> {
         self * right.inv().expect("Unable to invert the denominator.")
+    }
+}
+
+impl<N: ApproxEq<N> + BaseFloat> DivAssign<Quat<N>> for Quat<N> {
+    #[inline]
+    fn div_assign(&mut self, right: Quat<N>) {
+        *self *= right.inv().expect("Unable to invert the denominator.")
     }
 }
 
@@ -336,12 +351,26 @@ impl<N: BaseFloat + ApproxEq<N>> Div<UnitQuat<N>> for UnitQuat<N> {
     }
 }
 
+impl<N: BaseFloat + ApproxEq<N>> DivAssign<UnitQuat<N>> for UnitQuat<N> {
+    #[inline]
+    fn div_assign(&mut self, other: UnitQuat<N>) {
+        self.q /= other.q
+    }
+}
+
 impl<N: BaseNum> Mul<UnitQuat<N>> for UnitQuat<N> {
     type Output = UnitQuat<N>;
 
     #[inline]
     fn mul(self, right: UnitQuat<N>) -> UnitQuat<N> {
         UnitQuat { q: self.q * right.q }
+    }
+}
+
+impl<N: BaseNum> MulAssign<UnitQuat<N>> for UnitQuat<N> {
+    #[inline]
+    fn mul_assign(&mut self, right: UnitQuat<N>) {
+        self.q *= right.q
     }
 }
 
@@ -388,6 +417,20 @@ impl<N: BaseNum + Neg<Output = N>> Mul<UnitQuat<N>> for Pnt3<N> {
     #[inline]
     fn mul(self, right: UnitQuat<N>) -> Pnt3<N> {
         ::orig::<Pnt3<N>>() + *self.as_vec() * right
+    }
+}
+
+impl<N: BaseNum + Neg<Output = N>> MulAssign<UnitQuat<N>> for Vec3<N> {
+    #[inline]
+    fn mul_assign(&mut self, right: UnitQuat<N>) {
+        *self = *self * right
+    }
+}
+
+impl<N: BaseNum + Neg<Output = N>> MulAssign<UnitQuat<N>> for Pnt3<N> {
+    #[inline]
+    fn mul_assign(&mut self, right: UnitQuat<N>) {
+        *self = *self * right
     }
 }
 

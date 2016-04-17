@@ -2,6 +2,11 @@
 
 macro_rules! vecn_dvec_common_impl(
     ($vecn: ident $(, $param: ident)*) => (
+        /*
+         *
+         * Zero.
+         *
+         */
         impl<N: Zero + Copy + Clone $(, $param: ArrayLength<N>)*> $vecn<N $(, $param)*> {
             /// Tests if all components of the vector are zeroes.
             #[inline]
@@ -10,6 +15,11 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        /*
+         *
+         * AsRef/AsMut
+         *
+         */
         impl<N $(, $param: ArrayLength<N>)*> AsRef<[N]> for $vecn<N $(, $param)*> {
             #[inline]
             fn as_ref(&self) -> &[N] {
@@ -25,6 +35,11 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        /*
+         *
+         * Shape.
+         *
+         */
         impl<N $(, $param: ArrayLength<N>)*> Shape<usize> for $vecn<N $(, $param)*> {
             #[inline]
             fn shape(&self) -> usize {
@@ -32,6 +47,11 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        /*
+         *
+         * Index et. al.
+         *
+         */
         impl<N: Copy $(, $param : ArrayLength<N>)*> Indexable<usize, N> for $vecn<N $(, $param)*> {
             #[inline]
             fn swap(&mut self, i: usize, j: usize) {
@@ -66,6 +86,11 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        /*
+         *
+         * Iterable et al.
+         *
+         */
         impl<N $(, $param : ArrayLength<N>)*> Iterable<N> for $vecn<N $(, $param)*> {
             #[inline]
             fn iter<'l>(&'l self) -> Iter<'l, N> {
@@ -80,6 +105,11 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        /*
+         *
+         * Axpy
+         *
+         */
         impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> $(, $param : ArrayLength<N>)*>
             Axpy<N> for $vecn<N $(, $param)*> {
             fn axpy(&mut self, a: &N, x: &$vecn<N $(, $param)*>) {
@@ -94,6 +124,11 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        /*
+         *
+         * Mul
+         *
+         */
         impl<N: Copy + Mul<N, Output = N> + Zero $(, $param : ArrayLength<N>)*>
             Mul<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*> {
             type Output = $vecn<N $(, $param)*>;
@@ -112,142 +147,6 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<N: Copy + Div<N, Output = N> + Zero $(, $param : ArrayLength<N>)*>
-            Div<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*> {
-            type Output = $vecn<N $(, $param)*>;
-
-            #[inline]
-            fn div(self, right: $vecn<N $(, $param)*>) -> $vecn<N $(, $param)*> {
-                assert!(self.len() == right.len());
-
-                let mut res = self;
-
-                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
-                    *left = *left / *right
-                }
-
-                res
-            }
-        }
-
-        impl<N: Copy + Add<N, Output = N> + Zero $(, $param : ArrayLength<N>)*>
-            Add<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*> {
-            type Output = $vecn<N $(, $param)*>;
-
-            #[inline]
-            fn add(self, right: $vecn<N $(, $param)*>) -> $vecn<N $(, $param)*> {
-                assert!(self.len() == right.len());
-
-                let mut res = self;
-
-                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
-                    *left = *left + *right
-                }
-
-                res
-            }
-        }
-
-        impl<N: Copy + Sub<N, Output = N> + Zero $(, $param : ArrayLength<N>)*>
-            Sub<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*> {
-            type Output = $vecn<N $(, $param)*>;
-
-            #[inline]
-            fn sub(self, right: $vecn<N $(, $param)*>) -> $vecn<N $(, $param)*> {
-                assert!(self.len() == right.len());
-
-                let mut res = self;
-
-                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
-                    *left = *left - *right
-                }
-
-                res
-            }
-        }
-
-        impl<N: Neg<Output = N> + Zero + Copy $(, $param : ArrayLength<N>)*> Neg for $vecn<N $(, $param)*> {
-            type Output = $vecn<N $(, $param)*>;
-
-            #[inline]
-            fn neg(mut self) -> $vecn<N $(, $param)*> {
-                for e in self.as_mut().iter_mut() {
-                    *e = -*e;
-                }
-
-                self
-            }
-        }
-
-        impl<N: BaseNum $(, $param : ArrayLength<N>)*> Dot<N> for $vecn<N $(, $param)*> {
-            #[inline]
-            fn dot(&self, other: &$vecn<N $(, $param)*>) -> N {
-                assert!(self.len() == other.len());
-                let mut res: N = ::zero();
-                for i in 0 .. self.len() {
-                    res = res + unsafe { self.unsafe_at(i) * other.unsafe_at(i) };
-                }
-                res
-            }
-        }
-
-        impl<N: BaseFloat $(, $param : ArrayLength<N>)*> Norm<N> for $vecn<N $(, $param)*> {
-            #[inline]
-            fn sqnorm(&self) -> N {
-                Dot::dot(self, self)
-            }
-
-            #[inline]
-            fn normalize(&self) -> $vecn<N $(, $param)*> {
-                let mut res : $vecn<N $(, $param)*> = self.clone();
-                let _ = res.normalize_mut();
-                res
-            }
-
-            #[inline]
-            fn normalize_mut(&mut self) -> N {
-                let l = Norm::norm(self);
-
-                for n in self.as_mut().iter_mut() {
-                    *n = *n / l;
-                }
-
-                l
-            }
-        }
-
-        impl<N: BaseFloat + Cast<f64> $(, $param : ArrayLength<N>)*> Mean<N> for $vecn<N $(, $param)*> {
-            #[inline]
-            fn mean(&self) -> N {
-                let normalizer = ::cast(1.0f64 / self.len() as f64);
-                self.iter().fold(::zero(), |acc, x| acc + *x * normalizer)
-            }
-        }
-
-        impl<N: ApproxEq<N> $(, $param : ArrayLength<N>)*> ApproxEq<N> for $vecn<N $(, $param)*> {
-            #[inline]
-            fn approx_epsilon(_: Option<$vecn<N $(, $param)*>>) -> N {
-                ApproxEq::approx_epsilon(None::<N>)
-            }
-
-            #[inline]
-            fn approx_ulps(_: Option<$vecn<N $(, $param)*>>) -> u32 {
-                ApproxEq::approx_ulps(None::<N>)
-            }
-
-            #[inline]
-            fn approx_eq_eps(&self, other: &$vecn<N $(, $param)*>, epsilon: &N) -> bool {
-                let mut zip = self.as_ref().iter().zip(other.as_ref().iter());
-                zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
-            }
-
-            #[inline]
-            fn approx_eq_ulps(&self, other: &$vecn<N $(, $param)*>, ulps: u32) -> bool {
-                let mut zip = self.as_ref().iter().zip(other.as_ref().iter());
-                zip.all(|(a, b)| ApproxEq::approx_eq_ulps(a, b, ulps))
-            }
-        }
-
         impl<N: Copy + Mul<N, Output = N> + Zero $(, $param : ArrayLength<N>)*>
             Mul<N> for $vecn<N $(, $param)*> {
             type Output = $vecn<N $(, $param)*>;
@@ -261,6 +160,28 @@ macro_rules! vecn_dvec_common_impl(
                 }
 
                 res
+            }
+        }
+
+        impl<N> MulAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
+            where N: Copy + MulAssign<N> + Zero $(, $param : ArrayLength<N>)* {
+            #[inline]
+            fn mul_assign(&mut self, right: $vecn<N $(, $param)*>) {
+                assert!(self.len() == right.len());
+
+                for (left, right) in self.as_mut().iter_mut().zip(right.as_ref().iter()) {
+                    *left *= *right
+                }
+            }
+        }
+
+        impl<N> MulAssign<N> for $vecn<N $(, $param)*>
+            where N: Copy + MulAssign<N> + Zero $(, $param : ArrayLength<N>)* {
+            #[inline]
+            fn mul_assign(&mut self, right: N) {
+                for e in self.as_mut().iter_mut() {
+                    *e *= right
+                }
             }
         }
 
@@ -294,6 +215,29 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        /*
+         *
+         * Div.
+         *
+         */
+        impl<N: Copy + Div<N, Output = N> + Zero $(, $param : ArrayLength<N>)*>
+            Div<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*> {
+            type Output = $vecn<N $(, $param)*>;
+
+            #[inline]
+            fn div(self, right: $vecn<N $(, $param)*>) -> $vecn<N $(, $param)*> {
+                assert!(self.len() == right.len());
+
+                let mut res = self;
+
+                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
+                    *left = *left / *right
+                }
+
+                res
+            }
+        }
+
         impl<N: Copy + Div<N, Output = N> + Zero $(, $param : ArrayLength<N>)*> Div<N> for $vecn<N $(, $param)*> {
             type Output = $vecn<N $(, $param)*>;
 
@@ -303,6 +247,51 @@ macro_rules! vecn_dvec_common_impl(
 
                 for e in res.as_mut().iter_mut() {
                     *e = *e / right
+                }
+
+                res
+            }
+        }
+
+        impl<N> DivAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
+            where N: Copy + DivAssign<N> + Zero $(, $param : ArrayLength<N>)* {
+            #[inline]
+            fn div_assign(&mut self, right: $vecn<N $(, $param)*>) {
+                assert!(self.len() == right.len());
+
+                for (left, right) in self.as_mut().iter_mut().zip(right.as_ref().iter()) {
+                    *left /= *right
+                }
+            }
+        }
+
+        impl<N> DivAssign<N> for $vecn<N $(, $param)*>
+            where N: Copy + DivAssign<N> + Zero $(, $param : ArrayLength<N>)* {
+            #[inline]
+            fn div_assign(&mut self, right: N) {
+                for e in self.as_mut().iter_mut() {
+                    *e /= right
+                }
+            }
+        }
+
+        /*
+         *
+         * Add.
+         *
+         */
+        impl<N: Copy + Add<N, Output = N> + Zero $(, $param : ArrayLength<N>)*>
+            Add<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*> {
+            type Output = $vecn<N $(, $param)*>;
+
+            #[inline]
+            fn add(self, right: $vecn<N $(, $param)*>) -> $vecn<N $(, $param)*> {
+                assert!(self.len() == right.len());
+
+                let mut res = self;
+
+                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
+                    *left = *left + *right
                 }
 
                 res
@@ -321,6 +310,28 @@ macro_rules! vecn_dvec_common_impl(
                 }
 
                 res
+            }
+        }
+
+        impl<N> AddAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
+            where N: Copy + AddAssign<N> + Zero $(, $param : ArrayLength<N>)* {
+            #[inline]
+            fn add_assign(&mut self, right: $vecn<N $(, $param)*>) {
+                assert!(self.len() == right.len());
+
+                for (left, right) in self.as_mut().iter_mut().zip(right.as_ref().iter()) {
+                    *left += *right
+                }
+            }
+        }
+
+        impl<N> AddAssign<N> for $vecn<N $(, $param)*>
+            where N: Copy + AddAssign<N> + Zero $(, $param : ArrayLength<N>)* {
+            #[inline]
+            fn add_assign(&mut self, right: N) {
+                for e in self.as_mut().iter_mut() {
+                    *e += right
+                }
             }
         }
 
@@ -354,6 +365,29 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        /*
+         *
+         * Sub.
+         *
+         */
+        impl<N: Copy + Sub<N, Output = N> + Zero $(, $param : ArrayLength<N>)*>
+            Sub<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*> {
+            type Output = $vecn<N $(, $param)*>;
+
+            #[inline]
+            fn sub(self, right: $vecn<N $(, $param)*>) -> $vecn<N $(, $param)*> {
+                assert!(self.len() == right.len());
+
+                let mut res = self;
+
+                for (left, right) in res.as_mut().iter_mut().zip(right.as_ref().iter()) {
+                    *left = *left - *right
+                }
+
+                res
+            }
+        }
+
         impl<N: Copy + Sub<N, Output = N> + Zero $(, $param : ArrayLength<N>)*> Sub<N> for $vecn<N $(, $param)*> {
             type Output = $vecn<N $(, $param)*>;
 
@@ -366,6 +400,28 @@ macro_rules! vecn_dvec_common_impl(
                 }
 
                 res
+            }
+        }
+
+        impl<N> SubAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
+            where N: Copy + SubAssign<N> + Zero $(, $param : ArrayLength<N>)* {
+            #[inline]
+            fn sub_assign(&mut self, right: $vecn<N $(, $param)*>) {
+                assert!(self.len() == right.len());
+
+                for (left, right) in self.as_mut().iter_mut().zip(right.as_ref().iter()) {
+                    *left -= *right
+                }
+            }
+        }
+
+        impl<N> SubAssign<N> for $vecn<N $(, $param)*>
+            where N: Copy + SubAssign<N> + Zero $(, $param : ArrayLength<N>)* {
+            #[inline]
+            fn sub_assign(&mut self, right: N) {
+                for e in self.as_mut().iter_mut() {
+                    *e -= right
+                }
             }
         }
 
@@ -396,6 +452,113 @@ macro_rules! vecn_dvec_common_impl(
                 }
 
                 res
+            }
+        }
+
+        /*
+         *
+         * Neg.
+         *
+         */
+        impl<N: Neg<Output = N> + Zero + Copy $(, $param : ArrayLength<N>)*> Neg for $vecn<N $(, $param)*> {
+            type Output = $vecn<N $(, $param)*>;
+
+            #[inline]
+            fn neg(mut self) -> $vecn<N $(, $param)*> {
+                for e in self.as_mut().iter_mut() {
+                    *e = -*e;
+                }
+
+                self
+            }
+        }
+
+        /*
+         *
+         * Dot.
+         *
+         */
+        impl<N: BaseNum $(, $param : ArrayLength<N>)*> Dot<N> for $vecn<N $(, $param)*> {
+            #[inline]
+            fn dot(&self, other: &$vecn<N $(, $param)*>) -> N {
+                assert!(self.len() == other.len());
+                let mut res: N = ::zero();
+                for i in 0 .. self.len() {
+                    res = res + unsafe { self.unsafe_at(i) * other.unsafe_at(i) };
+                }
+                res
+            }
+        }
+
+        /*
+         *
+         * Norm.
+         *
+         */
+        impl<N: BaseFloat $(, $param : ArrayLength<N>)*> Norm<N> for $vecn<N $(, $param)*> {
+            #[inline]
+            fn sqnorm(&self) -> N {
+                Dot::dot(self, self)
+            }
+
+            #[inline]
+            fn normalize(&self) -> $vecn<N $(, $param)*> {
+                let mut res : $vecn<N $(, $param)*> = self.clone();
+                let _ = res.normalize_mut();
+                res
+            }
+
+            #[inline]
+            fn normalize_mut(&mut self) -> N {
+                let l = Norm::norm(self);
+
+                for n in self.as_mut().iter_mut() {
+                    *n = *n / l;
+                }
+
+                l
+            }
+        }
+
+        /*
+         *
+         * Mean.
+         *
+         */
+        impl<N: BaseFloat + Cast<f64> $(, $param : ArrayLength<N>)*> Mean<N> for $vecn<N $(, $param)*> {
+            #[inline]
+            fn mean(&self) -> N {
+                let normalizer = ::cast(1.0f64 / self.len() as f64);
+                self.iter().fold(::zero(), |acc, x| acc + *x * normalizer)
+            }
+        }
+
+        /*
+         *
+         * ApproxEq
+         *
+         */
+        impl<N: ApproxEq<N> $(, $param : ArrayLength<N>)*> ApproxEq<N> for $vecn<N $(, $param)*> {
+            #[inline]
+            fn approx_epsilon(_: Option<$vecn<N $(, $param)*>>) -> N {
+                ApproxEq::approx_epsilon(None::<N>)
+            }
+
+            #[inline]
+            fn approx_ulps(_: Option<$vecn<N $(, $param)*>>) -> u32 {
+                ApproxEq::approx_ulps(None::<N>)
+            }
+
+            #[inline]
+            fn approx_eq_eps(&self, other: &$vecn<N $(, $param)*>, epsilon: &N) -> bool {
+                let mut zip = self.as_ref().iter().zip(other.as_ref().iter());
+                zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
+            }
+
+            #[inline]
+            fn approx_eq_ulps(&self, other: &$vecn<N $(, $param)*>, ulps: u32) -> bool {
+                let mut zip = self.as_ref().iter().zip(other.as_ref().iter());
+                zip.all(|(a, b)| ApproxEq::approx_eq_ulps(a, b, ulps))
             }
         }
     )

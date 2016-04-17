@@ -41,6 +41,13 @@ macro_rules! pnt_add_vec_impl(
                 $t::new($(self.$compN + right.$compN),+)
             }
         }
+
+        impl<N: Copy + AddAssign<N>> AddAssign<$tv<N>> for $t<N> {
+            #[inline]
+            fn add_assign(&mut self, right: $tv<N>) {
+                $( self.$compN += right.$compN; )+
+            }
+        }
     )
 );
 
@@ -52,6 +59,13 @@ macro_rules! pnt_sub_vec_impl(
             #[inline]
             fn sub(self, right: $tv<N>) -> $t<N> {
                 $t::new($(self.$compN - right.$compN),+)
+            }
+        }
+
+        impl<N: Copy + SubAssign<N>> SubAssign<$tv<N>> for $t<N> {
+            #[inline]
+            fn sub_assign(&mut self, right: $tv<N>) {
+                $( self.$compN -= right.$compN; )+
             }
         }
     )

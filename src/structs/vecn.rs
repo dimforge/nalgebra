@@ -1,6 +1,6 @@
 use std::slice::{Iter, IterMut};
 use std::iter::{FromIterator, IntoIterator};
-use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
+use std::ops::{Add, Sub, Mul, Div, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Index, IndexMut};
 use std::mem;
 use rand::{Rand, Rng};
 use num::{Zero, One};

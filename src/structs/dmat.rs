@@ -3,7 +3,7 @@
 use std::cmp;
 use std::mem;
 use std::iter::repeat;
-use std::ops::{Add, Sub, Mul, Div, Index, IndexMut};
+use std::ops::{Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, Index, IndexMut};
 use std::fmt::{Debug, Formatter, Result};
 use rand::{self, Rand};
 use num::{Zero, One};

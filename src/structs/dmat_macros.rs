@@ -165,7 +165,13 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<$dmat<N>> for $dmat<N> {
+        /*
+         *
+         * Multiplications matrix/matrix.
+         *
+         */
+        impl<N> Mul<$dmat<N>> for $dmat<N>
+            where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
             type Output = $dmat<N>;
 
             #[inline]
@@ -174,7 +180,8 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<'a, N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<&'a $dmat<N>> for $dmat<N> {
+        impl<'a, N> Mul<&'a $dmat<N>> for $dmat<N>
+            where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
             type Output = $dmat<N>;
 
             #[inline]
@@ -183,7 +190,8 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<'a, N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<$dmat<N>> for &'a $dmat<N> {
+        impl<'a, N> Mul<$dmat<N>> for &'a $dmat<N>
+            where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
             type Output = $dmat<N>;
 
             #[inline]
@@ -192,7 +200,8 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<'a, 'b, N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero> Mul<&'b $dmat<N>> for &'a $dmat<N> {
+        impl<'a, 'b, N> Mul<&'b $dmat<N>> for &'a $dmat<N>
+            where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
             type Output = $dmat<N>;
 
             #[inline]
@@ -201,14 +210,13 @@ macro_rules! dmat_impl(
 
                 let mut res = unsafe { $dmat::new_uninitialized(self.nrows, right.ncols) };
 
-                for i in 0..self.nrows {
-                    for j in 0..right.ncols {
+                for i in 0 .. self.nrows {
+                    for j in 0 .. right.ncols {
                         let mut acc: N = ::zero();
 
                         unsafe {
-                            for k in 0..self.ncols {
-                                acc = acc
-                                    + self.unsafe_at((i, k)) * right.unsafe_at((k, j));
+                            for k in 0 .. self.ncols {
+                                acc = acc + self.unsafe_at((i, k)) * right.unsafe_at((k, j));
                             }
 
                             res.unsafe_set((i, j), acc);
@@ -220,10 +228,64 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<$dvec<N>> for $dmat<N> {
+        impl<N> MulAssign<$dmat<N>> for $dmat<N>
+            where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
+            #[inline]
+            fn mul_assign(&mut self, right: $dmat<N>) {
+                self.mul_assign(&right)
+            }
+        }
+
+        impl<'a, N> MulAssign<&'a $dmat<N>> for $dmat<N>
+            where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
+            #[inline]
+            fn mul_assign(&mut self, right: &'a $dmat<N>) {
+                assert!(self.ncols == right.nrows);
+
+                // FIXME: optimize when both matrices have the same layout.
+                let res = &*self * right;
+                *self = res;
+            }
+        }
+
+
+        /*
+         *
+         * Multiplication matrix/vector.
+         *
+         */
+        impl<N> Mul<$dvec<N>> for $dmat<N>
+            where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
             type Output = $dvec<N>;
 
             fn mul(self, right: $dvec<N>) -> $dvec<N> {
+                (&self) * (&right)
+            }
+        }
+
+        impl<'a, N> Mul<$dvec<N>> for &'a $dmat<N>
+            where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
+            type Output = $dvec<N>;
+
+            fn mul(self, right: $dvec<N>) -> $dvec<N> {
+                self * (&right)
+            }
+        }
+
+        impl<'a, N> Mul<&'a $dvec<N>> for $dmat<N>
+            where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
+            type Output = $dvec<N>;
+
+            fn mul(self, right: &'a $dvec<N>) -> $dvec<N> {
+                (&self) * right
+            }
+        }
+
+        impl<'a, 'b, N> Mul<&'b $dvec<N>> for &'a $dmat<N>
+            where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
+            type Output = $dvec<N>;
+
+            fn mul(self, right: &'b $dvec<N>) -> $dvec<N> {
                 assert!(self.ncols == right.len());
 
                 let mut res : $dvec<N> = unsafe { $dvec::new_uninitialized(self.nrows) };
@@ -246,11 +308,39 @@ macro_rules! dmat_impl(
             }
         }
 
-
-        impl<N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero> Mul<$dmat<N>> for $dvec<N> {
+        impl<N> Mul<$dmat<N>> for $dvec<N>
+            where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
             type Output = $dvec<N>;
 
             fn mul(self, right: $dmat<N>) -> $dvec<N> {
+                (&self) * (&right)
+            }
+        }
+
+        impl<'a, N> Mul<$dmat<N>> for &'a $dvec<N>
+            where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
+            type Output = $dvec<N>;
+
+            fn mul(self, right: $dmat<N>) -> $dvec<N> {
+                self * (&right)
+            }
+        }
+
+        impl<'a, N> Mul<&'a $dmat<N>> for $dvec<N>
+            where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
+            type Output = $dvec<N>;
+
+            fn mul(self, right: &'a $dmat<N>) -> $dvec<N> {
+                (&self) * right
+            }
+        }
+
+
+        impl<'a, 'b, N> Mul<&'b $dmat<N>> for &'a $dvec<N>
+            where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
+            type Output = $dvec<N>;
+
+            fn mul(self, right: &'b $dmat<N>) -> $dvec<N> {
                 assert!(right.nrows == self.len());
 
                 let mut res : $dvec<N> = unsafe { $dvec::new_uninitialized(right.ncols) };
@@ -273,6 +363,206 @@ macro_rules! dmat_impl(
             }
         }
 
+        impl<N> MulAssign<$dmat<N>> for $dvec<N>
+            where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
+            #[inline]
+            fn mul_assign(&mut self, right: $dmat<N>) {
+                self.mul_assign(&right)
+            }
+        }
+
+        impl<'a, N> MulAssign<&'a $dmat<N>> for $dvec<N>
+            where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
+            #[inline]
+            fn mul_assign(&mut self, right: &'a $dmat<N>) {
+                assert!(right.nrows == self.len());
+
+                let res = &*self * right;
+                *self = res;
+            }
+        }
+
+        /*
+         *
+         * Addition matrix/matrix.
+         *
+         */
+        impl<N: Copy + Add<N, Output = N>> Add<$dmat<N>> for $dmat<N> {
+            type Output = $dmat<N>;
+
+            #[inline]
+            fn add(self, right: $dmat<N>) -> $dmat<N> {
+                self + (&right)
+            }
+        }
+
+        impl<'a, N: Copy + Add<N, Output = N>> Add<$dmat<N>> for &'a $dmat<N> {
+            type Output = $dmat<N>;
+
+            #[inline]
+            fn add(self, right: $dmat<N>) -> $dmat<N> {
+                right + self
+            }
+        }
+
+        impl<'a, N: Copy + Add<N, Output = N>> Add<&'a $dmat<N>> for $dmat<N> {
+            type Output = $dmat<N>;
+
+            #[inline]
+            fn add(self, right: &'a $dmat<N>) -> $dmat<N> {
+                let mut res = self;
+
+                for (mij, right_ij) in res.mij.iter_mut().zip(right.mij.iter()) {
+                    *mij = *mij + *right_ij;
+                }
+
+                res
+            }
+        }
+
+        impl<N: Copy + AddAssign<N>> AddAssign<$dmat<N>> for $dmat<N> {
+            #[inline]
+            fn add_assign(&mut self, right: $dmat<N>) {
+                self.add_assign(&right)
+            }
+        }
+
+        impl<'a, N: Copy + AddAssign<N>> AddAssign<&'a $dmat<N>> for $dmat<N> {
+            #[inline]
+            fn add_assign(&mut self, right: &'a $dmat<N>) {
+                assert!(self.nrows == right.nrows && self.ncols == right.ncols,
+                        "Unable to add matrices with different dimensions.");
+
+                for (mij, right_ij) in self.mij.iter_mut().zip(right.mij.iter()) {
+                    *mij += *right_ij;
+                }
+            }
+        }
+
+        /*
+         *
+         * Subtraction matrix/scalar.
+         *
+         */
+        impl<N: Copy + Sub<N, Output = N>> Sub<N> for $dmat<N> {
+            type Output = $dmat<N>;
+
+            #[inline]
+            fn sub(self, right: N) -> $dmat<N> {
+                let mut res = self;
+
+                for mij in res.mij.iter_mut() {
+                    *mij = *mij - right;
+                }
+
+                res
+            }
+        }
+
+        impl<'a, N: Copy + SubAssign<N>> SubAssign<N> for $dmat<N> {
+            #[inline]
+            fn sub_assign(&mut self, right: N) {
+                for mij in self.mij.iter_mut() {
+                    *mij -= right
+                }
+            }
+        }
+
+        impl Sub<$dmat<f32>> for f32 {
+            type Output = $dmat<f32>;
+
+            #[inline]
+            fn sub(self, right: $dmat<f32>) -> $dmat<f32> {
+                let mut res = right;
+
+                for mij in res.mij.iter_mut() {
+                    *mij = self - *mij;
+                }
+
+                res
+            }
+        }
+
+        impl Sub<$dmat<f64>> for f64 {
+            type Output = $dmat<f64>;
+
+            #[inline]
+            fn sub(self, right: $dmat<f64>) -> $dmat<f64> {
+                let mut res = right;
+
+                for mij in res.mij.iter_mut() {
+                    *mij = self - *mij;
+                }
+
+                res
+            }
+        }
+
+        /*
+         *
+         * Subtraction matrix/matrix.
+         *
+         */
+        impl<N: Copy + Sub<N, Output = N>> Sub<$dmat<N>> for $dmat<N> {
+            type Output = $dmat<N>;
+
+            #[inline]
+            fn sub(self, right: $dmat<N>) -> $dmat<N> {
+                self - (&right)
+            }
+        }
+
+        impl<'a, N: Copy + Sub<N, Output = N>> Sub<$dmat<N>> for &'a $dmat<N> {
+            type Output = $dmat<N>;
+
+            #[inline]
+            fn sub(self, right: $dmat<N>) -> $dmat<N> {
+                right - self
+            }
+        }
+
+        impl<'a, N: Copy + Sub<N, Output = N>> Sub<&'a $dmat<N>> for $dmat<N> {
+            type Output = $dmat<N>;
+
+            #[inline]
+            fn sub(self, right: &'a $dmat<N>) -> $dmat<N> {
+                assert!(self.nrows == right.nrows && self.ncols == right.ncols,
+                        "Unable to subtract matrices with different dimensions.");
+
+                let mut res = self;
+
+                for (mij, right_ij) in res.mij.iter_mut().zip(right.mij.iter()) {
+                    *mij = *mij - *right_ij;
+                }
+
+                res
+            }
+        }
+
+        impl<N: Copy + SubAssign<N>> SubAssign<$dmat<N>> for $dmat<N> {
+            #[inline]
+            fn sub_assign(&mut self, right: $dmat<N>) {
+                self.sub_assign(&right)
+            }
+        }
+
+        impl<'a, N: Copy + SubAssign<N>> SubAssign<&'a $dmat<N>> for $dmat<N> {
+            #[inline]
+            fn sub_assign(&mut self, right: &'a $dmat<N>) {
+                assert!(self.nrows == right.nrows && self.ncols == right.ncols,
+                        "Unable to subtract matrices with different dimensions.");
+
+                for (mij, right_ij) in self.mij.iter_mut().zip(right.mij.iter()) {
+                    *mij -= *right_ij;
+                }
+            }
+        }
+
+        /*
+         *
+         * Inversion.
+         *
+         */
         impl<N: BaseNum + Clone> Inv for $dmat<N> {
             #[inline]
             fn inv(&self) -> Option<$dmat<N>> {
@@ -619,6 +909,11 @@ macro_rules! dmat_impl(
             }
         }
 
+        /*
+         *
+         * Multpilication matrix/scalar.
+         *
+         */
         impl<N: Copy + Mul<N, Output = N>> Mul<N> for $dmat<N> {
             type Output = $dmat<N>;
 
@@ -664,6 +959,11 @@ macro_rules! dmat_impl(
             }
         }
 
+        /*
+         *
+         * Division matrix/scalar.
+         *
+         */
         impl<N: Copy + Div<N, Output = N>> Div<N> for $dmat<N> {
             type Output = $dmat<N>;
 
@@ -679,6 +979,12 @@ macro_rules! dmat_impl(
             }
         }
 
+
+        /*
+         *
+         * Addition matrix/scalar.
+         *
+         */
         impl<N: Copy + Add<N, Output = N>> Add<N> for $dmat<N> {
             type Output = $dmat<N>;
 
@@ -718,123 +1024,6 @@ macro_rules! dmat_impl(
 
                 for mij in res.mij.iter_mut() {
                     *mij = self + *mij;
-                }
-
-                res
-            }
-        }
-
-        impl<N: Copy + Add<N, Output = N>> Add<$dmat<N>> for $dmat<N> {
-            type Output = $dmat<N>;
-
-            #[inline]
-            fn add(self, right: $dmat<N>) -> $dmat<N> {
-                self + (&right)
-            }
-        }
-
-        impl<'a, N: Copy + Add<N, Output = N>> Add<$dmat<N>> for &'a $dmat<N> {
-            type Output = $dmat<N>;
-
-            #[inline]
-            fn add(self, right: $dmat<N>) -> $dmat<N> {
-                right + self
-            }
-        }
-
-        impl<'a, N: Copy + Add<N, Output = N>> Add<&'a $dmat<N>> for $dmat<N> {
-            type Output = $dmat<N>;
-
-            #[inline]
-            fn add(self, right: &'a $dmat<N>) -> $dmat<N> {
-                assert!(self.nrows == right.nrows && self.ncols == right.ncols,
-                        "Unable to add matrices with different dimensions.");
-
-                let mut res = self;
-
-                for (mij, right_ij) in res.mij.iter_mut().zip(right.mij.iter()) {
-                    *mij = *mij + *right_ij;
-                }
-
-                res
-            }
-        }
-
-        impl<N: Copy + Sub<N, Output = N>> Sub<N> for $dmat<N> {
-            type Output = $dmat<N>;
-
-            #[inline]
-            fn sub(self, right: N) -> $dmat<N> {
-                let mut res = self;
-
-                for mij in res.mij.iter_mut() {
-                    *mij = *mij - right;
-                }
-
-                res
-            }
-        }
-
-        impl Sub<$dmat<f32>> for f32 {
-            type Output = $dmat<f32>;
-
-            #[inline]
-            fn sub(self, right: $dmat<f32>) -> $dmat<f32> {
-                let mut res = right;
-
-                for mij in res.mij.iter_mut() {
-                    *mij = self - *mij;
-                }
-
-                res
-            }
-        }
-
-        impl Sub<$dmat<f64>> for f64 {
-            type Output = $dmat<f64>;
-
-            #[inline]
-            fn sub(self, right: $dmat<f64>) -> $dmat<f64> {
-                let mut res = right;
-
-                for mij in res.mij.iter_mut() {
-                    *mij = self - *mij;
-                }
-
-                res
-            }
-        }
-
-        impl<N: Copy + Sub<N, Output = N>> Sub<$dmat<N>> for $dmat<N> {
-            type Output = $dmat<N>;
-
-            #[inline]
-            fn sub(self, right: $dmat<N>) -> $dmat<N> {
-                self - (&right)
-            }
-        }
-
-        impl<'a, N: Copy + Sub<N, Output = N>> Sub<$dmat<N>> for &'a $dmat<N> {
-            type Output = $dmat<N>;
-
-            #[inline]
-            fn sub(self, right: $dmat<N>) -> $dmat<N> {
-                right - self
-            }
-        }
-
-        impl<'a, N: Copy + Sub<N, Output = N>> Sub<&'a $dmat<N>> for $dmat<N> {
-            type Output = $dmat<N>;
-
-            #[inline]
-            fn sub(self, right: &'a $dmat<N>) -> $dmat<N> {
-                assert!(self.nrows == right.nrows && self.ncols == right.ncols,
-                        "Unable to subtract matrices with different dimensions.");
-
-                let mut res = self;
-
-                for (mij, right_ij) in res.mij.iter_mut().zip(right.mij.iter()) {
-                    *mij = *mij - *right_ij;
                 }
 
                 res

@@ -92,6 +92,13 @@ macro_rules! add_impl(
                 $t::new($(self.$compN + right.$compN),+)
             }
         }
+
+        impl<N: AddAssign<N>> AddAssign<$t<N>> for $t<N> {
+            #[inline]
+            fn add_assign(&mut self, right: $t<N>) {
+                $( self.$compN += right.$compN; )+
+            }
+        }
     )
 );
 
@@ -105,6 +112,14 @@ macro_rules! sub_impl(
                 $t::new($(self.$compN - right.$compN),+)
             }
         }
+
+
+        impl<N: SubAssign<N>> SubAssign<$t<N>> for $t<N> {
+            #[inline]
+            fn sub_assign(&mut self, right: $t<N>) {
+                $( self.$compN -= right.$compN; )+
+            }
+        }
     )
 );
 
@@ -116,6 +131,13 @@ macro_rules! mat_mul_scalar_impl(
             #[inline]
             fn mul(self, right: N) -> $t<N> {
                 $t::new($(self.$compN * *right),+)
+            }
+        }
+
+        impl<N: MulAssign<N>> MulAssign<N> for $t<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: N) {
+                $( self.$compN *= *right; )+
             }
         }
 
@@ -149,6 +171,13 @@ macro_rules! mat_div_scalar_impl(
                 $t::new($(self.$compN / *right),+)
             }
         }
+
+        impl<N: DivAssign<N>> DivAssign<N> for $t<N> {
+            #[inline]
+            fn div_assign(&mut self, right: N) {
+                $( self.$compN /= *right; )+
+            }
+        }
     )
 );
 
@@ -160,6 +189,13 @@ macro_rules! mat_add_scalar_impl(
             #[inline]
             fn add(self, right: N) -> $t<N> {
                 $t::new($(self.$compN + *right),+)
+            }
+        }
+
+        impl<N: AddAssign<N>> AddAssign<N> for $t<N> {
+            #[inline]
+            fn add_assign(&mut self, right: N) {
+                $( self.$compN += *right; )+
             }
         }
 
@@ -178,6 +214,44 @@ macro_rules! mat_add_scalar_impl(
             #[inline]
             fn add(self, right: $t<f64>) -> $t<f64> {
                 $t::new($(self + right.$compN),+)
+            }
+        }
+    )
+);
+
+macro_rules! mat_sub_scalar_impl(
+    ($t: ident, $($compN: ident),+) => (
+        impl<N: Sub<N, Output = N>> Sub<N> for $t<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn sub(self, right: &N) -> $t<N> {
+                $t::new($(self.$compN - *right),+)
+            }
+        }
+
+        impl<N: SubAssign<N>> SubAssign<N> for $t<N> {
+            #[inline]
+            fn sub_assign(&mut self, right: N) {
+                $( self.$compN -= *right; )+
+            }
+        }
+
+        impl Sub<f32> for $t<f32> {
+            type Output = $t<f32>;
+
+            #[inline]
+            fn sub(self, right: $t<f32>) -> $t<f32> {
+                $t::new($(self - right.$compN),+)
+            }
+        }
+
+        impl Sub<f64> for $t<f64> {
+            type Output = $t<f64>;
+
+            #[inline]
+            fn sub(self, right: $t<f64>) -> $t<f64> {
+                $t::new($(self - right.$compN),+)
             }
         }
     )
@@ -204,37 +278,6 @@ macro_rules! repeat_impl(
                 $t {
                     $($compN: val ),+
                 }
-            }
-        }
-    )
-);
-
-macro_rules! mat_sub_scalar_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Sub<N, Output = N>> Sub<N> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn sub(self, right: &N) -> $t<N> {
-                $t::new($(self.$compN - *right),+)
-            }
-        }
-
-        impl Sub<f32> for $t<f32> {
-            type Output = $t<f32>;
-
-            #[inline]
-            fn sub(self, right: $t<f32>) -> $t<f32> {
-                $t::new($(self - right.$compN),+)
-            }
-        }
-
-        impl Sub<f64> for $t<f64> {
-            type Output = $t<f64>;
-
-            #[inline]
-            fn sub(self, right: $t<f64>) -> $t<f64> {
-                $t::new($(self - right.$compN),+)
             }
         }
     )
@@ -468,7 +511,7 @@ macro_rules! diag_impl(
             fn diag(&self) -> $tv<N> {
                 let mut diag: $tv<N> = ::zero();
 
-                for i in 0..$dim {
+                for i in 0 .. $dim {
                     unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
                 }
 
@@ -479,7 +522,7 @@ macro_rules! diag_impl(
         impl<N: Copy + Zero> DiagMut<$tv<N>> for $t<N> {
             #[inline]
             fn set_diag(&mut self, diag: &$tv<N>) {
-                for i in 0..$dim {
+                for i in 0 .. $dim {
                     unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
                 }
             }
@@ -493,15 +536,14 @@ macro_rules! mat_mul_mat_impl(
         type Output = $t<N>;
         #[inline]
         fn mul(self, right: $t<N>) -> $t<N> {
-            // careful! we need to comute other * self here (self is the rhs).
             let mut res: $t<N> = ::zero();
 
-            for i in 0..$dim {
-                for j in 0..$dim {
+            for i in 0 .. $dim {
+                for j in 0 .. $dim {
                     let mut acc: N = ::zero();
 
                     unsafe {
-                        for k in 0..$dim {
+                        for k in 0 .. $dim {
                             acc = acc + self.at_fast((i, k)) * right.at_fast((k, j));
                         }
 
@@ -511,6 +553,15 @@ macro_rules! mat_mul_mat_impl(
             }
 
             res
+        }
+    }
+
+    impl<N: Copy + BaseNum> MulAssign<$t<N>> for $t<N> {
+        #[inline]
+        fn mul_assign(&mut self, right: $t<N>) {
+            // NOTE: there is probably not any useful optimization to perform here compaired to the
+            // version without assignment..
+            *self = *self * right
         }
     }
   )
@@ -537,6 +588,15 @@ macro_rules! vec_mul_mat_impl(
             res
         }
     }
+
+    impl<N: Copy + BaseNum> MulAssign<$t<N>> for $v<N> {
+        #[inline]
+        fn mul_assign(&mut self, right: $t<N>) {
+            // NOTE: there is probably not any useful optimization to perform here compaired to the
+            // version without assignment..
+            *self = *self * right
+        }
+    }
   )
 );
 
@@ -549,8 +609,8 @@ macro_rules! mat_mul_vec_impl(
         fn mul(self, right: $v<N>) -> $v<N> {
             let mut res : $v<N> = $zero();
 
-            for i in 0..$dim {
-                for j in 0..$dim {
+            for i in 0 .. $dim {
+                for j in 0 .. $dim {
                     unsafe {
                         let val = res.at_fast(i) + self.at_fast((i, j)) * right.at_fast(j);
                         res.set_fast(i, val)

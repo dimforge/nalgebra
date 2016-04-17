@@ -145,6 +145,13 @@ macro_rules! rot_mul_rot_impl(
                 $t { submat: self.submat * right.submat }
             }
         }
+
+        impl<N: Copy + BaseNum> MulAssign<$t<N>> for $t<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: $t<N>) {
+                self.submat *= right.submat
+            }
+        }
     )
 );
 
@@ -175,6 +182,13 @@ macro_rules! vec_mul_rot_impl(
             #[inline]
             fn mul(self, right: $t<N>) -> $tv<N> {
                 self * right.submat
+            }
+        }
+
+        impl<N: Copy + BaseNum> MulAssign<$t<N>> for $tv<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: $t<N>) {
+                *self *= right.submat
             }
         }
     )

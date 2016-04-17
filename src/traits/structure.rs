@@ -2,7 +2,9 @@
 
 use std::{f32, f64, i8, i16, i32, i64, u8, u16, u32, u64, isize, usize};
 use std::slice::{Iter, IterMut};
-use std::ops::{Add, Sub, Mul, Div, Rem, Index, IndexMut, Neg};
+use std::ops::{Add, Sub, Mul, Div, Rem,
+               AddAssign, SubAssign, MulAssign, DivAssign, RemAssign,
+               Index, IndexMut, Neg};
 use num::{Float, Zero, One};
 use traits::operations::{Axpy, Transpose, Inv, Absolute};
 use traits::geometry::{Dot, Norm, Orig};
@@ -11,8 +13,11 @@ use traits::geometry::{Dot, Norm, Orig};
 pub trait BaseNum: Copy + Zero + One +
                    Add<Self, Output = Self> + Sub<Self, Output = Self> +
                    Mul<Self, Output = Self> + Div<Self, Output = Self> +
-                   Rem<Self, Output = Self> + PartialEq +
-                   Absolute<Self> + Axpy<Self> {
+                   Rem<Self, Output = Self> +
+                   AddAssign<Self> + SubAssign<Self> +
+                   MulAssign<Self> + DivAssign<Self> +
+                   RemAssign<Self> +
+                   PartialEq + Absolute<Self> + Axpy<Self> {
 }
 
 /// Basic floating-point number numeric trait.
@@ -221,10 +226,19 @@ pub trait IterableMut<N> {
  * Vec related traits.
  */
 /// Trait grouping most common operations on vectors.
-pub trait NumVec<N>: Dim +
-                     Sub<Self, Output = Self> + Add<Self, Output = Self> +
+pub trait NumVec<N>: Add<Self, Output = Self> + Sub<Self, Output = Self> +
+                     Mul<Self, Output = Self> + Div<Self, Output = Self> +
+
+                     Add<N, Output = Self> + Sub<N, Output = Self> + 
                      Mul<N, Output = Self> + Div<N, Output = Self> + 
-                     Index<usize, Output = N> +
+
+                     AddAssign<Self> + SubAssign<Self> +
+                     MulAssign<Self> + DivAssign<Self> + 
+
+                     AddAssign<N> + SubAssign<N> + 
+                     MulAssign<N> + DivAssign<N> + 
+
+                     Dim + Index<usize, Output = N> +
                      Zero + PartialEq + Dot<N> + Axpy<N> {
 }
 
@@ -263,9 +277,13 @@ pub trait NumPnt<N>:
           PartialEq +
           Axpy<N> +
           Sub<Self, Output = <Self as PntAsVec>::Vec> +
-          Mul<N, Output = Self> +
-          Div<N, Output = Self> +
+
+          Mul<N, Output = Self> + Div<N, Output = Self> +
           Add<<Self as PntAsVec>::Vec, Output = Self> +
+
+          MulAssign<N> + DivAssign<N> +
+          AddAssign<<Self as PntAsVec>::Vec> +
+
           Index<usize, Output = N> { // FIXME: + Sub<V, Self>
 }
 

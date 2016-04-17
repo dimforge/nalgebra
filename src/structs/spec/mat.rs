@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Neg};
+use std::ops::{Add, Mul, Neg, MulAssign};
 use structs::vec::{Vec2, Vec3};
 use structs::pnt::{Pnt2, Pnt3};
 use structs::mat::{Mat1, Mat2, Mat3};
@@ -345,3 +345,25 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Pnt2<N>> for Mat2<N>
         )
     }
 }
+
+
+macro_rules! impl_mul_assign_from_mul(
+    ($tleft: ident, $tright: ident) => (
+        impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> MulAssign<$tright<N>> for $tleft<N> {
+            #[inline(always)]
+            fn mul_assign(&mut self, right: $tright<N>) {
+                // NOTE: there is probably no interesting optimization compared to the not-inplace
+                // operation.
+                *self = *self * right
+            }
+        }
+    )
+);
+
+impl_mul_assign_from_mul!(Mat3, Mat3);
+impl_mul_assign_from_mul!(Mat2, Mat2);
+
+impl_mul_assign_from_mul!(Vec3, Mat3);
+impl_mul_assign_from_mul!(Vec2, Mat2);
+impl_mul_assign_from_mul!(Pnt3, Mat3);
+impl_mul_assign_from_mul!(Pnt2, Mat2);

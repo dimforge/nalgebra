@@ -4,7 +4,7 @@ use std::mem;
 use std::fmt;
 use std::slice::{Iter, IterMut};
 use std::iter::{Iterator, FromIterator, IntoIterator};
-use std::ops::{Add, Sub, Mul, Div, Neg, Index, IndexMut};
+use std::ops::{Add, Sub, Mul, Div, Neg, AddAssign, SubAssign, MulAssign, DivAssign, Index, IndexMut};
 use rand::{Rand, Rng};
 use num::{Zero, One};
 use traits::operations::{ApproxEq, POrd, POrdering, Axpy};

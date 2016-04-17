@@ -372,6 +372,13 @@ macro_rules! add_impl(
                 $t::new($(self.$compN + right.$compN),+)
             }
         }
+
+        impl<N: AddAssign<N>> AddAssign<$t<N>> for $t<N> {
+            #[inline]
+            fn add_assign(&mut self, right: $t<N>) {
+                $( self.$compN += right.$compN; )+
+            }
+        }
     )
 );
 
@@ -384,6 +391,13 @@ macro_rules! scalar_add_impl(
             #[inline]
             fn add(self, right: N) -> $t<N> {
                 $t::new($(self.$compN + right),+)
+            }
+        }
+
+        impl<N: Copy + AddAssign<N>> AddAssign<N> for $t<N> {
+            #[inline]
+            fn add_assign(&mut self, right: N) {
+                $( self.$compN += right; )+
             }
         }
 
@@ -417,6 +431,13 @@ macro_rules! sub_impl(
                 $t::new($(self.$compN - right.$compN),+)
             }
         }
+
+        impl<N: SubAssign<N>> SubAssign<$t<N>> for $t<N> {
+            #[inline]
+            fn sub_assign(&mut self, right: $t<N>) {
+                $( self.$compN -= right.$compN; )+
+            }
+        }
     )
 );
 
@@ -428,6 +449,13 @@ macro_rules! scalar_sub_impl(
             #[inline]
             fn sub(self, right: N) -> $t<N> {
                 $t::new($(self.$compN - right),+)
+            }
+        }
+
+        impl<N: Copy + SubAssign<N>> SubAssign<N> for $t<N> {
+            #[inline]
+            fn sub_assign(&mut self, right: N) {
+                $( self.$compN -= right; )+
             }
         }
 
@@ -460,6 +488,13 @@ macro_rules! mul_impl(
                 $t::new($(self.$compN * right.$compN),+)
             }
         }
+
+        impl<N: MulAssign<N>> MulAssign<$t<N>> for $t<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: $t<N>) {
+                $( self.$compN *= right.$compN; )+
+            }
+        }
     )
 );
 
@@ -471,6 +506,13 @@ macro_rules! scalar_mul_impl(
             #[inline]
             fn mul(self, right: N) -> $t<N> {
                 $t::new($(self.$compN * right),+)
+            }
+        }
+
+        impl<N: Copy + MulAssign<N>> MulAssign<N> for $t<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: N) {
+                $( self.$compN *= right; )+
             }
         }
 
@@ -504,6 +546,13 @@ macro_rules! div_impl(
                 $t::new($(self.$compN / right.$compN),+)
             }
         }
+
+        impl<N: DivAssign<N>> DivAssign<$t<N>> for $t<N> {
+            #[inline]
+            fn div_assign(&mut self, right: $t<N>) {
+                $( self.$compN /= right.$compN; )+
+            }
+        }
     )
 );
 
@@ -515,6 +564,13 @@ macro_rules! scalar_div_impl(
             #[inline]
             fn div(self, right: N) -> $t<N> {
                 $t::new($(self.$compN / right),+)
+            }
+        }
+
+        impl<N: Copy + DivAssign<N>> DivAssign<N> for $t<N> {
+            #[inline]
+            fn div_assign(&mut self, right: N) {
+                $( self.$compN /= right; )+
             }
         }
     )

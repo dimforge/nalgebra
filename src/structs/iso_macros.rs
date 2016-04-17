@@ -73,21 +73,29 @@ macro_rules! iso_mul_iso_impl(
                     self.rotation * right.rotation)
             }
         }
+
+        impl<N: BaseFloat> MulAssign<$t<N>> for $t<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: $t<N>) {
+                self.translation += self.rotation * right.translation;
+                self.rotation    *= right.rotation;
+            }
+        }
     )
 );
 
 macro_rules! iso_mul_rot_impl(
-    ($t: ident, $tr: ident) => (
-        impl<N: BaseFloat> Mul<$tr<N>> for $t<N> {
+    ($t: ident, $rot: ident) => (
+        impl<N: BaseFloat> Mul<$rot<N>> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
-            fn mul(self, right: $tr<N>) -> $t<N> {
+            fn mul(self, right: $rot<N>) -> $t<N> {
                 $t::new_with_rotmat(self.translation, self.rotation * right)
             }
         }
 
-        impl<N: BaseFloat> Mul<$t<N>> for $tr<N> {
+        impl<N: BaseFloat> Mul<$t<N>> for $rot<N> {
             type Output = $t<N>;
 
             #[inline]
@@ -95,6 +103,13 @@ macro_rules! iso_mul_rot_impl(
                 $t::new_with_rotmat(
                     self * right.translation,
                     self * right.rotation)
+            }
+        }
+
+        impl<N: BaseFloat> MulAssign<$rot<N>> for $t<N> {
+            #[inline]
+            fn mul_assign(&mut self, right: $rot<N>) {
+                self.rotation *= right
             }
         }
     )
@@ -110,9 +125,6 @@ macro_rules! iso_mul_pnt_impl(
                 self.rotation * right + self.translation
             }
         }
-
-        // NOTE: there is no viable pre-multiplication definition because of the translation
-        // component.
     )
 );
 
