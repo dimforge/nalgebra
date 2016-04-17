@@ -227,19 +227,19 @@ pub trait IterableMut<N> {
  */
 /// Trait grouping most common operations on vectors.
 pub trait NumVector<N>: Add<Self, Output = Self> + Sub<Self, Output = Self> +
-                     Mul<Self, Output = Self> + Div<Self, Output = Self> +
+                        // Mul<Self, Output = Self> + Div<Self, Output = Self> +
 
-                     Add<N, Output = Self> + Sub<N, Output = Self> + 
-                     Mul<N, Output = Self> + Div<N, Output = Self> + 
+                        // Add<N, Output = Self> + Sub<N, Output = Self> + 
+                        Mul<N, Output = Self> + Div<N, Output = Self> + 
 
-                     AddAssign<Self> + SubAssign<Self> +
-                     MulAssign<Self> + DivAssign<Self> + 
+                        AddAssign<Self> + SubAssign<Self> +
+                        // MulAssign<Self> + DivAssign<Self> + 
 
-                     AddAssign<N> + SubAssign<N> + 
-                     MulAssign<N> + DivAssign<N> + 
+                        // AddAssign<N> + SubAssign<N> + 
+                        MulAssign<N> + DivAssign<N> + 
 
-                     Dimension + Index<usize, Output = N> +
-                     Zero + PartialEq + Dot<N> + Axpy<N> {
+                        Dimension + Index<usize, Output = N> +
+                        Zero + PartialEq + Dot<N> + Axpy<N> {
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
