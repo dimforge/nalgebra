@@ -3,11 +3,11 @@
 use num::{Float, Signed};
 use std::ops::Mul;
 use std::cmp::Ordering;
-use traits::structure::SquareMat;
+use traits::structure::SquareMatrix;
 
 /// Result of a partial ordering.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
-pub enum POrdering {
+pub enum PartialOrdering {
     /// Result of a strict comparison.
     PartialLess,
     /// Equality relationship.
@@ -18,61 +18,61 @@ pub enum POrdering {
     NotComparable
 }
 
-impl POrdering {
+impl PartialOrdering {
     /// Returns `true` if `self` is equal to `Equal`.
     pub fn is_eq(&self) -> bool {
-        *self == POrdering::PartialEqual
+        *self == PartialOrdering::PartialEqual
     }
 
     /// Returns `true` if `self` is equal to `Less`.
     pub fn is_lt(&self) -> bool {
-        *self == POrdering::PartialLess
+        *self == PartialOrdering::PartialLess
     }
 
     /// Returns `true` if `self` is equal to `Less` or `Equal`.
     pub fn is_le(&self) -> bool {
-        *self == POrdering::PartialLess || *self == POrdering::PartialEqual
+        *self == PartialOrdering::PartialLess || *self == PartialOrdering::PartialEqual
     }
 
     /// Returns `true` if `self` is equal to `Greater`.
     pub fn is_gt(&self) -> bool {
-        *self == POrdering::PartialGreater
+        *self == PartialOrdering::PartialGreater
     }
 
     /// Returns `true` if `self` is equal to `Greater` or `Equal`.
     pub fn is_ge(&self) -> bool {
-        *self == POrdering::PartialGreater || *self == POrdering::PartialEqual
+        *self == PartialOrdering::PartialGreater || *self == PartialOrdering::PartialEqual
     }
 
     /// Returns `true` if `self` is equal to `NotComparable`.
     pub fn is_not_comparable(&self) -> bool {
-        *self == POrdering::NotComparable
+        *self == PartialOrdering::NotComparable
     }
 
-    /// Creates a `POrdering` from an `Ordering`.
-    pub fn from_ordering(ord: Ordering) -> POrdering {
+    /// Creates a `PartialOrdering` from an `Ordering`.
+    pub fn from_ordering(ord: Ordering) -> PartialOrdering {
         match ord {
-            Ordering::Less    => POrdering::PartialLess,
-            Ordering::Equal   => POrdering::PartialEqual,
-            Ordering::Greater => POrdering::PartialGreater
+            Ordering::Less    => PartialOrdering::PartialLess,
+            Ordering::Equal   => PartialOrdering::PartialEqual,
+            Ordering::Greater => PartialOrdering::PartialGreater
         }
     }
 
-    /// Converts this `POrdering` to an `Ordering`.
+    /// Converts this `PartialOrdering` to an `Ordering`.
     ///
     /// Returns `None` if `self` is `NotComparable`.
     pub fn to_ordering(self) -> Option<Ordering> {
         match self {
-            POrdering::PartialLess    => Some(Ordering::Less),
-            POrdering::PartialEqual   => Some(Ordering::Equal),
-            POrdering::PartialGreater => Some(Ordering::Greater),
-            POrdering::NotComparable  => None
+            PartialOrdering::PartialLess    => Some(Ordering::Less),
+            PartialOrdering::PartialEqual   => Some(Ordering::Equal),
+            PartialOrdering::PartialGreater => Some(Ordering::Greater),
+            PartialOrdering::NotComparable  => None
         }
     }
 }
 
 /// Pointwise ordering operations.
-pub trait POrd {
+pub trait PartialOrder {
     /// Returns the infimum of this value and another
     fn inf(&self, other: &Self) -> Self;
 
@@ -80,49 +80,49 @@ pub trait POrd {
     fn sup(&self, other: &Self) -> Self;
 
     /// Compare `self` and `other` using a partial ordering relation.
-    fn partial_cmp(&self, other: &Self) -> POrdering;
+    fn partial_cmp(&self, other: &Self) -> PartialOrdering;
 
     /// Returns `true` iff `self` and `other` are comparable and `self <= other`.
     #[inline]
     fn partial_le(&self, other: &Self) -> bool {
-        POrd::partial_cmp(self, other).is_le()
+        PartialOrder::partial_cmp(self, other).is_le()
     }
 
     /// Returns `true` iff `self` and `other` are comparable and `self < other`.
     #[inline]
     fn partial_lt(&self, other: &Self) -> bool {
-        POrd::partial_cmp(self, other).is_lt()
+        PartialOrder::partial_cmp(self, other).is_lt()
     }
 
     /// Returns `true` iff `self` and `other` are comparable and `self >= other`.
     #[inline]
     fn partial_ge(&self, other: &Self) -> bool {
-        POrd::partial_cmp(self, other).is_ge()
+        PartialOrder::partial_cmp(self, other).is_ge()
     }
 
     /// Returns `true` iff `self` and `other` are comparable and `self > other`.
     #[inline]
     fn partial_gt(&self, other: &Self) -> bool {
-        POrd::partial_cmp(self, other).is_gt()
+        PartialOrder::partial_cmp(self, other).is_gt()
     }
 
     /// Return the minimum of `self` and `other` if they are comparable.
     #[inline]
     fn partial_min<'a>(&'a self, other: &'a Self) -> Option<&'a Self> {
-        match POrd::partial_cmp(self, other) {
-            POrdering::PartialLess | POrdering::PartialEqual => Some(self),
-            POrdering::PartialGreater             => Some(other),
-            POrdering::NotComparable              => None
+        match PartialOrder::partial_cmp(self, other) {
+            PartialOrdering::PartialLess | PartialOrdering::PartialEqual => Some(self),
+            PartialOrdering::PartialGreater             => Some(other),
+            PartialOrdering::NotComparable              => None
         }
     }
 
     /// Return the maximum of `self` and `other` if they are comparable.
     #[inline]
     fn partial_max<'a>(&'a self, other: &'a Self) -> Option<&'a Self> {
-        match POrd::partial_cmp(self, other) {
-            POrdering::PartialGreater | POrdering::PartialEqual => Some(self),
-            POrdering::PartialLess   => Some(other),
-            POrdering::NotComparable => None
+        match PartialOrder::partial_cmp(self, other) {
+            PartialOrdering::PartialGreater | PartialOrdering::PartialEqual => Some(self),
+            PartialOrdering::PartialLess   => Some(other),
+            PartialOrdering::NotComparable => None
         }
     }
 
@@ -276,18 +276,18 @@ pub trait Absolute<A> {
 }
 
 /// Trait of objects having an inverse. Typically used to implement matrix inverse.
-pub trait Inv: Sized {
+pub trait Inverse: Sized {
     /// Returns the inverse of `m`.
-    fn inv(&self) -> Option<Self>;
+    fn inverse(&self) -> Option<Self>;
 
     /// In-place version of `inverse`.
-    fn inv_mut(&mut self) -> bool;
+    fn inverse_mut(&mut self) -> bool;
 }
 
 /// Trait of objects having a determinant. Typically used by square matrices.
-pub trait Det<N> {
+pub trait Determinant<N> {
     /// Returns the determinant of `m`.
-    fn det(&self) -> N;
+    fn determinant(&self) -> N;
 }
 
 /// Trait of objects which can be transposed.
@@ -309,19 +309,19 @@ pub trait Outer {
 }
 
 /// Trait for computing the covariance of a set of data.
-pub trait Cov<M> {
+pub trait Covariance<M> {
     /// Computes the covariance of the obsevations stored by `m`:
     ///
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn cov(&self) -> M;
+    fn covariance(&self) -> M;
 
     /// Computes the covariance of the obsevations stored by `m`:
     ///
     ///   * For matrices, observations are stored in its rows.
     ///   * For vectors, observations are stored in its components (thus are 1-dimensional).
-    fn cov_to(&self, out: &mut M) {
-        *out = self.cov()
+    fn covariance_to(&self, out: &mut M) {
+        *out = self.covariance()
     }
 }
 
@@ -335,7 +335,7 @@ pub trait Mean<N> {
 }
 
 /// Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.
-pub trait EigenQR<N, V: Mul<Self, Output = V>>: SquareMat<N, V> {
+pub trait EigenQR<N, V: Mul<Self, Output = V>>: SquareMatrix<N, V> {
     /// Computes the eigenvectors and eigenvalues of this matrix.
     fn eigen_qr(&self, eps: &N, niter: usize) -> (Self, V);
 }

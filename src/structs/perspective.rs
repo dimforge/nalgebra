@@ -1,5 +1,5 @@
 use traits::structure::BaseFloat;
-use structs::{Pnt3, Vec3, Mat4};
+use structs::{Point3, Vector3, Matrix4};
 
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
@@ -11,9 +11,9 @@ use quickcheck::{Arbitrary, Gen};
 /// `(1, 1, 1)`. Reading or modifying its individual properties is cheap but applying the
 /// transformation is costly.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
-pub struct Persp3<N> {
+pub struct Perspective3<N> {
     aspect: N,
-    fovy:    N,
+    fovy:   N,
     znear:  N,
     zfar:   N
 }
@@ -24,46 +24,46 @@ pub struct Persp3<N> {
 /// `(1, 1, 1)`. Reading or modifying its individual properties is costly but applying the
 /// transformation is cheap.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
-pub struct PerspMat3<N> {
-    mat: Mat4<N>
+pub struct PerspectiveMatrix3<N> {
+    matrix: Matrix4<N>
 }
 
-impl<N: BaseFloat> Persp3<N> {
+impl<N: BaseFloat> Perspective3<N> {
     /// Creates a new 3D perspective projection.
-    pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> Persp3<N> {
+    pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> Perspective3<N> {
         assert!(!::is_zero(&(zfar - znear)));
         assert!(!::is_zero(&aspect));
 
-        Persp3 {
+        Perspective3 {
             aspect: aspect,
-            fovy:    fovy,
+            fovy:   fovy,
             znear:  znear,
             zfar:   zfar
         }
     }
 
     /// Builds a 4D projection matrix (using homogeneous coordinates) for this projection.
-    pub fn to_mat(&self) -> Mat4<N> {
-        self.to_persp_mat().mat
+    pub fn to_matrix(&self) -> Matrix4<N> {
+        self.to_perspective_matrix().matrix
     }
 
-    /// Build a `PerspMat3` representing this projection.
-    pub fn to_persp_mat(&self) -> PerspMat3<N> {
-        PerspMat3::new(self.aspect, self.fovy, self.znear, self.zfar)
+    /// Build a `PerspectiveMatrix3` representing this projection.
+    pub fn to_perspective_matrix(&self) -> PerspectiveMatrix3<N> {
+        PerspectiveMatrix3::new(self.aspect, self.fovy, self.znear, self.zfar)
     }
 }
 
 #[cfg(feature="arbitrary")]
-impl<N: Arbitrary + BaseFloat> Arbitrary for Persp3<N> {
-    fn arbitrary<G: Gen>(g: &mut G) -> Persp3<N> {
-        use structs::ortho::reject;
+impl<N: Arbitrary + BaseFloat> Arbitrary for Perspective3<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> Perspective3<N> {
+        use structs::orthographic::reject;
         let znear = Arbitrary::arbitrary(g);
         let zfar = reject(g, |&x: &N| !::is_zero(&(x - znear)));
-        Persp3::new(Arbitrary::arbitrary(g), Arbitrary::arbitrary(g), znear, zfar)
+        Perspective3::new(Arbitrary::arbitrary(g), Arbitrary::arbitrary(g), znear, zfar)
     }
 }
 
-impl<N: BaseFloat + Clone> Persp3<N> {
+impl<N: BaseFloat + Clone> Perspective3<N> {
     /// Gets the `width / height` aspect ratio.
     #[inline]
     pub fn aspect(&self) -> N {
@@ -122,33 +122,33 @@ impl<N: BaseFloat + Clone> Persp3<N> {
 
     /// Projects a point.
     #[inline]
-    pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
+    pub fn project_point(&self, p: &Point3<N>) -> Point3<N> {
         // FIXME: optimize that
-        self.to_persp_mat().project_pnt(p)
+        self.to_perspective_matrix().project_point(p)
     }
 
     /// Projects a vector.
     #[inline]
-    pub fn project_vec(&self, p: &Vec3<N>) -> Vec3<N> {
+    pub fn project_vector(&self, p: &Vector3<N>) -> Vector3<N> {
         // FIXME: optimize that
-        self.to_persp_mat().project_vec(p)
+        self.to_perspective_matrix().project_vector(p)
     }
 }
 
-impl<N: BaseFloat> PerspMat3<N> {
+impl<N: BaseFloat> PerspectiveMatrix3<N> {
     /// Creates a new perspective matrix from the aspect ratio, y field of view, and near/far planes.
-    pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> PerspMat3<N> {
+    pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> PerspectiveMatrix3<N> {
         assert!(!::is_zero(&(znear - zfar)));
         assert!(!::is_zero(&aspect));
 
-        let mat: Mat4<N> = ::one();
+        let matrix: Matrix4<N> = ::one();
 
-        let mut res = PerspMat3 { mat: mat };
+        let mut res = PerspectiveMatrix3 { matrix: matrix };
         res.set_fovy(fovy);
         res.set_aspect(aspect);
         res.set_znear_and_zfar(znear, zfar);
-        res.mat.m44 = ::zero();
-        res.mat.m43 = -::one::<N>();
+        res.matrix.m44 = ::zero();
+        res.matrix.m43 = -::one::<N>();
 
         res
     }
@@ -157,22 +157,22 @@ impl<N: BaseFloat> PerspMat3<N> {
     ///
     /// This is unsafe because the input matrix is not checked to be a perspective projection.
     #[inline]
-    pub unsafe fn new_with_mat(mat: Mat4<N>) -> PerspMat3<N> {
-        PerspMat3 {
-            mat: mat
+    pub unsafe fn new_with_matrix(matrix: Matrix4<N>) -> PerspectiveMatrix3<N> {
+        PerspectiveMatrix3 {
+            matrix: matrix
         }
     }
 
     /// Returns a reference to the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
-    pub fn as_mat<'a>(&'a self) -> &'a Mat4<N> {
-        &self.mat
+    pub fn as_matrix<'a>(&'a self) -> &'a Matrix4<N> {
+        &self.matrix
     }
 
     /// Gets the `width / height` aspect ratio of the view frustrum.
     #[inline]
     pub fn aspect(&self) -> N {
-        self.mat.m22 / self.mat.m11
+        self.matrix.m22 / self.matrix.m11
     }
 
     /// Gets the y field of view of the view frustrum.
@@ -181,7 +181,7 @@ impl<N: BaseFloat> PerspMat3<N> {
         let _1: N = ::one();
         let _2 = _1 + _1;
 
-        (_1 / self.mat.m22).atan() * _2
+        (_1 / self.matrix.m22).atan() * _2
     }
 
     /// Gets the near plane offset of the view frustrum.
@@ -189,9 +189,9 @@ impl<N: BaseFloat> PerspMat3<N> {
     pub fn znear(&self) -> N {
         let _1: N = ::one();
         let _2 = _1 + _1;
-        let ratio = (-self.mat.m33 + _1) / (-self.mat.m33 - _1);
+        let ratio = (-self.matrix.m33 + _1) / (-self.matrix.m33 - _1);
 
-        self.mat.m34 / (_2 * ratio) - self.mat.m34 / _2
+        self.matrix.m34 / (_2 * ratio) - self.matrix.m34 / _2
     }
 
     /// Gets the far plane offset of the view frustrum.
@@ -199,9 +199,9 @@ impl<N: BaseFloat> PerspMat3<N> {
     pub fn zfar(&self) -> N {
         let _1: N = ::one();
         let _2 = _1 + _1;
-        let ratio = (-self.mat.m33 + _1) / (-self.mat.m33 - _1);
+        let ratio = (-self.matrix.m33 + _1) / (-self.matrix.m33 - _1);
 
-        (self.mat.m34 - ratio * self.mat.m34) / _2
+        (self.matrix.m34 - ratio * self.matrix.m34) / _2
     }
 
     // FIXME: add a method to retrieve znear and zfar simultaneously?
@@ -211,7 +211,7 @@ impl<N: BaseFloat> PerspMat3<N> {
     #[inline]
     pub fn set_aspect(&mut self, aspect: N) {
         assert!(!::is_zero(&aspect));
-        self.mat.m11 = self.mat.m22 / aspect;
+        self.matrix.m11 = self.matrix.m22 / aspect;
     }
 
     /// Updates this projection with a new y field of view of the view frustrum.
@@ -220,9 +220,9 @@ impl<N: BaseFloat> PerspMat3<N> {
         let _1: N = ::one();
         let _2 = _1 + _1;
 
-        let old_m22  = self.mat.m22.clone();
-        self.mat.m22 = _1 / (fovy / _2).tan();
-        self.mat.m11 = self.mat.m11 * (self.mat.m22 / old_m22);
+        let old_m22  = self.matrix.m22.clone();
+        self.matrix.m22 = _1 / (fovy / _2).tan();
+        self.matrix.m11 = self.matrix.m11 * (self.matrix.m22 / old_m22);
     }
 
     /// Updates this projection matrix with a new near plane offset of the view frustrum.
@@ -245,47 +245,47 @@ impl<N: BaseFloat> PerspMat3<N> {
         let _1: N = ::one();
         let _2 = _1 + _1;
 
-        self.mat.m33 = (zfar + znear) / (znear - zfar);
-        self.mat.m34 = zfar * znear * _2 / (znear - zfar);
+        self.matrix.m33 = (zfar + znear) / (znear - zfar);
+        self.matrix.m34 = zfar * znear * _2 / (znear - zfar);
     }
 
     /// Projects a point.
     #[inline]
-    pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
+    pub fn project_point(&self, p: &Point3<N>) -> Point3<N> {
         let _1: N = ::one();
-        let inv_denom = -_1 / p.z;
-        Pnt3::new(
-            self.mat.m11 * p.x * inv_denom,
-            self.mat.m22 * p.y * inv_denom,
-            (self.mat.m33 * p.z + self.mat.m34) * inv_denom
+        let inverse_denom = -_1 / p.z;
+        Point3::new(
+            self.matrix.m11 * p.x * inverse_denom,
+            self.matrix.m22 * p.y * inverse_denom,
+            (self.matrix.m33 * p.z + self.matrix.m34) * inverse_denom
         )
     }
 
     /// Projects a vector.
     #[inline]
-    pub fn project_vec(&self, p: &Vec3<N>) -> Vec3<N> {
+    pub fn project_vector(&self, p: &Vector3<N>) -> Vector3<N> {
         let _1: N = ::one();
-        let inv_denom = -_1 / p.z;
-        Vec3::new(
-            self.mat.m11 * p.x * inv_denom,
-            self.mat.m22 * p.y * inv_denom,
-            self.mat.m33
+        let inverse_denom = -_1 / p.z;
+        Vector3::new(
+            self.matrix.m11 * p.x * inverse_denom,
+            self.matrix.m22 * p.y * inverse_denom,
+            self.matrix.m33
         )
     }
 }
 
-impl<N: BaseFloat + Clone> PerspMat3<N> {
+impl<N: BaseFloat + Clone> PerspectiveMatrix3<N> {
     /// Returns the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
-    pub fn to_mat<'a>(&'a self) -> Mat4<N> {
-        self.mat.clone()
+    pub fn to_matrix<'a>(&'a self) -> Matrix4<N> {
+        self.matrix.clone()
     }
 }
 
 #[cfg(feature="arbitrary")]
-impl<N: Arbitrary + BaseFloat> Arbitrary for PerspMat3<N> {
-    fn arbitrary<G: Gen>(g: &mut G) -> PerspMat3<N> {
-        let x: Persp3<N> = Arbitrary::arbitrary(g);
-        x.to_persp_mat()
+impl<N: Arbitrary + BaseFloat> Arbitrary for PerspectiveMatrix3<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> PerspectiveMatrix3<N> {
+        let x: Perspective3<N> = Arbitrary::arbitrary(g);
+        x.to_perspective_matrix()
     }
 }

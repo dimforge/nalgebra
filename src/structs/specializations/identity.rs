@@ -1,27 +1,27 @@
 use std::ops::Mul;
 use num::One;
-use structs::mat;
-use traits::operations::{Inv, Transpose};
+use structs::matrix::Identity;
+use traits::operations::{Inverse, Transpose};
 use traits::geometry::{Translate, Rotate, Transform, AbsoluteRotate};
 
-impl One for mat::Identity {
+impl One for Identity {
     #[inline]
-    fn one() -> mat::Identity {
-        mat::Identity::new()
+    fn one() -> Identity {
+        Identity::new()
     }
 }
 
-impl Inv for mat::Identity {
-    fn inv(&self) -> Option<mat::Identity> {
-        Some(mat::Identity::new())
+impl Inverse for Identity {
+    fn inverse(&self) -> Option<Identity> {
+        Some(Identity::new())
     }
 
-    fn inv_mut(&mut self) -> bool {
+    fn inverse_mut(&mut self) -> bool {
         true
     }
 }
 
-impl<T: Clone> Mul<T> for mat::Identity {
+impl<T: Clone> Mul<T> for Identity {
     type Output = T;
 
     #[inline]
@@ -30,10 +30,10 @@ impl<T: Clone> Mul<T> for mat::Identity {
     }
 }
 
-impl Transpose for mat::Identity {
+impl Transpose for Identity {
     #[inline]
-    fn transpose(&self) -> mat::Identity {
-        mat::Identity::new()
+    fn transpose(&self) -> Identity {
+        Identity::new()
     }
 
     #[inline]
@@ -41,45 +41,45 @@ impl Transpose for mat::Identity {
     }
 }
 
-impl<V: Clone> Translate<V> for mat::Identity {
+impl<V: Clone> Translate<V> for Identity {
     #[inline]
     fn translate(&self, v: &V) -> V {
         v.clone()
     }
 
     #[inline]
-    fn inv_translate(&self, v: &V) -> V {
+    fn inverse_translate(&self, v: &V) -> V {
         v.clone()
     }
 }
 
-impl<V: Clone> Rotate<V> for mat::Identity {
+impl<V: Clone> Rotate<V> for Identity {
     #[inline]
     fn rotate(&self, v: &V) -> V {
         v.clone()
     }
 
     #[inline]
-    fn inv_rotate(&self, v: &V) -> V {
+    fn inverse_rotate(&self, v: &V) -> V {
         v.clone()
     }
 }
 
-impl<V: Clone> AbsoluteRotate<V> for mat::Identity {
+impl<V: Clone> AbsoluteRotate<V> for Identity {
     #[inline]
     fn absolute_rotate(&self, v: &V) -> V {
         v.clone()
     }
 }
 
-impl<V: Clone> Transform<V> for mat::Identity {
+impl<V: Clone> Transform<V> for Identity {
     #[inline]
     fn transform(&self, v: &V) -> V {
         v.clone()
     }
 
     #[inline]
-    fn inv_transform(&self, v: &V) -> V {
+    fn inverse_transform(&self, v: &V) -> V {
         v.clone()
     }
 }

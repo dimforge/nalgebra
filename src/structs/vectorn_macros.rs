@@ -497,7 +497,7 @@ macro_rules! vecn_dvec_common_impl(
          */
         impl<N: BaseFloat $(, $param : ArrayLength<N>)*> Norm<N> for $vecn<N $(, $param)*> {
             #[inline]
-            fn sqnorm(&self) -> N {
+            fn norm_squared(&self) -> N {
                 Dot::dot(self, self)
             }
 

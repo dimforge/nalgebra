@@ -1,18 +1,18 @@
 #![macro_use]
 
 macro_rules! sim_impl(
-    ($t: ident, $iso: ident, $rotmat: ident, $subvec: ident, $subrotvec: ident) => (
+    ($t: ident, $isometry: ident, $rotation_matrix: ident, $subvector: ident, $subrotvector: ident) => (
         impl<N: BaseFloat> $t<N> {
             /// Creates a new similarity transformation from a vector, an axis-angle rotation, and a scale factor.
             ///
             /// The scale factor may be negative but not zero.
             #[inline]
-            pub fn new(translation: $subvec<N>, rotation: $subrotvec<N>, scale: N) -> $t<N> {
+            pub fn new(translation: $subvector<N>, rotation: $subrotvector<N>, scale: N) -> $t<N> {
                 assert!(!scale.is_zero(), "A similarity transformation scale factor cannot be zero.");
 
                 $t {
                     scale:    scale,
-                    isometry: $iso::new(translation, rotation)
+                    isometry: $isometry::new(translation, rotation)
                 }
             }
 
@@ -20,12 +20,12 @@ macro_rules! sim_impl(
             ///
             /// The scale factor may be negative but not zero.
             #[inline]
-            pub fn new_with_rotmat(translation: $subvec<N>, rotation: $rotmat<N>, scale: N) -> $t<N> {
+            pub fn new_with_rotation_matrix(translation: $subvector<N>, rotation: $rotation_matrix<N>, scale: N) -> $t<N> {
                 assert!(!scale.is_zero(), "A similarity transformation scale factor cannot be zero.");
 
                 $t {
                     scale:    scale,
-                    isometry: $iso::new_with_rotmat(translation, rotation)
+                    isometry: $isometry::new_with_rotation_matrix(translation, rotation)
                 }
             }
 
@@ -33,7 +33,7 @@ macro_rules! sim_impl(
             ///
             /// The scale factor may be negative but not zero.
             #[inline]
-            pub fn new_with_iso(isometry: $iso<N>, scale: N) -> $t<N> {
+            pub fn new_with_isometry(isometry: $isometry<N>, scale: N) -> $t<N> {
                 assert!(!scale.is_zero(), "A similarity transformation scale factor cannot be zero.");
 
                 $t {
@@ -56,7 +56,7 @@ macro_rules! sim_scale_impl(
 
             /// The inverse scale factor of this similarity transformation.
             #[inline]
-            pub fn inv_scale(&self) -> N {
+            pub fn inverse_scale(&self) -> N {
                 ::one::<N>() / self.scale
             }
 
@@ -72,7 +72,7 @@ macro_rules! sim_scale_impl(
             #[inline]
             pub fn append_scale(&self, s: &N) -> $t<N> {
                 assert!(!s.is_zero(), "Cannot append a zero scale to a similarity transformation.");
-                $t::new_with_rotmat(self.isometry.translation * *s, self.isometry.rotation, self.scale * *s)
+                $t::new_with_rotation_matrix(self.isometry.translation * *s, self.isometry.rotation, self.scale * *s)
             }
 
             /// Prepends in-place a scale to this similarity transformation.
@@ -86,7 +86,7 @@ macro_rules! sim_scale_impl(
             #[inline]
             pub fn prepend_scale(&self, s: &N) -> $t<N> {
                 assert!(!s.is_zero(), "A similarity transformation scale must not be zero.");
-                $t::new_with_iso(self.isometry, self.scale * *s)
+                $t::new_with_isometry(self.isometry, self.scale * *s)
             }
 
             /// Sets the scale of this similarity transformation.
@@ -104,7 +104,7 @@ macro_rules! sim_one_impl(
         impl<N: BaseFloat> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
-                $t::new_with_iso(::one(), ::one())
+                $t::new_with_isometry(::one(), ::one())
             }
         }
     )
@@ -117,7 +117,7 @@ macro_rules! sim_mul_sim_impl(
 
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
-                $t::new_with_rotmat(
+                $t::new_with_rotation_matrix(
                     self.isometry.translation + self.isometry.rotation * (right.isometry.translation * self.scale),
                     self.isometry.rotation * right.isometry.rotation,
                     self.scale * right.scale)
@@ -135,14 +135,14 @@ macro_rules! sim_mul_sim_impl(
     )
 );
 
-macro_rules! sim_mul_iso_impl(
+macro_rules! sim_mul_isometry_impl(
     ($t: ident, $ti: ident) => (
         impl<N: BaseFloat> Mul<$ti<N>> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn mul(self, right: $ti<N>) -> $t<N> {
-                $t::new_with_rotmat(
+                $t::new_with_rotation_matrix(
                     self.isometry.translation + self.isometry.rotation * (right.translation * self.scale),
                     self.isometry.rotation * right.rotation,
                     self.scale)
@@ -162,7 +162,7 @@ macro_rules! sim_mul_iso_impl(
 
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
-                $t::new_with_rotmat(
+                $t::new_with_rotation_matrix(
                     self.translation + self.rotation * right.isometry.translation,
                     self.rotation * right.isometry.rotation,
                     right.scale)
@@ -171,14 +171,14 @@ macro_rules! sim_mul_iso_impl(
     )
 );
 
-macro_rules! sim_mul_rot_impl(
+macro_rules! sim_mul_rotation_impl(
     ($t: ident, $tr: ident) => (
         impl<N: BaseFloat> Mul<$tr<N>> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn mul(self, right: $tr<N>) -> $t<N> {
-                $t::new_with_rotmat(
+                $t::new_with_rotation_matrix(
                     self.isometry.translation,
                     self.isometry.rotation * right,
                     self.scale)
@@ -197,7 +197,7 @@ macro_rules! sim_mul_rot_impl(
 
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
-                $t::new_with_rotmat(
+                $t::new_with_rotation_matrix(
                     self * right.isometry.translation,
                     self * right.isometry.rotation,
                     right.scale)
@@ -206,7 +206,7 @@ macro_rules! sim_mul_rot_impl(
     )
 );
 
-macro_rules! sim_mul_pnt_vec_impl(
+macro_rules! sim_mul_point_vec_impl(
     ($t: ident, $tv: ident) => (
         impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
             type Output = $tv<N>;
@@ -232,20 +232,20 @@ macro_rules! sim_transform_impl(
             }
 
             #[inline]
-            fn inv_transform(&self, p: &$tp<N>) -> $tp<N> {
-                self.isometry.inv_transform(p) / self.scale
+            fn inverse_transform(&self, p: &$tp<N>) -> $tp<N> {
+                self.isometry.inverse_transform(p) / self.scale
             }
         }
     )
 );
 
-macro_rules! sim_inv_impl(
+macro_rules! sim_inverse_impl(
     ($t: ident) => (
-        impl<N: BaseNum + Neg<Output = N>> Inv for $t<N> {
+        impl<N: BaseNum + Neg<Output = N>> Inverse for $t<N> {
             #[inline]
-            fn inv_mut(&mut self) -> bool {
+            fn inverse_mut(&mut self) -> bool {
                 self.scale = ::one::<N>() / self.scale;
-                self.isometry.inv_mut();
+                self.isometry.inverse_mut();
                 // We multiply (instead of dividing) by self.scale because it has already been
                 // inverted.
                 self.isometry.translation = self.isometry.translation * self.scale;
@@ -255,9 +255,9 @@ macro_rules! sim_inv_impl(
             }
 
             #[inline]
-            fn inv(&self) -> Option<$t<N>> {
+            fn inverse(&self) -> Option<$t<N>> {
                 let mut res = *self;
-                res.inv_mut();
+                res.inverse_mut();
 
                 // Always succeed.
                 Some(res)
@@ -270,12 +270,12 @@ macro_rules! sim_to_homogeneous_impl(
     ($t: ident, $th: ident) => (
         impl<N: BaseNum> ToHomogeneous<$th<N>> for $t<N> {
             fn to_homogeneous(&self) -> $th<N> {
-                let mut res = (*self.isometry.rotation.submat() * self.scale).to_homogeneous();
+                let mut res = (*self.isometry.rotation.submatrix() * self.scale).to_homogeneous();
 
                 // copy the translation
-                let dim = Dim::dim(None::<$th<N>>);
+                let dimension = Dimension::dimension(None::<$th<N>>);
 
-                res.set_col(dim - 1, self.isometry.translation.as_pnt().to_homogeneous().to_vec());
+                res.set_col(dimension - 1, self.isometry.translation.as_point().to_homogeneous().to_vector());
 
                 res
             }
@@ -321,7 +321,7 @@ macro_rules! sim_rand_impl(
                     scale = rng.gen();
                 }
 
-                $t::new_with_iso(rng.gen(), scale)
+                $t::new_with_isometry(rng.gen(), scale)
             }
         }
     )
@@ -332,7 +332,7 @@ macro_rules! sim_arbitrary_impl(
         #[cfg(feature="arbitrary")]
         impl<N: Arbitrary + BaseFloat> Arbitrary for $t<N> {
             fn arbitrary<G: Gen>(g: &mut G) -> $t<N> {
-                $t::new_with_iso(
+                $t::new_with_isometry(
                     Arbitrary::arbitrary(g),
                     Arbitrary::arbitrary(g)
                 )
@@ -351,13 +351,13 @@ macro_rules! sim_display_impl(
                     try!(writeln!(f, "... scale factor: {:.*}", precision, self.scale));
                     try!(writeln!(f, "... translation: {:.*}", precision, self.isometry.translation));
                     try!(writeln!(f, "... rotation matrix:"));
-                    try!(write!(f, "{:.*}", precision, *self.isometry.rotation.submat()));
+                    try!(write!(f, "{:.*}", precision, *self.isometry.rotation.submatrix()));
                 }
                 else {
                     try!(writeln!(f, "... scale factor: {}", self.scale));
                     try!(writeln!(f, "... translation: {}", self.isometry.translation));
                     try!(writeln!(f, "... rotation matrix:"));
-                    try!(write!(f, "{}", *self.isometry.rotation.submat()));
+                    try!(write!(f, "{}", *self.isometry.rotation.submatrix()));
                 }
 
                 writeln!(f, "}}")

@@ -6,8 +6,8 @@ use std::ops::{Add, Sub, Mul, Div, Rem,
                AddAssign, SubAssign, MulAssign, DivAssign, RemAssign,
                Index, IndexMut, Neg};
 use num::{Float, Zero, One};
-use traits::operations::{Axpy, Transpose, Inv, Absolute};
-use traits::geometry::{Dot, Norm, Orig};
+use traits::operations::{Axpy, Transpose, Inverse, Absolute};
+use traits::geometry::{Dot, Norm, Origin};
 
 /// Basic integral numeric trait.
 pub trait BaseNum: Copy + Zero + One +
@@ -64,31 +64,31 @@ pub trait Cast<T> {
 /// Trait of matrices.
 ///
 /// A matrix has rows and columns and are able to multiply them.
-pub trait Mat<N, R, C: Mul<Self, Output = R>>: Sized +
-                                               Row<R> + Col<C> + Mul<R, Output = C> +
+pub trait Matrix<N, R, C: Mul<Self, Output = R>>: Sized +
+                                               Row<R> + Column<C> + Mul<R, Output = C> +
                                                Index<(usize, usize), Output = N>
 { }
 
-impl<N, M, R, C> Mat<N, R, C> for M
-    where M: Row<R> + Col<C> + Mul<R, Output = C> + Index<(usize, usize), Output = N>,
+impl<N, M, R, C> Matrix<N, R, C> for M
+    where M: Row<R> + Column<C> + Mul<R, Output = C> + Index<(usize, usize), Output = N>,
           C: Mul<M, Output = R>,
 { }
 
 /// Trait implemented by square matrices.
-pub trait SquareMat<N, V: Mul<Self, Output = V>>: Mat<N, V, V> +
+pub trait SquareMatrix<N, V: Mul<Self, Output = V>>: Matrix<N, V, V> +
                                                   Mul<Self, Output = Self> +
-                                                  Eye + Transpose + Diag<V> + Inv + Dim + One {
+                                                  Eye + Transpose + Diagonal<V> + Inverse + Dimension + One {
 }
 
-impl<N, V, M> SquareMat<N, V> for M
-    where M: Mat<N, V, V> + Mul<M, Output = M> + Eye + Transpose + Diag<V> + Inv + Dim + One,
+impl<N, V, M> SquareMatrix<N, V> for M
+    where M: Matrix<N, V, V> + Mul<M, Output = M> + Eye + Transpose + Diagonal<V> + Inverse + Dimension + One,
           V: Mul<M, Output = V> {
 }
 
 /// Trait for constructing the identity matrix
 pub trait Eye {
     /// Return the identity matrix of specified dimension
-    fn new_identity(dim: usize) -> Self;
+    fn new_identity(dimension: usize) -> Self;
 }
 
 /// Trait for constructiong an object repeating a value.
@@ -134,12 +134,12 @@ pub trait Row<R> {
 }
 
 /// Trait to access columns of a matrix or vector.
-pub trait Col<C> {
+pub trait Column<C> {
     /// The number of column of this matrix or vector.
     fn ncols(&self) -> usize;
 
     /// Reads the `i`-th column of `self`.
-    fn col(&self, i: usize) -> C;
+    fn column(&self, i: usize) -> C;
 
     /// Writes the `i`-th column of `self`.
     fn set_col(&mut self, i: usize, C);
@@ -149,7 +149,7 @@ pub trait Col<C> {
 }
 
 /// Trait to access part of a column of a matrix
-pub trait ColSlice<C> {
+pub trait ColumnSlice<C> {
     /// Returns a view to a slice of a column of a matrix.
     fn col_slice(&self, col_id: usize, row_start: usize, row_end: usize) -> C;
 }
@@ -161,24 +161,24 @@ pub trait RowSlice<R> {
 }
 
 /// Trait of objects having a spacial dimension known at compile time.
-pub trait Dim: Sized {
+pub trait Dimension: Sized {
     /// The dimension of the object.
-    fn dim(_unused: Option<Self>) -> usize;
+    fn dimension(_unused: Option<Self>) -> usize;
 }
 
 /// Trait to get the diagonal of square matrices.
-pub trait Diag<V> {
+pub trait Diagonal<V> {
     /// Creates a new matrix with the given diagonal.
-    fn from_diag(diag: &V) -> Self;
+    fn from_diag(diagonal: &V) -> Self;
 
     /// The diagonal of this matrix.
-    fn diag(&self) -> V;
+    fn diagonal(&self) -> V;
 }
 
 /// Trait to set the diagonal of square matrices.
-pub trait DiagMut<V>: Diag<V> {
+pub trait DiagMut<V>: Diagonal<V> {
     /// Sets the diagonal of this matrix.
-    fn set_diag(&mut self, diag: &V);
+    fn set_diag(&mut self, diagonal: &V);
 }
 
 /// The shape of an indexable object.
@@ -223,10 +223,10 @@ pub trait IterableMut<N> {
 }
 
 /*
- * Vec related traits.
+ * Vector related traits.
  */
 /// Trait grouping most common operations on vectors.
-pub trait NumVec<N>: Add<Self, Output = Self> + Sub<Self, Output = Self> +
+pub trait NumVector<N>: Add<Self, Output = Self> + Sub<Self, Output = Self> +
                      Mul<Self, Output = Self> + Div<Self, Output = Self> +
 
                      Add<N, Output = Self> + Sub<N, Output = Self> + 
@@ -238,67 +238,67 @@ pub trait NumVec<N>: Add<Self, Output = Self> + Sub<Self, Output = Self> +
                      AddAssign<N> + SubAssign<N> + 
                      MulAssign<N> + DivAssign<N> + 
 
-                     Dim + Index<usize, Output = N> +
+                     Dimension + Index<usize, Output = N> +
                      Zero + PartialEq + Dot<N> + Axpy<N> {
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
-pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Neg<Output = Self> + Basis {
+pub trait FloatVector<N: BaseFloat>: NumVector<N> + Norm<N> + Neg<Output = Self> + Basis {
 }
 
 /*
- * Pnt related traits.
+ * Point related traits.
  */
 /// Trait that relates a point of an affine space to a vector of the associated vector space.
-pub trait PntAsVec {
+pub trait PointAsVector {
     /// The vector type of the vector space associated to this point's affine space.
-    type Vec;
+    type Vector;
     
     /// Converts this point to its associated vector.
-    fn to_vec(self) -> Self::Vec;
+    fn to_vector(self) -> Self::Vector;
 
     /// Converts a reference to this point to a reference to its associated vector.
-    fn as_vec<'a>(&'a self) -> &'a Self::Vec;
+    fn as_vector<'a>(&'a self) -> &'a Self::Vector;
 
     // NOTE: this is used in some places to overcome some limitations untill the trait reform is
     // done on rustc.
     /// Sets the coordinates of this point to match those of a given vector.
-    fn set_coords(&mut self, coords: Self::Vec);
+    fn set_coords(&mut self, coords: Self::Vector);
 }
 
 /// Trait grouping most common operations on points.
 // XXX: the vector space element `V` should be an associated type. Though this would prevent V from
 // having bounds (they are not supported yet). So, for now, we will just use a type parameter.
-pub trait NumPnt<N>:
+pub trait NumPoint<N>:
           Copy +
-          PntAsVec +
-          Dim +
-          Orig +
+          PointAsVector +
+          Dimension +
+          Origin +
           PartialEq +
           Axpy<N> +
-          Sub<Self, Output = <Self as PntAsVec>::Vec> +
+          Sub<Self, Output = <Self as PointAsVector>::Vector> +
 
           Mul<N, Output = Self> + Div<N, Output = Self> +
-          Add<<Self as PntAsVec>::Vec, Output = Self> +
+          Add<<Self as PointAsVector>::Vector, Output = Self> +
 
           MulAssign<N> + DivAssign<N> +
-          AddAssign<<Self as PntAsVec>::Vec> +
+          AddAssign<<Self as PointAsVector>::Vector> +
 
           Index<usize, Output = N> { // FIXME: + Sub<V, Self>
 }
 
 /// Trait of points with components implementing the `BaseFloat` trait.
-pub trait FloatPnt<N: BaseFloat>: NumPnt<N> + Sized
-where <Self as PntAsVec>::Vec: Norm<N> {
+pub trait FloatPoint<N: BaseFloat>: NumPoint<N> + Sized
+    where <Self as PointAsVector>::Vector: Norm<N> {
     /// Computes the square distance between two points.
     #[inline]
-    fn sqdist(&self, other: &Self) -> N {
-        (*self - *other).sqnorm()
+    fn distance_squared(&self, other: &Self) -> N {
+        (*self - *other).norm_squared()
     }
 
     /// Computes the distance between two points.
     #[inline]
-    fn dist(&self, other: &Self) -> N {
+    fn distance(&self, other: &Self) -> N {
         (*self - *other).norm()
     }
 }

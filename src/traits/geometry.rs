@@ -1,7 +1,7 @@
 //! Traits of operations having a well-known or explicit geometric meaning.
 
 use std::ops::{Neg, Mul};
-use traits::structure::{BaseFloat, SquareMat};
+use traits::structure::{BaseFloat, SquareMatrix};
 
 /// Trait of object which represent a translation, and to wich new translation
 /// can be appended.
@@ -11,7 +11,7 @@ pub trait Translation<V> {
     fn translation(&self) -> V;
 
     /// Gets the inverse translation associated with this object.
-    fn inv_translation(&self) -> V;
+    fn inverse_translation(&self) -> V;
 
     /// Appends a translation to this object.
     fn append_translation_mut(&mut self, &V);
@@ -36,7 +36,7 @@ pub trait Translate<V> {
     fn translate(&self, &V) -> V;
 
     /// Apply an inverse translation to an object.
-    fn inv_translate(&self, &V) -> V;
+    fn inverse_translate(&self, &V) -> V;
 }
 
 /// Trait of object which can represent a rotation, and to which new rotations can be appended. A
@@ -46,7 +46,7 @@ pub trait Rotation<V> {
     fn rotation(&self) -> V;
 
     /// Gets the inverse rotation associated with `self`.
-    fn inv_rotation(&self) -> V;
+    fn inverse_rotation(&self) -> V;
 
     /// Appends a rotation to this object.
     fn append_rotation_mut(&mut self, &V);
@@ -88,7 +88,7 @@ pub trait Rotate<V> {
     fn rotate(&self, v: &V) -> V;
 
     /// Applies an inverse rotation to `v`.
-    fn inv_rotate(&self, v: &V) -> V;
+    fn inverse_rotate(&self, v: &V) -> V;
 }
 
 /// Various composition of rotation and translation.
@@ -159,10 +159,10 @@ impl<LV: Neg<Output = LV> + Copy, AV, M: Rotation<AV> + Translation<LV>> Rotatio
 /// be implemented by quaternions to convert them to a rotation matrix.
 pub trait RotationMatrix<N, LV: Mul<Self::Output, Output = LV>, AV> : Rotation<AV> {
     /// The output rotation matrix type.
-    type Output: SquareMat<N, LV> + Rotation<AV>;
+    type Output: SquareMatrix<N, LV> + Rotation<AV>;
 
     /// Gets the rotation matrix represented by `self`.
-    fn to_rot_mat(&self) -> Self::Output;
+    fn to_rotation_matrix(&self) -> Self::Output;
 }
 
 /// Composition of a rotation and an absolute value.
@@ -187,7 +187,7 @@ pub trait Transformation<M> {
     fn transformation(&self) -> M;
 
     /// Gets the inverse transformation of `self`.
-    fn inv_transformation(&self) -> M;
+    fn inverse_transformation(&self) -> M;
 
     /// Appends a transformation to this object.
     fn append_transformation_mut(&mut self, &M);
@@ -213,7 +213,7 @@ pub trait Transform<V> {
     fn transform(&self, &V) -> V;
 
     /// Applies an inverse transformation to `v`.
-    fn inv_transform(&self, &V) -> V;
+    fn inverse_transform(&self, &V) -> V;
 }
 
 /// Traits of objects having a dot product.
@@ -228,13 +228,13 @@ pub trait Norm<N: BaseFloat> {
     /// Computes the norm of `self`.
     #[inline]
     fn norm(&self) -> N {
-        self.sqnorm().sqrt()
+        self.norm_squared().sqrt()
     }
 
     /// Computes the squared norm of `self`.
     ///
     /// This is usually faster than computing the norm itself.
-    fn sqnorm(&self) -> N;
+    fn norm_squared(&self) -> N;
 
     /// Gets the normalized version of a copy of `v`.
     fn normalize(&self) -> Self;
@@ -288,10 +288,10 @@ pub trait UniformSphereSample : Sized {
 }
 
 /// The zero element of a vector space, seen as an element of its embeding affine space.
-// XXX: once associated types are suported, move this to the `AnyPnt` trait.
-pub trait Orig {
+// XXX: once associated types are suported, move this to the `AnyPoint` trait.
+pub trait Origin {
     /// The trivial origin.
-    fn orig() -> Self;
+    fn origin() -> Self;
     /// Returns true if this points is exactly the trivial origin.
-    fn is_orig(&self) -> bool;
+    fn is_origin(&self) -> bool;
 }

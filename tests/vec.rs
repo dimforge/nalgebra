@@ -4,12 +4,12 @@ extern crate typenum;
 extern crate nalgebra as na;
 
 use rand::random;
-use na::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6, Mat3, Rot2, Rot3, Iterable, IterableMut};
+use na::{Vector1, Vector2, Vector3, Vector4, Vector5, Vector6, Matrix3, Rotation2, Rotation3, Iterable, IterableMut};
 
 #[cfg(feature="generic_sizes")]
 use typenum::U10;
 #[cfg(feature="generic_sizes")]
-use na::VecN;
+use na::VectorN;
 
 
 macro_rules! test_iterator_impl(
@@ -109,9 +109,9 @@ macro_rules! test_subspace_basis_impl(
 #[test]
 fn test_cross_vec3() {
     for _ in 0usize .. 10000 {
-        let v1 : Vec3<f64> = random();
-        let v2 : Vec3<f64> = random();
-        let v3 : Vec3<f64> = na::cross(&v1, &v2);
+        let v1 : Vector3<f64> = random();
+        let v2 : Vector3<f64> = random();
+        let v3 : Vector3<f64> = na::cross(&v1, &v2);
 
         assert!(na::approx_eq(&na::dot(&v3, &v2), &na::zero()));
         assert!(na::approx_eq(&na::dot(&v3, &v1), &na::zero()));
@@ -120,182 +120,182 @@ fn test_cross_vec3() {
 
 #[test]
 fn test_commut_dot_vec1() {
-    test_commut_dot_impl!(Vec1<f64>);
+    test_commut_dot_impl!(Vector1<f64>);
 }
 
 #[test]
 fn test_commut_dot_vec2() {
-    test_commut_dot_impl!(Vec2<f64>);
+    test_commut_dot_impl!(Vector2<f64>);
 }
 
 #[test]
 fn test_commut_dot_vec3() {
-    test_commut_dot_impl!(Vec3<f64>);
+    test_commut_dot_impl!(Vector3<f64>);
 }
 
 #[test]
 fn test_commut_dot_vec4() {
-    test_commut_dot_impl!(Vec4<f64>);
+    test_commut_dot_impl!(Vector4<f64>);
 }
 
 #[test]
 fn test_commut_dot_vec5() {
-    test_commut_dot_impl!(Vec5<f64>);
+    test_commut_dot_impl!(Vector5<f64>);
 }
 
 #[test]
 fn test_commut_dot_vec6() {
-    test_commut_dot_impl!(Vec6<f64>);
+    test_commut_dot_impl!(Vector6<f64>);
 }
 
 #[test]
 fn test_basis_vec1() {
-    test_basis_impl!(Vec1<f64>);
+    test_basis_impl!(Vector1<f64>);
 }
 
 #[test]
 fn test_basis_vec2() {
-    test_basis_impl!(Vec2<f64>);
+    test_basis_impl!(Vector2<f64>);
 }
 
 #[test]
 fn test_basis_vec3() {
-    test_basis_impl!(Vec3<f64>);
+    test_basis_impl!(Vector3<f64>);
 }
 
 #[test]
 fn test_basis_vec4() {
-    test_basis_impl!(Vec4<f64>);
+    test_basis_impl!(Vector4<f64>);
 }
 
 #[test]
 fn test_basis_vec5() {
-    test_basis_impl!(Vec5<f64>);
+    test_basis_impl!(Vector5<f64>);
 }
 
 #[test]
 fn test_basis_vec6() {
-    test_basis_impl!(Vec6<f64>);
+    test_basis_impl!(Vector6<f64>);
 }
 
 #[test]
 fn test_subspace_basis_vec1() {
-    test_subspace_basis_impl!(Vec1<f64>);
+    test_subspace_basis_impl!(Vector1<f64>);
 }
 
 #[test]
 fn test_subspace_basis_vec2() {
-    test_subspace_basis_impl!(Vec2<f64>);
+    test_subspace_basis_impl!(Vector2<f64>);
 }
 
 #[test]
 fn test_subspace_basis_vec3() {
-    test_subspace_basis_impl!(Vec3<f64>);
+    test_subspace_basis_impl!(Vector3<f64>);
 }
 
 #[test]
 fn test_subspace_basis_vec4() {
-    test_subspace_basis_impl!(Vec4<f64>);
+    test_subspace_basis_impl!(Vector4<f64>);
 }
 
 #[test]
 fn test_subspace_basis_vec5() {
-    test_subspace_basis_impl!(Vec5<f64>);
+    test_subspace_basis_impl!(Vector5<f64>);
 }
 
 #[test]
 fn test_subspace_basis_vec6() {
-    test_subspace_basis_impl!(Vec6<f64>);
+    test_subspace_basis_impl!(Vector6<f64>);
 }
 
 #[test]
 fn test_scalar_op_vec1() {
-    test_scalar_op_impl!(Vec1<f64>, f64);
+    test_scalar_op_impl!(Vector1<f64>, f64);
 }
 
 #[test]
 fn test_scalar_op_vec2() {
-    test_scalar_op_impl!(Vec2<f64>, f64);
+    test_scalar_op_impl!(Vector2<f64>, f64);
 }
 
 #[test]
 fn test_scalar_op_vec3() {
-    test_scalar_op_impl!(Vec3<f64>, f64);
+    test_scalar_op_impl!(Vector3<f64>, f64);
 }
 
 #[test]
 fn test_scalar_op_vec4() {
-    test_scalar_op_impl!(Vec4<f64>, f64);
+    test_scalar_op_impl!(Vector4<f64>, f64);
 }
 
 #[test]
 fn test_scalar_op_vec5() {
-    test_scalar_op_impl!(Vec5<f64>, f64);
+    test_scalar_op_impl!(Vector5<f64>, f64);
 }
 
 #[test]
 fn test_scalar_op_vec6() {
-    test_scalar_op_impl!(Vec6<f64>, f64);
+    test_scalar_op_impl!(Vector6<f64>, f64);
 }
 
 #[test]
 fn test_iterator_vec1() {
-    test_iterator_impl!(Vec1<f64>, f64);
+    test_iterator_impl!(Vector1<f64>, f64);
 }
 
 #[test]
 fn test_iterator_vec2() {
-    test_iterator_impl!(Vec2<f64>, f64);
+    test_iterator_impl!(Vector2<f64>, f64);
 }
 
 #[test]
 fn test_iterator_vec3() {
-    test_iterator_impl!(Vec3<f64>, f64);
+    test_iterator_impl!(Vector3<f64>, f64);
 }
 
 #[test]
 fn test_iterator_vec4() {
-    test_iterator_impl!(Vec4<f64>, f64);
+    test_iterator_impl!(Vector4<f64>, f64);
 }
 
 #[test]
 fn test_iterator_vec5() {
-    test_iterator_impl!(Vec5<f64>, f64);
+    test_iterator_impl!(Vector5<f64>, f64);
 }
 
 #[test]
 fn test_iterator_vec6() {
-    test_iterator_impl!(Vec6<f64>, f64);
+    test_iterator_impl!(Vector6<f64>, f64);
 }
 
 #[test]
 fn test_ord_vec3() {
     // equality
-    assert!(Vec3::new(0.5f64, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5));
-    assert!(!(Vec3::new(1.5f64, 0.5, 0.5) == Vec3::new(0.5, 0.5, 0.5)));
-    assert!(Vec3::new(1.5f64, 0.5, 0.5) != Vec3::new(0.5, 0.5, 0.5));
+    assert!(Vector3::new(0.5f64, 0.5, 0.5) == Vector3::new(0.5, 0.5, 0.5));
+    assert!(!(Vector3::new(1.5f64, 0.5, 0.5) == Vector3::new(0.5, 0.5, 0.5)));
+    assert!(Vector3::new(1.5f64, 0.5, 0.5) != Vector3::new(0.5, 0.5, 0.5));
 
     // comparable
-    assert!(na::partial_cmp(&Vec3::new(0.5f64, 0.3, 0.3), &Vec3::new(1.0, 2.0, 1.0)).is_le());
-    assert!(na::partial_cmp(&Vec3::new(0.5f64, 0.3, 0.3), &Vec3::new(1.0, 2.0, 1.0)).is_lt());
-    assert!(na::partial_cmp(&Vec3::new(2.0f64, 4.0, 2.0), &Vec3::new(1.0, 2.0, 1.0)).is_ge());
-    assert!(na::partial_cmp(&Vec3::new(2.0f64, 4.0, 2.0), &Vec3::new(1.0, 2.0, 1.0)).is_gt());
+    assert!(na::partial_cmp(&Vector3::new(0.5f64, 0.3, 0.3), &Vector3::new(1.0, 2.0, 1.0)).is_le());
+    assert!(na::partial_cmp(&Vector3::new(0.5f64, 0.3, 0.3), &Vector3::new(1.0, 2.0, 1.0)).is_lt());
+    assert!(na::partial_cmp(&Vector3::new(2.0f64, 4.0, 2.0), &Vector3::new(1.0, 2.0, 1.0)).is_ge());
+    assert!(na::partial_cmp(&Vector3::new(2.0f64, 4.0, 2.0), &Vector3::new(1.0, 2.0, 1.0)).is_gt());
 
     // not comparable
-    assert!(na::partial_cmp(&Vec3::new(0.0f64, 3.0, 0.0), &Vec3::new(1.0, 2.0, 1.0)).is_not_comparable());
+    assert!(na::partial_cmp(&Vector3::new(0.0f64, 3.0, 0.0), &Vector3::new(1.0, 2.0, 1.0)).is_not_comparable());
 }
 
 #[test]
 fn test_min_max_vec3() {
-    assert_eq!(na::sup(&Vec3::new(1.0f64, 2.0, 3.0), &Vec3::new(3.0, 2.0, 1.0)), Vec3::new(3.0, 2.0, 3.0));
-    assert_eq!(na::inf(&Vec3::new(1.0f64, 2.0, 3.0), &Vec3::new(3.0, 2.0, 1.0)), Vec3::new(1.0, 2.0, 1.0));
+    assert_eq!(na::sup(&Vector3::new(1.0f64, 2.0, 3.0), &Vector3::new(3.0, 2.0, 1.0)), Vector3::new(3.0, 2.0, 3.0));
+    assert_eq!(na::inf(&Vector3::new(1.0f64, 2.0, 3.0), &Vector3::new(3.0, 2.0, 1.0)), Vector3::new(1.0, 2.0, 1.0));
 }
 
 #[test]
 fn test_outer_vec3() {
     assert_eq!(
-        na::outer(&Vec3::new(1.0f64, 2.0, 3.0), &Vec3::new(4.0, 5.0, 6.0)),
-        Mat3::new(
+        na::outer(&Vector3::new(1.0f64, 2.0, 3.0), &Vector3::new(4.0, 5.0, 6.0)),
+        Matrix3::new(
             4.0, 5.0, 6.0,
             8.0, 10.0, 12.0,
             12.0, 15.0, 18.0));
@@ -305,7 +305,7 @@ fn test_outer_vec3() {
 #[test]
 fn test_vecn10_add_mul() {
     for _ in 0usize .. 10000 {
-        let v1: VecN<f64, U10> = random();
+        let v1: VectorN<f64, U10> = random();
 
         assert!(na::approx_eq(&(v1 + v1), &(v1 * 2.0)))
     }
@@ -315,29 +315,29 @@ fn test_vecn10_add_mul() {
 #[test]
 fn test_vec3_rotation_between() {
     for _ in 0usize .. 10000 {
-        let v1: Vec3<f64> = random();
+        let v1: Vector3<f64> = random();
 
-        let mut v2: Vec3<f64> = random();
+        let mut v2: Vector3<f64> = random();
         v2 = na::normalize(&v2) * na::norm(&v1);
 
-        let rot = na::rotation_between(&v1, &v2);
+        let rotation = na::rotation_between(&v1, &v2);
 
-        assert!(na::approx_eq(&(rot * v1), &v2))
+        assert!(na::approx_eq(&(rotation * v1), &v2))
     }
 }
 
 #[test]
 fn test_vec3_angle_between() {
     for _ in 0usize .. 10000 {
-        let vec: Vec3<f64> = random();
-        let other: Vec3<f64> = random();
+        let vector: Vector3<f64> = random();
+        let other: Vector3<f64> = random();
 
-        // Ensure the axis we are using is orthogonal to `vec`.
-        let axis_ang = na::cross(&vec, &other);
+        // Ensure the axis we are using is orthogonal to `vector`.
+        let axis_ang = na::cross(&vector, &other);
         let ang      = na::norm(&axis_ang);
-        let rot      = Rot3::new(axis_ang);
+        let rotation      = Rotation3::new(axis_ang);
 
-        let delta = na::angle_between(&vec, &(rot * vec));
+        let delta = na::angle_between(&vector, &(rotation * vector));
 
         assert!(na::approx_eq(&ang, &delta))
     }
@@ -347,27 +347,27 @@ fn test_vec3_angle_between() {
 #[test]
 fn test_vec2_rotation_between() {
     for _ in 0usize .. 10000 {
-        let v1: Vec2<f64> = random();
+        let v1: Vector2<f64> = random();
 
-        let mut v2: Vec2<f64> = random();
+        let mut v2: Vector2<f64> = random();
         v2 = na::normalize(&v2) * na::norm(&v1);
 
-        let rot = na::rotation_between(&v1, &v2);
+        let rotation = na::rotation_between(&v1, &v2);
 
-        assert!(na::approx_eq(&(rot * v1), &v2))
+        assert!(na::approx_eq(&(rotation * v1), &v2))
     }
 }
 
 #[test]
 fn test_vec2_angle_between() {
     for _ in 0usize .. 10000 {
-        let axis_ang: Vec1<f64> = random();
+        let axis_ang: Vector1<f64> = random();
         let ang = na::norm(&axis_ang);
 
-        let rot: Rot2<f64> = Rot2::new(axis_ang);
-        let vec: Vec2<f64> = random();
+        let rotation: Rotation2<f64> = Rotation2::new(axis_ang);
+        let vector: Vector2<f64> = random();
 
-        let delta = na::angle_between(&vec, &(rot * vec));
+        let delta = na::angle_between(&vector, &(rotation * vector));
 
         assert!(na::approx_eq(&ang, &delta))
     }
