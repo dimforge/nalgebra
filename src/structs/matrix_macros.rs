@@ -499,10 +499,10 @@ macro_rules! diag_impl(
     ($t: ident, $tv: ident, $dimension: expr) => (
         impl<N: Copy + Zero> Diagonal<$tv<N>> for $t<N> {
             #[inline]
-            fn from_diag(diagonal: &$tv<N>) -> $t<N> {
+            fn from_diagonal(diagonal: &$tv<N>) -> $t<N> {
                 let mut res: $t<N> = ::zero();
 
-                res.set_diag(diagonal);
+                res.set_diagonal(diagonal);
 
                 res
             }
@@ -521,7 +521,7 @@ macro_rules! diag_impl(
 
         impl<N: Copy + Zero> DiagMut<$tv<N>> for $t<N> {
             #[inline]
-            fn set_diag(&mut self, diagonal: &$tv<N>) {
+            fn set_diagonal(&mut self, diagonal: &$tv<N>) {
                 for i in 0 .. $dimension {
                     unsafe { self.unsafe_set((i, i), diagonal.unsafe_at(i)) }
                 }

@@ -123,8 +123,8 @@ macro_rules! diag_impl(
     ($t: ident, $tv: ident) => (
         impl<N: Copy + Zero> Diagonal<$tv<N>> for $t<N> {
             #[inline]
-            fn from_diag(diagonal: &$tv<N>) -> $t<N> {
-                $t { submatrix: Diagonal::from_diag(diagonal) }
+            fn from_diagonal(diagonal: &$tv<N>) -> $t<N> {
+                $t { submatrix: Diagonal::from_diagonal(diagonal) }
             }
 
             #[inline]

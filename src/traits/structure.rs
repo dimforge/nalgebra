@@ -169,7 +169,7 @@ pub trait Dimension: Sized {
 /// Trait to get the diagonal of square matrices.
 pub trait Diagonal<V> {
     /// Creates a new matrix with the given diagonal.
-    fn from_diag(diagonal: &V) -> Self;
+    fn from_diagonal(diagonal: &V) -> Self;
 
     /// The diagonal of this matrix.
     fn diagonal(&self) -> V;
@@ -178,7 +178,7 @@ pub trait Diagonal<V> {
 /// Trait to set the diagonal of square matrices.
 pub trait DiagMut<V>: Diagonal<V> {
     /// Sets the diagonal of this matrix.
-    fn set_diag(&mut self, diagonal: &V);
+    fn set_diagonal(&mut self, diagonal: &V);
 }
 
 /// The shape of an indexable object.

@@ -838,10 +838,10 @@ macro_rules! dmat_impl(
 
         impl<N: Copy + Clone + Zero> Diagonal<$dvector<N>> for $dmatrix<N> {
             #[inline]
-            fn from_diag(diagonal: &$dvector<N>) -> $dmatrix<N> {
+            fn from_diagonal(diagonal: &$dvector<N>) -> $dmatrix<N> {
                 let mut res = $dmatrix::new_zeros(diagonal.len(), diagonal.len());
 
-                res.set_diag(diagonal);
+                res.set_diagonal(diagonal);
 
                 res
             }
@@ -862,7 +862,7 @@ macro_rules! dmat_impl(
 
         impl<N: Copy + Clone + Zero> DiagMut<$dvector<N>> for $dmatrix<N> {
             #[inline]
-            fn set_diag(&mut self, diagonal: &$dvector<N>) {
+            fn set_diagonal(&mut self, diagonal: &$dvector<N>) {
                 let smallest_dim = cmp::min(self.nrows, self.ncols);
 
                 assert!(diagonal.len() == smallest_dim);

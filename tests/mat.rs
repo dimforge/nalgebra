@@ -49,7 +49,7 @@ macro_rules! test_cholesky_impl(
       
       // construct symmetric positive definite matrix
       let mut randmatrix : $t = random();
-      let mut diagmatrix : $t = Diagonal::from_diag(&na::diagonal(&randmatrix));
+      let mut diagmatrix : $t = Diagonal::from_diagonal(&na::diagonal(&randmatrix));
 
       diagmatrix = na::abs(&diagmatrix) + 1.0;
       randmatrix = randmatrix * diagmatrix * na::transpose(&randmatrix);
@@ -98,7 +98,7 @@ macro_rules! test_eigen_qr_impl(
             let randmatrix = na::transpose(&randmatrix) * randmatrix;
             let (eigenvectors, eigenvalues) = na::eigen_qr(&randmatrix, &1e-13, 100);
  
-            let diagonal: $t = Diagonal::from_diag(&eigenvalues);
+            let diagonal: $t = Diagonal::from_diagonal(&eigenvalues);
             let recomp = eigenvectors * diagonal * na::transpose(&eigenvectors);
             println!("eigenvalues: {:?}", eigenvalues);
             println!("   matrix: {:?}", randmatrix);
@@ -110,10 +110,10 @@ macro_rules! test_eigen_qr_impl(
         for _ in 0usize .. 10000 {
             let randmatrix : $t = random();
             // Take only diagonal part
-            let randmatrix: $t = Diagonal::from_diag(&randmatrix.diagonal());
+            let randmatrix: $t = Diagonal::from_diagonal(&randmatrix.diagonal());
             let (eigenvectors, eigenvalues) = na::eigen_qr(&randmatrix, &1e-13, 100);
  
-            let diagonal: $t = Diagonal::from_diag(&eigenvalues);
+            let diagonal: $t = Diagonal::from_diagonal(&eigenvalues);
             let recomp = eigenvectors * diagonal * na::transpose(&eigenvectors);
             println!("eigenvalues: {:?}", eigenvalues);
             println!("   matrix: {:?}", randmatrix);
