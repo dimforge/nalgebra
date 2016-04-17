@@ -118,6 +118,24 @@ macro_rules! mat_mul_scalar_impl(
                 $t::new($(self.$compN * *right),+)
             }
         }
+
+        impl Mul<$t<f32>> for f32 {
+            type Output = $t<f32>;
+
+            #[inline]
+            fn mul(self, right: $t<f32>) -> $t<f32> {
+                $t::new($(self * right.$compN),+)
+            }
+        }
+
+        impl Mul<$t<f64>> for f64 {
+            type Output = $t<f64>;
+
+            #[inline]
+            fn mul(self, right: $t<f64>) -> $t<f64> {
+                $t::new($(self * right.$compN),+)
+            }
+        }
     )
 );
 
@@ -142,6 +160,24 @@ macro_rules! mat_add_scalar_impl(
             #[inline]
             fn add(self, right: N) -> $t<N> {
                 $t::new($(self.$compN + *right),+)
+            }
+        }
+
+        impl Add<$t<f32>> for f32 {
+            type Output = $t<f32>;
+
+            #[inline]
+            fn add(self, right: $t<f32>) -> $t<f32> {
+                $t::new($(self + right.$compN),+)
+            }
+        }
+
+        impl Add<$t<f64>> for f64 {
+            type Output = $t<f64>;
+
+            #[inline]
+            fn add(self, right: $t<f64>) -> $t<f64> {
+                $t::new($(self + right.$compN),+)
             }
         }
     )
@@ -175,12 +211,30 @@ macro_rules! repeat_impl(
 
 macro_rules! mat_sub_scalar_impl(
     ($t: ident, $($compN: ident),+) => (
-        impl<N: Sub<N, Output = N> Sub<N> for $t<N> {
+        impl<N: Sub<N, Output = N>> Sub<N> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
             fn sub(self, right: &N) -> $t<N> {
                 $t::new($(self.$compN - *right),+)
+            }
+        }
+
+        impl Sub<f32> for $t<f32> {
+            type Output = $t<f32>;
+
+            #[inline]
+            fn sub(self, right: $t<f32>) -> $t<f32> {
+                $t::new($(self - right.$compN),+)
+            }
+        }
+
+        impl Sub<f64> for $t<f64> {
+            type Output = $t<f64>;
+
+            #[inline]
+            fn sub(self, right: $t<f64>) -> $t<f64> {
+                $t::new($(self - right.$compN),+)
             }
         }
     )

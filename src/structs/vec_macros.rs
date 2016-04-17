@@ -386,6 +386,24 @@ macro_rules! scalar_add_impl(
                 $t::new($(self.$compN + right),+)
             }
         }
+
+        impl Add<$t<f32>> for f32 {
+            type Output = $t<f32>;
+
+            #[inline]
+            fn add(self, right: $t<f32>) -> $t<f32> {
+                $t::new($(self + right.$compN),+)
+            }
+        }
+
+        impl Add<$t<f64>> for f64 {
+            type Output = $t<f64>;
+
+            #[inline]
+            fn add(self, right: $t<f64>) -> $t<f64> {
+                $t::new($(self + right.$compN),+)
+            }
+        }
     )
 );
 
@@ -412,6 +430,24 @@ macro_rules! scalar_sub_impl(
                 $t::new($(self.$compN - right),+)
             }
         }
+
+        impl Sub<$t<f32>> for f32 {
+            type Output = $t<f32>;
+
+            #[inline]
+            fn sub(self, right: $t<f32>) -> $t<f32> {
+                $t::new($(self - right.$compN),+)
+            }
+        }
+
+        impl Sub<$t<f64>> for f64 {
+            type Output = $t<f64>;
+
+            #[inline]
+            fn sub(self, right: $t<f64>) -> $t<f64> {
+                $t::new($(self - right.$compN),+)
+            }
+        }
     )
 );
 
@@ -435,6 +471,24 @@ macro_rules! scalar_mul_impl(
             #[inline]
             fn mul(self, right: N) -> $t<N> {
                 $t::new($(self.$compN * right),+)
+            }
+        }
+
+        impl Mul<$t<f32>> for f32 {
+            type Output = $t<f32>;
+
+            #[inline]
+            fn mul(self, right: $t<f32>) -> $t<f32> {
+                $t::new($(self * right.$compN),+)
+            }
+        }
+
+        impl Mul<$t<f64>> for f64 {
+            type Output = $t<f64>;
+
+            #[inline]
+            fn mul(self, right: $t<f64>) -> $t<f64> {
+                $t::new($(self * right.$compN),+)
             }
         }
     )
