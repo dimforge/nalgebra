@@ -236,38 +236,42 @@ pub trait FloatVec<N: BaseFloat>: NumVec<N> + Norm<N> + Neg<Output = Self> + Bas
  * Pnt related traits.
  */
 /// Trait that relates a point of an affine space to a vector of the associated vector space.
-pub trait PntAsVec<V> {
+pub trait PntAsVec {
+    /// The vector type of the vector space associated to this point's affine space.
+    type Vec;
+    
     /// Converts this point to its associated vector.
-    fn to_vec(self) -> V;
+    fn to_vec(self) -> Self::Vec;
 
     /// Converts a reference to this point to a reference to its associated vector.
-    fn as_vec<'a>(&'a self) -> &'a V;
+    fn as_vec<'a>(&'a self) -> &'a Self::Vec;
 
     // NOTE: this is used in some places to overcome some limitations untill the trait reform is
     // done on rustc.
     /// Sets the coordinates of this point to match those of a given vector.
-    fn set_coords(&mut self, coords: V);
+    fn set_coords(&mut self, coords: Self::Vec);
 }
 
 /// Trait grouping most common operations on points.
 // XXX: the vector space element `V` should be an associated type. Though this would prevent V from
 // having bounds (they are not supported yet). So, for now, we will just use a type parameter.
-pub trait NumPnt<N, V>:
+pub trait NumPnt<N>:
           Copy +
-          PntAsVec<V> +
+          PntAsVec +
           Dim +
           Orig +
           PartialEq +
           Axpy<N> +
-          Sub<Self, Output = V> +
+          Sub<Self, Output = <Self as PntAsVec>::Vec> +
           Mul<N, Output = Self> +
           Div<N, Output = Self> +
-          Add<V, Output = Self> +
+          Add<<Self as PntAsVec>::Vec, Output = Self> +
           Index<usize, Output = N> { // FIXME: + Sub<V, Self>
 }
 
 /// Trait of points with components implementing the `BaseFloat` trait.
-pub trait FloatPnt<N: BaseFloat, V: Norm<N>>: NumPnt<N, V> + Sized {
+pub trait FloatPnt<N: BaseFloat>: NumPnt<N> + Sized
+where <Self as PntAsVec>::Vec: Norm<N> {
     /// Computes the square distance between two points.
     #[inline]
     fn sqdist(&self, other: &Self) -> N {

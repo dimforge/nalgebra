@@ -311,9 +311,11 @@ pub fn orig<P: Orig>() -> P {
 
 /// Returns the center of two points.
 #[inline]
-pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy + Norm<N>>(a: &P, b: &P) -> P {
+pub fn center<N: BaseFloat, P: FloatPnt<N>>(a: &P, b: &P) -> P
+        where <P as PntAsVec>::Vec: Norm<N>
+{
     let _2 = one::<N>() + one();
-    (*a + *b.as_vec()) / _2
+    (*a + b.to_vec()) / _2
 }
 
 /*
@@ -321,13 +323,15 @@ pub fn center<N: BaseFloat, P: FloatPnt<N, V>, V: Copy + Norm<N>>(a: &P, b: &P) 
  */
 /// Returns the distance between two points.
 #[inline(always)]
-pub fn dist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
+pub fn dist<N: BaseFloat, P: FloatPnt<N>>(a: &P, b: &P) -> N where <P as PntAsVec>::Vec: Norm<N> {
     a.dist(b)
 }
 
 /// Returns the squared distance between two points.
 #[inline(always)]
-pub fn sqdist<N: BaseFloat, P: FloatPnt<N, V>, V: Norm<N>>(a: &P, b: &P) -> N {
+pub fn sqdist<N: BaseFloat, P: FloatPnt<N>>(a: &P, b: &P) -> N 
+        where <P as PntAsVec>::Vec: Norm<N>
+{
     a.sqdist(b)
 }
 

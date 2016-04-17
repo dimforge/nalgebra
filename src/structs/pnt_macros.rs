@@ -82,7 +82,9 @@ macro_rules! pnt_as_vec_impl(
             }
         }
 
-        impl<N> PntAsVec<$tv<N>> for $t<N> {
+        impl<N> PntAsVec for $t<N> {
+            type Vec = $tv<N>;
+            
             #[inline]
             fn to_vec(self) -> $tv<N> {
                 self.to_vec()
@@ -132,11 +134,11 @@ macro_rules! pnt_from_homogeneous_impl(
 
 macro_rules! num_float_pnt_impl(
     ($t: ident, $tv: ident) => (
-        impl<N> NumPnt<N, $tv<N>> for $t<N>
+        impl<N> NumPnt<N> for $t<N>
             where N: BaseNum {
         }
 
-        impl<N> FloatPnt<N, $tv<N>> for $t<N>
+        impl<N> FloatPnt<N> for $t<N>
             where N: BaseFloat + ApproxEq<N> {
         }
     )
