@@ -1,16 +1,16 @@
 #![macro_use]
 
 macro_rules! dmat_impl(
-    ($dmat: ident, $dvec: ident) => (
-        impl<N: Zero + Clone + Copy> $dmat<N> {
+    ($dmatrix: ident, $dvector: ident) => (
+        impl<N: Zero + Clone + Copy> $dmatrix<N> {
             /// Builds a matrix filled with zeros.
             ///
             /// # Arguments
-            ///   * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
+            ///   * `dimension` - The dimension of the matrix. A `dimension`-dimensional matrix contains `dimension * dimension`
             ///   components.
             #[inline]
-            pub fn new_zeros(nrows: usize, ncols: usize) -> $dmat<N> {
-                $dmat::from_elem(nrows, ncols, ::zero())
+            pub fn new_zeros(nrows: usize, ncols: usize) -> $dmatrix<N> {
+                $dmatrix::from_elem(nrows, ncols, ::zero())
             }
 
             /// Tests if all components of the matrix are zeroes.
@@ -28,23 +28,23 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Zero + Copy + Rand> $dmat<N> {
+        impl<N: Zero + Copy + Rand> $dmatrix<N> {
             /// Builds a matrix filled with random values.
             #[inline]
-            pub fn new_random(nrows: usize, ncols: usize) -> $dmat<N> {
-                $dmat::from_fn(nrows, ncols, |_, _| rand::random())
+            pub fn new_random(nrows: usize, ncols: usize) -> $dmatrix<N> {
+                $dmatrix::from_fn(nrows, ncols, |_, _| rand::random())
             }
         }
 
-        impl<N: One + Zero + Clone + Copy> $dmat<N> {
+        impl<N: One + Zero + Clone + Copy> $dmatrix<N> {
             /// Builds a matrix filled with a given constant.
             #[inline]
-            pub fn new_ones(nrows: usize, ncols: usize) -> $dmat<N> {
-                $dmat::from_elem(nrows, ncols, ::one())
+            pub fn new_ones(nrows: usize, ncols: usize) -> $dmatrix<N> {
+                $dmatrix::from_elem(nrows, ncols, ::one())
             }
         }
 
-        impl<N> $dmat<N> {
+        impl<N> $dmatrix<N> {
             /// The number of row on the matrix.
             #[inline]
             pub fn nrows(&self) -> usize {
@@ -60,31 +60,31 @@ macro_rules! dmat_impl(
             /// Gets a reference to this matrix data.
             /// The returned vector contains the matrix data in column-major order.
             #[inline]
-            pub fn as_vec(&self) -> &[N] {
+            pub fn as_vector(&self) -> &[N] {
                 &self.mij
             }
 
             /// Gets a mutable reference to this matrix data.
             /// The returned vector contains the matrix data in column-major order.
             #[inline]
-            pub fn as_mut_vec(&mut self) -> &mut [N] {
+            pub fn as_mut_vector(&mut self) -> &mut [N] {
                  &mut self.mij[..]
             }
         }
 
         // FIXME: add a function to modify the dimension (to avoid useless allocations)?
 
-        impl<N: One + Zero + Clone + Copy> Eye for $dmat<N> {
+        impl<N: One + Zero + Clone + Copy> Eye for $dmatrix<N> {
             /// Builds an identity matrix.
             ///
             /// # Arguments
-            /// * `dim` - The dimension of the matrix. A `dim`-dimensional matrix contains `dim * dim`
+            /// * `dimension` - The dimension of the matrix. A `dimension`-dimensional matrix contains `dimension * dimension`
             /// components.
             #[inline]
-            fn new_identity(dim: usize) -> $dmat<N> {
-                let mut res = $dmat::new_zeros(dim, dim);
+            fn new_identity(dimension: usize) -> $dmatrix<N> {
+                let mut res = $dmatrix::new_zeros(dimension, dimension);
 
-                for i in 0..dim {
+                for i in 0..dimension {
                     let _1: N  = ::one();
                     res[(i, i)]  = _1;
                 }
@@ -93,7 +93,7 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N> $dmat<N> {
+        impl<N> $dmatrix<N> {
             #[inline(always)]
             fn offset(&self, i: usize, j: usize) -> usize {
                 i + j * self.nrows
@@ -101,21 +101,21 @@ macro_rules! dmat_impl(
 
         }
 
-        impl<N: Copy> Indexable<(usize, usize), N> for $dmat<N> {
+        impl<N: Copy> Indexable<(usize, usize), N> for $dmatrix<N> {
             /// Just like `set` without bounds checking.
             #[inline]
             unsafe fn unsafe_set(&mut self, rowcol: (usize, usize), val: N) {
-                let (row, col) = rowcol;
-                let offset = self.offset(row, col);
+                let (row, column) = rowcol;
+                let offset = self.offset(row, column);
                 *self.mij[..].get_unchecked_mut(offset) = val
             }
 
             /// Just like `at` without bounds checking.
             #[inline]
             unsafe fn unsafe_at(&self, rowcol: (usize,  usize)) -> N {
-                let (row, col) = rowcol;
+                let (row, column) = rowcol;
 
-                *self.mij.get_unchecked(self.offset(row, col))
+                *self.mij.get_unchecked(self.offset(row, column))
             }
 
             #[inline]
@@ -132,14 +132,14 @@ macro_rules! dmat_impl(
 
         }
 
-        impl<N> Shape<(usize, usize)> for $dmat<N> {
+        impl<N> Shape<(usize, usize)> for $dmatrix<N> {
             #[inline]
             fn shape(&self) -> (usize, usize) {
                 (self.nrows, self.ncols)
             }
         }
 
-        impl<N> Index<(usize, usize)> for $dmat<N> {
+        impl<N> Index<(usize, usize)> for $dmatrix<N> {
             type Output = N;
 
             fn index(&self, (i, j): (usize, usize)) -> &N {
@@ -152,7 +152,7 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N> IndexMut<(usize, usize)> for $dmat<N> {
+        impl<N> IndexMut<(usize, usize)> for $dmatrix<N> {
             fn index_mut(&mut self, (i, j): (usize, usize)) -> &mut N {
                 assert!(i < self.nrows);
                 assert!(j < self.ncols);
@@ -170,45 +170,45 @@ macro_rules! dmat_impl(
          * Multiplications matrix/matrix.
          *
          */
-        impl<N> Mul<$dmat<N>> for $dmat<N>
+        impl<N> Mul<$dmatrix<N>> for $dmatrix<N>
             where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
-            type Output = $dmat<N>;
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn mul(self, right: $dmat<N>) -> $dmat<N> {
+            fn mul(self, right: $dmatrix<N>) -> $dmatrix<N> {
                 (&self) * (&right)
             }
         }
 
-        impl<'a, N> Mul<&'a $dmat<N>> for $dmat<N>
+        impl<'a, N> Mul<&'a $dmatrix<N>> for $dmatrix<N>
             where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
-            type Output = $dmat<N>;
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn mul(self, right: &'a $dmat<N>) -> $dmat<N> {
+            fn mul(self, right: &'a $dmatrix<N>) -> $dmatrix<N> {
                 (&self) * right
             }
         }
 
-        impl<'a, N> Mul<$dmat<N>> for &'a $dmat<N>
+        impl<'a, N> Mul<$dmatrix<N>> for &'a $dmatrix<N>
             where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
-            type Output = $dmat<N>;
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn mul(self, right: $dmat<N>) -> $dmat<N> {
+            fn mul(self, right: $dmatrix<N>) -> $dmatrix<N> {
                 self * (&right)
             }
         }
 
-        impl<'a, 'b, N> Mul<&'b $dmat<N>> for &'a $dmat<N>
+        impl<'a, 'b, N> Mul<&'b $dmatrix<N>> for &'a $dmatrix<N>
             where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
-            type Output = $dmat<N>;
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn mul(self, right: &$dmat<N>) -> $dmat<N> {
+            fn mul(self, right: &$dmatrix<N>) -> $dmatrix<N> {
                 assert!(self.ncols == right.nrows);
 
-                let mut res = unsafe { $dmat::new_uninitialized(self.nrows, right.ncols) };
+                let mut res = unsafe { $dmatrix::new_uninitialized(self.nrows, right.ncols) };
 
                 for i in 0 .. self.nrows {
                     for j in 0 .. right.ncols {
@@ -228,18 +228,18 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N> MulAssign<$dmat<N>> for $dmat<N>
+        impl<N> MulAssign<$dmatrix<N>> for $dmatrix<N>
             where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
             #[inline]
-            fn mul_assign(&mut self, right: $dmat<N>) {
+            fn mul_assign(&mut self, right: $dmatrix<N>) {
                 self.mul_assign(&right)
             }
         }
 
-        impl<'a, N> MulAssign<&'a $dmat<N>> for $dmat<N>
+        impl<'a, N> MulAssign<&'a $dmatrix<N>> for $dmatrix<N>
             where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
             #[inline]
-            fn mul_assign(&mut self, right: &'a $dmat<N>) {
+            fn mul_assign(&mut self, right: &'a $dmatrix<N>) {
                 assert!(self.ncols == right.nrows);
 
                 // FIXME: optimize when both matrices have the same layout.
@@ -254,41 +254,41 @@ macro_rules! dmat_impl(
          * Multiplication matrix/vector.
          *
          */
-        impl<N> Mul<$dvec<N>> for $dmat<N>
+        impl<N> Mul<$dvector<N>> for $dmatrix<N>
             where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
-            type Output = $dvec<N>;
+            type Output = $dvector<N>;
 
-            fn mul(self, right: $dvec<N>) -> $dvec<N> {
+            fn mul(self, right: $dvector<N>) -> $dvector<N> {
                 (&self) * (&right)
             }
         }
 
-        impl<'a, N> Mul<$dvec<N>> for &'a $dmat<N>
+        impl<'a, N> Mul<$dvector<N>> for &'a $dmatrix<N>
             where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
-            type Output = $dvec<N>;
+            type Output = $dvector<N>;
 
-            fn mul(self, right: $dvec<N>) -> $dvec<N> {
+            fn mul(self, right: $dvector<N>) -> $dvector<N> {
                 self * (&right)
             }
         }
 
-        impl<'a, N> Mul<&'a $dvec<N>> for $dmat<N>
+        impl<'a, N> Mul<&'a $dvector<N>> for $dmatrix<N>
             where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
-            type Output = $dvec<N>;
+            type Output = $dvector<N>;
 
-            fn mul(self, right: &'a $dvec<N>) -> $dvec<N> {
+            fn mul(self, right: &'a $dvector<N>) -> $dvector<N> {
                 (&self) * right
             }
         }
 
-        impl<'a, 'b, N> Mul<&'b $dvec<N>> for &'a $dmat<N>
+        impl<'a, 'b, N> Mul<&'b $dvector<N>> for &'a $dmatrix<N>
             where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
-            type Output = $dvec<N>;
+            type Output = $dvector<N>;
 
-            fn mul(self, right: &'b $dvec<N>) -> $dvec<N> {
+            fn mul(self, right: &'b $dvector<N>) -> $dvector<N> {
                 assert!(self.ncols == right.len());
 
-                let mut res : $dvec<N> = unsafe { $dvec::new_uninitialized(self.nrows) };
+                let mut res : $dvector<N> = unsafe { $dvector::new_uninitialized(self.nrows) };
 
                 for i in 0..self.nrows {
                     let mut acc: N = ::zero();
@@ -308,42 +308,42 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N> Mul<$dmat<N>> for $dvec<N>
+        impl<N> Mul<$dmatrix<N>> for $dvector<N>
             where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
-            type Output = $dvec<N>;
+            type Output = $dvector<N>;
 
-            fn mul(self, right: $dmat<N>) -> $dvec<N> {
+            fn mul(self, right: $dmatrix<N>) -> $dvector<N> {
                 (&self) * (&right)
             }
         }
 
-        impl<'a, N> Mul<$dmat<N>> for &'a $dvec<N>
+        impl<'a, N> Mul<$dmatrix<N>> for &'a $dvector<N>
             where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
-            type Output = $dvec<N>;
+            type Output = $dvector<N>;
 
-            fn mul(self, right: $dmat<N>) -> $dvec<N> {
+            fn mul(self, right: $dmatrix<N>) -> $dvector<N> {
                 self * (&right)
             }
         }
 
-        impl<'a, N> Mul<&'a $dmat<N>> for $dvec<N>
+        impl<'a, N> Mul<&'a $dmatrix<N>> for $dvector<N>
             where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
-            type Output = $dvec<N>;
+            type Output = $dvector<N>;
 
-            fn mul(self, right: &'a $dmat<N>) -> $dvec<N> {
+            fn mul(self, right: &'a $dmatrix<N>) -> $dvector<N> {
                 (&self) * right
             }
         }
 
 
-        impl<'a, 'b, N> Mul<&'b $dmat<N>> for &'a $dvec<N>
+        impl<'a, 'b, N> Mul<&'b $dmatrix<N>> for &'a $dvector<N>
             where N: Copy + Add<N, Output = N> + Mul<N, Output = N> + Zero {
-            type Output = $dvec<N>;
+            type Output = $dvector<N>;
 
-            fn mul(self, right: &'b $dmat<N>) -> $dvec<N> {
+            fn mul(self, right: &'b $dmatrix<N>) -> $dvector<N> {
                 assert!(right.nrows == self.len());
 
-                let mut res : $dvec<N> = unsafe { $dvec::new_uninitialized(right.ncols) };
+                let mut res : $dvector<N> = unsafe { $dvector::new_uninitialized(right.ncols) };
 
                 for i in 0..right.ncols {
                     let mut acc: N = ::zero();
@@ -363,18 +363,18 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N> MulAssign<$dmat<N>> for $dvec<N>
+        impl<N> MulAssign<$dmatrix<N>> for $dvector<N>
             where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
             #[inline]
-            fn mul_assign(&mut self, right: $dmat<N>) {
+            fn mul_assign(&mut self, right: $dmatrix<N>) {
                 self.mul_assign(&right)
             }
         }
 
-        impl<'a, N> MulAssign<&'a $dmat<N>> for $dvec<N>
+        impl<'a, N> MulAssign<&'a $dmatrix<N>> for $dvector<N>
             where N: Copy + Mul<N, Output = N> + Add<N, Output = N> + Zero {
             #[inline]
-            fn mul_assign(&mut self, right: &'a $dmat<N>) {
+            fn mul_assign(&mut self, right: &'a $dmatrix<N>) {
                 assert!(right.nrows == self.len());
 
                 let res = &*self * right;
@@ -387,29 +387,29 @@ macro_rules! dmat_impl(
          * Addition matrix/matrix.
          *
          */
-        impl<N: Copy + Add<N, Output = N>> Add<$dmat<N>> for $dmat<N> {
-            type Output = $dmat<N>;
+        impl<N: Copy + Add<N, Output = N>> Add<$dmatrix<N>> for $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn add(self, right: $dmat<N>) -> $dmat<N> {
+            fn add(self, right: $dmatrix<N>) -> $dmatrix<N> {
                 self + (&right)
             }
         }
 
-        impl<'a, N: Copy + Add<N, Output = N>> Add<$dmat<N>> for &'a $dmat<N> {
-            type Output = $dmat<N>;
+        impl<'a, N: Copy + Add<N, Output = N>> Add<$dmatrix<N>> for &'a $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn add(self, right: $dmat<N>) -> $dmat<N> {
+            fn add(self, right: $dmatrix<N>) -> $dmatrix<N> {
                 right + self
             }
         }
 
-        impl<'a, N: Copy + Add<N, Output = N>> Add<&'a $dmat<N>> for $dmat<N> {
-            type Output = $dmat<N>;
+        impl<'a, N: Copy + Add<N, Output = N>> Add<&'a $dmatrix<N>> for $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn add(self, right: &'a $dmat<N>) -> $dmat<N> {
+            fn add(self, right: &'a $dmatrix<N>) -> $dmatrix<N> {
                 let mut res = self;
 
                 for (mij, right_ij) in res.mij.iter_mut().zip(right.mij.iter()) {
@@ -420,16 +420,16 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + AddAssign<N>> AddAssign<$dmat<N>> for $dmat<N> {
+        impl<N: Copy + AddAssign<N>> AddAssign<$dmatrix<N>> for $dmatrix<N> {
             #[inline]
-            fn add_assign(&mut self, right: $dmat<N>) {
+            fn add_assign(&mut self, right: $dmatrix<N>) {
                 self.add_assign(&right)
             }
         }
 
-        impl<'a, N: Copy + AddAssign<N>> AddAssign<&'a $dmat<N>> for $dmat<N> {
+        impl<'a, N: Copy + AddAssign<N>> AddAssign<&'a $dmatrix<N>> for $dmatrix<N> {
             #[inline]
-            fn add_assign(&mut self, right: &'a $dmat<N>) {
+            fn add_assign(&mut self, right: &'a $dmatrix<N>) {
                 assert!(self.nrows == right.nrows && self.ncols == right.ncols,
                         "Unable to add matrices with different dimensions.");
 
@@ -444,11 +444,11 @@ macro_rules! dmat_impl(
          * Subtraction matrix/scalar.
          *
          */
-        impl<N: Copy + Sub<N, Output = N>> Sub<N> for $dmat<N> {
-            type Output = $dmat<N>;
+        impl<N: Copy + Sub<N, Output = N>> Sub<N> for $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn sub(self, right: N) -> $dmat<N> {
+            fn sub(self, right: N) -> $dmatrix<N> {
                 let mut res = self;
 
                 for mij in res.mij.iter_mut() {
@@ -459,7 +459,7 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<'a, N: Copy + SubAssign<N>> SubAssign<N> for $dmat<N> {
+        impl<'a, N: Copy + SubAssign<N>> SubAssign<N> for $dmatrix<N> {
             #[inline]
             fn sub_assign(&mut self, right: N) {
                 for mij in self.mij.iter_mut() {
@@ -468,11 +468,11 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl Sub<$dmat<f32>> for f32 {
-            type Output = $dmat<f32>;
+        impl Sub<$dmatrix<f32>> for f32 {
+            type Output = $dmatrix<f32>;
 
             #[inline]
-            fn sub(self, right: $dmat<f32>) -> $dmat<f32> {
+            fn sub(self, right: $dmatrix<f32>) -> $dmatrix<f32> {
                 let mut res = right;
 
                 for mij in res.mij.iter_mut() {
@@ -483,11 +483,11 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl Sub<$dmat<f64>> for f64 {
-            type Output = $dmat<f64>;
+        impl Sub<$dmatrix<f64>> for f64 {
+            type Output = $dmatrix<f64>;
 
             #[inline]
-            fn sub(self, right: $dmat<f64>) -> $dmat<f64> {
+            fn sub(self, right: $dmatrix<f64>) -> $dmatrix<f64> {
                 let mut res = right;
 
                 for mij in res.mij.iter_mut() {
@@ -503,29 +503,29 @@ macro_rules! dmat_impl(
          * Subtraction matrix/matrix.
          *
          */
-        impl<N: Copy + Sub<N, Output = N>> Sub<$dmat<N>> for $dmat<N> {
-            type Output = $dmat<N>;
+        impl<N: Copy + Sub<N, Output = N>> Sub<$dmatrix<N>> for $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn sub(self, right: $dmat<N>) -> $dmat<N> {
+            fn sub(self, right: $dmatrix<N>) -> $dmatrix<N> {
                 self - (&right)
             }
         }
 
-        impl<'a, N: Copy + Sub<N, Output = N>> Sub<$dmat<N>> for &'a $dmat<N> {
-            type Output = $dmat<N>;
+        impl<'a, N: Copy + Sub<N, Output = N>> Sub<$dmatrix<N>> for &'a $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn sub(self, right: $dmat<N>) -> $dmat<N> {
+            fn sub(self, right: $dmatrix<N>) -> $dmatrix<N> {
                 right - self
             }
         }
 
-        impl<'a, N: Copy + Sub<N, Output = N>> Sub<&'a $dmat<N>> for $dmat<N> {
-            type Output = $dmat<N>;
+        impl<'a, N: Copy + Sub<N, Output = N>> Sub<&'a $dmatrix<N>> for $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn sub(self, right: &'a $dmat<N>) -> $dmat<N> {
+            fn sub(self, right: &'a $dmatrix<N>) -> $dmatrix<N> {
                 assert!(self.nrows == right.nrows && self.ncols == right.ncols,
                         "Unable to subtract matrices with different dimensions.");
 
@@ -539,16 +539,16 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + SubAssign<N>> SubAssign<$dmat<N>> for $dmat<N> {
+        impl<N: Copy + SubAssign<N>> SubAssign<$dmatrix<N>> for $dmatrix<N> {
             #[inline]
-            fn sub_assign(&mut self, right: $dmat<N>) {
+            fn sub_assign(&mut self, right: $dmatrix<N>) {
                 self.sub_assign(&right)
             }
         }
 
-        impl<'a, N: Copy + SubAssign<N>> SubAssign<&'a $dmat<N>> for $dmat<N> {
+        impl<'a, N: Copy + SubAssign<N>> SubAssign<&'a $dmatrix<N>> for $dmatrix<N> {
             #[inline]
-            fn sub_assign(&mut self, right: &'a $dmat<N>) {
+            fn sub_assign(&mut self, right: &'a $dmatrix<N>) {
                 assert!(self.nrows == right.nrows && self.ncols == right.ncols,
                         "Unable to subtract matrices with different dimensions.");
 
@@ -563,11 +563,11 @@ macro_rules! dmat_impl(
          * Inversion.
          *
          */
-        impl<N: BaseNum + Clone> Inv for $dmat<N> {
+        impl<N: BaseNum + Clone> Inverse for $dmatrix<N> {
             #[inline]
-            fn inv(&self) -> Option<$dmat<N>> {
-                let mut res: $dmat<N> = self.clone();
-                if res.inv_mut() {
+            fn inverse(&self) -> Option<$dmatrix<N>> {
+                let mut res: $dmatrix<N> = self.clone();
+                if res.inverse_mut() {
                     Some(res)
                 }
                 else {
@@ -575,21 +575,21 @@ macro_rules! dmat_impl(
                 }
             }
 
-            fn inv_mut(&mut self) -> bool {
+            fn inverse_mut(&mut self) -> bool {
                 assert!(self.nrows == self.ncols);
 
-                let dim              = self.nrows;
-                let mut res: $dmat<N> = Eye::new_identity(dim);
+                let dimension              = self.nrows;
+                let mut res: $dmatrix<N> = Eye::new_identity(dimension);
 
                 // inversion using Gauss-Jordan elimination
-                for k in 0..dim {
+                for k in 0..dimension {
                     // search a non-zero value on the k-th column
                     // FIXME: would it be worth it to spend some more time searching for the
                     // max instead?
 
                     let mut n0 = k; // index of a non-zero entry
 
-                    while n0 != dim {
+                    while n0 != dimension {
                         if unsafe { self.unsafe_at((n0, k)) } != ::zero() {
                             break;
                         }
@@ -597,13 +597,13 @@ macro_rules! dmat_impl(
                         n0 = n0 + 1;
                     }
 
-                    if n0 == dim {
+                    if n0 == dimension {
                         return false
                     }
 
                     // swap pivot line
                     if n0 != k {
-                        for j in 0..dim {
+                        for j in 0..dimension {
                             let off_n0_j = self.offset(n0, j);
                             let off_k_j  = self.offset(k, j);
 
@@ -615,26 +615,26 @@ macro_rules! dmat_impl(
                     unsafe {
                         let pivot = self.unsafe_at((k, k));
 
-                        for j in k..dim {
+                        for j in k..dimension {
                             let selfval = self.unsafe_at((k, j)) / pivot;
                             self.unsafe_set((k, j), selfval);
                         }
 
-                        for j in 0..dim {
+                        for j in 0..dimension {
                             let resval = res.unsafe_at((k, j)) / pivot;
                             res.unsafe_set((k, j), resval);
                         }
 
-                        for l in 0..dim {
+                        for l in 0..dimension {
                             if l != k {
                                 let normalizer = self.unsafe_at((l, k));
 
-                                for j in k..dim {
+                                for j in k..dimension {
                                     let selfval = self.unsafe_at((l, j)) - self.unsafe_at((k, j)) * normalizer;
                                     self.unsafe_set((l, j), selfval);
                                 }
 
-                                for j in 0..dim {
+                                for j in 0..dimension {
                                     let resval = res.unsafe_at((l, j)) - res.unsafe_at((k, j)) * normalizer;
                                     res.unsafe_set((l, j), resval);
                                 }
@@ -649,9 +649,9 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Clone + Copy> Transpose for $dmat<N> {
+        impl<N: Clone + Copy> Transpose for $dmatrix<N> {
             #[inline]
-            fn transpose(&self) -> $dmat<N> {
+            fn transpose(&self) -> $dmatrix<N> {
                 if self.nrows == self.ncols {
                     let mut res = self.clone();
 
@@ -660,7 +660,7 @@ macro_rules! dmat_impl(
                     res
                 }
                 else {
-                    let mut res = unsafe { $dmat::new_uninitialized(self.ncols, self.nrows) };
+                    let mut res = unsafe { $dmatrix::new_uninitialized(self.ncols, self.nrows) };
 
                     for i in 0..self.nrows {
                         for j in 0..self.ncols {
@@ -694,9 +694,9 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: BaseNum + Cast<f64> + Clone> Mean<$dvec<N>> for $dmat<N> {
-            fn mean(&self) -> $dvec<N> {
-                let mut res: $dvec<N> = $dvec::new_zeros(self.ncols);
+        impl<N: BaseNum + Cast<f64> + Clone> Mean<$dvector<N>> for $dmatrix<N> {
+            fn mean(&self) -> $dvector<N> {
+                let mut res: $dvector<N> = $dvector::new_zeros(self.ncols);
                 let normalizer: N     = Cast::from(1.0f64 / self.nrows as f64);
 
                 for i in 0 .. self.nrows {
@@ -712,12 +712,12 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: BaseNum + Cast<f64> + Clone> Cov<$dmat<N>> for $dmat<N> {
+        impl<N: BaseNum + Cast<f64> + Clone> Covariance<$dmatrix<N>> for $dmatrix<N> {
             // FIXME: this could be heavily optimized, removing all temporaries by merging loops.
-            fn cov(&self) -> $dmat<N> {
+            fn covariance(&self) -> $dmatrix<N> {
                 assert!(self.nrows > 1);
 
-                let mut centered = unsafe { $dmat::new_uninitialized(self.nrows, self.ncols) };
+                let mut centered = unsafe { $dmatrix::new_uninitialized(self.nrows, self.ncols) };
                 let mean = self.mean();
 
                 // FIXME: use the rows iterator when available
@@ -738,35 +738,35 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Zero> Col<$dvec<N>> for $dmat<N> {
+        impl<N: Copy + Zero> Column<$dvector<N>> for $dmatrix<N> {
             #[inline]
             fn ncols(&self) -> usize {
                 self.ncols
             }
 
             #[inline]
-            fn set_col(&mut self, col_id: usize, col: $dvec<N>) {
+            fn set_col(&mut self, col_id: usize, column: $dvector<N>) {
                 assert!(col_id < self.ncols);
-                assert!(col.len() == self.nrows);
+                assert!(column.len() == self.nrows);
 
                 for row_id in 0 .. self.nrows {
                     unsafe {
-                        self.unsafe_set((row_id, col_id), col.unsafe_at(row_id));
+                        self.unsafe_set((row_id, col_id), column.unsafe_at(row_id));
                     }
                 }
             }
 
-            fn col(&self, col_id: usize) -> $dvec<N> {
+            fn column(&self, col_id: usize) -> $dvector<N> {
                 assert!(col_id < self.ncols);
 
                 let start = self.offset(0, col_id);
                 let stop  = self.offset(self.nrows, col_id);
-                $dvec::from_slice(self.nrows, &self.mij[start .. stop])
+                $dvector::from_slice(self.nrows, &self.mij[start .. stop])
             }
         }
 
-        impl<N: Copy + Clone + Zero> ColSlice<$dvec<N>> for $dmat<N> {
-            fn col_slice(&self, col_id :usize, row_start: usize, row_end: usize) -> $dvec<N> {
+        impl<N: Copy + Clone + Zero> ColumnSlice<$dvector<N>> for $dmatrix<N> {
+            fn col_slice(&self, col_id :usize, row_start: usize, row_end: usize) -> $dvector<N> {
                 assert!(col_id < self.ncols);
                 assert!(row_start < row_end);
                 assert!(row_end <= self.nrows);
@@ -774,20 +774,20 @@ macro_rules! dmat_impl(
                 // We can init from slice thanks to the matrix being column-major.
                 let start = self.offset(row_start, col_id);
                 let stop  = self.offset(row_end, col_id);
-                let slice = $dvec::from_slice(row_end - row_start, &self.mij[start .. stop]);
+                let slice = $dvector::from_slice(row_end - row_start, &self.mij[start .. stop]);
 
                 slice
             }
         }
 
-        impl<N: Copy + Zero> Row<$dvec<N>> for $dmat<N> {
+        impl<N: Copy + Zero> Row<$dvector<N>> for $dmatrix<N> {
             #[inline]
             fn nrows(&self) -> usize {
                 self.nrows
             }
 
             #[inline]
-            fn set_row(&mut self, row_id: usize, row: $dvec<N>) {
+            fn set_row(&mut self, row_id: usize, row: $dvector<N>) {
                 assert!(row_id < self.nrows);
                 assert!(row.len() == self.ncols);
 
@@ -799,11 +799,11 @@ macro_rules! dmat_impl(
             }
 
             #[inline]
-            fn row(&self, row_id: usize) -> $dvec<N> {
+            fn row(&self, row_id: usize) -> $dvector<N> {
                 assert!(row_id < self.nrows);
 
-                let mut slice : $dvec<N> = unsafe {
-                    $dvec::new_uninitialized(self.ncols)
+                let mut slice : $dvector<N> = unsafe {
+                    $dvector::new_uninitialized(self.ncols)
                 };
 
                 for col_id in 0 .. self.ncols {
@@ -815,14 +815,14 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy> RowSlice<$dvec<N>> for $dmat<N> {
-            fn row_slice(&self, row_id :usize, col_start: usize, col_end: usize) -> $dvec<N> {
+        impl<N: Copy> RowSlice<$dvector<N>> for $dmatrix<N> {
+            fn row_slice(&self, row_id :usize, col_start: usize, col_end: usize) -> $dvector<N> {
                 assert!(row_id < self.nrows);
                 assert!(col_start < col_end);
                 assert!(col_end <= self.ncols);
 
-                let mut slice : $dvec<N> = unsafe {
-                    $dvec::new_uninitialized(col_end - col_start)
+                let mut slice : $dvector<N> = unsafe {
+                    $dvector::new_uninitialized(col_end - col_start)
                 };
                 let mut slice_idx = 0;
                 for col_id in col_start .. col_end {
@@ -836,68 +836,68 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Clone + Zero> Diag<$dvec<N>> for $dmat<N> {
+        impl<N: Copy + Clone + Zero> Diagonal<$dvector<N>> for $dmatrix<N> {
             #[inline]
-            fn from_diag(diag: &$dvec<N>) -> $dmat<N> {
-                let mut res = $dmat::new_zeros(diag.len(), diag.len());
+            fn from_diagonal(diagonal: &$dvector<N>) -> $dmatrix<N> {
+                let mut res = $dmatrix::new_zeros(diagonal.len(), diagonal.len());
 
-                res.set_diag(diag);
+                res.set_diagonal(diagonal);
 
                 res
             }
 
             #[inline]
-            fn diag(&self) -> $dvec<N> {
+            fn diagonal(&self) -> $dvector<N> {
                 let smallest_dim = cmp::min(self.nrows, self.ncols);
 
-                let mut diag: $dvec<N> = $dvec::new_zeros(smallest_dim);
+                let mut diagonal: $dvector<N> = $dvector::new_zeros(smallest_dim);
 
                 for i in 0..smallest_dim {
-                    unsafe { diag.unsafe_set(i, self.unsafe_at((i, i))) }
+                    unsafe { diagonal.unsafe_set(i, self.unsafe_at((i, i))) }
                 }
 
-                diag
+                diagonal
             }
         }
 
-        impl<N: Copy + Clone + Zero> DiagMut<$dvec<N>> for $dmat<N> {
+        impl<N: Copy + Clone + Zero> DiagMut<$dvector<N>> for $dmatrix<N> {
             #[inline]
-            fn set_diag(&mut self, diag: &$dvec<N>) {
+            fn set_diagonal(&mut self, diagonal: &$dvector<N>) {
                 let smallest_dim = cmp::min(self.nrows, self.ncols);
 
-                assert!(diag.len() == smallest_dim);
+                assert!(diagonal.len() == smallest_dim);
 
                 for i in 0..smallest_dim {
-                    unsafe { self.unsafe_set((i, i), diag.unsafe_at(i)) }
+                    unsafe { self.unsafe_set((i, i), diagonal.unsafe_at(i)) }
                 }
             }
         }
 
-        impl<N: ApproxEq<N>> ApproxEq<N> for $dmat<N> {
+        impl<N: ApproxEq<N>> ApproxEq<N> for $dmatrix<N> {
             #[inline]
-            fn approx_epsilon(_: Option<$dmat<N>>) -> N {
+            fn approx_epsilon(_: Option<$dmatrix<N>>) -> N {
                 ApproxEq::approx_epsilon(None::<N>)
             }
 
             #[inline]
-            fn approx_ulps(_: Option<$dmat<N>>) -> u32 {
+            fn approx_ulps(_: Option<$dmatrix<N>>) -> u32 {
                 ApproxEq::approx_ulps(None::<N>)
             }
 
             #[inline]
-            fn approx_eq_eps(&self, other: &$dmat<N>, epsilon: &N) -> bool {
+            fn approx_eq_eps(&self, other: &$dmatrix<N>, epsilon: &N) -> bool {
                 let mut zip = self.mij.iter().zip(other.mij.iter());
                 zip.all(|(a, b)| ApproxEq::approx_eq_eps(a, b, epsilon))
             }
 
             #[inline]
-            fn approx_eq_ulps(&self, other: &$dmat<N>, ulps: u32) -> bool {
+            fn approx_eq_ulps(&self, other: &$dmatrix<N>, ulps: u32) -> bool {
                 let mut zip = self.mij.iter().zip(other.mij.iter());
                 zip.all(|(a, b)| ApproxEq::approx_eq_ulps(a, b, ulps))
             }
         }
 
-        impl<N: Debug + Copy> Debug for $dmat<N> {
+        impl<N: Debug + Copy> Debug for $dmatrix<N> {
             fn fmt(&self, form:&mut Formatter) -> Result {
                 for i in 0..self.nrows() {
                     for j in 0..self.ncols() {
@@ -914,11 +914,11 @@ macro_rules! dmat_impl(
          * Multpilication matrix/scalar.
          *
          */
-        impl<N: Copy + Mul<N, Output = N>> Mul<N> for $dmat<N> {
-            type Output = $dmat<N>;
+        impl<N: Copy + Mul<N, Output = N>> Mul<N> for $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn mul(self, right: N) -> $dmat<N> {
+            fn mul(self, right: N) -> $dmatrix<N> {
                 let mut res = self;
 
                 for mij in res.mij.iter_mut() {
@@ -929,11 +929,11 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl Mul<$dmat<f32>> for f32 {
-            type Output = $dmat<f32>;
+        impl Mul<$dmatrix<f32>> for f32 {
+            type Output = $dmatrix<f32>;
 
             #[inline]
-            fn mul(self, right: $dmat<f32>) -> $dmat<f32> {
+            fn mul(self, right: $dmatrix<f32>) -> $dmatrix<f32> {
                 let mut res = right;
 
                 for mij in res.mij.iter_mut() {
@@ -944,11 +944,11 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl Mul<$dmat<f64>> for f64 {
-            type Output = $dmat<f64>;
+        impl Mul<$dmatrix<f64>> for f64 {
+            type Output = $dmatrix<f64>;
 
             #[inline]
-            fn mul(self, right: $dmat<f64>) -> $dmat<f64> {
+            fn mul(self, right: $dmatrix<f64>) -> $dmatrix<f64> {
                 let mut res = right;
 
                 for mij in res.mij.iter_mut() {
@@ -964,11 +964,11 @@ macro_rules! dmat_impl(
          * Division matrix/scalar.
          *
          */
-        impl<N: Copy + Div<N, Output = N>> Div<N> for $dmat<N> {
-            type Output = $dmat<N>;
+        impl<N: Copy + Div<N, Output = N>> Div<N> for $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn div(self, right: N) -> $dmat<N> {
+            fn div(self, right: N) -> $dmatrix<N> {
                 let mut res = self;
 
                 for mij in res.mij.iter_mut() {
@@ -985,11 +985,11 @@ macro_rules! dmat_impl(
          * Addition matrix/scalar.
          *
          */
-        impl<N: Copy + Add<N, Output = N>> Add<N> for $dmat<N> {
-            type Output = $dmat<N>;
+        impl<N: Copy + Add<N, Output = N>> Add<N> for $dmatrix<N> {
+            type Output = $dmatrix<N>;
 
             #[inline]
-            fn add(self, right: N) -> $dmat<N> {
+            fn add(self, right: N) -> $dmatrix<N> {
                 let mut res = self;
 
                 for mij in res.mij.iter_mut() {
@@ -1000,11 +1000,11 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl Add<$dmat<f32>> for f32 {
-            type Output = $dmat<f32>;
+        impl Add<$dmatrix<f32>> for f32 {
+            type Output = $dmatrix<f32>;
 
             #[inline]
-            fn add(self, right: $dmat<f32>) -> $dmat<f32> {
+            fn add(self, right: $dmatrix<f32>) -> $dmatrix<f32> {
                 let mut res = right;
 
                 for mij in res.mij.iter_mut() {
@@ -1015,11 +1015,11 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl Add<$dmat<f64>> for f64 {
-            type Output = $dmat<f64>;
+        impl Add<$dmatrix<f64>> for f64 {
+            type Output = $dmatrix<f64>;
 
             #[inline]
-            fn add(self, right: $dmat<f64>) -> $dmat<f64> {
+            fn add(self, right: $dmatrix<f64>) -> $dmatrix<f64> {
                 let mut res = right;
 
                 for mij in res.mij.iter_mut() {
@@ -1031,9 +1031,9 @@ macro_rules! dmat_impl(
         }
 
         #[cfg(feature="arbitrary")]
-        impl<N: Copy + Zero + Arbitrary> Arbitrary for $dmat<N> {
-            fn arbitrary<G: Gen>(g: &mut G) -> $dmat<N> {
-                $dmat::from_fn(
+        impl<N: Copy + Zero + Arbitrary> Arbitrary for $dmatrix<N> {
+            fn arbitrary<G: Gen>(g: &mut G) -> $dmatrix<N> {
+                $dmatrix::from_fn(
                     Arbitrary::arbitrary(g), Arbitrary::arbitrary(g),
                     |_, _| Arbitrary::arbitrary(g)
                 )
@@ -1043,10 +1043,10 @@ macro_rules! dmat_impl(
 );
 
 macro_rules! small_dmat_impl (
-    ($dmat: ident, $dvec: ident, $dim: expr, $($idx: expr),*) => (
-        impl<N: PartialEq> PartialEq for $dmat<N> {
+    ($dmatrix: ident, $dvector: ident, $dimension: expr, $($idx: expr),*) => (
+        impl<N: PartialEq> PartialEq for $dmatrix<N> {
             #[inline]
-            fn eq(&self, other: &$dmat<N>) -> bool {
+            fn eq(&self, other: &$dmatrix<N>) -> bool {
                 if self.nrows() != other.nrows() || self.ncols() != other.ncols() {
                     return false; // FIXME: fail instead?
                 }
@@ -1062,11 +1062,11 @@ macro_rules! small_dmat_impl (
             }
         }
 
-        impl<N: Clone> Clone for $dmat<N> {
-            fn clone(&self) -> $dmat<N> {
-                let mij: [N; $dim * $dim] = [ $( self.mij[$idx].clone(), )* ];
+        impl<N: Clone> Clone for $dmatrix<N> {
+            fn clone(&self) -> $dmatrix<N> {
+                let mij: [N; $dimension * $dimension] = [ $( self.mij[$idx].clone(), )* ];
 
-                $dmat {
+                $dmatrix {
                     nrows: self.nrows,
                     ncols: self.ncols,
                     mij:   mij,
@@ -1074,26 +1074,26 @@ macro_rules! small_dmat_impl (
             }
         }
 
-        dmat_impl!($dmat, $dvec);
+        dmat_impl!($dmatrix, $dvector);
     )
 );
 
 macro_rules! small_dmat_from_impl(
-    ($dmat: ident, $dim: expr, $($zeros: expr),*) => (
-        impl<N: Zero + Clone + Copy> $dmat<N> {
+    ($dmatrix: ident, $dimension: expr, $($zeros: expr),*) => (
+        impl<N: Zero + Clone + Copy> $dmatrix<N> {
             /// Builds a matrix filled with a given constant.
             #[inline]
-            pub fn from_elem(nrows: usize, ncols: usize, elem: N) -> $dmat<N> {
-                assert!(nrows <= $dim);
-                assert!(ncols <= $dim);
+            pub fn from_elem(nrows: usize, ncols: usize, elem: N) -> $dmatrix<N> {
+                assert!(nrows <= $dimension);
+                assert!(ncols <= $dimension);
 
-                let mut mij: [N; $dim * $dim] = [ $( $zeros, )* ];
+                let mut mij: [N; $dimension * $dimension] = [ $( $zeros, )* ];
 
                 for n in &mut mij[.. nrows * ncols] {
                     *n = elem;
                 }
 
-                $dmat {
+                $dmatrix {
                     nrows: nrows,
                     ncols: ncols,
                     mij:   mij
@@ -1102,13 +1102,13 @@ macro_rules! small_dmat_from_impl(
 
             /// Builds a matrix filled with the components provided by a vector.
             /// The vector contains the matrix data in row-major order.
-            /// Note that `from_col_vec` is a lot faster than `from_row_vec` since a `$dmat` stores its data
+            /// Note that `from_col_vector` is a lot faster than `from_row_vector` since a `$dmatrix` stores its data
             /// in column-major order.
             ///
             /// The vector must have at least `nrows * ncols` elements.
             #[inline]
-            pub fn from_row_vec(nrows: usize, ncols: usize, vec: &[N]) -> $dmat<N> {
-                let mut res = $dmat::from_col_vec(ncols, nrows, vec);
+            pub fn from_row_vector(nrows: usize, ncols: usize, vector: &[N]) -> $dmatrix<N> {
+                let mut res = $dmatrix::from_col_vector(ncols, nrows, vector);
         
                 // we transpose because the buffer is row_major
                 res.transpose_mut();
@@ -1118,21 +1118,21 @@ macro_rules! small_dmat_from_impl(
 
             /// Builds a matrix filled with the components provided by a vector.
             /// The vector contains the matrix data in column-major order.
-            /// Note that `from_col_vec` is a lot faster than `from_row_vec` since a `$dmat` stores its data
+            /// Note that `from_col_vector` is a lot faster than `from_row_vector` since a `$dmatrix` stores its data
             /// in column-major order.
             ///
             /// The vector must have at least `nrows * ncols` elements.
             #[inline]
-            pub fn from_col_vec(nrows: usize, ncols: usize, vec: &[N]) -> $dmat<N> {
-                assert!(nrows * ncols == vec.len());
+            pub fn from_col_vector(nrows: usize, ncols: usize, vector: &[N]) -> $dmatrix<N> {
+                assert!(nrows * ncols == vector.len());
 
-                let mut mij: [N; $dim * $dim] = [ $( $zeros, )* ];
+                let mut mij: [N; $dimension * $dimension] = [ $( $zeros, )* ];
 
-                for (n, val) in mij[.. nrows * ncols].iter_mut().zip(vec.iter()) {
+                for (n, val) in mij[.. nrows * ncols].iter_mut().zip(vector.iter()) {
                     *n = *val;
                 }
         
-                $dmat {
+                $dmatrix {
                     nrows: nrows,
                     ncols: ncols,
                     mij:   mij
@@ -1141,11 +1141,11 @@ macro_rules! small_dmat_from_impl(
 
             /// Builds a matrix using an initialization function.
             #[inline(always)]
-            pub fn from_fn<F: FnMut(usize, usize) -> N>(nrows: usize, ncols: usize, mut f: F) -> $dmat<N> {
-                assert!(nrows <= $dim);
-                assert!(ncols <= $dim);
+            pub fn from_fn<F: FnMut(usize, usize) -> N>(nrows: usize, ncols: usize, mut f: F) -> $dmatrix<N> {
+                assert!(nrows <= $dimension);
+                assert!(ncols <= $dimension);
 
-                let mut mij: [N; $dim * $dim] = [ $( $zeros, )* ];
+                let mut mij: [N; $dimension * $dimension] = [ $( $zeros, )* ];
 
                 for i in 0 .. nrows {
                     for j in 0 .. ncols {
@@ -1153,7 +1153,7 @@ macro_rules! small_dmat_from_impl(
                     }
                 }
 
-                $dmat {
+                $dmatrix {
                     nrows: nrows,
                     ncols: ncols,
                     mij:   mij
@@ -1161,14 +1161,14 @@ macro_rules! small_dmat_from_impl(
             }
         }
 
-        impl<N: Copy> $dmat<N> {
+        impl<N: Copy> $dmatrix<N> {
             /// Creates a new matrix with uninitialized components (with `mem::uninitialized()`).
             #[inline]
-            pub unsafe fn new_uninitialized(nrows: usize, ncols: usize) -> $dmat<N> {
-                assert!(nrows <= $dim);
-                assert!(ncols <= $dim);
+            pub unsafe fn new_uninitialized(nrows: usize, ncols: usize) -> $dmatrix<N> {
+                assert!(nrows <= $dimension);
+                assert!(ncols <= $dimension);
 
-                $dmat {
+                $dmatrix {
                     nrows: nrows,
                     ncols: ncols,
                     mij:   mem::uninitialized()

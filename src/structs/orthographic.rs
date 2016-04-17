@@ -1,5 +1,5 @@
 use traits::structure::{BaseFloat, Cast};
-use structs::{Pnt3, Vec3, Mat4};
+use structs::{Point3, Vector3, Matrix4};
 
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
@@ -11,7 +11,7 @@ use quickcheck::{Arbitrary, Gen};
 /// `(-1, -1, -1)` to `(1, 1, 1)`. Reading or modifying its individual properties is cheap but
 /// applying the transformation is costly.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
-pub struct Ortho3<N> {
+pub struct Orthographic3<N> {
     left:   N,
     right:  N,
     bottom: N,
@@ -26,18 +26,18 @@ pub struct Ortho3<N> {
 /// `(-1, -1, -1)` to `(1, 1, 1)`. Reading or modifying its individual properties is costly but
 /// applying the transformation is cheap.
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
-pub struct OrthoMat3<N> {
-    mat: Mat4<N>
+pub struct OrthographicMatrix3<N> {
+    matrix: Matrix4<N>
 }
 
-impl<N: BaseFloat> Ortho3<N> {
+impl<N: BaseFloat> Orthographic3<N> {
     /// Creates a new 3D orthographic projection.
-    pub fn new(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> Ortho3<N> {
+    pub fn new(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> Orthographic3<N> {
         assert!(!::is_zero(&(zfar - znear)));
         assert!(!::is_zero(&(left - right)));
         assert!(!::is_zero(&(top - bottom)));
 
-        Ortho3 {
+        Orthographic3 {
             left:   left,
             right:  right,
             bottom: bottom,
@@ -48,30 +48,30 @@ impl<N: BaseFloat> Ortho3<N> {
     }
 
     /// Builds a 4D projection matrix (using homogeneous coordinates) for this projection.
-    pub fn to_mat(&self) -> Mat4<N> {
-        self.to_persp_mat().mat
+    pub fn to_matrix(&self) -> Matrix4<N> {
+        self.to_orthographic_matrix().matrix
     }
 
-    /// Build a `OrthoMat3` representing this projection.
-    pub fn to_persp_mat(&self) -> OrthoMat3<N> {
-        OrthoMat3::new(self.left, self.right, self.bottom, self.top, self.znear, self.zfar)
+    /// Build a `OrthographicMatrix3` representing this projection.
+    pub fn to_orthographic_matrix(&self) -> OrthographicMatrix3<N> {
+        OrthographicMatrix3::new(self.left, self.right, self.bottom, self.top, self.znear, self.zfar)
     }
 }
 
 #[cfg(feature="arbitrary")]
-impl<N: Arbitrary + BaseFloat> Arbitrary for Ortho3<N> {
-    fn arbitrary<G: Gen>(g: &mut G) -> Ortho3<N> {
+impl<N: Arbitrary + BaseFloat> Arbitrary for Orthographic3<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> Orthographic3<N> {
         let left   = Arbitrary::arbitrary(g);
         let right  = reject(g, |x: &N| *x > left);
         let bottom = Arbitrary::arbitrary(g);
         let top    = reject(g, |x: &N| *x > bottom);
         let znear  = Arbitrary::arbitrary(g);
         let zfar   = reject(g, |x: &N| *x > znear);
-        Ortho3::new(left, right, bottom, top, znear, zfar)
+        Orthographic3::new(left, right, bottom, top, znear, zfar)
     }
 }
 
-impl<N: BaseFloat + Clone> Ortho3<N> {
+impl<N: BaseFloat + Clone> Orthographic3<N> {
     /// The smallest x-coordinate of the view cuboid.
     #[inline]
     pub fn left(&self) -> N {
@@ -152,29 +152,29 @@ impl<N: BaseFloat + Clone> Ortho3<N> {
 
     /// Projects a point.
     #[inline]
-    pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
+    pub fn project_point(&self, p: &Point3<N>) -> Point3<N> {
         // FIXME: optimize that
-        self.to_persp_mat().project_pnt(p)
+        self.to_orthographic_matrix().project_point(p)
     }
 
     /// Projects a vector.
     #[inline]
-    pub fn project_vec(&self, p: &Vec3<N>) -> Vec3<N> {
+    pub fn project_vector(&self, p: &Vector3<N>) -> Vector3<N> {
         // FIXME: optimize that
-        self.to_persp_mat().project_vec(p)
+        self.to_orthographic_matrix().project_vector(p)
     }
 }
 
-impl<N: BaseFloat> OrthoMat3<N> {
+impl<N: BaseFloat> OrthographicMatrix3<N> {
     /// Creates a new orthographic projection matrix.
-    pub fn new(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> OrthoMat3<N> {
+    pub fn new(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> OrthographicMatrix3<N> {
         assert!(left < right, "The left corner must be farther than the right corner.");
         assert!(bottom < top, "The top corner must be higher than the bottom corner.");
         assert!(znear < zfar, "The far plane must be farther than the near plane.");
 
-        let mat: Mat4<N> = ::one();
+        let matrix: Matrix4<N> = ::one();
 
-        let mut res = OrthoMat3 { mat: mat };
+        let mut res = OrthographicMatrix3 { matrix: matrix };
         res.set_left_and_right(left, right);
         res.set_bottom_and_top(bottom, top);
         res.set_znear_and_zfar(znear, zfar);
@@ -183,7 +183,7 @@ impl<N: BaseFloat> OrthoMat3<N> {
     }
 
     /// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.
-    pub fn new_with_fov(aspect: N, vfov: N, znear: N, zfar: N) -> OrthoMat3<N> {
+    pub fn new_with_fov(aspect: N, vfov: N, znear: N, zfar: N) -> OrthographicMatrix3<N> {
         assert!(znear < zfar, "The far plane must be farther than the near plane.");
         assert!(!::is_zero(&aspect));
 
@@ -192,59 +192,59 @@ impl<N: BaseFloat> OrthoMat3<N> {
         let width  = zfar * (vfov / _2).tan();
         let height = width / aspect;
 
-        OrthoMat3::new(-width / _2, width / _2, -height / _2, height / _2, znear, zfar)
+        OrthographicMatrix3::new(-width / _2, width / _2, -height / _2, height / _2, znear, zfar)
     }
 
     /// Creates a new orthographic matrix from a 4D matrix.
     ///
     /// This is unsafe because the input matrix is not checked to be a orthographic projection.
     #[inline]
-    pub unsafe fn new_with_mat(mat: Mat4<N>) -> OrthoMat3<N> {
-        OrthoMat3 {
-            mat: mat
+    pub unsafe fn new_with_matrix(matrix: Matrix4<N>) -> OrthographicMatrix3<N> {
+        OrthographicMatrix3 {
+            matrix: matrix
         }
     }
 
     /// Returns a reference to the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
-    pub fn as_mat<'a>(&'a self) -> &'a Mat4<N> {
-        &self.mat
+    pub fn as_matrix<'a>(&'a self) -> &'a Matrix4<N> {
+        &self.matrix
     }
 
     /// The smallest x-coordinate of the view cuboid.
     #[inline]
     pub fn left(&self) -> N {
-        (-::one::<N>() - self.mat.m14) / self.mat.m11
+        (-::one::<N>() - self.matrix.m14) / self.matrix.m11
     }
 
     /// The largest x-coordinate of the view cuboid.
     #[inline]
     pub fn right(&self) -> N {
-        (::one::<N>() - self.mat.m14) / self.mat.m11
+        (::one::<N>() - self.matrix.m14) / self.matrix.m11
     }
 
     /// The smallest y-coordinate of the view cuboid.
     #[inline]
     pub fn bottom(&self) -> N {
-        (-::one::<N>() - self.mat.m24) / self.mat.m22
+        (-::one::<N>() - self.matrix.m24) / self.matrix.m22
     }
 
     /// The largest y-coordinate of the view cuboid.
     #[inline]
     pub fn top(&self) -> N {
-        (::one::<N>() - self.mat.m24) / self.mat.m22
+        (::one::<N>() - self.matrix.m24) / self.matrix.m22
     }
 
     /// The near plane offset of the view cuboid.
     #[inline]
     pub fn znear(&self) -> N {
-        (::one::<N>() + self.mat.m34) / self.mat.m33
+        (::one::<N>() + self.matrix.m34) / self.matrix.m33
     }
 
     /// The far plane offset of the view cuboid.
     #[inline]
     pub fn zfar(&self) -> N {
-        (-::one::<N>() + self.mat.m34) / self.mat.m33
+        (-::one::<N>() + self.matrix.m34) / self.matrix.m33
     }
 
     /// Sets the smallest x-coordinate of the view cuboid.
@@ -293,65 +293,65 @@ impl<N: BaseFloat> OrthoMat3<N> {
     #[inline]
     pub fn set_left_and_right(&mut self, left: N, right: N) {
         assert!(left < right, "The left corner must be farther than the right corner.");
-        self.mat.m11 = <N as Cast<f64>>::from(2.0) / (right - left);
-        self.mat.m14 = -(right + left) / (right - left);
+        self.matrix.m11 = <N as Cast<f64>>::from(2.0) / (right - left);
+        self.matrix.m14 = -(right + left) / (right - left);
     }
 
     /// Sets the view cuboid coordinates along the `y` axis.
     #[inline]
     pub fn set_bottom_and_top(&mut self, bottom: N, top: N) {
         assert!(bottom < top, "The top corner must be higher than the bottom corner.");
-        self.mat.m22 = <N as Cast<f64>>::from(2.0) / (top - bottom);
-        self.mat.m24 = -(top + bottom) / (top - bottom);
+        self.matrix.m22 = <N as Cast<f64>>::from(2.0) / (top - bottom);
+        self.matrix.m24 = -(top + bottom) / (top - bottom);
     }
 
     /// Sets the near and far plane offsets of the view cuboid.
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
         assert!(!::is_zero(&(zfar - znear)));
-        self.mat.m33 = -<N as Cast<f64>>::from(2.0) / (zfar - znear);
-        self.mat.m34 = -(zfar + znear) / (zfar - znear);
+        self.matrix.m33 = -<N as Cast<f64>>::from(2.0) / (zfar - znear);
+        self.matrix.m34 = -(zfar + znear) / (zfar - znear);
     }
 
     /// Projects a point.
     #[inline]
-    pub fn project_pnt(&self, p: &Pnt3<N>) -> Pnt3<N> {
-        Pnt3::new(
-            self.mat.m11 * p.x + self.mat.m14,
-            self.mat.m22 * p.y + self.mat.m24,
-            self.mat.m33 * p.z + self.mat.m34
+    pub fn project_point(&self, p: &Point3<N>) -> Point3<N> {
+        Point3::new(
+            self.matrix.m11 * p.x + self.matrix.m14,
+            self.matrix.m22 * p.y + self.matrix.m24,
+            self.matrix.m33 * p.z + self.matrix.m34
         )
     }
 
     /// Projects a vector.
     #[inline]
-    pub fn project_vec(&self, p: &Vec3<N>) -> Vec3<N> {
-        Vec3::new(
-            self.mat.m11 * p.x,
-            self.mat.m22 * p.y,
-            self.mat.m33 * p.z
+    pub fn project_vector(&self, p: &Vector3<N>) -> Vector3<N> {
+        Vector3::new(
+            self.matrix.m11 * p.x,
+            self.matrix.m22 * p.y,
+            self.matrix.m33 * p.z
         )
     }
 }
 
-impl<N: BaseFloat + Clone> OrthoMat3<N> {
+impl<N: BaseFloat + Clone> OrthographicMatrix3<N> {
     /// Returns the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
-    pub fn to_mat<'a>(&'a self) -> Mat4<N> {
-        self.mat.clone()
+    pub fn to_matrix<'a>(&'a self) -> Matrix4<N> {
+        self.matrix.clone()
     }
 }
 
 #[cfg(feature="arbitrary")]
-impl<N: Arbitrary + BaseFloat> Arbitrary for OrthoMat3<N> {
-    fn arbitrary<G: Gen>(g: &mut G) -> OrthoMat3<N> {
-        let x: Ortho3<N> = Arbitrary::arbitrary(g);
-        x.to_persp_mat()
+impl<N: Arbitrary + BaseFloat> Arbitrary for OrthographicMatrix3<N> {
+    fn arbitrary<G: Gen>(g: &mut G) -> OrthographicMatrix3<N> {
+        let x: Orthographic3<N> = Arbitrary::arbitrary(g);
+        x.to_orthographic_matrix()
     }
 }
 
 
-/// Simple helper function for rejection sampling
+/// Similarityple helper function for rejection sampling
 #[cfg(feature="arbitrary")]
 #[inline]
 pub fn reject<G: Gen, F: FnMut(&T) -> bool, T: Arbitrary>(g: &mut G, f: F) -> T {

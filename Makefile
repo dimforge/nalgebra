@@ -1,16 +1,19 @@
 tmp=_git_distcheck
 
 all:
-	cargo build --release --features arbitrary
+	cargo build --release --features "arbitrary generic_sizes"
 
 test:
-	cargo test
+	cargo test --features "arbitrary generic_sizes"
+
 
 bench:
-	cargo bench
+	cargo bench --features "arbitrary generic_sizes"
+
 
 doc:
-	cargo doc --no-deps
+	cargo doc --no-deps --features "arbitrary generic_sizes"
+
 
 clean:
 	cargo clean

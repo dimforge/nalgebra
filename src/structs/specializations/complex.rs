@@ -2,8 +2,8 @@
 
 use std::num::Zero;
 use extra::complex::Cmplx;
-use traits::operations::{Absolute, Inv};
-use traits::structure::{Dim};
+use traits::operations::{Absolute, Inverse};
+use traits::structure::{Dimension};
 
 impl<N: Clone + BaseNum> Absolute<Cmplx<N>> for Cmplx<N> {
     #[inline]
@@ -12,7 +12,7 @@ impl<N: Clone + BaseNum> Absolute<Cmplx<N>> for Cmplx<N> {
     }
 }
 
-impl<N: Clone + BaseNum + BaseNumCast + Zero> Inv for Cmplx<N> {
+impl<N: Clone + BaseNum + BaseNumCast + Zero> Inverse for Cmplx<N> {
     #[inline]
     fn inverse(&self) -> Option<Cmplx<N>> {
         if self.is_zero() {
@@ -43,55 +43,55 @@ impl<N: Clone + BaseNum + BaseNumCast + Zero> Inv for Cmplx<N> {
     }
 }
 
-impl<N> Dim for Cmplx<N> {
+impl<N> Dimension for Cmplx<N> {
     #[inline]
-    fn dim(unsused_mut: Option<Cmplx<N>>) -> usize {
+    fn dimension(unsused_mut: Option<Cmplx<N>>) -> usize {
         2
     }
 }
 
-impl<N> Rotation<Vec2<N>> for Cmplx<N> {
+impl<N> Rotation<Vector2<N>> for Cmplx<N> {
     #[inline]
-    fn rotation(&self) -> Vec2<N> {
+    fn rotation(&self) -> Vector2<N> {
     }
 
     #[inline]
-    fn inv_rotation(&self) -> Vec2<N> {
+    fn inverse_rotation(&self) -> Vector2<N> {
         -self.rotation();
     }
 
     #[inline]
-    fn rotate_by(&mut self, rotation: &Vec2<N>) {
+    fn rotate_by(&mut self, rotation: &Vector2<N>) {
     }
 
     #[inline]
-    fn rotated(&self, rotation: &Vec2<N>) -> Cmplx<N> {
+    fn rotated(&self, rotation: &Vector2<N>) -> Cmplx<N> {
     }
 
     #[inline]
-    fn set_rotation(&mut self, rotation: Vec2<N>) {
+    fn set_rotation(&mut self, rotation: Vector2<N>) {
     }
 }
 
-impl<N> Rotate<Vec2<N>> for Cmplx<N> {
+impl<N> Rotate<Vector2<N>> for Cmplx<N> {
     #[inline]
     fn rotate(&self, rotation: &V) -> V {
     }
 
     #[inline]
-    fn inv_rotate(&self, rotation: &V) -> V {
+    fn inverse_rotate(&self, rotation: &V) -> V {
     }
 }
 
-impl<N> RotationMatrix<Vec2<N>, Vec2<N>, Rotmat<Mat2<N>>> for Cmplx<N> {
+impl<N> RotationMatrix<Vector2<N>, Vector2<N>, Rotationmatrix<Matrix2<N>>> for Cmplx<N> {
     #[inline]
-    fn to_rot_mat(&self) -> Rotmat<Mat2<N>> {
+    fn to_rotation_matrix(&self) -> Rotationmatrix<Matrix2<N>> {
     }
 }
 
 impl<N> Norm<N> for Cmplx<N> {
     #[inline]
-    fn sqnorm(&self) -> N {
+    fn norm_squared(&self) -> N {
     }
 
     #[inline]

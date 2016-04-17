@@ -14,22 +14,22 @@ All the functionality of **nalgebra** is grouped in one place: the root module `
 module re-exports everything and includes free functions for all traits methods performing
 out-of-place operations.
 
-* You can import the whole prelude using:
+Thus, you can import the whole prelude using:
 
 ```.ignore
 use nalgebra::*;
 ```
 
-The preferred way to use **nalgebra** is to import types and traits explicitly, and call
+However, the recommended way to use **nalgebra** is to import types and traits explicitly, and call
 free-functions using the `na::` prefix:
 
 ```.rust
 extern crate nalgebra as na;
-use na::{Vec3, Rot3, Rotation};
+use na::{Vector3, Rotation3, Rotation};
 
 fn main() {
-    let     a = Vec3::new(1.0f64, 1.0, 1.0);
-    let mut b = Rot3::new(na::zero());
+    let     a = Vector3::new(1.0f64, 1.0, 1.0);
+    let mut b = Rotation3::new(na::zero());
 
     b.append_rotation_mut(&a);
 
@@ -41,19 +41,19 @@ fn main() {
 **nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
 an optimized set of tools for computer graphics and physics. Those features include:
 
-* Vectors with predefined static sizes: `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
-* Vector with a user-defined static size: `VecN` (available only with the `generic_sizes` feature).
-* Points with static sizes: `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
-* Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
-* Rotation matrices: `Rot2`, `Rot3`
-* Quaternions: `Quat`, `UnitQuat`.
-* Isometries (translation ⨯ rotation): `Iso2`, `Iso3`
-* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Sim2`, `Sim3`.
-* 3D projections for computer graphics: `Persp3`, `PerspMat3`, `Ortho3`, `OrthoMat3`.
-* Dynamically sized heap-allocated vector: `DVec`.
-* Dynamically sized stack-allocated vectors with a maximum size: `DVec1` to `DVec6`.
-* Dynamically sized heap-allocated (square or rectangular) matrix: `DMat`.
-* Linear algebra and data analysis operators: `Cov`, `Mean`, `qr`, `cholesky`.
+* Vectors with predefined static sizes: `Vector1`, `Vector2`, `Vector3`, `Vector4`, `Vector5`, `Vector6`.
+* Vector with a user-defined static size: `VectorN` (available only with the `generic_sizes` feature).
+* Points with static sizes: `Point1`, `Point2`, `Point3`, `Point4`, `Point5`, `Point6`.
+* Square matrices with static sizes: `Matrix1`, `Matrix2`, `Matrix3`, `Matrix4`, `Matrix5`, `Matrix6 `.
+* Rotation matrices: `Rotation2`, `Rotation3`
+* Quaternions: `Quaternion`, `UnitQuaternion`.
+* Isometrymetries (translation ⨯ rotation): `Isometry2`, `Isometry3`
+* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Similarity2`, `Similarity3`.
+* 3D projections for computer graphics: `Perspective3`, `PerspectiveMatrix3`, `Orthographic3`, `OrthographicMatrix3`.
+* Dynamically sized heap-allocated vector: `DVector`.
+* Dynamically sized stack-allocated vectors with a maximum size: `DVector1` to `DVector6`.
+* Dynamically sized heap-allocated (square or rectangular) matrix: `DMatrix`.
+* Linear algebra and data analysis operators: `Covariance`, `Mean`, `qr`, `cholesky`.
 * Almost one trait per functionality: useful for generic programming.
 
 
@@ -98,39 +98,39 @@ pub use traits::{
     BaseNum,
     Bounded,
     Cast,
-    Col,
-    ColSlice, RowSlice,
-    Cov,
+    Column,
+    ColumnSlice, RowSlice,
+    Covariance,
     Cross,
     CrossMatrix,
-    Det,
-    Diag,
-    Dim,
+    Determinant,
+    Diagonal,
+    Dimension,
     Dot,
     EigenQR,
     Eye,
-    FloatPnt,
-    FloatVec,
+    FloatPoint,
+    FloatVector,
     FromHomogeneous,
     Indexable,
-    Inv,
+    Inverse,
     Iterable,
     IterableMut,
-    Mat,
+    Matrix,
     Mean,
     Norm,
-    NumPnt,
-    NumVec,
-    Orig,
+    NumPoint,
+    NumVector,
+    Origin,
     Outer,
-    POrd,
-    POrdering,
-    PntAsVec,
+    PartialOrder,
+    PartialOrdering,
+    PointAsVector,
     Repeat,
     Rotate, Rotation, RotationMatrix, RotationWithTranslation, RotationTo,
     Row,
     Shape,
-    SquareMat,
+    SquareMatrix,
     ToHomogeneous,
     Transform, Transformation,
     Translate, Translation,
@@ -139,22 +139,22 @@ pub use traits::{
 };
 
 #[cfg(feature="generic_sizes")]
-pub use structs::VecN;
+pub use structs::VectorN;
 
 pub use structs::{
     Identity,
-    DMat, DMat1, DMat2,  DMat3,  DMat4,  DMat5,  DMat6,
-    DVec, DVec1, DVec2,  DVec3,  DVec4,  DVec5,  DVec6,
-    Iso2, Iso3,
-    Sim2, Sim3,
-    Mat1, Mat2, Mat3, Mat4,
-    Mat5, Mat6,
-    Rot2, Rot3,
-    Vec1, Vec2, Vec3, Vec4, Vec5, Vec6,
-    Pnt1, Pnt2, Pnt3, Pnt4, Pnt5, Pnt6,
-    Persp3, PerspMat3,
-    Ortho3, OrthoMat3,
-    Quat, UnitQuat
+    DMatrix, DMatrix1, DMatrix2,  DMatrix3,  DMatrix4,  DMatrix5,  DMatrix6,
+    DVector, DVector1, DVector2,  DVector3,  DVector4,  DVector5,  DVector6,
+    Isometry2, Isometry3,
+    Similarity2, Similarity3,
+    Matrix1, Matrix2, Matrix3, Matrix4,
+    Matrix5, Matrix6,
+    Rotation2, Rotation3,
+    Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
+    Point1, Point2, Point3, Point4, Point5, Point6,
+    Perspective3, PerspectiveMatrix3,
+    Orthographic3, OrthographicMatrix3,
+    Quaternion, UnitQuaternion
 };
 
 pub use linalg::{
@@ -202,63 +202,63 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 
 /// Returns the infimum of `a` and `b`.
 #[inline(always)]
-pub fn inf<T: POrd>(a: &T, b: &T) -> T {
-    POrd::inf(a, b)
+pub fn inf<T: PartialOrder>(a: &T, b: &T) -> T {
+    PartialOrder::inf(a, b)
 }
 
 /// Returns the supremum of `a` and `b`.
 #[inline(always)]
-pub fn sup<T: POrd>(a: &T, b: &T) -> T {
-    POrd::sup(a, b)
+pub fn sup<T: PartialOrder>(a: &T, b: &T) -> T {
+    PartialOrder::sup(a, b)
 }
 
 /// Compare `a` and `b` using a partial ordering relation.
 #[inline(always)]
-pub fn partial_cmp<T: POrd>(a: &T, b: &T) -> POrdering {
-    POrd::partial_cmp(a, b)
+pub fn partial_cmp<T: PartialOrder>(a: &T, b: &T) -> PartialOrdering {
+    PartialOrder::partial_cmp(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a < b`.
 #[inline(always)]
-pub fn partial_lt<T: POrd>(a: &T, b: &T) -> bool {
-    POrd::partial_lt(a, b)
+pub fn partial_lt<T: PartialOrder>(a: &T, b: &T) -> bool {
+    PartialOrder::partial_lt(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a <= b`.
 #[inline(always)]
-pub fn partial_le<T: POrd>(a: &T, b: &T) -> bool {
-    POrd::partial_le(a, b)
+pub fn partial_le<T: PartialOrder>(a: &T, b: &T) -> bool {
+    PartialOrder::partial_le(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a > b`.
 #[inline(always)]
-pub fn partial_gt<T: POrd>(a: &T, b: &T) -> bool {
-    POrd::partial_gt(a, b)
+pub fn partial_gt<T: PartialOrder>(a: &T, b: &T) -> bool {
+    PartialOrder::partial_gt(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a >= b`.
 #[inline(always)]
-pub fn partial_ge<T: POrd>(a: &T, b: &T) -> bool {
-    POrd::partial_ge(a, b)
+pub fn partial_ge<T: PartialOrder>(a: &T, b: &T) -> bool {
+    PartialOrder::partial_ge(a, b)
 }
 
 /// Return the minimum of `a` and `b` if they are comparable.
 #[inline(always)]
-pub fn partial_min<'a, T: POrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
-    POrd::partial_min(a, b)
+pub fn partial_min<'a, T: PartialOrder>(a: &'a T, b: &'a T) -> Option<&'a T> {
+    PartialOrder::partial_min(a, b)
 }
 
 /// Return the maximum of `a` and `b` if they are comparable.
 #[inline(always)]
-pub fn partial_max<'a, T: POrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
-    POrd::partial_max(a, b)
+pub fn partial_max<'a, T: PartialOrder>(a: &'a T, b: &'a T) -> Option<&'a T> {
+    PartialOrder::partial_max(a, b)
 }
 
 /// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to
 /// `min` or `max`.
 #[inline(always)]
-pub fn partial_clamp<'a, T: POrd>(value: &'a T, min: &'a T, max: &'a T) -> Option<&'a T> {
-    POrd::partial_clamp(value, min, max)
+pub fn partial_clamp<'a, T: PartialOrder>(value: &'a T, min: &'a T, max: &'a T) -> Option<&'a T> {
+    PartialOrder::partial_clamp(value, min, max)
 }
 
 //
@@ -305,34 +305,34 @@ pub fn one<T: One>() -> T {
 
 /// Returns the trivial origin of an affine space.
 #[inline(always)]
-pub fn orig<P: Orig>() -> P {
-    Orig::orig()
+pub fn origin<P: Origin>() -> P {
+    Origin::origin()
 }
 
 /// Returns the center of two points.
 #[inline]
-pub fn center<N: BaseFloat, P: FloatPnt<N>>(a: &P, b: &P) -> P
-        where <P as PntAsVec>::Vec: Norm<N>
+pub fn center<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> P
+        where <P as PointAsVector>::Vector: Norm<N>
 {
     let _2 = one::<N>() + one();
-    (*a + b.to_vec()) / _2
+    (*a + b.to_vector()) / _2
 }
 
 /*
- * FloatPnt
+ * FloatPoint
  */
 /// Returns the distance between two points.
 #[inline(always)]
-pub fn dist<N: BaseFloat, P: FloatPnt<N>>(a: &P, b: &P) -> N where <P as PntAsVec>::Vec: Norm<N> {
-    a.dist(b)
+pub fn distance<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N where <P as PointAsVector>::Vector: Norm<N> {
+    a.distance(b)
 }
 
 /// Returns the squared distance between two points.
 #[inline(always)]
-pub fn sqdist<N: BaseFloat, P: FloatPnt<N>>(a: &P, b: &P) -> N 
-        where <P as PntAsVec>::Vec: Norm<N>
+pub fn distance_squared<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N 
+        where <P as PointAsVector>::Vector: Norm<N>
 {
-    a.sqdist(b)
+    a.distance_squared(b)
 }
 
 /*
@@ -343,13 +343,13 @@ pub fn sqdist<N: BaseFloat, P: FloatPnt<N>>(a: &P, b: &P) -> N
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{Vec3, Iso3};
+/// use na::{Vector3, Isometry3};
 ///
 /// fn main() {
-///     let t     = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
+///     let t     = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());
 ///     let trans = na::translation(&t);
 ///
-///     assert!(trans == Vec3::new(1.0, 1.0, 1.0));
+///     assert!(trans == Vector3::new(1.0, 1.0, 1.0));
 /// }
 /// ```
 #[inline(always)]
@@ -361,18 +361,18 @@ pub fn translation<V, M: Translation<V>>(m: &M) -> V {
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{Vec3, Iso3};
+/// use na::{Vector3, Isometry3};
 ///
 /// fn main() {
-///     let t      = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
-///     let itrans = na::inv_translation(&t);
+///     let t      = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());
+///     let itrans = na::inverse_translation(&t);
 ///
-///     assert!(itrans == Vec3::new(-1.0, -1.0, -1.0));
+///     assert!(itrans == Vector3::new(-1.0, -1.0, -1.0));
 /// }
 /// ```
 #[inline(always)]
-pub fn inv_translation<V, M: Translation<V>>(m: &M) -> V {
-    m.inv_translation()
+pub fn inverse_translation<V, M: Translation<V>>(m: &M) -> V {
+    m.inverse_translation()
 }
 
 /// Applies the translation `v` to a copy of `m`.
@@ -389,15 +389,15 @@ pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{Pnt3, Vec3, Iso3};
+/// use na::{Point3, Vector3, Isometry3};
 ///
 /// fn main() {
-///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
-///     let p  = Pnt3::new(2.0, 2.0, 2.0);
+///     let t  = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());
+///     let p  = Point3::new(2.0, 2.0, 2.0);
 ///
 ///     let tp = na::translate(&t, &p);
 ///
-///     assert!(tp == Pnt3::new(3.0, 3.0, 3.0))
+///     assert!(tp == Point3::new(3.0, 3.0, 3.0))
 /// }
 /// ```
 #[inline(always)]
@@ -409,19 +409,19 @@ pub fn translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{Pnt3, Vec3, Iso3};
+/// use na::{Point3, Vector3, Isometry3};
 ///
 /// fn main() {
-///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());
-///     let p  = Pnt3::new(2.0, 2.0, 2.0);
+///     let t  = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());
+///     let p  = Point3::new(2.0, 2.0, 2.0);
 ///
-///     let tp = na::inv_translate(&t, &p);
+///     let tp = na::inverse_translate(&t, &p);
 ///
-///     assert!(na::approx_eq(&tp, &Pnt3::new(1.0, 1.0, 1.0)))
+///     assert!(na::approx_eq(&tp, &Point3::new(1.0, 1.0, 1.0)))
 /// }
 #[inline(always)]
-pub fn inv_translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
-    m.inv_translate(p)
+pub fn inverse_translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
+    m.inverse_translate(p)
 }
 
 /*
@@ -432,12 +432,12 @@ pub fn inv_translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{Vec3, Rot3};
+/// use na::{Vector3, Rotation3};
 ///
 /// fn main() {
-///     let t = Rot3::new(Vec3::new(1.0f64, 1.0, 1.0));
+///     let t = Rotation3::new(Vector3::new(1.0f64, 1.0, 1.0));
 ///
-///     assert!(na::approx_eq(&na::rotation(&t), &Vec3::new(1.0, 1.0, 1.0)));
+///     assert!(na::approx_eq(&na::rotation(&t), &Vector3::new(1.0, 1.0, 1.0)));
 /// }
 /// ```
 #[inline(always)]
@@ -450,17 +450,17 @@ pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{Vec3, Rot3};
+/// use na::{Vector3, Rotation3};
 ///
 /// fn main() {
-///     let t = Rot3::new(Vec3::new(1.0f64, 1.0, 1.0));
+///     let t = Rotation3::new(Vector3::new(1.0f64, 1.0, 1.0));
 ///
-///     assert!(na::approx_eq(&na::inv_rotation(&t), &Vec3::new(-1.0, -1.0, -1.0)));
+///     assert!(na::approx_eq(&na::inverse_rotation(&t), &Vector3::new(-1.0, -1.0, -1.0)));
 /// }
 /// ```
 #[inline(always)]
-pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
-    m.inv_rotation()
+pub fn inverse_rotation<V, M: Rotation<V>>(m: &M) -> V {
+    m.inverse_rotation()
 }
 
 // FIXME: this example is a bit shity
@@ -468,14 +468,14 @@ pub fn inv_rotation<V, M: Rotation<V>>(m: &M) -> V {
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{Vec3, Rot3};
+/// use na::{Vector3, Rotation3};
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.0));
-///     let v  = Vec3::new(1.0, 1.0, 1.0);
+///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.0));
+///     let v  = Vector3::new(1.0, 1.0, 1.0);
 ///     let rt = na::append_rotation(&t, &v);
 ///
-///     assert!(na::approx_eq(&na::rotation(&rt), &Vec3::new(1.0, 1.0, 1.0)))
+///     assert!(na::approx_eq(&na::rotation(&rt), &Vector3::new(1.0, 1.0, 1.0)))
 /// }
 /// ```
 #[inline(always)]
@@ -488,14 +488,14 @@ pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{Vec3, Rot3};
+/// use na::{Vector3, Rotation3};
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.0));
-///     let v  = Vec3::new(1.0, 1.0, 1.0);
+///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.0));
+///     let v  = Vector3::new(1.0, 1.0, 1.0);
 ///     let rt = na::prepend_rotation(&t, &v);
 ///
-///     assert!(na::approx_eq(&na::rotation(&rt), &Vec3::new(1.0, 1.0, 1.0)))
+///     assert!(na::approx_eq(&na::rotation(&rt), &Vector3::new(1.0, 1.0, 1.0)))
 /// }
 /// ```
 #[inline(always)]
@@ -511,15 +511,15 @@ pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{BaseFloat, Rot3, Vec3};
+/// use na::{BaseFloat, Rotation3, Vector3};
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * <f64 as BaseFloat>::pi()));
-///     let v  = Vec3::new(1.0, 0.0, 0.0);
+///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.5 * <f64 as BaseFloat>::pi()));
+///     let v  = Vector3::new(1.0, 0.0, 0.0);
 ///
 ///     let tv = na::rotate(&t, &v);
 ///
-///     assert!(na::approx_eq(&tv, &Vec3::new(0.0, 1.0, 0.0)))
+///     assert!(na::approx_eq(&tv, &Vector3::new(0.0, 1.0, 0.0)))
 /// }
 /// ```
 #[inline(always)]
@@ -532,20 +532,20 @@ pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 ///
 /// ```rust
 /// extern crate nalgebra as na;
-/// use na::{BaseFloat, Rot3, Vec3};
+/// use na::{BaseFloat, Rotation3, Vector3};
 ///
 /// fn main() {
-///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * <f64 as BaseFloat>::pi()));
-///     let v  = Vec3::new(1.0, 0.0, 0.0);
+///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.5 * <f64 as BaseFloat>::pi()));
+///     let v  = Vector3::new(1.0, 0.0, 0.0);
 ///
-///     let tv = na::inv_rotate(&t, &v);
+///     let tv = na::inverse_rotate(&t, &v);
 ///
-///     assert!(na::approx_eq(&tv, &Vec3::new(0.0, -1.0, 0.0)))
+///     assert!(na::approx_eq(&tv, &Vector3::new(0.0, -1.0, 0.0)))
 /// }
 /// ```
 #[inline(always)]
-pub fn inv_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
-    m.inv_rotate(v)
+pub fn inverse_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
+    m.inverse_rotate(v)
 }
 
 /*
@@ -594,13 +594,13 @@ pub fn rotation_between<V: RotationTo>(a: &V, b: &V) -> V::DeltaRotationType {
 
 /// Builds a rotation matrix from `r`.
 #[inline(always)]
-pub fn to_rot_mat<N, LV, AV, R, M>(r: &R) -> M
+pub fn to_rotation_matrix<N, LV, AV, R, M>(r: &R) -> M
     where R: RotationMatrix<N, LV, AV, Output = M>,
-          M: SquareMat<N, LV> + Rotation<AV> + Copy,
+          M: SquareMatrix<N, LV> + Rotation<AV> + Copy,
           LV: Mul<M, Output = LV>
 {
     // FIXME: rust-lang/rust#20413
-    r.to_rot_mat()
+    r.to_rotation_matrix()
 }
 
 /*
@@ -625,8 +625,8 @@ pub fn transformation<T, M: Transformation<T>>(m: &M) -> T {
 
 /// Gets the inverse transformation applicable by `m`.
 #[inline(always)]
-pub fn inv_transformation<T, M: Transformation<T>>(m: &M) -> T {
-    m.inv_transformation()
+pub fn inverse_transformation<T, M: Transformation<T>>(m: &M) -> T {
+    m.inverse_transformation()
 }
 
 /// Gets a transformed copy of `m`.
@@ -647,8 +647,8 @@ pub fn transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
 
 /// Applies an inverse transformation to a vector.
 #[inline(always)]
-pub fn inv_transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
-    m.inv_transform(v)
+pub fn inverse_transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
+    m.inverse_transform(v)
 }
 
 /*
@@ -673,8 +673,8 @@ pub fn norm<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
 
 /// Computes the squared L2 norm of a vector.
 #[inline(always)]
-pub fn sqnorm<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
-    Norm::sqnorm(v)
+pub fn norm_squared<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
+    Norm::norm_squared(v)
 }
 
 /// Gets the normalized version of a vector.
@@ -684,12 +684,12 @@ pub fn normalize<V: Norm<N>, N: BaseFloat>(v: &V) -> V {
 }
 
 /*
- * Det<N>
+ * Determinant<N>
  */
 /// Computes the determinant of a square matrix.
 #[inline(always)]
-pub fn det<M: Det<N>, N>(m: &M) -> N {
-    Det::det(m)
+pub fn determinant<M: Determinant<N>, N>(m: &M) -> N {
+    Determinant::determinant(m)
 }
 
 /*
@@ -780,13 +780,13 @@ pub fn abs<M: Absolute<Res>, Res>(m: &M) -> Res {
 }
 
 /*
- * Inv
+ * Inverse
  */
 
 /// Gets an inverted copy of a matrix.
 #[inline(always)]
-pub fn inv<M: Inv>(m: &M) -> Option<M> {
-    Inv::inv(m)
+pub fn inverse<M: Inverse>(m: &M) -> Option<M> {
+    Inverse::inverse(m)
 }
 
 /*
@@ -810,13 +810,13 @@ pub fn outer<V: Outer>(a: &V, b: &V) -> V::OuterProductType {
 }
 
 /*
- * Cov<M>
+ * Covariance<M>
  */
 
 /// Computes the covariance of a set of observations.
 #[inline(always)]
-pub fn cov<M: Cov<Res>, Res>(observations: &M) -> Res {
-    Cov::cov(observations)
+pub fn covariance<M: Covariance<Res>, Res>(observations: &M) -> Res {
+    Covariance::covariance(observations)
 }
 
 /*
@@ -851,8 +851,8 @@ pub fn eigen_qr<N, V, M>(m: &M, eps: &N, niter: usize) -> (M, V)
  */
 /// Construct the identity matrix for a given dimension
 #[inline(always)]
-pub fn new_identity<M: Eye>(dim: usize) -> M {
-    Eye::new_identity(dim)
+pub fn new_identity<M: Eye>(dimension: usize) -> M {
+    Eye::new_identity(dimension)
 }
 
 
@@ -894,27 +894,27 @@ pub fn canonical_basis_element<V: Basis>(i: usize) -> Option<V> {
  */
 
 /*
- * Col<C>
+ * Column<C>
  */
 
 /*
- * Diag<V>
+ * Diagonal<V>
  */
 /// Gets the diagonal of a square matrix.
 #[inline(always)]
-pub fn diag<M: Diag<V>, V>(m: &M) -> V {
-    m.diag()
+pub fn diagonal<M: Diagonal<V>, V>(m: &M) -> V {
+    m.diagonal()
 }
 
 /*
- * Dim
+ * Dimension
  */
 /// Gets the dimension an object lives in.
 ///
-/// Same as `Dim::dim::(None::<V>)`.
+/// Same as `Dimension::dimension::(None::<V>)`.
 #[inline(always)]
-pub fn dim<V: Dim>() -> usize {
-    Dim::dim(None::<V>)
+pub fn dimension<V: Dimension>() -> usize {
+    Dimension::dimension(None::<V>)
 }
 
 /// Gets the indexable range of an object.
@@ -931,10 +931,10 @@ pub fn shape<V: Shape<I>, I>(v: &V) -> I {
 /// For primitive types, this is the same as the `as` keywords.
 /// The following properties are preserved by a cast:
 ///
-/// * Type-level geometric invariants cannot be broken (eg. a cast from Rot3<f64> to Rot3<i64> is
+/// * Type-level geometric invariants cannot be broken (eg. a cast from Rotation3<f64> to Rotation3<i64> is
 /// not possible)
-/// * A cast to a type with more type-level invariants cannot be done (eg. a cast from Mat<f64> to
-/// Rot3<f64> is not possible)
+/// * A cast to a type with more type-level invariants cannot be done (eg. a cast from Matrix<f64> to
+/// Rotation3<f64> is not possible)
 /// * For primitive types an unbounded cast is done using the `as` keyword (this is different from
 /// the standard library which makes bound-checking to ensure eg. that a i64 is not out of the
 /// range of an i32 when a cast from i64 to i32 is done).

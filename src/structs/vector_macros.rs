@@ -15,37 +15,37 @@ macro_rules! new_impl(
 );
 
 macro_rules! conversion_impl(
-    ($t: ident, $dim: expr) => (
-        impl<N> AsRef<[N; $dim]> for $t<N> {
+    ($t: ident, $dimension: expr) => (
+        impl<N> AsRef<[N; $dimension]> for $t<N> {
             #[inline]
-            fn as_ref(&self) -> &[N; $dim] {
+            fn as_ref(&self) -> &[N; $dimension] {
                 unsafe {
                     mem::transmute(self)
                 }
             }
         }
 
-        impl<N> AsMut<[N; $dim]> for $t<N> {
+        impl<N> AsMut<[N; $dimension]> for $t<N> {
             #[inline]
-            fn as_mut(&mut self) -> &mut [N; $dim] {
+            fn as_mut(&mut self) -> &mut [N; $dimension] {
                 unsafe {
                     mem::transmute(self)
                 }
             }
         }
 
-        impl<'a, N> From<&'a [N; $dim]> for &'a $t<N> {
+        impl<'a, N> From<&'a [N; $dimension]> for &'a $t<N> {
             #[inline]
-            fn from(arr: &'a [N; $dim]) -> &'a $t<N> {
+            fn from(arr: &'a [N; $dimension]) -> &'a $t<N> {
                 unsafe {
                     mem::transmute(arr)
                 }
             }
         }
 
-        impl<'a, N> From<&'a mut [N; $dim]> for &'a mut $t<N> {
+        impl<'a, N> From<&'a mut [N; $dimension]> for &'a mut $t<N> {
             #[inline]
-            fn from(arr: &'a mut [N; $dim]) -> &'a mut $t<N> {
+            fn from(arr: &'a mut [N; $dimension]) -> &'a mut $t<N> {
                 unsafe {
                     mem::transmute(arr)
                 }
@@ -55,7 +55,7 @@ macro_rules! conversion_impl(
 );
 
 macro_rules! at_fast_impl(
-    ($t: ident, $dim: expr) => (
+    ($t: ident, $dimension: expr) => (
         impl<N: Copy> $t<N> {
             /// Unsafe read access to a vector element by index.
             #[inline]
@@ -76,7 +76,7 @@ macro_rules! at_fast_impl(
 // However, f32/f64 does not implement Ord…
 macro_rules! pord_impl(
     ($t: ident, $comp0: ident, $($compN: ident),*) => (
-        impl<N: BaseFloat> POrd for $t<N> {
+        impl<N: BaseFloat> PartialOrder for $t<N> {
             #[inline]
             fn inf(&self, other: &$t<N>) -> $t<N> {
                 $t::new(self.$comp0.min(other.$comp0)
@@ -90,24 +90,24 @@ macro_rules! pord_impl(
             }
 
             #[inline]
-            #[allow(unused_mut)] // otherwise there will be a warning for is_eq or Vec1.
-            fn partial_cmp(&self, other: &$t<N>) -> POrdering {
+            #[allow(unused_mut)] // otherwise there will be a warning for is_eq or Vector1.
+            fn partial_cmp(&self, other: &$t<N>) -> PartialOrdering {
                 let is_lt     = self.$comp0 <  other.$comp0;
                 let mut is_eq = self.$comp0 == other.$comp0;
 
                 if is_lt { // <
                     $(
                         if self.$compN > other.$compN {
-                            return POrdering::NotComparable
+                            return PartialOrdering::NotComparable
                         }
                      )*
 
-                    POrdering::PartialLess
+                    PartialOrdering::PartialLess
                 }
                 else { // >=
                     $(
                         if self.$compN < other.$compN {
-                            return POrdering::NotComparable
+                            return PartialOrdering::NotComparable
                         }
                         else if self.$compN > other.$compN {
                             is_eq = false;
@@ -116,10 +116,10 @@ macro_rules! pord_impl(
                      )*
 
                     if is_eq {
-                        POrdering::PartialEqual
+                        PartialOrdering::PartialEqual
                     }
                     else {
-                        POrdering::PartialGreater
+                        PartialOrdering::PartialGreater
                     }
                 }
             }
@@ -177,11 +177,11 @@ macro_rules! vec_cast_impl(
 );
 
 macro_rules! indexable_impl(
-    ($t: ident, $dim: expr) => (
+    ($t: ident, $dimension: expr) => (
         impl<N> Shape<usize> for $t<N> {
             #[inline]
             fn shape(&self) -> usize {
-                $dim
+                $dimension
             }
         }
 
@@ -189,18 +189,18 @@ macro_rules! indexable_impl(
             #[inline]
             fn swap(&mut self, i1: usize, i2: usize) {
                 unsafe {
-                    mem::transmute::<&mut $t<N>, &mut [N; $dim]>(self).swap(i1, i2)
+                    mem::transmute::<&mut $t<N>, &mut [N; $dimension]>(self).swap(i1, i2)
                 }
             }
 
             #[inline]
             unsafe fn unsafe_at(&self, i: usize) -> N {
-                (*mem::transmute::<&$t<N>, &[N; $dim]>(self).get_unchecked(i))
+                (*mem::transmute::<&$t<N>, &[N; $dimension]>(self).get_unchecked(i))
             }
 
             #[inline]
             unsafe fn unsafe_set(&mut self, i: usize, val: N) {
-                (*mem::transmute::<&mut $t<N>, &mut [N; $dim]>(self).get_unchecked_mut(i)) = val
+                (*mem::transmute::<&mut $t<N>, &mut [N; $dimension]>(self).get_unchecked_mut(i)) = val
             }
         }
     )
@@ -239,12 +239,12 @@ macro_rules! repeat_impl(
 );
 
 macro_rules! iterable_impl(
-    ($t: ident, $dim: expr) => (
+    ($t: ident, $dimension: expr) => (
         impl<N> Iterable<N> for $t<N> {
             #[inline]
             fn iter<'l>(&'l self) -> Iter<'l, N> {
                 unsafe {
-                    mem::transmute::<&'l $t<N>, &'l [N; $dim]>(self).iter()
+                    mem::transmute::<&'l $t<N>, &'l [N; $dimension]>(self).iter()
                 }
             }
         }
@@ -252,12 +252,12 @@ macro_rules! iterable_impl(
 );
 
 macro_rules! iterable_mut_impl(
-    ($t: ident, $dim: expr) => (
+    ($t: ident, $dimension: expr) => (
         impl<N> IterableMut<N> for $t<N> {
             #[inline]
             fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
                 unsafe {
-                    mem::transmute::<&'l mut $t<N>, &'l mut [N; $dim]>(self).iter_mut()
+                    mem::transmute::<&'l mut $t<N>, &'l mut [N; $dimension]>(self).iter_mut()
                 }
             }
         }
@@ -265,11 +265,11 @@ macro_rules! iterable_mut_impl(
 );
 
 macro_rules! dim_impl(
-    ($t: ident, $dim: expr) => (
-        impl<N> Dim for $t<N> {
+    ($t: ident, $dimension: expr) => (
+        impl<N> Dimension for $t<N> {
             #[inline]
-            fn dim(_: Option<$t<N>>) -> usize {
-                $dim
+            fn dimension(_: Option<$t<N>>) -> usize {
+                $dimension
             }
         }
     )
@@ -281,18 +281,18 @@ macro_rules! container_impl(
             /// The dimension of this entity.
             #[inline]
             pub fn len(&self) -> usize {
-                Dim::dim(None::<$t<N>>)
+                Dimension::dimension(None::<$t<N>>)
             }
         }
     )
 );
 
 macro_rules! basis_impl(
-    ($t: ident, $dim: expr) => (
+    ($t: ident, $dimension: expr) => (
         impl<N: BaseFloat + ApproxEq<N>> Basis for $t<N> {
             #[inline]
             fn canonical_basis<F: FnMut($t<N>) -> bool>(mut f: F) {
-                for i in 0 .. $dim {
+                for i in 0 .. $dimension {
                     if !f(Basis::canonical_basis_element(i).unwrap()) { return }
                 }
             }
@@ -303,14 +303,14 @@ macro_rules! basis_impl(
                 // orthogonalization algorithm.
                 let mut basis: Vec<$t<N>> = Vec::new();
 
-                for i in 0 .. $dim {
+                for i in 0 .. $dimension {
                     let mut basis_element : $t<N> = ::zero();
 
                     unsafe {
                         basis_element.set_fast(i, ::one());
                     }
 
-                    if basis.len() == $dim - 1 {
+                    if basis.len() == $dimension - 1 {
                         break;
                     }
 
@@ -322,7 +322,7 @@ macro_rules! basis_impl(
                         elt = elt - *v * Dot::dot(&elt, v)
                     };
 
-                    if !ApproxEq::approx_eq(&Norm::sqnorm(&elt), &::zero()) {
+                    if !ApproxEq::approx_eq(&Norm::norm_squared(&elt), &::zero()) {
                         let new_element = Norm::normalize(&elt);
 
                         if !f(new_element) { return };
@@ -334,7 +334,7 @@ macro_rules! basis_impl(
 
             #[inline]
             fn canonical_basis_element(i: usize) -> Option<$t<N>> {
-                if i < $dim {
+                if i < $dimension {
                     let mut basis_element : $t<N> = ::zero();
 
                     unsafe {
@@ -621,7 +621,7 @@ macro_rules! translation_impl(
             }
 
             #[inline]
-            fn inv_translation(&self) -> $t<N> {
+            fn inverse_translation(&self) -> $t<N> {
                 -*self
             }
 
@@ -657,7 +657,7 @@ macro_rules! norm_impl(
     ($t: ident, $($compN: ident),+) => (
         impl<N: BaseFloat> Norm<N> for $t<N> {
             #[inline]
-            fn sqnorm(&self) -> N {
+            fn norm_squared(&self) -> N {
                 Dot::dot(self, self)
             }
 
@@ -816,7 +816,7 @@ macro_rules! translate_impl(
                 *other + *self
             }
 
-            fn inv_translate(&self, other: &$t<N>) -> $t<N> {
+            fn inverse_translate(&self, other: &$t<N>) -> $t<N> {
                 *other - *self
             }
         }
@@ -830,7 +830,7 @@ macro_rules! rotate_impl(
                 *other
             }
 
-            fn inv_rotate(&self, other: &O) -> O {
+            fn inverse_rotate(&self, other: &O) -> O {
                 *other
             }
         }
@@ -844,19 +844,19 @@ macro_rules! transform_impl(
                 self.translate(other)
             }
 
-            fn inv_transform(&self, other: &$t<N>) -> $t<N> {
-                self.inv_translate(other)
+            fn inverse_transform(&self, other: &$t<N>) -> $t<N> {
+                self.inverse_translate(other)
             }
         }
     )
 );
 
-macro_rules! vec_as_pnt_impl(
+macro_rules! vec_as_point_impl(
     ($tv: ident, $t: ident, $($compN: ident),+) => (
         impl<N> $tv<N> {
             /// Converts this vector to a point.
             #[inline]
-            pub fn to_pnt(self) -> $t<N> {
+            pub fn to_point(self) -> $t<N> {
                 $t::new(
                     $(self.$compN),+
                 )
@@ -864,7 +864,7 @@ macro_rules! vec_as_pnt_impl(
 
             /// Reinterprets this vector as a point.
             #[inline]
-            pub fn as_pnt(&self) -> &$t<N> {
+            pub fn as_point(&self) -> &$t<N> {
                 unsafe {
                     mem::transmute(self)
                 }
@@ -875,11 +875,11 @@ macro_rules! vec_as_pnt_impl(
 
 macro_rules! num_float_vec_impl(
     ($t: ident) => (
-        impl<N> NumVec<N> for $t<N>
+        impl<N> NumVector<N> for $t<N>
             where N: BaseNum {
         }
 
-        impl<N> FloatVec<N> for $t<N>
+        impl<N> FloatVector<N> for $t<N>
             where N: BaseFloat + ApproxEq<N> {
         }
     )

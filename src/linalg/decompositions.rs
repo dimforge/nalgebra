@@ -1,31 +1,31 @@
 use traits::operations::{Transpose, ApproxEq};
-use traits::structure::{ColSlice, Eye, Indexable, Diag, SquareMat, BaseFloat, Cast};
+use traits::structure::{ColumnSlice, Eye, Indexable, Diagonal, SquareMatrix, BaseFloat, Cast};
 use traits::geometry::Norm;
 use std::cmp;
 use std::ops::{Mul, Add, Sub};
 
 /// Get the householder matrix corresponding to a reflexion to the hyperplane
-/// defined by `vec`. It can be a reflexion contained in a subspace.
+/// defined by `vector`. It can be a reflexion contained in a subspace.
 ///
 /// # Arguments
-/// * `dim` - the dimension of the space the resulting matrix operates in
+/// * `dimension` - the dimension of the space the resulting matrix operates in
 /// * `start` - the starting dimension of the subspace of the reflexion
-/// * `vec` - the vector defining the reflection.
-pub fn householder_matrix<N, V, M>(dim: usize, start: usize, vec: V) -> M
+/// * `vector` - the vector defining the reflection.
+pub fn householder_matrix<N, V, M>(dimension: usize, start: usize, vector: V) -> M
     where N: BaseFloat,
           M: Eye + Indexable<(usize, usize), N>,
           V: Indexable<usize, N> {
-    let mut qk : M = Eye::new_identity(dim);
-    let subdim = vec.shape();
+    let mut qk : M = Eye::new_identity(dimension);
+    let subdim = vector.shape();
 
     let stop = subdim + start;
 
-    assert!(dim >= stop);
+    assert!(dimension >= stop);
 
     for j in start .. stop {
         for i in start .. stop {
             unsafe {
-                let vv = vec.unsafe_at(i - start) * vec.unsafe_at(j - start);
+                let vv = vector.unsafe_at(i - start) * vector.unsafe_at(j - start);
                 let qkij = qk.unsafe_at((i, j));
                 qk.unsafe_set((i, j), qkij - vv - vv);
             }
@@ -41,7 +41,7 @@ pub fn householder_matrix<N, V, M>(dim: usize, start: usize, vec: V) -> M
 pub fn qr<N, V, M>(m: &M) -> (M, M)
     where N: BaseFloat,
           V: Indexable<usize, N> + Norm<N>,
-          M: Copy + Eye + ColSlice<V> + Transpose + Indexable<(usize, usize), N> +
+          M: Copy + Eye + ColumnSlice<V> + Transpose + Indexable<(usize, usize), N> +
              Mul<M, Output = M> {
     let (rows, cols) = m.shape();
     assert!(rows >= cols);
@@ -76,29 +76,29 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     where N:  BaseFloat,
           V:  Mul<M, Output = V>,
           VS: Indexable<usize, N> + Norm<N>,
-          M:  Indexable<(usize, usize), N> + SquareMat<N, V> + Add<M, Output = M> +
-              Sub<M, Output = M> + ColSlice<VS> +
+          M:  Indexable<(usize, usize), N> + SquareMatrix<N, V> + Add<M, Output = M> +
+              Sub<M, Output = M> + ColumnSlice<VS> +
               ApproxEq<N> + Copy {
 
     let (mut eigenvectors, mut eigenvalues) = hessenberg(m);
 
     // Allocate arrays for Givens rotation components
-    let mut c = Vec::<N>::with_capacity(::dim::<M>() - 1);
-    let mut s = Vec::<N>::with_capacity(::dim::<M>() - 1);
+    let mut c = Vec::<N>::with_capacity(::dimension::<M>() - 1);
+    let mut s = Vec::<N>::with_capacity(::dimension::<M>() - 1);
 
-    if ::dim::<M>() == 1 {
-        return (eigenvectors, eigenvalues.diag());
+    if ::dimension::<M>() == 1 {
+        return (eigenvectors, eigenvalues.diagonal());
     }
 
     unsafe { 
-        c.set_len(::dim::<M>() - 1);
-        s.set_len(::dim::<M>() - 1);
+        c.set_len(::dimension::<M>() - 1);
+        s.set_len(::dimension::<M>() - 1);
     }
 
     let mut iter = 0;
-    let mut curdim = ::dim::<M>() - 1;
+    let mut curdim = ::dimension::<M>() - 1;
 
-    for _ in 0 .. ::dim::<M>() {
+    for _ in 0 .. ::dimension::<M>() {
 
         let mut stop = false;
 
@@ -113,12 +113,12 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
                 let d = eigenvalues.unsafe_at((curdim, curdim));
 
                 let trace = a + d;
-                let det = a * d - b * c;
+                let determinant = a * d - b * c;
 
                 let constquarter: N = Cast::from(0.25f64);
                 let consthalf: N = Cast::from(0.5f64);
 
-                let e = (constquarter * trace * trace - det).sqrt();
+                let e = (constquarter * trace * trace - determinant).sqrt();
 
                 let lambda1 = consthalf * trace + e;
                 let lambda2 = consthalf * trace - e;
@@ -207,7 +207,7 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
 
             // Givens rotation from right applied to eigenvectors
             for k in 0 .. curdim {
-                for i in 0 .. ::dim::<M>() {
+                for i in 0 .. ::dimension::<M>() {
 
                     unsafe {
                         let a = eigenvectors.unsafe_at((i, k));
@@ -254,7 +254,7 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
 
     }
 
-    (eigenvectors, eigenvalues.diag())
+    (eigenvectors, eigenvalues.diagonal())
 }
 
 /// Cholesky decomposition G of a square symmetric positive definite matrix A, such that A = G * G^T
@@ -265,8 +265,8 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
     where N:  BaseFloat,
           V:  Mul<M, Output = V>,
           VS: Indexable<usize, N> + Norm<N>,
-          M:  Indexable<(usize, usize), N> + SquareMat<N, V> + Add<M, Output = M> +
-              Sub<M, Output = M> + ColSlice<VS> +
+          M:  Indexable<(usize, usize), N> + SquareMatrix<N, V> + Add<M, Output = M> +
+              Sub<M, Output = M> + ColumnSlice<VS> +
               ApproxEq<N> + Copy {
 
     let mut out = m.clone().transpose();
@@ -317,7 +317,7 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
 pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
     where N: BaseFloat,
           V: Indexable<usize, N> + Norm<N>,
-          M: Copy + Eye + ColSlice<V> + Transpose + Indexable<(usize, usize), N> +
+          M: Copy + Eye + ColumnSlice<V> + Transpose + Indexable<(usize, usize), N> +
              Mul<M, Output = M> {
     
     let mut h = m.clone();

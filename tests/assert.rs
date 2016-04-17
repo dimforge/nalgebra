@@ -3,7 +3,7 @@
 #[macro_use]
 extern crate nalgebra;
 
-use nalgebra::{ApproxEq, Vec2};
+use nalgebra::{ApproxEq, Vector2};
 
 #[test]
 fn assert_approx_eq_f64() {
@@ -16,8 +16,8 @@ fn assert_approx_eq_f64() {
 #[test]
 #[should_panic]
 fn assert_approx_eq_vec2_f32_fail() {
-    let a = Vec2::new(1.0f32, 0.0);
-    let b = Vec2::new(1.1f32, 0.1);
+    let a = Vector2::new(1.0f32, 0.0);
+    let b = Vector2::new(1.1f32, 0.1);
     assert_approx_eq!(a, b);
 }
 

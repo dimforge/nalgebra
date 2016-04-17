@@ -1,4 +1,4 @@
-//! Matrices with dimensions known at compile-time.
+//! Matrixrices with dimensions known at compile-time.
 
 #![allow(missing_docs)] // we allow missing to avoid having to document the mij components.
 
@@ -9,14 +9,14 @@ use std::slice::{Iter, IterMut};
 use rand::{Rand, Rng};
 use num::{Zero, One};
 use traits::operations::ApproxEq;
-use structs::vec::{Vec1, Vec2, Vec3, Vec4, Vec5, Vec6};
-use structs::pnt::{Pnt1, Pnt4, Pnt5, Pnt6};
-use structs::dvec::{DVec1, DVec2, DVec3, DVec4, DVec5, DVec6};
+use structs::vector::{Vector1, Vector2, Vector3, Vector4, Vector5, Vector6};
+use structs::point::{Point1, Point4, Point5, Point6};
+use structs::dvector::{DVector1, DVector2, DVector3, DVector4, DVector5, DVector6};
 
-use traits::structure::{Cast, Row, Col, Iterable, IterableMut, Dim, Indexable, Eye, ColSlice,
-                        RowSlice, Diag, DiagMut, Shape, BaseFloat, BaseNum, Repeat};
-use traits::operations::{Absolute, Transpose, Inv, Outer, EigenQR, Mean};
-use traits::geometry::{ToHomogeneous, FromHomogeneous, Orig};
+use traits::structure::{Cast, Row, Column, Iterable, IterableMut, Dimension, Indexable, Eye, ColumnSlice,
+                        RowSlice, Diagonal, DiagMut, Shape, BaseFloat, BaseNum, Repeat};
+use traits::operations::{Absolute, Transpose, Inverse, Outer, EigenQR, Mean};
+use traits::geometry::{ToHomogeneous, FromHomogeneous, Origin};
 use linalg;
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
@@ -38,331 +38,331 @@ impl Identity {
 /// Square matrix of dimension 1.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
-pub struct Mat1<N> {
+pub struct Matrix1<N> {
     pub m11: N
 }
 
-eye_impl!(Mat1, 1, m11);
+eye_impl!(Matrix1, 1, m11);
 
-mat_impl!(Mat1, m11);
-repeat_impl!(Mat1, m11);
-conversion_impl!(Mat1, 1);
-mat_cast_impl!(Mat1, m11);
-add_impl!(Mat1, m11);
-sub_impl!(Mat1, m11);
-scalar_add_impl!(Mat1, m11);
-scalar_sub_impl!(Mat1, m11);
-scalar_mul_impl!(Mat1, m11);
-scalar_div_impl!(Mat1, m11);
-absolute_impl!(Mat1, m11);
-zero_impl!(Mat1, m11);
-one_impl!(Mat1, ::one);
-iterable_impl!(Mat1, 1);
-iterable_mut_impl!(Mat1, 1);
-at_fast_impl!(Mat1, 1);
-dim_impl!(Mat1, 1);
-indexable_impl!(Mat1, 1);
-index_impl!(Mat1, 1);
-mat_mul_mat_impl!(Mat1, 1);
-mat_mul_vec_impl!(Mat1, Vec1, 1, ::zero);
-vec_mul_mat_impl!(Mat1, Vec1, 1, ::zero);
-mat_mul_pnt_impl!(Mat1, Pnt1, 1, Orig::orig);
-pnt_mul_mat_impl!(Mat1, Pnt1, 1, Orig::orig);
-// (specialized); inv_impl!(Mat1, 1);
-transpose_impl!(Mat1, 1);
-approx_eq_impl!(Mat1);
-row_impl!(Mat1, Vec1, 1);
-col_impl!(Mat1, Vec1, 1);
-col_slice_impl!(Mat1, Vec1, DVec1, 1);
-row_slice_impl!(Mat1, Vec1, DVec1, 1);
-diag_impl!(Mat1, Vec1, 1);
-to_homogeneous_impl!(Mat1, Mat2, 1, 2);
-from_homogeneous_impl!(Mat1, Mat2, 1, 2);
-outer_impl!(Vec1, Mat1);
-eigen_qr_impl!(Mat1, Vec1);
-arbitrary_impl!(Mat1, m11);
-rand_impl!(Mat1, m11);
-mean_impl!(Mat1, Vec1, 1);
-mat_display_impl!(Mat1, 1);
+mat_impl!(Matrix1, m11);
+repeat_impl!(Matrix1, m11);
+conversion_impl!(Matrix1, 1);
+mat_cast_impl!(Matrix1, m11);
+add_impl!(Matrix1, m11);
+sub_impl!(Matrix1, m11);
+scalar_add_impl!(Matrix1, m11);
+scalar_sub_impl!(Matrix1, m11);
+scalar_mul_impl!(Matrix1, m11);
+scalar_div_impl!(Matrix1, m11);
+absolute_impl!(Matrix1, m11);
+zero_impl!(Matrix1, m11);
+one_impl!(Matrix1, ::one);
+iterable_impl!(Matrix1, 1);
+iterable_mut_impl!(Matrix1, 1);
+at_fast_impl!(Matrix1, 1);
+dim_impl!(Matrix1, 1);
+indexable_impl!(Matrix1, 1);
+index_impl!(Matrix1, 1);
+mat_mul_mat_impl!(Matrix1, 1);
+mat_mul_vec_impl!(Matrix1, Vector1, 1, ::zero);
+vec_mul_mat_impl!(Matrix1, Vector1, 1, ::zero);
+mat_mul_point_impl!(Matrix1, Point1, 1, Origin::origin);
+point_mul_mat_impl!(Matrix1, Point1, 1, Origin::origin);
+// (specialized); inverse_impl!(Matrix1, 1);
+transpose_impl!(Matrix1, 1);
+approx_eq_impl!(Matrix1);
+row_impl!(Matrix1, Vector1, 1);
+col_impl!(Matrix1, Vector1, 1);
+col_slice_impl!(Matrix1, Vector1, DVector1, 1);
+row_slice_impl!(Matrix1, Vector1, DVector1, 1);
+diag_impl!(Matrix1, Vector1, 1);
+to_homogeneous_impl!(Matrix1, Matrix2, 1, 2);
+from_homogeneous_impl!(Matrix1, Matrix2, 1, 2);
+outer_impl!(Vector1, Matrix1);
+eigen_qr_impl!(Matrix1, Vector1);
+arbitrary_impl!(Matrix1, m11);
+rand_impl!(Matrix1, m11);
+mean_impl!(Matrix1, Vector1, 1);
+mat_display_impl!(Matrix1, 1);
 
 /// Square matrix of dimension 2.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
-pub struct Mat2<N> {
+pub struct Matrix2<N> {
     pub m11: N, pub m21: N,
     pub m12: N, pub m22: N
 }
 
-eye_impl!(Mat2, 2, m11, m22);
+eye_impl!(Matrix2, 2, m11, m22);
 
-mat_impl!(Mat2, m11, m12,
+mat_impl!(Matrix2, m11, m12,
                 m21, m22);
-repeat_impl!(Mat2, m11, m12,
+repeat_impl!(Matrix2, m11, m12,
                    m21, m22);
-conversion_impl!(Mat2, 2);
-mat_cast_impl!(Mat2, m11, m12,
+conversion_impl!(Matrix2, 2);
+mat_cast_impl!(Matrix2, m11, m12,
                      m21, m22);
-add_impl!(Mat2, m11, m12, m21, m22);
-sub_impl!(Mat2, m11, m12, m21, m22);
-scalar_add_impl!(Mat2, m11, m12, m21, m22);
-scalar_sub_impl!(Mat2, m11, m12, m21, m22);
-scalar_mul_impl!(Mat2, m11, m12, m21, m22);
-scalar_div_impl!(Mat2, m11, m12, m21, m22);
-absolute_impl!(Mat2, m11, m12,
+add_impl!(Matrix2, m11, m12, m21, m22);
+sub_impl!(Matrix2, m11, m12, m21, m22);
+scalar_add_impl!(Matrix2, m11, m12, m21, m22);
+scalar_sub_impl!(Matrix2, m11, m12, m21, m22);
+scalar_mul_impl!(Matrix2, m11, m12, m21, m22);
+scalar_div_impl!(Matrix2, m11, m12, m21, m22);
+absolute_impl!(Matrix2, m11, m12,
                      m21, m22);
-zero_impl!(Mat2, m11, m12,
+zero_impl!(Matrix2, m11, m12,
                  m21, m22);
-one_impl!(Mat2, ::one,  ::zero,
+one_impl!(Matrix2, ::one,  ::zero,
                 ::zero, ::one);
-iterable_impl!(Mat2, 2);
-iterable_mut_impl!(Mat2, 2);
-dim_impl!(Mat2, 2);
-indexable_impl!(Mat2, 2);
-index_impl!(Mat2, 2);
-at_fast_impl!(Mat2, 2);
-// (specialized); mul_impl!(Mat2, 2);
-// (specialized); rmul_impl!(Mat2, Vec2, 2);
-// (specialized); lmul_impl!(Mat2, Vec2, 2);
-// (specialized); inv_impl!(Mat2, 2);
-transpose_impl!(Mat2, 2);
-approx_eq_impl!(Mat2);
-row_impl!(Mat2, Vec2, 2);
-col_impl!(Mat2, Vec2, 2);
-col_slice_impl!(Mat2, Vec2, DVec2, 2);
-row_slice_impl!(Mat2, Vec2, DVec2, 2);
-diag_impl!(Mat2, Vec2, 2);
-to_homogeneous_impl!(Mat2, Mat3, 2, 3);
-from_homogeneous_impl!(Mat2, Mat3, 2, 3);
-outer_impl!(Vec2, Mat2);
-eigen_qr_impl!(Mat2, Vec2);
-arbitrary_impl!(Mat2, m11, m12, m21, m22);
-rand_impl!(Mat2, m11, m12, m21, m22);
-mean_impl!(Mat2, Vec2, 2);
-mat_display_impl!(Mat2, 2);
+iterable_impl!(Matrix2, 2);
+iterable_mut_impl!(Matrix2, 2);
+dim_impl!(Matrix2, 2);
+indexable_impl!(Matrix2, 2);
+index_impl!(Matrix2, 2);
+at_fast_impl!(Matrix2, 2);
+// (specialized); mul_impl!(Matrix2, 2);
+// (specialized); rmul_impl!(Matrix2, Vector2, 2);
+// (specialized); lmul_impl!(Matrix2, Vector2, 2);
+// (specialized); inverse_impl!(Matrix2, 2);
+transpose_impl!(Matrix2, 2);
+approx_eq_impl!(Matrix2);
+row_impl!(Matrix2, Vector2, 2);
+col_impl!(Matrix2, Vector2, 2);
+col_slice_impl!(Matrix2, Vector2, DVector2, 2);
+row_slice_impl!(Matrix2, Vector2, DVector2, 2);
+diag_impl!(Matrix2, Vector2, 2);
+to_homogeneous_impl!(Matrix2, Matrix3, 2, 3);
+from_homogeneous_impl!(Matrix2, Matrix3, 2, 3);
+outer_impl!(Vector2, Matrix2);
+eigen_qr_impl!(Matrix2, Vector2);
+arbitrary_impl!(Matrix2, m11, m12, m21, m22);
+rand_impl!(Matrix2, m11, m12, m21, m22);
+mean_impl!(Matrix2, Vector2, 2);
+mat_display_impl!(Matrix2, 2);
 
 /// Square matrix of dimension 3.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
-pub struct Mat3<N> {
+pub struct Matrix3<N> {
     pub m11: N, pub m21: N, pub m31: N,
     pub m12: N, pub m22: N, pub m32: N,
     pub m13: N, pub m23: N, pub m33: N
 }
 
-eye_impl!(Mat3, 3, m11, m22, m33);
+eye_impl!(Matrix3, 3, m11, m22, m33);
 
-mat_impl!(Mat3, m11, m12, m13,
+mat_impl!(Matrix3, m11, m12, m13,
                 m21, m22, m23,
                 m31, m32, m33);
-repeat_impl!(Mat3, m11, m12, m13,
+repeat_impl!(Matrix3, m11, m12, m13,
                    m21, m22, m23,
                    m31, m32, m33);
-conversion_impl!(Mat3, 3);
-mat_cast_impl!(Mat3, m11, m12, m13,
+conversion_impl!(Matrix3, 3);
+mat_cast_impl!(Matrix3, m11, m12, m13,
                      m21, m22, m23,
                      m31, m32, m33);
-add_impl!(Mat3,
+add_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-sub_impl!(Mat3,
+sub_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-scalar_add_impl!(Mat3,
+scalar_add_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-scalar_sub_impl!(Mat3,
+scalar_sub_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-scalar_mul_impl!(Mat3,
+scalar_mul_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-scalar_div_impl!(Mat3,
+scalar_div_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-absolute_impl!(Mat3,
+absolute_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-zero_impl!(Mat3,
+zero_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-one_impl!(Mat3, ::one , ::zero, ::zero,
+one_impl!(Matrix3, ::one , ::zero, ::zero,
                 ::zero, ::one , ::zero,
                 ::zero, ::zero, ::one);
-iterable_impl!(Mat3, 3);
-iterable_mut_impl!(Mat3, 3);
-dim_impl!(Mat3, 3);
-indexable_impl!(Mat3, 3);
-index_impl!(Mat3, 3);
-at_fast_impl!(Mat3, 3);
-// (specialized); mul_impl!(Mat3, 3);
-// (specialized); rmul_impl!(Mat3, Vec3, 3);
-// (specialized); lmul_impl!(Mat3, Vec3, 3);
-// (specialized); inv_impl!(Mat3, 3);
-transpose_impl!(Mat3, 3);
-approx_eq_impl!(Mat3);
-// (specialized); row_impl!(Mat3, Vec3, 3);
-// (specialized); col_impl!(Mat3, Vec3, 3);
-col_slice_impl!(Mat3, Vec3, DVec3, 3);
-row_slice_impl!(Mat3, Vec3, DVec3, 3);
-diag_impl!(Mat3, Vec3, 3);
-to_homogeneous_impl!(Mat3, Mat4, 3, 4);
-from_homogeneous_impl!(Mat3, Mat4, 3, 4);
-outer_impl!(Vec3, Mat3);
-eigen_qr_impl!(Mat3, Vec3);
-arbitrary_impl!(Mat3,
+iterable_impl!(Matrix3, 3);
+iterable_mut_impl!(Matrix3, 3);
+dim_impl!(Matrix3, 3);
+indexable_impl!(Matrix3, 3);
+index_impl!(Matrix3, 3);
+at_fast_impl!(Matrix3, 3);
+// (specialized); mul_impl!(Matrix3, 3);
+// (specialized); rmul_impl!(Matrix3, Vector3, 3);
+// (specialized); lmul_impl!(Matrix3, Vector3, 3);
+// (specialized); inverse_impl!(Matrix3, 3);
+transpose_impl!(Matrix3, 3);
+approx_eq_impl!(Matrix3);
+// (specialized); row_impl!(Matrix3, Vector3, 3);
+// (specialized); col_impl!(Matrix3, Vector3, 3);
+col_slice_impl!(Matrix3, Vector3, DVector3, 3);
+row_slice_impl!(Matrix3, Vector3, DVector3, 3);
+diag_impl!(Matrix3, Vector3, 3);
+to_homogeneous_impl!(Matrix3, Matrix4, 3, 4);
+from_homogeneous_impl!(Matrix3, Matrix4, 3, 4);
+outer_impl!(Vector3, Matrix3);
+eigen_qr_impl!(Matrix3, Vector3);
+arbitrary_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-rand_impl!(Mat3,
+rand_impl!(Matrix3,
     m11, m12, m13,
     m21, m22, m23,
     m31, m32, m33
 );
-mean_impl!(Mat3, Vec3, 3);
-mat_display_impl!(Mat3, 3);
+mean_impl!(Matrix3, Vector3, 3);
+mat_display_impl!(Matrix3, 3);
 
 /// Square matrix of dimension 4.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
-pub struct Mat4<N> {
+pub struct Matrix4<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N,
     pub m13: N, pub m23: N, pub m33: N, pub m43: N,
     pub m14: N, pub m24: N, pub m34: N, pub m44: N
 }
 
-eye_impl!(Mat4, 4, m11, m22, m33, m44);
+eye_impl!(Matrix4, 4, m11, m22, m33, m44);
 
-mat_impl!(Mat4,
+mat_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-repeat_impl!(Mat4,
+repeat_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-conversion_impl!(Mat4, 4);
-mat_cast_impl!(Mat4,
+conversion_impl!(Matrix4, 4);
+mat_cast_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-add_impl!(Mat4,
+add_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-sub_impl!(Mat4,
+sub_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-scalar_add_impl!(Mat4,
+scalar_add_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-scalar_sub_impl!(Mat4,
+scalar_sub_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-scalar_mul_impl!(Mat4,
+scalar_mul_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-scalar_div_impl!(Mat4,
+scalar_div_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-absolute_impl!(Mat4,
+absolute_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-zero_impl!(Mat4,
+zero_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-one_impl!(Mat4, ::one  , ::zero, ::zero, ::zero,
+one_impl!(Matrix4, ::one  , ::zero, ::zero, ::zero,
                 ::zero, ::one  , ::zero, ::zero,
                 ::zero, ::zero, ::one  , ::zero,
                 ::zero, ::zero, ::zero, ::one);
-iterable_impl!(Mat4, 4);
-iterable_mut_impl!(Mat4, 4);
-dim_impl!(Mat4, 4);
-indexable_impl!(Mat4, 4);
-index_impl!(Mat4, 4);
-at_fast_impl!(Mat4, 4);
-mat_mul_mat_impl!(Mat4, 4);
-mat_mul_vec_impl!(Mat4, Vec4, 4, ::zero);
-vec_mul_mat_impl!(Mat4, Vec4, 4, ::zero);
-mat_mul_pnt_impl!(Mat4, Pnt4, 4, Orig::orig);
-pnt_mul_mat_impl!(Mat4, Pnt4, 4, Orig::orig);
-inv_impl!(Mat4, 4);
-transpose_impl!(Mat4, 4);
-approx_eq_impl!(Mat4);
-row_impl!(Mat4, Vec4, 4);
-col_impl!(Mat4, Vec4, 4);
-col_slice_impl!(Mat4, Vec4, DVec4, 4);
-row_slice_impl!(Mat4, Vec4, DVec4, 4);
-diag_impl!(Mat4, Vec4, 4);
-to_homogeneous_impl!(Mat4, Mat5, 4, 5);
-from_homogeneous_impl!(Mat4, Mat5, 4, 5);
-outer_impl!(Vec4, Mat4);
-eigen_qr_impl!(Mat4, Vec4);
-arbitrary_impl!(Mat4,
+iterable_impl!(Matrix4, 4);
+iterable_mut_impl!(Matrix4, 4);
+dim_impl!(Matrix4, 4);
+indexable_impl!(Matrix4, 4);
+index_impl!(Matrix4, 4);
+at_fast_impl!(Matrix4, 4);
+mat_mul_mat_impl!(Matrix4, 4);
+mat_mul_vec_impl!(Matrix4, Vector4, 4, ::zero);
+vec_mul_mat_impl!(Matrix4, Vector4, 4, ::zero);
+mat_mul_point_impl!(Matrix4, Point4, 4, Origin::origin);
+point_mul_mat_impl!(Matrix4, Point4, 4, Origin::origin);
+inverse_impl!(Matrix4, 4);
+transpose_impl!(Matrix4, 4);
+approx_eq_impl!(Matrix4);
+row_impl!(Matrix4, Vector4, 4);
+col_impl!(Matrix4, Vector4, 4);
+col_slice_impl!(Matrix4, Vector4, DVector4, 4);
+row_slice_impl!(Matrix4, Vector4, DVector4, 4);
+diag_impl!(Matrix4, Vector4, 4);
+to_homogeneous_impl!(Matrix4, Matrix5, 4, 5);
+from_homogeneous_impl!(Matrix4, Matrix5, 4, 5);
+outer_impl!(Vector4, Matrix4);
+eigen_qr_impl!(Matrix4, Vector4);
+arbitrary_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-rand_impl!(Mat4,
+rand_impl!(Matrix4,
   m11, m12, m13, m14,
   m21, m22, m23, m24,
   m31, m32, m33, m34,
   m41, m42, m43, m44
 );
-mean_impl!(Mat4, Vec4, 4);
-mat_display_impl!(Mat4, 4);
+mean_impl!(Matrix4, Vector4, 4);
+mat_display_impl!(Matrix4, 4);
 
 /// Square matrix of dimension 5.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
-pub struct Mat5<N> {
+pub struct Matrix5<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N,
     pub m13: N, pub m23: N, pub m33: N, pub m43: N, pub m53: N,
@@ -370,137 +370,137 @@ pub struct Mat5<N> {
     pub m15: N, pub m25: N, pub m35: N, pub m45: N, pub m55: N
 }
 
-eye_impl!(Mat5, 5, m11, m22, m33, m44, m55);
+eye_impl!(Matrix5, 5, m11, m22, m33, m44, m55);
 
-mat_impl!(Mat5,
+mat_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-repeat_impl!(Mat5,
+repeat_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-conversion_impl!(Mat5, 5);
-mat_cast_impl!(Mat5,
+conversion_impl!(Matrix5, 5);
+mat_cast_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-absolute_impl!(Mat5,
+absolute_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-zero_impl!(Mat5,
+zero_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-one_impl!(Mat5,
+one_impl!(Matrix5,
   ::one  , ::zero, ::zero, ::zero, ::zero,
   ::zero, ::one  , ::zero, ::zero, ::zero,
   ::zero, ::zero, ::one  , ::zero, ::zero,
   ::zero, ::zero, ::zero, ::one  , ::zero,
   ::zero, ::zero, ::zero, ::zero, ::one
 );
-add_impl!(Mat5,
+add_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-sub_impl!(Mat5,
+sub_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-scalar_add_impl!(Mat5,
+scalar_add_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-scalar_sub_impl!(Mat5,
+scalar_sub_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-scalar_mul_impl!(Mat5,
+scalar_mul_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-scalar_div_impl!(Mat5,
+scalar_div_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-iterable_impl!(Mat5, 5);
-iterable_mut_impl!(Mat5, 5);
-dim_impl!(Mat5, 5);
-indexable_impl!(Mat5, 5);
-index_impl!(Mat5, 5);
-at_fast_impl!(Mat5, 5);
-mat_mul_mat_impl!(Mat5, 5);
-mat_mul_vec_impl!(Mat5, Vec5, 5, ::zero);
-vec_mul_mat_impl!(Mat5, Vec5, 5, ::zero);
-mat_mul_pnt_impl!(Mat5, Pnt5, 5, Orig::orig);
-pnt_mul_mat_impl!(Mat5, Pnt5, 5, Orig::orig);
-inv_impl!(Mat5, 5);
-transpose_impl!(Mat5, 5);
-approx_eq_impl!(Mat5);
-row_impl!(Mat5, Vec5, 5);
-col_impl!(Mat5, Vec5, 5);
-col_slice_impl!(Mat5, Vec5, DVec5, 5);
-row_slice_impl!(Mat5, Vec5, DVec5, 5);
-diag_impl!(Mat5, Vec5, 5);
-to_homogeneous_impl!(Mat5, Mat6, 5, 6);
-from_homogeneous_impl!(Mat5, Mat6, 5, 6);
-outer_impl!(Vec5, Mat5);
-eigen_qr_impl!(Mat5, Vec5);
-arbitrary_impl!(Mat5,
+iterable_impl!(Matrix5, 5);
+iterable_mut_impl!(Matrix5, 5);
+dim_impl!(Matrix5, 5);
+indexable_impl!(Matrix5, 5);
+index_impl!(Matrix5, 5);
+at_fast_impl!(Matrix5, 5);
+mat_mul_mat_impl!(Matrix5, 5);
+mat_mul_vec_impl!(Matrix5, Vector5, 5, ::zero);
+vec_mul_mat_impl!(Matrix5, Vector5, 5, ::zero);
+mat_mul_point_impl!(Matrix5, Point5, 5, Origin::origin);
+point_mul_mat_impl!(Matrix5, Point5, 5, Origin::origin);
+inverse_impl!(Matrix5, 5);
+transpose_impl!(Matrix5, 5);
+approx_eq_impl!(Matrix5);
+row_impl!(Matrix5, Vector5, 5);
+col_impl!(Matrix5, Vector5, 5);
+col_slice_impl!(Matrix5, Vector5, DVector5, 5);
+row_slice_impl!(Matrix5, Vector5, DVector5, 5);
+diag_impl!(Matrix5, Vector5, 5);
+to_homogeneous_impl!(Matrix5, Matrix6, 5, 6);
+from_homogeneous_impl!(Matrix5, Matrix6, 5, 6);
+outer_impl!(Vector5, Matrix5);
+eigen_qr_impl!(Matrix5, Vector5);
+arbitrary_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-rand_impl!(Mat5,
+rand_impl!(Matrix5,
   m11, m12, m13, m14, m15,
   m21, m22, m23, m24, m25,
   m31, m32, m33, m34, m35,
   m41, m42, m43, m44, m45,
   m51, m52, m53, m54, m55
 );
-mean_impl!(Mat5, Vec5, 5);
-mat_display_impl!(Mat5, 5);
+mean_impl!(Matrix5, Vector5, 5);
+mat_display_impl!(Matrix5, 5);
 
 /// Square matrix of dimension 6.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
-pub struct Mat6<N> {
+pub struct Matrix6<N> {
     pub m11: N, pub m21: N, pub m31: N, pub m41: N, pub m51: N, pub m61: N,
     pub m12: N, pub m22: N, pub m32: N, pub m42: N, pub m52: N, pub m62: N,
     pub m13: N, pub m23: N, pub m33: N, pub m43: N, pub m53: N, pub m63: N,
@@ -509,9 +509,9 @@ pub struct Mat6<N> {
     pub m16: N, pub m26: N, pub m36: N, pub m46: N, pub m56: N, pub m66: N
 }
 
-eye_impl!(Mat6, 6, m11, m22, m33, m44, m55, m66);
+eye_impl!(Matrix6, 6, m11, m22, m33, m44, m55, m66);
 
-mat_impl!(Mat6,
+mat_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -519,7 +519,7 @@ mat_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-repeat_impl!(Mat6,
+repeat_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -527,8 +527,8 @@ repeat_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-conversion_impl!(Mat6, 6);
-mat_cast_impl!(Mat6,
+conversion_impl!(Matrix6, 6);
+mat_cast_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -536,7 +536,7 @@ mat_cast_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-add_impl!(Mat6,
+add_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -544,7 +544,7 @@ add_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-sub_impl!(Mat6,
+sub_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -552,7 +552,7 @@ sub_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-scalar_add_impl!(Mat6,
+scalar_add_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -560,7 +560,7 @@ scalar_add_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-scalar_sub_impl!(Mat6,
+scalar_sub_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -568,7 +568,7 @@ scalar_sub_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-scalar_mul_impl!(Mat6,
+scalar_mul_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -576,7 +576,7 @@ scalar_mul_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-scalar_div_impl!(Mat6,
+scalar_div_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -584,15 +584,15 @@ scalar_div_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-absolute_impl!(Mat6, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+absolute_impl!(Matrix6, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66);
 
-zero_impl!(Mat6, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
+zero_impl!(Matrix6, m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36, m41, m42, m43, m44, m45, m46, m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66);
 
-one_impl!(Mat6,
+one_impl!(Matrix6,
   ::one  , ::zero, ::zero, ::zero, ::zero, ::zero,
   ::zero, ::one  , ::zero, ::zero, ::zero, ::zero,
   ::zero, ::zero, ::one  , ::zero, ::zero, ::zero,
@@ -600,28 +600,28 @@ one_impl!(Mat6,
   ::zero, ::zero, ::zero, ::zero, ::one  , ::zero,
   ::zero, ::zero, ::zero, ::zero, ::zero, ::one
 );
-iterable_impl!(Mat6, 6);
-iterable_mut_impl!(Mat6, 6);
-dim_impl!(Mat6, 6);
-indexable_impl!(Mat6, 6);
-index_impl!(Mat6, 6);
-at_fast_impl!(Mat6, 6);
-mat_mul_mat_impl!(Mat6, 6);
-mat_mul_vec_impl!(Mat6, Vec6, 6, ::zero);
-vec_mul_mat_impl!(Mat6, Vec6, 6, ::zero);
-mat_mul_pnt_impl!(Mat6, Pnt6, 6, Orig::orig);
-pnt_mul_mat_impl!(Mat6, Pnt6, 6, Orig::orig);
-inv_impl!(Mat6, 6);
-transpose_impl!(Mat6, 6);
-approx_eq_impl!(Mat6);
-row_impl!(Mat6, Vec6, 6);
-col_impl!(Mat6, Vec6, 6);
-col_slice_impl!(Mat6, Vec6, DVec6, 6);
-row_slice_impl!(Mat6, Vec6, DVec6, 6);
-diag_impl!(Mat6, Vec6, 6);
-outer_impl!(Vec6, Mat6);
-eigen_qr_impl!(Mat6, Vec6);
-arbitrary_impl!(Mat6,
+iterable_impl!(Matrix6, 6);
+iterable_mut_impl!(Matrix6, 6);
+dim_impl!(Matrix6, 6);
+indexable_impl!(Matrix6, 6);
+index_impl!(Matrix6, 6);
+at_fast_impl!(Matrix6, 6);
+mat_mul_mat_impl!(Matrix6, 6);
+mat_mul_vec_impl!(Matrix6, Vector6, 6, ::zero);
+vec_mul_mat_impl!(Matrix6, Vector6, 6, ::zero);
+mat_mul_point_impl!(Matrix6, Point6, 6, Origin::origin);
+point_mul_mat_impl!(Matrix6, Point6, 6, Origin::origin);
+inverse_impl!(Matrix6, 6);
+transpose_impl!(Matrix6, 6);
+approx_eq_impl!(Matrix6);
+row_impl!(Matrix6, Vector6, 6);
+col_impl!(Matrix6, Vector6, 6);
+col_slice_impl!(Matrix6, Vector6, DVector6, 6);
+row_slice_impl!(Matrix6, Vector6, DVector6, 6);
+diag_impl!(Matrix6, Vector6, 6);
+outer_impl!(Vector6, Matrix6);
+eigen_qr_impl!(Matrix6, Vector6);
+arbitrary_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -629,7 +629,7 @@ arbitrary_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-rand_impl!(Mat6,
+rand_impl!(Matrix6,
   m11, m12, m13, m14, m15, m16,
   m21, m22, m23, m24, m25, m26,
   m31, m32, m33, m34, m35, m36,
@@ -637,5 +637,5 @@ rand_impl!(Mat6,
   m51, m52, m53, m54, m55, m56,
   m61, m62, m63, m64, m65, m66
 );
-mean_impl!(Mat6, Vec6, 6);
-mat_display_impl!(Mat6, 6);
+mean_impl!(Matrix6, Vector6, 6);
+mat_display_impl!(Matrix6, 6);
