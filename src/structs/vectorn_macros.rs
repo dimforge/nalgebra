@@ -163,7 +163,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<N> MulAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
+        impl<N $(, $param: ArrayLength<N>)*> MulAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
             where N: Copy + MulAssign<N> + Zero $(, $param : ArrayLength<N>)* {
             #[inline]
             fn mul_assign(&mut self, right: $vecn<N $(, $param)*>) {
@@ -175,7 +175,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<N> MulAssign<N> for $vecn<N $(, $param)*>
+        impl<N $(, $param: ArrayLength<N>)*> MulAssign<N> for $vecn<N $(, $param)*>
             where N: Copy + MulAssign<N> + Zero $(, $param : ArrayLength<N>)* {
             #[inline]
             fn mul_assign(&mut self, right: N) {
@@ -185,7 +185,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<$($param : ArrayLength<N>),*> Mul<$vecn<f32 $(, $param)*>> for f32 {
+        impl<$($param : ArrayLength<f32>),*> Mul<$vecn<f32 $(, $param)*>> for f32 {
             type Output = $vecn<f32 $(, $param)*>;
 
             #[inline]
@@ -200,7 +200,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<$($param : ArrayLength<N>),*> Mul<$vecn<f64 $(, $param)*>> for f64 {
+        impl<$($param : ArrayLength<f64>),*> Mul<$vecn<f64 $(, $param)*>> for f64 {
             type Output = $vecn<f64 $(, $param)*>;
 
             #[inline]
@@ -253,7 +253,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<N> DivAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
+        impl<N $(, $param: ArrayLength<N>)*> DivAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
             where N: Copy + DivAssign<N> + Zero $(, $param : ArrayLength<N>)* {
             #[inline]
             fn div_assign(&mut self, right: $vecn<N $(, $param)*>) {
@@ -265,7 +265,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<N> DivAssign<N> for $vecn<N $(, $param)*>
+        impl<N $(, $param: ArrayLength<N>)*> DivAssign<N> for $vecn<N $(, $param)*>
             where N: Copy + DivAssign<N> + Zero $(, $param : ArrayLength<N>)* {
             #[inline]
             fn div_assign(&mut self, right: N) {
@@ -313,7 +313,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<N> AddAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
+        impl<N $(, $param: ArrayLength<N>)*> AddAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
             where N: Copy + AddAssign<N> + Zero $(, $param : ArrayLength<N>)* {
             #[inline]
             fn add_assign(&mut self, right: $vecn<N $(, $param)*>) {
@@ -325,7 +325,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<N> AddAssign<N> for $vecn<N $(, $param)*>
+        impl<N $(, $param: ArrayLength<N>)*> AddAssign<N> for $vecn<N $(, $param)*>
             where N: Copy + AddAssign<N> + Zero $(, $param : ArrayLength<N>)* {
             #[inline]
             fn add_assign(&mut self, right: N) {
@@ -403,7 +403,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<N> SubAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
+        impl<N $(, $param: ArrayLength<N>)*> SubAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
             where N: Copy + SubAssign<N> + Zero $(, $param : ArrayLength<N>)* {
             #[inline]
             fn sub_assign(&mut self, right: $vecn<N $(, $param)*>) {
@@ -415,7 +415,7 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
-        impl<N> SubAssign<N> for $vecn<N $(, $param)*>
+        impl<N $(, $param: ArrayLength<N>)*> SubAssign<N> for $vecn<N $(, $param)*>
             where N: Copy + SubAssign<N> + Zero $(, $param : ArrayLength<N>)* {
             #[inline]
             fn sub_assign(&mut self, right: N) {

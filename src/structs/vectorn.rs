@@ -120,4 +120,5 @@ impl<N: Arbitrary + Zero + Copy, D: 'static + ArrayLength<N>> Arbitrary for Vect
     }
 }
 
+
 vecn_dvec_common_impl!(VectorN, D);
