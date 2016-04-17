@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::{Mul, Neg};
+use std::ops::{Mul, Neg, MulAssign};
 
 use rand::{Rand, Rng};
 use num::One;

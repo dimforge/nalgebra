@@ -1,7 +1,7 @@
 //! Rotations matrices.
 
 use std::fmt;
-use std::ops::{Mul, Neg, Index};
+use std::ops::{Mul, Neg, MulAssign, Index};
 use rand::{Rand, Rng};
 use num::{Zero, One};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, RotationTo, Transform,
