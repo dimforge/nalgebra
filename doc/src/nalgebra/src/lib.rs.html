@@ -987,6 +987,10 @@
 <span id="944">944</span>
 <span id="945">945</span>
 <span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
 </pre><pre class='rust '>
 <span class='doccomment'>/*!
 # nalgebra
@@ -1004,22 +1008,22 @@ All the functionality of **nalgebra** is grouped in one place: the root module `
 module re-exports everything and includes free functions for all traits methods performing
 out-of-place operations.
 
-* You can import the whole prelude using:
+Thus, you can import the whole prelude using:
 
 ```.ignore
 use nalgebra::*;
 ```
 
-The preferred way to use **nalgebra** is to import types and traits explicitly, and call
+However, the recommended way to use **nalgebra** is to import types and traits explicitly, and call
 free-functions using the `na::` prefix:
 
 ```.rust
 extern crate nalgebra as na;
-use na::{Vec3, Rot3, Rotation};
+use na::{Vector3, Rotation3, Rotation};
 
 fn main() {
-    let     a = Vec3::new(1.0f64, 1.0, 1.0);
-    let mut b = Rot3::new(na::zero());
+    let     a = Vector3::new(1.0f64, 1.0, 1.0);
+    let mut b = Rotation3::new(na::zero());
 
     b.append_rotation_mut(&amp;a);
 
@@ -1031,19 +1035,19 @@ fn main() {
 **nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
 an optimized set of tools for computer graphics and physics. Those features include:
 
-* Vectors with predefined static sizes: `Vec1`, `Vec2`, `Vec3`, `Vec4`, `Vec5`, `Vec6`.
-* Vector with a user-defined static size: `VecN` (available only with the `generic_sizes` feature).
-* Points with static sizes: `Pnt1`, `Pnt2`, `Pnt3`, `Pnt4`, `Pnt5`, `Pnt6`.
-* Square matrices with static sizes: `Mat1`, `Mat2`, `Mat3`, `Mat4`, `Mat5`, `Mat6 `.
-* Rotation matrices: `Rot2`, `Rot3`
-* Quaternions: `Quat`, `UnitQuat`.
-* Isometries (translation ⨯ rotation): `Iso2`, `Iso3`
-* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Sim2`, `Sim3`.
-* 3D projections for computer graphics: `Persp3`, `PerspMat3`, `Ortho3`, `OrthoMat3`.
-* Dynamically sized heap-allocated vector: `DVec`.
-* Dynamically sized stack-allocated vectors with a maximum size: `DVec1` to `DVec6`.
-* Dynamically sized heap-allocated (square or rectangular) matrix: `DMat`.
-* Linear algebra and data analysis operators: `Cov`, `Mean`, `qr`, `cholesky`.
+* Vectors with predefined static sizes: `Vector1`, `Vector2`, `Vector3`, `Vector4`, `Vector5`, `Vector6`.
+* Vector with a user-defined static size: `VectorN` (available only with the `generic_sizes` feature).
+* Points with static sizes: `Point1`, `Point2`, `Point3`, `Point4`, `Point5`, `Point6`.
+* Square matrices with static sizes: `Matrix1`, `Matrix2`, `Matrix3`, `Matrix4`, `Matrix5`, `Matrix6 `.
+* Rotation matrices: `Rotation2`, `Rotation3`
+* Quaternions: `Quaternion`, `UnitQuaternion`.
+* Isometrymetries (translation ⨯ rotation): `Isometry2`, `Isometry3`
+* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Similarity2`, `Similarity3`.
+* 3D projections for computer graphics: `Perspective3`, `PerspectiveMatrix3`, `Orthographic3`, `OrthographicMatrix3`.
+* Dynamically sized heap-allocated vector: `DVector`.
+* Dynamically sized stack-allocated vectors with a maximum size: `DVector1` to `DVector6`.
+* Dynamically sized heap-allocated (square or rectangular) matrix: `DMatrix`.
+* Linear algebra and data analysis operators: `Covariance`, `Mean`, `qr`, `cholesky`.
 * Almost one trait per functionality: useful for generic programming.
 
 
@@ -1088,39 +1092,39 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
     <span class='ident'>BaseNum</span>,
     <span class='ident'>Bounded</span>,
     <span class='ident'>Cast</span>,
-    <span class='ident'>Col</span>,
-    <span class='ident'>ColSlice</span>, <span class='ident'>RowSlice</span>,
-    <span class='ident'>Cov</span>,
+    <span class='ident'>Column</span>,
+    <span class='ident'>ColumnSlice</span>, <span class='ident'>RowSlice</span>,
+    <span class='ident'>Covariance</span>,
     <span class='ident'>Cross</span>,
     <span class='ident'>CrossMatrix</span>,
-    <span class='ident'>Det</span>,
-    <span class='ident'>Diag</span>,
-    <span class='ident'>Dim</span>,
+    <span class='ident'>Determinant</span>,
+    <span class='ident'>Diagonal</span>,
+    <span class='ident'>Dimension</span>,
     <span class='ident'>Dot</span>,
     <span class='ident'>EigenQR</span>,
     <span class='ident'>Eye</span>,
-    <span class='ident'>FloatPnt</span>,
-    <span class='ident'>FloatVec</span>,
+    <span class='ident'>FloatPoint</span>,
+    <span class='ident'>FloatVector</span>,
     <span class='ident'>FromHomogeneous</span>,
     <span class='ident'>Indexable</span>,
-    <span class='ident'>Inv</span>,
+    <span class='ident'>Inverse</span>,
     <span class='ident'>Iterable</span>,
     <span class='ident'>IterableMut</span>,
-    <span class='ident'>Mat</span>,
+    <span class='ident'>Matrix</span>,
     <span class='ident'>Mean</span>,
     <span class='ident'>Norm</span>,
-    <span class='ident'>NumPnt</span>,
-    <span class='ident'>NumVec</span>,
-    <span class='ident'>Orig</span>,
+    <span class='ident'>NumPoint</span>,
+    <span class='ident'>NumVector</span>,
+    <span class='ident'>Origin</span>,
     <span class='ident'>Outer</span>,
-    <span class='ident'>POrd</span>,
-    <span class='ident'>POrdering</span>,
-    <span class='ident'>PntAsVec</span>,
+    <span class='ident'>PartialOrder</span>,
+    <span class='ident'>PartialOrdering</span>,
+    <span class='ident'>PointAsVector</span>,
     <span class='ident'>Repeat</span>,
     <span class='ident'>Rotate</span>, <span class='ident'>Rotation</span>, <span class='ident'>RotationMatrix</span>, <span class='ident'>RotationWithTranslation</span>, <span class='ident'>RotationTo</span>,
     <span class='ident'>Row</span>,
     <span class='ident'>Shape</span>,
-    <span class='ident'>SquareMat</span>,
+    <span class='ident'>SquareMatrix</span>,
     <span class='ident'>ToHomogeneous</span>,
     <span class='ident'>Transform</span>, <span class='ident'>Transformation</span>,
     <span class='ident'>Translate</span>, <span class='ident'>Translation</span>,
@@ -1129,22 +1133,22 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 };
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;generic_sizes&quot;</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>VecN</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>VectorN</span>;
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>structs</span>::{
     <span class='ident'>Identity</span>,
-    <span class='ident'>DMat</span>, <span class='ident'>DMat1</span>, <span class='ident'>DMat2</span>,  <span class='ident'>DMat3</span>,  <span class='ident'>DMat4</span>,  <span class='ident'>DMat5</span>,  <span class='ident'>DMat6</span>,
-    <span class='ident'>DVec</span>, <span class='ident'>DVec1</span>, <span class='ident'>DVec2</span>,  <span class='ident'>DVec3</span>,  <span class='ident'>DVec4</span>,  <span class='ident'>DVec5</span>,  <span class='ident'>DVec6</span>,
-    <span class='ident'>Iso2</span>, <span class='ident'>Iso3</span>,
-    <span class='ident'>Sim2</span>, <span class='ident'>Sim3</span>,
-    <span class='ident'>Mat1</span>, <span class='ident'>Mat2</span>, <span class='ident'>Mat3</span>, <span class='ident'>Mat4</span>,
-    <span class='ident'>Mat5</span>, <span class='ident'>Mat6</span>,
-    <span class='ident'>Rot2</span>, <span class='ident'>Rot3</span>,
-    <span class='ident'>Vec1</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec5</span>, <span class='ident'>Vec6</span>,
-    <span class='ident'>Pnt1</span>, <span class='ident'>Pnt2</span>, <span class='ident'>Pnt3</span>, <span class='ident'>Pnt4</span>, <span class='ident'>Pnt5</span>, <span class='ident'>Pnt6</span>,
-    <span class='ident'>Persp3</span>, <span class='ident'>PerspMat3</span>,
-    <span class='ident'>Ortho3</span>, <span class='ident'>OrthoMat3</span>,
-    <span class='ident'>Quat</span>, <span class='ident'>UnitQuat</span>
+    <span class='ident'>DMatrix</span>, <span class='ident'>DMatrix1</span>, <span class='ident'>DMatrix2</span>,  <span class='ident'>DMatrix3</span>,  <span class='ident'>DMatrix4</span>,  <span class='ident'>DMatrix5</span>,  <span class='ident'>DMatrix6</span>,
+    <span class='ident'>DVector</span>, <span class='ident'>DVector1</span>, <span class='ident'>DVector2</span>,  <span class='ident'>DVector3</span>,  <span class='ident'>DVector4</span>,  <span class='ident'>DVector5</span>,  <span class='ident'>DVector6</span>,
+    <span class='ident'>Isometry2</span>, <span class='ident'>Isometry3</span>,
+    <span class='ident'>Similarity2</span>, <span class='ident'>Similarity3</span>,
+    <span class='ident'>Matrix1</span>, <span class='ident'>Matrix2</span>, <span class='ident'>Matrix3</span>, <span class='ident'>Matrix4</span>,
+    <span class='ident'>Matrix5</span>, <span class='ident'>Matrix6</span>,
+    <span class='ident'>Rotation2</span>, <span class='ident'>Rotation3</span>,
+    <span class='ident'>Vector1</span>, <span class='ident'>Vector2</span>, <span class='ident'>Vector3</span>, <span class='ident'>Vector4</span>, <span class='ident'>Vector5</span>, <span class='ident'>Vector6</span>,
+    <span class='ident'>Point1</span>, <span class='ident'>Point2</span>, <span class='ident'>Point3</span>, <span class='ident'>Point4</span>, <span class='ident'>Point5</span>, <span class='ident'>Point6</span>,
+    <span class='ident'>Perspective3</span>, <span class='ident'>PerspectiveMatrix3</span>,
+    <span class='ident'>Orthographic3</span>, <span class='ident'>OrthographicMatrix3</span>,
+    <span class='ident'>Quaternion</span>, <span class='ident'>UnitQuaternion</span>
 };
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>linalg</span>::{
@@ -1192,63 +1196,63 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 <span class='doccomment'>/// Returns the infimum of `a` and `b`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inf</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>inf</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inf</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>inf</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Returns the supremum of `a` and `b`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sup</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>sup</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sup</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>sup</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Compare `a` and `b` using a partial ordering relation.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_cmp</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>POrdering</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_cmp</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>PartialOrdering</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>partial_cmp</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt; b`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_lt</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>partial_lt</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_lt</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>partial_lt</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt;= b`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_le</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>partial_le</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_le</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>partial_le</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt; b`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_gt</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>partial_gt</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_gt</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>partial_gt</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt;= b`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_ge</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>partial_ge</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_ge</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>partial_ge</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Return the minimum of `a` and `b` if they are comparable.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_min</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>partial_min</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_min</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>partial_min</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Return the maximum of `a` and `b` if they are comparable.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_max</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>partial_max</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_max</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>partial_max</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to</span>
 <span class='doccomment'>/// `min` or `max`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_clamp</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>POrd</span><span class='op'>&gt;</span>(<span class='ident'>value</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>min</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>max</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='ident'>POrd</span>::<span class='ident'>partial_clamp</span>(<span class='ident'>value</span>, <span class='ident'>min</span>, <span class='ident'>max</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_clamp</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrder</span><span class='op'>&gt;</span>(<span class='ident'>value</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>min</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>max</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
+    <span class='ident'>PartialOrder</span>::<span class='ident'>partial_clamp</span>(<span class='ident'>value</span>, <span class='ident'>min</span>, <span class='ident'>max</span>)
 }
 
 <span class='comment'>//</span>
@@ -1295,30 +1299,34 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 <span class='doccomment'>/// Returns the trivial origin of an affine space.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>orig</span><span class='op'>&lt;</span><span class='ident'>P</span>: <span class='ident'>Orig</span><span class='op'>&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>P</span> {
-    <span class='ident'>Orig</span>::<span class='ident'>orig</span>()
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>origin</span><span class='op'>&lt;</span><span class='ident'>P</span>: <span class='ident'>Origin</span><span class='op'>&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>P</span> {
+    <span class='ident'>Origin</span>::<span class='ident'>origin</span>()
 }
 
 <span class='doccomment'>/// Returns the center of two points.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>center</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span>, <span class='ident'>P</span>: <span class='ident'>FloatPnt</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span>, <span class='ident'>V</span>: <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>P</span> {
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>center</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span>, <span class='ident'>P</span>: <span class='ident'>FloatPoint</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>P</span>
+        <span class='kw'>where</span> <span class='op'>&lt;</span><span class='ident'>P</span> <span class='kw'>as</span> <span class='ident'>PointAsVector</span><span class='op'>&gt;</span>::<span class='ident'>Vector</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
+{
     <span class='kw'>let</span> <span class='ident'>_2</span> <span class='op'>=</span> <span class='ident'>one</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>() <span class='op'>+</span> <span class='ident'>one</span>();
-    (<span class='op'>*</span><span class='ident'>a</span> <span class='op'>+</span> <span class='op'>*</span><span class='ident'>b</span>.<span class='ident'>as_vec</span>()) <span class='op'>/</span> <span class='ident'>_2</span>
+    (<span class='op'>*</span><span class='ident'>a</span> <span class='op'>+</span> <span class='ident'>b</span>.<span class='ident'>to_vector</span>()) <span class='op'>/</span> <span class='ident'>_2</span>
 }
 
 <span class='comment'>/*
- * FloatPnt
+ * FloatPoint
  */</span>
 <span class='doccomment'>/// Returns the distance between two points.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>dist</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span>, <span class='ident'>P</span>: <span class='ident'>FloatPnt</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span>, <span class='ident'>V</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-    <span class='ident'>a</span>.<span class='ident'>dist</span>(<span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>distance</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span>, <span class='ident'>P</span>: <span class='ident'>FloatPoint</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> <span class='kw'>where</span> <span class='op'>&lt;</span><span class='ident'>P</span> <span class='kw'>as</span> <span class='ident'>PointAsVector</span><span class='op'>&gt;</span>::<span class='ident'>Vector</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='ident'>a</span>.<span class='ident'>distance</span>(<span class='ident'>b</span>)
 }
 
 <span class='doccomment'>/// Returns the squared distance between two points.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sqdist</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span>, <span class='ident'>P</span>: <span class='ident'>FloatPnt</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span>, <span class='ident'>V</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-    <span class='ident'>a</span>.<span class='ident'>sqdist</span>(<span class='ident'>b</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>distance_squared</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span>, <span class='ident'>P</span>: <span class='ident'>FloatPoint</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> 
+        <span class='kw'>where</span> <span class='op'>&lt;</span><span class='ident'>P</span> <span class='kw'>as</span> <span class='ident'>PointAsVector</span><span class='op'>&gt;</span>::<span class='ident'>Vector</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
+{
+    <span class='ident'>a</span>.<span class='ident'>distance_squared</span>(<span class='ident'>b</span>)
 }
 
 <span class='comment'>/*
@@ -1329,13 +1337,13 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{Vec3, Iso3};</span>
+<span class='doccomment'>/// use na::{Vector3, Isometry3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t     = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());</span>
+<span class='doccomment'>///     let t     = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());</span>
 <span class='doccomment'>///     let trans = na::translation(&amp;t);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(trans == Vec3::new(1.0, 1.0, 1.0));</span>
+<span class='doccomment'>///     assert!(trans == Vector3::new(1.0, 1.0, 1.0));</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
@@ -1347,18 +1355,18 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{Vec3, Iso3};</span>
+<span class='doccomment'>/// use na::{Vector3, Isometry3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t      = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());</span>
-<span class='doccomment'>///     let itrans = na::inv_translation(&amp;t);</span>
+<span class='doccomment'>///     let t      = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());</span>
+<span class='doccomment'>///     let itrans = na::inverse_translation(&amp;t);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(itrans == Vec3::new(-1.0, -1.0, -1.0));</span>
+<span class='doccomment'>///     assert!(itrans == Vector3::new(-1.0, -1.0, -1.0));</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_translation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
-    <span class='ident'>m</span>.<span class='ident'>inv_translation</span>()
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse_translation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Translation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
+    <span class='ident'>m</span>.<span class='ident'>inverse_translation</span>()
 }
 
 <span class='doccomment'>/// Applies the translation `v` to a copy of `m`.</span>
@@ -1375,15 +1383,15 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{Pnt3, Vec3, Iso3};</span>
+<span class='doccomment'>/// use na::{Point3, Vector3, Isometry3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());</span>
-<span class='doccomment'>///     let p  = Pnt3::new(2.0, 2.0, 2.0);</span>
+<span class='doccomment'>///     let t  = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());</span>
+<span class='doccomment'>///     let p  = Point3::new(2.0, 2.0, 2.0);</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>///     let tp = na::translate(&amp;t, &amp;p);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(tp == Pnt3::new(3.0, 3.0, 3.0))</span>
+<span class='doccomment'>///     assert!(tp == Point3::new(3.0, 3.0, 3.0))</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
@@ -1395,19 +1403,19 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{Pnt3, Vec3, Iso3};</span>
+<span class='doccomment'>/// use na::{Point3, Vector3, Isometry3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t  = Iso3::new(Vec3::new(1.0f64, 1.0, 1.0), na::zero());</span>
-<span class='doccomment'>///     let p  = Pnt3::new(2.0, 2.0, 2.0);</span>
+<span class='doccomment'>///     let t  = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());</span>
+<span class='doccomment'>///     let p  = Point3::new(2.0, 2.0, 2.0);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     let tp = na::inv_translate(&amp;t, &amp;p);</span>
+<span class='doccomment'>///     let tp = na::inverse_translate(&amp;t, &amp;p);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(na::approx_eq(&amp;tp, &amp;Pnt3::new(1.0, 1.0, 1.0)))</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;tp, &amp;Point3::new(1.0, 1.0, 1.0)))</span>
 <span class='doccomment'>/// }</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_translate</span><span class='op'>&lt;</span><span class='ident'>P</span>, <span class='ident'>M</span>: <span class='ident'>Translate</span><span class='op'>&lt;</span><span class='ident'>P</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>p</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>P</span> {
-    <span class='ident'>m</span>.<span class='ident'>inv_translate</span>(<span class='ident'>p</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse_translate</span><span class='op'>&lt;</span><span class='ident'>P</span>, <span class='ident'>M</span>: <span class='ident'>Translate</span><span class='op'>&lt;</span><span class='ident'>P</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>p</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>P</span> {
+    <span class='ident'>m</span>.<span class='ident'>inverse_translate</span>(<span class='ident'>p</span>)
 }
 
 <span class='comment'>/*
@@ -1418,12 +1426,12 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{Vec3, Rot3};</span>
+<span class='doccomment'>/// use na::{Vector3, Rotation3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t = Rot3::new(Vec3::new(1.0f64, 1.0, 1.0));</span>
+<span class='doccomment'>///     let t = Rotation3::new(Vector3::new(1.0f64, 1.0, 1.0));</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;t), &amp;Vec3::new(1.0, 1.0, 1.0)));</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;t), &amp;Vector3::new(1.0, 1.0, 1.0)));</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
@@ -1436,17 +1444,17 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{Vec3, Rot3};</span>
+<span class='doccomment'>/// use na::{Vector3, Rotation3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t = Rot3::new(Vec3::new(1.0f64, 1.0, 1.0));</span>
+<span class='doccomment'>///     let t = Rotation3::new(Vector3::new(1.0f64, 1.0, 1.0));</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::inv_rotation(&amp;t), &amp;Vec3::new(-1.0, -1.0, -1.0)));</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::inverse_rotation(&amp;t), &amp;Vector3::new(-1.0, -1.0, -1.0)));</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_rotation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
-    <span class='ident'>m</span>.<span class='ident'>inv_rotation</span>()
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse_rotation</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
+    <span class='ident'>m</span>.<span class='ident'>inverse_rotation</span>()
 }
 
 <span class='comment'>// FIXME: this example is a bit shity</span>
@@ -1454,14 +1462,14 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{Vec3, Rot3};</span>
+<span class='doccomment'>/// use na::{Vector3, Rotation3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.0));</span>
-<span class='doccomment'>///     let v  = Vec3::new(1.0, 1.0, 1.0);</span>
+<span class='doccomment'>///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.0));</span>
+<span class='doccomment'>///     let v  = Vector3::new(1.0, 1.0, 1.0);</span>
 <span class='doccomment'>///     let rt = na::append_rotation(&amp;t, &amp;v);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;rt), &amp;Vec3::new(1.0, 1.0, 1.0)))</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;rt), &amp;Vector3::new(1.0, 1.0, 1.0)))</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
@@ -1474,14 +1482,14 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{Vec3, Rot3};</span>
+<span class='doccomment'>/// use na::{Vector3, Rotation3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.0));</span>
-<span class='doccomment'>///     let v  = Vec3::new(1.0, 1.0, 1.0);</span>
+<span class='doccomment'>///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.0));</span>
+<span class='doccomment'>///     let v  = Vector3::new(1.0, 1.0, 1.0);</span>
 <span class='doccomment'>///     let rt = na::prepend_rotation(&amp;t, &amp;v);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;rt), &amp;Vec3::new(1.0, 1.0, 1.0)))</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;na::rotation(&amp;rt), &amp;Vector3::new(1.0, 1.0, 1.0)))</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
@@ -1497,15 +1505,15 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{BaseFloat, Rot3, Vec3};</span>
+<span class='doccomment'>/// use na::{BaseFloat, Rotation3, Vector3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * &lt;f64 as BaseFloat&gt;::pi()));</span>
-<span class='doccomment'>///     let v  = Vec3::new(1.0, 0.0, 0.0);</span>
+<span class='doccomment'>///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.5 * &lt;f64 as BaseFloat&gt;::pi()));</span>
+<span class='doccomment'>///     let v  = Vector3::new(1.0, 0.0, 0.0);</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>///     let tv = na::rotate(&amp;t, &amp;v);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vec3::new(0.0, 1.0, 0.0)))</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vector3::new(0.0, 1.0, 0.0)))</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
@@ -1518,20 +1526,20 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```rust</span>
 <span class='doccomment'>/// extern crate nalgebra as na;</span>
-<span class='doccomment'>/// use na::{BaseFloat, Rot3, Vec3};</span>
+<span class='doccomment'>/// use na::{BaseFloat, Rotation3, Vector3};</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let t  = Rot3::new(Vec3::new(0.0f64, 0.0, 0.5 * &lt;f64 as BaseFloat&gt;::pi()));</span>
-<span class='doccomment'>///     let v  = Vec3::new(1.0, 0.0, 0.0);</span>
+<span class='doccomment'>///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.5 * &lt;f64 as BaseFloat&gt;::pi()));</span>
+<span class='doccomment'>///     let v  = Vector3::new(1.0, 0.0, 0.0);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     let tv = na::inv_rotate(&amp;t, &amp;v);</span>
+<span class='doccomment'>///     let tv = na::inverse_rotate(&amp;t, &amp;v);</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vec3::new(0.0, -1.0, 0.0)))</span>
+<span class='doccomment'>///     assert!(na::approx_eq(&amp;tv, &amp;Vector3::new(0.0, -1.0, 0.0)))</span>
 <span class='doccomment'>/// }</span>
 <span class='doccomment'>/// ```</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_rotate</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
-    <span class='ident'>m</span>.<span class='ident'>inv_rotate</span>(<span class='ident'>v</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse_rotate</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Rotate</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
+    <span class='ident'>m</span>.<span class='ident'>inverse_rotate</span>(<span class='ident'>v</span>)
 }
 
 <span class='comment'>/*
@@ -1580,13 +1588,13 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 <span class='doccomment'>/// Builds a rotation matrix from `r`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_rot_mat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>R</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_rotation_matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>R</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span>
     <span class='kw'>where</span> <span class='ident'>R</span>: <span class='ident'>RotationMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span>, <span class='ident'>AV</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span>,
-          <span class='ident'>M</span>: <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Copy</span>,
+          <span class='ident'>M</span>: <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>LV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>AV</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Copy</span>,
           <span class='ident'>LV</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>LV</span><span class='op'>&gt;</span>
 {
     <span class='comment'>// FIXME: rust-lang/rust#20413</span>
-    <span class='ident'>r</span>.<span class='ident'>to_rot_mat</span>()
+    <span class='ident'>r</span>.<span class='ident'>to_rotation_matrix</span>()
 }
 
 <span class='comment'>/*
@@ -1611,8 +1619,8 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 <span class='doccomment'>/// Gets the inverse transformation applicable by `m`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_transformation</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>M</span>: <span class='ident'>Transformation</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>m</span>.<span class='ident'>inv_transformation</span>()
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse_transformation</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>M</span>: <span class='ident'>Transformation</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
+    <span class='ident'>m</span>.<span class='ident'>inverse_transformation</span>()
 }
 
 <span class='doccomment'>/// Gets a transformed copy of `m`.</span>
@@ -1633,8 +1641,8 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 <span class='doccomment'>/// Applies an inverse transformation to a vector.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv_transform</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Transform</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
-    <span class='ident'>m</span>.<span class='ident'>inv_transform</span>(<span class='ident'>v</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse_transform</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>M</span>: <span class='ident'>Transform</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
+    <span class='ident'>m</span>.<span class='ident'>inverse_transform</span>(<span class='ident'>v</span>)
 }
 
 <span class='comment'>/*
@@ -1659,8 +1667,8 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 
 <span class='doccomment'>/// Computes the squared L2 norm of a vector.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sqnorm</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span>: <span class='ident'>BaseFloat</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-    <span class='ident'>Norm</span>::<span class='ident'>sqnorm</span>(<span class='ident'>v</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>norm_squared</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span>: <span class='ident'>BaseFloat</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
+    <span class='ident'>Norm</span>::<span class='ident'>norm_squared</span>(<span class='ident'>v</span>)
 }
 
 <span class='doccomment'>/// Gets the normalized version of a vector.</span>
@@ -1670,12 +1678,12 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 }
 
 <span class='comment'>/*
- * Det&lt;N&gt;
+ * Determinant&lt;N&gt;
  */</span>
 <span class='doccomment'>/// Computes the determinant of a square matrix.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>det</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Det</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-    <span class='ident'>Det</span>::<span class='ident'>det</span>(<span class='ident'>m</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>determinant</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Determinant</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
+    <span class='ident'>Determinant</span>::<span class='ident'>determinant</span>(<span class='ident'>m</span>)
 }
 
 <span class='comment'>/*
@@ -1766,13 +1774,13 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 }
 
 <span class='comment'>/*
- * Inv
+ * Inverse
  */</span>
 
 <span class='doccomment'>/// Gets an inverted copy of a matrix.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inv</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Inv</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span> {
-    <span class='ident'>Inv</span>::<span class='ident'>inv</span>(<span class='ident'>m</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Inverse</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span> {
+    <span class='ident'>Inverse</span>::<span class='ident'>inverse</span>(<span class='ident'>m</span>)
 }
 
 <span class='comment'>/*
@@ -1796,13 +1804,13 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 }
 
 <span class='comment'>/*
- * Cov&lt;M&gt;
+ * Covariance&lt;M&gt;
  */</span>
 
 <span class='doccomment'>/// Computes the covariance of a set of observations.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cov</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Cov</span><span class='op'>&lt;</span><span class='ident'>Res</span><span class='op'>&gt;</span>, <span class='ident'>Res</span><span class='op'>&gt;</span>(<span class='ident'>observations</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>Res</span> {
-    <span class='ident'>Cov</span>::<span class='ident'>cov</span>(<span class='ident'>observations</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>covariance</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Covariance</span><span class='op'>&lt;</span><span class='ident'>Res</span><span class='op'>&gt;</span>, <span class='ident'>Res</span><span class='op'>&gt;</span>(<span class='ident'>observations</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>Res</span> {
+    <span class='ident'>Covariance</span>::<span class='ident'>covariance</span>(<span class='ident'>observations</span>)
 }
 
 <span class='comment'>/*
@@ -1837,8 +1845,8 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
  */</span>
 <span class='doccomment'>/// Construct the identity matrix for a given dimension</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_identity</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Eye</span><span class='op'>&gt;</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
-    <span class='ident'>Eye</span>::<span class='ident'>new_identity</span>(<span class='ident'>dim</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_identity</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Eye</span><span class='op'>&gt;</span>(<span class='ident'>dimension</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
+    <span class='ident'>Eye</span>::<span class='ident'>new_identity</span>(<span class='ident'>dimension</span>)
 }
 
 
@@ -1880,27 +1888,27 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
  */</span>
 
 <span class='comment'>/*
- * Col&lt;C&gt;
+ * Column&lt;C&gt;
  */</span>
 
 <span class='comment'>/*
- * Diag&lt;V&gt;
+ * Diagonal&lt;V&gt;
  */</span>
 <span class='doccomment'>/// Gets the diagonal of a square matrix.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>diag</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Diag</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>, <span class='ident'>V</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
-    <span class='ident'>m</span>.<span class='ident'>diag</span>()
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>diagonal</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Diagonal</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>, <span class='ident'>V</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
+    <span class='ident'>m</span>.<span class='ident'>diagonal</span>()
 }
 
 <span class='comment'>/*
- * Dim
+ * Dimension
  */</span>
 <span class='doccomment'>/// Gets the dimension an object lives in.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// Same as `Dim::dim::(None::&lt;V&gt;)`.</span>
+<span class='doccomment'>/// Same as `Dimension::dimension::(None::&lt;V&gt;)`.</span>
 <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>dim</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-    <span class='ident'>Dim</span>::<span class='ident'>dim</span>(<span class='prelude-val'>None</span>::<span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>)
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>dimension</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>Dimension</span><span class='op'>&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
+    <span class='ident'>Dimension</span>::<span class='ident'>dimension</span>(<span class='prelude-val'>None</span>::<span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>)
 }
 
 <span class='doccomment'>/// Gets the indexable range of an object.</span>
@@ -1917,10 +1925,10 @@ Feel free to add your project to this list if you happen to use **nalgebra**!
 <span class='doccomment'>/// For primitive types, this is the same as the `as` keywords.</span>
 <span class='doccomment'>/// The following properties are preserved by a cast:</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// * Type-level geometric invariants cannot be broken (eg. a cast from Rot3&lt;f64&gt; to Rot3&lt;i64&gt; is</span>
+<span class='doccomment'>/// * Type-level geometric invariants cannot be broken (eg. a cast from Rotation3&lt;f64&gt; to Rotation3&lt;i64&gt; is</span>
 <span class='doccomment'>/// not possible)</span>
-<span class='doccomment'>/// * A cast to a type with more type-level invariants cannot be done (eg. a cast from Mat&lt;f64&gt; to</span>
-<span class='doccomment'>/// Rot3&lt;f64&gt; is not possible)</span>
+<span class='doccomment'>/// * A cast to a type with more type-level invariants cannot be done (eg. a cast from Matrix&lt;f64&gt; to</span>
+<span class='doccomment'>/// Rotation3&lt;f64&gt; is not possible)</span>
 <span class='doccomment'>/// * For primitive types an unbounded cast is done using the `as` keyword (this is different from</span>
 <span class='doccomment'>/// the standard library which makes bound-checking to ensure eg. that a i64 is not out of the</span>
 <span class='doccomment'>/// range of an i32 when a cast from i64 to i32 is done).</span>

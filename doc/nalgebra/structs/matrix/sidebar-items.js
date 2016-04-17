@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Identity","Special identity matrix. All its operation are no-ops."],["Matrix1","Square matrix of dimension 1."],["Matrix2","Square matrix of dimension 2."],["Matrix3","Square matrix of dimension 3."],["Matrix4","Square matrix of dimension 4."],["Matrix5","Square matrix of dimension 5."],["Matrix6","Square matrix of dimension 6."]]});

@@ -460,22 +460,49 @@
 <span id="417">417</span>
 <span id="418">418</span>
 <span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Traits giving structural informations on linear algebra objects or the space they live in.</span>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::{<span class='ident'>f32</span>, <span class='ident'>f64</span>, <span class='ident'>i8</span>, <span class='ident'>i16</span>, <span class='ident'>i32</span>, <span class='ident'>i64</span>, <span class='ident'>u8</span>, <span class='ident'>u16</span>, <span class='ident'>u32</span>, <span class='ident'>u64</span>, <span class='ident'>isize</span>, <span class='ident'>usize</span>};
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>::{<span class='ident'>Iter</span>, <span class='ident'>IterMut</span>};
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Add</span>, <span class='ident'>Sub</span>, <span class='ident'>Mul</span>, <span class='ident'>Div</span>, <span class='ident'>Rem</span>, <span class='ident'>Index</span>, <span class='ident'>IndexMut</span>, <span class='ident'>Neg</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Add</span>, <span class='ident'>Sub</span>, <span class='ident'>Mul</span>, <span class='ident'>Div</span>, <span class='ident'>Rem</span>,
+               <span class='ident'>AddAssign</span>, <span class='ident'>SubAssign</span>, <span class='ident'>MulAssign</span>, <span class='ident'>DivAssign</span>, <span class='ident'>RemAssign</span>,
+               <span class='ident'>Index</span>, <span class='ident'>IndexMut</span>, <span class='ident'>Neg</span>};
 <span class='kw'>use</span> <span class='ident'>num</span>::{<span class='ident'>Float</span>, <span class='ident'>Zero</span>, <span class='ident'>One</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Axpy</span>, <span class='ident'>Transpose</span>, <span class='ident'>Inv</span>, <span class='ident'>Absolute</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Dot</span>, <span class='ident'>Norm</span>, <span class='ident'>Orig</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Axpy</span>, <span class='ident'>Transpose</span>, <span class='ident'>Inverse</span>, <span class='ident'>Absolute</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Dot</span>, <span class='ident'>Norm</span>, <span class='ident'>Origin</span>};
 
 <span class='doccomment'>/// Basic integral numeric trait.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>BaseNum</span>: <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>Zero</span> <span class='op'>+</span> <span class='ident'>One</span> <span class='op'>+</span>
                    <span class='ident'>Add</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
                    <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Div</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                   <span class='ident'>Rem</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span>
-                   <span class='ident'>Absolute</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Axpy</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> {
+                   <span class='ident'>Rem</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
+                   <span class='ident'>AddAssign</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>SubAssign</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
+                   <span class='ident'>MulAssign</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>DivAssign</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
+                   <span class='ident'>RemAssign</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
+                   <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Absolute</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Axpy</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> {
 }
 
 <span class='doccomment'>/// Basic floating-point number numeric trait.</span>
@@ -522,31 +549,31 @@
 <span class='doccomment'>/// Trait of matrices.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// A matrix has rows and columns and are able to multiply them.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Mat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>R</span><span class='op'>&gt;&gt;</span>: <span class='ident'>Sized</span> <span class='op'>+</span>
-                                               <span class='ident'>Row</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Col</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>C</span><span class='op'>&gt;</span> <span class='op'>+</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>R</span><span class='op'>&gt;&gt;</span>: <span class='ident'>Sized</span> <span class='op'>+</span>
+                                               <span class='ident'>Row</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Column</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>C</span><span class='op'>&gt;</span> <span class='op'>+</span>
                                                <span class='ident'>Index</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>N</span><span class='op'>&gt;</span>
 { }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>M</span>, <span class='ident'>R</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='ident'>Mat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>M</span>
-    <span class='kw'>where</span> <span class='ident'>M</span>: <span class='ident'>Row</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Col</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>C</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Index</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>N</span><span class='op'>&gt;</span>,
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>M</span>, <span class='ident'>R</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='ident'>Matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>M</span>
+    <span class='kw'>where</span> <span class='ident'>M</span>: <span class='ident'>Row</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Column</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>C</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Index</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>N</span><span class='op'>&gt;</span>,
           <span class='ident'>C</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>R</span><span class='op'>&gt;</span>,
 { }
 
 <span class='doccomment'>/// Trait implemented by square matrices.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>V</span><span class='op'>&gt;&gt;</span>: <span class='ident'>Mat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>V</span><span class='op'>&gt;&gt;</span>: <span class='ident'>Matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span>
                                                   <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                                                  <span class='ident'>Eye</span> <span class='op'>+</span> <span class='ident'>Transpose</span> <span class='op'>+</span> <span class='ident'>Diag</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Inv</span> <span class='op'>+</span> <span class='ident'>Dim</span> <span class='op'>+</span> <span class='ident'>One</span> {
+                                                  <span class='ident'>Eye</span> <span class='op'>+</span> <span class='ident'>Transpose</span> <span class='op'>+</span> <span class='ident'>Diagonal</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Inverse</span> <span class='op'>+</span> <span class='ident'>Dimension</span> <span class='op'>+</span> <span class='ident'>One</span> {
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>M</span><span class='op'>&gt;</span> <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>M</span>
-    <span class='kw'>where</span> <span class='ident'>M</span>: <span class='ident'>Mat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Eye</span> <span class='op'>+</span> <span class='ident'>Transpose</span> <span class='op'>+</span> <span class='ident'>Diag</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Inv</span> <span class='op'>+</span> <span class='ident'>Dim</span> <span class='op'>+</span> <span class='ident'>One</span>,
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>M</span><span class='op'>&gt;</span> <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>M</span>
+    <span class='kw'>where</span> <span class='ident'>M</span>: <span class='ident'>Matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Eye</span> <span class='op'>+</span> <span class='ident'>Transpose</span> <span class='op'>+</span> <span class='ident'>Diagonal</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Inverse</span> <span class='op'>+</span> <span class='ident'>Dimension</span> <span class='op'>+</span> <span class='ident'>One</span>,
           <span class='ident'>V</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>V</span><span class='op'>&gt;</span> {
 }
 
 <span class='doccomment'>/// Trait for constructing the identity matrix</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Eye</span> {
     <span class='doccomment'>/// Return the identity matrix of specified dimension</span>
-    <span class='kw'>fn</span> <span class='ident'>new_identity</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>new_identity</span>(<span class='ident'>dimension</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 }
 
 <span class='doccomment'>/// Trait for constructiong an object repeating a value.</span>
@@ -592,12 +619,12 @@
 }
 
 <span class='doccomment'>/// Trait to access columns of a matrix or vector.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Col</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Column</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// The number of column of this matrix or vector.</span>
     <span class='kw'>fn</span> <span class='ident'>ncols</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span>;
 
     <span class='doccomment'>/// Reads the `i`-th column of `self`.</span>
-    <span class='kw'>fn</span> <span class='ident'>col</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>C</span>;
+    <span class='kw'>fn</span> <span class='ident'>column</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>C</span>;
 
     <span class='doccomment'>/// Writes the `i`-th column of `self`.</span>
     <span class='kw'>fn</span> <span class='ident'>set_col</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>usize</span>, <span class='ident'>C</span>);
@@ -607,7 +634,7 @@
 }
 
 <span class='doccomment'>/// Trait to access part of a column of a matrix</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ColSlice</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ColumnSlice</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Returns a view to a slice of a column of a matrix.</span>
     <span class='kw'>fn</span> <span class='ident'>col_slice</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>col_id</span>: <span class='ident'>usize</span>, <span class='ident'>row_start</span>: <span class='ident'>usize</span>, <span class='ident'>row_end</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>C</span>;
 }
@@ -619,24 +646,24 @@
 }
 
 <span class='doccomment'>/// Trait of objects having a spacial dimension known at compile time.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Dim</span>: <span class='ident'>Sized</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Dimension</span>: <span class='ident'>Sized</span> {
     <span class='doccomment'>/// The dimension of the object.</span>
-    <span class='kw'>fn</span> <span class='ident'>dim</span>(<span class='ident'>_unused</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span>;
+    <span class='kw'>fn</span> <span class='ident'>dimension</span>(<span class='ident'>_unused</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span>;
 }
 
 <span class='doccomment'>/// Trait to get the diagonal of square matrices.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Diag</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Diagonal</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Creates a new matrix with the given diagonal.</span>
-    <span class='kw'>fn</span> <span class='ident'>from_diag</span>(<span class='ident'>diag</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>from_diagonal</span>(<span class='ident'>diagonal</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
 
     <span class='doccomment'>/// The diagonal of this matrix.</span>
-    <span class='kw'>fn</span> <span class='ident'>diag</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>;
+    <span class='kw'>fn</span> <span class='ident'>diagonal</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>;
 }
 
 <span class='doccomment'>/// Trait to set the diagonal of square matrices.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>DiagMut</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>: <span class='ident'>Diag</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>DiagMut</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span>: <span class='ident'>Diagonal</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Sets the diagonal of this matrix.</span>
-    <span class='kw'>fn</span> <span class='ident'>set_diag</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>diag</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
+    <span class='kw'>fn</span> <span class='ident'>set_diagonal</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>diagonal</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>);
 }
 
 <span class='doccomment'>/// The shape of an indexable object.</span>
@@ -681,65 +708,82 @@
 }
 
 <span class='comment'>/*
- * Vec related traits.
+ * Vector related traits.
  */</span>
 <span class='doccomment'>/// Trait grouping most common operations on vectors.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>NumVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>: <span class='ident'>Dim</span> <span class='op'>+</span>
-                     <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Add</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Div</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> 
-                     <span class='ident'>Index</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Zero</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Dot</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Axpy</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>NumVector</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>: <span class='ident'>Add</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
+                        <span class='comment'>// Mul&lt;Self, Output = Self&gt; + Div&lt;Self, Output = Self&gt; +</span>
+
+                        <span class='comment'>// Add&lt;N, Output = Self&gt; + Sub&lt;N, Output = Self&gt; + </span>
+                        <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Div</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> 
+
+                        <span class='ident'>AddAssign</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>SubAssign</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
+                        <span class='comment'>// MulAssign&lt;Self&gt; + DivAssign&lt;Self&gt; + </span>
+
+                        <span class='comment'>// AddAssign&lt;N&gt; + SubAssign&lt;N&gt; + </span>
+                        <span class='ident'>MulAssign</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>DivAssign</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> 
+
+                        <span class='ident'>Dimension</span> <span class='op'>+</span> <span class='ident'>Index</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span>
+                        <span class='ident'>Zero</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Dot</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Axpy</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
 }
 
 <span class='doccomment'>/// Trait of vector with components implementing the `BaseFloat` trait.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>FloatVec</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span><span class='op'>&gt;</span>: <span class='ident'>NumVec</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Neg</span><span class='op'>&lt;</span><span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Basis</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>FloatVector</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span><span class='op'>&gt;</span>: <span class='ident'>NumVector</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Neg</span><span class='op'>&lt;</span><span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Basis</span> {
 }
 
 <span class='comment'>/*
- * Pnt related traits.
+ * Point related traits.
  */</span>
 <span class='doccomment'>/// Trait that relates a point of an affine space to a vector of the associated vector space.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>PntAsVec</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>PointAsVector</span> {
+    <span class='doccomment'>/// The vector type of the vector space associated to this point&#39;s affine space.</span>
+    <span class='kw'>type</span> <span class='ident'>Vector</span>;
+    
     <span class='doccomment'>/// Converts this point to its associated vector.</span>
-    <span class='kw'>fn</span> <span class='ident'>to_vec</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>;
+    <span class='kw'>fn</span> <span class='ident'>to_vector</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Vector</span>;
 
     <span class='doccomment'>/// Converts a reference to this point to a reference to its associated vector.</span>
-    <span class='kw'>fn</span> <span class='ident'>as_vec</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>V</span>;
+    <span class='kw'>fn</span> <span class='ident'>as_vector</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Self</span>::<span class='ident'>Vector</span>;
 
     <span class='comment'>// NOTE: this is used in some places to overcome some limitations untill the trait reform is</span>
     <span class='comment'>// done on rustc.</span>
     <span class='doccomment'>/// Sets the coordinates of this point to match those of a given vector.</span>
-    <span class='kw'>fn</span> <span class='ident'>set_coords</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>coords</span>: <span class='ident'>V</span>);
+    <span class='kw'>fn</span> <span class='ident'>set_coords</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>coords</span>: <span class='ident'>Self</span>::<span class='ident'>Vector</span>);
 }
 
 <span class='doccomment'>/// Trait grouping most common operations on points.</span>
 <span class='comment'>// XXX: the vector space element `V` should be an associated type. Though this would prevent V from</span>
 <span class='comment'>// having bounds (they are not supported yet). So, for now, we will just use a type parameter.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>NumPnt</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span>:
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>NumPoint</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>:
           <span class='ident'>Copy</span> <span class='op'>+</span>
-          <span class='ident'>PntAsVec</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span>
-          <span class='ident'>Dim</span> <span class='op'>+</span>
-          <span class='ident'>Orig</span> <span class='op'>+</span>
+          <span class='ident'>PointAsVector</span> <span class='op'>+</span>
+          <span class='ident'>Dimension</span> <span class='op'>+</span>
+          <span class='ident'>Origin</span> <span class='op'>+</span>
           <span class='ident'>PartialEq</span> <span class='op'>+</span>
           <span class='ident'>Axpy</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span>
-          <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span>
-          <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
-          <span class='ident'>Div</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
-          <span class='ident'>Add</span><span class='op'>&lt;</span><span class='ident'>V</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
+          <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='op'>&lt;</span><span class='kw'>Self</span> <span class='kw'>as</span> <span class='ident'>PointAsVector</span><span class='op'>&gt;</span>::<span class='ident'>Vector</span><span class='op'>&gt;</span> <span class='op'>+</span>
+
+          <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Div</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
+          <span class='ident'>Add</span><span class='op'>&lt;&lt;</span><span class='kw'>Self</span> <span class='kw'>as</span> <span class='ident'>PointAsVector</span><span class='op'>&gt;</span>::<span class='ident'>Vector</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='kw'>Self</span><span class='op'>&gt;</span> <span class='op'>+</span>
+
+          <span class='ident'>MulAssign</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>DivAssign</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span>
+          <span class='ident'>AddAssign</span><span class='op'>&lt;&lt;</span><span class='kw'>Self</span> <span class='kw'>as</span> <span class='ident'>PointAsVector</span><span class='op'>&gt;</span>::<span class='ident'>Vector</span><span class='op'>&gt;</span> <span class='op'>+</span>
+
           <span class='ident'>Index</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>N</span><span class='op'>&gt;</span> { <span class='comment'>// FIXME: + Sub&lt;V, Self&gt;</span>
 }
 
 <span class='doccomment'>/// Trait of points with components implementing the `BaseFloat` trait.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>FloatPnt</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span>, <span class='ident'>V</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>: <span class='ident'>NumPnt</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Sized</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>FloatPoint</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>BaseFloat</span><span class='op'>&gt;</span>: <span class='ident'>NumPoint</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Sized</span>
+    <span class='kw'>where</span> <span class='op'>&lt;</span><span class='kw'>Self</span> <span class='kw'>as</span> <span class='ident'>PointAsVector</span><span class='op'>&gt;</span>::<span class='ident'>Vector</span>: <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Computes the square distance between two points.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>sqdist</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        (<span class='op'>*</span><span class='self'>self</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>other</span>).<span class='ident'>sqnorm</span>()
+    <span class='kw'>fn</span> <span class='ident'>distance_squared</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
+        (<span class='op'>*</span><span class='self'>self</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>other</span>).<span class='ident'>norm_squared</span>()
     }
 
     <span class='doccomment'>/// Computes the distance between two points.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>dist</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
+    <span class='kw'>fn</span> <span class='ident'>distance</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
         (<span class='op'>*</span><span class='self'>self</span> <span class='op'>-</span> <span class='op'>*</span><span class='ident'>other</span>).<span class='ident'>norm</span>()
     }
 }

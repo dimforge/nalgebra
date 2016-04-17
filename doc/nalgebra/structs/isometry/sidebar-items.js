@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Isometry2","Two dimensional **direct** isometry."],["Isometry3","Three dimensional **direct** isometry."]]});

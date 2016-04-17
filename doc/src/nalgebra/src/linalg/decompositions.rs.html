@@ -394,33 +394,33 @@
 <span id="351">351</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Transpose</span>, <span class='ident'>ApproxEq</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>ColSlice</span>, <span class='ident'>Eye</span>, <span class='ident'>Indexable</span>, <span class='ident'>Diag</span>, <span class='ident'>SquareMat</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>Cast</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>ColumnSlice</span>, <span class='ident'>Eye</span>, <span class='ident'>Indexable</span>, <span class='ident'>Diagonal</span>, <span class='ident'>SquareMatrix</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>Cast</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::<span class='ident'>Norm</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cmp</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Mul</span>, <span class='ident'>Add</span>, <span class='ident'>Sub</span>};
 
 <span class='doccomment'>/// Get the householder matrix corresponding to a reflexion to the hyperplane</span>
-<span class='doccomment'>/// defined by `vec`. It can be a reflexion contained in a subspace.</span>
+<span class='doccomment'>/// defined by `vector`. It can be a reflexion contained in a subspace.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// # Arguments</span>
-<span class='doccomment'>/// * `dim` - the dimension of the space the resulting matrix operates in</span>
+<span class='doccomment'>/// * `dimension` - the dimension of the space the resulting matrix operates in</span>
 <span class='doccomment'>/// * `start` - the starting dimension of the subspace of the reflexion</span>
-<span class='doccomment'>/// * `vec` - the vector defining the reflection.</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>householder_matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>, <span class='ident'>start</span>: <span class='ident'>usize</span>, <span class='ident'>vec</span>: <span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span>
+<span class='doccomment'>/// * `vector` - the vector defining the reflection.</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>householder_matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>dimension</span>: <span class='ident'>usize</span>, <span class='ident'>start</span>: <span class='ident'>usize</span>, <span class='ident'>vector</span>: <span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span>
     <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>BaseFloat</span>,
           <span class='ident'>M</span>: <span class='ident'>Eye</span> <span class='op'>+</span> <span class='ident'>Indexable</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>N</span><span class='op'>&gt;</span>,
           <span class='ident'>V</span>: <span class='ident'>Indexable</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>qk</span> : <span class='ident'>M</span> <span class='op'>=</span> <span class='ident'>Eye</span>::<span class='ident'>new_identity</span>(<span class='ident'>dim</span>);
-    <span class='kw'>let</span> <span class='ident'>subdim</span> <span class='op'>=</span> <span class='ident'>vec</span>.<span class='ident'>shape</span>();
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>qk</span> : <span class='ident'>M</span> <span class='op'>=</span> <span class='ident'>Eye</span>::<span class='ident'>new_identity</span>(<span class='ident'>dimension</span>);
+    <span class='kw'>let</span> <span class='ident'>subdim</span> <span class='op'>=</span> <span class='ident'>vector</span>.<span class='ident'>shape</span>();
 
     <span class='kw'>let</span> <span class='ident'>stop</span> <span class='op'>=</span> <span class='ident'>subdim</span> <span class='op'>+</span> <span class='ident'>start</span>;
 
-    <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>dim</span> <span class='op'>&gt;=</span> <span class='ident'>stop</span>);
+    <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>dimension</span> <span class='op'>&gt;=</span> <span class='ident'>stop</span>);
 
     <span class='kw'>for</span> <span class='ident'>j</span> <span class='kw'>in</span> <span class='ident'>start</span> .. <span class='ident'>stop</span> {
         <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='ident'>start</span> .. <span class='ident'>stop</span> {
             <span class='kw'>unsafe</span> {
-                <span class='kw'>let</span> <span class='ident'>vv</span> <span class='op'>=</span> <span class='ident'>vec</span>.<span class='ident'>unsafe_at</span>(<span class='ident'>i</span> <span class='op'>-</span> <span class='ident'>start</span>) <span class='op'>*</span> <span class='ident'>vec</span>.<span class='ident'>unsafe_at</span>(<span class='ident'>j</span> <span class='op'>-</span> <span class='ident'>start</span>);
+                <span class='kw'>let</span> <span class='ident'>vv</span> <span class='op'>=</span> <span class='ident'>vector</span>.<span class='ident'>unsafe_at</span>(<span class='ident'>i</span> <span class='op'>-</span> <span class='ident'>start</span>) <span class='op'>*</span> <span class='ident'>vector</span>.<span class='ident'>unsafe_at</span>(<span class='ident'>j</span> <span class='op'>-</span> <span class='ident'>start</span>);
                 <span class='kw'>let</span> <span class='ident'>qkij</span> <span class='op'>=</span> <span class='ident'>qk</span>.<span class='ident'>unsafe_at</span>((<span class='ident'>i</span>, <span class='ident'>j</span>));
                 <span class='ident'>qk</span>.<span class='ident'>unsafe_set</span>((<span class='ident'>i</span>, <span class='ident'>j</span>), <span class='ident'>qkij</span> <span class='op'>-</span> <span class='ident'>vv</span> <span class='op'>-</span> <span class='ident'>vv</span>);
             }
@@ -436,7 +436,7 @@
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>qr</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> (<span class='ident'>M</span>, <span class='ident'>M</span>)
     <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>BaseFloat</span>,
           <span class='ident'>V</span>: <span class='ident'>Indexable</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
-          <span class='ident'>M</span>: <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>Eye</span> <span class='op'>+</span> <span class='ident'>ColSlice</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Transpose</span> <span class='op'>+</span> <span class='ident'>Indexable</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span>
+          <span class='ident'>M</span>: <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>Eye</span> <span class='op'>+</span> <span class='ident'>ColumnSlice</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Transpose</span> <span class='op'>+</span> <span class='ident'>Indexable</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span>
              <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> {
     <span class='kw'>let</span> (<span class='ident'>rows</span>, <span class='ident'>cols</span>) <span class='op'>=</span> <span class='ident'>m</span>.<span class='ident'>shape</span>();
     <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>rows</span> <span class='op'>&gt;=</span> <span class='ident'>cols</span>);
@@ -471,29 +471,29 @@
     <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>BaseFloat</span>,
           <span class='ident'>V</span>:  <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>V</span><span class='op'>&gt;</span>,
           <span class='ident'>VS</span>: <span class='ident'>Indexable</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
-          <span class='ident'>M</span>:  <span class='ident'>Indexable</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Add</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span>
-              <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>ColSlice</span><span class='op'>&lt;</span><span class='ident'>VS</span><span class='op'>&gt;</span> <span class='op'>+</span>
+          <span class='ident'>M</span>:  <span class='ident'>Indexable</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Add</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span>
+              <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>ColumnSlice</span><span class='op'>&lt;</span><span class='ident'>VS</span><span class='op'>&gt;</span> <span class='op'>+</span>
               <span class='ident'>ApproxEq</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Copy</span> {
 
     <span class='kw'>let</span> (<span class='kw-2'>mut</span> <span class='ident'>eigenvectors</span>, <span class='kw-2'>mut</span> <span class='ident'>eigenvalues</span>) <span class='op'>=</span> <span class='ident'>hessenberg</span>(<span class='ident'>m</span>);
 
     <span class='comment'>// Allocate arrays for Givens rotation components</span>
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>::<span class='ident'>with_capacity</span>(::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>);
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>::<span class='ident'>with_capacity</span>(::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>);
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>c</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>::<span class='ident'>with_capacity</span>(::<span class='ident'>dimension</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>);
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>::<span class='ident'>with_capacity</span>(::<span class='ident'>dimension</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>);
 
-    <span class='kw'>if</span> ::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>==</span> <span class='number'>1</span> {
-        <span class='kw'>return</span> (<span class='ident'>eigenvectors</span>, <span class='ident'>eigenvalues</span>.<span class='ident'>diag</span>());
+    <span class='kw'>if</span> ::<span class='ident'>dimension</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>==</span> <span class='number'>1</span> {
+        <span class='kw'>return</span> (<span class='ident'>eigenvectors</span>, <span class='ident'>eigenvalues</span>.<span class='ident'>diagonal</span>());
     }
 
     <span class='kw'>unsafe</span> { 
-        <span class='ident'>c</span>.<span class='ident'>set_len</span>(::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>);
-        <span class='ident'>s</span>.<span class='ident'>set_len</span>(::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>);
+        <span class='ident'>c</span>.<span class='ident'>set_len</span>(::<span class='ident'>dimension</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>);
+        <span class='ident'>s</span>.<span class='ident'>set_len</span>(::<span class='ident'>dimension</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>);
     }
 
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>iter</span> <span class='op'>=</span> <span class='number'>0</span>;
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>curdim</span> <span class='op'>=</span> ::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>;
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>curdim</span> <span class='op'>=</span> ::<span class='ident'>dimension</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() <span class='op'>-</span> <span class='number'>1</span>;
 
-    <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span> .. ::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() {
+    <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span> .. ::<span class='ident'>dimension</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() {
 
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>stop</span> <span class='op'>=</span> <span class='boolval'>false</span>;
 
@@ -508,12 +508,12 @@
                 <span class='kw'>let</span> <span class='ident'>d</span> <span class='op'>=</span> <span class='ident'>eigenvalues</span>.<span class='ident'>unsafe_at</span>((<span class='ident'>curdim</span>, <span class='ident'>curdim</span>));
 
                 <span class='kw'>let</span> <span class='ident'>trace</span> <span class='op'>=</span> <span class='ident'>a</span> <span class='op'>+</span> <span class='ident'>d</span>;
-                <span class='kw'>let</span> <span class='ident'>det</span> <span class='op'>=</span> <span class='ident'>a</span> <span class='op'>*</span> <span class='ident'>d</span> <span class='op'>-</span> <span class='ident'>b</span> <span class='op'>*</span> <span class='ident'>c</span>;
+                <span class='kw'>let</span> <span class='ident'>determinant</span> <span class='op'>=</span> <span class='ident'>a</span> <span class='op'>*</span> <span class='ident'>d</span> <span class='op'>-</span> <span class='ident'>b</span> <span class='op'>*</span> <span class='ident'>c</span>;
 
                 <span class='kw'>let</span> <span class='ident'>constquarter</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>Cast</span>::<span class='ident'>from</span>(<span class='number'>0.25f64</span>);
                 <span class='kw'>let</span> <span class='ident'>consthalf</span>: <span class='ident'>N</span> <span class='op'>=</span> <span class='ident'>Cast</span>::<span class='ident'>from</span>(<span class='number'>0.5f64</span>);
 
-                <span class='kw'>let</span> <span class='ident'>e</span> <span class='op'>=</span> (<span class='ident'>constquarter</span> <span class='op'>*</span> <span class='ident'>trace</span> <span class='op'>*</span> <span class='ident'>trace</span> <span class='op'>-</span> <span class='ident'>det</span>).<span class='ident'>sqrt</span>();
+                <span class='kw'>let</span> <span class='ident'>e</span> <span class='op'>=</span> (<span class='ident'>constquarter</span> <span class='op'>*</span> <span class='ident'>trace</span> <span class='op'>*</span> <span class='ident'>trace</span> <span class='op'>-</span> <span class='ident'>determinant</span>).<span class='ident'>sqrt</span>();
 
                 <span class='kw'>let</span> <span class='ident'>lambda1</span> <span class='op'>=</span> <span class='ident'>consthalf</span> <span class='op'>*</span> <span class='ident'>trace</span> <span class='op'>+</span> <span class='ident'>e</span>;
                 <span class='kw'>let</span> <span class='ident'>lambda2</span> <span class='op'>=</span> <span class='ident'>consthalf</span> <span class='op'>*</span> <span class='ident'>trace</span> <span class='op'>-</span> <span class='ident'>e</span>;
@@ -602,7 +602,7 @@
 
             <span class='comment'>// Givens rotation from right applied to eigenvectors</span>
             <span class='kw'>for</span> <span class='ident'>k</span> <span class='kw'>in</span> <span class='number'>0</span> .. <span class='ident'>curdim</span> {
-                <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='number'>0</span> .. ::<span class='ident'>dim</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() {
+                <span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='number'>0</span> .. ::<span class='ident'>dimension</span>::<span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span>() {
 
                     <span class='kw'>unsafe</span> {
                         <span class='kw'>let</span> <span class='ident'>a</span> <span class='op'>=</span> <span class='ident'>eigenvectors</span>.<span class='ident'>unsafe_at</span>((<span class='ident'>i</span>, <span class='ident'>k</span>));
@@ -649,7 +649,7 @@
 
     }
 
-    (<span class='ident'>eigenvectors</span>, <span class='ident'>eigenvalues</span>.<span class='ident'>diag</span>())
+    (<span class='ident'>eigenvectors</span>, <span class='ident'>eigenvalues</span>.<span class='ident'>diagonal</span>())
 }
 
 <span class='doccomment'>/// Cholesky decomposition G of a square symmetric positive definite matrix A, such that A = G * G^T</span>
@@ -660,8 +660,8 @@
     <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>BaseFloat</span>,
           <span class='ident'>V</span>:  <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>V</span><span class='op'>&gt;</span>,
           <span class='ident'>VS</span>: <span class='ident'>Indexable</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
-          <span class='ident'>M</span>:  <span class='ident'>Indexable</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>SquareMat</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Add</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span>
-              <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>ColSlice</span><span class='op'>&lt;</span><span class='ident'>VS</span><span class='op'>&gt;</span> <span class='op'>+</span>
+          <span class='ident'>M</span>:  <span class='ident'>Indexable</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Add</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span>
+              <span class='ident'>Sub</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>ColumnSlice</span><span class='op'>&lt;</span><span class='ident'>VS</span><span class='op'>&gt;</span> <span class='op'>+</span>
               <span class='ident'>ApproxEq</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Copy</span> {
 
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>out</span> <span class='op'>=</span> <span class='ident'>m</span>.<span class='ident'>clone</span>().<span class='ident'>transpose</span>();
@@ -712,7 +712,7 @@
 <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>hessenberg</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>, <span class='ident'>M</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> (<span class='ident'>M</span>, <span class='ident'>M</span>)
     <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>BaseFloat</span>,
           <span class='ident'>V</span>: <span class='ident'>Indexable</span><span class='op'>&lt;</span><span class='ident'>usize</span>, <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Norm</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>,
-          <span class='ident'>M</span>: <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>Eye</span> <span class='op'>+</span> <span class='ident'>ColSlice</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Transpose</span> <span class='op'>+</span> <span class='ident'>Indexable</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span>
+          <span class='ident'>M</span>: <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>Eye</span> <span class='op'>+</span> <span class='ident'>ColumnSlice</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Transpose</span> <span class='op'>+</span> <span class='ident'>Indexable</span><span class='op'>&lt;</span>(<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>+</span>
              <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='ident'>M</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>M</span><span class='op'>&gt;</span> {
     
     <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>h</span> <span class='op'>=</span> <span class='ident'>m</span>.<span class='ident'>clone</span>();

@@ -93,50 +93,50 @@
 </pre><pre class='rust '>
 <span class='doccomment'>//! Data structures and implementations.</span>
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>dmat</span>::{<span class='ident'>DMat</span>, <span class='ident'>DMat1</span>, <span class='ident'>DMat2</span>, <span class='ident'>DMat3</span>, <span class='ident'>DMat4</span>, <span class='ident'>DMat5</span>, <span class='ident'>DMat6</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>dvec</span>::{<span class='ident'>DVec</span>, <span class='ident'>DVec1</span>, <span class='ident'>DVec2</span>, <span class='ident'>DVec3</span>, <span class='ident'>DVec4</span>, <span class='ident'>DVec5</span>, <span class='ident'>DVec6</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>vec</span>::{<span class='ident'>Vec1</span>, <span class='ident'>Vec2</span>, <span class='ident'>Vec3</span>, <span class='ident'>Vec4</span>, <span class='ident'>Vec5</span>, <span class='ident'>Vec6</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>pnt</span>::{<span class='ident'>Pnt1</span>, <span class='ident'>Pnt2</span>, <span class='ident'>Pnt3</span>, <span class='ident'>Pnt4</span>, <span class='ident'>Pnt5</span>, <span class='ident'>Pnt6</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>mat</span>::{<span class='ident'>Identity</span>, <span class='ident'>Mat1</span>, <span class='ident'>Mat2</span>, <span class='ident'>Mat3</span>, <span class='ident'>Mat4</span>, <span class='ident'>Mat5</span>, <span class='ident'>Mat6</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>rot</span>::{<span class='ident'>Rot2</span>, <span class='ident'>Rot3</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>iso</span>::{<span class='ident'>Iso2</span>, <span class='ident'>Iso3</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>sim</span>::{<span class='ident'>Sim2</span>, <span class='ident'>Sim3</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>persp</span>::{<span class='ident'>Persp3</span>, <span class='ident'>PerspMat3</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>ortho</span>::{<span class='ident'>Ortho3</span>, <span class='ident'>OrthoMat3</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>quat</span>::{<span class='ident'>Quat</span>, <span class='ident'>UnitQuat</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>dmatrix</span>::{<span class='ident'>DMatrix</span>, <span class='ident'>DMatrix1</span>, <span class='ident'>DMatrix2</span>, <span class='ident'>DMatrix3</span>, <span class='ident'>DMatrix4</span>, <span class='ident'>DMatrix5</span>, <span class='ident'>DMatrix6</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>dvector</span>::{<span class='ident'>DVector</span>, <span class='ident'>DVector1</span>, <span class='ident'>DVector2</span>, <span class='ident'>DVector3</span>, <span class='ident'>DVector4</span>, <span class='ident'>DVector5</span>, <span class='ident'>DVector6</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>vector</span>::{<span class='ident'>Vector1</span>, <span class='ident'>Vector2</span>, <span class='ident'>Vector3</span>, <span class='ident'>Vector4</span>, <span class='ident'>Vector5</span>, <span class='ident'>Vector6</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>point</span>::{<span class='ident'>Point1</span>, <span class='ident'>Point2</span>, <span class='ident'>Point3</span>, <span class='ident'>Point4</span>, <span class='ident'>Point5</span>, <span class='ident'>Point6</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>matrix</span>::{<span class='ident'>Identity</span>, <span class='ident'>Matrix1</span>, <span class='ident'>Matrix2</span>, <span class='ident'>Matrix3</span>, <span class='ident'>Matrix4</span>, <span class='ident'>Matrix5</span>, <span class='ident'>Matrix6</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>rotation</span>::{<span class='ident'>Rotation2</span>, <span class='ident'>Rotation3</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>isometry</span>::{<span class='ident'>Isometry2</span>, <span class='ident'>Isometry3</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>similarity</span>::{<span class='ident'>Similarity2</span>, <span class='ident'>Similarity3</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>perspective</span>::{<span class='ident'>Perspective3</span>, <span class='ident'>PerspectiveMatrix3</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>orthographic</span>::{<span class='ident'>Orthographic3</span>, <span class='ident'>OrthographicMatrix3</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>quaternion</span>::{<span class='ident'>Quaternion</span>, <span class='ident'>UnitQuaternion</span>};
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;generic_sizes&quot;</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>vecn</span>::<span class='ident'>VecN</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>vectorn</span>::<span class='ident'>VectorN</span>;
 
-<span class='kw'>mod</span> <span class='ident'>dmat_macros</span>;
-<span class='kw'>mod</span> <span class='ident'>dmat</span>;
-<span class='kw'>mod</span> <span class='ident'>vecn_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>dmatrix_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>dmatrix</span>;
+<span class='kw'>mod</span> <span class='ident'>vectorn_macros</span>;
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;generic_sizes&quot;</span>)]</span>
-<span class='kw'>mod</span> <span class='ident'>vecn</span>;
-<span class='kw'>mod</span> <span class='ident'>dvec_macros</span>;
-<span class='kw'>mod</span> <span class='ident'>dvec</span>;
-<span class='kw'>mod</span> <span class='ident'>vec_macros</span>;
-<span class='kw'>mod</span> <span class='ident'>vec</span>;
-<span class='kw'>mod</span> <span class='ident'>pnt_macros</span>;
-<span class='kw'>mod</span> <span class='ident'>pnt</span>;
-<span class='kw'>mod</span> <span class='ident'>quat</span>;
-<span class='kw'>mod</span> <span class='ident'>mat_macros</span>;
-<span class='kw'>mod</span> <span class='ident'>mat</span>;
-<span class='kw'>mod</span> <span class='ident'>rot_macros</span>;
-<span class='kw'>mod</span> <span class='ident'>rot</span>;
-<span class='kw'>mod</span> <span class='ident'>iso_macros</span>;
-<span class='kw'>mod</span> <span class='ident'>iso</span>;
-<span class='kw'>mod</span> <span class='ident'>sim_macros</span>;
-<span class='kw'>mod</span> <span class='ident'>sim</span>;
-<span class='kw'>mod</span> <span class='ident'>persp</span>;
-<span class='kw'>mod</span> <span class='ident'>ortho</span>;
+<span class='kw'>mod</span> <span class='ident'>vectorn</span>;
+<span class='kw'>mod</span> <span class='ident'>dvector_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>dvector</span>;
+<span class='kw'>mod</span> <span class='ident'>vector_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>vector</span>;
+<span class='kw'>mod</span> <span class='ident'>point_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>point</span>;
+<span class='kw'>mod</span> <span class='ident'>quaternion</span>;
+<span class='kw'>mod</span> <span class='ident'>matrix_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>matrix</span>;
+<span class='kw'>mod</span> <span class='ident'>rotation_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>rotation</span>;
+<span class='kw'>mod</span> <span class='ident'>isometry_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>isometry</span>;
+<span class='kw'>mod</span> <span class='ident'>similarity_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>similarity</span>;
+<span class='kw'>mod</span> <span class='ident'>perspective</span>;
+<span class='kw'>mod</span> <span class='ident'>orthographic</span>;
 
 <span class='comment'>// Specialization for some 1d, 2d and 3d operations.</span>
 <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
-<span class='kw'>mod</span> <span class='ident'>spec</span> {
+<span class='kw'>mod</span> <span class='ident'>specializations</span> {
     <span class='kw'>mod</span> <span class='ident'>identity</span>;
-    <span class='kw'>mod</span> <span class='ident'>mat</span>;
-    <span class='kw'>mod</span> <span class='ident'>vec</span>;
+    <span class='kw'>mod</span> <span class='ident'>matrix</span>;
+    <span class='kw'>mod</span> <span class='ident'>vector</span>;
     <span class='kw'>mod</span> <span class='ident'>primitives</span>;
     <span class='comment'>// mod complex;</span>
 }
