@@ -835,3 +835,11 @@ fn test_transpose_square_mat() {
         assert_eq!(&[0, 1, 2, 3], &mat.row_slice(i, 0, num_cols)[..]);
     }
 }
+
+#[test]
+fn test_outer_dvec() {
+    let vec = DVec::from_slice(5, &[ 1.0, 2.0, 3.0, 4.0, 5.0 ]);
+    let row = DMat::from_row_vec(1, 5, &vec[..]);
+
+    assert_eq!(row.transpose() * row, na::outer(&vec, &vec))
+}

@@ -7,7 +7,8 @@ use std::ops::{Add, Sub, Mul, Div, Neg, AddAssign, SubAssign, MulAssign, DivAssi
 use std::mem;
 use rand::{self, Rand};
 use num::{Zero, One};
-use traits::operations::{ApproxEq, Axpy, Mean};
+use structs::DMat;
+use traits::operations::{ApproxEq, Axpy, Mean, Outer};
 use traits::geometry::{Dot, Norm};
 use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, BaseNum, Cast};
 #[cfg(feature="arbitrary")]
@@ -57,7 +58,7 @@ impl<N> DVec<N> {
     /// Builds a vector filled with the results of a function applied to each of its component coordinates.
     #[inline(always)]
     pub fn from_fn<F: FnMut(usize) -> N>(dim: usize, mut f: F) -> DVec<N> {
-        DVec { at: (0..dim).map(|i| f(i)).collect() }
+        DVec { at: (0 .. dim).map(|i| f(i)).collect() }
     }
 
     /// The vector length.
@@ -71,6 +72,25 @@ impl<N> FromIterator<N> for DVec<N> {
     #[inline]
     fn from_iter<I: IntoIterator<Item = N>>(param: I) -> DVec<N> {
         DVec { at: param.into_iter().collect() }
+    }
+}
+
+impl<N: Copy + BaseNum> Outer for DVec<N> {
+    type OuterProductType = DMat<N>;
+
+    #[inline]
+    fn outer(&self, other: &DVec<N>) -> DMat<N> {
+        let mut res = unsafe { DMat::new_uninitialized(self.at.len(), other.at.len()) };
+
+        for i in 0 .. self.at.len() {
+            for j in 0 .. other.at.len() {
+                unsafe {
+                    res.unsafe_set((i, j), self.unsafe_at(i) * other.unsafe_at(j));
+                }
+            }
+        }
+
+        res
     }
 }
 
