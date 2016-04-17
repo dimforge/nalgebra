@@ -4,6 +4,15 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.7.0]
+### Added
+  * Added implementation of assignement operators (+=, -=, etc.) for
+    everything.
+### Modified
+  * Points and vectors are now linked to each other with associated types
+    (on the PntAsVec trait).
+
+
 ## [0.6.0]
 **Announcement:** a users forum has been created for `nalgebra`, `ncollide`, and `nphysics`. See
 you [there](http://users.nphysics.org)!
