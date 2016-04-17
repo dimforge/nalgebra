@@ -4,6 +4,20 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.8.0]
+## Modified
+  * Almost everything (types, methods, and traits) now use full names instead
+    of abbreviations (e.g. `Vec3` becomes `Vector3`). Most changes are abvious.
+    Note however that:
+    - `::sqnorm` becomes `::norm_squared`.
+    - `::sqdist` becomes `::distance_squared`.
+    - `::abs`, `::min`, etc. did not change as this is a common name for
+      absolute values on, e.g., the libc.
+    - Dynamically sized structures keep the `D` prefix, e.g., `DMat` becomes
+      `DMatrix`.
+  * All files with abbreviated names have been renamed to their full version,
+    e.g., `vec.rs` becomes `vector.rs`.
+
 ## [0.7.0]
 ### Added
   * Added implementation of assignement operators (+=, -=, etc.) for
