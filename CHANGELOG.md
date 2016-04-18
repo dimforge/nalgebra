@@ -4,7 +4,7 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.9.0]
+## [0.9.0] - WIP
 ## Modified
   * Renamed:
     - `::from_col_vector` -> `::from_column_vector`
@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - `.col_slice` -> `.column_slice`
     - `.set_col` -> `.set_column`
     - `::canonical_basis_with_dim` -> `::canonical_basis_with_dimension`
+    - `::from_elem` -> `::from_element`
 
 ## [0.8.0]
 ## Modified
