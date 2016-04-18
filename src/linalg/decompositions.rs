@@ -49,7 +49,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
     let mut r = *m;
 
     for ite in 0 .. cmp::min(rows - 1, cols) {
-        let mut v = r.col_slice(ite, ite, rows);
+        let mut v = r.column_slice(ite, ite, rows);
         let alpha =
             if unsafe { v.unsafe_at(ite) } >= ::zero() {
                 -Norm::norm(&v)
@@ -330,7 +330,7 @@ pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
     }
 
     for ite in 0 .. (cols - 2) {
-        let mut v = h.col_slice(ite, ite + 1, rows);
+        let mut v = h.column_slice(ite, ite + 1, rows);
 
         let alpha = Norm::norm(&v);
 

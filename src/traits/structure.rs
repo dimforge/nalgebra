@@ -142,7 +142,7 @@ pub trait Column<C> {
     fn column(&self, i: usize) -> C;
 
     /// Writes the `i`-th column of `self`.
-    fn set_col(&mut self, i: usize, C);
+    fn set_column(&mut self, i: usize, C);
 
     // FIXME: add iterators on columns: this could be a very good way to generalize _and_ optimize
     // a lot of operations.
@@ -151,13 +151,13 @@ pub trait Column<C> {
 /// Trait to access part of a column of a matrix
 pub trait ColumnSlice<C> {
     /// Returns a view to a slice of a column of a matrix.
-    fn col_slice(&self, col_id: usize, row_start: usize, row_end: usize) -> C;
+    fn column_slice(&self, column_id: usize, row_start: usize, row_end: usize) -> C;
 }
 
 /// Trait to access part of a row of a matrix
 pub trait RowSlice<R> {
     /// Returns a view to a slice of a row of a matrix.
-    fn row_slice(&self, row_id: usize, col_start: usize, col_end: usize) -> R;
+    fn row_slice(&self, row_id: usize, column_start: usize, column_end: usize) -> R;
 }
 
 /// Trait of objects having a spacial dimension known at compile time.

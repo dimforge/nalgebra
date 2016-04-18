@@ -47,7 +47,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Square matrices with static sizes: `Matrix1`, `Matrix2`, `Matrix3`, `Matrix4`, `Matrix5`, `Matrix6 `.
 * Rotation matrices: `Rotation2`, `Rotation3`
 * Quaternions: `Quaternion`, `UnitQuaternion`.
-* Isometrymetries (translation ⨯ rotation): `Isometry2`, `Isometry3`
+* Isometries (translation ⨯ rotation): `Isometry2`, `Isometry3`
 * Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Similarity2`, `Similarity3`.
 * 3D projections for computer graphics: `Perspective3`, `PerspectiveMatrix3`, `Orthographic3`, `OrthographicMatrix3`.
 * Dynamically sized heap-allocated vector: `DVector`.

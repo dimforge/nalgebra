@@ -10,7 +10,7 @@ macro_rules! dmat_impl(
             ///   components.
             #[inline]
             pub fn new_zeros(nrows: usize, ncols: usize) -> $dmatrix<N> {
-                $dmatrix::from_elem(nrows, ncols, ::zero())
+                $dmatrix::from_element(nrows, ncols, ::zero())
             }
 
             /// Tests if all components of the matrix are zeroes.
@@ -40,7 +40,7 @@ macro_rules! dmat_impl(
             /// Builds a matrix filled with a given constant.
             #[inline]
             pub fn new_ones(nrows: usize, ncols: usize) -> $dmatrix<N> {
-                $dmatrix::from_elem(nrows, ncols, ::one())
+                $dmatrix::from_element(nrows, ncols, ::one())
             }
         }
 
@@ -745,35 +745,35 @@ macro_rules! dmat_impl(
             }
 
             #[inline]
-            fn set_col(&mut self, col_id: usize, column: $dvector<N>) {
-                assert!(col_id < self.ncols);
+            fn set_column(&mut self, column_id: usize, column: $dvector<N>) {
+                assert!(column_id < self.ncols);
                 assert!(column.len() == self.nrows);
 
                 for row_id in 0 .. self.nrows {
                     unsafe {
-                        self.unsafe_set((row_id, col_id), column.unsafe_at(row_id));
+                        self.unsafe_set((row_id, column_id), column.unsafe_at(row_id));
                     }
                 }
             }
 
-            fn column(&self, col_id: usize) -> $dvector<N> {
-                assert!(col_id < self.ncols);
+            fn column(&self, column_id: usize) -> $dvector<N> {
+                assert!(column_id < self.ncols);
 
-                let start = self.offset(0, col_id);
-                let stop  = self.offset(self.nrows, col_id);
+                let start = self.offset(0, column_id);
+                let stop  = self.offset(self.nrows, column_id);
                 $dvector::from_slice(self.nrows, &self.mij[start .. stop])
             }
         }
 
         impl<N: Copy + Clone + Zero> ColumnSlice<$dvector<N>> for $dmatrix<N> {
-            fn col_slice(&self, col_id :usize, row_start: usize, row_end: usize) -> $dvector<N> {
-                assert!(col_id < self.ncols);
+            fn column_slice(&self, column_id :usize, row_start: usize, row_end: usize) -> $dvector<N> {
+                assert!(column_id < self.ncols);
                 assert!(row_start < row_end);
                 assert!(row_end <= self.nrows);
 
                 // We can init from slice thanks to the matrix being column-major.
-                let start = self.offset(row_start, col_id);
-                let stop  = self.offset(row_end, col_id);
+                let start = self.offset(row_start, column_id);
+                let stop  = self.offset(row_end, column_id);
                 let slice = $dvector::from_slice(row_end - row_start, &self.mij[start .. stop]);
 
                 slice
@@ -791,9 +791,9 @@ macro_rules! dmat_impl(
                 assert!(row_id < self.nrows);
                 assert!(row.len() == self.ncols);
 
-                for col_id in 0 .. self.ncols {
+                for column_id in 0 .. self.ncols {
                     unsafe {
-                        self.unsafe_set((row_id, col_id), row.unsafe_at(col_id));
+                        self.unsafe_set((row_id, column_id), row.unsafe_at(column_id));
                     }
                 }
             }
@@ -806,9 +806,9 @@ macro_rules! dmat_impl(
                     $dvector::new_uninitialized(self.ncols)
                 };
 
-                for col_id in 0 .. self.ncols {
+                for column_id in 0 .. self.ncols {
                     unsafe {
-                        slice.unsafe_set(col_id, self.unsafe_at((row_id, col_id)));
+                        slice.unsafe_set(column_id, self.unsafe_at((row_id, column_id)));
                     }
                 }
                 slice
@@ -816,18 +816,18 @@ macro_rules! dmat_impl(
         }
 
         impl<N: Copy> RowSlice<$dvector<N>> for $dmatrix<N> {
-            fn row_slice(&self, row_id :usize, col_start: usize, col_end: usize) -> $dvector<N> {
+            fn row_slice(&self, row_id :usize, column_start: usize, column_end: usize) -> $dvector<N> {
                 assert!(row_id < self.nrows);
-                assert!(col_start < col_end);
-                assert!(col_end <= self.ncols);
+                assert!(column_start < column_end);
+                assert!(column_end <= self.ncols);
 
                 let mut slice : $dvector<N> = unsafe {
-                    $dvector::new_uninitialized(col_end - col_start)
+                    $dvector::new_uninitialized(column_end - column_start)
                 };
                 let mut slice_idx = 0;
-                for col_id in col_start .. col_end {
+                for column_id in column_start .. column_end {
                     unsafe {
-                        slice.unsafe_set(slice_idx, self.unsafe_at((row_id, col_id)));
+                        slice.unsafe_set(slice_idx, self.unsafe_at((row_id, column_id)));
                     }
                     slice_idx += 1;
                 }
@@ -1083,7 +1083,7 @@ macro_rules! small_dmat_from_impl(
         impl<N: Zero + Clone + Copy> $dmatrix<N> {
             /// Builds a matrix filled with a given constant.
             #[inline]
-            pub fn from_elem(nrows: usize, ncols: usize, elem: N) -> $dmatrix<N> {
+            pub fn from_element(nrows: usize, ncols: usize, elem: N) -> $dmatrix<N> {
                 assert!(nrows <= $dimension);
                 assert!(ncols <= $dimension);
 
@@ -1102,13 +1102,13 @@ macro_rules! small_dmat_from_impl(
 
             /// Builds a matrix filled with the components provided by a vector.
             /// The vector contains the matrix data in row-major order.
-            /// Note that `from_col_vector` is a lot faster than `from_row_vector` since a `$dmatrix` stores its data
+            /// Note that `from_column_vector` is a lot faster than `from_row_vector` since a `$dmatrix` stores its data
             /// in column-major order.
             ///
             /// The vector must have at least `nrows * ncols` elements.
             #[inline]
             pub fn from_row_vector(nrows: usize, ncols: usize, vector: &[N]) -> $dmatrix<N> {
-                let mut res = $dmatrix::from_col_vector(ncols, nrows, vector);
+                let mut res = $dmatrix::from_column_vector(ncols, nrows, vector);
         
                 // we transpose because the buffer is row_major
                 res.transpose_mut();
@@ -1118,12 +1118,12 @@ macro_rules! small_dmat_from_impl(
 
             /// Builds a matrix filled with the components provided by a vector.
             /// The vector contains the matrix data in column-major order.
-            /// Note that `from_col_vector` is a lot faster than `from_row_vector` since a `$dmatrix` stores its data
+            /// Note that `from_column_vector` is a lot faster than `from_row_vector` since a `$dmatrix` stores its data
             /// in column-major order.
             ///
             /// The vector must have at least `nrows * ncols` elements.
             #[inline]
-            pub fn from_col_vector(nrows: usize, ncols: usize, vector: &[N]) -> $dmatrix<N> {
+            pub fn from_column_vector(nrows: usize, ncols: usize, vector: &[N]) -> $dmatrix<N> {
                 assert!(nrows * ncols == vector.len());
 
                 let mut mij: [N; $dimension * $dimension] = [ $( $zeros, )* ];

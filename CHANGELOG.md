@@ -4,6 +4,15 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9.0]
+## Modified
+  * Renamed:
+    - `::from_col_vector` -> `::from_column_vector`
+    - `::from_col_iter` -> `::from_column_iter`
+    - `.col_slice` -> `.column_slice`
+    - `.set_col` -> `.set_column`
+    - `::canonical_basis_with_dim` -> `::canonical_basis_with_dimension`
+
 ## [0.8.0]
 ## Modified
   * Almost everything (types, methods, and traits) now use full names instead

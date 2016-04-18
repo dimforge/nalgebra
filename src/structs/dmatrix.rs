@@ -40,7 +40,7 @@ impl<N> DMatrix<N> {
 impl<N: Clone + Copy> DMatrix<N> {
     /// Builds a matrix filled with a given constant.
     #[inline]
-    pub fn from_elem(nrows: usize, ncols: usize, val: N) -> DMatrix<N> {
+    pub fn from_element(nrows: usize, ncols: usize, val: N) -> DMatrix<N> {
         DMatrix {
             nrows: nrows,
             ncols: ncols,
@@ -50,7 +50,7 @@ impl<N: Clone + Copy> DMatrix<N> {
 
     /// Builds a matrix filled with the components provided by a vector.
     /// The vector contains the matrix data in row-major order.
-    /// Note that `from_col_vector` is much faster than `from_row_vector` since a `DMatrix` stores its data
+    /// Note that `from_column_vector` is much faster than `from_row_vector` since a `DMatrix` stores its data
     /// in column-major order.
     ///
     /// The vector must have exactly `nrows * ncols` elements.
@@ -61,24 +61,24 @@ impl<N: Clone + Copy> DMatrix<N> {
 
     /// Builds a matrix filled with the components provided by a vector.
     /// The vector contains the matrix data in column-major order.
-    /// Note that `from_col_vector` is much faster than `from_row_vector` since a `DMatrix` stores its data
+    /// Note that `from_column_vector` is much faster than `from_row_vector` since a `DMatrix` stores its data
     /// in column-major order.
     ///
     /// The vector must have exactly `nrows * ncols` elements.
     #[inline]
-    pub fn from_col_vector(nrows: usize, ncols: usize, vector: &[N]) -> DMatrix<N> {
-        DMatrix::from_col_iter(nrows, ncols, vector.to_vec())
+    pub fn from_column_vector(nrows: usize, ncols: usize, vector: &[N]) -> DMatrix<N> {
+        DMatrix::from_column_iter(nrows, ncols, vector.to_vec())
     }
 
     /// Builds a matrix filled with the components provided by a source that may be moved into an iterator.
     /// The source contains the matrix data in row-major order.
-    /// Note that `from_col_iter` is much faster than `from_row_iter` since a `DMatrix` stores its data
+    /// Note that `from_column_iter` is much faster than `from_row_iter` since a `DMatrix` stores its data
     /// in column-major order.
     ///
     /// The source must have exactly `nrows * ncols` elements.
     #[inline]
     pub fn from_row_iter<I: IntoIterator<Item = N>>(nrows: usize, ncols: usize, param: I) -> DMatrix<N> {
-        let mut res = DMatrix::from_col_iter(ncols, nrows, param);
+        let mut res = DMatrix::from_column_iter(ncols, nrows, param);
 
         // we transpose because the buffer is row_major
         res.transpose_mut();
@@ -89,12 +89,12 @@ impl<N: Clone + Copy> DMatrix<N> {
 
     /// Builds a matrix filled with the components provided by a source that may be moved into an iterator.
     /// The source contains the matrix data in column-major order.
-    /// Note that `from_col_iter` is much faster than `from_row_iter` since a `DMatrix` stores its data
+    /// Note that `from_column_iter` is much faster than `from_row_iter` since a `DMatrix` stores its data
     /// in column-major order.
     ///
     /// The source must have exactly `nrows * ncols` elements.
     #[inline]
-    pub fn from_col_iter<I: IntoIterator<Item = N>>(nrows: usize, ncols: usize, param: I) -> DMatrix<N> {
+    pub fn from_column_iter<I: IntoIterator<Item = N>>(nrows: usize, ncols: usize, param: I) -> DMatrix<N> {
         let mij: Vec<N> = param.into_iter().collect();
 
         assert!(nrows * ncols == mij.len(), "The ammount of data provided does not matches the matrix size.");

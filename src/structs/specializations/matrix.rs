@@ -187,7 +187,7 @@ impl<N: Copy> Column<Vector3<N>> for Matrix3<N> {
     }
 
     #[inline]
-    fn set_col(&mut self, i: usize, r: Vector3<N>) {
+    fn set_column(&mut self, i: usize, r: Vector3<N>) {
         match i {
             0 => {
                 self.m11 = r.x;
