@@ -413,10 +413,10 @@ macro_rules! index_impl(
     )
 );
 
-macro_rules! col_slice_impl(
+macro_rules! column_slice_impl(
     ($t: ident, $tv: ident, $slice: ident, $dimension: expr) => (
         impl<N: Clone + Copy + Zero> ColumnSlice<$slice<N>> for $t<N> {
-            fn col_slice(&self, cid: usize, rstart: usize, rend: usize) -> $slice<N> {
+            fn column_slice(&self, cid: usize, rstart: usize, rend: usize) -> $slice<N> {
                 let column = self.column(cid);
 
                 $slice::from_slice(rend - rstart, &column.as_ref()[rstart .. rend])
@@ -466,7 +466,7 @@ macro_rules! row_slice_impl(
     )
 );
 
-macro_rules! col_impl(
+macro_rules! column_impl(
   ($t: ident, $tv: ident, $dimension: expr) => (
     impl<N: Copy + Zero> Column<$tv<N>> for $t<N> {
         #[inline]
@@ -475,7 +475,7 @@ macro_rules! col_impl(
         }
 
         #[inline]
-        fn set_col(&mut self, column: usize, v: $tv<N>) {
+        fn set_column(&mut self, column: usize, v: $tv<N>) {
             for (i, e) in v.iter().enumerate() {
                 self[(i, column)] = *e;
             }

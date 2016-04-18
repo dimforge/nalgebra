@@ -20,7 +20,7 @@ use quickcheck::{Arbitrary, Gen};
 ///
 /// This is the composition of a rotation followed by a translation. Vectors `Vector2` are not
 /// affected by the translational component of this transformation while points `Point2` are.
-/// Isometrymetries conserve angles and distances, hence do not allow shearing nor scaling.
+/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
 pub struct Isometry2<N> {
@@ -34,7 +34,7 @@ pub struct Isometry2<N> {
 ///
 /// This is the composition of a rotation followed by a translation. Vectors `Vector3` are not
 /// affected by the translational component of this transformation while points `Point3` are.
-/// Isometrymetries conserve angles and distances, hence do not allow shearing nor scaling.
+/// Isometries conserve angles and distances, hence do not allow shearing nor scaling.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Debug, Copy)]
 pub struct Isometry3<N> {

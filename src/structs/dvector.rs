@@ -37,7 +37,7 @@ impl<N> DVector<N> {
 impl<N: Clone> DVector<N> {
     /// Builds a vector filled with a constant.
     #[inline]
-    pub fn from_elem(dimension: usize, elem: N) -> DVector<N> {
+    pub fn from_element(dimension: usize, elem: N) -> DVector<N> {
         DVector { at: repeat(elem).take(dimension).collect() }
     }
 

@@ -256,7 +256,7 @@ macro_rules! row_impl(
     )
 );
 
-macro_rules! col_impl(
+macro_rules! column_impl(
     ($t: ident, $tv: ident) => (
         impl<N: Copy + Zero> Column<$tv<N>> for $t<N> {
             #[inline]
@@ -269,8 +269,8 @@ macro_rules! col_impl(
             }
 
             #[inline]
-            fn set_col(&mut self, i: usize, column: $tv<N>) {
-                self.submatrix.set_col(i, column);
+            fn set_column(&mut self, i: usize, column: $tv<N>) {
+                self.submatrix.set_column(i, column);
             }
         }
     )

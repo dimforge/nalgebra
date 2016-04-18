@@ -347,7 +347,7 @@ macro_rules! to_homogeneous_impl(
                 // copy the translation
                 let dimension = Dimension::dimension(None::<$th<N>>);
 
-                res.set_col(dimension - 1, self.translation.as_point().to_homogeneous().to_vector());
+                res.set_column(dimension - 1, self.translation.as_point().to_homogeneous().to_vector());
 
                 res
             }

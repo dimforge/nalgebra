@@ -11,7 +11,7 @@ macro_rules! dvec_impl(
             /// * `dimension` - The dimension of the vector.
             #[inline]
             pub fn new_zeros(dimension: usize) -> $dvector<N> {
-                $dvector::from_elem(dimension, ::zero())
+                $dvector::from_element(dimension, ::zero())
             }
         }
 
@@ -22,7 +22,7 @@ macro_rules! dvec_impl(
             /// * `dimension` - The dimension of the vector.
             #[inline]
             pub fn new_ones(dimension: usize) -> $dvector<N> {
-                $dvector::from_elem(dimension, ::one())
+                $dvector::from_element(dimension, ::one())
             }
         }
 
@@ -38,7 +38,7 @@ macro_rules! dvec_impl(
             /// Computes the canonical basis for the given dimension. A canonical basis is a set of
             /// vectors, mutually orthogonal, with all its component equal to 0.0 except one which is equal
             /// to 1.0.
-            pub fn canonical_basis_with_dim(dimension: usize) -> Vec<$dvector<N>> {
+            pub fn canonical_basis_with_dimension(dimension: usize) -> Vec<$dvector<N>> {
                 let mut res : Vec<$dvector<N>> = Vec::new();
 
                 for i in 0 .. dimension {
@@ -151,7 +151,7 @@ macro_rules! small_dvec_from_impl (
         impl<N: Copy + Zero> $dvector<N> {
             /// Builds a vector filled with a constant.
             #[inline]
-            pub fn from_elem(dimension: usize, elem: N) -> $dvector<N> {
+            pub fn from_element(dimension: usize, elem: N) -> $dvector<N> {
                 assert!(dimension <= $dimension);
 
                 let mut at: [N; $dimension] = [ $( $zeros, )* ];

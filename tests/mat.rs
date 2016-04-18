@@ -332,7 +332,7 @@ fn test_row_slice_dmatrix() {
 }
 
 #[test]
-fn test_col_dmatrix() {
+fn test_column_dmatrix() {
     let matrix = DMatrix::from_row_vector(
         8,
         4,
@@ -355,7 +355,7 @@ fn test_col_dmatrix() {
 }
 
 #[test]
-fn test_col_slice_dmatrix() {
+fn test_column_slice_dmatrix() {
     let matrix = DMatrix::from_row_vector(
         8,
         4,
@@ -371,10 +371,10 @@ fn test_col_slice_dmatrix() {
         ]
     );
 
-    assert_eq!(&DVector::from_slice(8, &[1u32, 5, 9, 13, 17, 21, 25, 29]), &matrix.col_slice(0, 0, 8));
-    assert_eq!(&DVector::from_slice(3, &[1u32, 5, 9]), &matrix.col_slice(0, 0, 3));
-    assert_eq!(&DVector::from_slice(5, &[11u32, 15, 19, 23, 27]), &matrix.col_slice(2, 2, 7));
-    assert_eq!(&DVector::from_slice(2, &[28u32, 32]), &matrix.col_slice(3, 6, 8));
+    assert_eq!(&DVector::from_slice(8, &[1u32, 5, 9, 13, 17, 21, 25, 29]), &matrix.column_slice(0, 0, 8));
+    assert_eq!(&DVector::from_slice(3, &[1u32, 5, 9]), &matrix.column_slice(0, 0, 3));
+    assert_eq!(&DVector::from_slice(5, &[11u32, 15, 19, 23, 27]), &matrix.column_slice(2, 2, 7));
+    assert_eq!(&DVector::from_slice(2, &[28u32, 32]), &matrix.column_slice(3, 6, 8));
 }
 
 #[test]
@@ -394,7 +394,7 @@ fn test_dmat_from_vector() {
         ]
     );
 
-    let mat2 = DMatrix::from_col_vector(
+    let mat2 = DMatrix::from_column_vector(
         8,
         4,
         &[
@@ -541,7 +541,7 @@ fn test_dmat_subtraction() {
 }
 
 #[test]
-fn test_dmat_col() {
+fn test_dmat_column() {
     let matrix = DMatrix::from_row_vector(
         3,
         3,
@@ -556,7 +556,7 @@ fn test_dmat_col() {
 }
 
 #[test]
-fn test_dmat_set_col() {
+fn test_dmat_set_column() {
     let mut matrix = DMatrix::from_row_vector(
         3,
         3,
@@ -567,7 +567,7 @@ fn test_dmat_set_col() {
         ]
     );
 
-    matrix.set_col(1, DVector::from_slice(3, &[12.0, 15.0, 18.0]));
+    matrix.set_column(1, DVector::from_slice(3, &[12.0, 15.0, 18.0]));
 
     let expected = DMatrix::from_row_vector(
         3,
@@ -823,13 +823,13 @@ fn test_hessenberg_mat6() {
 
 #[test]
 fn test_transpose_square_matrix() {
-    let col_major_matrix = &[0, 1, 2, 3,
+    let column_major_matrix = &[0, 1, 2, 3,
                           0, 1, 2, 3,
                           0, 1, 2, 3,
                           0, 1, 2, 3];
     let num_rows = 4;
     let num_cols = 4;
-    let mut matrix = DMatrix::from_col_vector(num_rows, num_cols, col_major_matrix);
+    let mut matrix = DMatrix::from_column_vector(num_rows, num_cols, column_major_matrix);
     matrix.transpose_mut();
     for i in 0..num_rows {
         assert_eq!(&[0, 1, 2, 3], &matrix.row_slice(i, 0, num_cols)[..]);
