@@ -51,6 +51,14 @@ macro_rules! conversion_impl(
                 }
             }
         }
+
+        impl<'a, N: Clone> From<&'a [N; $dimension]> for $t<N> {
+            #[inline]
+            fn from(arr: &'a [N; $dimension]) -> $t<N> {
+                let vref: &$t<N> = From::from(arr);
+                vref.clone()
+            }
+        }
     )
 );
 
