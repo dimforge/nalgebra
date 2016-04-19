@@ -50,6 +50,14 @@ macro_rules! conversion_impl(
                 }
             }
         }
+
+        impl<'a, N: Clone> From<&'a [[N; $dimension]; $dimension]> for $t<N> {
+            #[inline]
+            fn from(arr: &'a [[N; $dimension]; $dimension]) -> $t<N> {
+                let tref: &$t<N> = From::from(arr);
+                tref.clone()
+            }
+        }
     )
 );
 
