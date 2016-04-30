@@ -35,6 +35,12 @@ impl Identity {
     }
 }
 
+impl fmt::Display for Identity {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Identity")
+    }
+}
+
 /// Square matrix of dimension 1.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
