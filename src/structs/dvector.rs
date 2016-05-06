@@ -56,9 +56,9 @@ impl<N: Clone> DVector<N> {
 
 impl<N> DVector<N> {
     /// Builds a vector filled with the results of a function applied to each of its component coordinates.
-    #[inline(always)]
-    pub fn from_fn<F: FnMut(usize) -> N>(dimension: usize, mut f: F) -> DVector<N> {
-        DVector { at: (0 .. dimension).map(|i| f(i)).collect() }
+    #[inline]
+    pub fn from_fn<F: FnMut(usize) -> N>(dimension: usize, f: F) -> DVector<N> {
+        DVector { at: (0 .. dimension).map(f).collect() }
     }
 
     /// The vector length.

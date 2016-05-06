@@ -84,7 +84,7 @@ macro_rules! point_as_vec_impl(
 
             /// Converts a reference to this point to a reference to its associated vector.
             #[inline]
-            pub fn as_vector<'a>(&'a self) -> &'a $tv<N> {
+            pub fn as_vector(&self) -> &$tv<N> {
                 unsafe {
                     mem::transmute(self)
                 }
@@ -105,7 +105,7 @@ macro_rules! point_as_vec_impl(
             }
 
             #[inline]
-            fn as_vector<'a>(&'a self) -> &'a $tv<N> {
+            fn as_vector(&self) -> &$tv<N> {
                 self.as_vector()
             }
 

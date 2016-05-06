@@ -45,7 +45,7 @@ impl<N> Quaternion<N> {
 
     /// The vector part `(i, j, k)` of this quaternion.
     #[inline]
-    pub fn vector<'a>(&'a self) -> &'a Vector3<N> {
+    pub fn vector(&self) -> &Vector3<N> {
         // FIXME: do this require a `repr(C)` ?
         unsafe {
             mem::transmute(&self.i)
@@ -54,7 +54,7 @@ impl<N> Quaternion<N> {
 
     /// The scalar part `w` of this quaternion.
     #[inline]
-    pub fn scalar<'a>(&'a self) -> &'a N {
+    pub fn scalar(&self) -> &N {
         &self.w
     }
 }
@@ -226,10 +226,9 @@ impl<N: BaseFloat> UnitQuaternion<N> {
     /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
     #[inline]
     pub fn new_with_euler_angles(roll: N, pitch: N, yaw: N) -> UnitQuaternion<N> {
-        let _0_5: N  = Cast::from(0.5);
-        let (sr, cr) = (roll * _0_5).sin_cos();
-        let (sp, cp) = (pitch * _0_5).sin_cos();
-        let (sy, cy) = (yaw * _0_5).sin_cos();
+        let (sr, cr) = (roll  * ::cast(0.5)).sin_cos();
+        let (sp, cp) = (pitch * ::cast(0.5)).sin_cos();
+        let (sy, cy) = (yaw   * ::cast(0.5)).sin_cos();
 
         unsafe {
             UnitQuaternion::new_with_unit_quaternion(
@@ -244,17 +243,16 @@ impl<N: BaseFloat> UnitQuaternion<N> {
 
     /// Builds a rotation matrix from this quaternion.
     pub fn to_rotation_matrix(&self) -> Rotation3<N> {
-        let _2: N = Cast::from(2.0);
         let ww = self.q.w * self.q.w;
         let ii = self.q.i * self.q.i;
         let jj = self.q.j * self.q.j;
         let kk = self.q.k * self.q.k;
-        let ij = _2 * self.q.i * self.q.j;
-        let wk = _2 * self.q.w * self.q.k;
-        let wj = _2 * self.q.w * self.q.j;
-        let ik = _2 * self.q.i * self.q.k;
-        let jk = _2 * self.q.j * self.q.k;
-        let wi = _2 * self.q.w * self.q.i;
+        let ij = self.q.i * self.q.j * ::cast(2.0);
+        let wk = self.q.w * self.q.k * ::cast(2.0);
+        let wj = self.q.w * self.q.j * ::cast(2.0);
+        let ik = self.q.i * self.q.k * ::cast(2.0);
+        let jk = self.q.j * self.q.k * ::cast(2.0);
+        let wi = self.q.w * self.q.i * ::cast(2.0);
 
         unsafe {
             Rotation3::new_with_matrix(
@@ -282,7 +280,7 @@ impl<N> UnitQuaternion<N> {
 
     /// The `Quaternion` representation of this unit quaternion.
     #[inline]
-    pub fn quaternion<'a>(&'a self) -> &'a Quaternion<N> {
+    pub fn quaternion(&self) -> &Quaternion<N> {
         &self.q
     }
 }
@@ -379,11 +377,11 @@ impl<N: BaseNum> Mul<Vector3<N>> for UnitQuaternion<N> {
 
     #[inline]
     fn mul(self, right: Vector3<N>) -> Vector3<N> {
-        let _2: N = ::one::<N>() + ::one();
+        let two: N = ::one::<N>() + ::one();
         let mut t = ::cross(self.q.vector(), &right);
-        t.x = t.x * _2;
-        t.y = t.y * _2;
-        t.z = t.z * _2;
+        t.x = t.x * two;
+        t.y = t.y * two;
+        t.z = t.z * two;
 
         Vector3::new(t.x * self.q.w, t.y * self.q.w, t.z * self.q.w) + ::cross(self.q.vector(), &t) + right
     }
@@ -437,9 +435,8 @@ impl<N: BaseNum + Neg<Output = N>> MulAssign<UnitQuaternion<N>> for Point3<N> {
 impl<N: BaseFloat> Rotation<Vector3<N>> for UnitQuaternion<N> {
     #[inline]
     fn rotation(&self) -> Vector3<N> {
-        let _2 = ::one::<N>() + ::one();
         let mut v = *self.q.vector();
-        let ang = _2 * v.normalize_mut().atan2(self.q.w);
+        let ang = v.normalize_mut().atan2(self.q.w) * ::cast(2.0);
 
         if ::is_zero(&ang) {
             ::zero()
@@ -520,9 +517,8 @@ impl<N: BaseFloat + ApproxEq<N>> RotationTo for UnitQuaternion<N> {
     #[inline]
     fn angle_to(&self, other: &Self) -> N {
         let delta = self.rotation_to(other);
-        let _2    = ::one::<N>() + ::one();
 
-        _2 * delta.q.vector().norm().atan2(delta.q.w)
+        delta.q.vector().norm().atan2(delta.q.w) * ::cast(2.0)
     }
 
     #[inline]

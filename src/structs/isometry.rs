@@ -44,7 +44,7 @@ pub struct Isometry3<N> {
     pub translation: Vector3<N>
 }
 
-impl<N: Clone + BaseFloat> Isometry3<N> {
+impl<N: BaseFloat> Isometry3<N> {
     /// Creates an isometry that corresponds to the local frame of an observer standing at the
     /// point `eye` and looking toward `target`.
     ///
@@ -59,7 +59,7 @@ impl<N: Clone + BaseFloat> Isometry3<N> {
     #[inline]
     pub fn new_observer_frame(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Isometry3<N> {
         let new_rotation_matrix = Rotation3::new_observer_frame(&(*target - *eye), up);
-        Isometry3::new_with_rotation_matrix(eye.as_vector().clone(), new_rotation_matrix)
+        Isometry3::new_with_rotation_matrix(eye.to_vector(), new_rotation_matrix)
     }
 
     /// Builds a right-handed look-at view matrix.

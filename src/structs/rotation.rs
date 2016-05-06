@@ -1,7 +1,7 @@
 //! Rotations matrices.
 
 use std::fmt;
-use std::ops::{Mul, Neg, MulAssign, Index};
+use std::ops::{Mul, MulAssign, Index};
 use rand::{Rand, Rng};
 use num::{Zero, One};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, RotationTo, Transform,
@@ -22,21 +22,21 @@ pub struct Rotation2<N> {
     submatrix: Matrix2<N>
 }
 
-impl<N: Clone + BaseFloat + Neg<Output = N>> Rotation2<N> {
+impl<N: BaseFloat> Rotation2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
     pub fn new(angle: Vector1<N>) -> Rotation2<N> {
         let (sia, coa) = angle.x.sin_cos();
 
         Rotation2 {
-            submatrix: Matrix2::new(coa.clone(), -sia, sia, coa)
+            submatrix: Matrix2::new(coa, -sia, sia, coa)
         }
     }
 }
 
-impl<N: BaseFloat + Clone> Rotation<Vector1<N>> for Rotation2<N> {
+impl<N: BaseFloat> Rotation<Vector1<N>> for Rotation2<N> {
     #[inline]
     fn rotation(&self) -> Vector1<N> {
-        Vector1::new((-self.submatrix.m12).atan2(self.submatrix.m11.clone()))
+        Vector1::new((-self.submatrix.m12).atan2(self.submatrix.m11))
     }
 
     #[inline]
@@ -51,7 +51,7 @@ impl<N: BaseFloat + Clone> Rotation<Vector1<N>> for Rotation2<N> {
 
     #[inline]
     fn append_rotation(&self, rotation: &Vector1<N>) -> Rotation2<N> {
-        Rotation2::new(rotation.clone()) * *self
+        Rotation2::new(*rotation) * *self
     }
 
     #[inline]
@@ -61,7 +61,7 @@ impl<N: BaseFloat + Clone> Rotation<Vector1<N>> for Rotation2<N> {
 
     #[inline]
     fn prepend_rotation(&self, rotation: &Vector1<N>) -> Rotation2<N> {
-        *self * Rotation2::new(rotation.clone())
+        *self * Rotation2::new(*rotation)
     }
 
     #[inline]
@@ -106,7 +106,7 @@ impl<N: BaseFloat> AbsoluteRotate<Vector2<N>> for Rotation2<N> {
 }
 
 #[cfg(feature="arbitrary")]
-impl<N: Arbitrary + Clone + BaseFloat + Neg<Output = N>> Arbitrary for Rotation2<N> {
+impl<N: Arbitrary + BaseFloat> Arbitrary for Rotation2<N> {
     fn arbitrary<G: Gen>(g: &mut G) -> Rotation2<N> {
         Rotation2::new(Arbitrary::arbitrary(g))
     }
@@ -124,7 +124,7 @@ pub struct Rotation3<N> {
 }
 
 
-impl<N: Clone + BaseFloat> Rotation3<N> {
+impl<N: BaseFloat> Rotation3<N> {
     /// Builds a 3 dimensional rotation matrix from an axis and an angle.
     ///
     /// # Arguments
@@ -137,29 +137,28 @@ impl<N: Clone + BaseFloat> Rotation3<N> {
         else {
             let mut axis   = axisangle;
             let angle      = axis.normalize_mut();
-            let _1: N      = ::one();
-            let ux         = axis.x.clone();
-            let uy         = axis.y.clone();
-            let uz         = axis.z.clone();
+            let ux         = axis.x;
+            let uy         = axis.y;
+            let uz         = axis.z;
             let sqx        = ux * ux;
             let sqy        = uy * uy;
             let sqz        = uz * uz;
             let (sin, cos) = angle.sin_cos();
-            let one_m_cos  = _1 - cos;
+            let one_m_cos  = ::one::<N>() - cos;
 
             Rotation3 {
                 submatrix: Matrix3::new(
-                            (sqx + (_1 - sqx) * cos),
+                            (sqx + (::one::<N>() - sqx) * cos),
                             (ux * uy * one_m_cos - uz * sin),
                             (ux * uz * one_m_cos + uy * sin),
 
                             (ux * uy * one_m_cos + uz * sin),
-                            (sqy + (_1 - sqy) * cos),
+                            (sqy + (::one::<N>() - sqy) * cos),
                             (uy * uz * one_m_cos - ux * sin),
 
                             (ux * uz * one_m_cos - uy * sin),
                             (uy * uz * one_m_cos + ux * sin),
-                            (sqz + (_1 - sqz) * cos))
+                            (sqz + (::one::<N>() - sqz) * cos))
             }
         }
     }
@@ -193,7 +192,7 @@ impl<N: Clone + BaseFloat> Rotation3<N> {
     }
 }
 
-impl<N: Clone + BaseFloat> Rotation3<N> {
+impl<N: BaseFloat> Rotation3<N> {
     /// Creates a rotation that corresponds to the local frame of an observer standing at the
     /// origin and looking toward `dir`.
     ///
@@ -212,9 +211,9 @@ impl<N: Clone + BaseFloat> Rotation3<N> {
 
         unsafe {
             Rotation3::new_with_matrix(Matrix3::new(
-                xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
-                xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
-                xaxis.z        , yaxis.z        , zaxis.z))
+                xaxis.x, yaxis.x, zaxis.x,
+                xaxis.y, yaxis.y, zaxis.y,
+                xaxis.z, yaxis.z, zaxis.z))
         }
     }
 
@@ -250,17 +249,13 @@ impl<N: Clone + BaseFloat> Rotation3<N> {
     }
 }
 
-impl<N: Clone + BaseFloat + Cast<f64>>
-Rotation<Vector3<N>> for Rotation3<N> {
+impl<N: BaseFloat> Rotation<Vector3<N>> for Rotation3<N> {
     #[inline]
     fn rotation(&self) -> Vector3<N> {
         let angle = ((self.submatrix.m11 + self.submatrix.m22 + self.submatrix.m33 - ::one()) / Cast::from(2.0)).acos();
 
-        if angle != angle {
-            // FIXME: handle that correctly
-            ::zero()
-        }
-        else if ::is_zero(&angle) {
+        if !angle.is_finite()  || ::is_zero(&angle) {
+            // FIXME: handle the non-finite case robustly.
             ::zero()
         }
         else {
@@ -296,7 +291,7 @@ Rotation<Vector3<N>> for Rotation3<N> {
 
     #[inline]
     fn append_rotation(&self, axisangle: &Vector3<N>) -> Rotation3<N> {
-        Rotation3::new(axisangle.clone()) * *self
+        Rotation3::new(*axisangle) * *self
     }
 
     #[inline]
@@ -306,7 +301,7 @@ Rotation<Vector3<N>> for Rotation3<N> {
 
     #[inline]
     fn prepend_rotation(&self, axisangle: &Vector3<N>) -> Rotation3<N> {
-        *self * Rotation3::new(axisangle.clone())
+        *self * Rotation3::new(*axisangle)
     }
 
     #[inline]
@@ -331,7 +326,7 @@ impl<N: BaseFloat> RotationTo for Rotation3<N> {
     }
 }
 
-impl<N: Clone + Rand + BaseFloat> Rand for Rotation3<N> {
+impl<N: Rand + BaseFloat> Rand for Rotation3<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rotation3<N> {
         Rotation3::new(rng.gen())
@@ -349,7 +344,7 @@ impl<N: BaseFloat> AbsoluteRotate<Vector3<N>> for Rotation3<N> {
 }
 
 #[cfg(feature="arbitrary")]
-impl<N: Arbitrary + Clone + BaseFloat> Arbitrary for Rotation3<N> {
+impl<N: Arbitrary + BaseFloat> Arbitrary for Rotation3<N> {
     fn arbitrary<G: Gen>(g: &mut G) -> Rotation3<N> {
         Rotation3::new(Arbitrary::arbitrary(g))
     }

@@ -5,7 +5,7 @@ macro_rules! submat_impl(
         impl<N> $t<N> {
             /// This rotation's underlying matrix.
             #[inline]
-            pub fn submatrix<'r>(&'r self) -> &'r $submatrix<N> {
+            pub fn submatrix(&self) -> &$submatrix<N> {
                 &self.submatrix
             }
         }

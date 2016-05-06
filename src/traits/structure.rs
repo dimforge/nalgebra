@@ -211,7 +211,7 @@ pub trait Indexable<I, N>: Shape<I> + IndexMut<I, Output = N> {
 /// Traits of objects which can be iterated through like a vector.
 pub trait Iterable<N> {
     /// Gets a vector-like read-only iterator.
-    fn iter<'l>(&'l self) -> Iter<'l, N>;
+    fn iter(&self) -> Iter<N>;
 }
 
 /// This is a workaround of current Rust limitations.
@@ -219,7 +219,7 @@ pub trait Iterable<N> {
 /// Traits of mutable objects which can be iterated through like a vector.
 pub trait IterableMut<N> {
     /// Gets a vector-like read-write iterator.
-    fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N>;
+    fn iter_mut(&mut self) -> IterMut<N>;
 }
 
 /*
@@ -258,7 +258,7 @@ pub trait PointAsVector {
     fn to_vector(self) -> Self::Vector;
 
     /// Converts a reference to this point to a reference to its associated vector.
-    fn as_vector<'a>(&'a self) -> &'a Self::Vector;
+    fn as_vector(&self) -> &Self::Vector;
 
     // NOTE: this is used in some places to overcome some limitations untill the trait reform is
     // done on rustc.

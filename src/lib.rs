@@ -173,7 +173,7 @@ mod macros;
 // mod chol;
 
 /// Change the input value to ensure it is on the range `[min, max]`.
-#[inline(always)]
+#[inline]
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {
         if val < max {
@@ -189,74 +189,74 @@ pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
 }
 
 /// Same as `cmp::max`.
-#[inline(always)]
+#[inline]
 pub fn max<T: Ord>(a: T, b: T) -> T {
     cmp::max(a, b)
 }
 
 /// Same as `cmp::min`.
-#[inline(always)]
+#[inline]
 pub fn min<T: Ord>(a: T, b: T) -> T {
     cmp::min(a, b)
 }
 
 /// Returns the infimum of `a` and `b`.
-#[inline(always)]
+#[inline]
 pub fn inf<T: PartialOrder>(a: &T, b: &T) -> T {
     PartialOrder::inf(a, b)
 }
 
 /// Returns the supremum of `a` and `b`.
-#[inline(always)]
+#[inline]
 pub fn sup<T: PartialOrder>(a: &T, b: &T) -> T {
     PartialOrder::sup(a, b)
 }
 
 /// Compare `a` and `b` using a partial ordering relation.
-#[inline(always)]
+#[inline]
 pub fn partial_cmp<T: PartialOrder>(a: &T, b: &T) -> PartialOrdering {
     PartialOrder::partial_cmp(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a < b`.
-#[inline(always)]
+#[inline]
 pub fn partial_lt<T: PartialOrder>(a: &T, b: &T) -> bool {
     PartialOrder::partial_lt(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a <= b`.
-#[inline(always)]
+#[inline]
 pub fn partial_le<T: PartialOrder>(a: &T, b: &T) -> bool {
     PartialOrder::partial_le(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a > b`.
-#[inline(always)]
+#[inline]
 pub fn partial_gt<T: PartialOrder>(a: &T, b: &T) -> bool {
     PartialOrder::partial_gt(a, b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a >= b`.
-#[inline(always)]
+#[inline]
 pub fn partial_ge<T: PartialOrder>(a: &T, b: &T) -> bool {
     PartialOrder::partial_ge(a, b)
 }
 
 /// Return the minimum of `a` and `b` if they are comparable.
-#[inline(always)]
+#[inline]
 pub fn partial_min<'a, T: PartialOrder>(a: &'a T, b: &'a T) -> Option<&'a T> {
     PartialOrder::partial_min(a, b)
 }
 
 /// Return the maximum of `a` and `b` if they are comparable.
-#[inline(always)]
+#[inline]
 pub fn partial_max<'a, T: PartialOrder>(a: &'a T, b: &'a T) -> Option<&'a T> {
     PartialOrder::partial_max(a, b)
 }
 
 /// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to
 /// `min` or `max`.
-#[inline(always)]
+#[inline]
 pub fn partial_clamp<'a, T: PartialOrder>(value: &'a T, min: &'a T, max: &'a T) -> Option<&'a T> {
     PartialOrder::partial_clamp(value, min, max)
 }
@@ -270,7 +270,7 @@ pub fn partial_clamp<'a, T: PartialOrder>(value: &'a T, min: &'a T, max: &'a T) 
 /// Create a special identity object.
 ///
 /// Same as `Identity::new()`.
-#[inline(always)]
+#[inline]
 pub fn identity() -> Identity {
     Identity::new()
 }
@@ -278,13 +278,13 @@ pub fn identity() -> Identity {
 /// Create a zero-valued value.
 ///
 /// This is the same as `std::num::zero()`.
-#[inline(always)]
+#[inline]
 pub fn zero<T: Zero>() -> T {
     Zero::zero()
 }
 
 /// Tests is a value is iqual to zero.
-#[inline(always)]
+#[inline]
 pub fn is_zero<T: Zero>(val: &T) -> bool {
     val.is_zero()
 }
@@ -292,7 +292,7 @@ pub fn is_zero<T: Zero>(val: &T) -> bool {
 /// Create a one-valued value.
 ///
 /// This is the same as `std::num::one()`.
-#[inline(always)]
+#[inline]
 pub fn one<T: One>() -> T {
     One::one()
 }
@@ -304,7 +304,7 @@ pub fn one<T: One>() -> T {
 //
 
 /// Returns the trivial origin of an affine space.
-#[inline(always)]
+#[inline]
 pub fn origin<P: Origin>() -> P {
     Origin::origin()
 }
@@ -312,26 +312,23 @@ pub fn origin<P: Origin>() -> P {
 /// Returns the center of two points.
 #[inline]
 pub fn center<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> P
-        where <P as PointAsVector>::Vector: Norm<N>
-{
-    let _2 = one::<N>() + one();
-    (*a + b.to_vector()) / _2
+        where <P as PointAsVector>::Vector: Norm<N> {
+    (*a + b.to_vector()) / ::cast(2.0)
 }
 
 /*
  * FloatPoint
  */
 /// Returns the distance between two points.
-#[inline(always)]
+#[inline]
 pub fn distance<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N where <P as PointAsVector>::Vector: Norm<N> {
     a.distance(b)
 }
 
 /// Returns the squared distance between two points.
-#[inline(always)]
+#[inline]
 pub fn distance_squared<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N 
-        where <P as PointAsVector>::Vector: Norm<N>
-{
+        where <P as PointAsVector>::Vector: Norm<N> {
     a.distance_squared(b)
 }
 
@@ -352,7 +349,7 @@ pub fn distance_squared<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N
 ///     assert!(trans == Vector3::new(1.0, 1.0, 1.0));
 /// }
 /// ```
-#[inline(always)]
+#[inline]
 pub fn translation<V, M: Translation<V>>(m: &M) -> V {
     m.translation()
 }
@@ -370,13 +367,13 @@ pub fn translation<V, M: Translation<V>>(m: &M) -> V {
 ///     assert!(itrans == Vector3::new(-1.0, -1.0, -1.0));
 /// }
 /// ```
-#[inline(always)]
+#[inline]
 pub fn inverse_translation<V, M: Translation<V>>(m: &M) -> V {
     m.inverse_translation()
 }
 
 /// Applies the translation `v` to a copy of `m`.
-#[inline(always)]
+#[inline]
 pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
     Translation::append_translation(m, v)
 }
@@ -400,7 +397,7 @@ pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
 ///     assert!(tp == Point3::new(3.0, 3.0, 3.0))
 /// }
 /// ```
-#[inline(always)]
+#[inline]
 pub fn translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
     m.translate(p)
 }
@@ -419,7 +416,7 @@ pub fn translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
 ///
 ///     assert!(na::approx_eq(&tp, &Point3::new(1.0, 1.0, 1.0)))
 /// }
-#[inline(always)]
+#[inline]
 pub fn inverse_translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
     m.inverse_translate(p)
 }
@@ -440,7 +437,7 @@ pub fn inverse_translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
 ///     assert!(na::approx_eq(&na::rotation(&t), &Vector3::new(1.0, 1.0, 1.0)));
 /// }
 /// ```
-#[inline(always)]
+#[inline]
 pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
     m.rotation()
 }
@@ -458,7 +455,7 @@ pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
 ///     assert!(na::approx_eq(&na::inverse_rotation(&t), &Vector3::new(-1.0, -1.0, -1.0)));
 /// }
 /// ```
-#[inline(always)]
+#[inline]
 pub fn inverse_rotation<V, M: Rotation<V>>(m: &M) -> V {
     m.inverse_rotation()
 }
@@ -478,7 +475,7 @@ pub fn inverse_rotation<V, M: Rotation<V>>(m: &M) -> V {
 ///     assert!(na::approx_eq(&na::rotation(&rt), &Vector3::new(1.0, 1.0, 1.0)))
 /// }
 /// ```
-#[inline(always)]
+#[inline]
 pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
     Rotation::append_rotation(m, v)
 }
@@ -498,7 +495,7 @@ pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 ///     assert!(na::approx_eq(&na::rotation(&rt), &Vector3::new(1.0, 1.0, 1.0)))
 /// }
 /// ```
-#[inline(always)]
+#[inline]
 pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
     Rotation::prepend_rotation(m, v)
 }
@@ -522,7 +519,7 @@ pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
 ///     assert!(na::approx_eq(&tv, &Vector3::new(0.0, 1.0, 0.0)))
 /// }
 /// ```
-#[inline(always)]
+#[inline]
 pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
     m.rotate(v)
 }
@@ -543,7 +540,7 @@ pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
 ///     assert!(na::approx_eq(&tv, &Vector3::new(0.0, -1.0, 0.0)))
 /// }
 /// ```
-#[inline(always)]
+#[inline]
 pub fn inverse_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
     m.inverse_rotate(v)
 }
@@ -553,7 +550,7 @@ pub fn inverse_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
  */
 
 /// Rotates a copy of `m` by `amount` using `center` as the pivot point.
-#[inline(always)]
+#[inline]
 pub fn append_rotation_wrt_point<LV: Neg<Output = LV> + Copy,
                                  AV,
                                  M: RotationWithTranslation<LV, AV>>(
@@ -564,7 +561,7 @@ pub fn append_rotation_wrt_point<LV: Neg<Output = LV> + Copy,
 }
 
 /// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
-#[inline(always)]
+#[inline]
 pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
                                   AV,
                                   M: RotationWithTranslation<LV, AV>>(
@@ -577,13 +574,13 @@ pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
  * RotationTo
  */
 /// Computes the angle of the rotation needed to transfom `a` to `b`.
-#[inline(always)]
+#[inline]
 pub fn angle_between<V: RotationTo>(a: &V, b: &V) -> V::AngleType {
     a.angle_to(b)
 }
 
 /// Computes the rotation needed to transform `a` to `b`.
-#[inline(always)]
+#[inline]
 pub fn rotation_between<V: RotationTo>(a: &V, b: &V) -> V::DeltaRotationType {
     a.rotation_to(b)
 }
@@ -593,7 +590,7 @@ pub fn rotation_between<V: RotationTo>(a: &V, b: &V) -> V::DeltaRotationType {
  */
 
 /// Builds a rotation matrix from `r`.
-#[inline(always)]
+#[inline]
 pub fn to_rotation_matrix<N, LV, AV, R, M>(r: &R) -> M
     where R: RotationMatrix<N, LV, AV, Output = M>,
           M: SquareMatrix<N, LV> + Rotation<AV> + Copy,
@@ -608,7 +605,7 @@ pub fn to_rotation_matrix<N, LV, AV, R, M>(r: &R) -> M
  */
 
 /// Applies a rotation using the absolute values of its components.
-#[inline(always)]
+#[inline]
 pub fn absolute_rotate<V, M: AbsoluteRotate<V>>(m: &M, v: &V) -> V {
     m.absolute_rotate(v)
 }
@@ -618,19 +615,19 @@ pub fn absolute_rotate<V, M: AbsoluteRotate<V>>(m: &M, v: &V) -> V {
  */
 
 /// Gets the transformation applicable by `m`.
-#[inline(always)]
+#[inline]
 pub fn transformation<T, M: Transformation<T>>(m: &M) -> T {
     m.transformation()
 }
 
 /// Gets the inverse transformation applicable by `m`.
-#[inline(always)]
+#[inline]
 pub fn inverse_transformation<T, M: Transformation<T>>(m: &M) -> T {
     m.inverse_transformation()
 }
 
 /// Gets a transformed copy of `m`.
-#[inline(always)]
+#[inline]
 pub fn append_transformation<T, M: Transformation<T>>(m: &M, t: &T) -> M {
     Transformation::append_transformation(m, t)
 }
@@ -640,13 +637,13 @@ pub fn append_transformation<T, M: Transformation<T>>(m: &M, t: &T) -> M {
  */
 
 /// Applies a transformation to a vector.
-#[inline(always)]
+#[inline]
 pub fn transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
     m.transform(v)
 }
 
 /// Applies an inverse transformation to a vector.
-#[inline(always)]
+#[inline]
 pub fn inverse_transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
     m.inverse_transform(v)
 }
@@ -656,7 +653,7 @@ pub fn inverse_transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
  */
 
 /// Computes the dot product of two vectors.
-#[inline(always)]
+#[inline]
 pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
     Dot::dot(a, b)
 }
@@ -666,19 +663,19 @@ pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
  */
 
 /// Computes the L2 norm of a vector.
-#[inline(always)]
+#[inline]
 pub fn norm<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
     Norm::norm(v)
 }
 
 /// Computes the squared L2 norm of a vector.
-#[inline(always)]
+#[inline]
 pub fn norm_squared<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
     Norm::norm_squared(v)
 }
 
 /// Gets the normalized version of a vector.
-#[inline(always)]
+#[inline]
 pub fn normalize<V: Norm<N>, N: BaseFloat>(v: &V) -> V {
     Norm::normalize(v)
 }
@@ -687,7 +684,7 @@ pub fn normalize<V: Norm<N>, N: BaseFloat>(v: &V) -> V {
  * Determinant<N>
  */
 /// Computes the determinant of a square matrix.
-#[inline(always)]
+#[inline]
 pub fn determinant<M: Determinant<N>, N>(m: &M) -> N {
     Determinant::determinant(m)
 }
@@ -697,7 +694,7 @@ pub fn determinant<M: Determinant<N>, N>(m: &M) -> N {
  */
 
 /// Computes the cross product of two vectors.
-#[inline(always)]
+#[inline]
 pub fn cross<LV: Cross>(a: &LV, b: &LV) -> LV::CrossProductType {
     Cross::cross(a, b)
 }
@@ -708,7 +705,7 @@ pub fn cross<LV: Cross>(a: &LV, b: &LV) -> LV::CrossProductType {
 
 /// Given a vector, computes the matrix which, when multiplied by another vector, computes a cross
 /// product.
-#[inline(always)]
+#[inline]
 pub fn cross_matrix<V: CrossMatrix<M>, M>(v: &V) -> M {
     CrossMatrix::cross_matrix(v)
 }
@@ -718,7 +715,7 @@ pub fn cross_matrix<V: CrossMatrix<M>, M>(v: &V) -> M {
  */
 
 /// Converts a matrix or vector to homogeneous coordinates.
-#[inline(always)]
+#[inline]
 pub fn to_homogeneous<M: ToHomogeneous<Res>, Res>(m: &M) -> Res {
     ToHomogeneous::to_homogeneous(m)
 }
@@ -730,7 +727,7 @@ pub fn to_homogeneous<M: ToHomogeneous<Res>, Res>(m: &M) -> Res {
 /// Converts a matrix or vector from homogeneous coordinates.
 ///
 /// w-normalization is appied.
-#[inline(always)]
+#[inline]
 pub fn from_homogeneous<M, Res: FromHomogeneous<M>>(m: &M) -> Res {
     FromHomogeneous::from(m)
 }
@@ -742,7 +739,7 @@ pub fn from_homogeneous<M, Res: FromHomogeneous<M>>(m: &M) -> Res {
 /// Samples the unit sphere living on the dimension as the samples types.
 ///
 /// The number of sampling point is implementation-specific. It is always uniform.
-#[inline(always)]
+#[inline]
 pub fn sample_sphere<V: UniformSphereSample, F: FnMut(V)>(f: F) {
     UniformSphereSample::sample(f)
 }
@@ -757,13 +754,13 @@ pub fn sample_sphere<V: UniformSphereSample, F: FnMut(V)>(f: F) {
  * AproxEq<N>
  */
 /// Tests approximate equality.
-#[inline(always)]
+#[inline]
 pub fn approx_eq<T: ApproxEq<N>, N>(a: &T, b: &T) -> bool {
     ApproxEq::approx_eq(a, b)
 }
 
 /// Tests approximate equality using a custom epsilon.
-#[inline(always)]
+#[inline]
 pub fn approx_eq_eps<T: ApproxEq<N>, N>(a: &T, b: &T, eps: &N) -> bool {
     ApproxEq::approx_eq_eps(a, b, eps)
 }
@@ -774,7 +771,7 @@ pub fn approx_eq_eps<T: ApproxEq<N>, N>(a: &T, b: &T, eps: &N) -> bool {
  */
 
 /// Computes a component-wise absolute value.
-#[inline(always)]
+#[inline]
 pub fn abs<M: Absolute<Res>, Res>(m: &M) -> Res {
     Absolute::abs(m)
 }
@@ -784,7 +781,7 @@ pub fn abs<M: Absolute<Res>, Res>(m: &M) -> Res {
  */
 
 /// Gets an inverted copy of a matrix.
-#[inline(always)]
+#[inline]
 pub fn inverse<M: Inverse>(m: &M) -> Option<M> {
     Inverse::inverse(m)
 }
@@ -794,7 +791,7 @@ pub fn inverse<M: Inverse>(m: &M) -> Option<M> {
  */
 
 /// Gets a transposed copy of a matrix.
-#[inline(always)]
+#[inline]
 pub fn transpose<M: Transpose>(m: &M) -> M {
     Transpose::transpose(m)
 }
@@ -804,7 +801,7 @@ pub fn transpose<M: Transpose>(m: &M) -> M {
  */
 
 /// Computes the outer product of two vectors.
-#[inline(always)]
+#[inline]
 pub fn outer<V: Outer>(a: &V, b: &V) -> V::OuterProductType {
     Outer::outer(a, b)
 }
@@ -814,7 +811,7 @@ pub fn outer<V: Outer>(a: &V, b: &V) -> V::OuterProductType {
  */
 
 /// Computes the covariance of a set of observations.
-#[inline(always)]
+#[inline]
 pub fn covariance<M: Covariance<Res>, Res>(observations: &M) -> Res {
     Covariance::covariance(observations)
 }
@@ -824,7 +821,7 @@ pub fn covariance<M: Covariance<Res>, Res>(observations: &M) -> Res {
  */
 
 /// Computes the mean of a set of observations.
-#[inline(always)]
+#[inline]
 pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
     Mean::mean(observations)
 }
@@ -833,7 +830,7 @@ pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
  * EigenQR<N, V>
  */
 /// Computes the eigenvalues and eigenvectors of a square matrix usin the QR algorithm.
-#[inline(always)]
+#[inline]
 pub fn eigen_qr<N, V, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     where V: Mul<M, Output = V>,
           M: EigenQR<N, V> {
@@ -850,7 +847,7 @@ pub fn eigen_qr<N, V, M>(m: &M, eps: &N, niter: usize) -> (M, V)
  * Eye
  */
 /// Construct the identity matrix for a given dimension
-#[inline(always)]
+#[inline]
 pub fn new_identity<M: Eye>(dimension: usize) -> M {
     Eye::new_identity(dimension)
 }
@@ -862,7 +859,7 @@ pub fn new_identity<M: Eye>(dimension: usize) -> M {
 /// Create an object by repeating a value.
 ///
 /// Same as `Identity::new()`.
-#[inline(always)]
+#[inline]
 pub fn repeat<N, T: Repeat<N>>(val: N) -> T {
     Repeat::repeat(val)
 }
@@ -872,13 +869,13 @@ pub fn repeat<N, T: Repeat<N>>(val: N) -> T {
  */
 
 /// Computes the canonical basis for a given dimension.
-#[inline(always)]
+#[inline]
 pub fn canonical_basis<V: Basis, F: FnMut(V) -> bool>(f: F) {
     Basis::canonical_basis(f)
 }
 
 /// Computes the basis of the orthonormal subspace of a given vector.
-#[inline(always)]
+#[inline]
 pub fn orthonormal_subspace_basis<V: Basis, F: FnMut(V) -> bool>(v: &V, f: F) {
     Basis::orthonormal_subspace_basis(v, f)
 }
@@ -901,7 +898,7 @@ pub fn canonical_basis_element<V: Basis>(i: usize) -> Option<V> {
  * Diagonal<V>
  */
 /// Gets the diagonal of a square matrix.
-#[inline(always)]
+#[inline]
 pub fn diagonal<M: Diagonal<V>, V>(m: &M) -> V {
     m.diagonal()
 }
@@ -912,13 +909,13 @@ pub fn diagonal<M: Diagonal<V>, V>(m: &M) -> V {
 /// Gets the dimension an object lives in.
 ///
 /// Same as `Dimension::dimension::(None::<V>)`.
-#[inline(always)]
+#[inline]
 pub fn dimension<V: Dimension>() -> usize {
     Dimension::dimension(None::<V>)
 }
 
 /// Gets the indexable range of an object.
-#[inline(always)]
+#[inline]
 pub fn shape<V: Shape<I>, I>(v: &V) -> I {
     v.shape()
 }
@@ -940,7 +937,7 @@ pub fn shape<V: Shape<I>, I>(v: &V) -> I {
 /// range of an i32 when a cast from i64 to i32 is done).
 /// * A cast does not affect the dimension of an algebraic object. Note that this prevents an
 /// isometric transform to be cast to a raw matrix. Use `to_homogeneous` for that special purpose.
-#[inline(always)]
+#[inline]
 pub fn cast<T, U: Cast<T>>(t: T) -> U {
     Cast::from(t)
 }

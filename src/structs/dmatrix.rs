@@ -109,7 +109,7 @@ impl<N: Clone + Copy> DMatrix<N> {
 
 impl<N> DMatrix<N> {
     /// Builds a matrix filled with the results of a function applied to each of its component coordinates.
-    #[inline(always)]
+    #[inline]
     pub fn from_fn<F: FnMut(usize, usize) -> N>(nrows: usize, ncols: usize, mut f: F) -> DMatrix<N> {
         DMatrix {
             nrows: nrows,
@@ -133,7 +133,7 @@ dmat_impl!(DMatrix, DVector);
 pub struct DMatrix1<N> {
     nrows: usize,
     ncols: usize,
-    mij:   [N; 1 * 1],
+    mij:   [N; 1],
 }
 
 small_dmat_impl!(DMatrix1, DVector1, 1, 0);

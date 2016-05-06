@@ -71,41 +71,41 @@ impl<N: Arbitrary + BaseFloat> Arbitrary for Orthographic3<N> {
     }
 }
 
-impl<N: BaseFloat + Clone> Orthographic3<N> {
+impl<N: BaseFloat> Orthographic3<N> {
     /// The smallest x-coordinate of the view cuboid.
     #[inline]
     pub fn left(&self) -> N {
-        self.left.clone()
+        self.left
     }
 
     /// The largest x-coordinate of the view cuboid.
     #[inline]
     pub fn right(&self) -> N {
-        self.right.clone()
+        self.right
     }
 
     /// The smallest y-coordinate of the view cuboid.
     #[inline]
     pub fn bottom(&self) -> N {
-        self.bottom.clone()
+        self.bottom
     }
 
     /// The largest y-coordinate of the view cuboid.
     #[inline]
     pub fn top(&self) -> N {
-        self.top.clone()
+        self.top
     }
 
     /// The near plane offset of the view cuboid.
     #[inline]
     pub fn znear(&self) -> N {
-        self.znear.clone()
+        self.znear
     }
 
     /// The far plane offset of the view cuboid.
     #[inline]
     pub fn zfar(&self) -> N {
-        self.zfar.clone()
+        self.zfar
     }
 
     /// Sets the smallest x-coordinate of the view cuboid.
@@ -187,12 +187,11 @@ impl<N: BaseFloat> OrthographicMatrix3<N> {
         assert!(znear < zfar, "The far plane must be farther than the near plane.");
         assert!(!::is_zero(&aspect));
 
-        let _1: N = ::one();
-        let _2 = _1 + _1;
-        let width  = zfar * (vfov / _2).tan();
+        let half: N = ::cast(0.5);
+        let width  = zfar * (vfov * half).tan();
         let height = width / aspect;
 
-        OrthographicMatrix3::new(-width / _2, width / _2, -height / _2, height / _2, znear, zfar)
+        OrthographicMatrix3::new(-width * half, width * half, -height * half, height * half, znear, zfar)
     }
 
     /// Creates a new orthographic matrix from a 4D matrix.
@@ -207,7 +206,7 @@ impl<N: BaseFloat> OrthographicMatrix3<N> {
 
     /// Returns a reference to the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
-    pub fn as_matrix<'a>(&'a self) -> &'a Matrix4<N> {
+    pub fn as_matrix(&self) -> &Matrix4<N> {
         &self.matrix
     }
 
@@ -334,11 +333,11 @@ impl<N: BaseFloat> OrthographicMatrix3<N> {
     }
 }
 
-impl<N: BaseFloat + Clone> OrthographicMatrix3<N> {
+impl<N: BaseFloat> OrthographicMatrix3<N> {
     /// Returns the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
-    pub fn to_matrix<'a>(&'a self) -> Matrix4<N> {
-        self.matrix.clone()
+    pub fn to_matrix(&self) -> Matrix4<N> {
+        self.matrix
     }
 }
 
@@ -351,7 +350,7 @@ impl<N: Arbitrary + BaseFloat> Arbitrary for OrthographicMatrix3<N> {
 }
 
 
-/// Similarityple helper function for rejection sampling
+/// Simple helper function for rejection sampling
 #[cfg(feature="arbitrary")]
 #[inline]
 pub fn reject<G: Gen, F: FnMut(&T) -> bool, T: Arbitrary>(g: &mut G, f: F) -> T {

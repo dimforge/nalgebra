@@ -115,12 +115,12 @@ impl<N: Copy> Row<Vector1<N>> for Vector2<N> {
 }
 
 impl<N: One> Basis for Vector1<N> {
-    #[inline(always)]
+    #[inline]
     fn canonical_basis<F: FnMut(Vector1<N>) -> bool>(mut f: F) {
         f(Vector1::new(::one()));
     }
 
-    #[inline(always)]
+    #[inline]
     fn orthonormal_subspace_basis<F: FnMut(Vector1<N>) -> bool>(_: &Vector1<N>, _: F) { }
 
     #[inline]
@@ -135,7 +135,7 @@ impl<N: One> Basis for Vector1<N> {
 }
 
 impl<N: Copy + One + Zero + Neg<Output = N>> Basis for Vector2<N> {
-    #[inline(always)]
+    #[inline]
     fn canonical_basis<F: FnMut(Vector2<N>) -> bool>(mut f: F) {
         if !f(Vector2::new(::one(), ::zero())) { return };
         f(Vector2::new(::zero(), ::one()));
@@ -161,14 +161,14 @@ impl<N: Copy + One + Zero + Neg<Output = N>> Basis for Vector2<N> {
 }
 
 impl<N: BaseFloat> Basis for Vector3<N> {
-    #[inline(always)]
+    #[inline]
     fn canonical_basis<F: FnMut(Vector3<N>) -> bool>(mut f: F) {
         if !f(Vector3::new(::one(), ::zero(), ::zero())) { return };
         if !f(Vector3::new(::zero(), ::one(), ::zero())) { return };
         f(Vector3::new(::zero(), ::zero(), ::one()));
     }
 
-    #[inline(always)]
+    #[inline]
     fn orthonormal_subspace_basis<F: FnMut(Vector3<N>) -> bool>(n: &Vector3<N>, mut f: F) {
         let a = 
             if n.x.abs() > n.y.abs() {
@@ -272,14 +272,14 @@ static SAMPLES_3_F64: [Vector3<f64>; 42] = [
 
 impl<N> UniformSphereSample for Vector1<N>
     where Vector1<N>: One {
-    #[inline(always)]
+    #[inline]
     fn sample<F: FnMut(Vector1<N>)>(mut f: F) {
         f(::one())
      }
 }
 
 impl<N: Cast<f64> + Copy> UniformSphereSample for Vector2<N> {
-    #[inline(always)]
+    #[inline]
     fn sample<F: FnMut(Vector2<N>)>(mut f: F) {
          for sample in SAMPLES_2_F64.iter() {
              f(Cast::from(*sample))
@@ -288,7 +288,7 @@ impl<N: Cast<f64> + Copy> UniformSphereSample for Vector2<N> {
 }
 
 impl<N: Cast<f64> + Copy> UniformSphereSample for Vector3<N> {
-    #[inline(always)]
+    #[inline]
     fn sample<F: FnMut(Vector3<N>)>(mut f: F) {
         for sample in SAMPLES_3_F64.iter() {
             f(Cast::from(*sample))
@@ -297,7 +297,7 @@ impl<N: Cast<f64> + Copy> UniformSphereSample for Vector3<N> {
 }
 
 impl<N: Cast<f64> + Copy> UniformSphereSample for Vector4<N> {
-    #[inline(always)]
+    #[inline]
     fn sample<F: FnMut(Vector4<N>)>(_: F) {
         panic!("UniformSphereSample::<Vector4<N>>::sample : Not yet implemented.")
         // for sample in SAMPLES_3_F32.iter() {

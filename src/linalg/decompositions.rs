@@ -269,7 +269,7 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
               Sub<M, Output = M> + ColumnSlice<VS> +
               ApproxEq<N> + Copy {
 
-    let mut out = m.clone().transpose();
+    let mut out = m.transpose();
 
     if !ApproxEq::approx_eq(&out, &m) {
         return Err("Cholesky: Input matrix is not symmetric");
@@ -302,7 +302,7 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
         }
     }
 
-    return Ok(out);
+    Ok(out)
 }
 
 /// Hessenberg
@@ -320,7 +320,7 @@ pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
           M: Copy + Eye + ColumnSlice<V> + Transpose + Indexable<(usize, usize), N> +
              Mul<M, Output = M> {
     
-    let mut h = m.clone();
+    let mut h = *m;
     let (rows, cols) = h.shape();
 
     let mut q : M = Eye::new_identity(cols);
@@ -347,5 +347,5 @@ pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
         }
     }
 
-    return (q, h);
+    (q, h)
 }

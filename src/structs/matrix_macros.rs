@@ -306,9 +306,9 @@ macro_rules! iterable_impl(
   ($t: ident, $dimension: expr) => (
     impl<N> Iterable<N> for $t<N> {
         #[inline]
-        fn iter<'l>(&'l self) -> Iter<'l, N> {
+        fn iter(&self) -> Iter<N> {
             unsafe {
-                mem::transmute::<&'l $t<N>, &'l [N; $dimension * $dimension]>(self).iter()
+                mem::transmute::<&$t<N>, &[N; $dimension * $dimension]>(self).iter()
             }
         }
     }
@@ -319,9 +319,9 @@ macro_rules! iterable_mut_impl(
   ($t: ident, $dimension: expr) => (
     impl<N> IterableMut<N> for $t<N> {
         #[inline]
-        fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
+        fn iter_mut(& mut self) -> IterMut<N> {
             unsafe {
-                mem::transmute::<&'l mut $t<N>, &'l mut [N; $dimension * $dimension]>(self).iter_mut()
+                mem::transmute::<&mut $t<N>, &mut [N; $dimension * $dimension]>(self).iter_mut()
             }
         }
     }
@@ -740,8 +740,8 @@ macro_rules! transpose_impl(
 
         #[inline]
         fn transpose_mut(&mut self) {
-            for i in 1..$dimension {
-                for j in 0..i {
+            for i in 1 .. $dimension {
+                for j in 0 .. i {
                     self.swap((i, j), (j, i))
                 }
             }
@@ -827,8 +827,9 @@ macro_rules! outer_impl(
             #[inline]
             fn outer(&self, other: &$t<N>) -> $m<N> {
                 let mut res: $m<N> = ::zero();
-                for i in 0..Dimension::dimension(None::<$t<N>>) {
-                    for j in 0..Dimension::dimension(None::<$t<N>>) {
+
+                for i in 0 .. ::dimension::<$t<N>>() {
+                    for j in 0 .. ::dimension::<$t<N>>() {
                         res[(i, j)] = self[i] * other[j]
                     }
                 }

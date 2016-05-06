@@ -84,9 +84,8 @@ macro_rules! dmat_impl(
             fn new_identity(dimension: usize) -> $dmatrix<N> {
                 let mut res = $dmatrix::new_zeros(dimension, dimension);
 
-                for i in 0..dimension {
-                    let _1: N  = ::one();
-                    res[(i, i)]  = _1;
+                for i in 0 .. dimension {
+                    res[(i, i)] = ::one::<N>();
                 }
 
                 res
@@ -94,7 +93,7 @@ macro_rules! dmat_impl(
         }
 
         impl<N> $dmatrix<N> {
-            #[inline(always)]
+            #[inline]
             fn offset(&self, i: usize, j: usize) -> usize {
                 i + j * self.nrows
             }
@@ -774,9 +773,8 @@ macro_rules! dmat_impl(
                 // We can init from slice thanks to the matrix being column-major.
                 let start = self.offset(row_start, column_id);
                 let stop  = self.offset(row_end, column_id);
-                let slice = $dvector::from_slice(row_end - row_start, &self.mij[start .. stop]);
 
-                slice
+                $dvector::from_slice(row_end - row_start, &self.mij[start .. stop])
             }
         }
 
@@ -824,12 +822,12 @@ macro_rules! dmat_impl(
                 let mut slice : $dvector<N> = unsafe {
                     $dvector::new_uninitialized(column_end - column_start)
                 };
-                let mut slice_idx = 0;
+
                 for column_id in column_start .. column_end {
                     unsafe {
+                        let slice_idx = column_id - column_start;
                         slice.unsafe_set(slice_idx, self.unsafe_at((row_id, column_id)));
                     }
-                    slice_idx += 1;
                 }
 
                 slice
@@ -1140,7 +1138,7 @@ macro_rules! small_dmat_from_impl(
             }
 
             /// Builds a matrix using an initialization function.
-            #[inline(always)]
+            #[inline]
             pub fn from_fn<F: FnMut(usize, usize) -> N>(nrows: usize, ncols: usize, mut f: F) -> $dmatrix<N> {
                 assert!(nrows <= $dimension);
                 assert!(ncols <= $dimension);

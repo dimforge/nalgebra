@@ -93,14 +93,14 @@ macro_rules! vecn_dvec_common_impl(
          */
         impl<N $(, $param : ArrayLength<N>)*> Iterable<N> for $vecn<N $(, $param)*> {
             #[inline]
-            fn iter<'l>(&'l self) -> Iter<'l, N> {
+            fn iter(&self) -> Iter<N> {
                 self.as_ref().iter()
             }
         }
 
         impl<N $(, $param : ArrayLength<N>)*> IterableMut<N> for $vecn<N $(, $param)*> {
             #[inline]
-            fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
+            fn iter_mut(&mut self) -> IterMut<N> {
                 self.as_mut().iter_mut()
             }
         }
