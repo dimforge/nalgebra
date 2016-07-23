@@ -176,7 +176,7 @@ pub trait Diagonal<V> {
 }
 
 /// Trait to set the diagonal of square matrices.
-pub trait DiagMut<V>: Diagonal<V> {
+pub trait DiagonalMut<V>: Diagonal<V> {
     /// Sets the diagonal of this matrix.
     fn set_diagonal(&mut self, diagonal: &V);
 }

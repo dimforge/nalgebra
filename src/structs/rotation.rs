@@ -105,13 +105,6 @@ impl<N: BaseFloat> AbsoluteRotate<Vector2<N>> for Rotation2<N> {
     }
 }
 
-#[cfg(feature="arbitrary")]
-impl<N: Arbitrary + BaseFloat> Arbitrary for Rotation2<N> {
-    fn arbitrary<G: Gen>(g: &mut G) -> Rotation2<N> {
-        Rotation2::new(Arbitrary::arbitrary(g))
-    }
-}
-
 
 /*
  * 3d rotation
@@ -343,60 +336,13 @@ impl<N: BaseFloat> AbsoluteRotate<Vector3<N>> for Rotation3<N> {
     }
 }
 
-#[cfg(feature="arbitrary")]
-impl<N: Arbitrary + BaseFloat> Arbitrary for Rotation3<N> {
-    fn arbitrary<G: Gen>(g: &mut G) -> Rotation3<N> {
-        Rotation3::new(Arbitrary::arbitrary(g))
-    }
-}
-
 
 /*
  * Common implementations.
  */
 
-submat_impl!(Rotation2, Matrix2);
-rotate_impl!(Rotation2, Vector2, Point2);
-transform_impl!(Rotation2, Vector2, Point2);
+rotation_impl!(Rotation2, Matrix2, Vector2, Vector1, Point2, Matrix3);
 dim_impl!(Rotation2, 2);
-rotation_mul_rotation_impl!(Rotation2);
-rotation_mul_vec_impl!(Rotation2, Vector2);
-vec_mul_rotation_impl!(Rotation2, Vector2);
-rotation_mul_point_impl!(Rotation2, Point2);
-point_mul_rotation_impl!(Rotation2, Point2);
-one_impl!(Rotation2);
-eye_impl!(Rotation2);
-rotation_matrix_impl!(Rotation2, Vector2, Vector1);
-column_impl!(Rotation2, Vector2);
-row_impl!(Rotation2, Vector2);
-index_impl!(Rotation2);
-absolute_impl!(Rotation2, Matrix2);
-to_homogeneous_impl!(Rotation2, Matrix3);
-inverse_impl!(Rotation2);
-transpose_impl!(Rotation2);
-approx_eq_impl!(Rotation2);
-diag_impl!(Rotation2, Vector2);
-rotation_display_impl!(Rotation2);
 
-submat_impl!(Rotation3, Matrix3);
-rotate_impl!(Rotation3, Vector3, Point3);
-transform_impl!(Rotation3, Vector3, Point3);
+rotation_impl!(Rotation3, Matrix3, Vector3, Vector3, Point3, Matrix4);
 dim_impl!(Rotation3, 3);
-rotation_mul_rotation_impl!(Rotation3);
-rotation_mul_vec_impl!(Rotation3, Vector3);
-vec_mul_rotation_impl!(Rotation3, Vector3);
-rotation_mul_point_impl!(Rotation3, Point3);
-point_mul_rotation_impl!(Rotation3, Point3);
-one_impl!(Rotation3);
-eye_impl!(Rotation3);
-rotation_matrix_impl!(Rotation3, Vector3, Vector3);
-column_impl!(Rotation3, Vector3);
-row_impl!(Rotation3, Vector3);
-index_impl!(Rotation3);
-absolute_impl!(Rotation3, Matrix3);
-to_homogeneous_impl!(Rotation3, Matrix4);
-inverse_impl!(Rotation3);
-transpose_impl!(Rotation3);
-approx_eq_impl!(Rotation3);
-diag_impl!(Rotation3, Vector3);
-rotation_display_impl!(Rotation3);

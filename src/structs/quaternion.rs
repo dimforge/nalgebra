@@ -32,17 +32,6 @@ pub struct Quaternion<N> {
 }
 
 impl<N> Quaternion<N> {
-    /// Creates a new quaternion from its components.
-    #[inline]
-    pub fn new(w: N, i: N, j: N, k: N) -> Quaternion<N> {
-        Quaternion {
-            w: w,
-            i: i,
-            j: j,
-            k: k
-        }
-    }
-
     /// The vector part `(i, j, k)` of this quaternion.
     #[inline]
     pub fn vector(&self) -> &Vector3<N> {
@@ -175,9 +164,6 @@ impl<N: fmt::Display> fmt::Display for Quaternion<N> {
         write!(f, "Quaternion {} − ({}, {}, {})", self.w, self.i, self.j, self.k)
     }
 }
-
-rand_impl!(Quaternion, w, i, j, k);
-
 
 /// A unit quaternion that can represent a 3D rotation.
 #[repr(C)]
@@ -557,6 +543,18 @@ impl<N: fmt::Display> fmt::Display for UnitQuaternion<N> {
     }
 }
 
+/*
+ *
+ * Dimension
+ *
+ */
+impl<N> Dimension for UnitQuaternion<N> {
+    #[inline]
+    fn dimension(_: Option<UnitQuaternion<N>>) -> usize {
+        3
+    }
+}
+
 #[cfg(feature="arbitrary")]
 impl<N: Arbitrary + BaseFloat> Arbitrary for UnitQuaternion<N> {
     fn arbitrary<G: Gen>(g: &mut G) -> UnitQuaternion<N> {
@@ -592,45 +590,15 @@ impl Quaternion<f32> {
   }
 }
 
-impl<T> Zero for Quaternion<T> where T: Zero {
-  fn zero() -> Self {
-    Quaternion::new(::zero(), ::zero(), ::zero(), ::zero())
-  }
-
-  fn is_zero(&self) -> bool {
-    self.w.is_zero() && self.i.is_zero() && self.j.is_zero() && self.k.is_zero()
-  }
-}
-
 impl<T> One for Quaternion<T> where T: Copy + One + Zero + Sub<T, Output = T> + Add<T, Output = T> {
   fn one() -> Self {
     Quaternion::new(T::one(), T::zero(), T::zero(), T::zero())
   }
 }
 
-pord_impl!(Quaternion, w, i, j, k);
-vec_axis_impl!(Quaternion, w, i, j, k);
-vec_cast_impl!(Quaternion, w, i, j, k);
-conversion_impl!(Quaternion, 4);
-index_impl!(Quaternion);
-indexable_impl!(Quaternion, 4);
-at_fast_impl!(Quaternion, 4);
-repeat_impl!(Quaternion, val, w, i, j, k);
-dim_impl!(Quaternion, 3);
-container_impl!(Quaternion);
-add_impl!(Quaternion, w, i, j, k);
-sub_impl!(Quaternion, w, i, j, k);
-scalar_add_impl!(Quaternion, w, i, j, k);
-scalar_sub_impl!(Quaternion, w, i, j, k);
-scalar_mul_impl!(Quaternion, w, i, j, k);
-scalar_div_impl!(Quaternion, w, i, j, k);
-neg_impl!(Quaternion, w, i, j, k);
-approx_eq_impl!(Quaternion, w, i, j, k);
+componentwise_zero!(Quaternion, w, i, j, k);
+component_basis_element!(Quaternion, w, i, j, k);
+pointwise_add!(Quaternion, w, i, j, k);
+pointwise_sub!(Quaternion, w, i, j, k);
 from_iterator_impl!(Quaternion, iterator, iterator, iterator, iterator);
-bounded_impl!(Quaternion, w, i, j, k);
-axpy_impl!(Quaternion, w, i, j, k);
-iterable_impl!(Quaternion, 4);
-iterable_mut_impl!(Quaternion, 4);
-arbitrary_impl!(Quaternion, w, i, j, k);
-
-dim_impl!(UnitQuaternion, 3);
+vectorlike_impl!(Quaternion, 4, w, i, j, k);

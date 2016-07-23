@@ -1,68 +1,63 @@
 #![macro_use]
 
 macro_rules! isometry_impl(
-    ($t: ident, $submatrix: ident, $subvector: ident, $subrotvector: ident) => (
+    ($t: ident, $rotmatrix: ident, $vector: ident, $rotvector: ident, $point: ident,
+     $homogeneous: ident) => (
         impl<N: BaseFloat> $t<N> {
             /// Creates a new isometry from an axis-angle rotation, and a vector.
             #[inline]
-            pub fn new(translation: $subvector<N>, rotation: $subrotvector<N>) -> $t<N> {
+            pub fn new(translation: $vector<N>, rotation: $rotvector<N>) -> $t<N> {
                 $t {
-                    rotation:    $submatrix::new(rotation),
+                    rotation:    $rotmatrix::new(rotation),
                     translation: translation
                 }
             }
 
             /// Creates a new isometry from a rotation matrix and a vector.
             #[inline]
-            pub fn new_with_rotation_matrix(translation: $subvector<N>, rotation: $submatrix<N>) -> $t<N> {
+            pub fn new_with_rotation_matrix(translation: $vector<N>, rotation: $rotmatrix<N>) -> $t<N> {
                 $t {
                     rotation:    rotation,
                     translation: translation
                 }
             }
         }
-    )
-);
 
-macro_rules! rotation_matrix_impl(
-    ($t: ident, $trotation: ident, $tlv: ident, $tav: ident) => (
+
+        /*
+         *
+         * RotationMatrix
+         *
+         */
         impl<N: Cast<f64> + BaseFloat>
-        RotationMatrix<N, $tlv<N>, $tav<N>> for $t<N> {
-            type Output = $trotation<N>;
+        RotationMatrix<N, $vector<N>, $rotvector<N>> for $t<N> {
+            type Output = $rotmatrix<N>;
 
             #[inline]
-            fn to_rotation_matrix(&self) -> $trotation<N> {
+            fn to_rotation_matrix(&self) -> $rotmatrix<N> {
                 self.rotation
             }
         }
-    )
-);
 
 
-macro_rules! dim_impl(
-    ($t: ident, $dimension: expr) => (
-        impl<N> Dimension for $t<N> {
-            #[inline]
-            fn dimension(_: Option<$t<N>>) -> usize {
-                $dimension
-            }
-        }
-    )
-);
-
-macro_rules! one_impl(
-    ($t: ident) => (
+        /*
+         *
+         * One
+         *
+         */
         impl<N: BaseFloat> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
                 $t::new_with_rotation_matrix(::zero(), ::one())
             }
         }
-    )
-);
 
-macro_rules! isometry_mul_isometry_impl(
-    ($t: ident) => (
+
+        /*
+         *
+         * Isometry × Isometry
+         *
+         */
         impl<N: BaseFloat> Mul<$t<N>> for $t<N> {
             type Output = $t<N>;
 
@@ -81,21 +76,23 @@ macro_rules! isometry_mul_isometry_impl(
                 self.rotation    *= right.rotation;
             }
         }
-    )
-);
 
-macro_rules! isometry_mul_rotation_impl(
-    ($t: ident, $rotation: ident) => (
-        impl<N: BaseFloat> Mul<$rotation<N>> for $t<N> {
+
+        /*
+         *
+         * Isometry × Rotation
+         *
+         */
+        impl<N: BaseFloat> Mul<$rotmatrix<N>> for $t<N> {
             type Output = $t<N>;
 
             #[inline]
-            fn mul(self, right: $rotation<N>) -> $t<N> {
+            fn mul(self, right: $rotmatrix<N>) -> $t<N> {
                 $t::new_with_rotation_matrix(self.translation, self.rotation * right)
             }
         }
 
-        impl<N: BaseFloat> Mul<$t<N>> for $rotation<N> {
+        impl<N: BaseFloat> Mul<$t<N>> for $rotmatrix<N> {
             type Output = $t<N>;
 
             #[inline]
@@ -106,167 +103,181 @@ macro_rules! isometry_mul_rotation_impl(
             }
         }
 
-        impl<N: BaseFloat> MulAssign<$rotation<N>> for $t<N> {
+        impl<N: BaseFloat> MulAssign<$rotmatrix<N>> for $t<N> {
             #[inline]
-            fn mul_assign(&mut self, right: $rotation<N>) {
+            fn mul_assign(&mut self, right: $rotmatrix<N>) {
                 self.rotation *= right
             }
         }
-    )
-);
 
-macro_rules! isometry_mul_point_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
-            type Output = $tv<N>;
+
+        /*
+         *
+         * Isometry × Point
+         *
+         */
+        impl<N: BaseNum> Mul<$point<N>> for $t<N> {
+            type Output = $point<N>;
 
             #[inline]
-            fn mul(self, right: $tv<N>) -> $tv<N> {
+            fn mul(self, right: $point<N>) -> $point<N> {
                 self.rotation * right + self.translation
             }
         }
-    )
-);
 
-macro_rules! isometry_mul_vec_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: BaseNum> Mul<$tv<N>> for $t<N> {
-            type Output = $tv<N>;
+
+        /*
+         *
+         * Isometry × Vector
+         *
+         */
+        impl<N: BaseNum> Mul<$vector<N>> for $t<N> {
+            type Output = $vector<N>;
 
             #[inline]
-            fn mul(self, right: $tv<N>) -> $tv<N> {
+            fn mul(self, right: $vector<N>) -> $vector<N> {
                 self.rotation * right
             }
         }
-    )
-);
 
-macro_rules! translation_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: BaseFloat> Translation<$tv<N>> for $t<N> {
+
+        /*
+         *
+         * Translation
+         *
+         */
+        impl<N: BaseFloat> Translation<$vector<N>> for $t<N> {
             #[inline]
-            fn translation(&self) -> $tv<N> {
+            fn translation(&self) -> $vector<N> {
                 self.translation
             }
 
             #[inline]
-            fn inverse_translation(&self) -> $tv<N> {
+            fn inverse_translation(&self) -> $vector<N> {
                 -self.translation
             }
 
             #[inline]
-            fn append_translation_mut(&mut self, t: &$tv<N>) {
+            fn append_translation_mut(&mut self, t: &$vector<N>) {
                 self.translation = *t + self.translation
             }
 
             #[inline]
-            fn append_translation(&self, t: &$tv<N>) -> $t<N> {
+            fn append_translation(&self, t: &$vector<N>) -> $t<N> {
                 $t::new_with_rotation_matrix(*t + self.translation, self.rotation)
             }
 
             #[inline]
-            fn prepend_translation_mut(&mut self, t: &$tv<N>) {
+            fn prepend_translation_mut(&mut self, t: &$vector<N>) {
                 self.translation = self.translation + self.rotation * *t
             }
 
             #[inline]
-            fn prepend_translation(&self, t: &$tv<N>) -> $t<N> {
+            fn prepend_translation(&self, t: &$vector<N>) -> $t<N> {
                 $t::new_with_rotation_matrix(self.translation + self.rotation * *t, self.rotation)
             }
 
             #[inline]
-            fn set_translation(&mut self, t: $tv<N>) {
+            fn set_translation(&mut self, t: $vector<N>) {
                 self.translation = t
             }
         }
-    )
-);
 
-macro_rules! translate_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: Copy + Add<N, Output = N> + Sub<N, Output = N>> Translate<$tv<N>> for $t<N> {
+
+        /*
+         *
+         * Translate
+         *
+         */
+        impl<N: Copy + Add<N, Output = N> + Sub<N, Output = N>> Translate<$point<N>> for $t<N> {
             #[inline]
-            fn translate(&self, v: &$tv<N>) -> $tv<N> {
+            fn translate(&self, v: &$point<N>) -> $point<N> {
                 *v + self.translation
             }
 
             #[inline]
-            fn inverse_translate(&self, v: &$tv<N>) -> $tv<N> {
+            fn inverse_translate(&self, v: &$point<N>) -> $point<N> {
                 *v - self.translation
             }
         }
-    )
-);
 
-macro_rules! rotation_impl(
-    ($t: ident, $trotation: ident, $tav: ident) => (
-        impl<N: Cast<f64> + BaseFloat> Rotation<$tav<N>> for $t<N> {
+
+        /*
+         *
+         * Rotation
+         *
+         */
+        impl<N: Cast<f64> + BaseFloat> Rotation<$rotvector<N>> for $t<N> {
             #[inline]
-            fn rotation(&self) -> $tav<N> {
+            fn rotation(&self) -> $rotvector<N> {
                 self.rotation.rotation()
             }
 
             #[inline]
-            fn inverse_rotation(&self) -> $tav<N> {
+            fn inverse_rotation(&self) -> $rotvector<N> {
                 self.rotation.inverse_rotation()
             }
 
             #[inline]
-            fn append_rotation_mut(&mut self, rotation: &$tav<N>) {
-                let delta = $trotation::new(*rotation);
+            fn append_rotation_mut(&mut self, rotation: &$rotvector<N>) {
+                let delta = $rotmatrix::new(*rotation);
 
                 self.rotation    = delta * self.rotation;
                 self.translation = delta * self.translation;
             }
 
             #[inline]
-            fn append_rotation(&self, rotation: &$tav<N>) -> $t<N> {
-                let delta = $trotation::new(*rotation);
+            fn append_rotation(&self, rotation: &$rotvector<N>) -> $t<N> {
+                let delta = $rotmatrix::new(*rotation);
 
                 $t::new_with_rotation_matrix(delta * self.translation, delta * self.rotation)
             }
 
             #[inline]
-            fn prepend_rotation_mut(&mut self, rotation: &$tav<N>) {
-                let delta = $trotation::new(*rotation);
+            fn prepend_rotation_mut(&mut self, rotation: &$rotvector<N>) {
+                let delta = $rotmatrix::new(*rotation);
 
                 self.rotation = self.rotation * delta;
             }
 
             #[inline]
-            fn prepend_rotation(&self, rotation: &$tav<N>) -> $t<N> {
-                let delta = $trotation::new(*rotation);
+            fn prepend_rotation(&self, rotation: &$rotvector<N>) -> $t<N> {
+                let delta = $rotmatrix::new(*rotation);
 
                 $t::new_with_rotation_matrix(self.translation, self.rotation * delta)
             }
 
             #[inline]
-            fn set_rotation(&mut self, rotation: $tav<N>) {
+            fn set_rotation(&mut self, rotation: $rotvector<N>) {
                 // FIXME: should the translation be changed too?
                 self.rotation.set_rotation(rotation)
             }
         }
-    )
-);
 
-macro_rules! rotate_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: BaseNum> Rotate<$tv<N>> for $t<N> {
+
+        /*
+         *
+         * Rotate
+         *
+         */
+        impl<N: BaseNum> Rotate<$vector<N>> for $t<N> {
             #[inline]
-            fn rotate(&self, v: &$tv<N>) -> $tv<N> {
+            fn rotate(&self, v: &$vector<N>) -> $vector<N> {
                 self.rotation.rotate(v)
             }
 
             #[inline]
-            fn inverse_rotate(&self, v: &$tv<N>) -> $tv<N> {
+            fn inverse_rotate(&self, v: &$vector<N>) -> $vector<N> {
                 self.rotation.inverse_rotate(v)
             }
         }
-    )
-);
 
-macro_rules! transformation_impl(
-    ($t: ident) => (
+
+        /*
+         *
+         * Transformation
+         *
+         */
         impl<N: BaseFloat> Transformation<$t<N>> for $t<N> {
             fn transformation(&self) -> $t<N> {
                 *self
@@ -297,27 +308,31 @@ macro_rules! transformation_impl(
                 *self = t
             }
         }
-    )
-);
 
-macro_rules! transform_impl(
-    ($t: ident, $tp: ident) => (
-        impl<N: BaseNum> Transform<$tp<N>> for $t<N> {
+
+        /*
+         *
+         * Transform
+         *
+         */
+        impl<N: BaseNum> Transform<$point<N>> for $t<N> {
             #[inline]
-            fn transform(&self, p: &$tp<N>) -> $tp<N> {
+            fn transform(&self, p: &$point<N>) -> $point<N> {
                 self.rotation.transform(p) + self.translation
             }
 
             #[inline]
-            fn inverse_transform(&self, p: &$tp<N>) -> $tp<N> {
+            fn inverse_transform(&self, p: &$point<N>) -> $point<N> {
                 self.rotation.inverse_transform(&(*p - self.translation))
             }
         }
-    )
-);
 
-macro_rules! inverse_impl(
-    ($t: ident) => (
+
+        /*
+         *
+         * Inverse
+         *
+         */
         impl<N: BaseNum + Neg<Output = N>> Inverse for $t<N> {
             #[inline]
             fn inverse_mut(&mut self) -> bool {
@@ -335,28 +350,32 @@ macro_rules! inverse_impl(
                 Some(res)
             }
         }
-    )
-);
 
-macro_rules! to_homogeneous_impl(
-    ($t: ident, $th: ident) => (
-        impl<N: BaseNum> ToHomogeneous<$th<N>> for $t<N> {
-            fn to_homogeneous(&self) -> $th<N> {
+
+        /*
+         *
+         * ToHomogeneous
+         *
+         */
+        impl<N: BaseNum> ToHomogeneous<$homogeneous<N>> for $t<N> {
+            fn to_homogeneous(&self) -> $homogeneous<N> {
                 let mut res = self.rotation.to_homogeneous();
 
                 // copy the translation
-                let dimension = Dimension::dimension(None::<$th<N>>);
+                let dimension = Dimension::dimension(None::<$homogeneous<N>>);
 
                 res.set_column(dimension - 1, self.translation.as_point().to_homogeneous().to_vector());
 
                 res
             }
         }
-    )
-);
 
-macro_rules! approx_eq_impl(
-    ($t: ident) => (
+
+        /*
+         *
+         * ApproxEq
+         *
+         */
         impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {
             #[inline]
             fn approx_epsilon(_: Option<$t<N>>) -> N {
@@ -380,33 +399,39 @@ macro_rules! approx_eq_impl(
                     ApproxEq::approx_eq_ulps(&self.translation, &other.translation, ulps)
             }
         }
-    )
-);
 
-macro_rules! rand_impl(
-    ($t: ident) => (
+
+        /*
+         *
+         * Rand
+         *
+         */
         impl<N: Rand + BaseFloat> Rand for $t<N> {
             #[inline]
             fn rand<R: Rng>(rng: &mut R) -> $t<N> {
                 $t::new(rng.gen(), rng.gen())
             }
         }
-    )
-);
 
-macro_rules! absolute_rotate_impl(
-    ($t: ident, $tv: ident) => (
-        impl<N: BaseFloat> AbsoluteRotate<$tv<N>> for $t<N> {
+
+        /*
+         *
+         * AbsoluteRotate
+         *
+         */
+        impl<N: BaseFloat> AbsoluteRotate<$vector<N>> for $t<N> {
             #[inline]
-            fn absolute_rotate(&self, v: &$tv<N>) -> $tv<N> {
+            fn absolute_rotate(&self, v: &$vector<N>) -> $vector<N> {
                 self.rotation.absolute_rotate(v)
             }
         }
-    )
-);
 
-macro_rules! arbitrary_isometry_impl(
-    ($t: ident) => (
+
+        /*
+         *
+         * Arbitrary
+         *
+         */
         #[cfg(feature="arbitrary")]
         impl<N: Arbitrary + BaseFloat> Arbitrary for $t<N> {
             fn arbitrary<G: Gen>(g: &mut G) -> $t<N> {
@@ -416,11 +441,13 @@ macro_rules! arbitrary_isometry_impl(
                 )
             }
         }
-    )
-);
 
-macro_rules! isometry_display_impl(
-    ($t: ident) => (
+
+        /*
+         *
+         * Display
+         *
+         */
         impl<N: fmt::Display + BaseFloat> fmt::Display for $t<N> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 try!(writeln!(f, "Isometry {{"));
@@ -437,6 +464,17 @@ macro_rules! isometry_display_impl(
                 }
 
                 writeln!(f, "}}")
+            }
+        }
+    )
+);
+
+macro_rules! dim_impl(
+    ($t: ident, $dimension: expr) => (
+        impl<N> Dimension for $t<N> {
+            #[inline]
+            fn dimension(_: Option<$t<N>>) -> usize {
+                $dimension
             }
         }
     )

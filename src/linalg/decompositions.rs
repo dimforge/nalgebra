@@ -1,5 +1,5 @@
 use traits::operations::{Transpose, ApproxEq};
-use traits::structure::{ColumnSlice, Eye, Indexable, Diagonal, SquareMatrix, BaseFloat, Cast};
+use traits::structure::{ColumnSlice, Eye, Indexable, SquareMatrix, BaseFloat, Cast};
 use traits::geometry::Norm;
 use std::cmp;
 use std::ops::{Mul, Add, Sub};

@@ -858,7 +858,7 @@ macro_rules! dmat_impl(
             }
         }
 
-        impl<N: Copy + Clone + Zero> DiagMut<$dvector<N>> for $dmatrix<N> {
+        impl<N: Copy + Clone + Zero> DiagonalMut<$dvector<N>> for $dmatrix<N> {
             #[inline]
             fn set_diagonal(&mut self, diagonal: &$dvector<N>) {
                 let smallest_dim = cmp::min(self.nrows, self.ncols);

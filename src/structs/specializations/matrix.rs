@@ -3,7 +3,7 @@ use structs::vector::{Vector2, Vector3};
 use structs::point::{Point2, Point3};
 use structs::matrix::{Matrix1, Matrix2, Matrix3};
 use traits::operations::{Inverse, Determinant, ApproxEq};
-use traits::structure::{Row, Column, BaseNum};
+use traits::structure::BaseNum;
 
 // some specializations:
 impl<N: BaseNum + ApproxEq<N>> Inverse for Matrix1<N> {
@@ -129,85 +129,6 @@ impl<N: BaseNum> Determinant<N> for Matrix3<N> {
     }
 }
 
-impl<N: Copy> Row<Vector3<N>> for Matrix3<N> {
-    #[inline]
-    fn nrows(&self) -> usize {
-        3
-    }
-
-    #[inline]
-    fn row(&self, i: usize) -> Vector3<N> {
-        match i {
-            0 => Vector3::new(self.m11, self.m12, self.m13),
-            1 => Vector3::new(self.m21, self.m22, self.m23),
-            2 => Vector3::new(self.m31, self.m32, self.m33),
-            _ => panic!(format!("Index out of range: 3d matrices do not have {} rows.",  i))
-        }
-    }
-
-    #[inline]
-    fn set_row(&mut self, i: usize, r: Vector3<N>) {
-        match i {
-            0 => {
-                self.m11 = r.x;
-                self.m12 = r.y;
-                self.m13 = r.z;
-            },
-            1 => {
-                self.m21 = r.x;
-                self.m22 = r.y;
-                self.m23 = r.z;
-            },
-            2 => {
-                self.m31 = r.x;
-                self.m32 = r.y;
-                self.m33 = r.z;
-            },
-            _ => panic!(format!("Index out of range: 3d matrices do not have {} rows.",  i))
-
-        }
-    }
-}
-
-impl<N: Copy> Column<Vector3<N>> for Matrix3<N> {
-    #[inline]
-    fn ncols(&self) -> usize {
-        3
-    }
-
-    #[inline]
-    fn column(&self, i: usize) -> Vector3<N> {
-        match i {
-            0 => Vector3::new(self.m11, self.m21, self.m31),
-            1 => Vector3::new(self.m12, self.m22, self.m32),
-            2 => Vector3::new(self.m13, self.m23, self.m33),
-            _ => panic!(format!("Index out of range: 3d matrices do not have {} cols.", i))
-        }
-    }
-
-    #[inline]
-    fn set_column(&mut self, i: usize, r: Vector3<N>) {
-        match i {
-            0 => {
-                self.m11 = r.x;
-                self.m21 = r.y;
-                self.m31 = r.z;
-            },
-            1 => {
-                self.m12 = r.x;
-                self.m22 = r.y;
-                self.m32 = r.z;
-            },
-            2 => {
-                self.m13 = r.x;
-                self.m23 = r.y;
-                self.m33 = r.z;
-            },
-            _ => panic!(format!("Index out of range: 3d matrices do not have {} cols.", i))
-
-        }
-    }
-}
 
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix3<N>> for Matrix3<N> {
     type Output = Matrix3<N>;

@@ -15,6 +15,7 @@ pub use self::quaternion::{Quaternion, UnitQuaternion};
 #[cfg(feature="generic_sizes")]
 pub use self::vectorn::VectorN;
 
+mod common_macros;
 mod dmatrix_macros;
 mod dmatrix;
 mod vectorn_macros;

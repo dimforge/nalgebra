@@ -9,7 +9,8 @@ use rand::{self, Rand};
 use num::{Zero, One};
 use structs::dvector::{DVector, DVector1, DVector2, DVector3, DVector4, DVector5, DVector6};
 use traits::operations::{ApproxEq, Inverse, Transpose, Mean, Covariance};
-use traits::structure::{Cast, Column, ColumnSlice, Row, RowSlice, Diagonal, DiagMut, Eye, Indexable, Shape, BaseNum};
+use traits::structure::{Cast, Column, ColumnSlice, Row, RowSlice, Diagonal, DiagonalMut, Eye,
+                        Indexable, Shape, BaseNum};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 

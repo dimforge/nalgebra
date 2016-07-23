@@ -74,8 +74,8 @@ impl<N: BaseFloat> Isometry3<N> {
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
     pub fn look_at_rh(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Isometry3<N> {
-        let rotation   = Rotation3::look_at_rh(&(*target - *eye), up);
-        let trans = rotation * (-*eye);
+        let rotation = Rotation3::look_at_rh(&(*target - *eye), up);
+        let trans    = rotation * (-*eye);
 
         Isometry3::new_with_rotation_matrix(trans.to_vector(), rotation)
     }
@@ -92,53 +92,15 @@ impl<N: BaseFloat> Isometry3<N> {
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
     pub fn look_at_lh(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Isometry3<N> {
-        let rotation   = Rotation3::look_at_lh(&(*target - *eye), up);
-        let trans = rotation * (-*eye);
+        let rotation = Rotation3::look_at_lh(&(*target - *eye), up);
+        let trans    = rotation * (-*eye);
 
         Isometry3::new_with_rotation_matrix(trans.to_vector(), rotation)
     }
 }
 
-isometry_impl!(Isometry2, Rotation2, Vector2, Vector1);
-rotation_matrix_impl!(Isometry2, Rotation2, Vector2, Vector1);
-rotation_impl!(Isometry2, Rotation2, Vector1);
+isometry_impl!(Isometry2, Rotation2, Vector2, Vector1, Point2, Matrix3);
 dim_impl!(Isometry2, 2);
-one_impl!(Isometry2);
-absolute_rotate_impl!(Isometry2, Vector2);
-rand_impl!(Isometry2);
-approx_eq_impl!(Isometry2);
-to_homogeneous_impl!(Isometry2, Matrix3);
-inverse_impl!(Isometry2);
-transform_impl!(Isometry2, Point2);
-transformation_impl!(Isometry2);
-rotate_impl!(Isometry2, Vector2);
-translation_impl!(Isometry2, Vector2);
-translate_impl!(Isometry2, Point2);
-isometry_mul_isometry_impl!(Isometry2);
-isometry_mul_rotation_impl!(Isometry2, Rotation2);
-isometry_mul_point_impl!(Isometry2, Point2);
-isometry_mul_vec_impl!(Isometry2, Vector2);
-arbitrary_isometry_impl!(Isometry2);
-isometry_display_impl!(Isometry2);
 
-isometry_impl!(Isometry3, Rotation3, Vector3, Vector3);
-rotation_matrix_impl!(Isometry3, Rotation3, Vector3, Vector3);
-rotation_impl!(Isometry3, Rotation3, Vector3);
+isometry_impl!(Isometry3, Rotation3, Vector3, Vector3, Point3, Matrix4);
 dim_impl!(Isometry3, 3);
-one_impl!(Isometry3);
-absolute_rotate_impl!(Isometry3, Vector3);
-rand_impl!(Isometry3);
-approx_eq_impl!(Isometry3);
-to_homogeneous_impl!(Isometry3, Matrix4);
-inverse_impl!(Isometry3);
-transform_impl!(Isometry3, Point3);
-transformation_impl!(Isometry3);
-rotate_impl!(Isometry3, Vector3);
-translation_impl!(Isometry3, Vector3);
-translate_impl!(Isometry3, Point3);
-isometry_mul_isometry_impl!(Isometry3);
-isometry_mul_rotation_impl!(Isometry3, Rotation3);
-isometry_mul_point_impl!(Isometry3, Point3);
-isometry_mul_vec_impl!(Isometry3, Vector3);
-arbitrary_isometry_impl!(Isometry3);
-isometry_display_impl!(Isometry3);

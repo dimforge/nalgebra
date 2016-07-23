@@ -1,21 +1,139 @@
 #![macro_use]
 
-macro_rules! new_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N> $t<N> {
-            /// Creates a new vector.
+macro_rules! vectorlike_impl(
+    ($t: ident, $dimension: expr, $($compN: ident),+) => (
+        componentwise_neg!($t, $($compN),+);
+        componentwise_repeat!($t, $($compN),+);
+        componentwise_arbitrary!($t, $($compN),+);
+        componentwise_rand!($t, $($compN),+);
+        pointwise_scalar_add!($t, $($compN),+);
+        pointwise_scalar_sub!($t, $($compN),+);
+        pointwise_scalar_mul!($t, $($compN),+);
+        pointwise_scalar_div!($t, $($compN),+);
+        component_new!($t, $($compN),+);
+        partial_order_impl!($t, $($compN),+);
+
+
+        /*
+         *
+         * Cast between inner scalar type.
+         *
+         */
+        impl<Nin: Copy, Nout: Copy + Cast<Nin>> Cast<$t<Nin>> for $t<Nout> {
             #[inline]
-            pub fn new($($compN: N ),+) -> $t<N> {
+            fn from(v: $t<Nin>) -> $t<Nout> {
+                $t::new($(Cast::from(v.$compN)),+)
+            }
+        }
+
+
+        /*
+         *
+         * ApproxEq
+         *
+         */
+        impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {
+            #[inline]
+            fn approx_epsilon(_: Option<$t<N>>) -> N {
+                ApproxEq::approx_epsilon(None::<N>)
+            }
+
+            #[inline]
+            fn approx_ulps(_: Option<$t<N>>) -> u32 {
+                ApproxEq::approx_ulps(None::<N>)
+            }
+
+            #[inline]
+            fn approx_eq(&self, other: &$t<N>) -> bool {
+                $(ApproxEq::approx_eq(&self.$compN, &other.$compN))&&+
+            }
+
+            #[inline]
+            fn approx_eq_eps(&self, other: &$t<N>, eps: &N) -> bool {
+                $(ApproxEq::approx_eq_eps(&self.$compN, &other.$compN, eps))&&+
+            }
+
+            #[inline]
+            fn approx_eq_ulps(&self, other: &$t<N>, ulps: u32) -> bool {
+                $(ApproxEq::approx_eq_ulps(&self.$compN, &other.$compN, ulps))&&+
+            }
+        }
+
+
+        /*
+         *
+         * Unsafe indexing.
+         *
+         */
+        impl<N: Copy> $t<N> {
+            /// Unsafe read access to a vector element by index.
+            #[inline]
+            pub unsafe fn at_fast(&self, i: usize) -> N {
+                (*self.as_ref().get_unchecked(i))
+            }
+
+            /// Unsafe write access to a vector element by index.
+            #[inline]
+            pub unsafe fn set_fast(&mut self, i: usize, val: N) {
+                (*self.as_mut().get_unchecked_mut(i)) = val
+            }
+        }
+
+
+        /*
+         *
+         * Axpy
+         *
+         */
+        impl<N: Axpy<N>> Axpy<N> for $t<N> {
+            #[inline]
+            fn axpy(&mut self, a: &N, x: &$t<N>) {
+                $( self.$compN.axpy(a, &x.$compN); )+
+            }
+        }
+
+
+        /*
+         *
+         * Bounded
+         *
+         */
+        impl<N: Bounded> Bounded for $t<N> {
+            #[inline]
+            fn max_value() -> $t<N> {
                 $t {
-                    $($compN: $compN ),+
+                    $($compN: Bounded::max_value() ),+
+                }
+            }
+
+            #[inline]
+            fn min_value() -> $t<N> {
+                $t {
+                    $($compN: Bounded::min_value() ),+
                 }
             }
         }
-    );
-);
 
-macro_rules! conversion_impl(
-    ($t: ident, $dimension: expr) => (
+
+        /*
+         *
+         * Container
+         *
+         */
+        impl<N> $t<N> {
+            /// The dimension of this entity.
+            #[inline]
+            pub fn len(&self) -> usize {
+                Dimension::dimension(None::<$t<N>>)
+            }
+        }
+
+
+        /*
+         *
+         * Conversions from/to slices
+         *
+         */
         impl<N> AsRef<[N; $dimension]> for $t<N> {
             #[inline]
             fn as_ref(&self) -> &[N; $dimension] {
@@ -59,133 +177,26 @@ macro_rules! conversion_impl(
                 vref.clone()
             }
         }
-    )
-);
 
-macro_rules! at_fast_impl(
-    ($t: ident, $dimension: expr) => (
-        impl<N: Copy> $t<N> {
-            /// Unsafe read access to a vector element by index.
-            #[inline]
-            pub unsafe fn at_fast(&self, i: usize) -> N {
-                (*self.as_ref().get_unchecked(i))
-            }
 
-            /// Unsafe write access to a vector element by index.
+        /*
+         *
+         * Dimension
+         *
+         */
+        impl<N> Dimension for $t<N> {
             #[inline]
-            pub unsafe fn set_fast(&mut self, i: usize, val: N) {
-                (*self.as_mut().get_unchecked_mut(i)) = val
+            fn dimension(_: Option<$t<N>>) -> usize {
+                $dimension
             }
         }
-    )
-);
 
-// FIXME: N should be bounded by Ord instead of BaseFloat…
-// However, f32/f64 does not implement Ord…
-macro_rules! pord_impl(
-    ($t: ident, $comp0: ident, $($compN: ident),*) => (
-        impl<N: BaseFloat> PartialOrder for $t<N> {
-            #[inline]
-            fn inf(&self, other: &$t<N>) -> $t<N> {
-                $t::new(self.$comp0.min(other.$comp0)
-                        $(, self.$compN.min(other.$compN))*)
-            }
 
-            #[inline]
-            fn sup(&self, other: &$t<N>) -> $t<N> {
-                $t::new(self.$comp0.max(other.$comp0)
-                        $(, self.$compN.max(other.$compN))*)
-            }
-
-            #[inline]
-            #[allow(unused_mut)] // otherwise there will be a warning for is_eq or Vector1.
-            fn partial_cmp(&self, other: &$t<N>) -> PartialOrdering {
-                let is_lt     = self.$comp0 <  other.$comp0;
-                let mut is_eq = self.$comp0 == other.$comp0;
-
-                if is_lt { // <
-                    $(
-                        if self.$compN > other.$compN {
-                            return PartialOrdering::NotComparable
-                        }
-                     )*
-
-                    PartialOrdering::PartialLess
-                }
-                else { // >=
-                    $(
-                        if self.$compN < other.$compN {
-                            return PartialOrdering::NotComparable
-                        }
-                        else if self.$compN > other.$compN {
-                            is_eq = false;
-                        }
-
-                     )*
-
-                    if is_eq {
-                        PartialOrdering::PartialEqual
-                    }
-                    else {
-                        PartialOrdering::PartialGreater
-                    }
-                }
-            }
-
-            #[inline]
-            fn partial_lt(&self, other: &$t<N>) -> bool {
-                self.$comp0 < other.$comp0 $(&& self.$compN < other.$compN)*
-            }
-
-            #[inline]
-            fn partial_le(&self, other: &$t<N>) -> bool {
-                self.$comp0 <= other.$comp0 $(&& self.$compN <= other.$compN)*
-            }
-
-            #[inline]
-            fn partial_gt(&self, other: &$t<N>) -> bool {
-                self.$comp0 > other.$comp0 $(&& self.$compN > other.$compN)*
-            }
-
-            #[inline]
-            fn partial_ge(&self, other: &$t<N>) -> bool {
-                self.$comp0 >= other.$comp0 $(&& self.$compN >= other.$compN)*
-            }
-        }
-    )
-);
-
-macro_rules! vec_axis_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Zero + One> $t<N> {
-            $(
-                /// Create a unit vector with its `$compN` component equal to 1.0.
-                #[inline]
-                pub fn $compN() -> $t<N> {
-                    let mut res: $t<N> = ::zero();
-
-                    res.$compN = ::one();
-
-                    res
-                }
-            )+
-        }
-    )
-);
-
-macro_rules! vec_cast_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<Nin: Copy, Nout: Copy + Cast<Nin>> Cast<$t<Nin>> for $t<Nout> {
-            #[inline]
-            fn from(v: $t<Nin>) -> $t<Nout> {
-                $t::new($(Cast::from(v.$compN)),+)
-            }
-        }
-    )
-);
-
-macro_rules! indexable_impl(
-    ($t: ident, $dimension: expr) => (
+        /*
+         *
+         * Indexable
+         *
+         */
         impl<N> Shape<usize> for $t<N> {
             #[inline]
             fn shape(&self) -> usize {
@@ -211,11 +222,13 @@ macro_rules! indexable_impl(
                 (*mem::transmute::<&mut $t<N>, &mut [N; $dimension]>(self).get_unchecked_mut(i)) = val
             }
         }
-    )
-);
 
-macro_rules! index_impl(
-    ($t: ident) => (
+
+        /*
+         *
+         * Index
+         *
+         */
         impl<N, T> Index<T> for $t<N> where [N]: Index<T> {
             type Output = <[N] as Index<T>>::Output;
 
@@ -229,25 +242,13 @@ macro_rules! index_impl(
                 &mut self.as_mut()[i]
             }
         }
-    )
-);
 
-macro_rules! repeat_impl(
-    ($t: ident, $param: ident, $($compN: ident),+) => (
-        impl<N: Copy> Repeat<N> for $t<N> {
-            /// Creates a new vector with all its components equal to a given value.
-            #[inline]
-            fn repeat($param: N) -> $t<N> {
-                $t{
-                    $($compN: $param ),+
-                }
-            }
-        }
-    )
-);
 
-macro_rules! iterable_impl(
-    ($t: ident, $dimension: expr) => (
+        /*
+         *
+         * Iterable
+         *
+         */
         impl<N> Iterable<N> for $t<N> {
             #[inline]
             fn iter(&self) -> Iter<N> {
@@ -256,11 +257,7 @@ macro_rules! iterable_impl(
                 }
             }
         }
-    )
-);
 
-macro_rules! iterable_mut_impl(
-    ($t: ident, $dimension: expr) => (
         impl<N> IterableMut<N> for $t<N> {
             #[inline]
             fn iter_mut(&mut self) -> IterMut<N> {
@@ -272,28 +269,242 @@ macro_rules! iterable_mut_impl(
     )
 );
 
-macro_rules! dim_impl(
-    ($t: ident, $dimension: expr) => (
-        impl<N> Dimension for $t<N> {
+macro_rules! vector_impl(
+    ($t: ident, $tp: ident, $($compN: ident),+) => (
+        pointwise_add!($t, $($compN),+);
+        pointwise_sub!($t, $($compN),+);
+        pointwise_mul!($t, $($compN),+);
+        pointwise_div!($t, $($compN),+);
+        componentwise_zero!($t, $($compN),+);
+        componentwise_one!($t, $($compN),+);
+        componentwise_absolute!($t, $($compN),+);
+        component_basis_element!($t, $($compN),+);
+
+
+        /*
+         *
+         * Dot product
+         *
+         */
+        impl<N: BaseNum> Dot<N> for $t<N> {
             #[inline]
-            fn dimension(_: Option<$t<N>>) -> usize {
-                $dimension
+            fn dot(&self, other: &$t<N>) -> N {
+                add!($(self.$compN * other.$compN ),+)
+            }
+        }
+
+
+        /*
+         *
+         * Norm
+         *
+         */
+        impl<N: BaseFloat> Norm<N> for $t<N> {
+            #[inline]
+            fn norm_squared(&self) -> N {
+                Dot::dot(self, self)
+            }
+
+            #[inline]
+            fn normalize(&self) -> $t<N> {
+                let mut res : $t<N> = *self;
+                let _ = res.normalize_mut();
+                res
+            }
+
+            #[inline]
+            fn normalize_mut(&mut self) -> N {
+                let l = Norm::norm(self);
+
+                $(self.$compN = self.$compN / l;)*
+
+                l
+            }
+        }
+
+
+        /*
+         *
+         * Translation
+         *
+         */
+        impl<N: Copy + Add<N, Output = N> + Neg<Output = N>> Translation<$t<N>> for $t<N> {
+            #[inline]
+            fn translation(&self) -> $t<N> {
+                *self
+            }
+
+            #[inline]
+            fn inverse_translation(&self) -> $t<N> {
+                -*self
+            }
+
+            #[inline]
+            fn append_translation_mut(&mut self, t: &$t<N>) {
+                *self = *t + *self;
+            }
+
+            #[inline]
+            fn append_translation(&self, t: &$t<N>) -> $t<N> {
+                *t + *self
+            }
+
+            #[inline]
+            fn prepend_translation_mut(&mut self, t: &$t<N>) {
+                *self = *self + *t;
+            }
+
+            #[inline]
+            fn prepend_translation(&self, t: &$t<N>) -> $t<N> {
+                *self + *t
+            }
+
+            #[inline]
+            fn set_translation(&mut self, t: $t<N>) {
+                *self = t
+            }
+        }
+
+
+
+        /*
+         *
+         * Translate
+         *
+         */
+        impl<N: Copy + Add<N, Output = N> + Sub<N, Output = N>> Translate<$tp<N>> for $t<N> {
+            fn translate(&self, other: &$tp<N>) -> $tp<N> {
+                *other + *self
+            }
+
+            fn inverse_translate(&self, other: &$tp<N>) -> $tp<N> {
+                *other - *self
+            }
+        }
+
+
+        /*
+         *
+         * Rotate
+         *
+         */
+        impl<N, O: Copy> Rotate<O> for $t<N> {
+            fn rotate(&self, other: &O) -> O {
+                *other
+            }
+
+            fn inverse_rotate(&self, other: &O) -> O {
+                *other
+            }
+        }
+
+        impl<N, O: Copy> Rotate<O> for $tp<N> {
+            fn rotate(&self, other: &O) -> O {
+                *other
+            }
+
+            fn inverse_rotate(&self, other: &O) -> O {
+                *other
+            }
+        }
+
+
+
+        /*
+         *
+         * Transform
+         *
+         */
+        impl<N: Copy + Add<N, Output = N> + Sub<N, Output = N>> Transform<$tp<N>> for $t<N> {
+            fn transform(&self, other: &$tp<N>) -> $tp<N> {
+                self.translate(other)
+            }
+
+            fn inverse_transform(&self, other: &$tp<N>) -> $tp<N> {
+                self.inverse_translate(other)
+            }
+        }
+
+
+
+        /*
+         *
+         * Conversion to point.
+         *
+         */
+        impl<N> $t<N> {
+            /// Converts this vector to a point.
+            #[inline]
+            pub fn to_point(self) -> $tp<N> {
+                $tp::new(
+                    $(self.$compN),+
+                )
+            }
+
+            /// Reinterprets this vector as a point.
+            #[inline]
+            pub fn as_point(&self) -> &$tp<N> {
+                unsafe {
+                    mem::transmute(self)
+                }
+            }
+        }
+
+
+        /*
+         *
+         * NumVector / FloatVector
+         *
+         */
+        impl<N> NumVector<N> for $t<N>
+            where N: BaseNum {
+        }
+
+        impl<N> FloatVector<N> for $t<N>
+            where N: BaseFloat + ApproxEq<N> {
+        }
+
+
+
+        /*
+         *
+         * Mean
+         *
+         */
+        impl<N: BaseFloat + Cast<f64>> Mean<N> for $t<N> {
+            #[inline]
+            fn mean(&self) -> N {
+                let normalizer = ::cast(1.0f64 / self.len() as f64);
+                self.iter().fold(::zero(), |acc, x| acc + *x * normalizer)
+            }
+        }
+
+
+        /*
+         *
+         * Display
+         *
+         */
+        impl<N: fmt::Display> fmt::Display for $t<N> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                try!(write!(f, "("));
+
+                let mut it = self.iter();
+
+                let precision = f.precision().unwrap_or(8);
+
+                try!(write!(f, "{:.*}", precision, *it.next().unwrap()));
+
+                for comp in it {
+                    try!(write!(f, ", {:.*}", precision, *comp));
+                }
+
+                write!(f, ")")
             }
         }
     )
 );
 
-macro_rules! container_impl(
-    ($t: ident) => (
-        impl<N> $t<N> {
-            /// The dimension of this entity.
-            #[inline]
-            pub fn len(&self) -> usize {
-                Dimension::dimension(None::<$t<N>>)
-            }
-        }
-    )
-);
 
 macro_rules! basis_impl(
     ($t: ident, $dimension: expr) => (
@@ -359,243 +570,6 @@ macro_rules! basis_impl(
     )
 );
 
-macro_rules! axpy_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Axpy<N>> Axpy<N> for $t<N> {
-            #[inline]
-            fn axpy(&mut self, a: &N, x: &$t<N>) {
-                $( self.$compN.axpy(a, &x.$compN); )+
-            }
-        }
-    )
-);
-
-macro_rules! add_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Add<N, Output = N>> Add<$t<N>> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn add(self, right: $t<N>) -> $t<N> {
-                $t::new($(self.$compN + right.$compN),+)
-            }
-        }
-
-        impl<N: AddAssign<N>> AddAssign<$t<N>> for $t<N> {
-            #[inline]
-            fn add_assign(&mut self, right: $t<N>) {
-                $( self.$compN += right.$compN; )+
-            }
-        }
-    )
-);
-
-macro_rules! scalar_add_impl(
-    ($t: ident, $($compN: ident),+) => (
-        // $t against scalar
-        impl<N: Copy + Add<N, Output = N>> Add<N> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn add(self, right: N) -> $t<N> {
-                $t::new($(self.$compN + right),+)
-            }
-        }
-
-        impl<N: Copy + AddAssign<N>> AddAssign<N> for $t<N> {
-            #[inline]
-            fn add_assign(&mut self, right: N) {
-                $( self.$compN += right; )+
-            }
-        }
-
-        impl Add<$t<f32>> for f32 {
-            type Output = $t<f32>;
-
-            #[inline]
-            fn add(self, right: $t<f32>) -> $t<f32> {
-                $t::new($(self + right.$compN),+)
-            }
-        }
-
-        impl Add<$t<f64>> for f64 {
-            type Output = $t<f64>;
-
-            #[inline]
-            fn add(self, right: $t<f64>) -> $t<f64> {
-                $t::new($(self + right.$compN),+)
-            }
-        }
-    )
-);
-
-macro_rules! sub_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Sub<N, Output = N>> Sub<$t<N>> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn sub(self, right: $t<N>) -> $t<N> {
-                $t::new($(self.$compN - right.$compN),+)
-            }
-        }
-
-        impl<N: SubAssign<N>> SubAssign<$t<N>> for $t<N> {
-            #[inline]
-            fn sub_assign(&mut self, right: $t<N>) {
-                $( self.$compN -= right.$compN; )+
-            }
-        }
-    )
-);
-
-macro_rules! scalar_sub_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Sub<N, Output = N>> Sub<N> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn sub(self, right: N) -> $t<N> {
-                $t::new($(self.$compN - right),+)
-            }
-        }
-
-        impl<N: Copy + SubAssign<N>> SubAssign<N> for $t<N> {
-            #[inline]
-            fn sub_assign(&mut self, right: N) {
-                $( self.$compN -= right; )+
-            }
-        }
-
-        impl Sub<$t<f32>> for f32 {
-            type Output = $t<f32>;
-
-            #[inline]
-            fn sub(self, right: $t<f32>) -> $t<f32> {
-                $t::new($(self - right.$compN),+)
-            }
-        }
-
-        impl Sub<$t<f64>> for f64 {
-            type Output = $t<f64>;
-
-            #[inline]
-            fn sub(self, right: $t<f64>) -> $t<f64> {
-                $t::new($(self - right.$compN),+)
-            }
-        }
-    )
-);
-
-macro_rules! mul_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Mul<N, Output = N>> Mul<$t<N>> for $t<N> {
-            type Output = $t<N>;
-            #[inline]
-            fn mul(self, right: $t<N>) -> $t<N> {
-                $t::new($(self.$compN * right.$compN),+)
-            }
-        }
-
-        impl<N: MulAssign<N>> MulAssign<$t<N>> for $t<N> {
-            #[inline]
-            fn mul_assign(&mut self, right: $t<N>) {
-                $( self.$compN *= right.$compN; )+
-            }
-        }
-    )
-);
-
-macro_rules! scalar_mul_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Mul<N, Output = N>> Mul<N> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn mul(self, right: N) -> $t<N> {
-                $t::new($(self.$compN * right),+)
-            }
-        }
-
-        impl<N: Copy + MulAssign<N>> MulAssign<N> for $t<N> {
-            #[inline]
-            fn mul_assign(&mut self, right: N) {
-                $( self.$compN *= right; )+
-            }
-        }
-
-        impl Mul<$t<f32>> for f32 {
-            type Output = $t<f32>;
-
-            #[inline]
-            fn mul(self, right: $t<f32>) -> $t<f32> {
-                $t::new($(self * right.$compN),+)
-            }
-        }
-
-        impl Mul<$t<f64>> for f64 {
-            type Output = $t<f64>;
-
-            #[inline]
-            fn mul(self, right: $t<f64>) -> $t<f64> {
-                $t::new($(self * right.$compN),+)
-            }
-        }
-    )
-);
-
-macro_rules! div_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Div<N, Output = N>> Div<$t<N>> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn div(self, right: $t<N>) -> $t<N> {
-                $t::new($(self.$compN / right.$compN),+)
-            }
-        }
-
-        impl<N: DivAssign<N>> DivAssign<$t<N>> for $t<N> {
-            #[inline]
-            fn div_assign(&mut self, right: $t<N>) {
-                $( self.$compN /= right.$compN; )+
-            }
-        }
-    )
-);
-
-macro_rules! scalar_div_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Div<N, Output = N>> Div<N> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn div(self, right: N) -> $t<N> {
-                $t::new($(self.$compN / right),+)
-            }
-        }
-
-        impl<N: Copy + DivAssign<N>> DivAssign<N> for $t<N> {
-            #[inline]
-            fn div_assign(&mut self, right: N) {
-                $( self.$compN /= right; )+
-            }
-        }
-    )
-);
-
-macro_rules! neg_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Neg<Output = N> + Copy> Neg for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn neg(self) -> $t<N> {
-                $t::new($(-self.$compN ),+)
-            }
-        }
-    )
-);
 
 macro_rules! add (
     // base case
@@ -609,143 +583,6 @@ macro_rules! add (
     }
 );
 
-macro_rules! dot_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: BaseNum> Dot<N> for $t<N> {
-            #[inline]
-            fn dot(&self, other: &$t<N>) -> N {
-                add!($(self.$compN * other.$compN ),+)
-            }
-        }
-    )
-);
-
-macro_rules! translation_impl(
-    ($t: ident) => (
-        impl<N: Copy + Add<N, Output = N> + Neg<Output = N>> Translation<$t<N>> for $t<N> {
-            #[inline]
-            fn translation(&self) -> $t<N> {
-                *self
-            }
-
-            #[inline]
-            fn inverse_translation(&self) -> $t<N> {
-                -*self
-            }
-
-            #[inline]
-            fn append_translation_mut(&mut self, t: &$t<N>) {
-                *self = *t + *self;
-            }
-
-            #[inline]
-            fn append_translation(&self, t: &$t<N>) -> $t<N> {
-                *t + *self
-            }
-
-            #[inline]
-            fn prepend_translation_mut(&mut self, t: &$t<N>) {
-                *self = *self + *t;
-            }
-
-            #[inline]
-            fn prepend_translation(&self, t: &$t<N>) -> $t<N> {
-                *self + *t
-            }
-
-            #[inline]
-            fn set_translation(&mut self, t: $t<N>) {
-                *self = t
-            }
-        }
-    )
-);
-
-macro_rules! norm_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: BaseFloat> Norm<N> for $t<N> {
-            #[inline]
-            fn norm_squared(&self) -> N {
-                Dot::dot(self, self)
-            }
-
-            #[inline]
-            fn normalize(&self) -> $t<N> {
-                let mut res : $t<N> = *self;
-                let _ = res.normalize_mut();
-                res
-            }
-
-            #[inline]
-            fn normalize_mut(&mut self) -> N {
-                let l = Norm::norm(self);
-
-                $(self.$compN = self.$compN / l;)*
-
-                l
-            }
-        }
-    )
-);
-
-macro_rules! approx_eq_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: ApproxEq<N>> ApproxEq<N> for $t<N> {
-            #[inline]
-            fn approx_epsilon(_: Option<$t<N>>) -> N {
-                ApproxEq::approx_epsilon(None::<N>)
-            }
-
-            #[inline]
-            fn approx_ulps(_: Option<$t<N>>) -> u32 {
-                ApproxEq::approx_ulps(None::<N>)
-            }
-
-            #[inline]
-            fn approx_eq(&self, other: &$t<N>) -> bool {
-                $(ApproxEq::approx_eq(&self.$compN, &other.$compN))&&+
-            }
-
-            #[inline]
-            fn approx_eq_eps(&self, other: &$t<N>, eps: &N) -> bool {
-                $(ApproxEq::approx_eq_eps(&self.$compN, &other.$compN, eps))&&+
-            }
-
-            #[inline]
-            fn approx_eq_ulps(&self, other: &$t<N>, ulps: u32) -> bool {
-                $(ApproxEq::approx_eq_ulps(&self.$compN, &other.$compN, ulps))&&+
-            }
-        }
-    )
-);
-
-macro_rules! zero_one_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N> One for $t<N>
-            where N: Copy + One + Sub<N, Output = N> + Add<N, Output = N> {
-            #[inline]
-            fn one() -> $t<N> {
-                $t {
-                    $($compN: ::one() ),+
-                }
-            }
-        }
-
-        impl<N: Zero> Zero for $t<N> {
-            #[inline]
-            fn zero() -> $t<N> {
-                $t {
-                    $($compN: ::zero() ),+
-                }
-            }
-
-            #[inline]
-            fn is_zero(&self) -> bool {
-                $(self.$compN.is_zero() )&&+
-            }
-        }
-    )
-);
 
 macro_rules! from_iterator_impl(
     ($t: ident, $param0: ident) => (
@@ -764,26 +601,6 @@ macro_rules! from_iterator_impl(
                 let mut $param0 = $param0.into_iter();
                 $t::new($param0.next().unwrap(),
                         $($paramN.next().unwrap()),+)
-            }
-        }
-    )
-);
-
-macro_rules! bounded_impl(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Bounded> Bounded for $t<N> {
-            #[inline]
-            fn max_value() -> $t<N> {
-                $t {
-                    $($compN: Bounded::max_value() ),+
-                }
-            }
-
-            #[inline]
-            fn min_value() -> $t<N> {
-                $t {
-                    $($compN: Bounded::min_value() ),+
-                }
             }
         }
     )
@@ -817,145 +634,79 @@ macro_rules! vec_from_homogeneous_impl(
     )
 );
 
-macro_rules! translate_impl(
-    ($tv: ident, $t: ident) => (
-        impl<N: Copy + Add<N, Output = N> + Sub<N, Output = N>> Translate<$t<N>> for $tv<N> {
-            fn translate(&self, other: &$t<N>) -> $t<N> {
-                *other + *self
-            }
 
-            fn inverse_translate(&self, other: &$t<N>) -> $t<N> {
-                *other - *self
-            }
-        }
-    )
-);
-
-macro_rules! rotate_impl(
-    ($t: ident) => (
-        impl<N, O: Copy> Rotate<O> for $t<N> {
-            fn rotate(&self, other: &O) -> O {
-                *other
-            }
-
-            fn inverse_rotate(&self, other: &O) -> O {
-                *other
-            }
-        }
-    )
-);
-
-macro_rules! transform_impl(
-    ($tv: ident, $t: ident) => (
-        impl<N: Copy + Add<N, Output = N> + Sub<N, Output = N>> Transform<$t<N>> for $tv<N> {
-            fn transform(&self, other: &$t<N>) -> $t<N> {
-                self.translate(other)
-            }
-
-            fn inverse_transform(&self, other: &$t<N>) -> $t<N> {
-                self.inverse_translate(other)
-            }
-        }
-    )
-);
-
-macro_rules! vec_as_point_impl(
-    ($tv: ident, $t: ident, $($compN: ident),+) => (
-        impl<N> $tv<N> {
-            /// Converts this vector to a point.
+// We need to keep this on a separate macro to retrieve the first component nam.
+macro_rules! partial_order_impl(
+    ($t: ident, $comp0: ident $(, $compN: ident)*) => (
+        /*
+         *
+         * PartialOrder
+         *
+         */
+        impl<N: BaseFloat> PartialOrder for $t<N> {
             #[inline]
-            pub fn to_point(self) -> $t<N> {
-                $t::new(
-                    $(self.$compN),+
-                )
+            fn inf(&self, other: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0.min(other.$comp0), $(self.$compN.min(other.$compN)),*)
             }
 
-            /// Reinterprets this vector as a point.
             #[inline]
-            pub fn as_point(&self) -> &$t<N> {
-                unsafe {
-                    mem::transmute(self)
+            fn sup(&self, other: &$t<N>) -> $t<N> {
+                $t::new(self.$comp0.max(other.$comp0), $(self.$compN.max(other.$compN)),*)
+            }
+
+            #[inline]
+            #[allow(unused_mut)] // otherwise there will be a warning for is_eq or Vector1.
+            fn partial_cmp(&self, other: &$t<N>) -> PartialOrdering {
+                let is_lt     = self.$comp0 <  other.$comp0;
+                let mut is_eq = self.$comp0 == other.$comp0;
+
+                if is_lt { // <
+                    $(
+                        if self.$compN > other.$compN {
+                            return PartialOrdering::NotComparable
+                        }
+                     )*
+
+                    PartialOrdering::PartialLess
+                }
+                else { // >=
+                    $(
+                        if self.$compN < other.$compN {
+                            return PartialOrdering::NotComparable
+                        }
+                        else if self.$compN > other.$compN {
+                            is_eq = false;
+                        }
+
+                     )*
+
+                    if is_eq {
+                        PartialOrdering::PartialEqual
+                    }
+                    else {
+                        PartialOrdering::PartialGreater
+                    }
                 }
             }
-        }
-    )
-);
 
-macro_rules! num_float_vec_impl(
-    ($t: ident) => (
-        impl<N> NumVector<N> for $t<N>
-            where N: BaseNum {
-        }
-
-        impl<N> FloatVector<N> for $t<N>
-            where N: BaseFloat + ApproxEq<N> {
-        }
-    )
-);
-
-macro_rules! absolute_vec_impl(
-  ($t: ident, $($compN: ident),+) => (
-    impl<N: Absolute<N>> Absolute<$t<N>> for $t<N> {
-        #[inline]
-        fn abs(m: &$t<N>) -> $t<N> {
-            $t::new($(::abs(&m.$compN) ),+)
-        }
-    }
-  )
-);
-
-macro_rules! arbitrary_impl(
-    ($t: ident, $($compN: ident),*) => (
-        #[cfg(feature="arbitrary")]
-        impl<N: Arbitrary> Arbitrary for $t<N> {
             #[inline]
-            fn arbitrary<G: Gen>(g: &mut G) -> $t<N> {
-                $t { $($compN: Arbitrary::arbitrary(g),)* }
+            fn partial_lt(&self, other: &$t<N>) -> bool {
+                self.$comp0 < other.$comp0 $(&& self.$compN < other.$compN)*
             }
-        }
-    )
-);
 
-macro_rules! rand_impl(
-    ($t: ident, $($compN: ident),*) => (
-        impl<N: Rand> Rand for $t<N> {
             #[inline]
-            fn rand<R: Rng>(rng: &mut R) -> $t<N> {
-                $t { $($compN: Rand::rand(rng), )* }
+            fn partial_le(&self, other: &$t<N>) -> bool {
+                self.$comp0 <= other.$comp0 $(&& self.$compN <= other.$compN)*
             }
-        }
-    )
-);
 
-macro_rules! mean_impl(
-    ($t: ident) => (
-        impl<N: BaseFloat + Cast<f64>> Mean<N> for $t<N> {
             #[inline]
-            fn mean(&self) -> N {
-                let normalizer = ::cast(1.0f64 / self.len() as f64);
-                self.iter().fold(::zero(), |acc, x| acc + *x * normalizer)
+            fn partial_gt(&self, other: &$t<N>) -> bool {
+                self.$comp0 > other.$comp0 $(&& self.$compN > other.$compN)*
             }
-        }
-    )
-);
 
-macro_rules! vec_display_impl(
-    ($t: ident) => (
-        impl<N: fmt::Display> fmt::Display for $t<N> {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                try!(write!(f, "("));
-
-                let mut it = self.iter();
-
-                let precision = f.precision().unwrap_or(8);
-
-                try!(write!(f, "{:.*}", precision, *it.next().unwrap()));
-
-                for comp in it {
-                    try!(write!(f, ", {:.*}", precision, *comp));
-                }
-
-                write!(f, ")")
+            #[inline]
+            fn partial_ge(&self, other: &$t<N>) -> bool {
+                self.$comp0 >= other.$comp0 $(&& self.$compN >= other.$compN)*
             }
         }
     )

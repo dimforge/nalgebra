@@ -1,7 +1,7 @@
 //! Low level operations on vectors and matrices.
 
 use std::mem;
-use num::{Float, Signed};
+use num::Signed;
 use std::ops::Mul;
 use std::cmp::Ordering;
 use traits::structure::SquareMatrix;

@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - `.set_col` -> `.set_column`
     - `::canonical_basis_with_dim` -> `::canonical_basis_with_dimension`
     - `::from_elem` -> `::from_element`
+    - `DiagMut` -> `DiagonalMut`
   * Added:
     - Added `.exp()` and `.pow()` for quaternions.
 

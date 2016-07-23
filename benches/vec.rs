@@ -63,6 +63,13 @@ bench_unop!(_bench_vec4_normalize, Vector4<f32>, normalize);
 
 #[cfg(feature = "generic_sizes")]
 mod bench_vecn {
+    extern crate test;
+    extern crate rand;
+    extern crate nalgebra as na;
+
+    use rand::{IsaacRng, Rng};
+    use test::Bencher;
+    use std::ops::{Add, Sub, Mul, Div};
     use typenum::{U2, U3, U4};
     use na::VectorN;
 

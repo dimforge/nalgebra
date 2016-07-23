@@ -6,7 +6,7 @@ use num::One;
 use structs::matrix::{Matrix3, Matrix4};
 use traits::structure::{Dimension, Column, BaseFloat, BaseNum};
 use traits::operations::{Inverse, ApproxEq};
-use traits::geometry::{Rotation, Transform, Transformation, Translation, ToHomogeneous};
+use traits::geometry::{Transform, Transformation, ToHomogeneous};
 
 use structs::vector::{Vector1, Vector2, Vector3};
 use structs::point::{Point2, Point3};
@@ -49,38 +49,9 @@ pub struct Similarity3<N> {
     pub isometry: Isometry3<N>
 }
 
-sim_impl!(Similarity2, Isometry2, Rotation2, Vector2, Vector1);
-dim_impl!(Similarity2, 2);
-sim_scale_impl!(Similarity2);
-sim_one_impl!(Similarity2);
-sim_mul_sim_impl!(Similarity2);
-sim_mul_isometry_impl!(Similarity2, Isometry2);
-sim_mul_rotation_impl!(Similarity2, Rotation2);
-sim_mul_point_vec_impl!(Similarity2, Point2);
-sim_mul_point_vec_impl!(Similarity2, Vector2);
-transformation_impl!(Similarity2);
-sim_transform_impl!(Similarity2, Point2);
-sim_inverse_impl!(Similarity2);
-sim_to_homogeneous_impl!(Similarity2, Matrix3);
-sim_approx_eq_impl!(Similarity2);
-sim_rand_impl!(Similarity2);
-sim_arbitrary_impl!(Similarity2);
-sim_display_impl!(Similarity2);
 
-sim_impl!(Similarity3, Isometry3, Rotation3, Vector3, Vector3);
+similarity_impl!(Similarity2, Isometry2, Rotation2, Vector2, Vector1, Point2, Matrix3);
+dim_impl!(Similarity2, 2);
+
+similarity_impl!(Similarity3, Isometry3, Rotation3, Vector3, Vector3, Point3, Matrix4);
 dim_impl!(Similarity3, 3);
-sim_scale_impl!(Similarity3);
-sim_one_impl!(Similarity3);
-sim_mul_sim_impl!(Similarity3);
-sim_mul_isometry_impl!(Similarity3, Isometry3);
-sim_mul_rotation_impl!(Similarity3, Rotation3);
-sim_mul_point_vec_impl!(Similarity3, Point3);
-sim_mul_point_vec_impl!(Similarity3, Vector3);
-transformation_impl!(Similarity3);
-sim_transform_impl!(Similarity3, Point3);
-sim_inverse_impl!(Similarity3);
-sim_to_homogeneous_impl!(Similarity3, Matrix4);
-sim_approx_eq_impl!(Similarity3);
-sim_rand_impl!(Similarity3);
-sim_arbitrary_impl!(Similarity3);
-sim_display_impl!(Similarity3);
