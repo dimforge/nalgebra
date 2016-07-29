@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 extern crate rand;
 
-use na::{Point3, Vector3, Rotation3, UnitQuaternion, Rotation};
+use na::{Point3, Quaternion, Vector3, Rotation3, UnitQuaternion, Rotation, one};
 use rand::random;
 
 #[test]
@@ -89,4 +89,10 @@ fn test_quaternion_angle_between() {
     let delta_angle = na::angle_between(&q1, &q2);
 
     assert!(na::approx_eq(&na::norm(&na::rotation(&delta)), &delta_angle))
+}
+
+#[test]
+fn test_quaternion_exp_zero_is_one() {
+    let q = Quaternion::new(0., 0., 0., 0.);
+    assert!(na::approx_eq(&q.exp(), &one()))
 }
