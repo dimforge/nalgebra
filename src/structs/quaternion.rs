@@ -568,6 +568,33 @@ impl<N: Arbitrary + BaseFloat> Arbitrary for UnitQuaternion<N> {
     }
 }
 
+impl Quaternion<f32> {
+  /// Compute the exponential of a quaternion.
+  ///
+  /// This function yields a `UnitQuaternion<f32>`.
+  pub fn exp(&self) -> UnitQuaternion<f32> {
+    let v = Vector3::new(self.i, self.j, self.k);
+    let n = v.norm();
+    let z = v / n * n.sin();
+
+    UnitQuaternion::new_with_quaternion(Quaternion::new(n.cos(), z[0], z[1], z[2]))
+  }
+}
+
+impl UnitQuaternion<f32> {
+  /// Compute the natural logarithm (a.k.a ln()) of a unit quaternion.
+  ///
+  /// Becareful, this function yields a `Quaternion<f32>`, losing the unit property.
+  pub fn log(&self) -> Quaternion<f32> {
+    let q = self.quaternion();
+    (Quaternion { w: 0., .. *q }).normalize() * q.w.acos()
+  }
+
+  /// Raise the quaternion to a given floating power.
+  pub fn powf(&self, n: f32) -> Self {
+    (self.log() * n).exp()
+  }
+}
 
 pord_impl!(Quaternion, w, i, j, k);
 vec_axis_impl!(Quaternion, w, i, j, k);
