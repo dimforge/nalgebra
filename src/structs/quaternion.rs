@@ -596,6 +596,22 @@ impl Quaternion<f32> {
   }
 }
 
+impl<T> Zero for Quaternion<T> where T: Zero {
+  fn zero() -> Self {
+    Quaternion::new(::zero(), ::zero(), ::zero(), ::zero())
+  }
+
+  fn is_zero(&self) -> bool {
+    self.w.is_zero() && self.i.is_zero() && self.j.is_zero() && self.k.is_zero()
+  }
+}
+
+impl<T> One for Quaternion<T> where T: Copy + One + Zero + Sub<T, Output = T> + Add<T, Output = T> {
+  fn one() -> Self {
+    Quaternion::new(T::one(), T::zero(), T::zero(), T::zero())
+  }
+}
+
 pord_impl!(Quaternion, w, i, j, k);
 vec_axis_impl!(Quaternion, w, i, j, k);
 vec_cast_impl!(Quaternion, w, i, j, k);
@@ -613,7 +629,6 @@ scalar_sub_impl!(Quaternion, w, i, j, k);
 scalar_mul_impl!(Quaternion, w, i, j, k);
 scalar_div_impl!(Quaternion, w, i, j, k);
 neg_impl!(Quaternion, w, i, j, k);
-zero_one_impl!(Quaternion, w, i, j, k);
 approx_eq_impl!(Quaternion, w, i, j, k);
 from_iterator_impl!(Quaternion, iterator, iterator, iterator, iterator);
 bounded_impl!(Quaternion, w, i, j, k);
