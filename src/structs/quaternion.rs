@@ -568,6 +568,49 @@ impl<N: Arbitrary + BaseFloat> Arbitrary for UnitQuaternion<N> {
     }
 }
 
+impl Quaternion<f32> {
+  /// Compute the exponential of a quaternion.
+  pub fn exp(&self) -> Self {
+    let v = *self.vector();
+    let nn = v.norm_squared();
+    
+    if nn.is_zero() {
+      ::one()
+    } else {
+      let n = nn.sqrt();
+      let nv = v / n * n.sin();
+      Quaternion::new(n.cos(), nv.x, nv.y, nv.z)
+    }
+  }
+
+  /// Compute the natural logarithm (a.k.a ln()) of a quaternion.
+  ///
+  /// Becareful, this function yields a `Quaternion<f32>`, losing the unit property.
+  pub fn log(&self) -> Self {
+    (Quaternion { w: 0., .. *self }).normalize() * self.w.acos()
+  }
+
+  /// Raise the quaternion to a given floating power.
+  pub fn powf(&self, n: f32) -> Self {
+    (self.log() * n).exp()
+  }
+}
+
+impl<T> Zero for Quaternion<T> where T: Zero {
+  fn zero() -> Self {
+    Quaternion::new(::zero(), ::zero(), ::zero(), ::zero())
+  }
+
+  fn is_zero(&self) -> bool {
+    self.w.is_zero() && self.i.is_zero() && self.j.is_zero() && self.k.is_zero()
+  }
+}
+
+impl<T> One for Quaternion<T> where T: Copy + One + Zero + Sub<T, Output = T> + Add<T, Output = T> {
+  fn one() -> Self {
+    Quaternion::new(T::one(), T::zero(), T::zero(), T::zero())
+  }
+}
 
 pord_impl!(Quaternion, w, i, j, k);
 vec_axis_impl!(Quaternion, w, i, j, k);
@@ -586,7 +629,6 @@ scalar_sub_impl!(Quaternion, w, i, j, k);
 scalar_mul_impl!(Quaternion, w, i, j, k);
 scalar_div_impl!(Quaternion, w, i, j, k);
 neg_impl!(Quaternion, w, i, j, k);
-zero_one_impl!(Quaternion, w, i, j, k);
 approx_eq_impl!(Quaternion, w, i, j, k);
 from_iterator_impl!(Quaternion, iterator, iterator, iterator, iterator);
 bounded_impl!(Quaternion, w, i, j, k);
