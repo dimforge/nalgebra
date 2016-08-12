@@ -299,7 +299,9 @@ macro_rules! vector_impl(
          * Norm
          *
          */
-        impl<N: BaseFloat> Norm<N> for $t<N> {
+        impl<N: BaseFloat> Norm for $t<N> {
+            type NormType = N;
+
             #[inline]
             fn norm_squared(&self) -> N {
                 Dot::dot(self, self)
@@ -314,11 +316,22 @@ macro_rules! vector_impl(
 
             #[inline]
             fn normalize_mut(&mut self) -> N {
-                let l = Norm::norm(self);
+                let n = ::norm(self);
+                *self /= n;
 
-                $(self.$compN = self.$compN / l;)*
+                n
+            }
 
-                l
+            #[inline]
+            fn try_normalize(&self, min_norm: N) -> Option<$t<N>> {
+                let n = ::norm(self);
+
+                if n <= min_norm {
+                    None
+                }
+                else {
+                    Some(*self / n)
+                }
             }
         }
 
@@ -461,7 +474,7 @@ macro_rules! vector_impl(
         }
 
         impl<N> FloatVector<N> for $t<N>
-            where N: BaseFloat + ApproxEq<N> {
+            where N: BaseFloat {
         }
 
 
@@ -508,7 +521,7 @@ macro_rules! vector_impl(
 
 macro_rules! basis_impl(
     ($t: ident, $dimension: expr) => (
-        impl<N: BaseFloat + ApproxEq<N>> Basis for $t<N> {
+        impl<N: BaseFloat> Basis for $t<N> {
             #[inline]
             fn canonical_basis<F: FnMut($t<N>) -> bool>(mut f: F) {
                 for i in 0 .. $dimension {
@@ -541,8 +554,8 @@ macro_rules! basis_impl(
                         elt = elt - *v * Dot::dot(&elt, v)
                     };
 
-                    if !ApproxEq::approx_eq(&Norm::norm_squared(&elt), &::zero()) {
-                        let new_element = Norm::normalize(&elt);
+                    if !ApproxEq::approx_eq(&::norm_squared(&elt), &::zero()) {
+                        let new_element = ::normalize(&elt);
 
                         if !f(new_element) { return };
 

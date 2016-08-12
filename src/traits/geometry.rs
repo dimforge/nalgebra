@@ -1,6 +1,7 @@
 //! Traits of operations having a well-known or explicit geometric meaning.
 
 use std::ops::{Neg, Mul};
+use num::Float;
 use traits::structure::{BaseFloat, SquareMatrix};
 
 /// Trait of object which represent a translation, and to wich new translation
@@ -224,23 +225,35 @@ pub trait Dot<N> {
 }
 
 /// Traits of objects having an euclidian norm.
-pub trait Norm<N: BaseFloat> {
+pub trait Norm: Sized {
+    /// The scalar type for the norm (i.e. the undelying field).
+    type NormType : BaseFloat;
+
     /// Computes the norm of `self`.
     #[inline]
-    fn norm(&self) -> N {
+    fn norm(&self) -> Self::NormType {
         self.norm_squared().sqrt()
     }
 
     /// Computes the squared norm of `self`.
     ///
     /// This is usually faster than computing the norm itself.
-    fn norm_squared(&self) -> N;
+    fn norm_squared(&self) -> Self::NormType;
 
     /// Gets the normalized version of a copy of `v`.
+    ///
+    /// Might return an invalid result if the vector is zero or close to zero.
     fn normalize(&self) -> Self;
 
     /// Normalizes `self`.
-    fn normalize_mut(&mut self) -> N;
+    ///
+    /// The result might be invalid if the vector is zero or close to zero.
+    fn normalize_mut(&mut self) -> Self::NormType;
+
+    /// Gets the normalized version of a copy of `v` or `None` if the vector has a norm smaller
+    /// or equal to `min_norm`. In particular, `.try_normalize(0.0)` returns `None` if the norm is
+    /// exactly zero.
+    fn try_normalize(&self, min_norm: Self::NormType) -> Option<Self>;
 }
 
 /**

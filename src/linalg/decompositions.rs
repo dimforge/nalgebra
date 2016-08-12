@@ -40,7 +40,7 @@ pub fn householder_matrix<N, V, M>(dimension: usize, start: usize, vector: V) ->
 /// * `m` - matrix to decompose
 pub fn qr<N, V, M>(m: &M) -> (M, M)
     where N: BaseFloat,
-          V: Indexable<usize, N> + Norm<N>,
+          V: Indexable<usize, N> + Norm<NormType = N>,
           M: Copy + Eye + ColumnSlice<V> + Transpose + Indexable<(usize, usize), N> +
              Mul<M, Output = M> {
     let (rows, cols) = m.shape();
@@ -75,7 +75,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     where N:  BaseFloat,
           V:  Mul<M, Output = V>,
-          VS: Indexable<usize, N> + Norm<N>,
+          VS: Indexable<usize, N> + Norm<NormType = N>,
           M:  Indexable<(usize, usize), N> + SquareMatrix<N, V> + Add<M, Output = M> +
               Sub<M, Output = M> + ColumnSlice<VS> +
               ApproxEq<N> + Copy {
@@ -264,7 +264,7 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
 pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
     where N:  BaseFloat,
           V:  Mul<M, Output = V>,
-          VS: Indexable<usize, N> + Norm<N>,
+          VS: Indexable<usize, N> + Norm<NormType = N>,
           M:  Indexable<(usize, usize), N> + SquareMatrix<N, V> + Add<M, Output = M> +
               Sub<M, Output = M> + ColumnSlice<VS> +
               ApproxEq<N> + Copy {
@@ -316,7 +316,7 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
 /// * Second return value `h` - Matrix m in Hessenberg form
 pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
     where N: BaseFloat,
-          V: Indexable<usize, N> + Norm<N>,
+          V: Indexable<usize, N> + Norm<NormType = N>,
           M: Copy + Eye + ColumnSlice<V> + Transpose + Indexable<(usize, usize), N> +
              Mul<M, Output = M> {
     

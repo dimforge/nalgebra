@@ -195,10 +195,8 @@ impl<N: BaseFloat> OrthographicMatrix3<N> {
     }
 
     /// Creates a new orthographic matrix from a 4D matrix.
-    ///
-    /// This is unsafe because the input matrix is not checked to be a orthographic projection.
     #[inline]
-    pub unsafe fn new_with_matrix(matrix: Matrix4<N>) -> OrthographicMatrix3<N> {
+    pub fn new_with_matrix_unchecked(matrix: Matrix4<N>) -> OrthographicMatrix3<N> {
         OrthographicMatrix3 {
             matrix: matrix
         }

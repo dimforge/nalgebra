@@ -6,7 +6,7 @@ use std::ops::{Add, Sub, Mul, Div, Rem,
                AddAssign, SubAssign, MulAssign, DivAssign, RemAssign,
                Index, IndexMut, Neg};
 use num::{Float, Zero, One};
-use traits::operations::{Axpy, Transpose, Inverse, Absolute};
+use traits::operations::{Axpy, Transpose, Inverse, Absolute, ApproxEq};
 use traits::geometry::{Dot, Norm, Origin};
 
 /// Basic integral numeric trait.
@@ -21,7 +21,7 @@ pub trait BaseNum: Copy + Zero + One +
 }
 
 /// Basic floating-point number numeric trait.
-pub trait BaseFloat: Float + Cast<f64> + BaseNum + Neg {
+pub trait BaseFloat: Float + Cast<f64> + BaseNum + ApproxEq<Self> + Neg {
     /// Archimedes' constant.
     fn pi() -> Self;
     /// 2.0 * pi.
@@ -243,7 +243,7 @@ pub trait NumVector<N>: Add<Self, Output = Self> + Sub<Self, Output = Self> +
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
-pub trait FloatVector<N: BaseFloat>: NumVector<N> + Norm<N> + Neg<Output = Self> + Basis {
+pub trait FloatVector<N: BaseFloat>: NumVector<N> + Norm<NormType = N> + Neg<Output = Self> + Basis + ApproxEq<N> {
 }
 
 /*
@@ -289,7 +289,7 @@ pub trait NumPoint<N>:
 
 /// Trait of points with components implementing the `BaseFloat` trait.
 pub trait FloatPoint<N: BaseFloat>: NumPoint<N> + Sized
-    where <Self as PointAsVector>::Vector: Norm<N> {
+    where <Self as PointAsVector>::Vector: Norm<NormType = N> {
     /// Computes the square distance between two points.
     #[inline]
     fn distance_squared(&self, other: &Self) -> N {

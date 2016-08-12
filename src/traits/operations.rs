@@ -1,6 +1,6 @@
 //! Low level operations on vectors and matrices.
 
-use std::mem;
+use std::{mem, f32, f64};
 use num::Signed;
 use std::ops::Mul;
 use std::cmp::Ordering;
@@ -173,7 +173,7 @@ pub trait ApproxEq<Eps>: Sized {
 impl ApproxEq<f32> for f32 {
     #[inline]
     fn approx_epsilon(_: Option<f32>) -> f32 {
-        1.0e-6
+        f32::EPSILON * 10.0
     }
 
     #[inline]
@@ -204,7 +204,7 @@ impl ApproxEq<f32> for f32 {
 impl ApproxEq<f64> for f64 {
     #[inline]
     fn approx_epsilon(_: Option<f64>) -> f64 {
-        1.0e-6
+        f64::EPSILON * 10.0
     }
 
     #[inline]

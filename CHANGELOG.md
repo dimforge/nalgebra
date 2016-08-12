@@ -5,7 +5,7 @@ documented here.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.9.0] - WIP
-## Modified
+### Modified
   * Renamed:
     - `::from_col_vector` -> `::from_column_vector`
     - `::from_col_iter` -> `::from_column_iter`
@@ -14,11 +14,31 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - `::canonical_basis_with_dim` -> `::canonical_basis_with_dimension`
     - `::from_elem` -> `::from_element`
     - `DiagMut` -> `DiagonalMut`
-  * Added:
-    - Added `.exp()` and `.pow()` for quaternions.
+
+The `Norm` trait now uses an associated type instead of a type parameter.
+Other similar trait changes are to be expected in the future, e.g., for the
+`Diagonal` trait.
+
+Methods marked `unsafe` for reasons unrelated to memory safety are no
+longer unsafe. Instead, their name end with `_unchecked`. In particular:
+    * `Rotation3::new_with_matrix` -> `Rotation3::new_with_matrix_unchecked`
+    * `PerspectiveMatrix3::new_with_matrix` -> `PerspectiveMatrix3::new_with_matrix_unchecked`
+    * `OrthographicMatrix3::new_with_matrix` -> `OrthographicMatrix3::new_with_matrix_unchecked`
+
+### Added
+    - A `Unit<T>` type that wraps normalized values. In particular,
+      `UnitQuaternion<N>` is now replaced by `Unit<Quaternion<N>>`.
+    - `.ln()`, `.exp()` and `.powf(..)` for quaternions.
+    - `::from_parts(...)` to build a quaternion from its scalar and vector
+      parts.
+    - The `Norm` trait now has a `try_normalize()` that returns `None` if the
+    norm is too small.
+    - The `BaseFloat` and `FloatVector` traits now inherit from `ApproxEq` as
+      well. It is clear that performing computations with floats requires
+      approximate equality.
 
 ## [0.8.0]
-## Modified
+### Modified
   * Almost everything (types, methods, and traits) now use full names instead
     of abbreviations (e.g. `Vec3` becomes `Vector3`). Most changes are abvious.
     Note however that:

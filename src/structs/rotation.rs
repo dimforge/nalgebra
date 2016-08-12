@@ -157,9 +157,7 @@ impl<N: BaseFloat> Rotation3<N> {
     }
 
     /// Builds a rotation matrix from an orthogonal matrix.
-    ///
-    /// This is unsafe because the orthogonality of `matrix` is not checked.
-    pub unsafe fn new_with_matrix(matrix: Matrix3<N>) -> Rotation3<N> {
+    pub fn new_with_matrix_unchecked(matrix: Matrix3<N>) -> Rotation3<N> {
         Rotation3 {
             submatrix: matrix
         }
@@ -173,15 +171,13 @@ impl<N: BaseFloat> Rotation3<N> {
         let (sp, cp) = pitch.sin_cos();
         let (sy, cy) = yaw.sin_cos();
 
-        unsafe {
-            Rotation3::new_with_matrix(
-                Matrix3::new(
-                    cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr,
-                    sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr,
-                    -sp,     cp * sr,                cp * cr
+        Rotation3::new_with_matrix_unchecked(
+            Matrix3::new(
+                cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr,
+                sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr,
+                -sp,     cp * sr,                cp * cr
                 )
             )
-        }
     }
 }
 
@@ -202,12 +198,10 @@ impl<N: BaseFloat> Rotation3<N> {
         let xaxis = Norm::normalize(&Cross::cross(up, &zaxis));
         let yaxis = Norm::normalize(&Cross::cross(&zaxis, &xaxis));
 
-        unsafe {
-            Rotation3::new_with_matrix(Matrix3::new(
+        Rotation3::new_with_matrix_unchecked(Matrix3::new(
                 xaxis.x, yaxis.x, zaxis.x,
                 xaxis.y, yaxis.y, zaxis.y,
                 xaxis.z, yaxis.z, zaxis.z))
-        }
     }
 
 

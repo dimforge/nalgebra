@@ -154,7 +154,8 @@ pub use structs::{
     Point1, Point2, Point3, Point4, Point5, Point6,
     Perspective3, PerspectiveMatrix3,
     Orthographic3, OrthographicMatrix3,
-    Quaternion, UnitQuaternion
+    Quaternion, UnitQuaternion,
+    Unit
 };
 
 pub use linalg::{
@@ -312,7 +313,7 @@ pub fn origin<P: Origin>() -> P {
 /// Returns the center of two points.
 #[inline]
 pub fn center<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> P
-        where <P as PointAsVector>::Vector: Norm<N> {
+        where <P as PointAsVector>::Vector: Norm<NormType = N> {
     (*a + b.to_vector()) / ::cast(2.0)
 }
 
@@ -321,14 +322,14 @@ pub fn center<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> P
  */
 /// Returns the distance between two points.
 #[inline]
-pub fn distance<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N where <P as PointAsVector>::Vector: Norm<N> {
+pub fn distance<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N where <P as PointAsVector>::Vector: Norm<NormType = N> {
     a.distance(b)
 }
 
 /// Returns the squared distance between two points.
 #[inline]
 pub fn distance_squared<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N 
-        where <P as PointAsVector>::Vector: Norm<N> {
+        where <P as PointAsVector>::Vector: Norm<NormType = N> {
     a.distance_squared(b)
 }
 
@@ -664,20 +665,26 @@ pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
 
 /// Computes the L2 norm of a vector.
 #[inline]
-pub fn norm<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
+pub fn norm<V: Norm>(v: &V) -> V::NormType {
     Norm::norm(v)
 }
 
 /// Computes the squared L2 norm of a vector.
 #[inline]
-pub fn norm_squared<V: Norm<N>, N: BaseFloat>(v: &V) -> N {
+pub fn norm_squared<V: Norm>(v: &V) -> V::NormType {
     Norm::norm_squared(v)
 }
 
 /// Gets the normalized version of a vector.
 #[inline]
-pub fn normalize<V: Norm<N>, N: BaseFloat>(v: &V) -> V {
+pub fn normalize<V: Norm>(v: &V) -> V {
     Norm::normalize(v)
+}
+
+/// Gets the normalized version of a vector or `None` if its norm is smaller than `min_norm`.
+#[inline]
+pub fn try_normalize<V: Norm>(v: &V, min_norm: V::NormType) -> Option<V> {
+    Norm::try_normalize(v, min_norm)
 }
 
 /*

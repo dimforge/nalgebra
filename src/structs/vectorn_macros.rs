@@ -253,6 +253,15 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        impl<'a, N: Copy + Div<N, Output = N> + Zero $(, $param : ArrayLength<N>)*> Div<N> for &'a $vecn<N $(, $param)*> {
+            type Output = $vecn<N $(, $param)*>;
+
+            #[inline]
+            fn div(self, right: N) -> $vecn<N $(, $param)*> {
+                self.clone() / right
+            }
+        }
+
         impl<N $(, $param: ArrayLength<N>)*> DivAssign<$vecn<N $(, $param)*>> for $vecn<N $(, $param)*>
             where N: Copy + DivAssign<N> + Zero $(, $param : ArrayLength<N>)* {
             #[inline]
@@ -495,10 +504,12 @@ macro_rules! vecn_dvec_common_impl(
          * Norm.
          *
          */
-        impl<N: BaseFloat $(, $param : ArrayLength<N>)*> Norm<N> for $vecn<N $(, $param)*> {
+        impl<N: BaseFloat $(, $param : ArrayLength<N>)*> Norm for $vecn<N $(, $param)*> {
+            type NormType = N;
+
             #[inline]
             fn norm_squared(&self) -> N {
-                Dot::dot(self, self)
+                ::dot(self, self)
             }
 
             #[inline]
@@ -510,13 +521,22 @@ macro_rules! vecn_dvec_common_impl(
 
             #[inline]
             fn normalize_mut(&mut self) -> N {
-                let l = Norm::norm(self);
+                let n = ::norm(self);
+                *self /= n;
 
-                for n in self.as_mut().iter_mut() {
-                    *n = *n / l;
+                n
+            }
+
+            #[inline]
+            fn try_normalize(&self, min_norm: N) -> Option<$vecn<N $(, $param)*>> {
+                let n = ::norm(self);
+
+                if n <= min_norm {
+                    None
                 }
-
-                l
+                else {
+                    Some(self / n)
+                }
             }
         }
 

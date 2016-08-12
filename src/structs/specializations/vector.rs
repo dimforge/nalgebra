@@ -172,10 +172,10 @@ impl<N: BaseFloat> Basis for Vector3<N> {
     fn orthonormal_subspace_basis<F: FnMut(Vector3<N>) -> bool>(n: &Vector3<N>, mut f: F) {
         let a = 
             if n.x.abs() > n.y.abs() {
-                Norm::normalize(&Vector3::new(n.z, ::zero(), -n.x))
+                ::normalize(&Vector3::new(n.z, ::zero(), -n.x))
             }
             else {
-                Norm::normalize(&Vector3::new(::zero(), -n.z, n.y))
+                ::normalize(&Vector3::new(::zero(), -n.z, n.y))
             };
 
         if !f(Cross::cross(&a, n)) { return };
