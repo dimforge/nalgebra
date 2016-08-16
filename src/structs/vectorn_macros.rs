@@ -253,6 +253,15 @@ macro_rules! vecn_dvec_common_impl(
             }
         }
 
+        impl<'a, N: Copy + Div<N, Output = N> + Zero $(, $param : ArrayLength<N>)*> Div<$vecn<N $(, $param)*>> for &'a $vecn<N $(, $param)*> {
+            type Output = $vecn<N $(, $param)*>;
+
+            #[inline]
+            fn div(self, right: $vecn<N $(, $param)*>) -> $vecn<N $(, $param)*> {
+                self.clone() / right
+            }
+        }
+
         impl<'a, N: Copy + Div<N, Output = N> + Zero $(, $param : ArrayLength<N>)*> Div<N> for &'a $vecn<N $(, $param)*> {
             type Output = $vecn<N $(, $param)*>;
 
