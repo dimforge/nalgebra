@@ -1,5 +1,5 @@
 use traits::operations::{Transpose, ApproxEq};
-use traits::structure::{ColumnSlice, Eye, Indexable, Diagonal, SquareMatrix, BaseFloat, Cast};
+use traits::structure::{ColumnSlice, Eye, Indexable, SquareMatrix, BaseFloat, Cast};
 use traits::geometry::Norm;
 use std::cmp;
 use std::ops::{Mul, Add, Sub};
@@ -40,7 +40,7 @@ pub fn householder_matrix<N, V, M>(dimension: usize, start: usize, vector: V) ->
 /// * `m` - matrix to decompose
 pub fn qr<N, V, M>(m: &M) -> (M, M)
     where N: BaseFloat,
-          V: Indexable<usize, N> + Norm<N>,
+          V: Indexable<usize, N> + Norm<NormType = N>,
           M: Copy + Eye + ColumnSlice<V> + Transpose + Indexable<(usize, usize), N> +
              Mul<M, Output = M> {
     let (rows, cols) = m.shape();
@@ -75,7 +75,7 @@ pub fn qr<N, V, M>(m: &M) -> (M, M)
 pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
     where N:  BaseFloat,
           V:  Mul<M, Output = V>,
-          VS: Indexable<usize, N> + Norm<N>,
+          VS: Indexable<usize, N> + Norm<NormType = N>,
           M:  Indexable<(usize, usize), N> + SquareMatrix<N, V> + Add<M, Output = M> +
               Sub<M, Output = M> + ColumnSlice<VS> +
               ApproxEq<N> + Copy {
@@ -264,12 +264,12 @@ pub fn eigen_qr<N, V, VS, M>(m: &M, eps: &N, niter: usize) -> (M, V)
 pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
     where N:  BaseFloat,
           V:  Mul<M, Output = V>,
-          VS: Indexable<usize, N> + Norm<N>,
+          VS: Indexable<usize, N> + Norm<NormType = N>,
           M:  Indexable<(usize, usize), N> + SquareMatrix<N, V> + Add<M, Output = M> +
               Sub<M, Output = M> + ColumnSlice<VS> +
               ApproxEq<N> + Copy {
 
-    let mut out = m.clone().transpose();
+    let mut out = m.transpose();
 
     if !ApproxEq::approx_eq(&out, &m) {
         return Err("Cholesky: Input matrix is not symmetric");
@@ -302,7 +302,7 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
         }
     }
 
-    return Ok(out);
+    Ok(out)
 }
 
 /// Hessenberg
@@ -316,11 +316,11 @@ pub fn cholesky<N, V, VS, M>(m: &M) -> Result<M, &'static str>
 /// * Second return value `h` - Matrix m in Hessenberg form
 pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
     where N: BaseFloat,
-          V: Indexable<usize, N> + Norm<N>,
+          V: Indexable<usize, N> + Norm<NormType = N>,
           M: Copy + Eye + ColumnSlice<V> + Transpose + Indexable<(usize, usize), N> +
              Mul<M, Output = M> {
     
-    let mut h = m.clone();
+    let mut h = *m;
     let (rows, cols) = h.shape();
 
     let mut q : M = Eye::new_identity(cols);
@@ -347,5 +347,5 @@ pub fn hessenberg<N, V, M>(m: &M) -> (M, M)
         }
     }
 
-    return (q, h);
+    (q, h)
 }

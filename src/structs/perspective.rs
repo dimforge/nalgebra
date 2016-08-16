@@ -63,29 +63,29 @@ impl<N: Arbitrary + BaseFloat> Arbitrary for Perspective3<N> {
     }
 }
 
-impl<N: BaseFloat + Clone> Perspective3<N> {
+impl<N: BaseFloat> Perspective3<N> {
     /// Gets the `width / height` aspect ratio.
     #[inline]
     pub fn aspect(&self) -> N {
-        self.aspect.clone()
+        self.aspect
     }
 
     /// Gets the y field of view of the view frustrum.
     #[inline]
     pub fn fovy(&self) -> N {
-        self.fovy.clone()
+        self.fovy
     }
 
     /// Gets the near plane offset of the view frustrum.
     #[inline]
     pub fn znear(&self) -> N {
-        self.znear.clone()
+        self.znear
     }
 
     /// Gets the far plane offset of the view frustrum.
     #[inline]
     pub fn zfar(&self) -> N {
-        self.zfar.clone()
+        self.zfar
     }
 
     /// Sets the `width / height` aspect ratio of the view frustrum.
@@ -154,10 +154,8 @@ impl<N: BaseFloat> PerspectiveMatrix3<N> {
     }
 
     /// Creates a new perspective projection matrix from a 4D matrix.
-    ///
-    /// This is unsafe because the input matrix is not checked to be a perspective projection.
     #[inline]
-    pub unsafe fn new_with_matrix(matrix: Matrix4<N>) -> PerspectiveMatrix3<N> {
+    pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> PerspectiveMatrix3<N> {
         PerspectiveMatrix3 {
             matrix: matrix
         }
@@ -165,7 +163,7 @@ impl<N: BaseFloat> PerspectiveMatrix3<N> {
 
     /// Returns a reference to the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
-    pub fn as_matrix<'a>(&'a self) -> &'a Matrix4<N> {
+    pub fn as_matrix(&self) -> &Matrix4<N> {
         &self.matrix
     }
 
@@ -178,30 +176,23 @@ impl<N: BaseFloat> PerspectiveMatrix3<N> {
     /// Gets the y field of view of the view frustrum.
     #[inline]
     pub fn fovy(&self) -> N {
-        let _1: N = ::one();
-        let _2 = _1 + _1;
-
-        (_1 / self.matrix.m22).atan() * _2
+        (::one::<N>() / self.matrix.m22).atan() * ::cast(2.0)
     }
 
     /// Gets the near plane offset of the view frustrum.
     #[inline]
     pub fn znear(&self) -> N {
-        let _1: N = ::one();
-        let _2 = _1 + _1;
-        let ratio = (-self.matrix.m33 + _1) / (-self.matrix.m33 - _1);
+        let ratio = (-self.matrix.m33 + ::one::<N>()) / (-self.matrix.m33 - ::one::<N>());
 
-        self.matrix.m34 / (_2 * ratio) - self.matrix.m34 / _2
+        self.matrix.m34 / (ratio * ::cast(2.0)) - self.matrix.m34 / ::cast(2.0)
     }
 
     /// Gets the far plane offset of the view frustrum.
     #[inline]
     pub fn zfar(&self) -> N {
-        let _1: N = ::one();
-        let _2 = _1 + _1;
-        let ratio = (-self.matrix.m33 + _1) / (-self.matrix.m33 - _1);
+        let ratio = (-self.matrix.m33 + ::one()) / (-self.matrix.m33 - ::one());
 
-        (self.matrix.m34 - ratio * self.matrix.m34) / _2
+        (self.matrix.m34 - ratio * self.matrix.m34) / ::cast(2.0)
     }
 
     // FIXME: add a method to retrieve znear and zfar simultaneously?
@@ -217,11 +208,8 @@ impl<N: BaseFloat> PerspectiveMatrix3<N> {
     /// Updates this projection with a new y field of view of the view frustrum.
     #[inline]
     pub fn set_fovy(&mut self, fovy: N) {
-        let _1: N = ::one();
-        let _2 = _1 + _1;
-
-        let old_m22  = self.matrix.m22.clone();
-        self.matrix.m22 = _1 / (fovy / _2).tan();
+        let old_m22  = self.matrix.m22;
+        self.matrix.m22 = ::one::<N>() / (fovy / ::cast(2.0)).tan();
         self.matrix.m11 = self.matrix.m11 * (self.matrix.m22 / old_m22);
     }
 
@@ -242,18 +230,15 @@ impl<N: BaseFloat> PerspectiveMatrix3<N> {
     /// Updates this projection matrix with new near and far plane offsets of the view frustrum.
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
-        let _1: N = ::one();
-        let _2 = _1 + _1;
-
         self.matrix.m33 = (zfar + znear) / (znear - zfar);
-        self.matrix.m34 = zfar * znear * _2 / (znear - zfar);
+        self.matrix.m34 = zfar * znear * ::cast(2.0) / (znear - zfar);
     }
 
     /// Projects a point.
     #[inline]
     pub fn project_point(&self, p: &Point3<N>) -> Point3<N> {
-        let _1: N = ::one();
-        let inverse_denom = -_1 / p.z;
+        let inverse_denom = -::one::<N>() / p.z;
+
         Point3::new(
             self.matrix.m11 * p.x * inverse_denom,
             self.matrix.m22 * p.y * inverse_denom,
@@ -264,8 +249,8 @@ impl<N: BaseFloat> PerspectiveMatrix3<N> {
     /// Projects a vector.
     #[inline]
     pub fn project_vector(&self, p: &Vector3<N>) -> Vector3<N> {
-        let _1: N = ::one();
-        let inverse_denom = -_1 / p.z;
+        let inverse_denom = -::one::<N>() / p.z;
+
         Vector3::new(
             self.matrix.m11 * p.x * inverse_denom,
             self.matrix.m22 * p.y * inverse_denom,
@@ -274,11 +259,11 @@ impl<N: BaseFloat> PerspectiveMatrix3<N> {
     }
 }
 
-impl<N: BaseFloat + Clone> PerspectiveMatrix3<N> {
+impl<N: BaseFloat> PerspectiveMatrix3<N> {
     /// Returns the 4D matrix (using homogeneous coordinates) of this projection.
     #[inline]
-    pub fn to_matrix<'a>(&'a self) -> Matrix4<N> {
-        self.matrix.clone()
+    pub fn to_matrix(&self) -> Matrix4<N> {
+        self.matrix
     }
 }
 

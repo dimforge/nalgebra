@@ -1,7 +1,7 @@
 //! Rotations matrices.
 
 use std::fmt;
-use std::ops::{Mul, Neg, MulAssign, Index};
+use std::ops::{Mul, MulAssign, Index};
 use rand::{Rand, Rng};
 use num::{Zero, One};
 use traits::geometry::{Rotate, Rotation, AbsoluteRotate, RotationMatrix, RotationTo, Transform,
@@ -22,21 +22,21 @@ pub struct Rotation2<N> {
     submatrix: Matrix2<N>
 }
 
-impl<N: Clone + BaseFloat + Neg<Output = N>> Rotation2<N> {
+impl<N: BaseFloat> Rotation2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
     pub fn new(angle: Vector1<N>) -> Rotation2<N> {
         let (sia, coa) = angle.x.sin_cos();
 
         Rotation2 {
-            submatrix: Matrix2::new(coa.clone(), -sia, sia, coa)
+            submatrix: Matrix2::new(coa, -sia, sia, coa)
         }
     }
 }
 
-impl<N: BaseFloat + Clone> Rotation<Vector1<N>> for Rotation2<N> {
+impl<N: BaseFloat> Rotation<Vector1<N>> for Rotation2<N> {
     #[inline]
     fn rotation(&self) -> Vector1<N> {
-        Vector1::new((-self.submatrix.m12).atan2(self.submatrix.m11.clone()))
+        Vector1::new((-self.submatrix.m12).atan2(self.submatrix.m11))
     }
 
     #[inline]
@@ -51,7 +51,7 @@ impl<N: BaseFloat + Clone> Rotation<Vector1<N>> for Rotation2<N> {
 
     #[inline]
     fn append_rotation(&self, rotation: &Vector1<N>) -> Rotation2<N> {
-        Rotation2::new(rotation.clone()) * *self
+        Rotation2::new(*rotation) * *self
     }
 
     #[inline]
@@ -61,7 +61,7 @@ impl<N: BaseFloat + Clone> Rotation<Vector1<N>> for Rotation2<N> {
 
     #[inline]
     fn prepend_rotation(&self, rotation: &Vector1<N>) -> Rotation2<N> {
-        *self * Rotation2::new(rotation.clone())
+        *self * Rotation2::new(*rotation)
     }
 
     #[inline]
@@ -105,13 +105,6 @@ impl<N: BaseFloat> AbsoluteRotate<Vector2<N>> for Rotation2<N> {
     }
 }
 
-#[cfg(feature="arbitrary")]
-impl<N: Arbitrary + Clone + BaseFloat + Neg<Output = N>> Arbitrary for Rotation2<N> {
-    fn arbitrary<G: Gen>(g: &mut G) -> Rotation2<N> {
-        Rotation2::new(Arbitrary::arbitrary(g))
-    }
-}
-
 
 /*
  * 3d rotation
@@ -124,7 +117,7 @@ pub struct Rotation3<N> {
 }
 
 
-impl<N: Clone + BaseFloat> Rotation3<N> {
+impl<N: BaseFloat> Rotation3<N> {
     /// Builds a 3 dimensional rotation matrix from an axis and an angle.
     ///
     /// # Arguments
@@ -137,37 +130,34 @@ impl<N: Clone + BaseFloat> Rotation3<N> {
         else {
             let mut axis   = axisangle;
             let angle      = axis.normalize_mut();
-            let _1: N      = ::one();
-            let ux         = axis.x.clone();
-            let uy         = axis.y.clone();
-            let uz         = axis.z.clone();
+            let ux         = axis.x;
+            let uy         = axis.y;
+            let uz         = axis.z;
             let sqx        = ux * ux;
             let sqy        = uy * uy;
             let sqz        = uz * uz;
             let (sin, cos) = angle.sin_cos();
-            let one_m_cos  = _1 - cos;
+            let one_m_cos  = ::one::<N>() - cos;
 
             Rotation3 {
                 submatrix: Matrix3::new(
-                            (sqx + (_1 - sqx) * cos),
+                            (sqx + (::one::<N>() - sqx) * cos),
                             (ux * uy * one_m_cos - uz * sin),
                             (ux * uz * one_m_cos + uy * sin),
 
                             (ux * uy * one_m_cos + uz * sin),
-                            (sqy + (_1 - sqy) * cos),
+                            (sqy + (::one::<N>() - sqy) * cos),
                             (uy * uz * one_m_cos - ux * sin),
 
                             (ux * uz * one_m_cos - uy * sin),
                             (uy * uz * one_m_cos + ux * sin),
-                            (sqz + (_1 - sqz) * cos))
+                            (sqz + (::one::<N>() - sqz) * cos))
             }
         }
     }
 
     /// Builds a rotation matrix from an orthogonal matrix.
-    ///
-    /// This is unsafe because the orthogonality of `matrix` is not checked.
-    pub unsafe fn new_with_matrix(matrix: Matrix3<N>) -> Rotation3<N> {
+    pub fn from_matrix_unchecked(matrix: Matrix3<N>) -> Rotation3<N> {
         Rotation3 {
             submatrix: matrix
         }
@@ -176,24 +166,22 @@ impl<N: Clone + BaseFloat> Rotation3<N> {
     /// Creates a new rotation from Euler angles.
     ///
     /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
-    pub fn new_with_euler_angles(roll: N, pitch: N, yaw: N) -> Rotation3<N> {
+    pub fn from_euler_angles(roll: N, pitch: N, yaw: N) -> Rotation3<N> {
         let (sr, cr) = roll.sin_cos();
         let (sp, cp) = pitch.sin_cos();
         let (sy, cy) = yaw.sin_cos();
 
-        unsafe {
-            Rotation3::new_with_matrix(
-                Matrix3::new(
-                    cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr,
-                    sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr,
-                    -sp,     cp * sr,                cp * cr
+        Rotation3::from_matrix_unchecked(
+            Matrix3::new(
+                cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr,
+                sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr,
+                -sp,     cp * sr,                cp * cr
                 )
             )
-        }
     }
 }
 
-impl<N: Clone + BaseFloat> Rotation3<N> {
+impl<N: BaseFloat> Rotation3<N> {
     /// Creates a rotation that corresponds to the local frame of an observer standing at the
     /// origin and looking toward `dir`.
     ///
@@ -210,12 +198,10 @@ impl<N: Clone + BaseFloat> Rotation3<N> {
         let xaxis = Norm::normalize(&Cross::cross(up, &zaxis));
         let yaxis = Norm::normalize(&Cross::cross(&zaxis, &xaxis));
 
-        unsafe {
-            Rotation3::new_with_matrix(Matrix3::new(
-                xaxis.x.clone(), yaxis.x.clone(), zaxis.x.clone(),
-                xaxis.y.clone(), yaxis.y.clone(), zaxis.y.clone(),
-                xaxis.z        , yaxis.z        , zaxis.z))
-        }
+        Rotation3::from_matrix_unchecked(Matrix3::new(
+                xaxis.x, yaxis.x, zaxis.x,
+                xaxis.y, yaxis.y, zaxis.y,
+                xaxis.z, yaxis.z, zaxis.z))
     }
 
 
@@ -250,17 +236,13 @@ impl<N: Clone + BaseFloat> Rotation3<N> {
     }
 }
 
-impl<N: Clone + BaseFloat + Cast<f64>>
-Rotation<Vector3<N>> for Rotation3<N> {
+impl<N: BaseFloat> Rotation<Vector3<N>> for Rotation3<N> {
     #[inline]
     fn rotation(&self) -> Vector3<N> {
         let angle = ((self.submatrix.m11 + self.submatrix.m22 + self.submatrix.m33 - ::one()) / Cast::from(2.0)).acos();
 
-        if angle != angle {
-            // FIXME: handle that correctly
-            ::zero()
-        }
-        else if ::is_zero(&angle) {
+        if !angle.is_finite()  || ::is_zero(&angle) {
+            // FIXME: handle the non-finite case robustly.
             ::zero()
         }
         else {
@@ -296,7 +278,7 @@ Rotation<Vector3<N>> for Rotation3<N> {
 
     #[inline]
     fn append_rotation(&self, axisangle: &Vector3<N>) -> Rotation3<N> {
-        Rotation3::new(axisangle.clone()) * *self
+        Rotation3::new(*axisangle) * *self
     }
 
     #[inline]
@@ -306,7 +288,7 @@ Rotation<Vector3<N>> for Rotation3<N> {
 
     #[inline]
     fn prepend_rotation(&self, axisangle: &Vector3<N>) -> Rotation3<N> {
-        *self * Rotation3::new(axisangle.clone())
+        *self * Rotation3::new(*axisangle)
     }
 
     #[inline]
@@ -331,7 +313,7 @@ impl<N: BaseFloat> RotationTo for Rotation3<N> {
     }
 }
 
-impl<N: Clone + Rand + BaseFloat> Rand for Rotation3<N> {
+impl<N: Rand + BaseFloat> Rand for Rotation3<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Rotation3<N> {
         Rotation3::new(rng.gen())
@@ -348,60 +330,13 @@ impl<N: BaseFloat> AbsoluteRotate<Vector3<N>> for Rotation3<N> {
     }
 }
 
-#[cfg(feature="arbitrary")]
-impl<N: Arbitrary + Clone + BaseFloat> Arbitrary for Rotation3<N> {
-    fn arbitrary<G: Gen>(g: &mut G) -> Rotation3<N> {
-        Rotation3::new(Arbitrary::arbitrary(g))
-    }
-}
-
 
 /*
  * Common implementations.
  */
 
-submat_impl!(Rotation2, Matrix2);
-rotate_impl!(Rotation2, Vector2, Point2);
-transform_impl!(Rotation2, Vector2, Point2);
+rotation_impl!(Rotation2, Matrix2, Vector2, Vector1, Point2, Matrix3);
 dim_impl!(Rotation2, 2);
-rotation_mul_rotation_impl!(Rotation2);
-rotation_mul_vec_impl!(Rotation2, Vector2);
-vec_mul_rotation_impl!(Rotation2, Vector2);
-rotation_mul_point_impl!(Rotation2, Point2);
-point_mul_rotation_impl!(Rotation2, Point2);
-one_impl!(Rotation2);
-eye_impl!(Rotation2);
-rotation_matrix_impl!(Rotation2, Vector2, Vector1);
-column_impl!(Rotation2, Vector2);
-row_impl!(Rotation2, Vector2);
-index_impl!(Rotation2);
-absolute_impl!(Rotation2, Matrix2);
-to_homogeneous_impl!(Rotation2, Matrix3);
-inverse_impl!(Rotation2);
-transpose_impl!(Rotation2);
-approx_eq_impl!(Rotation2);
-diag_impl!(Rotation2, Vector2);
-rotation_display_impl!(Rotation2);
 
-submat_impl!(Rotation3, Matrix3);
-rotate_impl!(Rotation3, Vector3, Point3);
-transform_impl!(Rotation3, Vector3, Point3);
+rotation_impl!(Rotation3, Matrix3, Vector3, Vector3, Point3, Matrix4);
 dim_impl!(Rotation3, 3);
-rotation_mul_rotation_impl!(Rotation3);
-rotation_mul_vec_impl!(Rotation3, Vector3);
-vec_mul_rotation_impl!(Rotation3, Vector3);
-rotation_mul_point_impl!(Rotation3, Point3);
-point_mul_rotation_impl!(Rotation3, Point3);
-one_impl!(Rotation3);
-eye_impl!(Rotation3);
-rotation_matrix_impl!(Rotation3, Vector3, Vector3);
-column_impl!(Rotation3, Vector3);
-row_impl!(Rotation3, Vector3);
-index_impl!(Rotation3);
-absolute_impl!(Rotation3, Matrix3);
-to_homogeneous_impl!(Rotation3, Matrix4);
-inverse_impl!(Rotation3);
-transpose_impl!(Rotation3);
-approx_eq_impl!(Rotation3);
-diag_impl!(Rotation3, Vector3);
-rotation_display_impl!(Rotation3);

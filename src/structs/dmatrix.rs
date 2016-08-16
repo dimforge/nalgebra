@@ -9,7 +9,8 @@ use rand::{self, Rand};
 use num::{Zero, One};
 use structs::dvector::{DVector, DVector1, DVector2, DVector3, DVector4, DVector5, DVector6};
 use traits::operations::{ApproxEq, Inverse, Transpose, Mean, Covariance};
-use traits::structure::{Cast, Column, ColumnSlice, Row, RowSlice, Diagonal, DiagMut, Eye, Indexable, Shape, BaseNum};
+use traits::structure::{Cast, Column, ColumnSlice, Row, RowSlice, Diagonal, DiagonalMut, Eye,
+                        Indexable, Shape, BaseNum};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -109,7 +110,7 @@ impl<N: Clone + Copy> DMatrix<N> {
 
 impl<N> DMatrix<N> {
     /// Builds a matrix filled with the results of a function applied to each of its component coordinates.
-    #[inline(always)]
+    #[inline]
     pub fn from_fn<F: FnMut(usize, usize) -> N>(nrows: usize, ncols: usize, mut f: F) -> DMatrix<N> {
         DMatrix {
             nrows: nrows,
@@ -133,7 +134,7 @@ dmat_impl!(DMatrix, DVector);
 pub struct DMatrix1<N> {
     nrows: usize,
     ncols: usize,
-    mij:   [N; 1 * 1],
+    mij:   [N; 1],
 }
 
 small_dmat_impl!(DMatrix1, DVector1, 1, 0);

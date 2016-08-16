@@ -6,7 +6,7 @@ use std::ops::{Add, Sub, Mul, Div, Rem,
                AddAssign, SubAssign, MulAssign, DivAssign, RemAssign,
                Index, IndexMut, Neg};
 use num::{Float, Zero, One};
-use traits::operations::{Axpy, Transpose, Inverse, Absolute};
+use traits::operations::{Axpy, Transpose, Inverse, Absolute, ApproxEq};
 use traits::geometry::{Dot, Norm, Origin};
 
 /// Basic integral numeric trait.
@@ -21,7 +21,7 @@ pub trait BaseNum: Copy + Zero + One +
 }
 
 /// Basic floating-point number numeric trait.
-pub trait BaseFloat: Float + Cast<f64> + BaseNum + Neg {
+pub trait BaseFloat: Float + Cast<f64> + BaseNum + ApproxEq<Self> + Neg {
     /// Archimedes' constant.
     fn pi() -> Self;
     /// 2.0 * pi.
@@ -176,7 +176,7 @@ pub trait Diagonal<V> {
 }
 
 /// Trait to set the diagonal of square matrices.
-pub trait DiagMut<V>: Diagonal<V> {
+pub trait DiagonalMut<V>: Diagonal<V> {
     /// Sets the diagonal of this matrix.
     fn set_diagonal(&mut self, diagonal: &V);
 }
@@ -211,7 +211,7 @@ pub trait Indexable<I, N>: Shape<I> + IndexMut<I, Output = N> {
 /// Traits of objects which can be iterated through like a vector.
 pub trait Iterable<N> {
     /// Gets a vector-like read-only iterator.
-    fn iter<'l>(&'l self) -> Iter<'l, N>;
+    fn iter(&self) -> Iter<N>;
 }
 
 /// This is a workaround of current Rust limitations.
@@ -219,7 +219,7 @@ pub trait Iterable<N> {
 /// Traits of mutable objects which can be iterated through like a vector.
 pub trait IterableMut<N> {
     /// Gets a vector-like read-write iterator.
-    fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N>;
+    fn iter_mut(&mut self) -> IterMut<N>;
 }
 
 /*
@@ -243,7 +243,7 @@ pub trait NumVector<N>: Add<Self, Output = Self> + Sub<Self, Output = Self> +
 }
 
 /// Trait of vector with components implementing the `BaseFloat` trait.
-pub trait FloatVector<N: BaseFloat>: NumVector<N> + Norm<N> + Neg<Output = Self> + Basis {
+pub trait FloatVector<N: BaseFloat>: NumVector<N> + Norm<NormType = N> + Neg<Output = Self> + Basis + ApproxEq<N> {
 }
 
 /*
@@ -258,7 +258,7 @@ pub trait PointAsVector {
     fn to_vector(self) -> Self::Vector;
 
     /// Converts a reference to this point to a reference to its associated vector.
-    fn as_vector<'a>(&'a self) -> &'a Self::Vector;
+    fn as_vector(&self) -> &Self::Vector;
 
     // NOTE: this is used in some places to overcome some limitations untill the trait reform is
     // done on rustc.
@@ -289,7 +289,7 @@ pub trait NumPoint<N>:
 
 /// Trait of points with components implementing the `BaseFloat` trait.
 pub trait FloatPoint<N: BaseFloat>: NumPoint<N> + Sized
-    where <Self as PointAsVector>::Vector: Norm<N> {
+    where <Self as PointAsVector>::Vector: Norm<NormType = N> {
     /// Computes the square distance between two points.
     #[inline]
     fn distance_squared(&self, other: &Self) -> N {

@@ -191,7 +191,7 @@ macro_rules! small_dvec_from_impl (
 
         impl<N: Zero> $dvector<N> {
             /// Builds a vector filled with the result of a function.
-            #[inline(always)]
+            #[inline]
             pub fn from_fn<F: FnMut(usize) -> N>(dimension: usize, mut f: F) -> $dvector<N> {
                 assert!(dimension <= $dimension);
 

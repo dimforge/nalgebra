@@ -11,10 +11,12 @@ pub use self::similarity::{Similarity2, Similarity3};
 pub use self::perspective::{Perspective3, PerspectiveMatrix3};
 pub use self::orthographic::{Orthographic3, OrthographicMatrix3};
 pub use self::quaternion::{Quaternion, UnitQuaternion};
+pub use self::unit::Unit;
 
 #[cfg(feature="generic_sizes")]
 pub use self::vectorn::VectorN;
 
+mod common_macros;
 mod dmatrix_macros;
 mod dmatrix;
 mod vectorn_macros;
@@ -37,6 +39,7 @@ mod similarity_macros;
 mod similarity;
 mod perspective;
 mod orthographic;
+mod unit;
 
 // Specialization for some 1d, 2d and 3d operations.
 #[doc(hidden)]

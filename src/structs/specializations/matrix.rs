@@ -3,7 +3,7 @@ use structs::vector::{Vector2, Vector3};
 use structs::point::{Point2, Point3};
 use structs::matrix::{Matrix1, Matrix2, Matrix3};
 use traits::operations::{Inverse, Determinant, ApproxEq};
-use traits::structure::{Row, Column, BaseNum};
+use traits::structure::BaseNum;
 
 // some specializations:
 impl<N: BaseNum + ApproxEq<N>> Inverse for Matrix1<N> {
@@ -24,9 +24,8 @@ impl<N: BaseNum + ApproxEq<N>> Inverse for Matrix1<N> {
             false
         }
         else {
-            let _1: N = ::one();
+            self.m11 = ::one::<N>() / Determinant::determinant(self);
 
-            self.m11 = _1 / Determinant::determinant(self);
             true
         }
     }
@@ -130,85 +129,6 @@ impl<N: BaseNum> Determinant<N> for Matrix3<N> {
     }
 }
 
-impl<N: Copy> Row<Vector3<N>> for Matrix3<N> {
-    #[inline]
-    fn nrows(&self) -> usize {
-        3
-    }
-
-    #[inline]
-    fn row(&self, i: usize) -> Vector3<N> {
-        match i {
-            0 => Vector3::new(self.m11, self.m12, self.m13),
-            1 => Vector3::new(self.m21, self.m22, self.m23),
-            2 => Vector3::new(self.m31, self.m32, self.m33),
-            _ => panic!(format!("Index out of range: 3d matrices do not have {} rows.",  i))
-        }
-    }
-
-    #[inline]
-    fn set_row(&mut self, i: usize, r: Vector3<N>) {
-        match i {
-            0 => {
-                self.m11 = r.x;
-                self.m12 = r.y;
-                self.m13 = r.z;
-            },
-            1 => {
-                self.m21 = r.x;
-                self.m22 = r.y;
-                self.m23 = r.z;
-            },
-            2 => {
-                self.m31 = r.x;
-                self.m32 = r.y;
-                self.m33 = r.z;
-            },
-            _ => panic!(format!("Index out of range: 3d matrices do not have {} rows.",  i))
-
-        }
-    }
-}
-
-impl<N: Copy> Column<Vector3<N>> for Matrix3<N> {
-    #[inline]
-    fn ncols(&self) -> usize {
-        3
-    }
-
-    #[inline]
-    fn column(&self, i: usize) -> Vector3<N> {
-        match i {
-            0 => Vector3::new(self.m11, self.m21, self.m31),
-            1 => Vector3::new(self.m12, self.m22, self.m32),
-            2 => Vector3::new(self.m13, self.m23, self.m33),
-            _ => panic!(format!("Index out of range: 3d matrices do not have {} cols.", i))
-        }
-    }
-
-    #[inline]
-    fn set_column(&mut self, i: usize, r: Vector3<N>) {
-        match i {
-            0 => {
-                self.m11 = r.x;
-                self.m21 = r.y;
-                self.m31 = r.z;
-            },
-            1 => {
-                self.m12 = r.x;
-                self.m22 = r.y;
-                self.m32 = r.z;
-            },
-            2 => {
-                self.m13 = r.x;
-                self.m23 = r.y;
-                self.m33 = r.z;
-            },
-            _ => panic!(format!("Index out of range: 3d matrices do not have {} cols.", i))
-
-        }
-    }
-}
 
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix3<N>> for Matrix3<N> {
     type Output = Matrix3<N>;
@@ -234,7 +154,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix3<N>> for Matr
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix2<N>> for Matrix2<N> {
     type Output = Matrix2<N>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, right: Matrix2<N>) -> Matrix2<N> {
         Matrix2::new(
             self.m11 * right.m11 + self.m12 * right.m21,
@@ -249,7 +169,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix2<N>> for Matr
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Vector3<N>> for Matrix3<N> {
     type Output = Vector3<N>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, right: Vector3<N>) -> Vector3<N> {
         Vector3::new(
             self.m11 * right.x + self.m12 * right.y + self.m13 * right.z,
@@ -262,7 +182,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Vector3<N>> for Matr
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix3<N>> for Vector3<N> {
     type Output = Vector3<N>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, right: Matrix3<N>) -> Vector3<N> {
         Vector3::new(
             self.x * right.m11 + self.y * right.m21 + self.z * right.m31,
@@ -275,7 +195,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix3<N>> for Vect
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix2<N>> for Vector2<N> {
     type Output = Vector2<N>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, right: Matrix2<N>) -> Vector2<N> {
         Vector2::new(
             self.x * right.m11 + self.y * right.m21,
@@ -287,7 +207,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix2<N>> for Vect
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Vector2<N>> for Matrix2<N> {
     type Output = Vector2<N>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, right: Vector2<N>) -> Vector2<N> {
         Vector2::new(
             self.m11 * right.x + self.m12 * right.y,
@@ -299,7 +219,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Vector2<N>> for Matr
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Point3<N>> for Matrix3<N> {
     type Output = Point3<N>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, right: Point3<N>) -> Point3<N> {
         Point3::new(
             self.m11 * right.x + self.m12 * right.y + self.m13 * right.z,
@@ -312,7 +232,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Point3<N>> for Matri
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix3<N>> for Point3<N> {
     type Output = Point3<N>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, right: Matrix3<N>) -> Point3<N> {
         Point3::new(
             self.x * right.m11 + self.y * right.m21 + self.z * right.m31,
@@ -325,7 +245,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix3<N>> for Poin
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix2<N>> for Point2<N> {
     type Output = Point2<N>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, right: Matrix2<N>) -> Point2<N> {
         Point2::new(
             self.x * right.m11 + self.y * right.m21,
@@ -337,7 +257,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Matrix2<N>> for Poin
 impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Point2<N>> for Matrix2<N> {
     type Output = Point2<N>;
 
-    #[inline(always)]
+    #[inline]
     fn mul(self, right: Point2<N>) -> Point2<N> {
         Point2::new(
             self.m11 * right.x + self.m12 * right.y,
@@ -350,7 +270,7 @@ impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> Mul<Point2<N>> for Matri
 macro_rules! impl_mul_assign_from_mul(
     ($tleft: ident, $tright: ident) => (
         impl<N: Copy + Mul<N, Output = N> + Add<N, Output = N>> MulAssign<$tright<N>> for $tleft<N> {
-            #[inline(always)]
+            #[inline]
             fn mul_assign(&mut self, right: $tright<N>) {
                 // NOTE: there is probably no interesting optimization compared to the not-inplace
                 // operation.

@@ -1,4 +1,16 @@
-[![Build Status](https://travis-ci.org/sebcrozet/nalgebra.svg?branch=master)](https://travis-ci.org/sebcrozet/nalgebra)
+<p align="center">
+    <a href="https://crates.io/crates/nalgebra">
+         <img src="http://meritbadge.herokuapp.com/nalgebra?style=flat-square" alt="crates.io">
+    </a>
+    <a href="https://travis-ci.org/sebcrozet/nalgebra">
+        <img src="https://travis-ci.org/sebcrozet/nalgebra.svg?branch=master" alt="Build status">
+    </a>
+</p>
+<p align = "center">
+    <strong>
+        <a href="http://nalgebra.org/doc/nalgebra">Documentation</a> | <a href="http://nphysics.org">Forum</a>
+    </strong>
+</p>
 
 nalgebra
 ========
@@ -8,8 +20,6 @@ nalgebra
 * General-purpose linear algebra (still lacks a lot of features…)
 * Real time computer graphics.
 * Real time computer physics.
-
-An on-line version of this documentation is available [here](http://nalgebra.org/doc/nalgebra).
 
 ## Using **nalgebra**
 All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.  This

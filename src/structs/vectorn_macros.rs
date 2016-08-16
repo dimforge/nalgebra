@@ -93,14 +93,14 @@ macro_rules! vecn_dvec_common_impl(
          */
         impl<N $(, $param : ArrayLength<N>)*> Iterable<N> for $vecn<N $(, $param)*> {
             #[inline]
-            fn iter<'l>(&'l self) -> Iter<'l, N> {
+            fn iter(&self) -> Iter<N> {
                 self.as_ref().iter()
             }
         }
 
         impl<N $(, $param : ArrayLength<N>)*> IterableMut<N> for $vecn<N $(, $param)*> {
             #[inline]
-            fn iter_mut<'l>(&'l mut self) -> IterMut<'l, N> {
+            fn iter_mut(&mut self) -> IterMut<N> {
                 self.as_mut().iter_mut()
             }
         }
@@ -250,6 +250,24 @@ macro_rules! vecn_dvec_common_impl(
                 }
 
                 res
+            }
+        }
+
+        impl<'a, N: Copy + Div<N, Output = N> + Zero $(, $param : ArrayLength<N>)*> Div<$vecn<N $(, $param)*>> for &'a $vecn<N $(, $param)*> {
+            type Output = $vecn<N $(, $param)*>;
+
+            #[inline]
+            fn div(self, right: $vecn<N $(, $param)*>) -> $vecn<N $(, $param)*> {
+                self.clone() / right
+            }
+        }
+
+        impl<'a, N: Copy + Div<N, Output = N> + Zero $(, $param : ArrayLength<N>)*> Div<N> for &'a $vecn<N $(, $param)*> {
+            type Output = $vecn<N $(, $param)*>;
+
+            #[inline]
+            fn div(self, right: N) -> $vecn<N $(, $param)*> {
+                self.clone() / right
             }
         }
 
@@ -495,10 +513,12 @@ macro_rules! vecn_dvec_common_impl(
          * Norm.
          *
          */
-        impl<N: BaseFloat $(, $param : ArrayLength<N>)*> Norm<N> for $vecn<N $(, $param)*> {
+        impl<N: BaseFloat $(, $param : ArrayLength<N>)*> Norm for $vecn<N $(, $param)*> {
+            type NormType = N;
+
             #[inline]
             fn norm_squared(&self) -> N {
-                Dot::dot(self, self)
+                ::dot(self, self)
             }
 
             #[inline]
@@ -510,13 +530,35 @@ macro_rules! vecn_dvec_common_impl(
 
             #[inline]
             fn normalize_mut(&mut self) -> N {
-                let l = Norm::norm(self);
+                let n = ::norm(self);
+                *self /= n;
 
-                for n in self.as_mut().iter_mut() {
-                    *n = *n / l;
+                n
+            }
+
+            #[inline]
+            fn try_normalize(&self, min_norm: N) -> Option<$vecn<N $(, $param)*>> {
+                let n = ::norm(self);
+
+                if n <= min_norm {
+                    None
                 }
+                else {
+                    Some(self / n)
+                }
+            }
 
-                l
+            #[inline]
+            fn try_normalize_mut(&mut self, min_norm: N) -> Option<N> {
+                let n = ::norm(self);
+
+                if n <= min_norm {
+                    None
+                }
+                else {
+                    *self /= n;
+                    Some(n)
+                }
             }
         }
 

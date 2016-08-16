@@ -1,7 +1,13 @@
 #![macro_use]
 
-macro_rules! origin_impl(
-    ($t: ident, $($compN: ident),+) => (
+macro_rules! point_impl(
+    ($t: ident, $tv: ident | $($compN: ident),+) => (
+
+        /*
+         *
+         * Origin.
+         *
+         */
         impl<N: Zero> Origin for $t<N> {
             #[inline]
             fn origin() -> $t<N> {
@@ -15,11 +21,13 @@ macro_rules! origin_impl(
                 $(self.$compN.is_zero() )&&+
             }
         }
-    )
-);
 
-macro_rules! point_sub_impl(
-    ($t: ident, $tv: ident) => (
+
+        /*
+         *
+         * Point - Point
+         *
+         */
         impl<N: Copy + Sub<N, Output = N>> Sub<$t<N>> for $t<N> {
             type Output = $tv<N>;
 
@@ -28,11 +36,13 @@ macro_rules! point_sub_impl(
                 *self.as_vector() - *right.as_vector()
             }
         }
-    )
-);
 
-macro_rules! point_add_vec_impl(
-    ($t: ident, $tv: ident, $($compN: ident),+) => (
+
+        /*
+         *
+         * Point + Vector
+         *
+         */
         impl<N: Copy + Add<N, Output = N>> Add<$tv<N>> for $t<N> {
             type Output = $t<N>;
 
@@ -48,11 +58,13 @@ macro_rules! point_add_vec_impl(
                 $( self.$compN += right.$compN; )+
             }
         }
-    )
-);
 
-macro_rules! point_sub_vec_impl(
-    ($t: ident, $tv: ident, $($compN: ident),+) => (
+
+        /*
+         *
+         * Point - Vector
+         *
+         */
         impl<N: Copy + Sub<N, Output = N>> Sub<$tv<N>> for $t<N> {
             type Output = $t<N>;
 
@@ -68,11 +80,14 @@ macro_rules! point_sub_vec_impl(
                 $( self.$compN -= right.$compN; )+
             }
         }
-    )
-);
 
-macro_rules! point_as_vec_impl(
-    ($t: ident, $tv: ident, $($compN: ident),+) => (
+
+
+        /*
+         *
+         * Point as vector.
+         *
+         */
         impl<N> $t<N> {
             /// Converts this point to its associated vector.
             #[inline]
@@ -84,7 +99,7 @@ macro_rules! point_as_vec_impl(
 
             /// Converts a reference to this point to a reference to its associated vector.
             #[inline]
-            pub fn as_vector<'a>(&'a self) -> &'a $tv<N> {
+            pub fn as_vector(&self) -> &$tv<N> {
                 unsafe {
                     mem::transmute(self)
                 }
@@ -105,7 +120,7 @@ macro_rules! point_as_vec_impl(
             }
 
             #[inline]
-            fn as_vector<'a>(&'a self) -> &'a $tv<N> {
+            fn as_vector(&self) -> &$tv<N> {
                 self.as_vector()
             }
 
@@ -114,40 +129,14 @@ macro_rules! point_as_vec_impl(
                 self.set_coords(v)
             }
         }
-    )
-);
 
-macro_rules! point_to_homogeneous_impl(
-    ($t: ident, $t2: ident, $extra: ident, $($compN: ident),+) => (
-        impl<N: Copy + One + Zero> ToHomogeneous<$t2<N>> for $t<N> {
-            fn to_homogeneous(&self) -> $t2<N> {
-                let mut res: $t2<N> = Origin::origin();
 
-                $( res.$compN = self.$compN; )+
-                res.$extra    = ::one();
 
-                res
-            }
-        }
-    )
-);
-
-macro_rules! point_from_homogeneous_impl(
-    ($t: ident, $t2: ident, $extra: ident, $($compN: ident),+) => (
-        impl<N: Copy + Div<N, Output = N> + One + Zero> FromHomogeneous<$t2<N>> for $t<N> {
-            fn from(v: &$t2<N>) -> $t<N> {
-                let mut res: $t<N> = Origin::origin();
-
-                $( res.$compN = v.$compN / v.$extra; )+
-
-                res
-            }
-        }
-    )
-);
-
-macro_rules! num_float_point_impl(
-    ($t: ident, $tv: ident) => (
+        /*
+         *
+         * NumPoint / FloatPoint
+         *
+         */
         impl<N> NumPoint<N> for $t<N>
             where N: BaseNum {
         }
@@ -155,25 +144,13 @@ macro_rules! num_float_point_impl(
         impl<N> FloatPoint<N> for $t<N>
             where N: BaseFloat + ApproxEq<N> {
         }
-    )
-);
 
-macro_rules! arbitrary_point_impl(
-    ($t: ident, $($compN: ident),*) => (
-        #[cfg(feature="arbitrary")]
-        impl<N: Arbitrary> Arbitrary for $t<N> {
-            #[inline]
-            fn arbitrary<G: Gen>(g: &mut G) -> $t<N> {
-                $t {
-                    $($compN: Arbitrary::arbitrary(g),)*
-                }
-            }
-        }
-    )
-);
 
-macro_rules! point_display_impl(
-    ($t: ident) => (
+        /*
+         *
+         * Display
+         *
+         */
         impl<N: fmt::Display> fmt::Display for $t<N> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 // FIXME: differenciate them from vectors ?
@@ -188,6 +165,35 @@ macro_rules! point_display_impl(
                 }
 
                 write!(f, ")")
+            }
+        }
+    );
+    ($t: ident, $tv: ident, $th: ident, $comp_extra: ident | $($compN: ident),+) => (
+        point_impl!($t, $tv | $($compN),+);
+
+        /*
+         *
+         * ToHomogeneous / FromHomogeneous
+         *
+         */
+        impl<N: Copy + One + Zero> ToHomogeneous<$th<N>> for $t<N> {
+            fn to_homogeneous(&self) -> $th<N> {
+                let mut res: $th<N> = Origin::origin();
+
+                $( res.$compN = self.$compN; )+
+                res.$comp_extra = ::one();
+
+                res
+            }
+        }
+
+        impl<N: Copy + Div<N, Output = N> + One + Zero> FromHomogeneous<$th<N>> for $t<N> {
+            fn from(v: &$th<N>) -> $t<N> {
+                let mut res: $t<N> = Origin::origin();
+
+                $( res.$compN = v.$compN / v.$comp_extra; )+
+
+                res
             }
         }
     )

@@ -5,7 +5,7 @@ use traits::structure::Cast;
 macro_rules! primitive_cast_impl(
     ($from: ty, $to: ty) => (
         impl Cast<$from> for $to {
-            #[inline(always)]
+            #[inline]
             fn from(t: $from) -> $to {
                 t as $to
             }

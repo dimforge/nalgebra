@@ -1,6 +1,7 @@
 //! Low level operations on vectors and matrices.
 
-use num::{Float, Signed};
+use std::{mem, f32, f64};
+use num::Signed;
 use std::ops::Mul;
 use std::cmp::Ordering;
 use traits::structure::SquareMatrix;
@@ -136,16 +137,14 @@ pub trait PartialOrder {
         if v_min.is_not_comparable() || v_max.is_not_comparable() {
             None
         }
+        else if v_min.is_lt() {
+            Some(min)
+        }
+        else if v_max.is_gt() {
+            Some(max)
+        }
         else {
-            if v_min.is_lt() {
-                Some(min)
-            }
-            else if v_max.is_gt() {
-                Some(max)
-            }
-            else {
-                Some(self)
-            }
+            Some(self)
         }
     }
 }
@@ -195,8 +194,8 @@ impl ApproxEq<f32> for f32 {
 
         // IEEE754 floats are in the same order as 2s complement isizes
         // so this trick (subtracting the isizes) works.
-        let iself: i32 = unsafe { ::std::mem::transmute(*self) };
-        let iother: i32 = unsafe { ::std::mem::transmute(*other) };
+        let iself:  i32 = unsafe { mem::transmute(*self) };
+        let iother: i32 = unsafe { mem::transmute(*other) };
 
         (iself - iother).abs() < ulps as i32
     }
@@ -224,8 +223,8 @@ impl ApproxEq<f64> for f64 {
         // Otherwise, differing signs should be not-equal, even if within ulps
         if self.signum() != other.signum() { return false; }
 
-        let iself: i64 = unsafe { ::std::mem::transmute(*self) };
-        let iother: i64 = unsafe { ::std::mem::transmute(*other) };
+        let iself:  i64 = unsafe { mem::transmute(*self) };
+        let iother: i64 = unsafe { mem::transmute(*other) };
 
         (iself - iother).abs() < ulps as i64
     }
