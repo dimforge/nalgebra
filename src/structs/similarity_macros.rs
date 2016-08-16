@@ -29,12 +29,12 @@ macro_rules! similarity_impl(
             ///
             /// The scale factor may be negative but not zero.
             #[inline]
-            pub fn new_with_rotation_matrix(translation: $vector<N>, rotation: $rotation_matrix<N>, scale: N) -> $t<N> {
+            pub fn from_rotation_matrix(translation: $vector<N>, rotation: $rotation_matrix<N>, scale: N) -> $t<N> {
                 assert!(!scale.is_zero(), "A similarity transformation scale factor cannot be zero.");
 
                 $t {
                     scale:    scale,
-                    isometry: $isometry::new_with_rotation_matrix(translation, rotation)
+                    isometry: $isometry::from_rotation_matrix(translation, rotation)
                 }
             }
 
@@ -42,7 +42,7 @@ macro_rules! similarity_impl(
             ///
             /// The scale factor may be negative but not zero.
             #[inline]
-            pub fn new_with_isometry(isometry: $isometry<N>, scale: N) -> $t<N> {
+            pub fn from_isometry(isometry: $isometry<N>, scale: N) -> $t<N> {
                 assert!(!scale.is_zero(), "A similarity transformation scale factor cannot be zero.");
 
                 $t {
@@ -80,7 +80,7 @@ macro_rules! similarity_impl(
             #[inline]
             pub fn append_scale(&self, s: &N) -> $t<N> {
                 assert!(!s.is_zero(), "Cannot append a zero scale to a similarity transformation.");
-                $t::new_with_rotation_matrix(self.isometry.translation * *s, self.isometry.rotation, self.scale * *s)
+                $t::from_rotation_matrix(self.isometry.translation * *s, self.isometry.rotation, self.scale * *s)
             }
 
             /// Prepends in-place a scale to this similarity transformation.
@@ -94,7 +94,7 @@ macro_rules! similarity_impl(
             #[inline]
             pub fn prepend_scale(&self, s: &N) -> $t<N> {
                 assert!(!s.is_zero(), "A similarity transformation scale must not be zero.");
-                $t::new_with_isometry(self.isometry, self.scale * *s)
+                $t::from_isometry(self.isometry, self.scale * *s)
             }
 
             /// Sets the scale of this similarity transformation.
@@ -113,7 +113,7 @@ macro_rules! similarity_impl(
         impl<N: BaseFloat> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
-                $t::new_with_isometry(::one(), ::one())
+                $t::from_isometry(::one(), ::one())
             }
         }
 
@@ -164,7 +164,7 @@ macro_rules! similarity_impl(
 
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(
+                $t::from_rotation_matrix(
                     self.isometry.translation + self.isometry.rotation * (right.isometry.translation * self.scale),
                     self.isometry.rotation * right.isometry.rotation,
                     self.scale * right.scale)
@@ -191,7 +191,7 @@ macro_rules! similarity_impl(
 
             #[inline]
             fn mul(self, right: $isometry<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(
+                $t::from_rotation_matrix(
                     self.isometry.translation + self.isometry.rotation * (right.translation * self.scale),
                     self.isometry.rotation * right.rotation,
                     self.scale)
@@ -211,7 +211,7 @@ macro_rules! similarity_impl(
 
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(
+                $t::from_rotation_matrix(
                     self.translation + self.rotation * right.isometry.translation,
                     self.rotation * right.isometry.rotation,
                     right.scale)
@@ -228,7 +228,7 @@ macro_rules! similarity_impl(
 
             #[inline]
             fn mul(self, right: $rotation_matrix<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(
+                $t::from_rotation_matrix(
                     self.isometry.translation,
                     self.isometry.rotation * right,
                     self.scale)
@@ -247,7 +247,7 @@ macro_rules! similarity_impl(
 
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(
+                $t::from_rotation_matrix(
                     self * right.isometry.translation,
                     self * right.isometry.rotation,
                     right.scale)
@@ -389,7 +389,7 @@ macro_rules! similarity_impl(
                     scale = rng.gen();
                 }
 
-                $t::new_with_isometry(rng.gen(), scale)
+                $t::from_isometry(rng.gen(), scale)
             }
         }
 
@@ -402,7 +402,7 @@ macro_rules! similarity_impl(
         #[cfg(feature="arbitrary")]
         impl<N: Arbitrary + BaseFloat> Arbitrary for $t<N> {
             fn arbitrary<G: Gen>(g: &mut G) -> $t<N> {
-                $t::new_with_isometry(
+                $t::from_isometry(
                     Arbitrary::arbitrary(g),
                     Arbitrary::arbitrary(g)
                 )

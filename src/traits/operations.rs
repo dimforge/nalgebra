@@ -173,7 +173,7 @@ pub trait ApproxEq<Eps>: Sized {
 impl ApproxEq<f32> for f32 {
     #[inline]
     fn approx_epsilon(_: Option<f32>) -> f32 {
-        f32::EPSILON * 10.0
+        1.0e-6
     }
 
     #[inline]
@@ -204,7 +204,7 @@ impl ApproxEq<f32> for f32 {
 impl ApproxEq<f64> for f64 {
     #[inline]
     fn approx_epsilon(_: Option<f64>) -> f64 {
-        f64::EPSILON * 10.0
+        1.0e-6
     }
 
     #[inline]

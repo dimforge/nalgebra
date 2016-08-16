@@ -155,7 +155,7 @@ impl<N: BaseFloat> PerspectiveMatrix3<N> {
 
     /// Creates a new perspective projection matrix from a 4D matrix.
     #[inline]
-    pub fn new_with_matrix_unchecked(matrix: Matrix4<N>) -> PerspectiveMatrix3<N> {
+    pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> PerspectiveMatrix3<N> {
         PerspectiveMatrix3 {
             matrix: matrix
         }

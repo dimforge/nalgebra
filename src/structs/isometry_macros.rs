@@ -15,7 +15,7 @@ macro_rules! isometry_impl(
 
             /// Creates a new isometry from a rotation matrix and a vector.
             #[inline]
-            pub fn new_with_rotation_matrix(translation: $vector<N>, rotation: $rotmatrix<N>) -> $t<N> {
+            pub fn from_rotation_matrix(translation: $vector<N>, rotation: $rotmatrix<N>) -> $t<N> {
                 $t {
                     rotation:    rotation,
                     translation: translation
@@ -48,7 +48,7 @@ macro_rules! isometry_impl(
         impl<N: BaseFloat> One for $t<N> {
             #[inline]
             fn one() -> $t<N> {
-                $t::new_with_rotation_matrix(::zero(), ::one())
+                $t::from_rotation_matrix(::zero(), ::one())
             }
         }
 
@@ -63,7 +63,7 @@ macro_rules! isometry_impl(
 
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(
+                $t::from_rotation_matrix(
                     self.translation + self.rotation * right.translation,
                     self.rotation * right.rotation)
             }
@@ -88,7 +88,7 @@ macro_rules! isometry_impl(
 
             #[inline]
             fn mul(self, right: $rotmatrix<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(self.translation, self.rotation * right)
+                $t::from_rotation_matrix(self.translation, self.rotation * right)
             }
         }
 
@@ -97,7 +97,7 @@ macro_rules! isometry_impl(
 
             #[inline]
             fn mul(self, right: $t<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(
+                $t::from_rotation_matrix(
                     self * right.translation,
                     self * right.rotation)
             }
@@ -164,7 +164,7 @@ macro_rules! isometry_impl(
 
             #[inline]
             fn append_translation(&self, t: &$vector<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(*t + self.translation, self.rotation)
+                $t::from_rotation_matrix(*t + self.translation, self.rotation)
             }
 
             #[inline]
@@ -174,7 +174,7 @@ macro_rules! isometry_impl(
 
             #[inline]
             fn prepend_translation(&self, t: &$vector<N>) -> $t<N> {
-                $t::new_with_rotation_matrix(self.translation + self.rotation * *t, self.rotation)
+                $t::from_rotation_matrix(self.translation + self.rotation * *t, self.rotation)
             }
 
             #[inline]
@@ -230,7 +230,7 @@ macro_rules! isometry_impl(
             fn append_rotation(&self, rotation: &$rotvector<N>) -> $t<N> {
                 let delta = $rotmatrix::new(*rotation);
 
-                $t::new_with_rotation_matrix(delta * self.translation, delta * self.rotation)
+                $t::from_rotation_matrix(delta * self.translation, delta * self.rotation)
             }
 
             #[inline]
@@ -244,7 +244,7 @@ macro_rules! isometry_impl(
             fn prepend_rotation(&self, rotation: &$rotvector<N>) -> $t<N> {
                 let delta = $rotmatrix::new(*rotation);
 
-                $t::new_with_rotation_matrix(self.translation, self.rotation * delta)
+                $t::from_rotation_matrix(self.translation, self.rotation * delta)
             }
 
             #[inline]
@@ -435,7 +435,7 @@ macro_rules! isometry_impl(
         #[cfg(feature="arbitrary")]
         impl<N: Arbitrary + BaseFloat> Arbitrary for $t<N> {
             fn arbitrary<G: Gen>(g: &mut G) -> $t<N> {
-                $t::new_with_rotation_matrix(
+                $t::from_rotation_matrix(
                     Arbitrary::arbitrary(g),
                     Arbitrary::arbitrary(g)
                 )

@@ -9,7 +9,7 @@ fn test_quaternion_as_matrix() {
     for _ in 0usize .. 10000 {
         let axis_angle: Vector3<f64> = random();
 
-        assert!(na::approx_eq(&UnitQuaternion::new(axis_angle).to_rotation_matrix(), &Rotation3::new(axis_angle)))
+        assert!(na::approx_eq(&UnitQuaternion::from_scaled_axis(axis_angle).to_rotation_matrix(), &Rotation3::new(axis_angle)))
     }
 }
 
@@ -21,7 +21,7 @@ fn test_quaternion_mul_vec_or_point_as_matrix() {
         let point: Point3<f64> = random();
 
         let matrix  = Rotation3::new(axis_angle);
-        let quaternion = UnitQuaternion::new(axis_angle);
+        let quaternion = UnitQuaternion::from_scaled_axis(axis_angle);
 
         assert!(na::approx_eq(&(matrix * vector), &(quaternion * vector)));
         assert!(na::approx_eq(&(matrix * point), &(quaternion * point)));
@@ -39,8 +39,8 @@ fn test_quaternion_div_quaternion() {
         let r1 = Rotation3::new(axis_angle1);
         let r2 = na::inverse(&Rotation3::new(axis_angle2)).unwrap();
 
-        let q1 = UnitQuaternion::new(axis_angle1);
-        let q2 = UnitQuaternion::new(axis_angle2);
+        let q1 = UnitQuaternion::from_scaled_axis(axis_angle1);
+        let q2 = UnitQuaternion::from_scaled_axis(axis_angle2);
 
         assert!(na::approx_eq(&(q1 / q2).to_rotation_matrix(), &(r1 * r2)))
     }
@@ -51,7 +51,7 @@ fn test_quaternion_to_axis_angle() {
     for _ in 0usize .. 10000 {
         let axis_angle: Vector3<f64> = random();
 
-        let q = UnitQuaternion::new(axis_angle);
+        let q = UnitQuaternion::from_scaled_axis(axis_angle);
 
         println!("{:?} {:?}", q.rotation(), axis_angle);
         assert!(na::approx_eq(&q.rotation(), &axis_angle))
@@ -63,8 +63,8 @@ fn test_quaternion_euler_angles() {
     for _ in 0usize .. 10000 {
         let angles: Vector3<f64> = random();
 
-        let q = UnitQuaternion::new_with_euler_angles(angles.x, angles.y, angles.z);
-        let m = Rotation3::new_with_euler_angles(angles.x, angles.y, angles.z);
+        let q = UnitQuaternion::from_euler_angles(angles.x, angles.y, angles.z);
+        let m = Rotation3::from_euler_angles(angles.x, angles.y, angles.z);
 
         assert!(na::approx_eq(&q.to_rotation_matrix(), &m))
     }

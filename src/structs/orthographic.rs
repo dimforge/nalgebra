@@ -183,7 +183,7 @@ impl<N: BaseFloat> OrthographicMatrix3<N> {
     }
 
     /// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.
-    pub fn new_with_fov(aspect: N, vfov: N, znear: N, zfar: N) -> OrthographicMatrix3<N> {
+    pub fn from_fov(aspect: N, vfov: N, znear: N, zfar: N) -> OrthographicMatrix3<N> {
         assert!(znear < zfar, "The far plane must be farther than the near plane.");
         assert!(!::is_zero(&aspect));
 
@@ -196,7 +196,7 @@ impl<N: BaseFloat> OrthographicMatrix3<N> {
 
     /// Creates a new orthographic matrix from a 4D matrix.
     #[inline]
-    pub fn new_with_matrix_unchecked(matrix: Matrix4<N>) -> OrthographicMatrix3<N> {
+    pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> OrthographicMatrix3<N> {
         OrthographicMatrix3 {
             matrix: matrix
         }

@@ -337,7 +337,7 @@ impl<N: BaseFloat> UnitQuaternion<N> {
         let jk = self.as_ref().j * self.as_ref().k * ::cast(2.0);
         let wi = self.as_ref().w * self.as_ref().i * ::cast(2.0);
 
-        Rotation3::new_with_matrix_unchecked(
+        Rotation3::from_matrix_unchecked(
             Matrix3::new(
                 ww + ii - jj - kk, ij - wk,           wj + ik,
                 wk + ij,           ww - ii + jj - kk, jk - wi,

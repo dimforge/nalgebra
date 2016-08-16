@@ -59,7 +59,7 @@ impl<N: BaseFloat> Isometry3<N> {
     #[inline]
     pub fn new_observer_frame(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Isometry3<N> {
         let new_rotation_matrix = Rotation3::new_observer_frame(&(*target - *eye), up);
-        Isometry3::new_with_rotation_matrix(eye.to_vector(), new_rotation_matrix)
+        Isometry3::from_rotation_matrix(eye.to_vector(), new_rotation_matrix)
     }
 
     /// Builds a right-handed look-at view matrix.
@@ -77,7 +77,7 @@ impl<N: BaseFloat> Isometry3<N> {
         let rotation = Rotation3::look_at_rh(&(*target - *eye), up);
         let trans    = rotation * (-*eye);
 
-        Isometry3::new_with_rotation_matrix(trans.to_vector(), rotation)
+        Isometry3::from_rotation_matrix(trans.to_vector(), rotation)
     }
 
     /// Builds a left-handed look-at view matrix.
@@ -95,7 +95,7 @@ impl<N: BaseFloat> Isometry3<N> {
         let rotation = Rotation3::look_at_lh(&(*target - *eye), up);
         let trans    = rotation * (-*eye);
 
-        Isometry3::new_with_rotation_matrix(trans.to_vector(), rotation)
+        Isometry3::from_rotation_matrix(trans.to_vector(), rotation)
     }
 }
 
