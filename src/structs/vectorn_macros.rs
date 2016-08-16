@@ -538,6 +538,19 @@ macro_rules! vecn_dvec_common_impl(
                     Some(self / n)
                 }
             }
+
+            #[inline]
+            fn try_normalize_mut(&mut self, min_norm: N) -> Option<N> {
+                let n = ::norm(self);
+
+                if n <= min_norm {
+                    None
+                }
+                else {
+                    *self /= n;
+                    Some(n)
+                }
+            }
         }
 
         /*

@@ -70,10 +70,11 @@ impl<N: BaseFloat> Quaternion<N> {
     /// Creates a new quaternion from its polar decomposition.
     ///
     /// Note that `axis` is assumed to be a unit vector.
-    pub fn from_polar_decomposition(scalar: N, theta: N, axis: Unit<Vector3<N>>) -> Quaternion<N> {
+    pub fn from_polar_decomposition(scale: N, theta: N, axis: Unit<Vector3<N>>)
+        -> Quaternion<N> {
         let rot = UnitQuaternion::from_axisangle(axis, theta * ::cast(2.0));
 
-        rot.unwrap() * scalar
+        rot.unwrap() * scale
     }
 
     /// The polar decomposition of this quaternion.
@@ -81,29 +82,20 @@ impl<N: BaseFloat> Quaternion<N> {
     /// Returns, from left to right: the quaternion norm, the half rotation angle, the rotation
     /// axis. If the rotation angle is zero, the rotation axis is set to the `y` axis.
     pub fn polar_decomposition(&self) -> (N, N, Unit<Vector3<N>>) {
-        let nn = ::norm_squared(self);
-
         let default_axis = Unit::from_unit_value_unchecked(Vector3::y());
 
-        if ApproxEq::approx_eq(&nn, &::zero()) {
-            (::zero(), ::zero(), default_axis)
-        }
-        else {
-            let n   = nn.sqrt();
-            let nq  = *self / n;
-            let v   = *self.vector();
-            let vnn = ::norm_squared(&v);
-
-            if ApproxEq::approx_eq(&vnn, &::zero()) {
-                (n, ::zero(), default_axis)
-            }
-            else {
-                let angle = self.scalar().acos();
-                let vn    = n.sqrt();
-                let axis  = Unit::from_unit_value_unchecked(v / vn);
+        if let Some((q, n)) = Unit::try_new_and_get(*self, ::zero()) {
+            if let Some(axis) = Unit::try_new(self.vector(), ::zero()) {
+                let angle = q.angle() / ::cast(2.0);
 
                 (n, angle, axis)
             }
+            else {
+                (n, ::zero(), default_axis)
+            }
+        }
+        else {
+            (::zero(), ::zero(), default_axis)
         }
     }
 }
@@ -147,7 +139,7 @@ impl<N: BaseFloat> Norm for Quaternion<N> {
 
     #[inline]
     fn normalize(&self) -> Quaternion<N> {
-        let n = self.norm();
+        let n = ::norm(self);
         *self / n
     }
 
@@ -168,6 +160,19 @@ impl<N: BaseFloat> Norm for Quaternion<N> {
         }
         else {
             Some(*self / n)
+        }
+    }
+
+    #[inline]
+    fn try_normalize_mut(&mut self, min_norm: N) -> Option<N> {
+        let n = ::norm(self);
+
+        if n <= min_norm {
+            None
+        }
+        else {
+            *self /= n;
+            Some(n)
         }
     }
 }
@@ -260,12 +265,15 @@ impl<N: fmt::Display> fmt::Display for Quaternion<N> {
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<N> = Unit<Quaternion<N>>;
 
-// /// A unit quaternion that can represent a 3D rotation.
-// #[repr(C)]
-// #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
-// pub struct UnitQuaternion<N> {
-//     q: Quaternion<N>
-// }
+impl<N> UnitQuaternion<N> {
+    /// The underlying quaternion.
+    ///
+    /// Same as `self.as_ref()`.
+    #[inline]
+    pub fn quaternion(&self) -> &Quaternion<N> {
+        self.as_ref()
+    }
+}
 
 impl<N: BaseFloat> UnitQuaternion<N> {
     /// Creates a new quaternion from a unit vector (the rotation axis) and an angle
@@ -282,7 +290,7 @@ impl<N: BaseFloat> UnitQuaternion<N> {
     #[inline]
     pub fn from_scaled_axis(axis: Vector3<N>) -> UnitQuaternion<N> {
         let two: N = ::cast(2.0);
-        let q = Quaternion::from_parts(::zero(), axis * two).exp();
+        let q = Quaternion::from_parts(::zero(), axis / two).exp();
         UnitQuaternion::from_unit_value_unchecked(q)
     }
 
@@ -315,7 +323,7 @@ impl<N: BaseFloat> UnitQuaternion<N> {
     /// The rotation angle of this unit quaternion.
     #[inline]
     pub fn angle(&self) -> N {
-        self.as_ref().scalar().acos()
+        self.as_ref().scalar().acos() * ::cast(2.0)
     }
 
     /// The rotation axis of this unit quaternion or `None` if the rotation is zero.
@@ -439,9 +447,9 @@ impl<N: BaseNum> Mul<Vector3<N>> for UnitQuaternion<N> {
     #[inline]
     fn mul(self, right: Vector3<N>) -> Vector3<N> {
         let two: N = ::one::<N>() + ::one();
-        let t = ::cross(self.as_ref().vector(), &right);
+        let t = ::cross(self.as_ref().vector(), &right) * two;
 
-        t * (two * self.as_ref().w) + ::cross(self.as_ref().vector(), &t) + right
+        t * self.as_ref().w + ::cross(self.as_ref().vector(), &t) + right
     }
 }
 

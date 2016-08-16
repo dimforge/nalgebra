@@ -254,6 +254,12 @@ pub trait Norm: Sized {
     /// or equal to `min_norm`. In particular, `.try_normalize(0.0)` returns `None` if the norm is
     /// exactly zero.
     fn try_normalize(&self, min_norm: Self::NormType) -> Option<Self>;
+
+    /// Normalized `v` or does nothing if the vector has a norm smaller
+    /// or equal to `min_norm`.
+    ///
+    /// Returns the old norm or `None` if the normalization failed.
+    fn try_normalize_mut(&mut self, min_norm: Self::NormType) -> Option<Self::NormType>;
 }
 
 /**

@@ -24,7 +24,7 @@ generic_sizes = [ "generic-array", "typenum" ]
 rustc-serialize = "0.3.*"
 rand = "0.3.*"
 num  = "0.1.*"
-algebra = "*"
+# algebra = "*"
 
 [dependencies.generic-array]
 optional = true

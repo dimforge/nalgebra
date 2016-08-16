@@ -17,16 +17,16 @@ fn test_quaternion_as_matrix() {
 fn test_quaternion_mul_vec_or_point_as_matrix() {
     for _ in 0usize .. 10000 {
         let axis_angle: Vector3<f64> = random();
-        let vector: Vector3<f64> = random();
-        let point: Point3<f64> = random();
+        let vector:     Vector3<f64> = random();
+        let point:      Point3<f64>  = random();
 
-        let matrix  = Rotation3::new(axis_angle);
+        let matrix     = Rotation3::new(axis_angle);
         let quaternion = UnitQuaternion::from_scaled_axis(axis_angle);
 
         assert!(na::approx_eq(&(matrix * vector), &(quaternion * vector)));
-        assert!(na::approx_eq(&(matrix * point), &(quaternion * point)));
+        assert!(na::approx_eq(&(matrix * point),  &(quaternion * point)));
         assert!(na::approx_eq(&(vector * matrix), &(vector * quaternion)));
-        assert!(na::approx_eq(&(point * matrix), &(point * quaternion)));
+        assert!(na::approx_eq(&(point * matrix),  &(point * quaternion)));
     }
 }
 
@@ -106,5 +106,16 @@ fn test_quaternion_neutral() {
         let q3 = qi * q1;
 
         assert!(na::approx_eq(&q1, &q2) && na::approx_eq(&q2, &q3))
+    }
+}
+
+#[test]
+fn test_quaternion_polar_decomposition() {
+    for _ in 0 .. 10000 {
+        let q1: Quaternion<f32> = random();
+        let decomp = q1.polar_decomposition();
+        let q2 = Quaternion::from_polar_decomposition(decomp.0, decomp.1, decomp.2);
+
+        assert!(na::approx_eq(&q1, &q2))
     }
 }
