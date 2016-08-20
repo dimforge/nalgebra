@@ -349,3 +349,16 @@ macro_rules! component_new(
         }
     );
 );
+
+
+macro_rules! fold_add(
+    // base case
+    ($x:expr) => {
+        $x
+    };
+    // `$x` followed by at least one `$y,`
+    ($x:expr, $($y:expr),+) => {
+        // call min! on the tail `$y`
+        Add::add($x, fold_add!($($y),+))
+    }
+);

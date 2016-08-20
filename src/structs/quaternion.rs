@@ -17,7 +17,7 @@ use traits::geometry::{Norm, Rotation, RotationMatrix, Rotate, RotationTo, Trans
 use quickcheck::{Arbitrary, Gen};
 
 
-/// A quaternion. See `UnitQuaternion` for a quaternion that can be used as a rotation.
+/// A quaternion. See the `UnitQuaternion` type alias for a quaternion that can be used as a rotation.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Quaternion<N> {

@@ -11,7 +11,7 @@ use traits::structure::{Iterable, IterableMut, Indexable, Shape, BaseFloat, Base
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-/// A static array of arbitrary dimension.
+/// A stack-allocated vector of arbitrary dimension.
 #[repr(C)]
 #[derive(Eq, PartialEq, Debug)] //  FIXME: Hash, RustcEncodable, RustcDecodable
 pub struct VectorN<N, D: ArrayLength<N>> {

@@ -11,9 +11,12 @@ use traits::operations::{Absolute, Inverse, Transpose, ApproxEq};
 use structs::vector::{Vector1, Vector2, Vector3};
 use structs::point::{Point2, Point3};
 use structs::matrix::{Matrix2, Matrix3, Matrix4};
+
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
+#[cfg(feature="abstract_algebra")]
+use_special_orthogonal_group_modules!();
 
 /// Two dimensional rotation matrix.
 #[repr(C)]

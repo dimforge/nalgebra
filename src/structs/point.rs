@@ -12,8 +12,12 @@ use traits::structure::{Cast, Dimension, Indexable, Iterable, IterableMut, Point
                         NumPoint, FloatPoint, BaseFloat, BaseNum, Bounded, Repeat};
 use traits::geometry::{Origin, FromHomogeneous, ToHomogeneous};
 use structs::vector::{Vector1, Vector2, Vector3, Vector4, Vector5, Vector6};
+
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
+
+#[cfg(feature="abstract_algebra")]
+use_euclidean_space_modules!();
 
 
 /// Point of dimension 1.

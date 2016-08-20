@@ -1,18 +1,18 @@
 tmp=_git_distcheck
 
 all:
-	cargo build --release --features "arbitrary generic_sizes"
+	cargo build --release --features "arbitrary generic_sizes abstract_algebra"
 
 test:
-	cargo test --features "arbitrary generic_sizes"
+	cargo test --features "arbitrary generic_sizes abstract_algebra"
 
 
 bench:
-	cargo bench --features "arbitrary generic_sizes"
+	cargo bench --features "arbitrary generic_sizes abstract_algebra"
 
 
 doc:
-	cargo doc --no-deps --features "arbitrary generic_sizes"
+	cargo doc --no-deps --features "arbitrary generic_sizes abstract_algebra"
 
 
 clean:

@@ -270,7 +270,7 @@ macro_rules! vectorlike_impl(
 );
 
 macro_rules! vector_impl(
-    ($t: ident, $tp: ident, $($compN: ident),+) => (
+    ($t: ident, $tp: ident, $dimension: expr, $($compN: ident),+) => (
         pointwise_add!($t, $($compN),+);
         pointwise_sub!($t, $($compN),+);
         pointwise_mul!($t, $($compN),+);
@@ -279,7 +279,7 @@ macro_rules! vector_impl(
         componentwise_one!($t, $($compN),+);
         componentwise_absolute!($t, $($compN),+);
         component_basis_element!($t, $($compN),+);
-
+        vector_space_impl!($t, $dimension, $($compN),+);
 
         /*
          *
@@ -289,10 +289,9 @@ macro_rules! vector_impl(
         impl<N: BaseNum> Dot<N> for $t<N> {
             #[inline]
             fn dot(&self, other: &$t<N>) -> N {
-                add!($(self.$compN * other.$compN ),+)
+                fold_add!($(self.$compN * other.$compN ),+)
             }
         }
-
 
         /*
          *
@@ -596,18 +595,6 @@ macro_rules! basis_impl(
     )
 );
 
-
-macro_rules! add (
-    // base case
-    ($x:expr) => {
-        $x
-    };
-    // `$x` followed by at least one `$y,`
-    ($x:expr, $($y:expr),+) => {
-        // call min! on the tail `$y`
-        Add::add($x, add!($($y),+))
-    }
-);
 
 
 macro_rules! from_iterator_impl(

@@ -2,6 +2,9 @@
 
 macro_rules! rotation_impl(
     ($t: ident, $submatrix: ident, $vector: ident, $rotvector: ident, $point: ident, $homogeneous: ident) => (
+
+        special_orthogonal_group_impl!($t, $point, $vector);
+
         impl<N> $t<N> {
             /// This rotation's underlying matrix.
             #[inline]
