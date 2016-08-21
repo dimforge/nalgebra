@@ -3,6 +3,8 @@
 macro_rules! point_impl(
     ($t: ident, $tv: ident | $($compN: ident),+) => (
 
+        euclidean_space_impl!($t, $tv);
+
         /*
          *
          * Origin.

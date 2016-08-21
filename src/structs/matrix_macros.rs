@@ -2,6 +2,9 @@
 
 macro_rules! matrix_impl(
     ($t: ident, $dimension: expr, $vector: ident, $dvector: ident, $($compN: ident),+) => (
+
+        matrix_group_approx_impl!($t, $($compN),+);
+
         impl<N> $t<N> {
             #[inline]
             pub fn new($($compN: N ),+) -> $t<N> {

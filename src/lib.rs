@@ -47,6 +47,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Square matrices with static sizes: `Matrix1`, `Matrix2`, `Matrix3`, `Matrix4`, `Matrix5`, `Matrix6 `.
 * Rotation matrices: `Rotation2`, `Rotation3`
 * Quaternions: `Quaternion`, `UnitQuaternion`.
+* Unit-sized values (unit vectors, unit quaternions, etc.): `Unit<T>`, e.g., `Unit<Vector3<f32>>`.
 * Isometries (translation ⨯ rotation): `Isometry2`, `Isometry3`
 * Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Similarity2`, `Similarity3`.
 * 3D projections for computer graphics: `Perspective3`, `PerspectiveMatrix3`, `Orthographic3`, `OrthographicMatrix3`.
@@ -84,6 +85,9 @@ extern crate generic_array;
 
 #[cfg(feature="arbitrary")]
 extern crate quickcheck;
+
+#[cfg(feature="abstract_algebra")]
+extern crate algebra;
 
 use std::cmp;
 use std::ops::{Neg, Mul};

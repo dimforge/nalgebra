@@ -17,6 +17,9 @@ use structs::point::{Point1, Point2, Point3, Point4, Point5, Point6};
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
+#[cfg(feature="abstract_algebra")]
+use_vector_space_modules!();
+
 
 /// Vector of dimension 1.
 ///
@@ -29,7 +32,7 @@ pub struct Vector1<N> {
     pub x: N
 }
 
-vector_impl!(Vector1, Point1, x);
+vector_impl!(Vector1, Point1, 1, x);
 vectorlike_impl!(Vector1, 1, x);
 from_iterator_impl!(Vector1, iterator);
 // (specialized); basis_impl!(Vector1, 1);
@@ -51,7 +54,7 @@ pub struct Vector2<N> {
     pub y: N
 }
 
-vector_impl!(Vector2, Point2, x, y);
+vector_impl!(Vector2, Point2, 2, x, y);
 vectorlike_impl!(Vector2, 2, x, y);
 from_iterator_impl!(Vector2, iterator, iterator);
 // (specialized); basis_impl!(Vector2, 1);
@@ -75,7 +78,7 @@ pub struct Vector3<N> {
     pub z: N
 }
 
-vector_impl!(Vector3, Point3, x, y, z);
+vector_impl!(Vector3, Point3, 3, x, y, z);
 vectorlike_impl!(Vector3, 3, x, y, z);
 from_iterator_impl!(Vector3, iterator, iterator, iterator);
 // (specialized); basis_impl!(Vector3, 1);
@@ -100,7 +103,7 @@ pub struct Vector4<N> {
     pub w: N
 }
 
-vector_impl!(Vector4, Point4, x, y, z, w);
+vector_impl!(Vector4, Point4, 4, x, y, z, w);
 vectorlike_impl!(Vector4, 4, x, y, z, w);
 from_iterator_impl!(Vector4, iterator, iterator, iterator, iterator);
 basis_impl!(Vector4, 4);
@@ -128,7 +131,7 @@ pub struct Vector5<N> {
     pub a: N
 }
 
-vector_impl!(Vector5, Point5, x, y, z, w, a);
+vector_impl!(Vector5, Point5, 5, x, y, z, w, a);
 vectorlike_impl!(Vector5, 5, x, y, z, w, a);
 from_iterator_impl!(Vector5, iterator, iterator, iterator, iterator, iterator);
 basis_impl!(Vector5, 5);
@@ -157,7 +160,7 @@ pub struct Vector6<N> {
     pub b: N
 }
 
-vector_impl!(Vector6, Point6, x, y, z, w, a, b);
+vector_impl!(Vector6, Point6, 6, x, y, z, w, a, b);
 vectorlike_impl!(Vector6, 6, x, y, z, w, a, b);
 from_iterator_impl!(Vector6, iterator, iterator, iterator, iterator, iterator, iterator);
 

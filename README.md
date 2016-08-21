@@ -59,7 +59,8 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Points with static sizes: `Point1`, `Point2`, `Point3`, `Point4`, `Point5`, `Point6`.
 * Square matrices with static sizes: `Matrix1`, `Matrix2`, `Matrix3`, `Matrix4`, `Matrix5`, `Matrix6 `.
 * Rotation matrices: `Rotation2`, `Rotation3`
-* Quaternions: `Quaternion`, `UnitQuaternion`.
+* Quaternions: `Quaternion`, `Unit<Quaternion>`.
+* Unit-sized values (unit vectors, unit quaternions, etc.): `Unit<T>`, e.g., `Unit<Vector3<f32>>`.
 * Isometries (translation ⨯ rotation): `Isometry2`, `Isometry3`
 * Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Similarity2`, `Similarity3`.
 * 3D projections for computer graphics: `Persp3`, `PerspMatrix3`, `Ortho3`, `OrthoMatrix3`.

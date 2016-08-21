@@ -2,6 +2,8 @@ use traits::geometry::Norm;
 
 
 /// A wrapper that ensures the undelying algebraic entity has a unit norm.
+///
+/// Use `.as_ref()` or `.unwrap()` to obtain the undelying value by-reference or by-move.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
 pub struct Unit<T> {
@@ -47,7 +49,7 @@ impl<T: Norm> Unit<T> {
     /// Normalizes this value again. This is useful when repeated computations 
     /// might cause a drift in the norm because of float inaccuracies.
     ///
-    /// Returns the norm beform re-normalization (should be close to `1.0`).
+    /// Returns the norm before re-normalization (should be close to `1.0`).
     #[inline]
     pub fn renormalize(&mut self) -> T::NormType {
         self.v.normalize_mut()

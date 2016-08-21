@@ -18,8 +18,12 @@ use traits::structure::{Cast, Row, Column, Iterable, IterableMut, Dimension, Ind
 use traits::operations::{Absolute, Transpose, Inverse, Outer, EigenQR, Mean};
 use traits::geometry::{ToHomogeneous, FromHomogeneous, Origin};
 use linalg;
+
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
+
+#[cfg(feature="abstract_algebra")]
+use_matrix_group_modules!();
 
 
 /// Special identity matrix. All its operation are no-ops.

@@ -43,6 +43,10 @@ longer unsafe. Instead, their name end with `_unchecked`. In particular:
       well. It is clear that performing computations with floats requires
       approximate equality.
 
+Still WIP: add implementations of abstract algebra traits from the `algebra`
+crate for vectors, rotations and points. To enable them, activate the
+`abstract_algebra` feature.
+
 ## [0.8.0]
 ### Modified
   * Almost everything (types, methods, and traits) now use full names instead
