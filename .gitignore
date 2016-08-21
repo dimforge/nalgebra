@@ -5,3 +5,5 @@ lib
 TODO
 target/
 Cargo.lock
+*.orig
+*.swo
