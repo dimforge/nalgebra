@@ -4,7 +4,7 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.9.0] - WIP
+## [0.9.0]
 ### Modified
   * Renamed:
     - `::from_col_vector` -> `::from_column_vector`
