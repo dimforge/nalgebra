@@ -27,9 +27,9 @@ Other similar trait changes are to be expected in the future, e.g., for the
 
 Methods marked `unsafe` for reasons unrelated to memory safety are no
 longer unsafe. Instead, their name end with `_unchecked`. In particular:
-    * `Rotation3::new_with_matrix` -> `Rotation3::new_with_matrix_unchecked`
-    * `PerspectiveMatrix3::new_with_matrix` -> `PerspectiveMatrix3::new_with_matrix_unchecked`
-    * `OrthographicMatrix3::new_with_matrix` -> `OrthographicMatrix3::new_with_matrix_unchecked`
+    * `Rotation3::new_with_matrix` -> `Rotation3::from_matrix_unchecked`
+    * `PerspectiveMatrix3::new_with_matrix` -> `PerspectiveMatrix3::from_matrix_unchecked`
+    * `OrthographicMatrix3::new_with_matrix` -> `OrthographicMatrix3::from_matrix_unchecked`
 
 ### Added
     - A `Unit<T>` type that wraps normalized values. In particular,
