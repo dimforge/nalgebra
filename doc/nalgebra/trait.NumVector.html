@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,23 +44,23 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>NumVector</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-23743' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#229-243' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait NumVector&lt;N&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;Self, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;Self, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;N, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;N, Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.AddAssign.html' title='core::ops::AddAssign'>AddAssign</a>&lt;Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.SubAssign.html' title='core::ops::SubAssign'>SubAssign</a>&lt;Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.MulAssign.html' title='core::ops::MulAssign'>MulAssign</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.DivAssign.html' title='core::ops::DivAssign'>DivAssign</a>&lt;N&gt; + <a class='trait' href='../nalgebra/trait.Dimension.html' title='nalgebra::Dimension'>Dimension</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html' title='core::ops::Index'>Index</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, Output=N&gt; + <a class='trait' href='http://rust-num.github.io/num/num/traits/trait.Zero.html' title='num::traits::Zero'>Zero</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='../nalgebra/trait.Dot.html' title='nalgebra::Dot'>Dot</a>&lt;N&gt; + <a class='trait' href='../nalgebra/trait.Axpy.html' title='nalgebra::Axpy'>Axpy</a>&lt;N&gt; { }</pre><div class='docblock'><p>Trait grouping most common operations on vectors.</p>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-23531' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#229-243' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait NumVector&lt;N&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;Self,&nbsp;Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;Self,&nbsp;Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;N,&nbsp;Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;N,&nbsp;Output=Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.AddAssign.html' title='core::ops::AddAssign'>AddAssign</a>&lt;Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.SubAssign.html' title='core::ops::SubAssign'>SubAssign</a>&lt;Self&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.MulAssign.html' title='core::ops::MulAssign'>MulAssign</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.DivAssign.html' title='core::ops::DivAssign'>DivAssign</a>&lt;N&gt; + <a class='trait' href='../nalgebra/trait.Dimension.html' title='nalgebra::Dimension'>Dimension</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html' title='core::ops::Index'>Index</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,&nbsp;Output=N&gt; + Zero + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='../nalgebra/trait.Dot.html' title='nalgebra::Dot'>Dot</a>&lt;N&gt; + <a class='trait' href='../nalgebra/trait.Axpy.html' title='nalgebra::Axpy'>Axpy</a>&lt;N&gt; { }</pre><div class='docblock'><p>Trait grouping most common operations on vectors.</p>
 </div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.NumVector.html' title='nalgebra::NumVector'>NumVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.NumVector.html' title='nalgebra::NumVector'>NumVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector2.html' title='nalgebra::Vector2'>Vector2</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.NumVector.html' title='nalgebra::NumVector'>NumVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.NumVector.html' title='nalgebra::NumVector'>NumVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.NumVector.html' title='nalgebra::NumVector'>NumVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.NumVector.html' title='nalgebra::NumVector'>NumVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
+    <li><code>impl&lt;N&gt; NumVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
+<li><code>impl&lt;N&gt; NumVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector2.html' title='nalgebra::Vector2'>Vector2</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
+<li><code>impl&lt;N&gt; NumVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
+<li><code>impl&lt;N&gt; NumVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
+<li><code>impl&lt;N&gt; NumVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
+<li><code>impl&lt;N&gt; NumVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseNum.html' title='nalgebra::BaseNum'>BaseNum</a></span></code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.NumVector.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.NumVector.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -82,6 +83,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

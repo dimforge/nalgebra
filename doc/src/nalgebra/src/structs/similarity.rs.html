@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
 
     
     
@@ -98,35 +99,6 @@
 <span id="55">55</span>
 <span id="56">56</span>
 <span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Mul</span>, <span class='ident'>Neg</span>, <span class='ident'>MulAssign</span>};
@@ -136,7 +108,7 @@
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>matrix</span>::{<span class='ident'>Matrix3</span>, <span class='ident'>Matrix4</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::{<span class='ident'>Dimension</span>, <span class='ident'>Column</span>, <span class='ident'>BaseFloat</span>, <span class='ident'>BaseNum</span>};
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>operations</span>::{<span class='ident'>Inverse</span>, <span class='ident'>ApproxEq</span>};
-<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Rotation</span>, <span class='ident'>Transform</span>, <span class='ident'>Transformation</span>, <span class='ident'>Translation</span>, <span class='ident'>ToHomogeneous</span>};
+<span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>geometry</span>::{<span class='ident'>Transform</span>, <span class='ident'>Transformation</span>, <span class='ident'>ToHomogeneous</span>};
 
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>vector</span>::{<span class='ident'>Vector1</span>, <span class='ident'>Vector2</span>, <span class='ident'>Vector3</span>};
 <span class='kw'>use</span> <span class='ident'>structs</span>::<span class='ident'>point</span>::{<span class='ident'>Point2</span>, <span class='ident'>Point3</span>};
@@ -179,41 +151,12 @@
     <span class='kw'>pub</span> <span class='ident'>isometry</span>: <span class='ident'>Isometry3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>
 }
 
-<span class='macro'>sim_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='ident'>Isometry2</span>, <span class='ident'>Rotation2</span>, <span class='ident'>Vector2</span>, <span class='ident'>Vector1</span>);
-<span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='number'>2</span>);
-<span class='macro'>sim_scale_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>);
-<span class='macro'>sim_one_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>);
-<span class='macro'>sim_mul_sim_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>);
-<span class='macro'>sim_mul_isometry_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='ident'>Isometry2</span>);
-<span class='macro'>sim_mul_rotation_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='ident'>Rotation2</span>);
-<span class='macro'>sim_mul_point_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='ident'>Point2</span>);
-<span class='macro'>sim_mul_point_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='ident'>Vector2</span>);
-<span class='macro'>transformation_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>);
-<span class='macro'>sim_transform_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='ident'>Point2</span>);
-<span class='macro'>sim_inverse_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>);
-<span class='macro'>sim_to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='ident'>Matrix3</span>);
-<span class='macro'>sim_approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>);
-<span class='macro'>sim_rand_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>);
-<span class='macro'>sim_arbitrary_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>);
-<span class='macro'>sim_display_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>);
 
-<span class='macro'>sim_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>, <span class='ident'>Isometry3</span>, <span class='ident'>Rotation3</span>, <span class='ident'>Vector3</span>, <span class='ident'>Vector3</span>);
+<span class='macro'>similarity_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='ident'>Isometry2</span>, <span class='ident'>Rotation2</span>, <span class='ident'>Vector2</span>, <span class='ident'>Vector1</span>, <span class='ident'>Point2</span>, <span class='ident'>Matrix3</span>);
+<span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity2</span>, <span class='number'>2</span>);
+
+<span class='macro'>similarity_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>, <span class='ident'>Isometry3</span>, <span class='ident'>Rotation3</span>, <span class='ident'>Vector3</span>, <span class='ident'>Vector3</span>, <span class='ident'>Point3</span>, <span class='ident'>Matrix4</span>);
 <span class='macro'>dim_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>, <span class='number'>3</span>);
-<span class='macro'>sim_scale_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>);
-<span class='macro'>sim_one_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>);
-<span class='macro'>sim_mul_sim_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>);
-<span class='macro'>sim_mul_isometry_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>, <span class='ident'>Isometry3</span>);
-<span class='macro'>sim_mul_rotation_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>, <span class='ident'>Rotation3</span>);
-<span class='macro'>sim_mul_point_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>, <span class='ident'>Point3</span>);
-<span class='macro'>sim_mul_point_vec_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>, <span class='ident'>Vector3</span>);
-<span class='macro'>transformation_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>);
-<span class='macro'>sim_transform_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>, <span class='ident'>Point3</span>);
-<span class='macro'>sim_inverse_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>);
-<span class='macro'>sim_to_homogeneous_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>, <span class='ident'>Matrix4</span>);
-<span class='macro'>sim_approx_eq_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>);
-<span class='macro'>sim_rand_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>);
-<span class='macro'>sim_arbitrary_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>);
-<span class='macro'>sim_display_impl</span><span class='macro'>!</span>(<span class='ident'>Similarity3</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -238,6 +181,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

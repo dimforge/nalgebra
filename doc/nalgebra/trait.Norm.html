@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,50 +44,68 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Norm</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-23565' class='srclink' href='../src/nalgebra/src/traits/geometry.rs.html#227-244' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait Norm&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; {
-    fn <a href='#tymethod.norm_squared' class='fnname'>norm_squared</a>(&amp;self) -&gt; N;
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-23350' class='srclink' href='../src/nalgebra/src/traits/geometry.rs.html#228-263' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait Norm: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
+    type <a href='#associatedtype.NormType' class='type'>NormType</a>: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>;
+    fn <a href='#tymethod.norm_squared' class='fnname'>norm_squared</a>(&amp;self) -&gt; Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a>;
     fn <a href='#tymethod.normalize' class='fnname'>normalize</a>(&amp;self) -&gt; Self;
-    fn <a href='#tymethod.normalize_mut' class='fnname'>normalize_mut</a>(&amp;mut self) -&gt; N;
+    fn <a href='#tymethod.normalize_mut' class='fnname'>normalize_mut</a>(&amp;mut self) -&gt; Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a>;
+    fn <a href='#tymethod.try_normalize' class='fnname'>try_normalize</a>(&amp;self, min_norm: Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;;
+    fn <a href='#tymethod.try_normalize_mut' class='fnname'>try_normalize_mut</a>(&amp;mut self, min_norm: Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a>&gt;;
 
-    fn <a href='#method.norm' class='fnname'>norm</a>(&amp;self) -&gt; N { ... }
+    fn <a href='#method.norm' class='fnname'>norm</a>(&amp;self) -&gt; Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a> { ... }
 }</pre><div class='docblock'><p>Traits of objects having an euclidian norm.</p>
 </div>
+            <h2 id='associated-types'>Associated Types</h2>
+            <div class='methods'>
+        <h3 id='associatedtype.NormType' class='method stab '><code>type <a href='#associatedtype.NormType' class='type'>NormType</a>: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a></code></h3><div class='docblock'><p>The scalar type for the norm (i.e. the undelying field).</p>
+</div></div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.norm_squared' class='method stab '><code>fn <a href='#tymethod.norm_squared' class='fnname'>norm_squared</a>(&amp;self) -&gt; N</code></h3><div class='docblock'><p>Computes the squared norm of <code>self</code>.</p>
+        <h3 id='tymethod.norm_squared' class='method stab '><code>fn <a href='#tymethod.norm_squared' class='fnname'>norm_squared</a>(&amp;self) -&gt; Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a></code></h3><div class='docblock'><p>Computes the squared norm of <code>self</code>.</p>
 
 <p>This is usually faster than computing the norm itself.</p>
 </div><h3 id='tymethod.normalize' class='method stab '><code>fn <a href='#tymethod.normalize' class='fnname'>normalize</a>(&amp;self) -&gt; Self</code></h3><div class='docblock'><p>Gets the normalized version of a copy of <code>v</code>.</p>
-</div><h3 id='tymethod.normalize_mut' class='method stab '><code>fn <a href='#tymethod.normalize_mut' class='fnname'>normalize_mut</a>(&amp;mut self) -&gt; N</code></h3><div class='docblock'><p>Normalizes <code>self</code>.</p>
+
+<p>Might return an invalid result if the vector is zero or close to zero.</p>
+</div><h3 id='tymethod.normalize_mut' class='method stab '><code>fn <a href='#tymethod.normalize_mut' class='fnname'>normalize_mut</a>(&amp;mut self) -&gt; Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a></code></h3><div class='docblock'><p>Normalizes <code>self</code>.</p>
+
+<p>The result might be invalid if the vector is zero or close to zero.</p>
+</div><h3 id='tymethod.try_normalize' class='method stab '><code>fn <a href='#tymethod.try_normalize' class='fnname'>try_normalize</a>(&amp;self, min_norm: Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></h3><div class='docblock'><p>Gets the normalized version of a copy of <code>v</code> or <code>None</code> if the vector has a norm smaller
+or equal to <code>min_norm</code>. In particular, <code>.try_normalize(0.0)</code> returns <code>None</code> if the norm is
+exactly zero.</p>
+</div><h3 id='tymethod.try_normalize_mut' class='method stab '><code>fn <a href='#tymethod.try_normalize_mut' class='fnname'>try_normalize_mut</a>(&amp;mut self, min_norm: Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a>&gt;</code></h3><div class='docblock'><p>Normalized <code>v</code> or does nothing if the vector has a norm smaller
+or equal to <code>min_norm</code>.</p>
+
+<p>Returns the old norm or <code>None</code> if the normalization failed.</p>
 </div></div>
             <h2 id='provided-methods'>Provided Methods</h2>
             <div class='methods'>
-        <h3 id='method.norm' class='method stab '><code>fn <a href='#method.norm' class='fnname'>norm</a>(&amp;self) -&gt; N</code></h3><div class='docblock'><p>Computes the norm of <code>self</code>.</p>
+        <h3 id='method.norm' class='method stab '><code>fn <a href='#method.norm' class='fnname'>norm</a>(&amp;self) -&gt; Self::<a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>NormType</a></code></h3><div class='docblock'><p>Computes the norm of <code>self</code>.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>, D: ArrayLength&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.VectorN.html' title='nalgebra::VectorN'>VectorN</a>&lt;N, D&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVector.html' title='nalgebra::DVector'>DVector</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVector1.html' title='nalgebra::DVector1'>DVector1</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVector2.html' title='nalgebra::DVector2'>DVector2</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVector3.html' title='nalgebra::DVector3'>DVector3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVector4.html' title='nalgebra::DVector4'>DVector4</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVector5.html' title='nalgebra::DVector5'>DVector5</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.DVector6.html' title='nalgebra::DVector6'>DVector6</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector2.html' title='nalgebra::Vector2'>Vector2</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Quaternion.html' title='nalgebra::Quaternion'>Quaternion</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>,&nbsp;D:&nbsp;ArrayLength&lt;N&gt;&gt; Norm for <a class='struct' href='../nalgebra/struct.VectorN.html' title='nalgebra::VectorN'>VectorN</a>&lt;N,&nbsp;D&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.DVector.html' title='nalgebra::DVector'>DVector</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.DVector1.html' title='nalgebra::DVector1'>DVector1</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.DVector2.html' title='nalgebra::DVector2'>DVector2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.DVector3.html' title='nalgebra::DVector3'>DVector3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.DVector4.html' title='nalgebra::DVector4'>DVector4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.DVector5.html' title='nalgebra::DVector5'>DVector5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.DVector6.html' title='nalgebra::DVector6'>DVector6</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.Vector2.html' title='nalgebra::Vector2'>Vector2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Norm for <a class='struct' href='../nalgebra/struct.Quaternion.html' title='nalgebra::Quaternion'>Quaternion</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.Norm.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.Norm.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -109,6 +128,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

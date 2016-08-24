@@ -124,6 +124,11 @@
             focusSearchBar();
             break;
 
+        case "+":
+            ev.preventDefault();
+            toggleAllDocs();
+            break;
+
         case "?":
             if (ev.shiftKey && $("#help").hasClass("hidden")) {
                 ev.preventDefault();
@@ -740,7 +745,9 @@
             $(".search-input").on("keyup input",function() {
                 clearTimeout(searchTimeout);
                 if ($(this).val().length === 0) {
-                    window.history.replaceState("", "std - Rust", "?search=");
+                    if (browserSupportsHistoryApi()) {
+                        history.replaceState("", "std - Rust", "?search=");
+                    }
                     $('#main.content').removeClass('hidden');
                     $('#search.content').addClass('hidden');
                 } else {
@@ -877,12 +884,16 @@
             sidebar.append(div);
         }
 
+        block("primitive", "Primitive Types");
         block("mod", "Modules");
+        block("macro", "Macros");
         block("struct", "Structs");
         block("enum", "Enums");
+        block("constant", "Constants");
+        block("static", "Statics");
         block("trait", "Traits");
         block("fn", "Functions");
-        block("macro", "Macros");
+        block("type", "Type Definitions");
     }
 
     window.initSidebarItems = initSidebarItems;
@@ -929,7 +940,7 @@
         return "\u2212"; // "\u2212" is '−' minus sign
     }
 
-    $("#toggle-all-docs").on("click", function() {
+    function toggleAllDocs() {
         var toggle = $("#toggle-all-docs");
         if (toggle.hasClass("will-expand")) {
             toggle.removeClass("will-expand");
@@ -948,7 +959,9 @@
             $(".toggle-wrapper").addClass("collapsed");
             $(".collapse-toggle").children(".inner").text(labelForToggleButton(true));
         }
-    });
+    }
+
+    $("#toggle-all-docs").on("click", toggleAllDocs);
 
     $(document).on("click", ".collapse-toggle", function() {
         var toggle = $(this);
@@ -979,7 +992,7 @@
         $(".method").each(function() {
             if ($(this).next().is(".docblock") ||
                 ($(this).next().is(".stability") && $(this).next().next().is(".docblock"))) {
-                    $(this).children().first().after(toggle.clone());
+                    $(this).children().last().after(toggle.clone());
             }
         });
 
@@ -996,7 +1009,7 @@
         var prev_id = 0;
 
         function set_fragment(name) {
-            if (history.replaceState) {
+            if (browserSupportsHistoryApi()) {
                 history.replaceState(null, null, '#' + name);
                 $(window).trigger('hashchange');
             } else {

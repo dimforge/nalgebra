@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,11 +44,11 @@
 
     <section id='main' class="content fn">
 <h1 class='fqn'><span class='in-band'>Function <a href='index.html'>nalgebra</a>::<wbr><a class='fn' href=''>cholesky</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-24301' class='srclink' href='../src/nalgebra/src/linalg/decompositions.rs.html#264-306' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn cholesky&lt;N, V, VS, M&gt;(m: &amp;M) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;M, &amp;'static <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>, V: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;M, Output=V&gt;, VS: <a class='trait' href='../nalgebra/trait.Indexable.html' title='nalgebra::Indexable'>Indexable</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, N&gt; + <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt;, M: <a class='trait' href='../nalgebra/trait.Indexable.html' title='nalgebra::Indexable'>Indexable</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, N&gt; + <a class='trait' href='../nalgebra/trait.SquareMatrix.html' title='nalgebra::SquareMatrix'>SquareMatrix</a>&lt;N, V&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;M, Output=M&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;M, Output=M&gt; + <a class='trait' href='../nalgebra/trait.ColumnSlice.html' title='nalgebra::ColumnSlice'>ColumnSlice</a>&lt;VS&gt; + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></pre><div class='docblock'><p>Cholesky decomposition G of a square symmetric positive definite matrix A, such that A = G * G<sup>T</sup></p>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-24055' class='srclink' href='../src/nalgebra/src/linalg/decompositions.rs.html#264-306' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn cholesky&lt;N,&nbsp;V,&nbsp;VS,&nbsp;M&gt;(m: &amp;M) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;M,&nbsp;&amp;'static <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>, V: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;M,&nbsp;Output=V&gt;, VS: <a class='trait' href='../nalgebra/trait.Indexable.html' title='nalgebra::Indexable'>Indexable</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,&nbsp;N&gt; + <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;NormType=N&gt;, M: <a class='trait' href='../nalgebra/trait.Indexable.html' title='nalgebra::Indexable'>Indexable</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>,&nbsp;N&gt; + <a class='trait' href='../nalgebra/trait.SquareMatrix.html' title='nalgebra::SquareMatrix'>SquareMatrix</a>&lt;N,&nbsp;V&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;M,&nbsp;Output=M&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;M,&nbsp;Output=M&gt; + <a class='trait' href='../nalgebra/trait.ColumnSlice.html' title='nalgebra::ColumnSlice'>ColumnSlice</a>&lt;VS&gt; + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></pre><div class='docblock'><p>Cholesky decomposition G of a square symmetric positive definite matrix A, such that A = G * G<sup>T</sup></p>
 
 <h1 id='arguments' class='section-header'><a href='#arguments'> Arguments</a></h1>
 <ul>
@@ -76,6 +77,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

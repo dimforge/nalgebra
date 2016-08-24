@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,30 +44,33 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Basis</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-23655' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#112-121' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-23445' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#112-121' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Basis: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
-    fn <a href='#tymethod.canonical_basis' class='fnname'>canonical_basis</a>&lt;F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(F);
-    fn <a href='#tymethod.orthonormal_subspace_basis' class='fnname'>orthonormal_subspace_basis</a>&lt;F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(&amp;Self, F);
+    fn <a href='#tymethod.canonical_basis' class='fnname'>canonical_basis</a>&lt;F:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(F);
+    fn <a href='#tymethod.orthonormal_subspace_basis' class='fnname'>orthonormal_subspace_basis</a>&lt;F:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(&amp;Self, F);
     fn <a href='#tymethod.canonical_basis_element' class='fnname'>canonical_basis_element</a>(i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;;
 }</pre><div class='docblock'><p>Traits of objects which can form a basis (typically vectors).</p>
 </div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.canonical_basis' class='method stab '><code>fn <a href='#tymethod.canonical_basis' class='fnname'>canonical_basis</a>&lt;F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(F)</code></h3><div class='docblock'><p>Iterates through the canonical basis of the space in which this object lives.</p>
-</div><h3 id='tymethod.orthonormal_subspace_basis' class='method stab '><code>fn <a href='#tymethod.orthonormal_subspace_basis' class='fnname'>orthonormal_subspace_basis</a>&lt;F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(&amp;Self, F)</code></h3><div class='docblock'><p>Iterates through a basis of the subspace orthogonal to <code>self</code>.</p>
+        <h3 id='tymethod.canonical_basis' class='method stab '><code>fn <a href='#tymethod.canonical_basis' class='fnname'>canonical_basis</a>&lt;F:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(F)</code></h3><div class='docblock'><p>Iterates through the canonical basis of the space in which this object lives.</p>
+</div><h3 id='tymethod.orthonormal_subspace_basis' class='method stab '><code>fn <a href='#tymethod.orthonormal_subspace_basis' class='fnname'>orthonormal_subspace_basis</a>&lt;F:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;(&amp;Self, F)</code></h3><div class='docblock'><p>Iterates through a basis of the subspace orthogonal to <code>self</code>.</p>
 </div><h3 id='tymethod.canonical_basis_element' class='method stab '><code>fn <a href='#tymethod.canonical_basis_element' class='fnname'>canonical_basis_element</a>(i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></h3><div class='docblock'><p>Gets the ith element of the canonical basis.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> for <a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> for <a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;&gt; <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> for <a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Basis for <a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Basis for <a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Basis for <a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;One&gt; Basis for <a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + One + Zero + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a>&lt;Output=N&gt;&gt; Basis for <a class='struct' href='../nalgebra/struct.Vector2.html' title='nalgebra::Vector2'>Vector2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Basis for <a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.Basis.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.Basis.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -89,6 +93,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

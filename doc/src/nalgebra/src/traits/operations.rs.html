@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
 
     
     
@@ -453,11 +454,11 @@
 <span id="410">410</span>
 <span id="411">411</span>
 <span id="412">412</span>
-<span id="413">413</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Low level operations on vectors and matrices.</span>
 
-<span class='kw'>use</span> <span class='ident'>num</span>::{<span class='ident'>Float</span>, <span class='ident'>Signed</span>};
+<span class='kw'>use</span> <span class='ident'>std</span>::{<span class='ident'>mem</span>, <span class='ident'>f32</span>, <span class='ident'>f64</span>};
+<span class='kw'>use</span> <span class='ident'>num</span>::<span class='ident'>Signed</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Mul</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cmp</span>::<span class='ident'>Ordering</span>;
 <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='ident'>structure</span>::<span class='ident'>SquareMatrix</span>;
@@ -531,41 +532,41 @@
 <span class='doccomment'>/// Pointwise ordering operations.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>PartialOrder</span> {
     <span class='doccomment'>/// Returns the infimum of this value and another</span>
-    <span class='kw'>fn</span> <span class='ident'>inf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>inf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>;
 
     <span class='doccomment'>/// Returns the supremum of this value and another</span>
-    <span class='kw'>fn</span> <span class='ident'>sup</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>sup</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>;
 
     <span class='doccomment'>/// Compare `self` and `other` using a partial ordering relation.</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_cmp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>PartialOrdering</span>;
+    <span class='kw'>fn</span> <span class='ident'>partial_cmp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>PartialOrdering</span>;
 
     <span class='doccomment'>/// Returns `true` iff `self` and `other` are comparable and `self &lt;= other`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_le</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='kw'>fn</span> <span class='ident'>partial_le</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='ident'>PartialOrder</span>::<span class='ident'>partial_cmp</span>(<span class='self'>self</span>, <span class='ident'>other</span>).<span class='ident'>is_le</span>()
     }
 
     <span class='doccomment'>/// Returns `true` iff `self` and `other` are comparable and `self &lt; other`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_lt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='kw'>fn</span> <span class='ident'>partial_lt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='ident'>PartialOrder</span>::<span class='ident'>partial_cmp</span>(<span class='self'>self</span>, <span class='ident'>other</span>).<span class='ident'>is_lt</span>()
     }
 
     <span class='doccomment'>/// Returns `true` iff `self` and `other` are comparable and `self &gt;= other`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_ge</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='kw'>fn</span> <span class='ident'>partial_ge</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='ident'>PartialOrder</span>::<span class='ident'>partial_cmp</span>(<span class='self'>self</span>, <span class='ident'>other</span>).<span class='ident'>is_ge</span>()
     }
 
     <span class='doccomment'>/// Returns `true` iff `self` and `other` are comparable and `self &gt; other`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_gt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+    <span class='kw'>fn</span> <span class='ident'>partial_gt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='ident'>PartialOrder</span>::<span class='ident'>partial_cmp</span>(<span class='self'>self</span>, <span class='ident'>other</span>).<span class='ident'>is_gt</span>()
     }
 
     <span class='doccomment'>/// Return the minimum of `self` and `other` if they are comparable.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_min</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw'>Self</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>partial_min</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>Self</span><span class='op'>&gt;</span> {
         <span class='kw'>match</span> <span class='ident'>PartialOrder</span>::<span class='ident'>partial_cmp</span>(<span class='self'>self</span>, <span class='ident'>other</span>) {
             <span class='ident'>PartialOrdering</span>::<span class='ident'>PartialLess</span> <span class='op'>|</span> <span class='ident'>PartialOrdering</span>::<span class='ident'>PartialEqual</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='self'>self</span>),
             <span class='ident'>PartialOrdering</span>::<span class='ident'>PartialGreater</span>             <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>other</span>),
@@ -575,7 +576,7 @@
 
     <span class='doccomment'>/// Return the maximum of `self` and `other` if they are comparable.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_max</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw'>Self</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>partial_max</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>Self</span><span class='op'>&gt;</span> {
         <span class='kw'>match</span> <span class='ident'>PartialOrder</span>::<span class='ident'>partial_cmp</span>(<span class='self'>self</span>, <span class='ident'>other</span>) {
             <span class='ident'>PartialOrdering</span>::<span class='ident'>PartialGreater</span> <span class='op'>|</span> <span class='ident'>PartialOrdering</span>::<span class='ident'>PartialEqual</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='self'>self</span>),
             <span class='ident'>PartialOrdering</span>::<span class='ident'>PartialLess</span>   <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>other</span>),
@@ -586,23 +587,21 @@
     <span class='doccomment'>/// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to</span>
     <span class='doccomment'>/// `min` or `max`.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_clamp</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>min</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw'>Self</span>, <span class='ident'>max</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw'>Self</span><span class='op'>&gt;</span> {
+    <span class='kw'>fn</span> <span class='ident'>partial_clamp</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>min</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>Self</span>, <span class='ident'>max</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>Self</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>v_min</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>partial_cmp</span>(<span class='ident'>min</span>);
         <span class='kw'>let</span> <span class='ident'>v_max</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>partial_cmp</span>(<span class='ident'>max</span>);
 
         <span class='kw'>if</span> <span class='ident'>v_min</span>.<span class='ident'>is_not_comparable</span>() <span class='op'>||</span> <span class='ident'>v_max</span>.<span class='ident'>is_not_comparable</span>() {
             <span class='prelude-val'>None</span>
         }
+        <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>v_min</span>.<span class='ident'>is_lt</span>() {
+            <span class='prelude-val'>Some</span>(<span class='ident'>min</span>)
+        }
+        <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>v_max</span>.<span class='ident'>is_gt</span>() {
+            <span class='prelude-val'>Some</span>(<span class='ident'>max</span>)
+        }
         <span class='kw'>else</span> {
-            <span class='kw'>if</span> <span class='ident'>v_min</span>.<span class='ident'>is_lt</span>() {
-                <span class='prelude-val'>Some</span>(<span class='ident'>min</span>)
-            }
-            <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>v_max</span>.<span class='ident'>is_gt</span>() {
-                <span class='prelude-val'>Some</span>(<span class='ident'>max</span>)
-            }
-            <span class='kw'>else</span> {
-                <span class='prelude-val'>Some</span>(<span class='self'>self</span>)
-            }
+            <span class='prelude-val'>Some</span>(<span class='self'>self</span>)
         }
     }
 }
@@ -610,21 +609,21 @@
 <span class='doccomment'>/// Trait for testing approximate equality</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>ApproxEq</span><span class='op'>&lt;</span><span class='ident'>Eps</span><span class='op'>&gt;</span>: <span class='ident'>Sized</span> {
     <span class='doccomment'>/// Default epsilon for approximation.</span>
-    <span class='kw'>fn</span> <span class='ident'>approx_epsilon</span>(<span class='ident'>unused_mut</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Eps</span>;
+    <span class='kw'>fn</span> <span class='ident'>approx_epsilon</span>(<span class='ident'>unused_mut</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Eps</span>;
 
     <span class='doccomment'>/// Tests approximate equality using a custom epsilon.</span>
-    <span class='kw'>fn</span> <span class='ident'>approx_eq_eps</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>, <span class='ident'>epsilon</span>: <span class='kw-2'>&amp;</span><span class='ident'>Eps</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
+    <span class='kw'>fn</span> <span class='ident'>approx_eq_eps</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>, <span class='ident'>epsilon</span>: <span class='kw-2'>&amp;</span><span class='ident'>Eps</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
 
     <span class='doccomment'>/// Default ULPs for approximation.</span>
-    <span class='kw'>fn</span> <span class='ident'>approx_ulps</span>(<span class='ident'>unused_mut</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>u32</span>;
+    <span class='kw'>fn</span> <span class='ident'>approx_ulps</span>(<span class='ident'>unused_mut</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>u32</span>;
 
     <span class='doccomment'>/// Tests approximate equality using units in the last place (ULPs)</span>
-    <span class='kw'>fn</span> <span class='ident'>approx_eq_ulps</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>, <span class='ident'>ulps</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
+    <span class='kw'>fn</span> <span class='ident'>approx_eq_ulps</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>, <span class='ident'>ulps</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
 
     <span class='doccomment'>/// Tests approximate equality.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>approx_eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>approx_eq_eps</span>(<span class='ident'>other</span>, <span class='kw-2'>&amp;</span><span class='ident'>ApproxEq</span>::<span class='ident'>approx_epsilon</span>(<span class='prelude-val'>None</span>::<span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span>))
+    <span class='kw'>fn</span> <span class='ident'>approx_eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
+        <span class='self'>self</span>.<span class='ident'>approx_eq_eps</span>(<span class='ident'>other</span>, <span class='kw-2'>&amp;</span><span class='ident'>ApproxEq</span>::<span class='ident'>approx_epsilon</span>(<span class='prelude-val'>None</span>::<span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span>))
     }
 }
 
@@ -645,15 +644,15 @@
 
     <span class='kw'>fn</span> <span class='ident'>approx_eq_ulps</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>f32</span>, <span class='ident'>ulps</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='comment'>// Handle -0 == +0</span>
-        <span class='kw'>if</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='op'>*</span><span class='ident'>other</span> { <span class='kw'>return</span> <span class='boolval'>true</span>; }
+        <span class='kw'>if</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='op'>*</span><span class='ident'>other</span> { <span class='kw'>return</span> <span class='bool-val'>true</span>; }
 
         <span class='comment'>// Otherwise, differing signs should be not-equal, even if within ulps</span>
-        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>signum</span>() <span class='op'>!=</span> <span class='ident'>other</span>.<span class='ident'>signum</span>() { <span class='kw'>return</span> <span class='boolval'>false</span>; }
+        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>signum</span>() <span class='op'>!=</span> <span class='ident'>other</span>.<span class='ident'>signum</span>() { <span class='kw'>return</span> <span class='bool-val'>false</span>; }
 
         <span class='comment'>// IEEE754 floats are in the same order as 2s complement isizes</span>
         <span class='comment'>// so this trick (subtracting the isizes) works.</span>
-        <span class='kw'>let</span> <span class='ident'>iself</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { ::<span class='ident'>std</span>::<span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='op'>*</span><span class='self'>self</span>) };
-        <span class='kw'>let</span> <span class='ident'>iother</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { ::<span class='ident'>std</span>::<span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='op'>*</span><span class='ident'>other</span>) };
+        <span class='kw'>let</span> <span class='ident'>iself</span>:  <span class='ident'>i32</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='op'>*</span><span class='self'>self</span>) };
+        <span class='kw'>let</span> <span class='ident'>iother</span>: <span class='ident'>i32</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='op'>*</span><span class='ident'>other</span>) };
 
         (<span class='ident'>iself</span> <span class='op'>-</span> <span class='ident'>iother</span>).<span class='ident'>abs</span>() <span class='op'>&lt;</span> <span class='ident'>ulps</span> <span class='kw'>as</span> <span class='ident'>i32</span>
     }
@@ -676,13 +675,13 @@
 
     <span class='kw'>fn</span> <span class='ident'>approx_eq_ulps</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>f64</span>, <span class='ident'>ulps</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
         <span class='comment'>// Handle -0 == +0</span>
-        <span class='kw'>if</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='op'>*</span><span class='ident'>other</span> { <span class='kw'>return</span> <span class='boolval'>true</span>; }
+        <span class='kw'>if</span> <span class='op'>*</span><span class='self'>self</span> <span class='op'>==</span> <span class='op'>*</span><span class='ident'>other</span> { <span class='kw'>return</span> <span class='bool-val'>true</span>; }
 
         <span class='comment'>// Otherwise, differing signs should be not-equal, even if within ulps</span>
-        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>signum</span>() <span class='op'>!=</span> <span class='ident'>other</span>.<span class='ident'>signum</span>() { <span class='kw'>return</span> <span class='boolval'>false</span>; }
+        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>signum</span>() <span class='op'>!=</span> <span class='ident'>other</span>.<span class='ident'>signum</span>() { <span class='kw'>return</span> <span class='bool-val'>false</span>; }
 
-        <span class='kw'>let</span> <span class='ident'>iself</span>: <span class='ident'>i64</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { ::<span class='ident'>std</span>::<span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='op'>*</span><span class='self'>self</span>) };
-        <span class='kw'>let</span> <span class='ident'>iother</span>: <span class='ident'>i64</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { ::<span class='ident'>std</span>::<span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='op'>*</span><span class='ident'>other</span>) };
+        <span class='kw'>let</span> <span class='ident'>iself</span>:  <span class='ident'>i64</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='op'>*</span><span class='self'>self</span>) };
+        <span class='kw'>let</span> <span class='ident'>iother</span>: <span class='ident'>i64</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='op'>*</span><span class='ident'>other</span>) };
 
         (<span class='ident'>iself</span> <span class='op'>-</span> <span class='ident'>iother</span>).<span class='ident'>abs</span>() <span class='op'>&lt;</span> <span class='ident'>ulps</span> <span class='kw'>as</span> <span class='ident'>i64</span>
     }
@@ -729,13 +728,13 @@
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Absolute</span><span class='op'>&lt;</span><span class='ident'>A</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Computes some absolute value of this object.</span>
     <span class='doccomment'>/// Typically, this will make all component of a matrix or vector positive.</span>
-    <span class='kw'>fn</span> <span class='ident'>abs</span>(<span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>A</span>;
+    <span class='kw'>fn</span> <span class='ident'>abs</span>(<span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>A</span>;
 }
 
 <span class='doccomment'>/// Trait of objects having an inverse. Typically used to implement matrix inverse.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Inverse</span>: <span class='ident'>Sized</span> {
     <span class='doccomment'>/// Returns the inverse of `m`.</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span>;
+    <span class='kw'>fn</span> <span class='ident'>inverse</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span>;
 
     <span class='doccomment'>/// In-place version of `inverse`.</span>
     <span class='kw'>fn</span> <span class='ident'>inverse_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
@@ -750,7 +749,7 @@
 <span class='doccomment'>/// Trait of objects which can be transposed.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Transpose</span> {
     <span class='doccomment'>/// Computes the transpose of a matrix.</span>
-    <span class='kw'>fn</span> <span class='ident'>transpose</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span>;
+    <span class='kw'>fn</span> <span class='ident'>transpose</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>;
 
     <span class='doccomment'>/// In-place version of `transposed`.</span>
     <span class='kw'>fn</span> <span class='ident'>transpose_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>);
@@ -762,7 +761,7 @@
     <span class='kw'>type</span> <span class='ident'>OuterProductType</span>;
 
     <span class='doccomment'>/// Computes the outer product: `a * b`</span>
-    <span class='kw'>fn</span> <span class='ident'>outer</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>OuterProductType</span>;
+    <span class='kw'>fn</span> <span class='ident'>outer</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>OuterProductType</span>;
 }
 
 <span class='doccomment'>/// Trait for computing the covariance of a set of data.</span>
@@ -792,15 +791,15 @@
 }
 
 <span class='doccomment'>/// Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>EigenQR</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='kw'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>V</span><span class='op'>&gt;&gt;</span>: <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>EigenQR</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span>: <span class='ident'>Mul</span><span class='op'>&lt;</span><span class='self'>Self</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>V</span><span class='op'>&gt;&gt;</span>: <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>V</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Computes the eigenvectors and eigenvalues of this matrix.</span>
-    <span class='kw'>fn</span> <span class='ident'>eigen_qr</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>eps</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>, <span class='ident'>niter</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> (<span class='kw'>Self</span>, <span class='ident'>V</span>);
+    <span class='kw'>fn</span> <span class='ident'>eigen_qr</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>eps</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>, <span class='ident'>niter</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> (<span class='self'>Self</span>, <span class='ident'>V</span>);
 }
 
 <span class='doccomment'>/// Trait of objects implementing the `y = ax + y` operation.</span>
 <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Axpy</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Adds $$a * x$$ to `self`.</span>
-    <span class='kw'>fn</span> <span class='ident'>axpy</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>, <span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='kw'>Self</span>);
+    <span class='kw'>fn</span> <span class='ident'>axpy</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span>, <span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>);
 }
 
 <span class='comment'>/*
@@ -892,6 +891,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

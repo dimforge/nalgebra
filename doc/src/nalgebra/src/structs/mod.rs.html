@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
 
     
     
@@ -90,6 +91,10 @@
 <span id="47">47</span>
 <span id="48">48</span>
 <span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Data structures and implementations.</span>
 
@@ -104,10 +109,13 @@
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>perspective</span>::{<span class='ident'>Perspective3</span>, <span class='ident'>PerspectiveMatrix3</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>orthographic</span>::{<span class='ident'>Orthographic3</span>, <span class='ident'>OrthographicMatrix3</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>quaternion</span>::{<span class='ident'>Quaternion</span>, <span class='ident'>UnitQuaternion</span>};
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>unit</span>::<span class='ident'>Unit</span>;
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;generic_sizes&quot;</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>vectorn</span>::<span class='ident'>VectorN</span>;
 
+<span class='kw'>mod</span> <span class='ident'>common_macros</span>;
+<span class='kw'>mod</span> <span class='ident'>algebra</span>;
 <span class='kw'>mod</span> <span class='ident'>dmatrix_macros</span>;
 <span class='kw'>mod</span> <span class='ident'>dmatrix</span>;
 <span class='kw'>mod</span> <span class='ident'>vectorn_macros</span>;
@@ -130,6 +138,7 @@
 <span class='kw'>mod</span> <span class='ident'>similarity</span>;
 <span class='kw'>mod</span> <span class='ident'>perspective</span>;
 <span class='kw'>mod</span> <span class='ident'>orthographic</span>;
+<span class='kw'>mod</span> <span class='ident'>unit</span>;
 
 <span class='comment'>// Specialization for some 1d, 2d and 3d operations.</span>
 <span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
@@ -164,6 +173,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

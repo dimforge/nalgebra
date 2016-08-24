@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,10 +44,10 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>Rotation</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-23458' class='srclink' href='../src/nalgebra/src/traits/geometry.rs.html#44-65' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-23243' class='srclink' href='../src/nalgebra/src/traits/geometry.rs.html#45-66' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Rotation&lt;V&gt; {
     fn <a href='#tymethod.rotation' class='fnname'>rotation</a>(&amp;self) -&gt; V;
     fn <a href='#tymethod.inverse_rotation' class='fnname'>inverse_rotation</a>(&amp;self) -&gt; V;
@@ -70,14 +71,14 @@ rotation is assumed to be an isometry without translation and without reflexion.
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Rotation.html' title='nalgebra::Rotation'>Rotation</a>&lt;<a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.UnitQuaternion.html' title='nalgebra::UnitQuaternion'>UnitQuaternion</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='../nalgebra/trait.Rotation.html' title='nalgebra::Rotation'>Rotation</a>&lt;<a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rotation2.html' title='nalgebra::Rotation2'>Rotation2</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;&gt; <a class='trait' href='../nalgebra/trait.Rotation.html' title='nalgebra::Rotation'>Rotation</a>&lt;<a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rotation3.html' title='nalgebra::Rotation3'>Rotation3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Rotation.html' title='nalgebra::Rotation'>Rotation</a>&lt;<a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Isometry2.html' title='nalgebra::Isometry2'>Isometry2</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N: <a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../nalgebra/trait.Rotation.html' title='nalgebra::Rotation'>Rotation</a>&lt;<a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Isometry3.html' title='nalgebra::Isometry3'>Isometry3</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Rotation&lt;<a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;&gt; for <a class='type' href='../nalgebra/type.UnitQuaternion.html' title='nalgebra::UnitQuaternion'>UnitQuaternion</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Rotation&lt;<a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rotation2.html' title='nalgebra::Rotation2'>Rotation2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Rotation&lt;<a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Rotation3.html' title='nalgebra::Rotation3'>Rotation3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Rotation&lt;<a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Isometry2.html' title='nalgebra::Isometry2'>Isometry2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.Cast.html' title='nalgebra::Cast'>Cast</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt; + <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt; Rotation&lt;<a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Isometry3.html' title='nalgebra::Isometry3'>Isometry3</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.Rotation.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.Rotation.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -100,6 +101,8 @@ rotation is assumed to be an isometry without translation and without reflexion.
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,11 +44,11 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>FloatPoint</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-23759' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#291-304' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait FloatPoint&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt;: <a class='trait' href='../nalgebra/trait.NumPoint.html' title='nalgebra::NumPoint'>NumPoint</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> <span class='where'>where Self::Vector: <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt;</span> {
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-23546' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#291-304' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait FloatPoint&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt;: <a class='trait' href='../nalgebra/trait.NumPoint.html' title='nalgebra::NumPoint'>NumPoint</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> <span class='where'>where Self::Vector: <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;NormType=N&gt;</span> {
     fn <a href='#method.distance_squared' class='fnname'>distance_squared</a>(&amp;self, other: &amp;Self) -&gt; N { ... }
     fn <a href='#method.distance' class='fnname'>distance</a>(&amp;self, other: &amp;Self) -&gt; N { ... }
 }</pre><div class='docblock'><p>Trait of points with components implementing the <code>BaseFloat</code> trait.</p>
@@ -59,15 +60,15 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatPoint.html' title='nalgebra::FloatPoint'>FloatPoint</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point1.html' title='nalgebra::Point1'>Point1</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatPoint.html' title='nalgebra::FloatPoint'>FloatPoint</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point2.html' title='nalgebra::Point2'>Point2</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatPoint.html' title='nalgebra::FloatPoint'>FloatPoint</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point3.html' title='nalgebra::Point3'>Point3</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatPoint.html' title='nalgebra::FloatPoint'>FloatPoint</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point4.html' title='nalgebra::Point4'>Point4</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatPoint.html' title='nalgebra::FloatPoint'>FloatPoint</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point5.html' title='nalgebra::Point5'>Point5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatPoint.html' title='nalgebra::FloatPoint'>FloatPoint</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point6.html' title='nalgebra::Point6'>Point6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
+    <li><code>impl&lt;N&gt; FloatPoint&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point1.html' title='nalgebra::Point1'>Point1</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
+<li><code>impl&lt;N&gt; FloatPoint&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point2.html' title='nalgebra::Point2'>Point2</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
+<li><code>impl&lt;N&gt; FloatPoint&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point3.html' title='nalgebra::Point3'>Point3</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
+<li><code>impl&lt;N&gt; FloatPoint&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point4.html' title='nalgebra::Point4'>Point4</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
+<li><code>impl&lt;N&gt; FloatPoint&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point5.html' title='nalgebra::Point5'>Point5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
+<li><code>impl&lt;N&gt; FloatPoint&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Point6.html' title='nalgebra::Point6'>Point6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.FloatPoint.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.FloatPoint.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -90,6 +91,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

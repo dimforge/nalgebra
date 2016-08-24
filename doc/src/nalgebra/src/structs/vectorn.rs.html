@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
 
     
     
@@ -179,7 +180,7 @@
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;arbitrary&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>quickcheck</span>::{<span class='ident'>Arbitrary</span>, <span class='ident'>Gen</span>};
 
-<span class='doccomment'>/// A static array of arbitrary dimension.</span>
+<span class='doccomment'>/// A stack-allocated vector of arbitrary dimension.</span>
 <span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Debug</span>)]</span> <span class='comment'>//  FIXME: Hash, RustcEncodable, RustcDecodable</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>VectorN</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>ArrayLength</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span> {
@@ -216,7 +217,7 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>ArrayLength</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span> <span class='ident'>Dimension</span> <span class='kw'>for</span> <span class='ident'>VectorN</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>dimension</span>(<span class='ident'>_unused</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
+    <span class='kw'>fn</span> <span class='ident'>dimension</span>(<span class='ident'>_unused</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
         <span class='ident'>D</span>::<span class='ident'>to_usize</span>()
     }
 }
@@ -314,6 +315,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

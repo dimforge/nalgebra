@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,11 +44,11 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>EigenQR</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-24077' class='srclink' href='../src/nalgebra/src/traits/operations.rs.html#338-341' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait EigenQR&lt;N, V: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;Self, Output=V&gt;&gt;: <a class='trait' href='../nalgebra/trait.SquareMatrix.html' title='nalgebra::SquareMatrix'>SquareMatrix</a>&lt;N, V&gt; {
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-23859' class='srclink' href='../src/nalgebra/src/traits/operations.rs.html#337-340' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait EigenQR&lt;N,&nbsp;V:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;Self,&nbsp;Output=V&gt;&gt;: <a class='trait' href='../nalgebra/trait.SquareMatrix.html' title='nalgebra::SquareMatrix'>SquareMatrix</a>&lt;N,&nbsp;V&gt; {
     fn <a href='#tymethod.eigen_qr' class='fnname'>eigen_qr</a>(&amp;self, eps: &amp;N, niter: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self, V<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>;
 }</pre><div class='docblock'><p>Trait for computing the eigenvector and eigenvalues of a square matrix usin the QR algorithm.</p>
 </div>
@@ -57,15 +58,15 @@
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.EigenQR.html' title='nalgebra::EigenQR'>EigenQR</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix1.html' title='nalgebra::Matrix1'>Matrix1</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.EigenQR.html' title='nalgebra::EigenQR'>EigenQR</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vector2.html' title='nalgebra::Vector2'>Vector2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix2.html' title='nalgebra::Matrix2'>Matrix2</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.EigenQR.html' title='nalgebra::EigenQR'>EigenQR</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix3.html' title='nalgebra::Matrix3'>Matrix3</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.EigenQR.html' title='nalgebra::EigenQR'>EigenQR</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix4.html' title='nalgebra::Matrix4'>Matrix4</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.EigenQR.html' title='nalgebra::EigenQR'>EigenQR</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix5.html' title='nalgebra::Matrix5'>Matrix5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.EigenQR.html' title='nalgebra::EigenQR'>EigenQR</a>&lt;N, <a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix6.html' title='nalgebra::Matrix6'>Matrix6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
+    <li><code>impl&lt;N&gt; EigenQR&lt;N,&nbsp;<a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix1.html' title='nalgebra::Matrix1'>Matrix1</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
+<li><code>impl&lt;N&gt; EigenQR&lt;N,&nbsp;<a class='struct' href='../nalgebra/struct.Vector2.html' title='nalgebra::Vector2'>Vector2</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix2.html' title='nalgebra::Matrix2'>Matrix2</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
+<li><code>impl&lt;N&gt; EigenQR&lt;N,&nbsp;<a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix3.html' title='nalgebra::Matrix3'>Matrix3</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
+<li><code>impl&lt;N&gt; EigenQR&lt;N,&nbsp;<a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix4.html' title='nalgebra::Matrix4'>Matrix4</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
+<li><code>impl&lt;N&gt; EigenQR&lt;N,&nbsp;<a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix5.html' title='nalgebra::Matrix5'>Matrix5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
+<li><code>impl&lt;N&gt; EigenQR&lt;N,&nbsp;<a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt;&gt; for <a class='struct' href='../nalgebra/struct.Matrix6.html' title='nalgebra::Matrix6'>Matrix6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a></span></code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.EigenQR.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.EigenQR.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -88,6 +89,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

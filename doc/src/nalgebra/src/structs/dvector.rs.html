@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
 
     
     
@@ -245,7 +246,7 @@
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Clone</span><span class='op'>&gt;</span> <span class='ident'>DVector</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Builds a vector filled with a constant.</span>
     <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_elem</span>(<span class='ident'>dimension</span>: <span class='ident'>usize</span>, <span class='ident'>elem</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>DVector</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_element</span>(<span class='ident'>dimension</span>: <span class='ident'>usize</span>, <span class='ident'>elem</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='ident'>DVector</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
         <span class='ident'>DVector</span> { <span class='ident'>at</span>: <span class='ident'>repeat</span>(<span class='ident'>elem</span>).<span class='ident'>take</span>(<span class='ident'>dimension</span>).<span class='ident'>collect</span>() }
     }
 
@@ -264,9 +265,9 @@
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='ident'>DVector</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
     <span class='doccomment'>/// Builds a vector filled with the results of a function applied to each of its component coordinates.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_fn</span><span class='op'>&lt;</span><span class='ident'>F</span>: <span class='ident'>FnMut</span>(<span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>dimension</span>: <span class='ident'>usize</span>, <span class='kw-2'>mut</span> <span class='ident'>f</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='ident'>DVector</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='ident'>DVector</span> { <span class='ident'>at</span>: (<span class='number'>0</span> .. <span class='ident'>dimension</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>i</span><span class='op'>|</span> <span class='ident'>f</span>(<span class='ident'>i</span>)).<span class='ident'>collect</span>() }
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_fn</span><span class='op'>&lt;</span><span class='ident'>F</span>: <span class='ident'>FnMut</span>(<span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='ident'>dimension</span>: <span class='ident'>usize</span>, <span class='ident'>f</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='ident'>DVector</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
+        <span class='ident'>DVector</span> { <span class='ident'>at</span>: (<span class='number'>0</span> .. <span class='ident'>dimension</span>).<span class='ident'>map</span>(<span class='ident'>f</span>).<span class='ident'>collect</span>() }
     }
 
     <span class='doccomment'>/// The vector length.</span>
@@ -394,6 +395,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

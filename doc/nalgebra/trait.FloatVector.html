@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,23 +44,23 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>FloatVector</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-23745' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#246-247' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait FloatVector&lt;N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt;: <a class='trait' href='../nalgebra/trait.NumVector.html' title='nalgebra::NumVector'>NumVector</a>&lt;N&gt; + <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a>&lt;Output=Self&gt; + <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> { }</pre><div class='docblock'><p>Trait of vector with components implementing the <code>BaseFloat</code> trait.</p>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-23533' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#246-247' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait FloatVector&lt;N:&nbsp;<a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>&gt;: <a class='trait' href='../nalgebra/trait.NumVector.html' title='nalgebra::NumVector'>NumVector</a>&lt;N&gt; + <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;NormType=N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a>&lt;Output=Self&gt; + <a class='trait' href='../nalgebra/trait.Basis.html' title='nalgebra::Basis'>Basis</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt; { }</pre><div class='docblock'><p>Trait of vector with components implementing the <code>BaseFloat</code> trait.</p>
 </div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatVector.html' title='nalgebra::FloatVector'>FloatVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatVector.html' title='nalgebra::FloatVector'>FloatVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector2.html' title='nalgebra::Vector2'>Vector2</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatVector.html' title='nalgebra::FloatVector'>FloatVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatVector.html' title='nalgebra::FloatVector'>FloatVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatVector.html' title='nalgebra::FloatVector'>FloatVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.FloatVector.html' title='nalgebra::FloatVector'>FloatVector</a>&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a> + <a class='trait' href='../nalgebra/trait.ApproxEq.html' title='nalgebra::ApproxEq'>ApproxEq</a>&lt;N&gt;</span></code></li>
+    <li><code>impl&lt;N&gt; FloatVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector1.html' title='nalgebra::Vector1'>Vector1</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a></span></code></li>
+<li><code>impl&lt;N&gt; FloatVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector2.html' title='nalgebra::Vector2'>Vector2</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a></span></code></li>
+<li><code>impl&lt;N&gt; FloatVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector3.html' title='nalgebra::Vector3'>Vector3</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a></span></code></li>
+<li><code>impl&lt;N&gt; FloatVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector4.html' title='nalgebra::Vector4'>Vector4</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a></span></code></li>
+<li><code>impl&lt;N&gt; FloatVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector5.html' title='nalgebra::Vector5'>Vector5</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a></span></code></li>
+<li><code>impl&lt;N&gt; FloatVector&lt;N&gt; for <a class='struct' href='../nalgebra/struct.Vector6.html' title='nalgebra::Vector6'>Vector6</a>&lt;N&gt; <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a></span></code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.FloatVector.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.FloatVector.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -82,6 +83,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

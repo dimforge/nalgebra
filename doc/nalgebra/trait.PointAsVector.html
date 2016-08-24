@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,38 +44,38 @@
 
     <section id='main' class="content trait">
 <h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class='trait' href=''>PointAsVector</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-23747' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#253-267' title='goto source code'>[src]</a></span></h1>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-23535' class='srclink' href='../src/nalgebra/src/traits/structure.rs.html#253-267' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait PointAsVector {
-    type Vector;
+    type <a href='#associatedtype.Vector' class='type'>Vector</a>;
     fn <a href='#tymethod.to_vector' class='fnname'>to_vector</a>(self) -&gt; Self::<a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>Vector</a>;
-    fn <a href='#tymethod.as_vector' class='fnname'>as_vector</a>&lt;'a&gt;(&amp;'a self) -&gt; &amp;'a Self::<a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>Vector</a>;
+    fn <a href='#tymethod.as_vector' class='fnname'>as_vector</a>(&amp;self) -&gt; &amp;Self::<a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>Vector</a>;
     fn <a href='#tymethod.set_coords' class='fnname'>set_coords</a>(&amp;mut self, coords: Self::<a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>Vector</a>);
 }</pre><div class='docblock'><p>Trait that relates a point of an affine space to a vector of the associated vector space.</p>
 </div>
             <h2 id='associated-types'>Associated Types</h2>
             <div class='methods'>
-        <h3 id='associatedtype.Vector' class='method stab '><code>type Vector</code></h3><div class='docblock'><p>The vector type of the vector space associated to this point&#39;s affine space.</p>
+        <h3 id='associatedtype.Vector' class='method stab '><code>type <a href='#associatedtype.Vector' class='type'>Vector</a></code></h3><div class='docblock'><p>The vector type of the vector space associated to this point&#39;s affine space.</p>
 </div></div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
         <h3 id='tymethod.to_vector' class='method stab '><code>fn <a href='#tymethod.to_vector' class='fnname'>to_vector</a>(self) -&gt; Self::<a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>Vector</a></code></h3><div class='docblock'><p>Converts this point to its associated vector.</p>
-</div><h3 id='tymethod.as_vector' class='method stab '><code>fn <a href='#tymethod.as_vector' class='fnname'>as_vector</a>&lt;'a&gt;(&amp;'a self) -&gt; &amp;'a Self::<a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>Vector</a></code></h3><div class='docblock'><p>Converts a reference to this point to a reference to its associated vector.</p>
+</div><h3 id='tymethod.as_vector' class='method stab '><code>fn <a href='#tymethod.as_vector' class='fnname'>as_vector</a>(&amp;self) -&gt; &amp;Self::<a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>Vector</a></code></h3><div class='docblock'><p>Converts a reference to this point to a reference to its associated vector.</p>
 </div><h3 id='tymethod.set_coords' class='method stab '><code>fn <a href='#tymethod.set_coords' class='fnname'>set_coords</a>(&amp;mut self, coords: Self::<a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>Vector</a>)</code></h3><div class='docblock'><p>Sets the coordinates of this point to match those of a given vector.</p>
 </div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>PointAsVector</a> for <a class='struct' href='../nalgebra/struct.Point1.html' title='nalgebra::Point1'>Point1</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>PointAsVector</a> for <a class='struct' href='../nalgebra/struct.Point2.html' title='nalgebra::Point2'>Point2</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>PointAsVector</a> for <a class='struct' href='../nalgebra/struct.Point3.html' title='nalgebra::Point3'>Point3</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>PointAsVector</a> for <a class='struct' href='../nalgebra/struct.Point4.html' title='nalgebra::Point4'>Point4</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>PointAsVector</a> for <a class='struct' href='../nalgebra/struct.Point5.html' title='nalgebra::Point5'>Point5</a>&lt;N&gt;</code></li>
-<li><code>impl&lt;N&gt; <a class='trait' href='../nalgebra/trait.PointAsVector.html' title='nalgebra::PointAsVector'>PointAsVector</a> for <a class='struct' href='../nalgebra/struct.Point6.html' title='nalgebra::Point6'>Point6</a>&lt;N&gt;</code></li>
+    <li><code>impl&lt;N&gt; PointAsVector for <a class='struct' href='../nalgebra/struct.Point1.html' title='nalgebra::Point1'>Point1</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; PointAsVector for <a class='struct' href='../nalgebra/struct.Point2.html' title='nalgebra::Point2'>Point2</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; PointAsVector for <a class='struct' href='../nalgebra/struct.Point3.html' title='nalgebra::Point3'>Point3</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; PointAsVector for <a class='struct' href='../nalgebra/struct.Point4.html' title='nalgebra::Point4'>Point4</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; PointAsVector for <a class='struct' href='../nalgebra/struct.Point5.html' title='nalgebra::Point5'>Point5</a>&lt;N&gt;</code></li>
+<li><code>impl&lt;N&gt; PointAsVector for <a class='struct' href='../nalgebra/struct.Point6.html' title='nalgebra::Point6'>Point6</a>&lt;N&gt;</code></li>
 </ul><script type="text/javascript" async
-                              src="../implementors/nalgebra/trait.PointAsVector.js">
-                      </script></section>
+                         src="../implementors/nalgebra/trait.PointAsVector.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -97,6 +98,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 

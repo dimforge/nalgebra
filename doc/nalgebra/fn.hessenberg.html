@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
@@ -43,11 +44,11 @@
 
     <section id='main' class="content fn">
 <h1 class='fqn'><span class='in-band'>Function <a href='index.html'>nalgebra</a>::<wbr><a class='fn' href=''>hessenberg</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-24324' class='srclink' href='../src/nalgebra/src/linalg/decompositions.rs.html#317-351' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn hessenberg&lt;N, V, M&gt;(m: &amp;M) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>M, M<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a> <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>, V: <a class='trait' href='../nalgebra/trait.Indexable.html' title='nalgebra::Indexable'>Indexable</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, N&gt; + <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;N&gt;, M: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='../nalgebra/trait.Eye.html' title='nalgebra::Eye'>Eye</a> + <a class='trait' href='../nalgebra/trait.ColumnSlice.html' title='nalgebra::ColumnSlice'>ColumnSlice</a>&lt;V&gt; + <a class='trait' href='../nalgebra/trait.Transpose.html' title='nalgebra::Transpose'>Transpose</a> + <a class='trait' href='../nalgebra/trait.Indexable.html' title='nalgebra::Indexable'>Indexable</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;M, Output=M&gt;</span></pre><div class='docblock'><p>Hessenberg
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-24068' class='srclink' href='../src/nalgebra/src/linalg/decompositions.rs.html#317-351' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn hessenberg&lt;N,&nbsp;V,&nbsp;M&gt;(m: &amp;M) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>M, M<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a> <span class='where'>where N: <a class='trait' href='../nalgebra/trait.BaseFloat.html' title='nalgebra::BaseFloat'>BaseFloat</a>, V: <a class='trait' href='../nalgebra/trait.Indexable.html' title='nalgebra::Indexable'>Indexable</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,&nbsp;N&gt; + <a class='trait' href='../nalgebra/trait.Norm.html' title='nalgebra::Norm'>Norm</a>&lt;NormType=N&gt;, M: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='../nalgebra/trait.Eye.html' title='nalgebra::Eye'>Eye</a> + <a class='trait' href='../nalgebra/trait.ColumnSlice.html' title='nalgebra::ColumnSlice'>ColumnSlice</a>&lt;V&gt; + <a class='trait' href='../nalgebra/trait.Transpose.html' title='nalgebra::Transpose'>Transpose</a> + <a class='trait' href='../nalgebra/trait.Indexable.html' title='nalgebra::Indexable'>Indexable</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>,&nbsp;N&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;M,&nbsp;Output=M&gt;</span></pre><div class='docblock'><p>Hessenberg
 Returns the matrix m in Hessenberg form and the corresponding similarity transformation</p>
 
 <h1 id='arguments' class='section-header'><a href='#arguments'>Arguments</a></h1>
@@ -83,6 +84,8 @@ Returns the matrix m in Hessenberg form and the corresponding similarity transfo
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
