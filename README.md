@@ -8,7 +8,7 @@
 </p>
 <p align = "center">
     <strong>
-        <a href="http://nalgebra.org/doc/nalgebra">Documentation</a> | <a href="http://nphysics.org">Forum</a>
+        <a href="http://nalgebra.org/doc/nalgebra">Documentation</a> | <a href="http://users.nphysics.org">Forum</a>
     </strong>
 </p>
 
