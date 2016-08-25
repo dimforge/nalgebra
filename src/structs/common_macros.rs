@@ -1,5 +1,49 @@
 #![macro_use]
 
+macro_rules! ref_binop(
+    // Symmetric to `std::ops::forward_ref_binop!`
+    (impl $imp:ident, $method:ident for $t:ident; $($compN:ident),+) => {
+        impl<'a, 'b, N> $imp<&'a $t<N>> for &'b $t<N> where &'b N: $imp<&'a N, Output = N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn $method(self, right: &'a $t<N>) -> $t<N> {
+                $t::new(
+                    $(
+                        $imp::$method(&self.$compN, &right.$compN)
+                    ),+
+                )
+            }
+        }
+
+        impl<'a, N> $imp<&'a $t<N>> for $t<N> where N: $imp<&'a N, Output = N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn $method(self, right: &'a $t<N>) -> $t<N> {
+                $t::new(
+                    $(
+                        $imp::$method(self.$compN, &right.$compN)
+                    ),+
+                )
+            }
+        }
+
+        impl<'a, N> $imp<$t<N>> for &'a $t<N> where &'a N: $imp<N, Output = N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn $method(self, right: $t<N>) -> $t<N> {
+                $t::new(
+                    $(
+                        $imp::$method(&self.$compN, right.$compN)
+                    ),+
+                )
+            }
+        }
+    }
+);
+
 macro_rules! pointwise_mul(
     ($t: ident, $($compN: ident),+) => (
         impl<N: Mul<N, Output = N>> Mul<$t<N>> for $t<N> {
@@ -17,6 +61,8 @@ macro_rules! pointwise_mul(
                 $( self.$compN *= right.$compN; )+
             }
         }
+
+        ref_binop!(impl Mul, mul for $t; $($compN),+);
     )
 );
 
@@ -37,6 +83,8 @@ macro_rules! pointwise_div(
                 $( self.$compN /= right.$compN; )+
             }
         }
+
+        ref_binop!(impl Div, div for $t; $($compN),+);
     )
 );
 
@@ -57,6 +105,8 @@ macro_rules! pointwise_add(
                 $( self.$compN += right.$compN; )+
             }
         }
+
+        ref_binop!(impl Add, add for $t; $($compN),+);
     )
 );
 
@@ -79,21 +129,132 @@ macro_rules! pointwise_sub(
                 $( self.$compN -= right.$compN; )+
             }
         }
+
+        ref_binop!(impl Sub, sub for $t; $($compN),+);
     )
+);
+
+
+macro_rules! ref_binop_scalar_exact(
+    (impl $imp:ident<$lhs:ident>, $method:ident for $t:ident; $($compN:ident),+) => {
+        impl $imp<$t<$lhs>> for $lhs {
+            type Output = $t<$lhs>;
+
+            #[inline]
+            fn $method(self, right: $t<$lhs>) -> $t<$lhs> {
+                $t::new(
+                    $(
+                        $imp::$method(right.$compN, self)
+                    ),+
+                )
+            }
+        }
+
+        impl<'a, 'b> $imp<&'a $t<$lhs>> for &'b $lhs {
+            type Output = $t<$lhs>;
+
+            #[inline]
+            fn $method(self, right: &'a $t<$lhs>) -> $t<$lhs> {
+                $t::new(
+                    $(
+                        $imp::$method(right.$compN, self)
+                    ),+
+                )
+            }
+        }
+
+        impl<'a> $imp<$t<$lhs>> for &'a $lhs {
+            type Output = $t<$lhs>;
+
+            #[inline]
+            fn $method(self, right: $t<$lhs>) -> $t<$lhs> {
+                $t::new(
+                    $(
+                        $imp::$method(right.$compN, self)
+                    ),+
+                )
+            }
+        }
+
+        impl<'a> $imp<&'a $t<$lhs>> for $lhs {
+            type Output = $t<$lhs>;
+
+            #[inline]
+            fn $method(self, right: &'a $t<$lhs>) -> $t<$lhs> {
+                $t::new(
+                    $(
+                        $imp::$method(right.$compN, self)
+                    ),+
+                )
+            }
+        }
+    };
+);
+
+
+macro_rules! ref_binop_scalar(
+    // Symmetric to `std::ops::forward_ref_binop!`
+    (impl $imp:ident, $method:ident for $t:ident; $($compN:ident),+) => {
+        ref_binop_scalar_exact!(impl $imp<f32>, $method for $t; $($compN),+);
+        ref_binop_scalar_exact!(impl $imp<f64>, $method for $t; $($compN),+);
+
+        impl<N: Copy + $imp<N, Output = N>> $imp<N> for $t<N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn $method(self, right: N) -> $t<N> {
+                $t::new(
+                    $(
+                        $imp::$method(self.$compN, right)
+                    ),+
+                )
+            }
+        }
+
+        impl<'a, 'b, N> $imp<&'a N> for &'b $t<N> where &'b N: $imp<&'a N, Output = N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn $method(self, right: &'a N) -> $t<N> {
+                $t::new(
+                    $(
+                        $imp::$method(&self.$compN, &right)
+                    ),+
+                )
+            }
+        }
+
+        impl<'a, N> $imp<N> for &'a $t<N> where for<'b> &'a N: $imp<&'b N, Output = N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn $method(self, right: N) -> $t<N> {
+                $t::new(
+                    $(
+                        $imp::$method(&self.$compN, &right)
+                    ),+
+                )
+            }
+        }
+
+        impl<'a, N> $imp<&'a N> for $t<N> where N: $imp<&'a N, Output = N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn $method(self, right: &'a N) -> $t<N> {
+                $t::new(
+                    $(
+                        $imp::$method(self.$compN, &right)
+                    ),+
+                )
+            }
+        }
+    }
 );
 
 
 macro_rules! pointwise_scalar_mul(
     ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Mul<N, Output = N>> Mul<N> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn mul(self, right: N) -> $t<N> {
-                $t::new($(self.$compN * right),+)
-            }
-        }
-
         impl<N: Copy + MulAssign<N>> MulAssign<N> for $t<N> {
             #[inline]
             fn mul_assign(&mut self, right: N) {
@@ -101,59 +262,27 @@ macro_rules! pointwise_scalar_mul(
             }
         }
 
-        impl Mul<$t<f32>> for f32 {
-            type Output = $t<f32>;
-
-            #[inline]
-            fn mul(self, right: $t<f32>) -> $t<f32> {
-                $t::new($(self * right.$compN),+)
-            }
-        }
-
-        impl Mul<$t<f64>> for f64 {
-            type Output = $t<f64>;
-
-            #[inline]
-            fn mul(self, right: $t<f64>) -> $t<f64> {
-                $t::new($(self * right.$compN),+)
-            }
-        }
+        ref_binop_scalar!(impl Mul, mul for $t; $($compN),+);
     )
 );
 
 
 macro_rules! pointwise_scalar_div(
     ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Div<N, Output = N>> Div<N> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn div(self, right: N) -> $t<N> {
-                $t::new($(self.$compN / right),+)
-            }
-        }
-
         impl<N: Copy + DivAssign<N>> DivAssign<N> for $t<N> {
             #[inline]
             fn div_assign(&mut self, right: N) {
                 $( self.$compN /= right; )+
             }
         }
+
+        ref_binop_scalar!(impl Div, div for $t; $($compN),+);
     )
 );
 
 
 macro_rules! pointwise_scalar_add(
     ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Add<N, Output = N>> Add<N> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn add(self, right: N) -> $t<N> {
-                $t::new($(self.$compN + right),+)
-            }
-        }
-
         impl<N: Copy + AddAssign<N>> AddAssign<N> for $t<N> {
             #[inline]
             fn add_assign(&mut self, right: N) {
@@ -161,37 +290,12 @@ macro_rules! pointwise_scalar_add(
             }
         }
 
-        impl Add<$t<f32>> for f32 {
-            type Output = $t<f32>;
-
-            #[inline]
-            fn add(self, right: $t<f32>) -> $t<f32> {
-                $t::new($(self + right.$compN),+)
-            }
-        }
-
-        impl Add<$t<f64>> for f64 {
-            type Output = $t<f64>;
-
-            #[inline]
-            fn add(self, right: $t<f64>) -> $t<f64> {
-                $t::new($(self + right.$compN),+)
-            }
-        }
+        ref_binop_scalar!(impl Add, add for $t; $($compN),+);
     )
 );
 
 macro_rules! pointwise_scalar_sub(
     ($t: ident, $($compN: ident),+) => (
-        impl<N: Copy + Sub<N, Output = N>> Sub<N> for $t<N> {
-            type Output = $t<N>;
-
-            #[inline]
-            fn sub(self, right: N) -> $t<N> {
-                $t::new($(self.$compN - right),+)
-            }
-        }
-
         impl<N: Copy + SubAssign<N>> SubAssign<N> for $t<N> {
             #[inline]
             fn sub_assign(&mut self, right: N) {
@@ -199,36 +303,46 @@ macro_rules! pointwise_scalar_sub(
             }
         }
 
-        impl Sub<$t<f32>> for f32 {
-            type Output = $t<f32>;
-
-            #[inline]
-            fn sub(self, right: $t<f32>) -> $t<f32> {
-                $t::new($(self - right.$compN),+)
-            }
-        }
-
-        impl Sub<$t<f64>> for f64 {
-            type Output = $t<f64>;
-
-            #[inline]
-            fn sub(self, right: $t<f64>) -> $t<f64> {
-                $t::new($(self - right.$compN),+)
-            }
-        }
+        ref_binop_scalar!(impl Sub, sub for $t; $($compN),+);
     )
 );
 
-macro_rules! componentwise_neg(
-    ($t: ident, $($compN: ident),+) => (
-        impl<N: Neg<Output = N> + Copy> Neg for $t<N> {
+
+macro_rules! ref_unop(
+    // Symmetric to `std::ops::forward_ref_unop!`
+    (impl $imp:ident, $method:ident for $t:ident; $($compN:ident),+) => {
+        impl<N: $imp<Output = N> + Copy> $imp for $t<N> {
             type Output = $t<N>;
 
             #[inline]
-            fn neg(self) -> $t<N> {
-                $t::new($(-self.$compN ),+)
+            fn $method(self) -> $t<N> {
+                $t::new(
+                    $(
+                        $imp::$method(self.$compN)
+                    ),+
+                )
             }
         }
+
+        impl<'a, N> $imp for &'a $t<N> where &'a N: $imp<Output = N> {
+            type Output = $t<N>;
+
+            #[inline]
+            fn $method(self) -> $t<N> {
+                $t::new(
+                    $(
+                        $imp::$method(&self.$compN)
+                    ),+
+                )
+            }
+        }
+    }
+);
+
+
+macro_rules! componentwise_neg(
+    ($t: ident, $($compN: ident),+) => (
+        ref_unop!(impl Neg, neg for $t; $($compN),+);
     )
 );
 
