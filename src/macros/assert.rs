@@ -27,17 +27,3 @@ macro_rules! assert_approx_eq_ulps(
         }
     })
 );
-
-/// Asserts approximate equality of two values with the `ApproxEq` trait.
-#[macro_export]
-macro_rules! assert_approx_eq(
-    ($given: expr, $expected: expr) => ({
-        let (given_val, expected_val) = (&($given), &($expected));
-        if !ApproxEq::approx_eq(given_val, expected_val) {
-            panic!("assertion failed: `left ≈ right` (left: `{:?}`, right: `{:?}`, tolerance: `{:?}`)",
-                *given_val, *expected_val,
-                ApproxEq::approx_epsilon(Some(*given_val))
-            )
-        }
-    })
-);
