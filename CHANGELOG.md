@@ -4,6 +4,18 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.10.0]
+### Added
+Binary operations are now allowed between references as well. For example
+`Vector3<f32> + &Vector3<f32>` is now possible.
+
+### Modified
+Removed unused parameters to methods from the `ApproxEq` trait. Those were
+required before rust 1.0 to help type inference. The are not needed any more
+since it now allowed to write for a type `T` that implements `ApproxEq`:
+`<T as ApproxEq>::approx_epsilon()`. This replaces the old form:
+`ApproxEq::approx_epsilon(None::<T>)`.
+
 ## [0.9.0]
 ### Modified
   * Renamed:
