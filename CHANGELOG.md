@@ -39,21 +39,21 @@ Other similar trait changes are to be expected in the future, e.g., for the
 
 Methods marked `unsafe` for reasons unrelated to memory safety are no
 longer unsafe. Instead, their name end with `_unchecked`. In particular:
-    * `Rotation3::new_with_matrix` -> `Rotation3::from_matrix_unchecked`
-    * `PerspectiveMatrix3::new_with_matrix` -> `PerspectiveMatrix3::from_matrix_unchecked`
-    * `OrthographicMatrix3::new_with_matrix` -> `OrthographicMatrix3::from_matrix_unchecked`
+* `Rotation3::new_with_matrix` -> `Rotation3::from_matrix_unchecked`
+* `PerspectiveMatrix3::new_with_matrix` -> `PerspectiveMatrix3::from_matrix_unchecked`
+* `OrthographicMatrix3::new_with_matrix` -> `OrthographicMatrix3::from_matrix_unchecked`
 
 ### Added
-    - A `Unit<T>` type that wraps normalized values. In particular,
-      `UnitQuaternion<N>` is now an alias for `Unit<Quaternion<N>>`.
-    - `.ln()`, `.exp()` and `.powf(..)` for quaternions and unit quaternions.
-    - `::from_parts(...)` to build a quaternion from its scalar and vector
-      parts.
-    - The `Norm` trait now has a `try_normalize()` that returns `None` if the
-    norm is too small.
-    - The `BaseFloat` and `FloatVector` traits now inherit from `ApproxEq` as
-      well. It is clear that performing computations with floats requires
-      approximate equality.
+- A `Unit<T>` type that wraps normalized values. In particular,
+  `UnitQuaternion<N>` is now an alias for `Unit<Quaternion<N>>`.
+- `.ln()`, `.exp()` and `.powf(..)` for quaternions and unit quaternions.
+- `::from_parts(...)` to build a quaternion from its scalar and vector
+  parts.
+- The `Norm` trait now has a `try_normalize()` that returns `None` if the
+norm is too small.
+- The `BaseFloat` and `FloatVector` traits now inherit from `ApproxEq` as
+  well. It is clear that performing computations with floats requires
+  approximate equality.
 
 Still WIP: add implementations of abstract algebra traits from the `algebra`
 crate for vectors, rotations and points. To enable them, activate the
