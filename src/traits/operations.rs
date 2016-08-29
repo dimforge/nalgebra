@@ -152,13 +152,13 @@ pub trait PartialOrder {
 /// Trait for testing approximate equality
 pub trait ApproxEq<Eps>: Sized {
     /// Default epsilon for approximation.
-    fn approx_epsilon(unused_mut: Option<Self>) -> Eps;
+    fn approx_epsilon() -> Eps;
 
     /// Tests approximate equality using a custom epsilon.
     fn approx_eq_eps(&self, other: &Self, epsilon: &Eps) -> bool;
 
     /// Default ULPs for approximation.
-    fn approx_ulps(unused_mut: Option<Self>) -> u32;
+    fn approx_ulps() -> u32;
 
     /// Tests approximate equality using units in the last place (ULPs)
     fn approx_eq_ulps(&self, other: &Self, ulps: u32) -> bool;
@@ -166,13 +166,13 @@ pub trait ApproxEq<Eps>: Sized {
     /// Tests approximate equality.
     #[inline]
     fn approx_eq(&self, other: &Self) -> bool {
-        self.approx_eq_eps(other, &ApproxEq::approx_epsilon(None::<Self>))
+        self.approx_eq_eps(other, &Self::approx_epsilon())
     }
 }
 
 impl ApproxEq<f32> for f32 {
     #[inline]
-    fn approx_epsilon(_: Option<f32>) -> f32 {
+    fn approx_epsilon() -> f32 {
         1.0e-6
     }
 
@@ -181,7 +181,7 @@ impl ApproxEq<f32> for f32 {
         ::abs(&(*self - *other)) < *epsilon
     }
 
-    fn approx_ulps(_: Option<f32>) -> u32 {
+    fn approx_ulps() -> u32 {
         8
     }
 
@@ -203,7 +203,7 @@ impl ApproxEq<f32> for f32 {
 
 impl ApproxEq<f64> for f64 {
     #[inline]
-    fn approx_epsilon(_: Option<f64>) -> f64 {
+    fn approx_epsilon() -> f64 {
         1.0e-6
     }
 
@@ -212,7 +212,7 @@ impl ApproxEq<f64> for f64 {
         ::abs(&(*self - *other)) < *approx_epsilon
     }
 
-    fn approx_ulps(_: Option<f64>) -> u32 {
+    fn approx_ulps() -> u32 {
         8
     }
 
@@ -231,16 +231,16 @@ impl ApproxEq<f64> for f64 {
 }
 
 impl<'a, N, T: ApproxEq<N>> ApproxEq<N> for &'a T {
-    fn approx_epsilon(_: Option<&'a T>) -> N {
-        ApproxEq::approx_epsilon(None::<T>)
+    fn approx_epsilon() -> N {
+        <T as ApproxEq<N>>::approx_epsilon()
     }
 
     fn approx_eq_eps(&self, other: &&'a T, approx_epsilon: &N) -> bool {
         ApproxEq::approx_eq_eps(*self, *other, approx_epsilon)
     }
 
-    fn approx_ulps(_: Option<&'a T>) -> u32 {
-        ApproxEq::approx_ulps(None::<T>)
+    fn approx_ulps() -> u32 {
+        <T as ApproxEq<N>>::approx_ulps()
     }
 
     fn approx_eq_ulps(&self, other: &&'a T, ulps: u32) -> bool {
@@ -249,16 +249,16 @@ impl<'a, N, T: ApproxEq<N>> ApproxEq<N> for &'a T {
 }
 
 impl<'a, N, T: ApproxEq<N>> ApproxEq<N> for &'a mut T {
-    fn approx_epsilon(_: Option<&'a mut T>) -> N {
-        ApproxEq::approx_epsilon(None::<T>)
+    fn approx_epsilon() -> N {
+        <T as ApproxEq<N>>::approx_epsilon()
     }
 
     fn approx_eq_eps(&self, other: &&'a mut T, approx_epsilon: &N) -> bool {
         ApproxEq::approx_eq_eps(*self, *other, approx_epsilon)
     }
 
-    fn approx_ulps(_: Option<&'a mut T>) -> u32 {
-        ApproxEq::approx_ulps(None::<T>)
+    fn approx_ulps() -> u32 {
+        <T as ApproxEq<N>>::approx_ulps()
     }
 
     fn approx_eq_ulps(&self, other: &&'a mut T, ulps: u32) -> bool {

@@ -873,13 +873,13 @@ macro_rules! dmat_impl(
 
         impl<N: ApproxEq<N>> ApproxEq<N> for $dmatrix<N> {
             #[inline]
-            fn approx_epsilon(_: Option<$dmatrix<N>>) -> N {
-                ApproxEq::approx_epsilon(None::<N>)
+            fn approx_epsilon() -> N {
+                <N as ApproxEq<N>>::approx_epsilon()
             }
 
             #[inline]
-            fn approx_ulps(_: Option<$dmatrix<N>>) -> u32 {
-                ApproxEq::approx_ulps(None::<N>)
+            fn approx_ulps() -> u32 {
+                <N as ApproxEq<N>>::approx_ulps()
             }
 
             #[inline]

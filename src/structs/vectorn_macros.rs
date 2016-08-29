@@ -582,13 +582,13 @@ macro_rules! vecn_dvec_common_impl(
          */
         impl<N: ApproxEq<N> $(, $param : ArrayLength<N>)*> ApproxEq<N> for $vecn<N $(, $param)*> {
             #[inline]
-            fn approx_epsilon(_: Option<$vecn<N $(, $param)*>>) -> N {
-                ApproxEq::approx_epsilon(None::<N>)
+            fn approx_epsilon() -> N {
+                <N as ApproxEq<N>>::approx_epsilon()
             }
 
             #[inline]
-            fn approx_ulps(_: Option<$vecn<N $(, $param)*>>) -> u32 {
-                ApproxEq::approx_ulps(None::<N>)
+            fn approx_ulps() -> u32 {
+                <N as ApproxEq<N>>::approx_ulps()
             }
 
             #[inline]
