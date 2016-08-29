@@ -27,7 +27,7 @@ and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
 Simply add the following to your `Cargo.toml` file:
 
-```
+```.ignore
 [dependencies]
 nalgebra = "0.10.*"
 ```
