@@ -3,13 +3,22 @@
 
 **nalgebra** is a low-dimensional linear algebra library written for Rust targeting:
 
-* low-dimensional general-purpose linear algebra (still lacks a lot of features…).
-* real time computer graphics.
-* real time computer physics.
-
-An on-line version of this documentation is available [here](http://nalgebra.org/doc/nalgebra).
+* General-purpose linear algebra (still lacks a lot of features…)
+* Real time computer graphics.
+* Real time computer physics.
 
 ## Using **nalgebra**
+You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
+and the official package manager: [cargo](https://github.com/rust-lang/cargo).
+
+Simply add the following to your `Cargo.toml` file:
+
+```
+[dependencies]
+nalgebra = "0.10.*"
+```
+
+
 All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.  This
 module re-exports everything and includes free functions for all traits methods performing
 out-of-place operations.
@@ -20,8 +29,8 @@ Thus, you can import the whole prelude using:
 use nalgebra::*;
 ```
 
-However, the recommended way to use **nalgebra** is to import types and traits explicitly, and call
-free-functions using the `na::` prefix:
+However, the recommended way to use **nalgebra** is to import types and traits
+explicitly, and call free-functions using the `na::` prefix:
 
 ```.rust
 extern crate nalgebra as na;
@@ -37,6 +46,7 @@ fn main() {
 }
 ```
 
+
 ## Features
 **nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
 an optimized set of tools for computer graphics and physics. Those features include:
@@ -46,26 +56,16 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Points with static sizes: `Point1`, `Point2`, `Point3`, `Point4`, `Point5`, `Point6`.
 * Square matrices with static sizes: `Matrix1`, `Matrix2`, `Matrix3`, `Matrix4`, `Matrix5`, `Matrix6 `.
 * Rotation matrices: `Rotation2`, `Rotation3`
-* Quaternions: `Quaternion`, `UnitQuaternion`.
+* Quaternions: `Quaternion`, `Unit<Quaternion>`.
 * Unit-sized values (unit vectors, unit quaternions, etc.): `Unit<T>`, e.g., `Unit<Vector3<f32>>`.
 * Isometries (translation ⨯ rotation): `Isometry2`, `Isometry3`
 * Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Similarity2`, `Similarity3`.
-* 3D projections for computer graphics: `Perspective3`, `PerspectiveMatrix3`, `Orthographic3`, `OrthographicMatrix3`.
+* 3D projections for computer graphics: `Persp3`, `PerspMatrix3`, `Ortho3`, `OrthoMatrix3`.
 * Dynamically sized heap-allocated vector: `DVector`.
 * Dynamically sized stack-allocated vectors with a maximum size: `DVector1` to `DVector6`.
 * Dynamically sized heap-allocated (square or rectangular) matrix: `DMatrix`.
 * Linear algebra and data analysis operators: `Covariance`, `Mean`, `qr`, `cholesky`.
 * Almost one trait per functionality: useful for generic programming.
-
-
-## **nalgebra** in use
-Here are some projects using **nalgebra**.
-Feel free to add your project to this list if you happen to use **nalgebra**!
-
-* [nphysics](https://github.com/sebcrozet/nphysics): a real-time physics engine.
-* [ncollide](https://github.com/sebcrozet/ncollide): a collision detection library.
-* [kiss3d](https://github.com/sebcrozet/kiss3d): a minimalistic graphics engine.
-* [nrays](https://github.com/sebcrozet/nrays): a ray tracer.
 */
 
 #![deny(non_camel_case_types)]

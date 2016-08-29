@@ -22,6 +22,17 @@ nalgebra
 * Real time computer physics.
 
 ## Using **nalgebra**
+You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
+and the official package manager: [cargo](https://github.com/rust-lang/cargo).
+
+Simply add the following to your `Cargo.toml` file:
+
+```
+[dependencies]
+nalgebra = "0.10.*"
+```
+
+
 All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.  This
 module re-exports everything and includes free functions for all traits methods performing
 out-of-place operations.
