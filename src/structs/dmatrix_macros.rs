@@ -516,7 +516,16 @@ macro_rules! dmat_impl(
 
             #[inline]
             fn sub(self, right: $dmatrix<N>) -> $dmatrix<N> {
-                right - self
+                assert!(self.nrows == right.nrows && self.ncols == right.ncols,
+                        "Unable to subtract matrices with different dimensions.");
+
+                let mut res = right;
+
+                for (mij, res) in self.mij.iter().zip(res.mij.iter_mut()) {
+                    *res = *mij - *res;
+                }
+
+                res
             }
         }
 

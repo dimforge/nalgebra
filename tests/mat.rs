@@ -439,7 +439,9 @@ fn test_dmat_addition() {
         ]
     );
 
-    assert!((mat1 + mat2) == res);
+    assert!((mat1.clone() + mat2.clone()) == res);
+    assert!((mat1.clone() + &mat2) == res);
+    assert!((&mat1 + mat2) == res);
 }
 
 #[test]
@@ -471,7 +473,10 @@ fn test_dmat_multiplication() {
         ]
     );
 
-    assert!((mat1 * mat2) == res);
+    assert!((mat1.clone()  * mat2.clone()) == res);
+    assert!((&mat1 * mat2.clone()) == res);
+    assert!((&mat1 * &mat2) == res);
+    assert!((mat1  * &mat2) == res);
 }
 
 // Tests multiplication of rectangular (non-square) matrices.
@@ -537,7 +542,9 @@ fn test_dmat_subtraction() {
         ]
     );
 
-    assert!((mat1 - mat2) == res);
+    assert!((mat1.clone() - mat2.clone()) == res);
+    assert!((&mat1 - mat2.clone()) == res);
+    assert!((mat1  - &mat2) == res);
 }
 
 #[test]
