@@ -23,7 +23,7 @@ use_vector_space_modules!();
 
 /// Vector of dimension 1.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -43,7 +43,7 @@ vec_from_homogeneous_impl!(Vector1, Vector2, y, x);
 
 /// Vector of dimension 2.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -65,7 +65,7 @@ vec_from_homogeneous_impl!(Vector2, Vector3, z, x, y);
 
 /// Vector of dimension 3.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -88,7 +88,7 @@ vec_from_homogeneous_impl!(Vector3, Vector4, w, x, y, z);
 
 /// Vector of dimension 4.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -114,7 +114,7 @@ vec_from_homogeneous_impl!(Vector4, Vector5, a, x, y, z, w);
 
 /// Vector of dimension 5.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -141,7 +141,7 @@ vec_from_homogeneous_impl!(Vector5, Vector6, b, x, y, z, w, a);
 
 /// Vector of dimension 6.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
