@@ -22,7 +22,7 @@ use_euclidean_space_modules!();
 
 /// Point of dimension 1.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -37,7 +37,7 @@ from_iterator_impl!(Point1, iterator);
 
 /// Point of dimension 2.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -54,7 +54,7 @@ from_iterator_impl!(Point2, iterator, iterator);
 
 /// Point of dimension 3.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -73,7 +73,7 @@ from_iterator_impl!(Point3, iterator, iterator, iterator);
 
 /// Point of dimension 4.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -94,7 +94,7 @@ from_iterator_impl!(Point4, iterator, iterator, iterator, iterator);
 
 /// Point of dimension 5.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
@@ -117,7 +117,7 @@ from_iterator_impl!(Point5, iterator, iterator, iterator, iterator, iterator);
 
 /// Point of dimension 6.
 ///
-/// The main differance between a point and a vector is that a vector is not affected by
+/// The main difference between a point and a vector is that a vector is not affected by
 /// translations.
 #[repr(C)]
 #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
