@@ -16,7 +16,7 @@ macro_rules! bench_binop(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box(elems1.get_unchecked(i).$binop(*elems2.get_unchecked(i)))
+                    test::black_box((*elems1.get_unchecked(i)).$binop(*elems2.get_unchecked(i)))
                 }
             })
         }
