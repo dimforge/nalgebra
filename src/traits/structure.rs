@@ -229,14 +229,14 @@ pub trait IterableMut<N> {
 pub trait NumVector<N>: Add<Self, Output = Self> + Sub<Self, Output = Self> +
                         // Mul<Self, Output = Self> + Div<Self, Output = Self> +
 
-                        // Add<N, Output = Self> + Sub<N, Output = Self> + 
-                        Mul<N, Output = Self> + Div<N, Output = Self> + 
+                        // Add<N, Output = Self> + Sub<N, Output = Self> +
+                        Mul<N, Output = Self> + Div<N, Output = Self> +
 
                         AddAssign<Self> + SubAssign<Self> +
-                        // MulAssign<Self> + DivAssign<Self> + 
+                        // MulAssign<Self> + DivAssign<Self> +
 
-                        // AddAssign<N> + SubAssign<N> + 
-                        MulAssign<N> + DivAssign<N> + 
+                        // AddAssign<N> + SubAssign<N> +
+                        MulAssign<N> + DivAssign<N> +
 
                         Dimension + Index<usize, Output = N> +
                         Zero + PartialEq + Dot<N> + Axpy<N> {
@@ -253,7 +253,7 @@ pub trait FloatVector<N: BaseFloat>: NumVector<N> + Norm<NormType = N> + Neg<Out
 pub trait PointAsVector {
     /// The vector type of the vector space associated to this point's affine space.
     type Vector;
-    
+
     /// Converts this point to its associated vector.
     fn to_vector(self) -> Self::Vector;
 
@@ -424,18 +424,14 @@ macro_rules! impl_base_float(
     }
 );
 
-impl BaseNum for i8 { }
-impl BaseNum for i16 { }
-impl BaseNum for i32 { }
-impl BaseNum for i64 { }
-impl BaseNum for isize { }
-impl BaseNum for u8 { }
-impl BaseNum for u16 { }
-impl BaseNum for u32 { }
-impl BaseNum for u64 { }
-impl BaseNum for usize { }
-impl BaseNum for f32 { }
-impl BaseNum for f64 { }
+impl<T: Copy + Zero + One +
+   Add<T, Output = T> + Sub<T, Output = T> +
+   Mul<T, Output = T> + Div<T, Output = T> +
+   Rem<T, Output = T> +
+   AddAssign<T> + SubAssign<T> +
+   MulAssign<T> + DivAssign<T> +
+   RemAssign<T> +
+   PartialEq + Absolute<T> + Axpy<T>> BaseNum for T {}
 
 impl_base_float!(f32);
 impl_base_float!(f64);
