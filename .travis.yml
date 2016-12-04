@@ -3,5 +3,5 @@ language: rust
 script:
     - rustc --version
     - cargo --version
-    - cargo build --verbose --features "arbitrary generic_sizes"
+    - cargo build --verbose --features arbitrary
     - cargo test --verbose --features arbitrary

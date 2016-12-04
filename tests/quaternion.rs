@@ -100,7 +100,7 @@ quickcheck!(
     fn all_op_exist(q: Quaternion<f64>, uq: UnitQuaternion<f64>,
                    v: Vector3<f64>, p: Point3<f64>, r: Rotation3<f64>,
                    s: f64) -> bool {
-        let uv = Unit::new(v);
+        let uv = Unit::new_normalize(v);
 
         let qpq = q + q;
         let qmq = q - q;
