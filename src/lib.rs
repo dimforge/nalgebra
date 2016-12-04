@@ -1,183 +1,131 @@
-/*!
-# nalgebra
+// #![feature(plugin)]
+//
+// #![plugin(clippy)]
+// #![allow(too_many_arguments)]
+// #![allow(derive_hash_xor_eq)]
+// #![allow(len_without_is_empty)]
+// #![allow(transmute_ptr_to_ref)]
 
-**nalgebra** is a low-dimensional linear algebra library written for Rust targeting:
-
-* General-purpose linear algebra (still lacks a lot of features…)
-* Real time computer graphics.
-* Real time computer physics.
-
-## Using **nalgebra**
-You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
-and the official package manager: [cargo](https://github.com/rust-lang/cargo).
-
-Simply add the following to your `Cargo.toml` file:
-
-```.ignore
-[dependencies]
-nalgebra = "0.10.*"
-```
-
-
-All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.  This
-module re-exports everything and includes free functions for all traits methods performing
-out-of-place operations.
-
-Thus, you can import the whole prelude using:
-
-```.ignore
-use nalgebra::*;
-```
-
-However, the recommended way to use **nalgebra** is to import types and traits
-explicitly, and call free-functions using the `na::` prefix:
-
-```.rust
-extern crate nalgebra as na;
-use na::{Vector3, Rotation3, Rotation};
-
-fn main() {
-    let     a = Vector3::new(1.0f64, 1.0, 1.0);
-    let mut b = Rotation3::new(na::zero());
-
-    b.append_rotation_mut(&a);
-
-    assert!(na::approx_eq(&na::rotation(&b), &a));
-}
-```
-
-
-## Features
-**nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
-an optimized set of tools for computer graphics and physics. Those features include:
-
-* Vectors with predefined static sizes: `Vector1`, `Vector2`, `Vector3`, `Vector4`, `Vector5`, `Vector6`.
-* Vector with a user-defined static size: `VectorN` (available only with the `generic_sizes` feature).
-* Points with static sizes: `Point1`, `Point2`, `Point3`, `Point4`, `Point5`, `Point6`.
-* Square matrices with static sizes: `Matrix1`, `Matrix2`, `Matrix3`, `Matrix4`, `Matrix5`, `Matrix6 `.
-* Rotation matrices: `Rotation2`, `Rotation3`
-* Quaternions: `Quaternion`, `Unit<Quaternion>`.
-* Unit-sized values (unit vectors, unit quaternions, etc.): `Unit<T>`, e.g., `Unit<Vector3<f32>>`.
-* Isometries (translation ⨯ rotation): `Isometry2`, `Isometry3`
-* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Similarity2`, `Similarity3`.
-* 3D projections for computer graphics: `Persp3`, `PerspMatrix3`, `Ortho3`, `OrthoMatrix3`.
-* Dynamically sized heap-allocated vector: `DVector`.
-* Dynamically sized stack-allocated vectors with a maximum size: `DVector1` to `DVector6`.
-* Dynamically sized heap-allocated (square or rectangular) matrix: `DMatrix`.
-* Linear algebra and data analysis operators: `Covariance`, `Mean`, `qr`, `cholesky`.
-* Almost one trait per functionality: useful for generic programming.
-*/
-
-#![deny(non_camel_case_types)]
-#![deny(unused_parens)]
-#![deny(non_upper_case_globals)]
-#![deny(unused_qualifications)]
-#![deny(unused_results)]
-#![warn(missing_docs)]
-#![doc(html_root_url = "http://nalgebra.org/doc")]
-
+#[cfg(feature = "arbitrary")]
+extern crate quickcheck;
 extern crate rustc_serialize;
+extern crate num_traits as num;
+extern crate num_complex;
 extern crate rand;
-extern crate num;
-
-#[cfg(feature="generic_sizes")]
+#[macro_use]
+extern crate approx;
+extern crate typenum;
 extern crate generic_array;
 
-#[cfg(feature="arbitrary")]
-extern crate quickcheck;
+extern crate alga;
 
-#[cfg(feature="abstract_algebra")]
-extern crate algebra;
 
-use std::cmp;
-use std::ops::{Neg, Mul};
-use num::{Zero, One};
-pub use traits::{
-    Absolute,
-    AbsoluteRotate,
-    ApproxEq,
-    Axpy,
-    Basis,
-    BaseFloat,
-    BaseNum,
-    Bounded,
-    Cast,
-    Column,
-    ColumnSlice, RowSlice,
-    Covariance,
-    Cross,
-    CrossMatrix,
-    Determinant,
-    Diagonal,
-    Dimension,
-    Dot,
-    EigenQR,
-    Eye,
-    FloatPoint,
-    FloatVector,
-    FromHomogeneous,
-    Indexable,
-    Inverse,
-    Iterable,
-    IterableMut,
-    Matrix,
-    Mean,
-    Norm,
-    NumPoint,
-    NumVector,
-    Origin,
-    Outer,
-    PartialOrder,
-    PartialOrdering,
-    PointAsVector,
-    Repeat,
-    Rotate, Rotation, RotationMatrix, RotationWithTranslation, RotationTo,
-    Row,
-    Shape,
-    SquareMatrix,
-    ToHomogeneous,
-    Transform, Transformation,
-    Translate, Translation,
-    Transpose,
-    UniformSphereSample
-};
-
-#[cfg(feature="generic_sizes")]
-pub use structs::VectorN;
-
-pub use structs::{
-    Identity,
-    DMatrix, DMatrix1, DMatrix2,  DMatrix3,  DMatrix4,  DMatrix5,  DMatrix6,
-    DVector, DVector1, DVector2,  DVector3,  DVector4,  DVector5,  DVector6,
-    Isometry2, Isometry3,
-    Similarity2, Similarity3,
-    Matrix1, Matrix2, Matrix3, Matrix4,
-    Matrix5, Matrix6,
-    Rotation2, Rotation3,
-    Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
-    Point1, Point2, Point3, Point4, Point5, Point6,
-    Perspective3, PerspectiveMatrix3,
-    Orthographic3, OrthographicMatrix3,
-    Quaternion, UnitQuaternion,
-    Unit
-};
-
-pub use linalg::{
-    qr,
-    householder_matrix,
-    cholesky,
-    hessenberg
-};
-
-mod structs;
+pub mod core;
+pub mod geometry;
 mod traits;
-mod linalg;
-mod macros;
 
-// mod lower_triangular;
-// mod chol;
+pub use core::*;
+pub use geometry::*;
+pub use traits::*;
 
-/// Change the input value to ensure it is on the range `[min, max]`.
+
+use std::cmp::{self, PartialOrd, Ordering};
+
+use num::Signed;
+use alga::general::{Id, Identity, SupersetOf, MeetSemilattice, JoinSemilattice, Lattice, Inverse,
+                    Multiplicative, Additive, AdditiveGroup};
+use alga::linear::SquareMatrix as AlgaSquareMatrix;
+use alga::linear::{InnerSpace, NormedSpace, FiniteDimVectorSpace, EuclideanSpace};
+
+/*
+ *
+ * Multiplicative identity.
+ *
+ */
+/// Gets the ubiquitous multiplicative identity element.
+///
+/// Same as `Id::new()`.
+#[inline]
+pub fn id() -> Id {
+    Id::new()
+}
+
+/// Gets the multiplicative identity element.
+#[inline]
+pub fn one<T: Identity<Multiplicative>>() -> T {
+    T::identity()
+}
+
+/// Gets the additive identity element.
+#[inline]
+pub fn zero<T: Identity<Additive>>() -> T {
+    T::identity()
+}
+
+/// Gets the origin of the given point.
+#[inline]
+pub fn origin<P: EuclideanSpace>() -> P {
+    P::origin()
+}
+
+/*
+ *
+ * Dimension
+ *
+ */
+/// The dimension of the given algebraic entity seen as a vector space.
+#[inline]
+pub fn dimension<V: FiniteDimVectorSpace>() -> usize {
+    V::dimension()
+}
+
+/*
+ *
+ * Ordering
+ *
+ */
+// XXX: this is very naive and could probably be optimized for specific types.
+// XXX: also, we might just want to use divisions, but assuming `val` is usually not far from `min`
+// or `max`, would it still be more efficient?
+/// Wraps `val` into the range `[min, max]` using modular arithmetics.
+///
+/// The range must not be empty.
+#[inline]
+pub fn wrap<T>(mut val: T, min: T, max: T) -> T
+    where T: Copy + PartialOrd + AdditiveGroup {
+
+    assert!(min < max, "Invalid wrapping bounds.");
+    let width = max - min;
+
+    if val < min {
+        val += width;
+
+        while val < min {
+            val += width
+        }
+
+        val
+    }
+    else if val > max {
+        val -= width;
+
+        while val > max {
+            val -= width
+        }
+
+        val
+    }
+    else {
+        val
+    }
+}
+
+/// Returns a reference to the input value clamped to the interval `[min, max]`.
+///
+/// In particular:
+///     * If `min < val < max`, this returns `val`.
+///     * If `val <= min`, this retuns `min`.
+///     * If `val >= max`, this retuns `max`.
 #[inline]
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {
@@ -205,754 +153,246 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
     cmp::min(a, b)
 }
 
+/// The absolute value of `a`.
+#[inline]
+pub fn abs<T: Signed>(a: &T) -> T {
+    a.abs()
+}
+
 /// Returns the infimum of `a` and `b`.
 #[inline]
-pub fn inf<T: PartialOrder>(a: &T, b: &T) -> T {
-    PartialOrder::inf(a, b)
+pub fn inf<T: MeetSemilattice>(a: &T, b: &T) -> T {
+    a.meet(b)
 }
 
 /// Returns the supremum of `a` and `b`.
 #[inline]
-pub fn sup<T: PartialOrder>(a: &T, b: &T) -> T {
-    PartialOrder::sup(a, b)
+pub fn sup<T: JoinSemilattice>(a: &T, b: &T) -> T {
+    a.join(b)
+}
+
+/// Returns simultaneously the infimum and supremum of `a` and `b`.
+#[inline]
+pub fn inf_sup<T: Lattice>(a: &T, b: &T) -> (T, T) {
+    a.meet_join(b)
 }
 
 /// Compare `a` and `b` using a partial ordering relation.
 #[inline]
-pub fn partial_cmp<T: PartialOrder>(a: &T, b: &T) -> PartialOrdering {
-    PartialOrder::partial_cmp(a, b)
+pub fn partial_cmp<T: PartialOrd>(a: &T, b: &T) -> Option<Ordering> {
+    a.partial_cmp(b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a < b`.
 #[inline]
-pub fn partial_lt<T: PartialOrder>(a: &T, b: &T) -> bool {
-    PartialOrder::partial_lt(a, b)
+pub fn partial_lt<T: PartialOrd>(a: &T, b: &T) -> bool {
+    a.lt(b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a <= b`.
 #[inline]
-pub fn partial_le<T: PartialOrder>(a: &T, b: &T) -> bool {
-    PartialOrder::partial_le(a, b)
+pub fn partial_le<T: PartialOrd>(a: &T, b: &T) -> bool {
+    a.le(b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a > b`.
 #[inline]
-pub fn partial_gt<T: PartialOrder>(a: &T, b: &T) -> bool {
-    PartialOrder::partial_gt(a, b)
+pub fn partial_gt<T: PartialOrd>(a: &T, b: &T) -> bool {
+    a.gt(b)
 }
 
 /// Returns `true` iff `a` and `b` are comparable and `a >= b`.
 #[inline]
-pub fn partial_ge<T: PartialOrder>(a: &T, b: &T) -> bool {
-    PartialOrder::partial_ge(a, b)
+pub fn partial_ge<T: PartialOrd>(a: &T, b: &T) -> bool {
+    a.ge(b)
 }
 
 /// Return the minimum of `a` and `b` if they are comparable.
 #[inline]
-pub fn partial_min<'a, T: PartialOrder>(a: &'a T, b: &'a T) -> Option<&'a T> {
-    PartialOrder::partial_min(a, b)
+pub fn partial_min<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
+    if let Some(ord) = a.partial_cmp(b) {
+        match ord {
+            Ordering::Greater => Some(b),
+            _                 => Some(a),
+        }
+    }
+    else {
+        None
+    }
 }
 
 /// Return the maximum of `a` and `b` if they are comparable.
 #[inline]
-pub fn partial_max<'a, T: PartialOrder>(a: &'a T, b: &'a T) -> Option<&'a T> {
-    PartialOrder::partial_max(a, b)
+pub fn partial_max<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
+    if let Some(ord) = a.partial_cmp(b) {
+        match ord {
+            Ordering::Less => Some(b),
+            _              => Some(a),
+        }
+    }
+    else {
+        None
+    }
 }
 
 /// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to
 /// `min` or `max`.
 #[inline]
-pub fn partial_clamp<'a, T: PartialOrder>(value: &'a T, min: &'a T, max: &'a T) -> Option<&'a T> {
-    PartialOrder::partial_clamp(value, min, max)
+pub fn partial_clamp<'a, T: PartialOrd>(value: &'a T, min: &'a T, max: &'a T) -> Option<&'a T> {
+    if let (Some(cmp_min), Some(cmp_max)) = (value.partial_cmp(min), value.partial_cmp(max)) {
+        if cmp_min == Ordering::Less {
+            Some(min)
+        }
+        else if cmp_max == Ordering::Greater {
+            Some(max)
+        }
+        else {
+            Some(value)
+        }
+    }
+    else {
+        None
+    }
 }
 
-//
-//
-// Constructors
-//
-//
-
-/// Create a special identity object.
-///
-/// Same as `Identity::new()`.
+/// Sorts two values in increasing order using a partial ordering.
 #[inline]
-pub fn identity() -> Identity {
-    Identity::new()
-}
-
-/// Create a zero-valued value.
-///
-/// This is the same as `std::num::zero()`.
-#[inline]
-pub fn zero<T: Zero>() -> T {
-    Zero::zero()
-}
-
-/// Tests is a value is iqual to zero.
-#[inline]
-pub fn is_zero<T: Zero>(val: &T) -> bool {
-    val.is_zero()
-}
-
-/// Create a one-valued value.
-///
-/// This is the same as `std::num::one()`.
-#[inline]
-pub fn one<T: One>() -> T {
-    One::one()
-}
-
-//
-//
-// Geometry
-//
-//
-
-/// Returns the trivial origin of an affine space.
-#[inline]
-pub fn origin<P: Origin>() -> P {
-    Origin::origin()
-}
-
-/// Returns the center of two points.
-#[inline]
-pub fn center<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> P
-        where <P as PointAsVector>::Vector: Norm<NormType = N> {
-    (*a + b.to_vector()) / ::cast(2.0)
-}
-
-/*
- * FloatPoint
- */
-/// Returns the distance between two points.
-#[inline]
-pub fn distance<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N where <P as PointAsVector>::Vector: Norm<NormType = N> {
-    a.distance(b)
-}
-
-/// Returns the squared distance between two points.
-#[inline]
-pub fn distance_squared<N: BaseFloat, P: FloatPoint<N>>(a: &P, b: &P) -> N 
-        where <P as PointAsVector>::Vector: Norm<NormType = N> {
-    a.distance_squared(b)
-}
-
-/*
- * Translation<V>
- */
-
-/// Gets the translation applicable by `m`.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{Vector3, Isometry3};
-///
-/// fn main() {
-///     let t     = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());
-///     let trans = na::translation(&t);
-///
-///     assert!(trans == Vector3::new(1.0, 1.0, 1.0));
-/// }
-/// ```
-#[inline]
-pub fn translation<V, M: Translation<V>>(m: &M) -> V {
-    m.translation()
-}
-
-/// Gets the inverse translation applicable by `m`.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{Vector3, Isometry3};
-///
-/// fn main() {
-///     let t      = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());
-///     let itrans = na::inverse_translation(&t);
-///
-///     assert!(itrans == Vector3::new(-1.0, -1.0, -1.0));
-/// }
-/// ```
-#[inline]
-pub fn inverse_translation<V, M: Translation<V>>(m: &M) -> V {
-    m.inverse_translation()
-}
-
-/// Applies the translation `v` to a copy of `m`.
-#[inline]
-pub fn append_translation<V, M: Translation<V>>(m: &M, v: &V) -> M {
-    Translation::append_translation(m, v)
-}
-
-/*
- * Translate<P>
- */
-
-/// Applies a translation to a point.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{Point3, Vector3, Isometry3};
-///
-/// fn main() {
-///     let t  = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());
-///     let p  = Point3::new(2.0, 2.0, 2.0);
-///
-///     let tp = na::translate(&t, &p);
-///
-///     assert!(tp == Point3::new(3.0, 3.0, 3.0))
-/// }
-/// ```
-#[inline]
-pub fn translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
-    m.translate(p)
-}
-
-/// Applies an inverse translation to a point.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{Point3, Vector3, Isometry3};
-///
-/// fn main() {
-///     let t  = Isometry3::new(Vector3::new(1.0f64, 1.0, 1.0), na::zero());
-///     let p  = Point3::new(2.0, 2.0, 2.0);
-///
-///     let tp = na::inverse_translate(&t, &p);
-///
-///     assert!(na::approx_eq(&tp, &Point3::new(1.0, 1.0, 1.0)))
-/// }
-#[inline]
-pub fn inverse_translate<P, M: Translate<P>>(m: &M, p: &P) -> P {
-    m.inverse_translate(p)
-}
-
-/*
- * Rotation<V>
- */
-
-/// Gets the rotation applicable by `m`.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{Vector3, Rotation3};
-///
-/// fn main() {
-///     let t = Rotation3::new(Vector3::new(1.0f64, 1.0, 1.0));
-///
-///     assert!(na::approx_eq(&na::rotation(&t), &Vector3::new(1.0, 1.0, 1.0)));
-/// }
-/// ```
-#[inline]
-pub fn rotation<V, M: Rotation<V>>(m: &M) -> V {
-    m.rotation()
-}
-
-
-/// Gets the inverse rotation applicable by `m`.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{Vector3, Rotation3};
-///
-/// fn main() {
-///     let t = Rotation3::new(Vector3::new(1.0f64, 1.0, 1.0));
-///
-///     assert!(na::approx_eq(&na::inverse_rotation(&t), &Vector3::new(-1.0, -1.0, -1.0)));
-/// }
-/// ```
-#[inline]
-pub fn inverse_rotation<V, M: Rotation<V>>(m: &M) -> V {
-    m.inverse_rotation()
-}
-
-// FIXME: this example is a bit shity
-/// Applies the rotation `v` to a copy of `m`.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{Vector3, Rotation3};
-///
-/// fn main() {
-///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.0));
-///     let v  = Vector3::new(1.0, 1.0, 1.0);
-///     let rt = na::append_rotation(&t, &v);
-///
-///     assert!(na::approx_eq(&na::rotation(&rt), &Vector3::new(1.0, 1.0, 1.0)))
-/// }
-/// ```
-#[inline]
-pub fn append_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
-    Rotation::append_rotation(m, v)
-}
-
-// FIXME: this example is a bit shity
-/// Pre-applies the rotation `v` to a copy of `m`.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{Vector3, Rotation3};
-///
-/// fn main() {
-///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.0));
-///     let v  = Vector3::new(1.0, 1.0, 1.0);
-///     let rt = na::prepend_rotation(&t, &v);
-///
-///     assert!(na::approx_eq(&na::rotation(&rt), &Vector3::new(1.0, 1.0, 1.0)))
-/// }
-/// ```
-#[inline]
-pub fn prepend_rotation<V, M: Rotation<V>>(m: &M, v: &V) -> M {
-    Rotation::prepend_rotation(m, v)
-}
-
-/*
- * Rotate<V>
- */
-
-/// Applies a rotation to a vector.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{BaseFloat, Rotation3, Vector3};
-///
-/// fn main() {
-///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.5 * <f64 as BaseFloat>::pi()));
-///     let v  = Vector3::new(1.0, 0.0, 0.0);
-///
-///     let tv = na::rotate(&t, &v);
-///
-///     assert!(na::approx_eq(&tv, &Vector3::new(0.0, 1.0, 0.0)))
-/// }
-/// ```
-#[inline]
-pub fn rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
-    m.rotate(v)
-}
-
-
-/// Applies an inverse rotation to a vector.
-///
-/// ```rust
-/// extern crate nalgebra as na;
-/// use na::{BaseFloat, Rotation3, Vector3};
-///
-/// fn main() {
-///     let t  = Rotation3::new(Vector3::new(0.0f64, 0.0, 0.5 * <f64 as BaseFloat>::pi()));
-///     let v  = Vector3::new(1.0, 0.0, 0.0);
-///
-///     let tv = na::inverse_rotate(&t, &v);
-///
-///     assert!(na::approx_eq(&tv, &Vector3::new(0.0, -1.0, 0.0)))
-/// }
-/// ```
-#[inline]
-pub fn inverse_rotate<V, M: Rotate<V>>(m: &M, v: &V) -> V {
-    m.inverse_rotate(v)
-}
-
-/*
- * RotationWithTranslation<LV, AV>
- */
-
-/// Rotates a copy of `m` by `amount` using `center` as the pivot point.
-#[inline]
-pub fn append_rotation_wrt_point<LV: Neg<Output = LV> + Copy,
-                                 AV,
-                                 M: RotationWithTranslation<LV, AV>>(
-                                 m:      &M,
-                                 amount: &AV,
-                                 center: &LV) -> M {
-    RotationWithTranslation::append_rotation_wrt_point(m, amount, center)
-}
-
-/// Rotates a copy of `m` by `amount` using `m.translation()` as the pivot point.
-#[inline]
-pub fn append_rotation_wrt_center<LV: Neg<Output = LV> + Copy,
-                                  AV,
-                                  M: RotationWithTranslation<LV, AV>>(
-                                  m:      &M,
-                                  amount: &AV) -> M {
-    RotationWithTranslation::append_rotation_wrt_center(m, amount)
-}
-
-/*
- * RotationTo
- */
-/// Computes the angle of the rotation needed to transfom `a` to `b`.
-#[inline]
-pub fn angle_between<V: RotationTo>(a: &V, b: &V) -> V::AngleType {
-    a.angle_to(b)
-}
-
-/// Computes the rotation needed to transform `a` to `b`.
-#[inline]
-pub fn rotation_between<V: RotationTo>(a: &V, b: &V) -> V::DeltaRotationType {
-    a.rotation_to(b)
-}
-
-/*
- * RotationMatrix<LV, AV, R>
- */
-
-/// Builds a rotation matrix from `r`.
-#[inline]
-pub fn to_rotation_matrix<N, LV, AV, R, M>(r: &R) -> M
-    where R: RotationMatrix<N, LV, AV, Output = M>,
-          M: SquareMatrix<N, LV> + Rotation<AV> + Copy,
-          LV: Mul<M, Output = LV>
-{
-    // FIXME: rust-lang/rust#20413
-    r.to_rotation_matrix()
-}
-
-/*
- * AbsoluteRotate<V>
- */
-
-/// Applies a rotation using the absolute values of its components.
-#[inline]
-pub fn absolute_rotate<V, M: AbsoluteRotate<V>>(m: &M, v: &V) -> V {
-    m.absolute_rotate(v)
-}
-
-/*
- * Transformation<T>
- */
-
-/// Gets the transformation applicable by `m`.
-#[inline]
-pub fn transformation<T, M: Transformation<T>>(m: &M) -> T {
-    m.transformation()
-}
-
-/// Gets the inverse transformation applicable by `m`.
-#[inline]
-pub fn inverse_transformation<T, M: Transformation<T>>(m: &M) -> T {
-    m.inverse_transformation()
-}
-
-/// Gets a transformed copy of `m`.
-#[inline]
-pub fn append_transformation<T, M: Transformation<T>>(m: &M, t: &T) -> M {
-    Transformation::append_transformation(m, t)
-}
-
-/*
- * Transform<V>
- */
-
-/// Applies a transformation to a vector.
-#[inline]
-pub fn transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
-    m.transform(v)
-}
-
-/// Applies an inverse transformation to a vector.
-#[inline]
-pub fn inverse_transform<V, M: Transform<V>>(m: &M, v: &V) -> V {
-    m.inverse_transform(v)
-}
-
-/*
- * Dot<N>
- */
-
-/// Computes the dot product of two vectors.
-#[inline]
-pub fn dot<V: Dot<N>, N>(a: &V, b: &V) -> N {
-    Dot::dot(a, b)
-}
-
-/*
- * Norm<N>
- */
-
-/// Computes the L2 norm of a vector.
-#[inline]
-pub fn norm<V: Norm>(v: &V) -> V::NormType {
-    Norm::norm(v)
-}
-
-/// Computes the squared L2 norm of a vector.
-#[inline]
-pub fn norm_squared<V: Norm>(v: &V) -> V::NormType {
-    Norm::norm_squared(v)
-}
-
-/// Gets the normalized version of a vector.
-#[inline]
-pub fn normalize<V: Norm>(v: &V) -> V {
-    Norm::normalize(v)
-}
-
-/// Gets the normalized version of a vector or `None` if its norm is smaller than `min_norm`.
-#[inline]
-pub fn try_normalize<V: Norm>(v: &V, min_norm: V::NormType) -> Option<V> {
-    Norm::try_normalize(v, min_norm)
-}
-
-/*
- * Determinant<N>
- */
-/// Computes the determinant of a square matrix.
-#[inline]
-pub fn determinant<M: Determinant<N>, N>(m: &M) -> N {
-    Determinant::determinant(m)
-}
-
-/*
- * Cross<V>
- */
-
-/// Computes the cross product of two vectors.
-#[inline]
-pub fn cross<LV: Cross>(a: &LV, b: &LV) -> LV::CrossProductType {
-    Cross::cross(a, b)
-}
-
-/*
- * CrossMatrix<M>
- */
-
-/// Given a vector, computes the matrix which, when multiplied by another vector, computes a cross
-/// product.
-#[inline]
-pub fn cross_matrix<V: CrossMatrix<M>, M>(v: &V) -> M {
-    CrossMatrix::cross_matrix(v)
-}
-
-/*
- * ToHomogeneous<U>
- */
-
-/// Converts a matrix or vector to homogeneous coordinates.
-#[inline]
-pub fn to_homogeneous<M: ToHomogeneous<Res>, Res>(m: &M) -> Res {
-    ToHomogeneous::to_homogeneous(m)
-}
-
-/*
- * FromHomogeneous<U>
- */
-
-/// Converts a matrix or vector from homogeneous coordinates.
-///
-/// w-normalization is appied.
-#[inline]
-pub fn from_homogeneous<M, Res: FromHomogeneous<M>>(m: &M) -> Res {
-    FromHomogeneous::from(m)
-}
-
-/*
- * UniformSphereSample
- */
-
-/// Samples the unit sphere living on the dimension as the samples types.
-///
-/// The number of sampling point is implementation-specific. It is always uniform.
-#[inline]
-pub fn sample_sphere<V: UniformSphereSample, F: FnMut(V)>(f: F) {
-    UniformSphereSample::sample(f)
-}
-
-//
-//
-// Operations
-//
-//
-
-/*
- * AproxEq<N>
- */
-/// Tests approximate equality.
-#[inline]
-pub fn approx_eq<T: ApproxEq<N>, N>(a: &T, b: &T) -> bool {
-    ApproxEq::approx_eq(a, b)
-}
-
-/// Tests approximate equality using a custom epsilon.
-#[inline]
-pub fn approx_eq_eps<T: ApproxEq<N>, N>(a: &T, b: &T, eps: &N) -> bool {
-    ApproxEq::approx_eq_eps(a, b, eps)
-}
-
-
-/*
- * Absolute<A>
- */
-
-/// Computes a component-wise absolute value.
-#[inline]
-pub fn abs<M: Absolute<Res>, Res>(m: &M) -> Res {
-    Absolute::abs(m)
+pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'a T)> {
+    if let Some(ord) = a.partial_cmp(b) {
+        match ord {
+            Ordering::Less => Some((a, b)),
+            _              => Some((b, a)),
+        }
+    }
+    else {
+        None
+    }
 }
 
 /*
  * Inverse
  */
 
-/// Gets an inverted copy of a matrix.
+/// Tries to gets an inverted copy of a square matrix.
 #[inline]
-pub fn inverse<M: Inverse>(m: &M) -> Option<M> {
-    Inverse::inverse(m)
+pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
+    m.try_inverse()
+}
+
+/// Computes the the multiplicative inverse (transformation, unit quaternion, etc.)
+#[inline]
+pub fn inverse<M: Inverse<Multiplicative>>(m: &M) -> M {
+    m.inverse()
 }
 
 /*
- * Transpose
+ * Inner vector space
  */
 
-/// Gets a transposed copy of a matrix.
+/// Computes the dot product of two vectors.
 #[inline]
-pub fn transpose<M: Transpose>(m: &M) -> M {
-    Transpose::transpose(m)
+pub fn dot<V: FiniteDimVectorSpace>(a: &V, b: &V) -> V::Field {
+    a.dot(b)
+}
+
+/// Computes the angle between two vectors.
+#[inline]
+pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
+    a.angle(b)
 }
 
 /*
- * Outer<M>
+ * Normed space
  */
 
-/// Computes the outer product of two vectors.
+/// Computes the L2 norm of a vector.
 #[inline]
-pub fn outer<V: Outer>(a: &V, b: &V) -> V::OuterProductType {
-    Outer::outer(a, b)
+pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
+    v.norm()
+}
+
+/// Computes the squared L2 norm of a vector.
+#[inline]
+pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
+    v.norm_squared()
+}
+
+/// Gets the normalized version of a vector.
+#[inline]
+pub fn normalize<V: NormedSpace>(v: &V) -> V {
+    v.normalize()
+}
+
+/// Gets the normalized version of a vector or `None` if its norm is smaller than `min_norm`.
+#[inline]
+pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::Field) -> Option<V> {
+    v.try_normalize(min_norm)
 }
 
 /*
- * Covariance<M>
+ *
+ * Point operations.
+ *
  */
-
-/// Computes the covariance of a set of observations.
+/// The center of two points.
 #[inline]
-pub fn covariance<M: Covariance<Res>, Res>(observations: &M) -> Res {
-    Covariance::covariance(observations)
+pub fn center<P: EuclideanSpace>(p1: &P, p2: &P) -> P {
+    P::from_coordinates((p1.coordinates() + p2.coordinates()) * convert(0.5))
+}
+
+/// The distance between two points.
+#[inline]
+pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
+    (p2.coordinates() - p1.coordinates()).norm()
+}
+
+/// The squared distance between two points.
+#[inline]
+pub fn distance_squared<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
+    (p2.coordinates() - p1.coordinates()).norm_squared()
 }
 
 /*
- * Mean<N>
+ * Cast
  */
-
-/// Computes the mean of a set of observations.
+/// Converts an object from one type to an equivalent or more general one.
 #[inline]
-pub fn mean<N, M: Mean<N>>(observations: &M) -> N {
-    Mean::mean(observations)
+pub fn convert<From, To: SupersetOf<From>>(t: From) -> To {
+    To::from_subset(&t)
 }
 
-/*
- * EigenQR<N, V>
- */
-/// Computes the eigenvalues and eigenvectors of a square matrix usin the QR algorithm.
+/// Attempts to convert an object to a more specific one.
 #[inline]
-pub fn eigen_qr<N, V, M>(m: &M, eps: &N, niter: usize) -> (M, V)
-    where V: Mul<M, Output = V>,
-          M: EigenQR<N, V> {
-    EigenQR::eigen_qr(m, eps, niter)
+pub fn try_convert<From: SupersetOf<To>, To>(t: From) -> Option<To> {
+    t.to_subset()
 }
 
-//
-//
-// Structure
-//
-//
-
-/*
- * Eye
- */
-/// Construct the identity matrix for a given dimension
+/// Indicates if `::try_convert` will succeed without actually performing the conversion.
 #[inline]
-pub fn new_identity<M: Eye>(dimension: usize) -> M {
-    Eye::new_identity(dimension)
+pub fn is_convertible<From: SupersetOf<To>, To>(t: &From) -> bool {
+    t.is_in_subset()
 }
 
-
-/*
- * Repeat
- */
-/// Create an object by repeating a value.
-///
-/// Same as `Identity::new()`.
+/// Use with care! Same as `try_convert` but without any property checks.
 #[inline]
-pub fn repeat<N, T: Repeat<N>>(val: N) -> T {
-    Repeat::repeat(val)
+pub unsafe fn convert_unchecked<From: SupersetOf<To>, To>(t: From) -> To {
+    t.to_subset_unchecked()
 }
 
-/*
- * Basis
- */
-
-/// Computes the canonical basis for a given dimension.
+/// Converts an object from one type to an equivalent or more general one.
 #[inline]
-pub fn canonical_basis<V: Basis, F: FnMut(V) -> bool>(f: F) {
-    Basis::canonical_basis(f)
+pub fn convert_ref<From, To: SupersetOf<From>>(t: &From) -> To {
+    To::from_subset(t)
 }
 
-/// Computes the basis of the orthonormal subspace of a given vector.
+/// Attempts to convert an object to a more specific one.
 #[inline]
-pub fn orthonormal_subspace_basis<V: Basis, F: FnMut(V) -> bool>(v: &V, f: F) {
-    Basis::orthonormal_subspace_basis(v, f)
+pub fn try_convert_ref<From: SupersetOf<To>, To>(t: &From) -> Option<To> {
+    t.to_subset()
 }
 
-/// Gets the (0-based) i-th element of the canonical basis of V.
+/// Use with care! Same as `try_convert` but without any property checks.
 #[inline]
-pub fn canonical_basis_element<V: Basis>(i: usize) -> Option<V> {
-    Basis::canonical_basis_element(i)
+pub unsafe fn convert_ref_unchecked<From: SupersetOf<To>, To>(t: &From) -> To {
+    t.to_subset_unchecked()
 }
-
-/*
- * Row<R>
- */
-
-/*
- * Column<C>
- */
-
-/*
- * Diagonal<V>
- */
-/// Gets the diagonal of a square matrix.
-#[inline]
-pub fn diagonal<M: Diagonal<V>, V>(m: &M) -> V {
-    m.diagonal()
-}
-
-/*
- * Dimension
- */
-/// Gets the dimension an object lives in.
-///
-/// Same as `Dimension::dimension::(None::<V>)`.
-#[inline]
-pub fn dimension<V: Dimension>() -> usize {
-    Dimension::dimension(None::<V>)
-}
-
-/// Gets the indexable range of an object.
-#[inline]
-pub fn shape<V: Shape<I>, I>(v: &V) -> I {
-    v.shape()
-}
-
-/*
- * Cast<T>
- */
-/// Converts an object from one type to another.
-///
-/// For primitive types, this is the same as the `as` keywords.
-/// The following properties are preserved by a cast:
-///
-/// * Type-level geometric invariants cannot be broken (eg. a cast from Rotation3<f64> to Rotation3<i64> is
-/// not possible)
-/// * A cast to a type with more type-level invariants cannot be done (eg. a cast from Matrix<f64> to
-/// Rotation3<f64> is not possible)
-/// * For primitive types an unbounded cast is done using the `as` keyword (this is different from
-/// the standard library which makes bound-checking to ensure eg. that a i64 is not out of the
-/// range of an i32 when a cast from i64 to i32 is done).
-/// * A cast does not affect the dimension of an algebraic object. Note that this prevents an
-/// isometric transform to be cast to a raw matrix. Use `to_homogeneous` for that special purpose.
-#[inline]
-pub fn cast<T, U: Cast<T>>(t: T) -> U {
-    Cast::from(t)
-}
-
-/*
- * Indexable
- */
