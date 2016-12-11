@@ -708,6 +708,22 @@ fn test_eigen_qr_mat6() {
     test_eigen_qr_impl!(Matrix6<f64>);
 }
 
+use std::f64;
+use na::Iterable;
+#[test]
+fn test_eigen_qr_diagonal() {
+    let cov = Mat3::new( 1.0, 0.0, 0.0, 
+			 0.0, 1.0, 0.0, 
+			 0.0, 0.0, 1.0 );
+    let (eigvec, eigval) = na::eigen_qr(&cov, &f64::EPSILON, 1000);
+    for x in eigvec.iter() {
+	assert!( !x.is_nan(), "NaN values detected, eigvec = {:?}", eigvec );
+    }
+    for x in eigval.iter() {
+	assert!( !x.is_nan(), "NaN values detected, eigval = {:?}", eigval );
+    }
+}
+
 #[test]
 fn test_from_fn() {
     let actual: DMatrix<usize> = DMatrix::from_fn(3, 4, |i, j| 10 * i + j);
