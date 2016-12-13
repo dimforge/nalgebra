@@ -288,7 +288,7 @@ pub fn zero<T: Zero>() -> T {
     Zero::zero()
 }
 
-/// Tests is a value is iqual to zero.
+/// Tests if a value is equal to zero.
 #[inline]
 pub fn is_zero<T: Zero>(val: &T) -> bool {
     val.is_zero()
