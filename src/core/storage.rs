@@ -1,3 +1,5 @@
+//! Abstract definition of a matrix data storage.
+
 use std::mem;
 use std::any::Any;
 
@@ -110,6 +112,12 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim>: Sized {
     }
 }
 
+
+/// Trait implemented by matrix data storage that can provide a mutable access to its elements.
+///
+/// Note that a mutable access does not mean that the matrix owns its data. For example, a mutable
+/// matrix slice can provide mutable access to its elements even if it does not own its data (it
+/// contains only an internal reference to them).
 pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim>: Storage<N, R, C> {
     /// The matrix mutable data pointer.
     fn ptr_mut(&mut self) -> *mut N;

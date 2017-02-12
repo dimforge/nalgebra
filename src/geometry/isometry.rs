@@ -11,14 +11,24 @@ use core::storage::{Storage, OwnedStorage};
 use core::allocator::{Allocator, OwnedAllocator};
 use geometry::{TranslationBase, PointBase};
 
+
+/// An isometry that uses a data storage deduced from the allocator `A`.
+pub type OwnedIsometryBase<N, D, A, R> =
+    IsometryBase<N, D, <A as Allocator<N, D, U1>>::Buffer, R>;
+
 /// A direct isometry, i.e., a rotation followed by a translation.
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy)]
+#[derive(Hash, Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct IsometryBase<N: Scalar, D: DimName, S, R> {
+    /// The pure rotational part of this isometry.
     pub rotation:    R,
+    /// The pure translational part of this isometry.
     pub translation: TranslationBase<N, D, S>,
-    // One private field just to prevent explicit construction.
-    _noconstruct:    PhantomData<N>
+
+
+    // One dummy private field just to prevent explicit construction.
+    #[serde(skip_serializing, skip_deserializing)]
+    _noconstruct: PhantomData<N>
 }
 
 impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>

@@ -13,7 +13,7 @@ use core::helper;
 use geometry::{PointBase, OwnedPoint};
 
 /// A 3D orthographic projection stored as an homogeneous 4x4 matrix.
-#[derive(Debug, Clone, Copy)] // FIXME: Hash
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)] // FIXME: Hash
 pub struct OrthographicBase<N: Scalar, S: Storage<N, U4, U4>> {
     matrix: SquareMatrix<N, U4, S>
 }
@@ -25,9 +25,7 @@ impl<N, S> Eq for OrthographicBase<N, S>
     where N: Scalar + Eq,
           S: Storage<N, U4, U4> { }
 
-impl<N, S> PartialEq for OrthographicBase<N, S>
-    where N: Scalar,
-          S: Storage<N, U4, U4> {
+impl<N: Scalar, S: Storage<N, U4, U4>> PartialEq for OrthographicBase<N, S> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.matrix == right.matrix
@@ -80,10 +78,7 @@ impl<N, S> OrthographicBase<N, S>
     }
 }
 
-impl<N, S> OrthographicBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U4> {
-
+impl<N: Real, S: Storage<N, U4, U4>> OrthographicBase<N, S> {
     /// A reference to the underlying homogeneous transformation matrix.
     #[inline]
     pub fn as_matrix(&self) -> &SquareMatrix<N, U4, S> {
@@ -94,6 +89,26 @@ impl<N, S> OrthographicBase<N, S>
     #[inline]
     pub fn unwrap(self) -> SquareMatrix<N, U4, S> {
         self.matrix
+    }
+
+    /// Retrieves the inverse of the underlying homogeneous matrix.
+    #[inline]
+    pub fn inverse(&self) -> OwnedSquareMatrix<N, U4, S::Alloc> {
+        let mut res = self.to_homogeneous();
+
+        let inv_m11 = N::one() / self.matrix[(0, 0)];
+        let inv_m22 = N::one() / self.matrix[(1, 1)];
+        let inv_m33 = N::one() / self.matrix[(2, 2)];
+
+        res[(0, 0)] = inv_m11;
+        res[(1, 1)] = inv_m22;
+        res[(2, 2)] = inv_m33;
+
+        res[(0, 3)] = -self.matrix[(0, 3)] * inv_m11; 
+        res[(1, 3)] = -self.matrix[(1, 3)] * inv_m22; 
+        res[(2, 3)] = -self.matrix[(2, 3)] * inv_m33; 
+
+        res
     }
 
     /// Computes the corresponding homogeneous matrix.
@@ -151,6 +166,18 @@ impl<N, S> OrthographicBase<N, S>
         )
     }
 
+    /// Un-projects a point. Faster than multiplication by the underlying matrix inverse.
+    #[inline]
+    pub fn unproject_point<SB>(&self, p: &PointBase<N, U3, SB>) -> OwnedPoint<N, U3, SB::Alloc>
+        where SB: Storage<N, U3, U1> {
+
+        OwnedPoint::<N, U3, SB::Alloc>::new(
+            (p[0] - self.matrix[(0, 3)]) / self.matrix[(0, 0)],
+            (p[1] - self.matrix[(1, 3)]) / self.matrix[(1, 1)],
+            (p[2] - self.matrix[(2, 3)]) / self.matrix[(2, 2)]
+        )
+    }
+
     // FIXME: when we get specialization, specialize the Mul impl instead.
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
@@ -165,9 +192,7 @@ impl<N, S> OrthographicBase<N, S>
     }
 }
 
-impl<N, S> OrthographicBase<N, S>
-    where N: Real,
-          S: StorageMut<N, U4, U4> {
+impl<N: Real, S: StorageMut<N, U4, U4>> OrthographicBase<N, S> {
     /// Sets the smallest x-coordinate of the view cuboid.
     #[inline]
     pub fn set_left(&mut self, left: N) {

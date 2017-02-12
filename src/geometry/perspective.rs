@@ -13,7 +13,7 @@ use core::helper;
 use geometry::{PointBase, OwnedPoint};
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
-#[derive(Debug, Clone, Copy)] // FIXME: Hash
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)] // FIXME: Hash
 pub struct PerspectiveBase<N: Scalar, S: Storage<N, U4, U4>> {
     matrix: SquareMatrix<N, U4, S>
 }
@@ -85,6 +85,25 @@ impl<N, S> PerspectiveBase<N, S>
         self.matrix
     }
 
+    /// Retrieves the inverse of the underlying homogeneous matrix.
+    #[inline]
+    pub fn inverse(&self) -> OwnedSquareMatrix<N, U4, S::Alloc> {
+        let mut res = self.to_homogeneous();
+
+        res[(0, 0)] = N::one() / self.matrix[(0, 0)];
+        res[(1, 1)] = N::one() / self.matrix[(1, 1)];
+        res[(2, 2)] = N::zero();
+
+        let m23 = self.matrix[(2, 3)];
+        let m32 = self.matrix[(3, 2)];
+
+        res[(2, 3)] = N::one() / m32;
+        res[(3, 2)] = N::one() / m23;
+        res[(3, 3)] = -self.matrix[(2, 2)] / (m23 * m32);
+
+        res
+    }
+
     /// Computes the corresponding homogeneous matrix.
     #[inline]
     pub fn to_homogeneous(&self) -> OwnedSquareMatrix<N, U4, S::Alloc> {
@@ -134,6 +153,20 @@ impl<N, S> PerspectiveBase<N, S>
              self.matrix[(0, 0)] * p[0] * inverse_denom,
              self.matrix[(1, 1)] * p[1] * inverse_denom,
             (self.matrix[(2, 2)] * p[2] + self.matrix[(2, 3)]) * inverse_denom
+        )
+    }
+
+    /// Un-projects a point. Faster than multiplication by the matrix inverse.
+    #[inline]
+    pub fn unproject_point<SB>(&self, p: &PointBase<N, U3, SB>) -> OwnedPoint<N, U3, SB::Alloc>
+        where SB: Storage<N, U3, U1> {
+
+        let inverse_denom = self.matrix[(2, 3)] / (p[2] + self.matrix[(2, 2)]);
+
+        OwnedPoint::<N, U3, SB::Alloc>::new(
+            p[0] * inverse_denom / self.matrix[(0, 0)],
+            p[1] * inverse_denom / self.matrix[(1, 1)],
+            -inverse_denom
         )
     }
 

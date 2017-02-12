@@ -1,4 +1,5 @@
-use std::ops::Neg;
+use std::mem;
+use std::ops::{Neg, Deref};
 use approx::ApproxEq;
 
 use alga::general::SubsetOf;
@@ -9,7 +10,7 @@ use alga::linear::NormedSpace;
 ///
 /// Use `.as_ref()` or `.unwrap()` to obtain the undelying value by-reference or by-move.
 #[repr(C)]
-#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
+#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy, Serialize, Deserialize)]
 pub struct Unit<T> {
     value: T
 }
@@ -114,34 +115,34 @@ where T::Field: ApproxEq {
     }
 }
 
-impl<T: ApproxEq> ApproxEq for Unit<T> {
-    type Epsilon = T::Epsilon;
-
-    #[inline]
-    fn default_epsilon() -> Self::Epsilon {
-        T::default_epsilon()
-    }
-
-    #[inline]
-    fn default_max_relative() -> Self::Epsilon {
-        T::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        T::default_max_ulps()
-    }
-
-    #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-        self.value.relative_eq(&other.value, epsilon, max_relative)
-    }
-
-    #[inline]
-    fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.value.ulps_eq(&other.value, epsilon, max_ulps)
-    }
-}
+// impl<T: ApproxEq> ApproxEq for Unit<T> {
+//     type Epsilon = T::Epsilon;
+// 
+//     #[inline]
+//     fn default_epsilon() -> Self::Epsilon {
+//         T::default_epsilon()
+//     }
+// 
+//     #[inline]
+//     fn default_max_relative() -> Self::Epsilon {
+//         T::default_max_relative()
+//     }
+// 
+//     #[inline]
+//     fn default_max_ulps() -> u32 {
+//         T::default_max_ulps()
+//     }
+// 
+//     #[inline]
+//     fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+//         self.value.relative_eq(&other.value, epsilon, max_relative)
+//     }
+// 
+//     #[inline]
+//     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
+//         self.value.ulps_eq(&other.value, epsilon, max_ulps)
+//     }
+// }
 
 
 // FIXME:re-enable this impl when spacialization is possible.
@@ -161,5 +162,14 @@ impl<T: Neg> Neg for Unit<T> {
     #[inline]
     fn neg(self) -> Self::Output {
         Unit::new_unchecked(-self.value)
+    }
+}
+
+impl<T> Deref for Unit<T> {
+    type Target = T;
+
+    #[inline]
+    fn deref(&self) -> &T {
+        unsafe { mem::transmute(self) }
     }
 }

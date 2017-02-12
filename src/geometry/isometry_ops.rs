@@ -214,8 +214,8 @@ isometry_binop_assign_impl_all!(
 );
 
 
-// IsometryBase × RotationBase
-// IsometryBase ÷ RotationBase
+// IsometryBase × R
+// IsometryBase ÷ R
 isometry_binop_impl_all!(
     Mul, mul;
     self: IsometryBase<N, D, S, R>, rhs: R, Output = IsometryBase<N, D, S, R>;
@@ -357,10 +357,10 @@ isometry_from_composition_impl_all!(
     Mul, mul;
     (D, D), (D, U1) for D: DimName;
     self: RotationBase<N, D, SA>, right: TranslationBase<N, D, SB>, Output = IsometryBase<N, D, SB, RotationBase<N, D, SA>>;
-    [val val] => IsometryBase::from_parts(TranslationBase::from_vector(&self * right.vector), self);
-    [ref val] => IsometryBase::from_parts(TranslationBase::from_vector(self * right.vector), self.clone());
+    [val val] => IsometryBase::from_parts(TranslationBase::from_vector(&self * right.vector),  self);
+    [ref val] => IsometryBase::from_parts(TranslationBase::from_vector(self * right.vector),   self.clone());
     [val ref] => IsometryBase::from_parts(TranslationBase::from_vector(&self * &right.vector), self);
-    [ref ref] => IsometryBase::from_parts(TranslationBase::from_vector(self * &right.vector), self.clone());
+    [ref ref] => IsometryBase::from_parts(TranslationBase::from_vector(self * &right.vector),  self.clone());
 );
 
 
@@ -370,10 +370,10 @@ isometry_from_composition_impl_all!(
     (U4, U1), (U3, U1);
     self: UnitQuaternionBase<N, SA>, right: TranslationBase<N, U3, SB>,
     Output = IsometryBase<N, U3, SB, UnitQuaternionBase<N, SA>>;
-    [val val] => IsometryBase::from_parts(TranslationBase::from_vector(&self * right.vector), self);
-    [ref val] => IsometryBase::from_parts(TranslationBase::from_vector(self * right.vector), self.clone());
+    [val val] => IsometryBase::from_parts(TranslationBase::from_vector(&self *  right.vector), self);
+    [ref val] => IsometryBase::from_parts(TranslationBase::from_vector( self *  right.vector), self.clone());
     [val ref] => IsometryBase::from_parts(TranslationBase::from_vector(&self * &right.vector), self);
-    [ref ref] => IsometryBase::from_parts(TranslationBase::from_vector(self * &right.vector), self.clone());
+    [ref ref] => IsometryBase::from_parts(TranslationBase::from_vector( self * &right.vector), self.clone());
 );
 
 // RotationBase × IsometryBase

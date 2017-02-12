@@ -5,7 +5,6 @@ use core::dimension::{Dim, DimName, Dynamic, U1};
 use core::storage::{Storage, StorageMut, Owned, OwnedStorage};
 use core::default_allocator::DefaultAllocator;
 
-
 /*
  *
  * Storage.
@@ -13,7 +12,7 @@ use core::default_allocator::DefaultAllocator;
  */
 /// A Vec-based matrix data storage. It may be dynamically-sized.
 #[repr(C)]
-#[derive(Eq, Debug, Clone, PartialEq)]
+#[derive(Eq, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MatrixVec<N, R: Dim, C: Dim> {
     data:   Vec<N>,
     nrows:  R,
@@ -21,8 +20,10 @@ pub struct MatrixVec<N, R: Dim, C: Dim> {
 }
 
 impl<N, R: Dim, C: Dim> MatrixVec<N, R, C> {
+    /// Creates a new dynamic matrix data storage from the given vector and shape.
     #[inline]
     pub fn new(nrows: R, ncols: C, data: Vec<N>) -> MatrixVec<N, R, C> {
+        assert!(nrows.value() * ncols.value() == data.len(), "Data storage buffer dimension mismatch.");
         MatrixVec {
             data:   data,
             nrows:  nrows,

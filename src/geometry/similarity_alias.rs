@@ -12,7 +12,7 @@ pub type Similarity2<N> = SimilarityBase<N, U2, MatrixArray<N, U2, U1>, UnitComp
 /// A 3-dimensional similarity.
 pub type Similarity3<N> = SimilarityBase<N, U3, MatrixArray<N, U3, U1>, UnitQuaternion<N>>;
 
-/// A 3-dimensional similarity using a rotation matrix for its rotation part.
+/// A 2-dimensional similarity using a rotation matrix for its rotation part.
 pub type SimilarityMatrix2<N> = Similarity<N, U2>;
 
 /// A 3-dimensional similarity using a rotation matrix for its rotation part.

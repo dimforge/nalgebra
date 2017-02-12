@@ -201,20 +201,23 @@ impl<N, D: DimName, SA, SB> Rotation<PointBase<N, D, SB>> for RotationBase<N, D,
           SA::Alloc: OwnedAllocator<N, D, D, SA>,
           SB::Alloc: OwnedAllocator<N, D, U1, SB> {
     #[inline]
-    fn powf(&self, n: N) -> Option<Self> {
-        // XXX: add the general case.
+    fn powf(&self, _: N) -> Option<Self> {
+        // XXX: Add the general case.
+        // XXX: Use specialization for 2D and 3D.
         unimplemented!()
     }
 
     #[inline]
-    fn rotation_between(a: &ColumnVector<N, D, SB>, b: &ColumnVector<N, D, SB>) -> Option<Self> {
-        // XXX: add the general case.
+    fn rotation_between(_: &ColumnVector<N, D, SB>, _: &ColumnVector<N, D, SB>) -> Option<Self> {
+        // XXX: Add the general case.
+        // XXX: Use specialization for 2D and 3D.
         unimplemented!()
     }
 
     #[inline]
-    fn scaled_rotation_between(a: &ColumnVector<N, D, SB>, b: &ColumnVector<N, D, SB>, n: N) -> Option<Self> {
-        // XXX: add the general case.
+    fn scaled_rotation_between(_: &ColumnVector<N, D, SB>, _: &ColumnVector<N, D, SB>, _: N) -> Option<Self> {
+        // XXX: Add the general case.
+        // XXX: Use specialization for 2D and 3D.
         unimplemented!()
     }
 }

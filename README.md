@@ -1,4 +1,7 @@
 <p align="center">
+  <img src="http://nalgebra.org/img/logo_nalgebra.svg" alt="crates.io">
+</p>
+<p align="center">
     <a href="https://crates.io/crates/nalgebra">
          <img src="http://meritbadge.herokuapp.com/nalgebra?style=flat-square" alt="crates.io">
     </a>
@@ -8,75 +11,6 @@
 </p>
 <p align = "center">
     <strong>
-        <a href="http://nalgebra.org/doc/nalgebra">Documentation</a> | <a href="http://users.nphysics.org">Forum</a>
+        <a href="http://nalgebra.org">Users guide</a> | <a href="http://nalgebra.org/rustdoc/nalgebra/index.html">Documentation</a> | <a href="http://users.nphysics.org">Forum</a>
     </strong>
 </p>
-
-nalgebra
-========
-
-**nalgebra** is a low-dimensional linear algebra library written for Rust targeting:
-
-* General-purpose linear algebra (still lacks a lot of features…)
-* Real time computer graphics.
-* Real time computer physics.
-
-## Using **nalgebra**
-You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
-and the official package manager: [cargo](https://github.com/rust-lang/cargo).
-
-Simply add the following to your `Cargo.toml` file:
-
-```.ignore
-[dependencies]
-nalgebra = "0.10.*"
-```
-
-
-All the functionality of **nalgebra** is grouped in one place: the root module `nalgebra::`.  This
-module re-exports everything and includes free functions for all traits methods performing
-out-of-place operations.
-
-Thus, you can import the whole prelude using:
-
-```.ignore
-use nalgebra::*;
-```
-
-However, the recommended way to use **nalgebra** is to import types and traits
-explicitly, and call free-functions using the `na::` prefix:
-
-```.rust
-extern crate nalgebra as na;
-use na::{Vector3, Rotation3, Rotation};
-
-fn main() {
-    let     a = Vector3::new(1.0f64, 1.0, 1.0);
-    let mut b = Rotation3::new(na::zero());
-
-    b.append_rotation_mut(&a);
-
-    assert!(na::approx_eq(&na::rotation(&b), &a));
-}
-```
-
-
-## Features
-**nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
-an optimized set of tools for computer graphics and physics. Those features include:
-
-* Vectors with predefined static sizes: `Vector1`, `Vector2`, `Vector3`, `Vector4`, `Vector5`, `Vector6`.
-* Vector with a user-defined static size: `VectorN` (available only with the `generic_sizes` feature).
-* Points with static sizes: `Point1`, `Point2`, `Point3`, `Point4`, `Point5`, `Point6`.
-* Square matrices with static sizes: `Matrix1`, `Matrix2`, `Matrix3`, `Matrix4`, `Matrix5`, `Matrix6 `.
-* Rotation matrices: `Rotation2`, `Rotation3`
-* Quaternions: `Quaternion`, `Unit<Quaternion>`.
-* Unit-sized values (unit vectors, unit quaternions, etc.): `Unit<T>`, e.g., `Unit<Vector3<f32>>`.
-* Isometries (translation ⨯ rotation): `Isometry2`, `Isometry3`
-* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Similarity2`, `Similarity3`.
-* 3D projections for computer graphics: `Persp3`, `PerspMatrix3`, `Ortho3`, `OrthoMatrix3`.
-* Dynamically sized heap-allocated vector: `DVector`.
-* Dynamically sized stack-allocated vectors with a maximum size: `DVector1` to `DVector6`.
-* Dynamically sized heap-allocated (square or rectangular) matrix: `DMatrix`.
-* Linear algebra and data analysis operators: `Covariance`, `Mean`, `qr`, `cholesky`.
-* Almost one trait per functionality: useful for generic programming.

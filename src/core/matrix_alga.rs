@@ -263,7 +263,7 @@ impl<N, R: DimName, C: DimName, S> FiniteDimInnerSpace for Matrix<N, R, C, S>
                         a = Self::from_column_slice(&[N::zero(), -v[2], v[1]]);
                     };
 
-                    a.normalize_mut();
+                    let _ = a.normalize_mut();
 
                     if f(&a.cross(v)) {
                         f(&a);

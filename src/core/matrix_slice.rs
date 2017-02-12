@@ -7,7 +7,8 @@ use core::storage::{Storage, StorageMut, Owned};
 use core::allocator::Allocator;
 
 macro_rules! slice_storage_impl(
-    ($Storage: ident as $SRef: ty; $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
+    ($doc: expr; $Storage: ident as $SRef: ty; $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
+        #[doc = $doc]
         pub struct $T<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim, Alloc> {
             ptr:       $Ptr,
             shape:     (R, C),
@@ -54,8 +55,14 @@ macro_rules! slice_storage_impl(
     }
 );
 
-slice_storage_impl!(Storage as &'a S; SliceStorage.get_address_unchecked(*const N as &'a N));
-slice_storage_impl!(StorageMut as &'a mut S; SliceStorageMut.get_address_unchecked_mut(*mut N as &'a mut N));
+slice_storage_impl!("A matrix data storage for a matrix slice. Only contains an internal reference \
+                     to another matrix data storage.";
+    Storage as &'a S; SliceStorage.get_address_unchecked(*const N as &'a N));
+
+slice_storage_impl!("A mutable matrix data storage for mutable matrix slice. Only contains an \
+                     internal mutable reference to another matrix data storage.";
+    StorageMut as &'a mut S; SliceStorageMut.get_address_unchecked_mut(*mut N as &'a mut N)
+);
 
 
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim, Alloc> Copy
@@ -345,6 +352,11 @@ macro_rules! matrix_slice_impl(
                 }
             }
 
+
+            /// Slices this matrix starting at its component `(start.0, start.1)` and with
+            /// `(shape.0, shape.1)` components. Each row (resp. column) of the sliced matrix is
+            /// separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of the
+            /// original matrix.
             #[inline]
             pub fn $slice_with_steps($me: $Me, start: (usize, usize), shape: (usize, usize), steps: (usize, usize))
                 -> $MatrixSlice<N, Dynamic, Dynamic, Dynamic, Dynamic, S::Alloc> {
@@ -371,6 +383,10 @@ macro_rules! matrix_slice_impl(
                 }
             }
 
+            /// Slices this matrix starting at its component `(start.0, start.1)` and with
+            /// `(R::dim(), CSlice::dim())` components. Each row (resp. column) of the sliced
+            /// matrix is separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of
+            /// the original matrix.
             #[inline]
             pub fn $fixed_slice_with_steps<RSlice, CSlice>($me: $Me, start: (usize, usize), steps: (usize, usize))
                 -> $MatrixSlice<N, RSlice, CSlice, Dynamic, Dynamic, S::Alloc>

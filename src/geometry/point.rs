@@ -9,13 +9,11 @@ use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
 use core::storage::{Storage, StorageMut, MulStorage};
 use core::allocator::{Allocator, SameShapeR};
 
-pub type PointSumStorage<N, R1, R2, SA> =
-    <<SA as Storage<N, R1, U1>>::Alloc as Allocator<N, SameShapeR<R1, R2>, U1>>::Buffer;
-
 // XXX Bad name: we can't even add points…
 /// The type of the result of the sum of a point with a vector.
 pub type PointSum<N, D1, D2, SA> =
-    PointBase<N, SameShapeR<D1, D2>, PointSumStorage<N, D1, D2, SA>>;
+    PointBase<N, SameShapeR<D1, D2>,
+    <<SA as Storage<N, D1, U1>>::Alloc as Allocator<N, SameShapeR<D1, D2>, U1>>::Buffer>;
 
 /// The type of the result of the multiplication of a point by a matrix.
 pub type PointMul<N, R1, C1, SA> = PointBase<N, R1, MulStorage<N, R1, C1, U1, SA>>;
@@ -23,10 +21,11 @@ pub type PointMul<N, R1, C1, SA> = PointBase<N, R1, MulStorage<N, R1, C1, U1, SA
 /// A point with an owned storage.
 pub type OwnedPoint<N, D, A> = PointBase<N, D, <A as Allocator<N, D, U1>>::Buffer>;
 
-/// A point in n-dimensional euclidean space.
+/// A point in a n-dimensional euclidean space.
 #[repr(C)]
-#[derive(Hash, Debug)]
+#[derive(Hash, Debug, Serialize, Deserialize)]
 pub struct PointBase<N: Scalar, D: DimName, S: Storage<N, D, U1>> {
+    /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: ColumnVector<N, D, S>
 }
 

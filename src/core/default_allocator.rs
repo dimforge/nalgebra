@@ -1,3 +1,8 @@
+//! The default matrix data storage allocator.
+//!
+//! This will use stack-allocated buffers for matrices with dimensions known at compile-time, and
+//! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
+
 use std::mem;
 use std::ops::Mul;
 

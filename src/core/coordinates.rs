@@ -1,3 +1,9 @@
+#![allow(missing_docs)]
+
+//! Structures to which matrices and vector can be auto-dereferenced (through `Deref`) to access
+//! components using their names. For example, if `v` is a 3D vector, one can write `v.z` instead
+//! of `v[2]`.
+
 use std::mem;
 use std::ops::{Deref, DerefMut};
 
@@ -14,8 +20,10 @@ use core::allocator::OwnedAllocator;
 
 macro_rules! coords_impl(
     ($T: ident; $($comps: ident),*) => {
+        /// Data structure used to provide access to matrix and vector coordinates with the dot
+        /// notation, e.g., `v.x` is the same as `v[0]` for a vector.
         #[repr(C)]
-        #[derive(Eq, PartialEq, RustcEncodable, RustcDecodable, Clone, Hash, Debug, Copy)]
+        #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy, Serialize, Deserialize)]
         pub struct $T<N: Scalar> {
             $(pub $comps: N),*
         }

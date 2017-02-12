@@ -1,10 +1,14 @@
+#![allow(missing_docs)]
+
+//! Traits and tags for identifying the dimension of all algebraic entities.
+
 use std::fmt::Debug;
 use std::any::Any;
 use std::ops::{Add, Sub, Mul, Div};
 use typenum::{self, Unsigned, UInt, B1, Bit, UTerm, Sum, Prod, Diff, Quot};
 
 /// Dim of dynamically-sized algebraic entities.
-#[derive(Clone, Copy, Eq, PartialEq, Debug)]
+#[derive(Clone, Copy, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Dynamic {
     value: usize
 }
@@ -19,17 +23,27 @@ impl Dynamic {
     }
 }
 
-/// Trait implemented by dynamic dimensions.
+/// Trait implemented by `Dynamic`.
 pub trait IsDynamic { }
-/// Trait implemented by dimensions that are not equal to U1.
+/// Trait implemented by `Dynamic` and type-level integers different from `U1`.
 pub trait IsNotStaticOne { }
 
 impl IsDynamic for Dynamic { }
 impl IsNotStaticOne for Dynamic { }
 
+/// Trait implemented by any type that can be used as a dimension. This includes type-level
+/// integers and `Dynamic` (for dimensions not known at compile-time).
 pub trait Dim: Any + Debug + Copy + PartialEq + Send {
+    /// Gets the compile-time value of `Self`. Returns `None` if it is not known, i.e., if `Self =
+    /// Dynamic`.
     fn try_to_usize() -> Option<usize>;
+
+    /// Gets the run-time value of `self`. For type-level integers, this is the same as
+    /// `Self::try_to_usize().unwrap()`.
     fn value(&self) -> usize;
+
+    /// Builds an instance of `Self` from a run-time value. Panics if `Self` is a type-level
+    /// integer and `dim != Self::try_to_usize().unwrap()`.
     fn from_usize(dim: usize) -> Self;
 }
 
@@ -127,6 +141,7 @@ dim_ops!(
 );
 
 
+/// Trait implemented exclusively by type-level integers.
 pub trait DimName: Dim {
     type Value: NamedDim<Name = Self>;
 
@@ -146,7 +161,7 @@ pub trait NamedDim: Sized + Any + Unsigned {
     type Name: DimName<Value = Self>;
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct U1;
 
 impl Dim for U1 {
@@ -182,7 +197,7 @@ impl NamedDim for typenum::U1{
 
 macro_rules! named_dimension(
     ($($D: ident),* $(,)*) => {$(
-        #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+        #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
         pub struct $D;
 
         impl Dim for $D {

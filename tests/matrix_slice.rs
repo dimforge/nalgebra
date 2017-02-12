@@ -1,8 +1,3 @@
-#[cfg(feature = "arbitrary")]
-#[macro_use]
-extern crate quickcheck;
-#[macro_use]
-extern crate approx;
 extern crate num_traits as num;
 extern crate nalgebra as na;
 

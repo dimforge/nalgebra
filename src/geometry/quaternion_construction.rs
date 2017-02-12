@@ -33,7 +33,7 @@ impl<N, S> QuaternionBase<N, S>
     /// Creates a new quaternion from its individual components. Note that the arguments order does
     /// **not** follow the storage order.
     ///
-    /// The storage order is [ x, y, z, w ].
+    /// The storage order is `[ x, y, z, w ]`.
     #[inline]
     pub fn new(w: N, x: N, y: N, z: N) -> Self {
         let v = ColumnVector::<N, U4, S>::new(x, y, z, w);
@@ -169,19 +169,44 @@ impl<N, S> UnitQuaternionBase<N, S>
     pub fn from_rotation_matrix<SB>(rotmat: &RotationBase<N, U3, SB>) -> Self
         where SB: Storage<N, U3, U3>,
               SB::Alloc: Allocator<N, U3, U1> {
-        let angle = rotmat.angle();
 
-        if let Some(axis) = rotmat.axis() {
-            Self::from_axis_angle(&axis, angle)
+        // Robust matrix to quaternion transformation.
+        // See http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion
+        let tr = rotmat[(0, 0)] + rotmat[(1, 1)] + rotmat[(2, 2)];
+        let res;
+
+        let _0_25: N = ::convert(0.25);
+
+        if tr > N::zero() {
+          let denom = (tr + N::one()).sqrt() * ::convert(2.0);
+          res = QuaternionBase::new(_0_25 * denom,
+                                    (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
+                                    (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
+                                    (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom);
         }
-        else if angle > ::convert(1.0f64) {
-            // The angle is 3.14.
-            -Self::identity()
+        else if rotmat[(0, 0)] > rotmat[(1, 1)] && rotmat[(0, 0)] > rotmat[(2, 2)] {
+          let denom = (N::one() + rotmat[(0, 0)] - rotmat[(1, 1)] - rotmat[(2, 2)]).sqrt() * ::convert(2.0);
+          res = QuaternionBase::new((rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
+                                    _0_25 * denom,
+                                    (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
+                                    (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom);
+        }
+        else if rotmat[(1, 1)] > rotmat[(2, 2)] {
+          let denom = (N::one() + rotmat[(1, 1)] - rotmat[(0, 0)] - rotmat[(2, 2)]).sqrt() * ::convert(2.0);
+          res = QuaternionBase::new((rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
+                                    (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
+                                    _0_25 * denom,
+                                    (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom);
         }
         else {
-            // The angle is 0.
-            Self::identity()
+          let denom = (N::one() + rotmat[(2, 2)] - rotmat[(0, 0)] - rotmat[(1, 1)]).sqrt() * ::convert(2.0);
+          res = QuaternionBase::new((rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
+                                    (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
+                                    (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
+                                    _0_25 * denom);
         }
+
+        Self::new_unchecked(res)
     }
 
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same

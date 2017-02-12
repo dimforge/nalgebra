@@ -25,7 +25,7 @@ impl<N, D: DimName, S> SquareMatrix<N, D, S>
     #[inline]
     pub fn new_scaling(scaling: N) -> Self {
         let mut res = Self::from_diagonal_element(scaling);
-        res[(D::dim(), D::dim())] = N::one();
+        res[(D::dim() - 1, D::dim() - 1)] = N::one();
 
         res
     }
@@ -50,7 +50,7 @@ impl<N, D: DimName, S> SquareMatrix<N, D, S>
               SB: Storage<N, DimNameDiff<D, U1>, U1>,
               S::Alloc: Allocator<N, DimNameDiff<D, U1>, U1> {
         let mut res = Self::one();
-        res.fixed_slice_mut::<DimNameDiff<D, U1>, U1>(0, D::dim()).copy_from(translation);
+        res.fixed_slice_mut::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1).copy_from(translation);
 
         res
     }
@@ -311,7 +311,7 @@ impl<N, D: DimName, S> SquareMatrix<N, D, S>
               S::Alloc: Allocator<N, DimNameDiff<D, U1>, U1> {
         for i in 0 .. D::dim() {
             for j in 0 .. D::dim() - 1 {
-                self[(j, i)] += shift[i] * self[(D::dim(), j)];
+                self[(j, i)] += shift[j] * self[(D::dim() - 1, i)];
             }
         }
     }
@@ -324,12 +324,12 @@ impl<N, D: DimName, S> SquareMatrix<N, D, S>
               S::Alloc: Allocator<N, DimNameDiff<D, U1>, U1> +
                         Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>> +
                         Allocator<N, U1, DimNameDiff<D, U1>> {
-        let scale = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim(), 0).tr_dot(&shift);
+        let scale = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0).tr_dot(&shift);
         let post_translation = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0) * shift;
 
-        self[(D::dim(), D::dim())] += scale;
+        self[(D::dim() - 1, D::dim() - 1)] += scale;
 
-        let mut translation = self.fixed_slice_mut::<DimNameDiff<D, U1>, U1>(0, D::dim());
+        let mut translation = self.fixed_slice_mut::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1);
         translation += post_translation;
     }
 }
@@ -349,7 +349,7 @@ impl<N, D, SA, SB> Transformation<PointBase<N, DimNameDiff<D, U1>, SB>> for Squa
     fn transform_vector(&self, v: &ColumnVector<N, DimNameDiff<D, U1>, SB>)
         -> ColumnVector<N, DimNameDiff<D, U1>, SB> {
         let transform  = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
-        let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim(), 0);
+        let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
         let n = normalizer.tr_dot(&v);
 
         if !n.is_zero() {
@@ -363,9 +363,9 @@ impl<N, D, SA, SB> Transformation<PointBase<N, DimNameDiff<D, U1>, SB>> for Squa
     fn transform_point(&self, pt: &PointBase<N, DimNameDiff<D, U1>, SB>)
         -> PointBase<N, DimNameDiff<D, U1>, SB> {
         let transform   = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
-        let translation = self.fixed_slice::<DimNameDiff<D, U1>, U1>(0, D::dim());
-        let normalizer  = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim(), 0);
-        let n = normalizer.tr_dot(&pt.coords) + unsafe { *self.get_unchecked(D::dim(), D::dim()) };
+        let translation = self.fixed_slice::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1);
+        let normalizer  = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
+        let n = normalizer.tr_dot(&pt.coords) + unsafe { *self.get_unchecked(D::dim() - 1, D::dim() - 1) };
 
         if !n.is_zero() {
             return transform * (pt / n) + translation;

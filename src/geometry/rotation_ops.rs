@@ -118,7 +118,7 @@ md_impl_all!(
 );
 
 
-// RotationBase *= RotationBase
+// RotationBase ×= RotationBase
 // FIXME: try not to call `inverse()` explicitly.
 
 md_assign_impl_all!(

@@ -1,3 +1,5 @@
+//! Data structures for points and usual transformations (rotations, isometries, etc.)
+
 mod op_macros;
 
 mod point;
@@ -28,6 +30,7 @@ mod unit_complex;
 mod unit_complex_construction;
 mod unit_complex_ops;
 mod unit_complex_alga;
+mod unit_complex_conversion;
 
 mod translation;
 mod translation_construction;

@@ -1,6 +1,8 @@
+//! Compatibility constraints between matrix shapes, e.g., for addition or multiplication.
+
 use core::dimension::{Dim, DimName, Dynamic};
 
-/// A type for enforcing constraints.
+/// A type used in `where` clauses for enforcing constraints.
 pub struct ShapeConstraint;
 
 /// Constraints `C1` and `R2` to be equivalent.
@@ -14,9 +16,12 @@ where ShapeConstraint: DimEq<C1, R2> {
 }
 
 macro_rules! equality_trait_decl(
-    ($($Trait: ident),* $(,)*) => {$(
+    ($($doc: expr, $Trait: ident),* $(,)*) => {$(
         // XXX: we can't do something like `DimEq<D1> for D2` because we would require a blancket impl…
+        #[doc = $doc]
         pub trait $Trait<D1: Dim, D2: Dim> {
+            /// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level
+            /// constant.
             type Representative: Dim;
         }
 
@@ -34,11 +39,26 @@ macro_rules! equality_trait_decl(
     )*}
 );
 
-equality_trait_decl!(DimEq, SameNumberOfRows, SameNumberOfColumns);
+equality_trait_decl!(
+    "Constraints `D1` and `D2` to be equivalent.",
+    DimEq,
 
-/// Constraints D1 and D2 to be equivalent, where the both designates dimensions of algebraic
+    "Constraints `D1` and `D2` to be equivalent. \
+     They are both assumed to be the number of \
+     rows of a matrix.",
+    SameNumberOfRows,
+
+    "Constraints `D1` and `D2` to be equivalent. \
+     They are both assumed to be the number of \
+     columns of a matrix.",
+    SameNumberOfColumns
+);
+
+/// Constraints D1 and D2 to be equivalent, where they both designate dimensions of algebraic
 /// entities (e.g. square matrices).
 pub trait SameDimension<D1: Dim, D2: Dim>: SameNumberOfRows<D1, D2> + SameNumberOfColumns<D1, D2> {
+    /// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level
+    /// constant.
     type Representative: Dim;
 }
 

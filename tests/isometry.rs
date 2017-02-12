@@ -10,7 +10,10 @@ extern crate alga;
 extern crate nalgebra as na;
 
 use alga::linear::{Transformation, ProjectiveTransformation};
-use na::{Vector3, Point3, Rotation3, Isometry3, Translation3, UnitQuaternion};
+use na::{
+    Vector3, Point3, Rotation3, Isometry3, Translation3, UnitQuaternion,
+    Vector2, Point2, Rotation2, Isometry2, Translation2, UnitComplex
+};
 
 quickcheck!(
     fn append_rotation_wrt_point_to_id(r: UnitQuaternion<f64>, p: Point3<f64>) -> bool {
@@ -65,8 +68,39 @@ quickcheck!(
         relative_eq!(i.inverse() * p, i.inverse_transform_point(&p), epsilon = 1.0e-7)
     }
 
-    fn composition(i: Isometry3<f64>, uq: UnitQuaternion<f64>, r: Rotation3<f64>,
-                   t: Translation3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
+    fn composition2(i: Isometry2<f64>,    uc: UnitComplex<f64>, r: Rotation2<f64>,
+                    t: Translation2<f64>, v:  Vector2<f64>,     p: Point2<f64>) -> bool {
+        // (rotation × translation) * point = rotation × (translation * point)
+        relative_eq!((uc * t) * v, uc * v, epsilon = 1.0e-7)       &&
+        relative_eq!((r  * t) * v, r  * v, epsilon = 1.0e-7)       &&
+        relative_eq!((uc * t) * p, uc * (t * p), epsilon = 1.0e-7) &&
+        relative_eq!((r * t)  * p, r  * (t * p), epsilon = 1.0e-7) &&
+
+        // (translation × rotation) * point = translation × (rotation * point)
+        (t * uc) * v == uc * v       &&
+        (t * r)  * v == r  * v       &&
+        (t * uc) * p == t * (uc * p) &&
+        (t * r)  * p == t * (r  * p) &&
+
+        // (rotation × isometry) * point = rotation × (isometry * point)
+        relative_eq!((uc * i) * v, uc * (i * v), epsilon = 1.0e-7) &&
+        relative_eq!((uc * i) * p, uc * (i * p), epsilon = 1.0e-7) &&
+
+        // (isometry × rotation) * point = isometry × (rotation * point)
+        relative_eq!((i * uc) * v, i * (uc * v), epsilon = 1.0e-7) &&
+        relative_eq!((i * uc) * p, i * (uc * p), epsilon = 1.0e-7) &&
+
+        // (translation × isometry) * point = translation × (isometry * point)
+        relative_eq!((t * i) * v,     (i * v), epsilon = 1.0e-7) &&
+        relative_eq!((t * i) * p, t * (i * p), epsilon = 1.0e-7) &&
+
+        // (isometry × translation) * point = isometry × (translation * point)
+        relative_eq!((i * t) * v, i * v,       epsilon = 1.0e-7) &&
+        relative_eq!((i * t) * p, i * (t * p), epsilon = 1.0e-7)
+    }
+
+    fn composition3(i: Isometry3<f64>,    uq: UnitQuaternion<f64>, r: Rotation3<f64>,
+                    t: Translation3<f64>, v:  Vector3<f64>,        p: Point3<f64>) -> bool {
         // (rotation × translation) * point = rotation × (translation * point)
         relative_eq!((uq * t) * v, uq * v, epsilon = 1.0e-7)       &&
         relative_eq!((r  * t) * v, r  * v, epsilon = 1.0e-7)       &&

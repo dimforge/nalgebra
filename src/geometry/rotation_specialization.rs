@@ -44,7 +44,7 @@ where N: Real,
     pub fn rotation_between<SB, SC>(a: &ColumnVector<N, U2, SB>, b: &ColumnVector<N, U2, SC>) -> Self
         where SB: Storage<N, U2, U1>,
               SC: Storage<N, U2, U1> {
-        UnitComplex::rotation_between(a, b).to_rotation_matrix()
+        ::convert(UnitComplex::rotation_between(a, b).to_rotation_matrix())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
@@ -53,7 +53,7 @@ where N: Real,
     pub fn scaled_rotation_between<SB, SC>(a: &ColumnVector<N, U2, SB>, b: &ColumnVector<N, U2, SC>, s: N) -> Self
         where SB: Storage<N, U2, U1>,
               SC: Storage<N, U2, U1> {
-        UnitComplex::scaled_rotation_between(a, b, s).to_rotation_matrix()
+        ::convert(UnitComplex::scaled_rotation_between(a, b, s).to_rotation_matrix())
     }
 }
 
@@ -81,6 +81,8 @@ where N: Real,
         other * self.inverse()
     }
 
+    /// Raise the quaternion to a given floating power, i.e., returns the rotation with the angle
+    /// of `self` multiplied by `n`.
     #[inline]
     pub fn powf(&self, n: N) -> OwnedRotation<N, U2, S::Alloc> {
         OwnedRotation::<_, _, S::Alloc>::new(self.angle() * n)
@@ -338,6 +340,8 @@ where N: Real,
         other * self.inverse()
     }
 
+    /// Raise the quaternion to a given floating power, i.e., returns the rotation with the same
+    /// axis as `self` and an angle equal to `self.angle()` multiplied by `n`.
     #[inline]
     pub fn powf(&self, n: N) -> OwnedRotation<N, U3, S::Alloc> {
         if let Some(axis) = self.axis() {

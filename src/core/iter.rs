@@ -1,3 +1,5 @@
+//! Matrix iterators.
+
 use std::marker::PhantomData;
 use std::mem;
 

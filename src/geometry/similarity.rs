@@ -10,10 +10,16 @@ use core::storage::{Storage, OwnedStorage};
 use core::allocator::{Allocator, OwnedAllocator};
 use geometry::{PointBase, TranslationBase, IsometryBase};
 
+
+/// A similarity that uses a data storage deduced from the allocator `A`.
+pub type OwnedSimilarityBase<N, D, A, R> =
+    SimilarityBase<N, D, <A as Allocator<N, D, U1>>::Buffer, R>;
+
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy)]
+#[derive(Hash, Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct SimilarityBase<N: Scalar, D: DimName, S, R> {
+    /// The part of this similarity that does not include the scaling factor.
     pub isometry: IsometryBase<N, D, S, R>,
     scaling:      N
 }
@@ -60,12 +66,6 @@ impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
         self.scaling = N::one() / self.scaling;
         self.isometry.inverse_mut();
         self.isometry.translation.vector *= self.scaling;
-    }
-
-    /// The scaling factor of this similarity transformation.
-    #[inline]
-    pub fn scaling(&self) -> N {
-        self.scaling
     }
 
     /// The scaling factor of this similarity transformation.
@@ -161,6 +161,12 @@ impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
         }
 
         res
+    }
+
+    /// The scaling factor of this similarity transformation.
+    #[inline]
+    pub fn scaling(&self) -> N {
+        self.scaling
     }
 }
 

@@ -15,6 +15,68 @@ use geometry::{PointBase, OwnedPoint, TransformBase, OwnedTransform, TCategory, 
 
 /*
  *
+ * In the following, we provide:
+ * =========================
+ *
+ * Index<(usize, usize)>
+ * IndexMut<(usize, usize)> (where TCategory == TGeneral)
+ *
+ * (Operators)
+ *
+ * TransformBase × IsometryBase
+ * TransformBase × RotationBase
+ * TransformBase × SimilarityBase
+ * TransformBase × TransformBase
+ * TransformBase × UnitQuaternion
+ * FIXME: TransformBase × UnitComplex
+ * TransformBase × TranslationBase
+ * TransformBase × ColumnVector
+ * TransformBase × PointBase
+ *
+ * IsometryBase       × TransformBase
+ * RotationBase       × TransformBase
+ * SimilarityBase     × TransformBase
+ * TranslationBase    × TransformBase
+ * UnitQuaternionBase × TransformBase
+ * FIXME: UnitComplex × TransformBase
+ *
+ * FIXME: TransformBase ÷ IsometryBase
+ * TransformBase ÷ RotationBase
+ * FIXME: TransformBase ÷ SimilarityBase
+ * TransformBase ÷ TransformBase
+ * TransformBase ÷ UnitQuaternion
+ * TransformBase ÷ TranslationBase
+ *
+ * FIXME: IsometryBase       ÷ TransformBase
+ * RotationBase       ÷ TransformBase
+ * FIXME: SimilarityBase     ÷ TransformBase
+ * TranslationBase    ÷ TransformBase
+ * UnitQuaternionBase ÷ TransformBase
+ * FIXME: UnitComplex ÷ TransformBase
+ *
+ *
+ * (Assignment Operators)
+ *
+ *
+ * TransformBase ×= TransformBase
+ * TransformBase ×= SimilarityBase
+ * TransformBase ×= IsometryBase
+ * TransformBase ×= RotationBase
+ * TransformBase ×= UnitQuaternionBase
+ * FIXME: TransformBase ×= UnitComplex
+ * TransformBase ×= TranslationBase
+ *
+ * TransformBase ÷= TransformBase
+ * FIXME: TransformBase ÷= SimilarityBase
+ * FIXME: TransformBase ÷= IsometryBase
+ * TransformBase ÷= RotationBase
+ * TransformBase ÷= UnitQuaternionBase
+ * FIXME: TransformBase ÷= UnitComplex
+ *
+ */
+
+/*
+ *
  * Indexing.
  *
  */
@@ -40,61 +102,6 @@ impl<N, D, S> IndexMut<(usize, usize)> for TransformBase<N, D, S, TGeneral>
         self.matrix_mut().index_mut(ij)
     }
 }
-
-/*
- *
- * In the following, we provide:
- * =========================
- *
- *
- * (Operators)
- *
- * [OK] TransformBase × IsometryBase
- * [OK] TransformBase × RotationBase
- * [OK] TransformBase × SimilarityBase
- * [OK] TransformBase × TransformBase
- * [OK] TransformBase × UnitQuaternion
- * [OK] TransformBase × TranslationBase
- * [OK] TransformBase × ColumnVector
- * [OK] TransformBase × PointBase
- *
- * [OK] IsometryBase       × TransformBase
- * [OK] RotationBase       × TransformBase
- * [OK] SimilarityBase     × TransformBase
- * [OK] TranslationBase    × TransformBase
- * [OK] UnitQuaternionBase × TransformBase
- *
- * TransformBase ÷ IsometryBase
- * [OK] TransformBase ÷ RotationBase
- * TransformBase ÷ SimilarityBase
- * [OK] TransformBase ÷ TransformBase
- * [OK] TransformBase ÷ UnitQuaternion
- * [OK] TransformBase ÷ TranslationBase
- *
- * IsometryBase       ÷ TransformBase
- * [OK] RotationBase       ÷ TransformBase
- * SimilarityBase     ÷ TransformBase
- * [OK] TranslationBase    ÷ TransformBase
- * [OK] UnitQuaternionBase ÷ TransformBase
- *
- *
- * (Assignment Operators)
- *
- *
- * [OK] TransformBase ×= TransformBase
- * [OK] TransformBase ×= SimilarityBase
- * [OK] TransformBase ×= IsometryBase
- * [OK] TransformBase ×= RotationBase
- * [OK] TransformBase ×= UnitQuaternionBase
- * [OK] TransformBase ×= TranslationBase
- *
- * [OK] TransformBase ÷= TransformBase
- * TransformBase ÷= SimilarityBase
- * TransformBase ÷= IsometryBase
- * [OK] TransformBase ÷= RotationBase
- * [OK] TransformBase ÷= UnitQuaternionBase
- *
- */
 
 
 // TransformBase × ColumnVector

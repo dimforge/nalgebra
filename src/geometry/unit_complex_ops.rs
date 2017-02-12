@@ -3,8 +3,13 @@ use std::ops::{Mul, MulAssign, Div, DivAssign};
 use alga::general::Real;
 use core::{Unit, ColumnVector, OwnedColumnVector};
 use core::dimension::{U1, U2};
-use core::storage::Storage;
-use geometry::{UnitComplex, RotationBase, PointBase, OwnedPoint};
+use core::storage::{Storage, OwnedStorage};
+use core::allocator::OwnedAllocator;
+use geometry::{UnitComplex, RotationBase,
+               PointBase, OwnedPoint,
+               IsometryBase, OwnedIsometryBase,
+               SimilarityBase, OwnedSimilarityBase,
+               TranslationBase};
 
 /*
  * This file provides:
@@ -23,8 +28,11 @@ use geometry::{UnitComplex, RotationBase, PointBase, OwnedPoint};
  * UnitComplex × ColumnVector
  * UnitComplex × Unit<T>
  *
- * NOTE: -UnitComplex is already provided by `Unit<T>`.
+ * UnitComplex × IsometryBase<UnitComplex>
+ * UnitComplex × SimilarityBase<UnitComplex>
+ * UnitComplex × TranslationBase -> IsometryBase<UnitComplex>
  *
+ * NOTE: -UnitComplex is already provided by `Unit<T>`.
  *
  * (Assignment Operators)
  *
@@ -34,8 +42,8 @@ use geometry::{UnitComplex, RotationBase, PointBase, OwnedPoint};
  * UnitComplex  ÷= UnitComplex
  * UnitComplex  ÷= RotationBase
  *
- * FIXME: RotationBase ×= UnitComplex
- * FIXME: RotationBase ÷= UnitComplex
+ * RotationBase ×= UnitComplex
+ * RotationBase ÷= UnitComplex
  *
  */
 
@@ -232,7 +240,7 @@ complex_op_impl_all!(
     [ref ref] => {
         let i = self.as_ref().im;
         let r = self.as_ref().re;
-        OwnedColumnVector::<_, U2, S::Alloc>::new(r * rhs[0] - i * rhs[0], i * rhs[1] + r * rhs[1])
+        OwnedColumnVector::<_, U2, S::Alloc>::new(r * rhs[0] - i * rhs[1], i * rhs[0] + r * rhs[1])
     };
 );
 
@@ -245,6 +253,45 @@ complex_op_impl_all!(
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
     [ref ref] => Unit::new_unchecked(self * rhs.as_ref());
+);
+
+// UnitComplex × IsometryBase<UnitComplex>
+complex_op_impl_all!(
+    Mul, mul;
+    (U2, U1);
+    self: UnitComplex<N>, rhs: IsometryBase<N, U2, S, UnitComplex<N>>,
+    Output = OwnedIsometryBase<N, U2, S::Alloc, UnitComplex<N>>;
+    [val val] => &self * &rhs;
+    [ref val] =>  self * &rhs;
+    [val ref] => &self *  rhs;
+    [ref ref] => {
+        let shift = self * &rhs.translation.vector;
+        IsometryBase::from_parts(TranslationBase::from_vector(shift), self * &rhs.rotation)
+    };
+);
+
+// UnitComplex × SimilarityBase<UnitComplex>
+complex_op_impl_all!(
+    Mul, mul;
+    (U2, U1);
+    self: UnitComplex<N>, rhs: SimilarityBase<N, U2, S, UnitComplex<N>>,
+    Output = OwnedSimilarityBase<N, U2, S::Alloc, UnitComplex<N>>;
+    [val val] => &self * &rhs;
+    [ref val] =>  self * &rhs;
+    [val ref] => &self *  rhs;
+    [ref ref] => SimilarityBase::from_isometry(self * &rhs.isometry, rhs.scaling());
+);
+
+// UnitComplex × TranslationBase
+complex_op_impl_all!(
+    Mul, mul;
+    (U2, U1);
+    self: UnitComplex<N>, rhs: TranslationBase<N, U2, S>,
+    Output = OwnedIsometryBase<N, U2, S::Alloc, UnitComplex<N>>;
+    [val val] => IsometryBase::from_parts(TranslationBase::from_vector(&self *  rhs.vector), self);
+    [ref val] => IsometryBase::from_parts(TranslationBase::from_vector( self *  rhs.vector), self.clone());
+    [val ref] => IsometryBase::from_parts(TranslationBase::from_vector(&self * &rhs.vector), self);
+    [ref ref] => IsometryBase::from_parts(TranslationBase::from_vector( self * &rhs.vector), self.clone());
 );
 
 // UnitComplex ×= UnitComplex
@@ -305,5 +352,44 @@ impl<'b, N: Real, S: Storage<N, U2, U2>> DivAssign<&'b RotationBase<N, U2, S>> f
     #[inline]
     fn div_assign(&mut self, rhs: &'b RotationBase<N, U2, S>) {
         *self = &*self / rhs
+    }
+}
+
+
+// RotationBase ×= UnitComplex
+impl<N: Real, S> MulAssign<UnitComplex<N>> for RotationBase<N, U2, S>
+    where S: OwnedStorage<N, U2, U2>,
+          S::Alloc: OwnedAllocator<N, U2, U2, S> {
+    #[inline]
+    fn mul_assign(&mut self, rhs: UnitComplex<N>) {
+        self.mul_assign(rhs.to_rotation_matrix())
+    }
+}
+
+impl<'b, N: Real, S: Storage<N, U2, U2>> MulAssign<&'b UnitComplex<N>> for RotationBase<N, U2, S>
+    where S: OwnedStorage<N, U2, U2>,
+          S::Alloc: OwnedAllocator<N, U2, U2, S> {
+    #[inline]
+    fn mul_assign(&mut self, rhs: &'b UnitComplex<N>) {
+        self.mul_assign(rhs.to_rotation_matrix())
+    }
+}
+
+// RotationBase ÷= UnitComplex
+impl<N: Real, S> DivAssign<UnitComplex<N>> for RotationBase<N, U2, S>
+    where S: OwnedStorage<N, U2, U2>,
+          S::Alloc: OwnedAllocator<N, U2, U2, S> {
+    #[inline]
+    fn div_assign(&mut self, rhs: UnitComplex<N>) {
+        self.div_assign(rhs.to_rotation_matrix())
+    }
+}
+
+impl<'b, N: Real, S: Storage<N, U2, U2>> DivAssign<&'b UnitComplex<N>> for RotationBase<N, U2, S>
+    where S: OwnedStorage<N, U2, U2>,
+          S::Alloc: OwnedAllocator<N, U2, U2, S> {
+    #[inline]
+    fn div_assign(&mut self, rhs: &'b UnitComplex<N>) {
+        self.div_assign(rhs.to_rotation_matrix())
     }
 }

@@ -1,14 +1,97 @@
+/*!
+# nalgebra
+
+**nalgebra** is a linear algebra library written for Rust targeting:
+
+* General-purpose linear algebra (still lacks a lot of features…)
+* Real time computer graphics.
+* Real time computer physics.
+
+## Using **nalgebra**
+You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
+and the official package manager: [cargo](https://github.com/rust-lang/cargo).
+
+Simply add the following to your `Cargo.toml` file:
+
+```.ignore
+[dependencies]
+nalgebra = "0.11"
+```
+
+
+Most useful functionalities of **nalgebra** are grouped in the root module `nalgebra::`.
+
+However, the recommended way to use **nalgebra** is to import types and traits
+explicitly, and call free-functions using the `na::` prefix:
+
+```.rust
+#[macro_use]
+extern crate approx; // For the macro relative_eq!
+extern crate nalgebra as na;
+use na::{Vector3, Rotation3};
+
+fn main() {
+    let axis  = Vector3::x_axis();
+    let angle = 1.57;
+    let b     = Rotation3::from_axis_angle(&axis, angle);
+
+    relative_eq!(b.axis().unwrap(), axis);
+    relative_eq!(b.angle(), angle);
+}
+```
+
+
+## Features
+**nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
+an optimized set of tools for computer graphics and physics. Those features include:
+
+* A single parametrizable type `Matrix` for vectors, (square or rectangular) matrices, and slices
+  with dimensions known either at compile-time (using type-level integers) or at runtime.
+* Matrices and vectors with compile-time sizes are statically allocated while dynamic ones are
+  allocated on the heap.
+* Convenient aliases for low-dimensional matrices and vectors: `Vector1` to `Vector6` and
+  `Matrix1x1` to `Matrix6x6` (including rectangular matrices like `Matrix2x5`.
+* Points sizes known at compile time, and convenience aliases: `Point1` to `Point6`.
+* Translation (seen as a transformation that composes by multiplication): `Translation2`,
+  `Translation3`.
+* Rotation matrices: `Rotation2`, `Rotation3`.
+* Quaternions: `Quaternion`, `UnitQuaternion` (for 3D rotation).
+* Unit complex numbers can be used for 2D rotation: `UnitComplex`.
+* Algebraic entities with a norm equal to one: `Unit<T>`, e.g., `Unit<Vector3<f32>>`.
+* Isometries (translation ⨯ rotation): `Isometry2`, `Isometry3`
+* Similarity transformations (translation ⨯ rotation ⨯ uniform scale): `Similarity2`, `Similarity3`.
+* Affine transformations stored as an homogeneous matrix: `Affine2`, `Affine3`.
+* Projective (i.e. invertible) transformations stored as an homogeneous matrix: `Projective2`,
+  `Projective3`.
+* General transformations that does not have to be invertible, stored as an homogeneous matrix:
+  `Transform2`, `Transform3`.
+* 3D projections for computer graphics: `Perspective3`, `Orthographic3`.
+* Linear algebra and data analysis operators: QR decomposition, eigen-decomposition.
+* Implements all meaningful traits from the [alga](https://crates.io/crates/alga) crate for
+  generic programming.
+*/
+
+
+
+
+
 // #![feature(plugin)]
 //
 // #![plugin(clippy)]
-// #![allow(too_many_arguments)]
-// #![allow(derive_hash_xor_eq)]
-// #![allow(len_without_is_empty)]
-// #![allow(transmute_ptr_to_ref)]
+
+#![deny(non_camel_case_types)]
+#![deny(unused_parens)]
+#![deny(non_upper_case_globals)]
+#![deny(unused_qualifications)]
+#![deny(unused_results)]
+#![warn(missing_docs)]
+#![doc(html_root_url = "http://nalgebra.org/doc")]
 
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;
-extern crate rustc_serialize;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate num_traits as num;
 extern crate num_complex;
 extern crate rand;
@@ -32,10 +115,13 @@ pub use traits::*;
 use std::cmp::{self, PartialOrd, Ordering};
 
 use num::Signed;
-use alga::general::{Id, Identity, SupersetOf, MeetSemilattice, JoinSemilattice, Lattice, Inverse,
+use alga::general::{Identity, SupersetOf, MeetSemilattice, JoinSemilattice, Lattice, Inverse,
                     Multiplicative, Additive, AdditiveGroup};
 use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{InnerSpace, NormedSpace, FiniteDimVectorSpace, EuclideanSpace};
+
+pub use alga::general::Id;
+
 
 /*
  *
@@ -279,7 +365,7 @@ pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
     m.try_inverse()
 }
 
-/// Computes the the multiplicative inverse (transformation, unit quaternion, etc.)
+/// Computes the multiplicative inverse of an (always invertible) algebraic entity.
 #[inline]
 pub fn inverse<M: Inverse<Multiplicative>>(m: &M) -> M {
     m.inverse()
@@ -295,7 +381,7 @@ pub fn dot<V: FiniteDimVectorSpace>(a: &V, b: &V) -> V::Field {
     a.dot(b)
 }
 
-/// Computes the angle between two vectors.
+/// Computes the smallest angle between two vectors.
 #[inline]
 pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
     a.angle(b)
@@ -305,25 +391,25 @@ pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
  * Normed space
  */
 
-/// Computes the L2 norm of a vector.
+/// Computes the L2 (euclidean) norm of a vector.
 #[inline]
 pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
     v.norm()
 }
 
-/// Computes the squared L2 norm of a vector.
+/// Computes the squared L2 (euclidean) norm of the vector `v`.
 #[inline]
 pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
     v.norm_squared()
 }
 
-/// Gets the normalized version of a vector.
+/// Computes the normalized version of the vector `v`.
 #[inline]
 pub fn normalize<V: NormedSpace>(v: &V) -> V {
     v.normalize()
 }
 
-/// Gets the normalized version of a vector or `None` if its norm is smaller than `min_norm`.
+/// Computes the normalized version of the vector `v` or returns `None` if its norm is smaller than `min_norm`.
 #[inline]
 pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::Field) -> Option<V> {
     v.try_normalize(min_norm)

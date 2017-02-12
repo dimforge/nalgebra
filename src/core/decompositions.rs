@@ -272,20 +272,20 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     ///
     /// Matrix symmetricness is not checked. Returns `None` if `self` is not definite positive.
     #[inline]
-    pub fn cholesky(&self) -> Option<OwnedSquareMatrix<N, D, S::Alloc>> {
-        let out = self.transpose();
-        self.do_cholesky(out).ok()
-    }
-
-    /// Cholesky decomposition G of a square symmetric positive definite matrix A, such that A = G * G^T
-    #[inline]
-    pub fn cholesky_unchecked(&self) -> Result<OwnedSquareMatrix<N, D, S::Alloc>, &'static str> {
+    pub fn cholesky(&self) -> Result<OwnedSquareMatrix<N, D, S::Alloc>, &'static str> {
         let out = self.transpose();
 
         if !out.relative_eq(self, N::default_epsilon(), N::default_max_relative()) {
             return Err("Cholesky: Input matrix is not symmetric");
         }
 
+        self.do_cholesky(out)
+    }
+
+    /// Cholesky decomposition G of a square symmetric positive definite matrix A, such that A = G * G^T
+    #[inline]
+    pub fn cholesky_unchecked(&self) -> Result<OwnedSquareMatrix<N, D, S::Alloc>, &'static str> {
+        let out = self.transpose();
         self.do_cholesky(out)
     }
 

@@ -1,3 +1,5 @@
+//! Abstract definition of a matrix data storage allocator.
+
 use std::any::Any;
 
 use core::Scalar;
@@ -15,6 +17,7 @@ use core::storage::{Storage, OwnedStorage};
 /// Every allocator must be both static and dynamic. Though not all implementations may share the
 /// same `Buffer` type.
 pub trait Allocator<N: Scalar, R: Dim, C: Dim>: Any + Sized {
+    /// The type of buffer this allocator can instanciate.
     type Buffer: OwnedStorage<N, R, C, Alloc = Self>;
 
     /// Allocates a buffer with the given number of rows and columns without initializing its content.

@@ -1,12 +1,11 @@
 use std::fmt;
+use approx::ApproxEq;
 use num_complex::Complex;
 
 use alga::general::Real;
-use core::{Unit, SquareMatrix, Vector1};
-use core::dimension::{U2, U3};
-use core::allocator::{OwnedAllocator, Allocator};
-use core::storage::OwnedStorage;
-use geometry::{RotationBase, OwnedRotation};
+use core::{Unit, SquareMatrix, Vector1, Matrix3};
+use core::dimension::U2;
+use geometry::Rotation2;
 
 /// A complex number with a norm equal to 1.
 pub type UnitComplex<N> = Unit<Complex<N>>;
@@ -15,7 +14,7 @@ impl<N: Real> UnitComplex<N> {
     /// The rotation angle in `]-pi; pi]` of this unit complex number.
     #[inline]
     pub fn angle(&self) -> N {
-        self.complex().im.atan2(self.complex().re)
+        self.im.atan2(self.re)
     }
 
     /// The rotation angle returned as a 1-dimensional vector.
@@ -35,7 +34,7 @@ impl<N: Real> UnitComplex<N> {
     /// Compute the conjugate of this unit complex number.
     #[inline]
     pub fn conjugate(&self) -> Self {
-        UnitComplex::new_unchecked(self.as_ref().conj())
+        UnitComplex::new_unchecked(self.conj())
     }
 
     /// Inverts this complex number if it is not zero.
@@ -83,13 +82,11 @@ impl<N: Real> UnitComplex<N> {
 
     /// Builds the rotation matrix corresponding to this unit complex number.
     #[inline]
-    pub fn to_rotation_matrix<S>(&self) -> RotationBase<N, U2, S>
-        where S: OwnedStorage<N, U2, U2>,
-              S::Alloc: OwnedAllocator<N, U2, U2, S> {
-        let r = self.complex().re;
-        let i = self.complex().im;
+    pub fn to_rotation_matrix(&self) -> Rotation2<N> {
+        let r = self.re;
+        let i = self.im;
 
-        RotationBase::from_matrix_unchecked(
+        Rotation2::from_matrix_unchecked(
             SquareMatrix::<_, U2, _>::new(
                 r, -i,
                 i,  r
@@ -99,17 +96,44 @@ impl<N: Real> UnitComplex<N> {
 
     /// Converts this unit complex number into its equivalent homogeneous transformation matrix.
     #[inline]
-    pub fn to_homogeneous<S>(&self) -> SquareMatrix<N, U3, S>
-        where S: OwnedStorage<N, U3, U3>,
-              S::Alloc: OwnedAllocator<N, U3, U3, S> +
-                        Allocator<N, U2, U2> {
-        let r: OwnedRotation<N, U2, S::Alloc> = self.to_rotation_matrix();
-        r.to_homogeneous()
+    pub fn to_homogeneous(&self) -> Matrix3<N> {
+        self.to_rotation_matrix().to_homogeneous()
     }
 }
 
 impl<N: Real + fmt::Display> fmt::Display for UnitComplex<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "UnitComplex angle: {}", self.angle())
+    }
+}
+
+impl<N: Real> ApproxEq for UnitComplex<N> {
+    type Epsilon = N;
+
+    #[inline]
+    fn default_epsilon() -> Self::Epsilon {
+        N::default_epsilon()
+    }
+
+    #[inline]
+    fn default_max_relative() -> Self::Epsilon {
+        N::default_max_relative()
+    }
+
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
+    }
+
+    #[inline]
+    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+        self.re.relative_eq(&other.re, epsilon, max_relative) &&
+        self.im.relative_eq(&other.im, epsilon, max_relative)
+    }
+
+    #[inline]
+    fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
+        self.re.ulps_eq(&other.re, epsilon, max_ulps) &&
+        self.im.ulps_eq(&other.im, epsilon, max_ulps)
     }
 }

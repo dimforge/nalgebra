@@ -1,11 +1,11 @@
 all:
-	cargo build --features "arbitrary"
+	CARGO_INCREMENTAL=1 cargo build --features "arbitrary"
 
 doc:
-	cargo doc
+	CARGO_INCREMENTAL=1 cargo doc
 
 bench:
 	cargo bench
 
 test:
-	cargo test --features "arbitrary"
+	CARGO_INCREMENTAL=1 cargo test --features "arbitrary"

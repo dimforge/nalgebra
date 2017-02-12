@@ -33,7 +33,9 @@ impl<N, R: Dim, C: Dim, S> Index<(usize, usize)> for Matrix<N, R, C, S>
 
     #[inline]
     fn index(&self, ij: (usize, usize)) -> &N {
-        assert!(ij < self.shape(), "Matrix index out of bounds.");
+        let shape = self.shape();
+        assert!(ij.0 < shape.0 && ij.1 < shape.1, "Matrix index out of bounds.");
+
         unsafe { self.get_unchecked(ij.0, ij.1) }
     }
 }
@@ -53,7 +55,9 @@ impl<N, R: Dim, C: Dim, S> IndexMut<(usize, usize)> for Matrix<N, R, C, S>
 
     #[inline]
     fn index_mut(&mut self, ij: (usize, usize)) -> &mut N {
-        assert!(ij < self.shape(), "Matrix index out of bounds.");
+        let shape = self.shape();
+        assert!(ij.0 < shape.0 && ij.1 < shape.1, "Matrix index out of bounds.");
+
         unsafe { self.get_unchecked_mut(ij.0, ij.1) }
     }
 }
@@ -121,7 +125,13 @@ macro_rules! componentwise_binop_impl(
                 assert!(self.shape() == right.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 let mut res = self.into_owned_sum::<R2, C2>();
 
-                for (left, right) in res.iter_mut().zip(right.iter()) {
+                // XXX: optimize our iterator!
+                //
+                // Using our own iterator prevents loop unrolling, wich breaks some optimization
+                // (like SIMD). On the other hand, using the slice iterator is 4x faster.
+
+                // for (left, right) in res.iter_mut().zip(right.iter()) {
+                for (left, right) in res.as_mut_slice().iter_mut().zip(right.iter()) {
                     *left = left.$method(*right)
                 }
 
@@ -143,7 +153,13 @@ macro_rules! componentwise_binop_impl(
                 assert!(self.shape() == right.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 let mut res = right.into_owned_sum::<R1, C1>();
 
-                for (left, right) in self.iter().zip(res.iter_mut()) {
+                // XXX: optimize our iterator!
+                //
+                // Using our own iterator prevents loop unrolling, wich breaks some optimization
+                // (like SIMD). On the other hand, using the slice iterator is 4x faster.
+
+                // for (left, right) in self.iter().zip(res.iter_mut()) {
+                for (left, right) in self.iter().zip(res.as_mut_slice().iter_mut()) {
                     *right = left.$method(*right)
                 }
 
@@ -237,7 +253,13 @@ macro_rules! componentwise_scalarop_impl(
             fn $method(self, rhs: N) -> Self::Output {
                 let mut res = self.into_owned();
 
-                for left in res.iter_mut() {
+                // XXX: optimize our iterator!
+                //
+                // Using our own iterator prevents loop unrolling, wich breaks some optimization
+                // (like SIMD). On the other hand, using the slice iterator is 4x faster.
+
+                // for left in res.iter_mut() {
+                for left in res.as_mut_slice().iter_mut() {
                     *left = left.$method(rhs)
                 }
 
@@ -282,7 +304,13 @@ macro_rules! left_scalar_mul_impl(
             fn mul(self, right: Matrix<$T, R, C, S>) -> Self::Output {
                 let mut res = right.into_owned();
 
-                for right in res.iter_mut() {
+                // XXX: optimize our iterator!
+                //
+                // Using our own iterator prevents loop unrolling, wich breaks some optimization
+                // (like SIMD). On the other hand, using the slice iterator is 4x faster.
+
+                // for right in res.iter_mut() {
+                for right in res.as_mut_slice().iter_mut() {
                     *right = self * *right
                 }
 

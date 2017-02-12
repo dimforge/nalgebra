@@ -7,9 +7,9 @@ use std::any::TypeId;
 use std::mem;
 use approx::ApproxEq;
 
-use alga::general::{Field, Real};
+use alga::general::{Ring, Real};
 
-use core::Scalar;
+use core::{Scalar, Unit};
 use core::dimension::{Dim, DimAdd, DimSum, U1, U2};
 use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns};
 use core::iter::{MatrixIter, MatrixIterMut};
@@ -55,10 +55,37 @@ pub type MatrixTrMul<N, R1, C1, C2, SA> = Matrix<N, C1, C2, TrMulStorage<N, R1, 
 pub type MatrixWithScalar<NOld, NNew, R, C, S> =
 Matrix<NNew, R, C, <<S as Storage<NOld, R, C>>::Alloc as Allocator<NNew, R, C>>::Buffer>;
 
+/// The most generic column-major matrix (and vector) type.
+///
+/// It combines four type parameters:
+/// - `N`: for the matrix components scalar type.
+/// - `R`: for the matrix number of rows.
+/// - `C`: for the matrix number of columns.
+/// - `S`: for the matrix data storage, i.e., the buffer that actually contains the matrix
+/// components.
+///
+/// The matrix dimensions parameters `R` and `C` can either be:
+/// - type-level unsigned integer contants (e.g. `U1`, `U124`) from the `nalgebra::` root module.
+/// All numbers from 0 to 127 are defined that way.
+/// - type-level unsigned integer constants (e.g. `U1024`, `U10000`) from the `typenum::` crate.
+/// Using those, you will not get error messages as nice as for numbers smaller than 128 defined on
+/// the `nalgebra::` module.
+/// - the special value `Dynamic` from the `nalgebra::` root module. This indicates that the
+/// specified dimension is not known at compile-time. Note that this will generally imply that the
+/// matrix data storage `S` performs a dynamic allocation and contains extra metadata for the
+/// matrix shape.
+///
+/// Note that mixing `Dynamic` with type-level unsigned integers is allowed. Actually, a
+/// dynamically-sized column vector should be represented as a `Matrix<N, Dynamic, U1, S>` (given
+/// some concrete types for `N` and a compatible data storage type `S`).
 #[repr(C)]
-#[derive(RustcEncodable, RustcDecodable, Hash, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Hash, Debug, Clone, Copy)]
 pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
+    /// The data storage that contains all the matrix components and informations about its number
+    /// of rows and column (if needed).
     pub data:  S,
+
+    #[serde(skip_serializing, skip_deserializing)]
     _phantoms: PhantomData<(N, R, C)>
 }
 
@@ -149,7 +176,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         nrows * ncols
     }
 
-    /// The shape (number of rows, number of columns) of this matrix.
+    /// The shape of this matrix returned as the tuple (number of rows, number of columns).
     #[inline]
     pub fn shape(&self) -> (usize, usize) {
         let (nrows, ncols) = self.data.shape();
@@ -404,6 +431,20 @@ impl<N, D, S> ColumnVector<N, D, S>
         res[(len, 0)] = N::zero();
 
         res
+    }
+
+    /// Constructs a vector from coordinates in projective space, i.e., removes a `0` at the end of
+    /// `self`. Returns `None` if this last component is not zero.
+    #[inline]
+    pub fn from_homogeneous<SB>(v: ColumnVector<N, DimSum<D, U1>, SB>) -> Option<OwnedColumnVector<N, D, S::Alloc>>
+        where SB: Storage<N, DimSum<D, U1>, U1, Alloc = S::Alloc> {
+        if v[v.len() - 1].is_zero() {
+            let nrows = D::from_usize(v.len() - 1);
+            Some(v.generic_slice((0, 0), (nrows, U1)).into_owned())
+        }
+        else {
+            None
+        }
     }
 }
 
@@ -677,7 +718,7 @@ impl<N, R: Dim, C: Dim, S> PartialOrd for Matrix<N, R, C, S>
 
         if let Some(mut first_ord) = first_ord {
             let mut it = self.iter().zip(other.iter());
-            it.next(); // Drop the first elements (we already tested it).
+            let _ = it.next(); // Drop the first elements (we already tested it).
 
             for (left, right) in it {
                 if let Some(ord) = left.partial_cmp(right) {
@@ -806,7 +847,7 @@ impl<N, R: Dim, C: Dim, S> fmt::Display for Matrix<N, R, C, S>
 
 
 impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
-    where N: Scalar + Field,
+    where N: Scalar + Ring,
           S: Storage<N, R, C> {
     /// The dot product between two matrices (seen as vectors).
     #[inline]
@@ -1009,5 +1050,37 @@ impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
             *self /= n;
             Some(n)
         }
+    }
+}
+
+impl<N, R: Dim, C: Dim, S> ApproxEq for Unit<Matrix<N, R, C, S>>
+    where N: Scalar + ApproxEq,
+          S: Storage<N, R, C>,
+          N::Epsilon: Copy {
+    type Epsilon = N::Epsilon;
+
+    #[inline]
+    fn default_epsilon() -> Self::Epsilon {
+        N::default_epsilon()
+    }
+
+    #[inline]
+    fn default_max_relative() -> Self::Epsilon {
+        N::default_max_relative()
+    }
+
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
+    }
+
+    #[inline]
+    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+        self.as_ref().relative_eq(other.as_ref(), epsilon, max_relative)
+    }
+
+    #[inline]
+    fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
+        self.as_ref().ulps_eq(other.as_ref(), epsilon, max_ulps)
     }
 }

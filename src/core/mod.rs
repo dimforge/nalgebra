@@ -1,9 +1,11 @@
+//! Data structures for vector and matrix computations.
+
 pub mod dimension;
 pub mod constraint;
 pub mod allocator;
 pub mod storage;
 pub mod coordinates;
-pub mod ops;
+mod ops;
 pub mod iter;
 pub mod default_allocator;
 

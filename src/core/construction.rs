@@ -116,6 +116,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: OwnedStorage<N, R, C>> Matrix<N, R, C, S>
         res
     }
 
+    /// Builds a new matrix from its rows.
+    ///
+    /// Panics if not enough rows are provided (for statically-sized matrices), or if all rows do
+    /// not have the same dimensions.
     #[inline]
     pub fn from_rows<SB>(rows: &[Matrix<N, U1, C, SB>]) -> Matrix<N, R, C, S>
         where SB: Storage<N, U1, C> {
@@ -127,13 +131,18 @@ impl<N: Scalar, R: Dim, C: Dim, S: OwnedStorage<N, R, C>> Matrix<N, R, C, S>
 
         if C::try_to_usize().is_none() {
             assert!(rows.iter().all(|r| r.len() == ncols),
-            "The rows provided must all have the same dimension.");
+            "The provided rows must all have the same dimension.");
         }
 
         // FIXME: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| rows[i][(0, j)])
     }
 
+
+    /// Builds a new matrix from its columns.
+    ///
+    /// Panics if not enough columns are provided (for statically-sized matrices), or if all
+    /// columns do not have the same dimensions.
     #[inline]
     pub fn from_columns<SB>(columns: &[ColumnVector<N, R, SB>]) -> Matrix<N, R, C, S>
         where SB: Storage<N, R, U1> {
@@ -239,12 +248,17 @@ macro_rules! impl_constructors(
                 Self::from_fn_generic($($gargs, )* f)
             }
 
+            /// Creates an identity matrix. If the matrix is not square, the largest square
+            /// submatrix (starting at the first row and column) is set to the identity while all
+            /// other entries are set to zero.
             #[inline]
             pub fn identity($($args: usize,)*) -> Matrix<N $(, $Dims)*, S>
                 where N: Zero + One {
                 Self::identity_generic($($gargs),* )
             }
 
+            /// Creates a matrix filled with its diagonal filled with `elt` and all other
+            /// components set to zero.
             #[inline]
             pub fn from_diagonal_element($($args: usize,)* elt: N) -> Matrix<N $(, $Dims)*, S>
                 where N: Zero + One {

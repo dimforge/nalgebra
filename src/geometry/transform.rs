@@ -14,6 +14,8 @@ use core::allocator::Allocator;
 ///
 /// NOTE: this trait is not intended to be implementable outside of the `nalgebra` crate.
 pub trait TCategory: Any + Debug + Copy + PartialEq + Send {
+    /// Indicates whether a `Transform` with the category `Self` has a bottom-row different from
+    /// `0 0 .. 1`.
     #[inline]
     fn has_normalizer() -> bool {
         true
@@ -28,16 +30,19 @@ pub trait TCategory: Any + Debug + Copy + PartialEq + Send {
               N::Epsilon: Copy;
 }
 
-/// Traits that gives the transformation category that is compatible with the result of the
+/// Traits that gives the `Transform` category that is compatible with the result of the
 /// multiplication of transformations with categories `Self` and `Other`.
 pub trait TCategoryMul<Other: TCategory>: TCategory {
+    /// The transform category that results from the multiplication of a `Transform<Self>` to a
+    /// `Transform<Other>`. This is usually equal to `Self` or `Other`, whichever is the most
+    /// general category.
     type Representative: TCategory;
 }
 
-/// Indicates that `Self` is a more general transformation category than `Other`.
+/// Indicates that `Self` is a more general `Transform` category than `Other`.
 pub trait SuperTCategoryOf<Other: TCategory>: TCategory { }
 
-/// Indicates that `Self` is a more specific transformation category than `Other`.
+/// Indicates that `Self` is a more specific `Transform` category than `Other`.
 ///
 /// Automatically implemented based on `SuperTCategoryOf`.
 pub trait SubTCategoryOf<Other: TCategory>: TCategory { }
@@ -46,17 +51,17 @@ where T1: TCategory,
       T2: SuperTCategoryOf<T1> {
 }
 
-/// Tag representing the most general (not necessarily inversible) transformation type.
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct TGeneral;
+/// Tag representing the most general (not necessarily inversible) `Transform` type.
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TGeneral { }
 
-/// Tag representing the most general inversible transformation type.
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct TProjective;
+/// Tag representing the most general inversible `Transform` type.
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TProjective { }
 
-/// Tag representing an affine transformation. Its bottom-row is equal to `(0, 0 ... 0, 1)`.
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct TAffine;
+/// Tag representing an affine `Transform`. Its bottom-row is equal to `(0, 0 ... 0, 1)`.
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TAffine { }
 
 impl TCategory for TGeneral {
     #[inline]
@@ -150,9 +155,11 @@ pub type OwnedTransform<N, D, A, C>
 /// It is stored as a matrix with dimensions `(D + 1, D + 1)`, e.g., it stores a 4x4 matrix for a
 /// 3D transformation.
 #[repr(C)]
-#[derive(Debug, Clone, Copy)] // FIXME: Hash
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)] // FIXME: Hash
 pub struct TransformBase<N: Scalar, D: DimNameAdd<U1>, S, C: TCategory> {
     matrix:   SquareMatrix<N, DimNameSum<D, U1>, S>,
+
+    #[serde(skip_serializing, skip_deserializing)]
     _phantom: PhantomData<C>
 }
 

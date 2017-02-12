@@ -19,7 +19,6 @@ path = "src/lib.rs"
 arbitrary = [ "quickcheck" ]
 
 [dependencies]
-rustc-serialize = "0.3"
 typenum         = "1.4"
 generic-array   = "0.2"
 rand            = "0.3"
@@ -27,8 +26,13 @@ num-traits      = "0.1"
 num-complex     = "0.1"
 approx          = "0.1"
 alga            = "0.4"
+serde           = "0.9"
+serde_derive    = "0.9"
 # clippy = "*"
 
 [dependencies.quickcheck]
 optional = true
 version  = "0.3"
+
+[dev-dependencies]
+serde_json = "0.9"

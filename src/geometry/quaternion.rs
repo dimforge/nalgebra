@@ -21,8 +21,9 @@ pub type OwnedUnitQuaternionBase<N, A> = UnitQuaternionBase<N, <A as Allocator<N
 /// A quaternion. See the type alias `UnitQuaternionBase = Unit<QuaternionBase>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
-#[derive(Hash, Debug, Copy, Clone)]
+#[derive(Hash, Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct QuaternionBase<N: Real, S: Storage<N, U4, U1>> {
+    /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: ColumnVector<N, U4, S>
 }
 
@@ -86,6 +87,12 @@ impl<N, S> QuaternionBase<N, S>
         self.coords.norm_squared()
     }
 
+    /// Normalizes this quaternion.
+    #[inline]
+    pub fn normalize(&self) -> OwnedQuaternionBase<N, S::Alloc> {
+        QuaternionBase::from_vector(self.coords.normalize())
+    }
+
     /// Compute the conjugate of this quaternion.
     #[inline]
     pub fn conjugate(&self) -> OwnedQuaternionBase<N, S::Alloc> {
@@ -107,6 +114,13 @@ impl<N, S> QuaternionBase<N, S>
         else {
             None
         }
+    }
+
+    /// Linear interpolation between two quaternion.
+    #[inline]
+    pub fn lerp<S2>(&self, other: &QuaternionBase<N, S2>, t: N) -> OwnedQuaternionBase<N, S::Alloc>
+        where S2: Storage<N, U4, U1> {
+        self * (N::one() - t) + other * t
     }
 }
 
@@ -208,6 +222,12 @@ impl<N, S> QuaternionBase<N, S>
             true
         }
     }
+
+    /// Normalizes this quaternion.
+    #[inline]
+    pub fn normalize_mut(&mut self) -> N {
+        self.coords.normalize_mut()
+    }
 }
 
 impl<N, S> ApproxEq for QuaternionBase<N, S>
@@ -262,6 +282,18 @@ pub type UnitQuaternionBase<N, S> = Unit<QuaternionBase<N, S>>;
 impl<N, S> UnitQuaternionBase<N, S>
     where N: Real,
           S: Storage<N, U4, U1> {
+    /// Moves this unit quaternion into one that owns its data.
+    #[inline]
+    pub fn into_owned(self) -> OwnedUnitQuaternionBase<N, S::Alloc> {
+        UnitQuaternionBase::new_unchecked(self.unwrap().into_owned())
+    }
+
+    /// Clones this unit quaternion into one that owns its data.
+    #[inline]
+    pub fn clone_owned(&self) -> OwnedUnitQuaternionBase<N, S::Alloc> {
+        UnitQuaternionBase::new_unchecked(self.as_ref().clone_owned())
+    }
+
     /// The rotation angle in [0; pi] of this unit quaternion.
     #[inline]
     pub fn angle(&self) -> N {
@@ -311,6 +343,75 @@ impl<N, S> UnitQuaternionBase<N, S>
     pub fn rotation_to<S2>(&self, other: &UnitQuaternionBase<N, S2>) -> OwnedUnitQuaternionBase<N, S2::Alloc>
         where S2: Storage<N, U4, U1> {
         other / self
+    }
+
+    /// Linear interpolation between two unit quaternions.
+    ///
+    /// The result is not normalized.
+    #[inline]
+    pub fn lerp<S2>(&self, other: &UnitQuaternionBase<N, S2>, t: N) -> OwnedQuaternionBase<N, S::Alloc>
+        where S2: Storage<N, U4, U1> {
+        self.as_ref().lerp(other.as_ref(), t)
+    }
+
+    /// Normalized linear interpolation between two unit quaternions.
+    #[inline]
+    pub fn nlerp<S2>(&self, other: &UnitQuaternionBase<N, S2>, t: N) -> OwnedUnitQuaternionBase<N, S::Alloc>
+        where S2: Storage<N, U4, U1> {
+        let mut res = self.lerp(other, t);
+        let _ = res.normalize_mut();
+
+        UnitQuaternionBase::new_unchecked(res)
+    }
+
+    /// Spherical linear interpolation between two unit quaternions.
+    ///
+    /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
+    /// is not well-defined).
+    #[inline]
+    pub fn slerp<S2>(&self, other: &UnitQuaternionBase<N, S2>, t: N) -> OwnedUnitQuaternionBase<N, S::Alloc>
+        where S2: Storage<N, U4, U1, Alloc = S::Alloc> {
+        self.try_slerp(other, t, N::zero()).expect(
+            "Unable to perform a spherical quaternion interpolation when they \
+             are 180 degree apart (the result is not unique).")
+    }
+
+    /// Computes the spherical linear interpolation between two unit quaternions or returns `None`
+    /// if both quaternions are approximately 180 degrees apart (in which case the interpolation is
+    /// not well-defined).
+    ///
+    /// # Arguments
+    /// * `self`: the first quaternion to interpolate from.
+    /// * `other`: the second quaternion to interpolate toward.
+    /// * `t`: the interpolation parameter. Should be between 0 and 1.
+    /// * `epsilon`: the value bellow which the sinus of the angle separating both quaternion
+    /// must be to return `None`.
+    #[inline]
+    pub fn try_slerp<S2>(&self, other: &UnitQuaternionBase<N, S2>, t: N, epsilon: N)
+                         -> Option<OwnedUnitQuaternionBase<N, S::Alloc>>
+        where S2: Storage<N, U4, U1, Alloc = S::Alloc> {
+
+        let c_hang = self.coords.dot(&other.coords);
+
+        // self == other
+        if c_hang.abs() >= N::one() {
+            return Some(self.clone_owned())
+        }
+
+        let hang   = c_hang.acos();
+        let s_hang = (N::one() - c_hang * c_hang).sqrt();
+
+        // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
+        if relative_eq!(s_hang, N::zero(), epsilon = epsilon) {
+            None
+        }
+        else {
+            let ta = ((N::one() - t) * hang).sin() / s_hang;
+            let tb = (t * hang).sin() / s_hang; 
+            let res = self.as_ref() * ta + other.as_ref() * tb;
+
+            Some(UnitQuaternionBase::new_unchecked(res))
+        }
     }
 }
 
@@ -451,5 +552,36 @@ impl<N, S> fmt::Display for UnitQuaternionBase<N, S>
         else {
             write!(f, "UnitQuaternion angle: {} − axis: (undefined)", self.angle())
         }
+    }
+}
+
+impl<N, S> ApproxEq for UnitQuaternionBase<N, S>
+    where N: Real + ApproxEq<Epsilon = N>,
+          S: Storage<N, U4, U1> {
+    type Epsilon = N;
+
+    #[inline]
+    fn default_epsilon() -> Self::Epsilon {
+        N::default_epsilon()
+    }
+
+    #[inline]
+    fn default_max_relative() -> Self::Epsilon {
+        N::default_max_relative()
+    }
+
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
+    }
+
+    #[inline]
+    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+        self.as_ref().relative_eq(other.as_ref(), epsilon, max_relative)
+    }
+
+    #[inline]
+    fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
+        self.as_ref().ulps_eq(other.as_ref(), epsilon, max_ulps)
     }
 }

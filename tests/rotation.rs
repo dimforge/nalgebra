@@ -7,6 +7,7 @@ extern crate num_traits as num;
 extern crate alga;
 extern crate nalgebra as na;
 
+use std::f64;
 use alga::general::Real;
 use na::{Vector2, Vector3, Rotation2, Rotation3, Unit};
 
@@ -66,7 +67,6 @@ quickcheck!(
     fn angle_is_commutative_3(a: Vector3<f64>, b: Vector3<f64>) -> bool {
         a.angle(&b) == b.angle(&a)
     }
-
 
     /*
      *

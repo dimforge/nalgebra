@@ -12,7 +12,8 @@ use core::dimension::{DimName, U1, U2, U3, U4};
 use core::allocator::{OwnedAllocator, Allocator};
 use core::storage::OwnedStorage;
 
-use geometry::{PointBase, TranslationBase, RotationBase, SimilarityBase, UnitQuaternionBase, IsometryBase};
+use geometry::{PointBase, TranslationBase, RotationBase, SimilarityBase,
+               UnitComplex, UnitQuaternionBase, IsometryBase};
 
 
 impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
@@ -103,6 +104,17 @@ impl<N, S, SR> SimilarityBase<N, U2, S, RotationBase<N, U2, SR>>
     #[inline]
     pub fn new(translation: ColumnVector<N, U2, S>, angle: N, scaling: N) -> Self {
         Self::from_parts(TranslationBase::from_vector(translation), RotationBase::<N, U2, SR>::new(angle), scaling)
+    }
+}
+
+impl<N, S> SimilarityBase<N, U2, S, UnitComplex<N>>
+    where N: Real,
+          S: OwnedStorage<N, U2, U1>,
+          S::Alloc: OwnedAllocator<N, U2, U1, S> {
+    /// Creates a new similarity from a translation and a rotation angle.
+    #[inline]
+    pub fn new(translation: ColumnVector<N, U2, S>, angle: N, scaling: N) -> Self {
+        Self::from_parts(TranslationBase::from_vector(translation), UnitComplex::new(angle), scaling)
     }
 }
 

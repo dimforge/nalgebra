@@ -1,6 +1,11 @@
+use std::mem;
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut, Mul};
-use std::fmt::{Debug, Formatter, Result};
+use std::fmt::{self, Debug, Formatter};
 use std::hash::{Hash, Hasher};
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde::ser::SerializeSeq;
+use serde::de::{SeqVisitor, Visitor};
 
 use typenum::Prod;
 use generic_array::{ArrayLength, GenericArray};
@@ -27,6 +32,7 @@ where R: DimName,
 
     data: GenericArray<N, Prod<R::Value, C::Value>>
 }
+
 
 impl<N, R, C> Hash for MatrixArray<N, R, C>
 where N: Hash,
@@ -70,7 +76,7 @@ where N: Debug,
       R::Value: Mul<C::Value>,
       Prod<R::Value, C::Value>: ArrayLength<N> {
     #[inline]
-    fn fmt(&self, fmt: &mut Formatter) -> Result {
+    fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         self.data.fmt(fmt)
     }
 }
@@ -183,5 +189,99 @@ unsafe impl<N, R, C> OwnedStorage<N, R, C> for MatrixArray<N, R, C>
     #[inline]
     fn as_mut_slice(&mut self) -> &mut [N] {
         &mut self[..]
+    }
+}
+
+
+/*
+ *
+ * Allocation-less serde impls.
+ *
+ */
+// XXX: open an issue for GenericArray so that it implements serde traits?
+impl<N, R, C> Serialize for MatrixArray<N, R, C>
+where N: Scalar + Serialize,
+      R: DimName,
+      C: DimName,
+      R::Value: Mul<C::Value>,
+      Prod<R::Value, C::Value>: ArrayLength<N> {
+
+
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            let mut serializer = serializer.serialize_seq_fixed_size(R::dim() * C::dim())?;
+
+            for e in self.iter() {
+                serializer.serialize_element(e)?;
+            }
+
+            serializer.end()
+        }
+}
+
+
+impl<N, R, C> Deserialize for MatrixArray<N, R, C>
+where N: Scalar + Deserialize,
+      R: DimName,
+      C: DimName,
+      R::Value: Mul<C::Value>,
+      Prod<R::Value, C::Value>: ArrayLength<N> {
+
+
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer {
+
+            let len = R::dim() * C::dim();
+            deserializer.deserialize_seq_fixed_size(len, MatrixArrayVisitor::new())
+        }
+}
+
+
+/// A visitor that produces a matrix array.
+struct MatrixArrayVisitor<N, R, C> {
+    marker: PhantomData<(N, R, C)>
+}
+
+impl<N, R, C> MatrixArrayVisitor<N, R, C>
+where N: Scalar,
+      R: DimName,
+      C: DimName,
+      R::Value: Mul<C::Value>,
+      Prod<R::Value, C::Value>: ArrayLength<N> {
+
+    /// Construct a new sequence visitor.
+    pub fn new() -> Self {
+        MatrixArrayVisitor {
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<N, R, C> Visitor for MatrixArrayVisitor<N, R, C>
+where N: Scalar + Deserialize,
+      R: DimName,
+      C: DimName,
+      R::Value: Mul<C::Value>,
+      Prod<R::Value, C::Value>: ArrayLength<N> {
+
+    type Value = MatrixArray<N, R, C>;
+
+    fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
+        formatter.write_str("a matrix array")
+    }
+
+    #[inline]
+    fn visit_seq<V>(self, mut visitor: V) -> Result<MatrixArray<N, R, C>, V::Error>
+        where V: SeqVisitor {
+
+        let mut out: Self::Value = unsafe { mem::uninitialized() };
+        let mut curr = 0;
+
+        while let Some(value) = try!(visitor.visit()) {
+            out[curr] = value;
+            curr += 1;
+        }
+
+        Ok(out)
     }
 }
