@@ -20,8 +20,7 @@
 
 -----
 
-<center>
-<span class="h1 headline">Linear algebra library</span>
-<div></div>
-<span class="subheadline">… for the [Rust](https://www.rust-lang.org) programming language.</span>
-</center>
+<p align = "center">
+<b>Linear algebra library</b>
+<i>for the Rust programming language.</i>
+</p>
