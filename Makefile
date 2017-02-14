@@ -2,7 +2,7 @@ all:
 	CARGO_INCREMENTAL=1 cargo build --features "arbitrary"
 
 doc:
-	CARGO_INCREMENTAL=1 cargo doc
+	CARGO_INCREMENTAL=1 cargo doc --no-deps
 
 bench:
 	cargo bench

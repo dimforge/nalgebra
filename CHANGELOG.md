@@ -4,6 +4,103 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.11.0]
+The [website](http://nalgebra.org) has been fully rewritten and gives a good
+overview of all the added/modified features.
+
+This version is a major rewrite of the library. Major changes are:
+  * Algebraic traits are now defined by the [alga](https://crates.io/crates/alga) crate.
+  * Methods are now preferred to free functions because they do not require any
+    trait to be used any more.
+  * Most algebraic entities can be parametrized by type-level integers
+    to specify their dimensions. Using `Dynamic` instead of a type-level
+    integer indicates that the dimension known at run-time only.
+  * Statically-sized **rectangular** matrices.
+  * More transformation types have been added: unit-sized complex numbers (for
+    2D rotations), affine/projective/general transformations with `Affine2/3`,
+    `Projective2/3`, and `Transform2/3`.
+  * Serde serialization is now supported instead of `rustc_serialize`.
+  * Matrix **slices** are now implemented.
+
+### Added
+Lots of features including rectangular matrices, slices, and Serde
+serialization. Refer to the brand new [website](http://nalgebra.org) for more
+details. The following free-functions have been added as well:
+  * `::id()` that returns the universal [identity element](http://nalgebra.org/performance_tricks/#the-id-type)
+    of type `Id`.
+  * `::inf_sup()` that returns both the infimum and supremum of a value at the
+    same time.
+  * `::partial_sort2()` that attempts to sort two values in increasing order.
+  * `::wrap()` that moves a value to the given interval by adding or removing
+    the interval width to it.
+
+### Modified
+  * `::cast`            -> `::convert`
+  * `point.as_vector()` -> `point.coords`
+  * `na::origin`        -> `P::origin()`
+  * `na::is_zero`       -> `.is_zero()` (from num::Zero)
+  * `.transform`        -> `.transform_point`/`.transform_vector`
+  * `.translate`        -> `.translate_point`
+  * `::dimension::<P>`  -> `::dimension::<P::Vector>`
+  * `::angle_between`   -> `::angle`
+
+The following free-functions are now replaced by methods (with the same names)
+only:
+`::cross`, `::cholesky`, `::determinant`, `::diagonal`, `::eigen_qr` (becomes
+`.eig`), `::hessenberg`, `::qr`, `::to_homogeneous`, `::to_rotation_matrix`,
+`::transpose`, `::shape`.
+
+
+The following free-functions are now replaced by static methods only:
+  * `::householder_matrix` under the name `::new_householder_generic`
+  * `::identity`
+  * `::new_identity` under the name `::identity`
+  * `::from_homogeneous`
+  * `::repeat` under the name `::from_element`
+
+The following free-function are now replaced methods accessible through traits
+only:
+  * `::transform` -> methods `.transform_point` and `.transform_vector` of the `alga::linear::Transformation` trait.
+  * `::inverse_transform` -> methods `.inverse_transform_point` and
+    `.inverse_transform_vector` of the `alga::linear::ProjectiveTransformation`
+    trait.
+  * `::translate`, `::inverse_translate`, `::rotate`, `::inverse_rotate` ->
+    methods from the `alga::linear::Similarity` trait instead. Those have the
+    same names but end with `_point` or `_vector`, e.g., `.translate_point` and
+    `.translate_vector`.
+  * `::orthonormal_subspace_basis` -> method with the same name from
+    `alga::linear::FiniteDimInnerSpace`.
+  * `::canonical_basis_element` and `::canonical_basis` -> methods with the
+    same names from `alga::linear::FiniteDimVectorSpace`.
+  * `::rotation_between` -> method with the same name from the
+    `alga::linear::Rotation` trait.
+  * `::is_zero` -> method with the same name from `num::Zero`.
+
+
+
+### Removed
+  * The free functions `::prepend_rotation`, `::append_rotation`,
+    `::append_rotation_wrt_center`, `::append_rotation_wrt_point`,
+    `::append_transformation`, and `::append_translation ` have been removed.
+    Instead create the rotation or translation object explicitly and use
+    multiplication to compose it with anything else.
+
+  * The free function `::outer` has been removed. Use column-vector ×
+    row-vector multiplication instead.
+
+  * `::approx_eq`, `::approx_eq_eps` have been removed. Use the `relative_eq!`
+    macro from the [approx](https://crates.io/crates/approx) crate instead.
+
+  * `::covariance` has been removed. There is no replacement for now.
+  * `::mean` has been removed. There is no replacement for now.
+  * `::sample_sphere` has been removed. There is no replacement for now.
+  * `::cross_matrix` has been removed. There is no replacement for now.
+  * `::absolute_rotate` has been removed. There is no replacement for now.
+  * `::rotation`, `::transformation`, `::translation`, `::inverse_rotation`,
+    `::inverse_transformation`, `::inverse_translation` have been removed. Use
+    the appropriate methods/field of each transformation type, e.g.,
+    `rotation.angle()` and `rotation.axis()`.
+
 ## [0.10.0]
 ### Added
 Binary operations are now allowed between references as well. For example

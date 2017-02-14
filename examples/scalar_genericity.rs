@@ -11,7 +11,6 @@ fn print_vector<N: Scalar>(m: &Vector3<N>) {
 fn print_squared_norm<N: Scalar + RingCommutative>(v: &Vector3<N>) {
   // NOTE: alternatively, nalgebra already defines `v.squared_norm()`.
   let sqnorm = v.dot(v);
-
   println!("{:?}", sqnorm);
 }
 
