@@ -1,30 +1,11 @@
-tmp=_git_distcheck
-
 all:
-	cargo build --release --features "arbitrary generic_sizes abstract_algebra"
-
-test:
-	cargo test --features "arbitrary generic_sizes abstract_algebra"
-
-
-bench:
-	cargo bench --features "arbitrary generic_sizes abstract_algebra"
-
+	CARGO_INCREMENTAL=1 cargo build --features "arbitrary serde-serialize"
 
 doc:
-	cargo doc --no-deps --features "arbitrary generic_sizes abstract_algebra"
+	CARGO_INCREMENTAL=1 cargo doc --no-deps --features "arbitrary serde-serialize"
 
+bench:
+	cargo bench
 
-clean:
-	cargo clean
-
-distcheck:
-	rm -rf $(tmp)
-	git clone --recursive . $(tmp)
-	make -C $(tmp)
-	make -C $(tmp) test
-	make -C $(tmp) bench
-	rm -rf $(tmp)
-
-.PHONY:doc
-.PHONY:test
+test:
+	CARGO_INCREMENTAL=1 cargo test --features "arbitrary serde-serialize"
