@@ -10,6 +10,8 @@ overview of all the added/modified features.
 
 This version is a major rewrite of the library. Major changes are:
   * Algebraic traits are now defined by the [alga](https://crates.io/crates/alga) crate.
+  All other mathematical traits, except `Axpy` have been removed from
+  **nalgebra**.
   * Methods are now preferred to free functions because they do not require any
     trait to be used any more.
   * Most algebraic entities can be parametrized by type-level integers
@@ -19,7 +21,8 @@ This version is a major rewrite of the library. Major changes are:
   * More transformation types have been added: unit-sized complex numbers (for
     2D rotations), affine/projective/general transformations with `Affine2/3`,
     `Projective2/3`, and `Transform2/3`.
-  * Serde serialization is now supported instead of `rustc_serialize`.
+  * Serde serialization is now supported instead of `rustc_serialize`. Enable
+    it with the `serde-serialize` feature.
   * Matrix **slices** are now implemented.
 
 ### Added

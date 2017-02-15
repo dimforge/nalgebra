@@ -17,6 +17,7 @@ path = "src/lib.rs"
 
 [features]
 arbitrary = [ "quickcheck" ]
+serde-serialize = [ "serde", "serde_derive" ]
 
 [dependencies]
 typenum         = "1.4"
@@ -25,9 +26,9 @@ rand            = "0.3"
 num-traits      = "0.1"
 num-complex     = "0.1"
 approx          = "0.1"
-alga            = "0.4"
-serde           = "0.9"
-serde_derive    = "0.9"
+alga            = "0.5"
+serde           = { version = "0.9", optional = true }
+serde_derive    = { version = "0.9", optional = true }
 # clippy = "*"
 
 [dependencies.quickcheck]

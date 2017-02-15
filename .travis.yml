@@ -3,5 +3,7 @@ language: rust
 script:
     - rustc --version
     - cargo --version
+    - cargo build --verbose
     - cargo build --verbose --features arbitrary
-    - cargo test --verbose --features arbitrary
+    - cargo build --verbose --features serde-serialize
+    - cargo test --verbose --features arbitrary serde-serialize

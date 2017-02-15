@@ -8,7 +8,8 @@ use std::ops::{Add, Sub, Mul, Div};
 use typenum::{self, Unsigned, UInt, B1, Bit, UTerm, Sum, Prod, Diff, Quot};
 
 /// Dim of dynamically-sized algebraic entities.
-#[derive(Clone, Copy, Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct Dynamic {
     value: usize
 }
@@ -161,7 +162,8 @@ pub trait NamedDim: Sized + Any + Unsigned {
     type Name: DimName<Value = Self>;
 }
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct U1;
 
 impl Dim for U1 {
@@ -197,7 +199,8 @@ impl NamedDim for typenum::U1{
 
 macro_rules! named_dimension(
     ($($D: ident),* $(,)*) => {$(
-        #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+        #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+        #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
         pub struct $D;
 
         impl Dim for $D {

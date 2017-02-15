@@ -23,7 +23,8 @@ macro_rules! coords_impl(
         /// Data structure used to provide access to matrix and vector coordinates with the dot
         /// notation, e.g., `v.x` is the same as `v[0]` for a vector.
         #[repr(C)]
-        #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy, Serialize, Deserialize)]
+        #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
+        #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
         pub struct $T<N: Scalar> {
             $(pub $comps: N),*
         }

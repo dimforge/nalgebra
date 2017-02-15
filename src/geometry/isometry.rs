@@ -18,7 +18,8 @@ pub type OwnedIsometryBase<N, D, A, R> =
 
 /// A direct isometry, i.e., a rotation followed by a translation.
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Hash, Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct IsometryBase<N: Scalar, D: DimName, S, R> {
     /// The pure rotational part of this isometry.
     pub rotation:    R,
@@ -27,7 +28,7 @@ pub struct IsometryBase<N: Scalar, D: DimName, S, R> {
 
 
     // One dummy private field just to prevent explicit construction.
-    #[serde(skip_serializing, skip_deserializing)]
+    #[cfg_attr(feature = "serde-serialize", serde(skip_serializing, skip_deserializing))]
     _noconstruct: PhantomData<N>
 }
 

@@ -10,7 +10,8 @@ use alga::linear::NormedSpace;
 ///
 /// Use `.as_ref()` or `.unwrap()` to obtain the undelying value by-reference or by-move.
 #[repr(C)]
-#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct Unit<T> {
     value: T
 }

@@ -1,4 +1,5 @@
-//! Data structures for points and usual transformations (rotations, isometries, etc.)
+//! [Reexported at the root of this crate.] Data structures for points and usual transformations
+//! (rotations, isometries, etc.)
 
 mod op_macros;
 

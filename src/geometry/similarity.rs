@@ -17,7 +17,8 @@ pub type OwnedSimilarityBase<N, D, A, R> =
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Hash, Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct SimilarityBase<N: Scalar, D: DimName, S, R> {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: IsometryBase<N, D, S, R>,

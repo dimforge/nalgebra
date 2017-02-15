@@ -23,7 +23,8 @@ pub type OwnedPoint<N, D, A> = PointBase<N, D, <A as Allocator<N, D, U1>>::Buffe
 
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]
-#[derive(Hash, Debug, Serialize, Deserialize)]
+#[derive(Hash, Debug)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct PointBase<N: Scalar, D: DimName, S: Storage<N, D, U1>> {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: ColumnVector<N, D, S>

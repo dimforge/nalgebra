@@ -13,7 +13,8 @@ use core::helper;
 use geometry::{PointBase, OwnedPoint};
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)] // FIXME: Hash
+#[derive(Debug, Clone, Copy)] // FIXME: Hash
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct PerspectiveBase<N: Scalar, S: Storage<N, U4, U4>> {
     matrix: SquareMatrix<N, U4, S>
 }

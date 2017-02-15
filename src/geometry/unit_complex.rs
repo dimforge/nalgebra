@@ -8,6 +8,100 @@ use core::dimension::U2;
 use geometry::Rotation2;
 
 /// A complex number with a norm equal to 1.
+///
+/// <center>
+/// <big><b>
+/// Due to a [bug](https://github.com/rust-lang/rust/issues/32077) in rustdoc, the documentation
+/// below has been written manually lists only method signatures.<br>
+/// Trait implementations are not listed either.
+/// </b></big>
+/// </center>
+///
+/// Please refer directly to the documentation written above each function definition on the source
+/// code for more details.
+///
+///
+/// <h2 id="methods">Methods</h2>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">angle</a>(&self) -> N</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">angle_to</a>(&self, other: &Self) -> N</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">complex</a>(&self) -> &Complex</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">conjugate</a>(&self) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">conjugate_mut</a>(&mut self)</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">from_angle</a>(angle: N) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">from_complex</a>(q: Complex) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">from_rotation_matrix</a>(rotmat: &RotationBase) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">from_scaled_axis</a>(axisangle: ColumnVector) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">identity</a>() -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">inverse</a>(&self) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">inverse_mut</a>(&mut self)</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">new</a>(angle: N) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">powf</a>(&self, n: N) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">rotation_between</a>(a: &ColumnVector<N, U2, SB>, b: &ColumnVector) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">rotation_to</a>(&self, other: &Self) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">scaled_axis</a>(&self) -> Vector1</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">scaled_rotation_between</a>(a: &ColumnVector<N, U2, SB>, b: &ColumnVector, s: N) -> Self</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">to_homogeneous</a>(&self) -> Matrix3</code>
+/// </h4>
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">to_rotation_matrix</a>(&self) -> Rotation2</code>
+/// </h4>
 pub type UnitComplex<N> = Unit<Complex<N>>;
 
 impl<N: Real> UnitComplex<N> {

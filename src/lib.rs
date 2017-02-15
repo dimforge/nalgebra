@@ -67,7 +67,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
   `Transform2`, `Transform3`.
 * 3D projections for computer graphics: `Perspective3`, `Orthographic3`.
 * Linear algebra and data analysis operators: QR decomposition, eigen-decomposition.
-* Implements all meaningful traits from the [alga](https://crates.io/crates/alga) crate for
+* Implements traits from the [alga](https://crates.io/crates/alga) crate for
   generic programming.
 */
 
@@ -89,7 +89,9 @@ an optimized set of tools for computer graphics and physics. Those features incl
 
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;
+#[cfg(feature = "serde")]
 extern crate serde;
+#[cfg(feature = "serde")]
 #[macro_use]
 extern crate serde_derive;
 extern crate num_traits as num;

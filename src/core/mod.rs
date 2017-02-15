@@ -1,4 +1,4 @@
-//! Data structures for vector and matrix computations.
+//! [Reexported at the root of this crate.] Data structures for vector and matrix computations.
 
 pub mod dimension;
 pub mod constraint;

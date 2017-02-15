@@ -1,11 +1,17 @@
-use std::mem;
-use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut, Mul};
 use std::fmt::{self, Debug, Formatter};
 use std::hash::{Hash, Hasher};
+
+#[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
+#[cfg(feature = "serde-serialize")]
 use serde::ser::SerializeSeq;
+#[cfg(feature = "serde-serialize")]
 use serde::de::{SeqVisitor, Visitor};
+#[cfg(feature = "serde-serialize")]
+use std::mem;
+#[cfg(feature = "serde-serialize")]
+use std::marker::PhantomData;
 
 use typenum::Prod;
 use generic_array::{ArrayLength, GenericArray};
@@ -199,6 +205,7 @@ unsafe impl<N, R, C> OwnedStorage<N, R, C> for MatrixArray<N, R, C>
  *
  */
 // XXX: open an issue for GenericArray so that it implements serde traits?
+#[cfg(feature = "serde-serialize")]
 impl<N, R, C> Serialize for MatrixArray<N, R, C>
 where N: Scalar + Serialize,
       R: DimName,
@@ -220,6 +227,7 @@ where N: Scalar + Serialize,
 }
 
 
+#[cfg(feature = "serde-serialize")]
 impl<N, R, C> Deserialize for MatrixArray<N, R, C>
 where N: Scalar + Deserialize,
       R: DimName,
@@ -237,11 +245,13 @@ where N: Scalar + Deserialize,
 }
 
 
+#[cfg(feature = "serde-serialize")]
 /// A visitor that produces a matrix array.
 struct MatrixArrayVisitor<N, R, C> {
     marker: PhantomData<(N, R, C)>
 }
 
+#[cfg(feature = "serde-serialize")]
 impl<N, R, C> MatrixArrayVisitor<N, R, C>
 where N: Scalar,
       R: DimName,
@@ -257,6 +267,7 @@ where N: Scalar,
     }
 }
 
+#[cfg(feature = "serde-serialize")]
 impl<N, R, C> Visitor for MatrixArrayVisitor<N, R, C>
 where N: Scalar + Deserialize,
       R: DimName,

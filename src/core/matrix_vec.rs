@@ -12,7 +12,8 @@ use core::default_allocator::DefaultAllocator;
  */
 /// A Vec-based matrix data storage. It may be dynamically-sized.
 #[repr(C)]
-#[derive(Eq, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Eq, Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct MatrixVec<N, R: Dim, C: Dim> {
     data:   Vec<N>,
     nrows:  R,

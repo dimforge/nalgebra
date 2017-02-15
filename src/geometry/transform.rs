@@ -52,15 +52,18 @@ where T1: TCategory,
 }
 
 /// Tag representing the most general (not necessarily inversible) `Transform` type.
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub enum TGeneral { }
 
 /// Tag representing the most general inversible `Transform` type.
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub enum TProjective { }
 
 /// Tag representing an affine `Transform`. Its bottom-row is equal to `(0, 0 ... 0, 1)`.
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub enum TAffine { }
 
 impl TCategory for TGeneral {
@@ -155,11 +158,12 @@ pub type OwnedTransform<N, D, A, C>
 /// It is stored as a matrix with dimensions `(D + 1, D + 1)`, e.g., it stores a 4x4 matrix for a
 /// 3D transformation.
 #[repr(C)]
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)] // FIXME: Hash
+#[derive(Debug, Clone, Copy)] // FIXME: Hash
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct TransformBase<N: Scalar, D: DimNameAdd<U1>, S, C: TCategory> {
     matrix:   SquareMatrix<N, DimNameSum<D, U1>, S>,
 
-    #[serde(skip_serializing, skip_deserializing)]
+    #[cfg_attr(feature = "serde-serialize", serde(skip_serializing, skip_deserializing))]
     _phantom: PhantomData<C>
 }
 

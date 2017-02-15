@@ -79,13 +79,14 @@ Matrix<NNew, R, C, <<S as Storage<NOld, R, C>>::Alloc as Allocator<NNew, R, C>>:
 /// dynamically-sized column vector should be represented as a `Matrix<N, Dynamic, U1, S>` (given
 /// some concrete types for `N` and a compatible data storage type `S`).
 #[repr(C)]
-#[derive(Serialize, Deserialize, Hash, Debug, Clone, Copy)]
+#[derive(Hash, Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
     /// The data storage that contains all the matrix components and informations about its number
     /// of rows and column (if needed).
     pub data:  S,
 
-    #[serde(skip_serializing, skip_deserializing)]
+    #[cfg_attr(feature = "serde-serialize", serde(skip_serializing, skip_deserializing))]
     _phantoms: PhantomData<(N, R, C)>
 }
 

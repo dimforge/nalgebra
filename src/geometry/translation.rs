@@ -14,7 +14,8 @@ pub type OwnedTranslation<N, D, S> = TranslationBase<N, D, Owned<N, D, U1, <S as
 
 /// A translation.
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Hash, Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct TranslationBase<N: Scalar, D: DimName, S/*: Storage<N, D, U1>*/> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.

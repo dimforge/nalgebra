@@ -21,7 +21,8 @@ pub type OwnedUnitQuaternionBase<N, A> = UnitQuaternionBase<N, <A as Allocator<N
 /// A quaternion. See the type alias `UnitQuaternionBase = Unit<QuaternionBase>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
-#[derive(Hash, Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Hash, Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct QuaternionBase<N: Real, S: Storage<N, U4, U1>> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: ColumnVector<N, U4, S>
@@ -275,6 +276,121 @@ impl<N, S> fmt::Display for QuaternionBase<N, S>
 }
 
 /// A unit quaternions. May be used to represent a rotation.
+///
+///
+/// <center>
+/// <big><b>
+/// Due to a [bug](https://github.com/rust-lang/rust/issues/32077) in rustdoc, the documentation
+/// below has been written manually lists only method signatures.<br>
+/// Trait implementations are not listed either.
+/// </b></big>
+/// </center>
+///
+/// Please refer directly to the documentation written above each function definition on the source
+/// code for more details.
+///
+/// <h2 id="methods">Methods</h2>
+///
+///
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">angle</a>(&self) -> N</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">angle_to</a>(&self, other: &UnitQuaternionBase) -> N</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">axis</a>(&self) -> Option&lt;Unit&lt;OwnedColumnVector&gt;&gt;</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">clone_owned</a>(&self) -> OwnedUnitQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">conjugate_mut</a>(&mut self)</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">conjugate</a>(&self) -> OwnedUnitQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">exp</a>(&self) -> OwnedQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">from_axis_angle</a>(axis: &Unit&lt;ColumnVector&gt;, angle: N) -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">from_euler_angles</a>(roll: N, pitch: N, yaw: N) -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">from_quaternion</a>(q: QuaternionBase) -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">from_rotation_matrix</a>(rotmat: &RotationBase) -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">from_scaled_axis</a>(axisangle: ColumnVector) -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">identity</a>() -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">into_owned</a>(self) -> OwnedUnitQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">inverse_mut</a>(&mut self)</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">inverse</a>(&self) -> OwnedUnitQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">lerp</a>(&self, other: &UnitQuaternionBase, t: N) -> OwnedQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">ln</a>(&self) -> OwnedQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">look_at_lh</a>(dir: &ColumnVector, up: &ColumnVector) -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">look_at_rh</a>(dir: &ColumnVector, up: &ColumnVector) -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">new</a>(axisangle: ColumnVector) -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">new_observer_frame</a>(dir: &ColumnVector, up: &ColumnVector) -> Self</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">nlerp</a>(&self, other: &UnitQuaternionBase, t: N) -> OwnedUnitQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">powf</a>(&self, n: N) -> OwnedUnitQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">quaternion</a>(&self) -> &QuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">rotation_between</a>(a: &ColumnVector, b: &ColumnVector) -> Option&lt;Self&gt;</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">rotation_to</a>(&self, other: &UnitQuaternionBase) -> OwnedUnitQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">scaled_axis</a>(&self) -> OwnedColumnVector</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">scaled_rotation_between</a>(a: &ColumnVector, b: &ColumnVector, s: N) -> Option&lt;Self&gt;</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">slerp</a>(&self, other: &UnitQuaternionBase, t: N) -> OwnedUnitQuaternionBase</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">to_homogeneous</a>(&self) -> OwnedSquareMatrix</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">to_rotation_matrix</a>(&self) -> OwnedRotation</code>
+/// </h4>
+/// <h4 class="method"><span class="invisible">
+/// <code>fn <a class="fnname">try_slerp</a>(&self, other: &UnitQuaternionBase, t: N, epsilon: N) -> Option&lt;OwnedUnitQuaternionBase&gt;</code>
+/// </h4>
 pub type UnitQuaternionBase<N, S> = Unit<QuaternionBase<N, S>>;
 
 
