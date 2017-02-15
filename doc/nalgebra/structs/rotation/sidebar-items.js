@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Rotation2","Two dimensional rotation matrix."],["Rotation3","Three dimensional rotation matrix."]]});

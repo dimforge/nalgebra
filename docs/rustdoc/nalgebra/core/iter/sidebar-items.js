@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["MatrixIter","An iterator through a dense matrix with arbitrary strides matrix."],["MatrixIterMut","An iterator through a dense matrix with arbitrary strides matrix."]]});

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `NamedDim` trait in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, NamedDim">
+
+    <title>nalgebra::core::dimension::NamedDim - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a></p><script>window.sidebarCurrent = {name: 'NamedDim', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a>::<wbr><a class='trait' href=''>NamedDim</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/nalgebra/core/dimension.rs.html#161-163' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait NamedDim: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + Unsigned {
+    type <a href='#associatedtype.Name' class='type'>Name</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>&lt;Value=Self&gt;;
+}</pre>
+            <h2 id='associated-types'>Associated Types</h2>
+            <div class='methods'>
+        <h3 id='associatedtype.Name' class='method'><span id='Name.t' class='invisible'><code>type <a href='#associatedtype.Name' class='type'>Name</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>&lt;Value=Self&gt;</code></span></h3></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl NamedDim for U1</code></li>
+<li><code>impl NamedDim for U0</code></li>
+<li><code>impl NamedDim for U2</code></li>
+<li><code>impl NamedDim for U3</code></li>
+<li><code>impl NamedDim for U4</code></li>
+<li><code>impl NamedDim for U5</code></li>
+<li><code>impl NamedDim for U6</code></li>
+<li><code>impl NamedDim for U7</code></li>
+<li><code>impl NamedDim for U8</code></li>
+<li><code>impl NamedDim for U9</code></li>
+<li><code>impl NamedDim for U10</code></li>
+<li><code>impl NamedDim for U11</code></li>
+<li><code>impl NamedDim for U12</code></li>
+<li><code>impl NamedDim for U13</code></li>
+<li><code>impl NamedDim for U14</code></li>
+<li><code>impl NamedDim for U15</code></li>
+<li><code>impl NamedDim for U16</code></li>
+<li><code>impl NamedDim for U17</code></li>
+<li><code>impl NamedDim for U18</code></li>
+<li><code>impl NamedDim for U19</code></li>
+<li><code>impl NamedDim for U20</code></li>
+<li><code>impl NamedDim for U21</code></li>
+<li><code>impl NamedDim for U22</code></li>
+<li><code>impl NamedDim for U23</code></li>
+<li><code>impl NamedDim for U24</code></li>
+<li><code>impl NamedDim for U25</code></li>
+<li><code>impl NamedDim for U26</code></li>
+<li><code>impl NamedDim for U27</code></li>
+<li><code>impl NamedDim for U28</code></li>
+<li><code>impl NamedDim for U29</code></li>
+<li><code>impl NamedDim for U30</code></li>
+<li><code>impl NamedDim for U31</code></li>
+<li><code>impl NamedDim for U32</code></li>
+<li><code>impl NamedDim for U33</code></li>
+<li><code>impl NamedDim for U34</code></li>
+<li><code>impl NamedDim for U35</code></li>
+<li><code>impl NamedDim for U36</code></li>
+<li><code>impl NamedDim for U37</code></li>
+<li><code>impl NamedDim for U38</code></li>
+<li><code>impl NamedDim for U39</code></li>
+<li><code>impl NamedDim for U40</code></li>
+<li><code>impl NamedDim for U41</code></li>
+<li><code>impl NamedDim for U42</code></li>
+<li><code>impl NamedDim for U43</code></li>
+<li><code>impl NamedDim for U44</code></li>
+<li><code>impl NamedDim for U45</code></li>
+<li><code>impl NamedDim for U46</code></li>
+<li><code>impl NamedDim for U47</code></li>
+<li><code>impl NamedDim for U48</code></li>
+<li><code>impl NamedDim for U49</code></li>
+<li><code>impl NamedDim for U50</code></li>
+<li><code>impl NamedDim for U51</code></li>
+<li><code>impl NamedDim for U52</code></li>
+<li><code>impl NamedDim for U53</code></li>
+<li><code>impl NamedDim for U54</code></li>
+<li><code>impl NamedDim for U55</code></li>
+<li><code>impl NamedDim for U56</code></li>
+<li><code>impl NamedDim for U57</code></li>
+<li><code>impl NamedDim for U58</code></li>
+<li><code>impl NamedDim for U59</code></li>
+<li><code>impl NamedDim for U60</code></li>
+<li><code>impl NamedDim for U61</code></li>
+<li><code>impl NamedDim for U62</code></li>
+<li><code>impl NamedDim for U63</code></li>
+<li><code>impl NamedDim for U64</code></li>
+<li><code>impl NamedDim for U65</code></li>
+<li><code>impl NamedDim for U66</code></li>
+<li><code>impl NamedDim for U67</code></li>
+<li><code>impl NamedDim for U68</code></li>
+<li><code>impl NamedDim for U69</code></li>
+<li><code>impl NamedDim for U70</code></li>
+<li><code>impl NamedDim for U71</code></li>
+<li><code>impl NamedDim for U72</code></li>
+<li><code>impl NamedDim for U73</code></li>
+<li><code>impl NamedDim for U74</code></li>
+<li><code>impl NamedDim for U75</code></li>
+<li><code>impl NamedDim for U76</code></li>
+<li><code>impl NamedDim for U77</code></li>
+<li><code>impl NamedDim for U78</code></li>
+<li><code>impl NamedDim for U79</code></li>
+<li><code>impl NamedDim for U80</code></li>
+<li><code>impl NamedDim for U81</code></li>
+<li><code>impl NamedDim for U82</code></li>
+<li><code>impl NamedDim for U83</code></li>
+<li><code>impl NamedDim for U84</code></li>
+<li><code>impl NamedDim for U85</code></li>
+<li><code>impl NamedDim for U86</code></li>
+<li><code>impl NamedDim for U87</code></li>
+<li><code>impl NamedDim for U88</code></li>
+<li><code>impl NamedDim for U89</code></li>
+<li><code>impl NamedDim for U90</code></li>
+<li><code>impl NamedDim for U91</code></li>
+<li><code>impl NamedDim for U92</code></li>
+<li><code>impl NamedDim for U93</code></li>
+<li><code>impl NamedDim for U94</code></li>
+<li><code>impl NamedDim for U95</code></li>
+<li><code>impl NamedDim for U96</code></li>
+<li><code>impl NamedDim for U97</code></li>
+<li><code>impl NamedDim for U98</code></li>
+<li><code>impl NamedDim for U99</code></li>
+<li><code>impl NamedDim for U100</code></li>
+<li><code>impl NamedDim for U101</code></li>
+<li><code>impl NamedDim for U102</code></li>
+<li><code>impl NamedDim for U103</code></li>
+<li><code>impl NamedDim for U104</code></li>
+<li><code>impl NamedDim for U105</code></li>
+<li><code>impl NamedDim for U106</code></li>
+<li><code>impl NamedDim for U107</code></li>
+<li><code>impl NamedDim for U108</code></li>
+<li><code>impl NamedDim for U109</code></li>
+<li><code>impl NamedDim for U110</code></li>
+<li><code>impl NamedDim for U111</code></li>
+<li><code>impl NamedDim for U112</code></li>
+<li><code>impl NamedDim for U113</code></li>
+<li><code>impl NamedDim for U114</code></li>
+<li><code>impl NamedDim for U115</code></li>
+<li><code>impl NamedDim for U116</code></li>
+<li><code>impl NamedDim for U117</code></li>
+<li><code>impl NamedDim for U118</code></li>
+<li><code>impl NamedDim for U119</code></li>
+<li><code>impl NamedDim for U120</code></li>
+<li><code>impl NamedDim for U121</code></li>
+<li><code>impl NamedDim for U122</code></li>
+<li><code>impl NamedDim for U123</code></li>
+<li><code>impl NamedDim for U124</code></li>
+<li><code>impl NamedDim for U125</code></li>
+<li><code>impl NamedDim for U126</code></li>
+<li><code>impl NamedDim for U127</code></li>
+<li><code>impl&lt;A:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, B:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, C:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, D:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, E:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, F:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, G:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>&gt; NamedDim for UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UTerm, B1&gt;, A&gt;, B&gt;, C&gt;, D&gt;, E&gt;, F&gt;, G&gt;</code></li>
+<li><code>impl&lt;U:&nbsp;Unsigned + <a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>, B:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>&gt; NamedDim for UInt&lt;U, B&gt;</code></li>
+</ul><script type="text/javascript" async
+                         src="../../../implementors/nalgebra/core/dimension/trait.NamedDim.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>

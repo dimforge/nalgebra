@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Point1","Point of dimension 1."],["Point2","Point of dimension 2."],["Point3","Point of dimension 3."],["Point4","Point of dimension 4."],["Point5","Point of dimension 5."],["Point6","Point of dimension 6."]]});

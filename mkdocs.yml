@@ -1,0 +1,39 @@
+site_name: nalgebra
+pages:
+  - Home: index.md
+  - '<i class="fa fa-book"></i>&nbsp User Guide':
+    - 'Getting started': getting_started.md
+    - 'Quick reference': quick_reference.md
+    - 'Vectors and matrices': vectors_and_matrices.md
+    - 'Points and transformations': points_and_transformations.md
+    - 'Projections': projections.md
+    - 'Computer graphics recipes': cg_recipes.md
+    - 'Perfomance tricks': performance_tricks.md
+    - 'Generic programming': generic_programming.md
+    - 'FAQ': faq.md
+  - '<i class="fa fa-align-left"></i>&nbsp API Documentation': rustdoc_nalgebra.md
+  - '<i class="fa fa-question-circle"></i>&nbsp About':
+      - 'Contributing': about.md
+      - 'Release notes': changelog.md
+theme_dir: custom_flatly
+site_author: 'Sébastion Crozet'
+site_favicon: img/favicon.ico
+site_url: http://nalgebra.org
+
+# the third-party extenison mdx_math.py comes with a setup.py script
+# Thank you Dmitry Shachnev (https://github.com/mitya57/python-markdown-math) 
+markdown_extensions: 
+    - extra
+    - mdx_math:
+        enable_dollar_delimiter: True #for use of inline $..$
+    - fenced_code
+    - codehilite:
+        use_pygments: False
+    - footnotes
+    - smarty
+    - admonition
+    - toc:
+        permalink: '§'
+
+# Required to load the MathJax javascript for the mdx_math.py
+extra_javascript: ['https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML']

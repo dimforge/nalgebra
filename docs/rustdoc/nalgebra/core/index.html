@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `core` mod in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, core">
+
+    <title>nalgebra::core - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'core', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>nalgebra</a>::<wbr><a class='mod' href=''>core</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/nalgebra/core/mod.rs.html#1-43' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>[Reexported at the root of this crate.] Data structures for vector and matrix computations.</p>
+</div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
+<table><tr><td><code>pub use self::<a class='mod' href='../../nalgebra/core/dimension/index.html' title='nalgebra::core::dimension'>dimension</a>::*;</code></td></tr><tr><td><code>pub use self::<a class='mod' href='../../nalgebra/core/default_allocator/index.html' title='nalgebra::core::default_allocator'>default_allocator</a>::*;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='allocator/index.html'
+                                  title='nalgebra::core::allocator'>allocator</a></td>
+                           <td class='docblock-short'>
+                                <p>Abstract definition of a matrix data storage allocator.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='constraint/index.html'
+                                  title='nalgebra::core::constraint'>constraint</a></td>
+                           <td class='docblock-short'>
+                                <p>Compatibility constraints between matrix shapes, e.g., for addition or multiplication.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='coordinates/index.html'
+                                  title='nalgebra::core::coordinates'>coordinates</a></td>
+                           <td class='docblock-short'>
+                                <p>Structures to which matrices and vector can be auto-dereferenced (through <code>Deref</code>) to access
+components using their names. For example, if <code>v</code> is a 3D vector, one can write <code>v.z</code> instead
+of <code>v[2]</code>.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='default_allocator/index.html'
+                                  title='nalgebra::core::default_allocator'>default_allocator</a></td>
+                           <td class='docblock-short'>
+                                <p>The default matrix data storage allocator.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='dimension/index.html'
+                                  title='nalgebra::core::dimension'>dimension</a></td>
+                           <td class='docblock-short'>
+                                <p>Traits and tags for identifying the dimension of all algebraic entities.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='iter/index.html'
+                                  title='nalgebra::core::iter'>iter</a></td>
+                           <td class='docblock-short'>
+                                <p>Matrix iterators.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='mod' href='storage/index.html'
+                                  title='nalgebra::core::storage'>storage</a></td>
+                           <td class='docblock-short'>
+                                <p>Abstract definition of a matrix data storage.</p>
+                           </td>
+                       </tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.Matrix.html'
+                                  title='nalgebra::core::Matrix'>Matrix</a></td>
+                           <td class='docblock-short'>
+                                <p>The most generic column-major matrix (and vector) type.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.MatrixArray.html'
+                                  title='nalgebra::core::MatrixArray'>MatrixArray</a></td>
+                           <td class='docblock-short'>
+                                <p>A array-based statically sized matrix data storage.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.MatrixVec.html'
+                                  title='nalgebra::core::MatrixVec'>MatrixVec</a></td>
+                           <td class='docblock-short'>
+                                <p>A Vec-based matrix data storage. It may be dynamically-sized.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.SliceStorage.html'
+                                  title='nalgebra::core::SliceStorage'>SliceStorage</a></td>
+                           <td class='docblock-short'>
+                                <p>A matrix data storage for a matrix slice. Only contains an internal reference to another matrix data storage.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.SliceStorageMut.html'
+                                  title='nalgebra::core::SliceStorageMut'>SliceStorageMut</a></td>
+                           <td class='docblock-short'>
+                                <p>A mutable matrix data storage for mutable matrix slice. Only contains an internal mutable reference to another matrix data storage.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.Unit.html'
+                                  title='nalgebra::core::Unit'>Unit</a></td>
+                           <td class='docblock-short'>
+                                <p>A wrapper that ensures the undelying algebraic entity has a unit norm.</p>
+                           </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='trait' href='trait.Scalar.html'
+                                  title='nalgebra::core::Scalar'>Scalar</a></td>
+                           <td class='docblock-short'>
+                                <p>The basic scarar type for all structures of <code>nalgebra</code>.</p>
+                           </td>
+                       </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.ColumnVector.html'
+                                  title='nalgebra::core::ColumnVector'>ColumnVector</a></td>
+                           <td class='docblock-short'>
+                                <p>A matrix with one column and <code>D</code> rows.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.ColumnVectorSum.html'
+                                  title='nalgebra::core::ColumnVectorSum'>ColumnVectorSum</a></td>
+                           <td class='docblock-short'>
+                                <p>The type of the result of a matrix sum.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.DMatrix.html'
+                                  title='nalgebra::core::DMatrix'>DMatrix</a></td>
+                           <td class='docblock-short'>
+                                <p>A dynamically sized column-major matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.DVector.html'
+                                  title='nalgebra::core::DVector'>DVector</a></td>
+                           <td class='docblock-short'>
+                                <p>A dynamically sized column vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix1.html'
+                                  title='nalgebra::core::Matrix1'>Matrix1</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 1x1 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix1x2.html'
+                                  title='nalgebra::core::Matrix1x2'>Matrix1x2</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 1x2 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix1x3.html'
+                                  title='nalgebra::core::Matrix1x3'>Matrix1x3</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 1x3 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix1x4.html'
+                                  title='nalgebra::core::Matrix1x4'>Matrix1x4</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 1x4 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix1x5.html'
+                                  title='nalgebra::core::Matrix1x5'>Matrix1x5</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 1x5 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix1x6.html'
+                                  title='nalgebra::core::Matrix1x6'>Matrix1x6</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 1x6 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix2.html'
+                                  title='nalgebra::core::Matrix2'>Matrix2</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 2x2 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix2x1.html'
+                                  title='nalgebra::core::Matrix2x1'>Matrix2x1</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 2x1 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix2x3.html'
+                                  title='nalgebra::core::Matrix2x3'>Matrix2x3</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 2x3 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix2x4.html'
+                                  title='nalgebra::core::Matrix2x4'>Matrix2x4</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 2x4 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix2x5.html'
+                                  title='nalgebra::core::Matrix2x5'>Matrix2x5</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 2x5 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix2x6.html'
+                                  title='nalgebra::core::Matrix2x6'>Matrix2x6</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 2x6 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix3.html'
+                                  title='nalgebra::core::Matrix3'>Matrix3</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 3x3 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix3x1.html'
+                                  title='nalgebra::core::Matrix3x1'>Matrix3x1</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 3x1 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix3x2.html'
+                                  title='nalgebra::core::Matrix3x2'>Matrix3x2</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 3x2 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix3x4.html'
+                                  title='nalgebra::core::Matrix3x4'>Matrix3x4</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 3x4 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix3x5.html'
+                                  title='nalgebra::core::Matrix3x5'>Matrix3x5</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 3x5 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix3x6.html'
+                                  title='nalgebra::core::Matrix3x6'>Matrix3x6</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 3x6 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix4.html'
+                                  title='nalgebra::core::Matrix4'>Matrix4</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 4x4 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix4x1.html'
+                                  title='nalgebra::core::Matrix4x1'>Matrix4x1</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 4x1 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix4x2.html'
+                                  title='nalgebra::core::Matrix4x2'>Matrix4x2</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 4x2 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix4x3.html'
+                                  title='nalgebra::core::Matrix4x3'>Matrix4x3</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 4x3 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix4x5.html'
+                                  title='nalgebra::core::Matrix4x5'>Matrix4x5</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 4x5 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix4x6.html'
+                                  title='nalgebra::core::Matrix4x6'>Matrix4x6</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 4x6 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix5.html'
+                                  title='nalgebra::core::Matrix5'>Matrix5</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 5x5 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix5x1.html'
+                                  title='nalgebra::core::Matrix5x1'>Matrix5x1</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 5x1 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix5x2.html'
+                                  title='nalgebra::core::Matrix5x2'>Matrix5x2</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 5x2 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix5x3.html'
+                                  title='nalgebra::core::Matrix5x3'>Matrix5x3</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 5x3 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix5x4.html'
+                                  title='nalgebra::core::Matrix5x4'>Matrix5x4</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 5x4 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix5x6.html'
+                                  title='nalgebra::core::Matrix5x6'>Matrix5x6</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 5x6 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix6.html'
+                                  title='nalgebra::core::Matrix6'>Matrix6</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 6x6 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix6x1.html'
+                                  title='nalgebra::core::Matrix6x1'>Matrix6x1</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 6x1 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix6x2.html'
+                                  title='nalgebra::core::Matrix6x2'>Matrix6x2</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 6x2 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix6x3.html'
+                                  title='nalgebra::core::Matrix6x3'>Matrix6x3</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 6x3 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix6x4.html'
+                                  title='nalgebra::core::Matrix6x4'>Matrix6x4</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 6x4 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Matrix6x5.html'
+                                  title='nalgebra::core::Matrix6x5'>Matrix6x5</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, column-major, 6x5 square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.MatrixCross.html'
+                                  title='nalgebra::core::MatrixCross'>MatrixCross</a></td>
+                           <td class='docblock-short'>
+                                <p>The type of the result of a matrix cross product.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.MatrixMul.html'
+                                  title='nalgebra::core::MatrixMul'>MatrixMul</a></td>
+                           <td class='docblock-short'>
+                                <p>The type of the result of a matrix multiplication.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.MatrixN.html'
+                                  title='nalgebra::core::MatrixN'>MatrixN</a></td>
+                           <td class='docblock-short'>
+                                <p>A staticaly sized column-major square matrix with <code>D</code> rows and columns.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.MatrixNM.html'
+                                  title='nalgebra::core::MatrixNM'>MatrixNM</a></td>
+                           <td class='docblock-short'>
+                                <p>A staticaly sized column-major matrix with <code>R</code> rows and <code>C</code> columns.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.MatrixSlice.html'
+                                  title='nalgebra::core::MatrixSlice'>MatrixSlice</a></td>
+                           <td class='docblock-short'>
+                                <p>A matrix slice.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.MatrixSliceMut.html'
+                                  title='nalgebra::core::MatrixSliceMut'>MatrixSliceMut</a></td>
+                           <td class='docblock-short'>
+                                <p>A matrix slice.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.MatrixSum.html'
+                                  title='nalgebra::core::MatrixSum'>MatrixSum</a></td>
+                           <td class='docblock-short'>
+                                <p>The type of the result of a matrix sum.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.MatrixTrMul.html'
+                                  title='nalgebra::core::MatrixTrMul'>MatrixTrMul</a></td>
+                           <td class='docblock-short'>
+                                <p>The type of the result of a matrix transpose-multiplication.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.MatrixWithScalar.html'
+                                  title='nalgebra::core::MatrixWithScalar'>MatrixWithScalar</a></td>
+                           <td class='docblock-short'>
+                                <p>The matrix with storage <code>S</code> and scalar type changed from <code>NOld</code> to <code>NNew</code>.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.OwnedColumnVector.html'
+                                  title='nalgebra::core::OwnedColumnVector'>OwnedColumnVector</a></td>
+                           <td class='docblock-short'>
+                                <p>An owned matrix with one column and <code>D</code> rows.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.OwnedMatrix.html'
+                                  title='nalgebra::core::OwnedMatrix'>OwnedMatrix</a></td>
+                           <td class='docblock-short'>
+                                <p>The type of the result of a matrix allocation by the allocator <code>A</code>.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.OwnedRowVector.html'
+                                  title='nalgebra::core::OwnedRowVector'>OwnedRowVector</a></td>
+                           <td class='docblock-short'>
+                                <p>An owned matrix with one row and <code>D</code> columns.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.OwnedSquareMatrix.html'
+                                  title='nalgebra::core::OwnedSquareMatrix'>OwnedSquareMatrix</a></td>
+                           <td class='docblock-short'>
+                                <p>The type of the result of a square matrix allocation by the allocator <code>A</code>.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.RowDVector.html'
+                                  title='nalgebra::core::RowDVector'>RowDVector</a></td>
+                           <td class='docblock-short'>
+                                <p>A dynamically sized row vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.RowVector1.html'
+                                  title='nalgebra::core::RowVector1'>RowVector1</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 1-dimensional row vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.RowVector2.html'
+                                  title='nalgebra::core::RowVector2'>RowVector2</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 2-dimensional row vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.RowVector3.html'
+                                  title='nalgebra::core::RowVector3'>RowVector3</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 3-dimensional row vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.RowVector4.html'
+                                  title='nalgebra::core::RowVector4'>RowVector4</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 4-dimensional row vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.RowVector5.html'
+                                  title='nalgebra::core::RowVector5'>RowVector5</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 5-dimensional row vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.RowVector6.html'
+                                  title='nalgebra::core::RowVector6'>RowVector6</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 6-dimensional row vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.RowVectorN.html'
+                                  title='nalgebra::core::RowVectorN'>RowVectorN</a></td>
+                           <td class='docblock-short'>
+                                <p>A statically sized D-dimensional row vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.SquareMatrix.html'
+                                  title='nalgebra::core::SquareMatrix'>SquareMatrix</a></td>
+                           <td class='docblock-short'>
+                                <p>A square matrix.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Vector1.html'
+                                  title='nalgebra::core::Vector1'>Vector1</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 1-dimensional column vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Vector2.html'
+                                  title='nalgebra::core::Vector2'>Vector2</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 2-dimensional column vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Vector3.html'
+                                  title='nalgebra::core::Vector3'>Vector3</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 3-dimensional column vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Vector4.html'
+                                  title='nalgebra::core::Vector4'>Vector4</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 4-dimensional column vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Vector5.html'
+                                  title='nalgebra::core::Vector5'>Vector5</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 5-dimensional column vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.Vector6.html'
+                                  title='nalgebra::core::Vector6'>Vector6</a></td>
+                           <td class='docblock-short'>
+                                <p>A stack-allocated, 6-dimensional column vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.VectorN.html'
+                                  title='nalgebra::core::VectorN'>VectorN</a></td>
+                           <td class='docblock-short'>
+                                <p>A statically sized D-dimensional column vector.</p>
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>

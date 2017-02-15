@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `M5x3` struct in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, M5x3">
+
+    <title>nalgebra::core::coordinates::M5x3 - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>coordinates</a></p><script>window.sidebarCurrent = {name: 'M5x3', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>coordinates</a>::<wbr><a class='struct' href=''>M5x3</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#28-30' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'><div class="docblock attributes">#[repr(C)]
+</div>pub struct M5x3&lt;N:&nbsp;<a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>&gt; {
+    pub m11: N,
+    pub m21: N,
+    pub m31: N,
+    pub m41: N,
+    pub m51: N,
+    pub m12: N,
+    pub m22: N,
+    pub m32: N,
+    pub m42: N,
+    pub m52: N,
+    pub m13: N,
+    pub m23: N,
+    pub m33: N,
+    pub m43: N,
+    pub m53: N,
+}</pre><div class='docblock'><p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+</div><h2 class='fields'>Fields</h2><span id='structfield.m11' class='structfield'>
+                           <span id='m11.v' class='invisible'>
+                           <code>m11: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m21' class='structfield'>
+                           <span id='m21.v' class='invisible'>
+                           <code>m21: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m31' class='structfield'>
+                           <span id='m31.v' class='invisible'>
+                           <code>m31: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m41' class='structfield'>
+                           <span id='m41.v' class='invisible'>
+                           <code>m41: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m51' class='structfield'>
+                           <span id='m51.v' class='invisible'>
+                           <code>m51: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m12' class='structfield'>
+                           <span id='m12.v' class='invisible'>
+                           <code>m12: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m22' class='structfield'>
+                           <span id='m22.v' class='invisible'>
+                           <code>m22: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m32' class='structfield'>
+                           <span id='m32.v' class='invisible'>
+                           <code>m32: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m42' class='structfield'>
+                           <span id='m42.v' class='invisible'>
+                           <code>m42: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m52' class='structfield'>
+                           <span id='m52.v' class='invisible'>
+                           <code>m52: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m13' class='structfield'>
+                           <span id='m13.v' class='invisible'>
+                           <code>m13: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m23' class='structfield'>
+                           <span id='m23.v' class='invisible'>
+                           <code>m23: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m33' class='structfield'>
+                           <span id='m33.v' class='invisible'>
+                           <code>m33: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m43' class='structfield'>
+                           <span id='m43.v' class='invisible'>
+                           <code>m43: N</code>
+                           </span></span><span class='stab '></span><span id='structfield.m53' class='structfield'>
+                           <span id='m53.v' class='invisible'>
+                           <code>m53: N</code>
+                           </span></span><span class='stab '></span><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../../../nalgebra/core/coordinates/struct.M5x3.html' title='nalgebra::core::coordinates::M5x3'>M5x3</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#26' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../../nalgebra/core/coordinates/struct.M5x3.html' title='nalgebra::core::coordinates::M5x3'>M5x3</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#26' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a> + <a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a> for <a class='struct' href='../../../nalgebra/core/coordinates/struct.M5x3.html' title='nalgebra::core::coordinates::M5x3'>M5x3</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#26' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.hash' class='method'><span id='hash.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash' class='fnname'>hash</a>&lt;__HN:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a>&gt;(&amp;self, __arg_0: &amp;mut __HN)</code></span></h4>
+<div class='docblock'><p>Feeds this value into the state given, updating the hasher as necessary.</p>
+</div><h4 id='method.hash_slice' class='method'><span id='hash_slice.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice' class='fnname'>hash_slice</a>&lt;H&gt;(data: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[Self]</a>, state: &amp;mut H) <span class='where fmt-newline'>where H: <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a></span></code><div class='since' title='Stable since Rust version 1.3.0'>1.3.0</div></span></h4>
+<div class='docblock'><p>Feeds a slice of this type into the state provided.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../../nalgebra/core/coordinates/struct.M5x3.html' title='nalgebra::core::coordinates::M5x3'>M5x3</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#26' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../../nalgebra/core/coordinates/struct.M5x3.html' title='nalgebra::core::coordinates::M5x3'>M5x3</a>&lt;N&gt;</code></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class='method'><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../../../nalgebra/core/coordinates/struct.M5x3.html' title='nalgebra::core::coordinates::M5x3'>M5x3</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#26' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class='method'><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../../nalgebra/core/coordinates/struct.M5x3.html' title='nalgebra::core::coordinates::M5x3'>M5x3</a>&lt;N&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class='method'><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../../nalgebra/core/coordinates/struct.M5x3.html' title='nalgebra::core::coordinates::M5x3'>M5x3</a>&lt;N&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='struct' href='../../../nalgebra/core/coordinates/struct.M5x3.html' title='nalgebra::core::coordinates::M5x3'>M5x3</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#26' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>

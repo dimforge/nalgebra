@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `coordinates` mod in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, coordinates">
+
+    <title>nalgebra::core::coordinates - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a></p><script>window.sidebarCurrent = {name: 'coordinates', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a class='mod' href=''>coordinates</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#1-239' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Structures to which matrices and vector can be auto-dereferenced (through <code>Deref</code>) to access
+components using their names. For example, if <code>v</code> is a 3D vector, one can write <code>v.z</code> instead
+of <code>v[2]</code>.</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.IJKW.html'
+                                  title='nalgebra::core::coordinates::IJKW'>IJKW</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M2x2.html'
+                                  title='nalgebra::core::coordinates::M2x2'>M2x2</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M2x3.html'
+                                  title='nalgebra::core::coordinates::M2x3'>M2x3</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M2x4.html'
+                                  title='nalgebra::core::coordinates::M2x4'>M2x4</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M2x5.html'
+                                  title='nalgebra::core::coordinates::M2x5'>M2x5</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M2x6.html'
+                                  title='nalgebra::core::coordinates::M2x6'>M2x6</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M3x2.html'
+                                  title='nalgebra::core::coordinates::M3x2'>M3x2</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M3x3.html'
+                                  title='nalgebra::core::coordinates::M3x3'>M3x3</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M3x4.html'
+                                  title='nalgebra::core::coordinates::M3x4'>M3x4</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M3x5.html'
+                                  title='nalgebra::core::coordinates::M3x5'>M3x5</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M3x6.html'
+                                  title='nalgebra::core::coordinates::M3x6'>M3x6</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M4x2.html'
+                                  title='nalgebra::core::coordinates::M4x2'>M4x2</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M4x3.html'
+                                  title='nalgebra::core::coordinates::M4x3'>M4x3</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M4x4.html'
+                                  title='nalgebra::core::coordinates::M4x4'>M4x4</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M4x5.html'
+                                  title='nalgebra::core::coordinates::M4x5'>M4x5</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M4x6.html'
+                                  title='nalgebra::core::coordinates::M4x6'>M4x6</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M5x2.html'
+                                  title='nalgebra::core::coordinates::M5x2'>M5x2</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M5x3.html'
+                                  title='nalgebra::core::coordinates::M5x3'>M5x3</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M5x4.html'
+                                  title='nalgebra::core::coordinates::M5x4'>M5x4</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M5x5.html'
+                                  title='nalgebra::core::coordinates::M5x5'>M5x5</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M5x6.html'
+                                  title='nalgebra::core::coordinates::M5x6'>M5x6</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M6x2.html'
+                                  title='nalgebra::core::coordinates::M6x2'>M6x2</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M6x3.html'
+                                  title='nalgebra::core::coordinates::M6x3'>M6x3</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M6x4.html'
+                                  title='nalgebra::core::coordinates::M6x4'>M6x4</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M6x5.html'
+                                  title='nalgebra::core::coordinates::M6x5'>M6x5</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.M6x6.html'
+                                  title='nalgebra::core::coordinates::M6x6'>M6x6</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.X.html'
+                                  title='nalgebra::core::coordinates::X'>X</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.XY.html'
+                                  title='nalgebra::core::coordinates::XY'>XY</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.XYZ.html'
+                                  title='nalgebra::core::coordinates::XYZ'>XYZ</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.XYZW.html'
+                                  title='nalgebra::core::coordinates::XYZW'>XYZW</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.XYZWA.html'
+                                  title='nalgebra::core::coordinates::XYZWA'>XYZWA</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.XYZWAB.html'
+                                  title='nalgebra::core::coordinates::XYZWAB'>XYZWAB</a></td>
+                           <td class='docblock-short'>
+                                <p>Data structure used to provide access to matrix and vector coordinates with the dot
+notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>

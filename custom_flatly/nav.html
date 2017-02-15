@@ -1,0 +1,100 @@
+<div> <!-- FIXME: without those two first divs, jquery from rustdoc seems to fail. I have no idea why. !-->
+<div id = "common_navbar">
+  <div class="navbar {% if config.extra.theme_inverse %}navbar-inverse{% else %}navbar-default{% endif %} navbar-fixed-top" role="navigation">
+    <div id="hide_small" class="gfr__wrapper gfr__wrapper--absolute gfr__wrapper--right">
+      <div class="gfr__ribbon gfr__ribbon--black">
+        <a class="gfr__link" href="https://github.com/sebcrozet/nalgebra">Fork me on GitHub</a>
+      </div>
+    </div>
+    <div class="container navbar_container">
+
+
+      <!-- Collapsed navigation -->
+      <div class="navbar-header">
+        <a href="/"><span id="small_navbar_icon" class="navbar_icon"></span></a>
+
+        <!-- Expander button -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
+      <!-- Expanded navigation -->
+      <div class="navbar-collapse collapse">
+        <!-- Main navigation -->
+        <ul class="nav navbar-nav">
+          {% for nav_item in nav %}
+            {% if nav_item.children %}
+              <li class="dropdown{% if nav_item.active %} active{% endif %}">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ nav_item.title }} <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                {% for nav_item in nav_item.children %}
+                {% include "nav-sub.html" %}
+                {% endfor %}
+              </ul>
+              </li>
+            {% else %}
+              {% if nav_item.title == '<i class="fa fa-align-left"></i>&nbsp API Documentation' %}
+                <li {% if nav_item.active %}class="active"{% endif %}>
+                <a href="{{ base_url }}/rustdoc/nalgebra/index.html">{{ nav_item.title }}</a>
+                </li>
+              {% else %}
+                <li {% if nav_item.active %}class="active"{% endif %}>
+                  {% if nav_item.title == "Home" %}
+                  <a id="noborder" href="{{ nav_item.url }}">
+                    <span id="hide_small" class="navbar_icon" height = "1em"></span>
+                    <span id="show_small"><i class="fa fa-home"></i> Home</span>
+                  </a>
+                  {% else %}
+                  <a href="{{ nav_item.url }}">
+                    <span>{{ nav_item.title }}</span>
+                  </a>
+                  {% endif %}
+                </li>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </ul>
+
+        <!-- Search, Navigation and Repo links -->
+        <ul class="nav navbar-nav navbar-right">
+          <!--
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                -->
+          <li id="hide_medium" {% if not previous_page %}class="disabled"{% endif %}>
+          <a rel="next" {% if previous_page %}href="{{ previous_page.url }}"{% endif %}>
+            <i class="fa fa-arrow-left"></i> Previous
+          </a>
+          </li>
+          <li id="hide_medium" {% if not next_page %}class="disabled"{% endif %}>
+          <a rel="prev" {% if next_page %}href="{{ next_page.url }}"{% endif %}>
+            Next <i class="fa fa-arrow-right"></i>
+          </a>
+          </li>
+          <li>
+          <a href="http://users.nphysics.org/c/nalgebra">
+              <span class="user_forum">
+                  <i class="fa  fa-users"></i> User forum
+              </span>
+          </a>
+          </li>
+          <li>
+          <a id="show_small" href="https://github.com/sebcrozet/nalgebra">
+              <span class="user_forum">
+                  <i class="fa  fa-github"></i> View on GitHub
+              </span>
+          </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `src/traits/axpy.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
+
+    <title>axpy.rs.html -- source</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+</pre><pre class='rust '>
+<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::<span class='ident'>Field</span>;
+
+<span class='kw'>use</span> <span class='ident'>core</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Matrix</span>};
+<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>Dim</span>, <span class='ident'>DimName</span>, <span class='ident'>U1</span>};
+<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::<span class='ident'>StorageMut</span>;
+
+<span class='kw'>use</span> <span class='ident'>geometry</span>::<span class='ident'>PointBase</span>;
+
+<span class='doccomment'>/// Operation that combines scalar multiplication and vector addition.</span>
+<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Axpy</span><span class='op'>&lt;</span><span class='ident'>A</span><span class='op'>&gt;</span> {
+    <span class='doccomment'>/// Computes `self = a * x + self`.</span>
+    <span class='kw'>fn</span> <span class='ident'>axpy</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='ident'>A</span>, <span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>);
+}
+
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>: <span class='ident'>Dim</span>, <span class='ident'>C</span>: <span class='ident'>Dim</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Axpy</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
+<span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Field</span>,
+      <span class='ident'>S</span>: <span class='ident'>StorageMut</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span><span class='op'>&gt;</span> {
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>axpy</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='ident'>N</span>, <span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) {
+        <span class='kw'>for</span> (<span class='ident'>me</span>, <span class='ident'>x</span>) <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>iter_mut</span>().<span class='ident'>zip</span>(<span class='ident'>x</span>.<span class='ident'>iter</span>()) {
+            <span class='kw-2'>*</span><span class='ident'>me</span> <span class='op'>+=</span> <span class='kw-2'>*</span><span class='ident'>x</span> <span class='op'>*</span> <span class='ident'>a</span>;
+        }
+    }
+}
+
+
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Axpy</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
+<span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Field</span>,
+      <span class='ident'>S</span>: <span class='ident'>StorageMut</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> {
+    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
+    <span class='kw'>fn</span> <span class='ident'>axpy</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>a</span>: <span class='ident'>N</span>, <span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) {
+        <span class='kw'>for</span> (<span class='ident'>me</span>, <span class='ident'>x</span>) <span class='kw'>in</span> <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>iter_mut</span>().<span class='ident'>zip</span>(<span class='ident'>x</span>.<span class='ident'>coords</span>.<span class='ident'>iter</span>()) {
+            <span class='kw-2'>*</span><span class='ident'>me</span> <span class='op'>+=</span> <span class='kw-2'>*</span><span class='ident'>x</span> <span class='op'>*</span> <span class='ident'>a</span>;
+        }
+    }
+}
+
+<span class='comment'>// FIXME: implemente Axpy with matrices and transforms.</span>
+</pre>
+</section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Quat","A quaternion."],["UnitQuat","A unit quaternion that can represent a 3D rotation."]]});

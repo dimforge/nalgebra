@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Iso2","Two dimensional **direct** isometry."],["Iso3","Three dimensional **direct** isometry."]]});

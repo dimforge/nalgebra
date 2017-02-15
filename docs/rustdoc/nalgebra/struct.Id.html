@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Id` struct in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Id">
+
+    <title>nalgebra::Id - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'Id', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>nalgebra</a>::<wbr><a class='struct' href=''>Id</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span></span></h1>
+<pre class='rust struct'><div class="docblock attributes">#[repr(C)]
+</div>pub struct Id&lt;O&nbsp;=&nbsp;Multiplicative&gt; <span class='where fmt-newline'>where O: Operator</span> { /* fields omitted */ }</pre><div class='docblock'><p>The universal identity element wrt. a given operator, usually noted <code>Id</code> with a
+context-dependent subscript.</p>
+
+<p>By default, it is the multiplicative identity element. It represents the degenerate set
+containing only the identity element of any group-like structure.  It has no dimension known at
+compile-time. All its operations are no-ops.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.new' class='method'><span id='new.v' class='invisible'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;</code></span></h4>
+<div class='docblock'><p>Creates a new identity element.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl One for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.one' class='method'><span id='one.v' class='invisible'><code>fn <a href='#method.one' class='fnname'>one</a>() -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Returns the multiplicative identity element of <code>Self</code>, <code>1</code>. <a href="#tymethod.one">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; Identity&lt;O&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.identity' class='method'><span id='identity.v' class='invisible'><code>fn <a href='#method.identity' class='fnname'>identity</a>() -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;</code></span></h4>
+<div class='docblock'><p>The identity element.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; DirectIsometry&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html' title='core::cmp::PartialOrd'>PartialOrd</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.partial_cmp' class='method'><span id='partial_cmp.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#tymethod.partial_cmp' class='fnname'>partial_cmp</a>(&amp;self, &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/core/cmp/enum.Ordering.html' title='core::cmp::Ordering'>Ordering</a>&gt;</code></span></h4>
+<div class='docblock'><p>This method returns an ordering between <code>self</code> and <code>other</code> values if one exists. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#tymethod.partial_cmp">Read more</a></p>
+</div><h4 id='method.lt' class='method'><span id='lt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.lt' class='fnname'>lt</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></span></h4>
+<div class='docblock'><p>This method tests less than (for <code>self</code> and <code>other</code>) and is used by the <code>&lt;</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.lt">Read more</a></p>
+</div><h4 id='method.le' class='method'><span id='le.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.le' class='fnname'>le</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></span></h4>
+<div class='docblock'><p>This method tests less than or equal to (for <code>self</code> and <code>other</code>) and is used by the <code>&lt;=</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.le">Read more</a></p>
+</div><h4 id='method.gt' class='method'><span id='gt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.gt' class='fnname'>gt</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></span></h4>
+<div class='docblock'><p>This method tests greater than (for <code>self</code> and <code>other</code>) and is used by the <code>&gt;</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.gt">Read more</a></p>
+</div><h4 id='method.ge' class='method'><span id='ge.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.ge' class='fnname'>ge</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></span></h4>
+<div class='docblock'><p>This method tests greater than or equal to (for <code>self</code> and <code>other</code>) and is used by the <code>&gt;=</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.ge">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; Inverse&lt;O&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.inverse' class='method'><span id='inverse.v' class='invisible'><code>fn <a href='#method.inverse' class='fnname'>inverse</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;</code></span></h4>
+<div class='docblock'><p>Returns the inverse of <code>self</code>, relative to the operator <code>O</code>.</p>
+</div><h4 id='method.inverse_mut' class='method'><span id='inverse_mut.v' class='invisible'><code>fn <a href='#method.inverse_mut' class='fnname'>inverse_mut</a>(&amp;mut self)</code></span></h4>
+<div class='docblock'><p>In-place inversin of <code>self</code>.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a> for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; MeetSemilattice for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.meet' class='method'><span id='meet.v' class='invisible'><code>fn <a href='#method.meet' class='fnname'>meet</a>(&amp;self, &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;</code></span></h4>
+<div class='docblock'><p>Returns the meet (aka. infimum) of two values.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; AffineTransformation&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Rotation' class='type'><span id='Rotation.t' class='invisible'><code>type <a href='#associatedtype.Rotation' class='type'>Rotation</a> = <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Type of the first rotation to be applied.</p>
+</div><h4 id='associatedtype.NonUniformScaling' class='type'><span id='NonUniformScaling.t' class='invisible'><code>type <a href='#associatedtype.NonUniformScaling' class='type'>NonUniformScaling</a> = <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Type of the non-uniform scaling to be applied.</p>
+</div><h4 id='associatedtype.Translation' class='type'><span id='Translation.t' class='invisible'><code>type <a href='#associatedtype.Translation' class='type'>Translation</a> = <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>The type of the pure translation part of this affine transformation.</p>
+</div><h4 id='method.decompose' class='method'><span id='decompose.v' class='invisible'><code>fn <a href='#method.decompose' class='fnname'>decompose</a>(&amp;self)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></span></h4>
+<div class='docblock'><p>Decomposes this affine transformation into a rotation followed by a non-uniform scaling, followed by a rotation, followed by a translation. <a href="#tymethod.decompose">Read more</a></p>
+</div><h4 id='method.append_translation' class='method'><span id='append_translation.v' class='invisible'><code>fn <a href='#method.append_translation' class='fnname'>append_translation</a>(&amp;self,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;::Translation)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Appends a translation to this similarity.</p>
+</div><h4 id='method.prepend_translation' class='method'><span id='prepend_translation.v' class='invisible'><code>fn <a href='#method.prepend_translation' class='fnname'>prepend_translation</a>(&amp;self,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;::Translation)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Prepends a translation to this similarity.</p>
+</div><h4 id='method.append_rotation' class='method'><span id='append_rotation.v' class='invisible'><code>fn <a href='#method.append_rotation' class='fnname'>append_rotation</a>(&amp;self, &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;::Rotation) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Appends a rotation to this similarity.</p>
+</div><h4 id='method.prepend_rotation' class='method'><span id='prepend_rotation.v' class='invisible'><code>fn <a href='#method.prepend_rotation' class='fnname'>prepend_rotation</a>(&amp;self, &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;::Rotation) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Prepends a rotation to this similarity.</p>
+</div><h4 id='method.append_scaling' class='method'><span id='append_scaling.v' class='invisible'><code>fn <a href='#method.append_scaling' class='fnname'>append_scaling</a>(&amp;self,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;::NonUniformScaling)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Appends a scaling factor to this similarity.</p>
+</div><h4 id='method.prepend_scaling' class='method'><span id='prepend_scaling.v' class='invisible'><code>fn <a href='#method.prepend_scaling' class='fnname'>prepend_scaling</a>(&amp;self,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;::NonUniformScaling)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Prepends a scaling factor to this similarity.</p>
+</div><h4 id='method.append_rotation_wrt_point' class='method'><span id='append_rotation_wrt_point.v' class='invisible'><code>fn <a href='#method.append_rotation_wrt_point' class='fnname'>append_rotation_wrt_point</a>(&amp;self, r: &amp;Self::Rotation, p: &amp;E) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></span></h4>
+<div class='docblock'><p>Appends to this similarity a rotation centered at the point <code>p</code>, i.e., this point is left invariant. <a href="#method.append_rotation_wrt_point">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; AbstractLoop&lt;O&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.eq' class='method'><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class='method'><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; AbstractSemigroup&lt;O&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.prop_is_associative_approx' class='method'><span id='prop_is_associative_approx.v' class='invisible'><code>fn <a href='#method.prop_is_associative_approx' class='fnname'>prop_is_associative_approx</a>(args: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self, Self, Self<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where Self: ApproxEq</span></code></span></h4>
+<div class='docblock'><p>Returns <code>true</code> if associativity holds for the given arguments. Approximate equality is used for verifications. <a href="#method.prop_is_associative_approx">Read more</a></p>
+</div><h4 id='method.prop_is_associative' class='method'><span id='prop_is_associative.v' class='invisible'><code>fn <a href='#method.prop_is_associative' class='fnname'>prop_is_associative</a>(args: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self, Self, Self<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a></span></code></span></h4>
+<div class='docblock'><p>Returns <code>true</code> if associativity holds for the given arguments.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.AddAssign.html' title='core::ops::AddAssign'>AddAssign</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.add_assign' class='method'><span id='add_assign.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.AddAssign.html#tymethod.add_assign' class='fnname'>add_assign</a>(&amp;mut self, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;)</code></span></h4>
+<div class='docblock'><p>The method for the <code>+=</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O, T&gt; SubsetOf&lt;T&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: Identity&lt;O&gt; + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a>&lt;T&gt;</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.to_superset' class='method'><span id='to_superset.v' class='invisible'><code>fn <a href='#method.to_superset' class='fnname'>to_superset</a>(&amp;self) -&gt; T</code></span></h4>
+<div class='docblock'><p>The inclusion map: converts <code>self</code> to the equivalent element of its superset.</p>
+</div><h4 id='method.is_in_subset' class='method'><span id='is_in_subset.v' class='invisible'><code>fn <a href='#method.is_in_subset' class='fnname'>is_in_subset</a>(t: &amp;T) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>Checks if <code>element</code> is actually part of the subset <code>Self</code> (and can be converted to it).</p>
+</div><h4 id='method.from_superset_unchecked' class='method'><span id='from_superset_unchecked.v' class='invisible'><code>unsafe fn <a href='#method.from_superset_unchecked' class='fnname'>from_superset_unchecked</a>(&amp;T) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;</code></span></h4>
+<div class='docblock'><p>Use with care! Same as <code>self.to_superset</code> but without any property checks. Always succeeds.</p>
+</div><h4 id='method.from_superset' class='method'><span id='from_superset.v' class='invisible'><code>fn <a href='#method.from_superset' class='fnname'>from_superset</a>(element: &amp;T) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></span></h4>
+<div class='docblock'><p>The inverse inclusion map: attempts to construct <code>self</code> from the equivalent element of its superset. <a href="#method.from_superset">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; Similarity&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Scaling' class='type'><span id='Scaling.t' class='invisible'><code>type <a href='#associatedtype.Scaling' class='type'>Scaling</a> = <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>The type of the pure (uniform) scaling part of this similarity transformation.</p>
+</div><h4 id='method.translation' class='method'><span id='translation.v' class='invisible'><code>fn <a href='#method.translation' class='fnname'>translation</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;::Translation</code></span></h4>
+<div class='docblock'><p>The pure translational component of this similarity transformation.</p>
+</div><h4 id='method.rotation' class='method'><span id='rotation.v' class='invisible'><code>fn <a href='#method.rotation' class='fnname'>rotation</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;::Rotation</code></span></h4>
+<div class='docblock'><p>The pure rotational component of this similarity transformation.</p>
+</div><h4 id='method.scaling' class='method'><span id='scaling.v' class='invisible'><code>fn <a href='#method.scaling' class='fnname'>scaling</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;::Scaling</code></span></h4>
+<div class='docblock'><p>The pure scaling component of this similarity transformation.</p>
+</div><h4 id='method.translate_point' class='method'><span id='translate_point.v' class='invisible'><code>fn <a href='#method.translate_point' class='fnname'>translate_point</a>(&amp;self, pt: &amp;E) -&gt; E</code></span></h4>
+<div class='docblock'><p>Applies this transformation&#39;s pure translational part to a point.</p>
+</div><h4 id='method.rotate_point' class='method'><span id='rotate_point.v' class='invisible'><code>fn <a href='#method.rotate_point' class='fnname'>rotate_point</a>(&amp;self, pt: &amp;E) -&gt; E</code></span></h4>
+<div class='docblock'><p>Applies this transformation&#39;s pure rotational part to a point.</p>
+</div><h4 id='method.scale_point' class='method'><span id='scale_point.v' class='invisible'><code>fn <a href='#method.scale_point' class='fnname'>scale_point</a>(&amp;self, pt: &amp;E) -&gt; E</code></span></h4>
+<div class='docblock'><p>Applies this transformation&#39;s pure scaling part to a point.</p>
+</div><h4 id='method.rotate_vector' class='method'><span id='rotate_vector.v' class='invisible'><code>fn <a href='#method.rotate_vector' class='fnname'>rotate_vector</a>(&amp;self, pt: &amp;E::Coordinates) -&gt; E::Coordinates</code></span></h4>
+<div class='docblock'><p>Applies this transformation&#39;s pure rotational part to a vector.</p>
+</div><h4 id='method.scale_vector' class='method'><span id='scale_vector.v' class='invisible'><code>fn <a href='#method.scale_vector' class='fnname'>scale_vector</a>(&amp;self, pt: &amp;E::Coordinates) -&gt; E::Coordinates</code></span></h4>
+<div class='docblock'><p>Applies this transformation&#39;s pure scaling part to a vector.</p>
+</div><h4 id='method.inverse_translate_point' class='method'><span id='inverse_translate_point.v' class='invisible'><code>fn <a href='#method.inverse_translate_point' class='fnname'>inverse_translate_point</a>(&amp;self, pt: &amp;E) -&gt; E</code></span></h4>
+<div class='docblock'><p>Applies this transformation inverse&#39;s pure translational part to a point.</p>
+</div><h4 id='method.inverse_rotate_point' class='method'><span id='inverse_rotate_point.v' class='invisible'><code>fn <a href='#method.inverse_rotate_point' class='fnname'>inverse_rotate_point</a>(&amp;self, pt: &amp;E) -&gt; E</code></span></h4>
+<div class='docblock'><p>Applies this transformation inverse&#39;s pure rotational part to a point.</p>
+</div><h4 id='method.inverse_scale_point' class='method'><span id='inverse_scale_point.v' class='invisible'><code>fn <a href='#method.inverse_scale_point' class='fnname'>inverse_scale_point</a>(&amp;self, pt: &amp;E) -&gt; E</code></span></h4>
+<div class='docblock'><p>Applies this transformation inverse&#39;s pure scaling part to a point.</p>
+</div><h4 id='method.inverse_rotate_vector' class='method'><span id='inverse_rotate_vector.v' class='invisible'><code>fn <a href='#method.inverse_rotate_vector' class='fnname'>inverse_rotate_vector</a>(&amp;self, pt: &amp;E::Coordinates) -&gt; E::Coordinates</code></span></h4>
+<div class='docblock'><p>Applies this transformation inverse&#39;s pure rotational part to a vector.</p>
+</div><h4 id='method.inverse_scale_vector' class='method'><span id='inverse_scale_vector.v' class='invisible'><code>fn <a href='#method.inverse_scale_vector' class='fnname'>inverse_scale_vector</a>(&amp;self, pt: &amp;E::Coordinates) -&gt; E::Coordinates</code></span></h4>
+<div class='docblock'><p>Applies this transformation inverse&#39;s pure scaling part to a vector.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; AbstractMagma&lt;O&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.operate' class='method'><span id='operate.v' class='invisible'><code>fn <a href='#method.operate' class='fnname'>operate</a>(&amp;self, &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;</code></span></h4>
+<div class='docblock'><p>Performs an operation.</p>
+</div><h4 id='method.op' class='method'><span id='op.v' class='invisible'><code>fn <a href='#method.op' class='fnname'>op</a>(&amp;self, O, lhs: &amp;Self) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Performs specific operation.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; ApproxEq for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Epsilon' class='type'><span id='Epsilon.t' class='invisible'><code>type <a href='#associatedtype.Epsilon' class='type'>Epsilon</a> = <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;</code></span></h4>
+<div class='docblock'><p>Used for specifying relative comparisons.</p>
+</div><h4 id='method.default_epsilon' class='method'><span id='default_epsilon.v' class='invisible'><code>fn <a href='#method.default_epsilon' class='fnname'>default_epsilon</a>() -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;::Epsilon</code></span></h4>
+<div class='docblock'><p>The default tolerance to use when testing values that are close together. <a href="#tymethod.default_epsilon">Read more</a></p>
+</div><h4 id='method.default_max_relative' class='method'><span id='default_max_relative.v' class='invisible'><code>fn <a href='#method.default_max_relative' class='fnname'>default_max_relative</a>() -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;::Epsilon</code></span></h4>
+<div class='docblock'><p>The default relative tolerance for testing values that are far-apart. <a href="#tymethod.default_max_relative">Read more</a></p>
+</div><h4 id='method.default_max_ulps' class='method'><span id='default_max_ulps.v' class='invisible'><code>fn <a href='#method.default_max_ulps' class='fnname'>default_max_ulps</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></span></h4>
+<div class='docblock'><p>The default ULPs to tolerate when testing values that are far-apart. <a href="#tymethod.default_max_ulps">Read more</a></p>
+</div><h4 id='method.relative_eq' class='method'><span id='relative_eq.v' class='invisible'><code>fn <a href='#method.relative_eq' class='fnname'>relative_eq</a>(&amp;self, &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;::Epsilon, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;::Epsilon) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>A test for equality that uses a relative comparison if the values are far apart.</p>
+</div><h4 id='method.ulps_eq' class='method'><span id='ulps_eq.v' class='invisible'><code>fn <a href='#method.ulps_eq' class='fnname'>ulps_eq</a>(&amp;self, &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;::Epsilon, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>A test for equality that uses units in the last place (ULP) if the values are far apart.</p>
+</div><h4 id='method.relative_ne' class='method'><span id='relative_ne.v' class='invisible'><code>fn <a href='#method.relative_ne' class='fnname'>relative_ne</a>(&amp;self,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; other: &amp;Self,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; epsilon: Self::Epsilon,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max_relative: Self::Epsilon)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>The inverse of <code>ApproxEq::relative_eq</code>.</p>
+</div><h4 id='method.ulps_ne' class='method'><span id='ulps_ne.v' class='invisible'><code>fn <a href='#method.ulps_ne' class='fnname'>ulps_ne</a>(&amp;self, other: &amp;Self, epsilon: Self::Epsilon, max_ulps: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>The inverse of <code>ApproxEq::ulps_eq</code>.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl Zero for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.zero' class='method'><span id='zero.v' class='invisible'><code>fn <a href='#method.zero' class='fnname'>zero</a>() -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>Returns the additive identity element of <code>Self</code>, <code>0</code>. <a href="#tymethod.zero">Read more</a></p>
+</div><h4 id='method.is_zero' class='method'><span id='is_zero.v' class='invisible'><code>fn <a href='#method.is_zero' class='fnname'>is_zero</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<div class='docblock'><p>Returns <code>true</code> if <code>self</code> is equal to the additive identity.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; OrthogonalTransformation&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output' class='type'><span id='Output.t' class='invisible'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>The resulting type after applying the <code>+</code> operator</p>
+</div><h4 id='method.add' class='method'><span id='add.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#tymethod.add' class='fnname'>add</a>(self, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>The method for the <code>+</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.DivAssign.html' title='core::ops::DivAssign'>DivAssign</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.div_assign' class='method'><span id='div_assign.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.DivAssign.html#tymethod.div_assign' class='fnname'>div_assign</a>(&amp;mut self, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;)</code></span></h4>
+<div class='docblock'><p>The method for the <code>/=</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; Lattice for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.meet_join' class='method'><span id='meet_join.v' class='invisible'><code>fn <a href='#method.meet_join' class='fnname'>meet_join</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self, Self<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></span></h4>
+<div class='docblock'><p>Returns the infimum and the supremum simultaneously.</p>
+</div><h4 id='method.partial_min' class='method'><span id='partial_min.v' class='invisible'><code>fn <a href='#method.partial_min' class='fnname'>partial_min</a>(&amp;'a self, other: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a Self&gt;</code></span></h4>
+<div class='docblock'><p>Return the minimum of <code>self</code> and <code>other</code> if they are comparable.</p>
+</div><h4 id='method.partial_max' class='method'><span id='partial_max.v' class='invisible'><code>fn <a href='#method.partial_max' class='fnname'>partial_max</a>(&amp;'a self, other: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a Self&gt;</code></span></h4>
+<div class='docblock'><p>Return the maximum of <code>self</code> and <code>other</code> if they are comparable.</p>
+</div><h4 id='method.partial_sort2' class='method'><span id='partial_sort2.v' class='invisible'><code>fn <a href='#method.partial_sort2' class='fnname'>partial_sort2</a>(&amp;'a self, other: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>&amp;'a Self, &amp;'a Self<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;</code></span></h4>
+<div class='docblock'><p>Sorts two values in increasing order using a partial ordering.</p>
+</div><h4 id='method.partial_clamp' class='method'><span id='partial_clamp.v' class='invisible'><code>fn <a href='#method.partial_clamp' class='fnname'>partial_clamp</a>(&amp;'a self, min: &amp;'a Self, max: &amp;'a Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a Self&gt;</code></span></h4>
+<div class='docblock'><p>Clamp <code>value</code> between <code>min</code> and <code>max</code>. Returns <code>None</code> if <code>value</code> is not comparable to <code>min</code> or <code>max</code>. <a href="#method.partial_clamp">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; AbstractGroup&lt;O&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; AbstractMonoid&lt;O&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.prop_operating_identity_element_is_noop_approx' class='method'><span id='prop_operating_identity_element_is_noop_approx.v' class='invisible'><code>fn <a href='#method.prop_operating_identity_element_is_noop_approx' class='fnname'>prop_operating_identity_element_is_noop_approx</a>(a: Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where Self: ApproxEq</span></code></span></h4>
+<div class='docblock'><p>Checks whether operating with the identity element is a no-op for the given argument. Approximate equality is used for verifications. <a href="#method.prop_operating_identity_element_is_noop_approx">Read more</a></p>
+</div><h4 id='method.prop_operating_identity_element_is_noop' class='method'><span id='prop_operating_identity_element_is_noop.v' class='invisible'><code>fn <a href='#method.prop_operating_identity_element_is_noop' class='fnname'>prop_operating_identity_element_is_noop</a>(a: Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a></span></code></span></h4>
+<div class='docblock'><p>Checks whether operating with the identity element is a no-op for the given argument. <a href="#method.prop_operating_identity_element_is_noop">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; Transformation&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.transform_point' class='method'><span id='transform_point.v' class='invisible'><code>fn <a href='#method.transform_point' class='fnname'>transform_point</a>(&amp;self, pt: &amp;E) -&gt; E</code></span></h4>
+<div class='docblock'><p>Applies this group&#39;s action on a point from the euclidean space.</p>
+</div><h4 id='method.transform_vector' class='method'><span id='transform_vector.v' class='invisible'><code>fn <a href='#method.transform_vector' class='fnname'>transform_vector</a>(&amp;self, v: &amp;E::Coordinates) -&gt; E::Coordinates</code></span></h4>
+<div class='docblock'><p>Applies this group&#39;s action on a vector from the euclidean space. <a href="#tymethod.transform_vector">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; AbstractQuasigroup&lt;O&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.prop_inv_is_latin_square_approx' class='method'><span id='prop_inv_is_latin_square_approx.v' class='invisible'><code>fn <a href='#method.prop_inv_is_latin_square_approx' class='fnname'>prop_inv_is_latin_square_approx</a>(args: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self, Self<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where Self: ApproxEq</span></code></span></h4>
+<div class='docblock'><p>Returns <code>true</code> if latin squareness holds for the given arguments. Approximate equality is used for verifications. <a href="#method.prop_inv_is_latin_square_approx">Read more</a></p>
+</div><h4 id='method.prop_inv_is_latin_square' class='method'><span id='prop_inv_is_latin_square.v' class='invisible'><code>fn <a href='#method.prop_inv_is_latin_square' class='fnname'>prop_inv_is_latin_square</a>(args: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self, Self<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a></span></code></span></h4>
+<div class='docblock'><p>Returns <code>true</code> if latin squareness holds for the given arguments.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; Rotation&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.powf' class='method'><span id='powf.v' class='invisible'><code>fn <a href='#method.powf' class='fnname'>powf</a>(&amp;self, E::Real) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt;</code></span></h4>
+<div class='docblock'><p>Raises this rotation to a power. If this is a simple rotation, the result must be equivalent to multiplying the rotation angle by <code>n</code>. <a href="#tymethod.powf">Read more</a></p>
+</div><h4 id='method.rotation_between' class='method'><span id='rotation_between.v' class='invisible'><code>fn <a href='#method.rotation_between' class='fnname'>rotation_between</a>(a: &amp;E::Coordinates,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b: &amp;E::Coordinates)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt;</code></span></h4>
+<div class='docblock'><p>Computes a simple rotation that makes the angle between <code>a</code> and <code>b</code> equal to zero, i.e., <code>b.angle(a * delta_rotation(a, b)) = 0</code>. If <code>a</code> and <code>b</code> are collinear, the computed rotation may not be unique. Returns <code>None</code> if no such simple rotation exists in the subgroup represented by <code>Self</code>. <a href="#tymethod.rotation_between">Read more</a></p>
+</div><h4 id='method.scaled_rotation_between' class='method'><span id='scaled_rotation_between.v' class='invisible'><code>fn <a href='#method.scaled_rotation_between' class='fnname'>scaled_rotation_between</a>(a: &amp;E::Coordinates,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b: &amp;E::Coordinates,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E::Real)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt;</code></span></h4>
+<div class='docblock'><p>Computes the rotation between <code>a</code> and <code>b</code> and raises it to the power <code>n</code>. <a href="#tymethod.scaled_rotation_between">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; Translation&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.to_vector' class='method'><span id='to_vector.v' class='invisible'><code>fn <a href='#method.to_vector' class='fnname'>to_vector</a>(&amp;self) -&gt; E::Coordinates</code></span></h4>
+<div class='docblock'><p>Converts this translation to a vector.</p>
+</div><h4 id='method.from_vector' class='method'><span id='from_vector.v' class='invisible'><code>fn <a href='#method.from_vector' class='fnname'>from_vector</a>(v: E::Coordinates) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt;</code></span></h4>
+<div class='docblock'><p>Attempts to convert a vector to this translation. Returns <code>None</code> if the translation represented by <code>v</code> is not part of the translation subgroup represented by <code>Self</code>. <a href="#tymethod.from_vector">Read more</a></p>
+</div><h4 id='method.powf-1' class='method'><span id='powf.v-1' class='invisible'><code>fn <a href='#method.powf' class='fnname'>powf</a>(&amp;self, n: E::Real) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></span></h4>
+<div class='docblock'><p>Raises the translation to a power. The result must be equivalent to <code>self.to_superset() * n</code>.  Returns <code>None</code> if the result is not representable by <code>Self</code>. <a href="#method.powf">Read more</a></p>
+</div><h4 id='method.translation_between' class='method'><span id='translation_between.v' class='invisible'><code>fn <a href='#method.translation_between' class='fnname'>translation_between</a>(a: &amp;E, b: &amp;E) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></span></h4>
+<div class='docblock'><p>The translation needed to make <code>a</code> coincide with <code>b</code>, i.e., <code>b = a * translation_to(a, b)</code>.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; Scaling&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; Isometry&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-1' class='type'><span id='Output.t-1' class='invisible'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>The resulting type after applying the <code>/</code> operator</p>
+</div><h4 id='method.div' class='method'><span id='div.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#tymethod.div' class='fnname'>div</a>(self, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>The method for the <code>/</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-2' class='type'><span id='Output.t-2' class='invisible'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>The resulting type after applying the <code>*</code> operator</p>
+</div><h4 id='method.mul' class='method'><span id='mul.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#tymethod.mul' class='fnname'>mul</a>(self, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span></h4>
+<div class='docblock'><p>The method for the <code>*</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; JoinSemilattice for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.join' class='method'><span id='join.v' class='invisible'><code>fn <a href='#method.join' class='fnname'>join</a>(&amp;self, &amp;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;</code></span></h4>
+<div class='docblock'><p>Returns the join (aka. supremum) of two values.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; AbstractGroupAbelian&lt;O&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.prop_is_commutative_approx' class='method'><span id='prop_is_commutative_approx.v' class='invisible'><code>fn <a href='#method.prop_is_commutative_approx' class='fnname'>prop_is_commutative_approx</a>(args: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self, Self<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where Self: ApproxEq</span></code></span></h4>
+<div class='docblock'><p>Returns <code>true</code> if the operator is commutative for the given argument tuple. Approximate equality is used for verifications. <a href="#method.prop_is_commutative_approx">Read more</a></p>
+</div><h4 id='method.prop_is_commutative' class='method'><span id='prop_is_commutative.v' class='invisible'><code>fn <a href='#method.prop_is_commutative' class='fnname'>prop_is_commutative</a>(args: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self, Self<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a></span></code></span></h4>
+<div class='docblock'><p>Returns <code>true</code> if the operator is commutative for the given argument tuple.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;E&gt; ProjectiveTransformation&lt;E&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt; <span class='where fmt-newline'>where E: EuclideanSpace</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.inverse_transform_point' class='method'><span id='inverse_transform_point.v' class='invisible'><code>fn <a href='#method.inverse_transform_point' class='fnname'>inverse_transform_point</a>(&amp;self, pt: &amp;E) -&gt; E</code></span></h4>
+<div class='docblock'><p>Applies this group&#39;s inverse action on a point from the euclidean space.</p>
+</div><h4 id='method.inverse_transform_vector' class='method'><span id='inverse_transform_vector.v' class='invisible'><code>fn <a href='#method.inverse_transform_vector' class='fnname'>inverse_transform_vector</a>(&amp;self, v: &amp;E::Coordinates) -&gt; E::Coordinates</code></span></h4>
+<div class='docblock'><p>Applies this group&#39;s inverse action on a vector from the euclidean space. <a href="#tymethod.inverse_transform_vector">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator</span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt;</code></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class='method'><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.MulAssign.html' title='core::ops::MulAssign'>MulAssign</a>&lt;<a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;&gt; for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;</code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.mul_assign' class='method'><span id='mul_assign.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.MulAssign.html#tymethod.mul_assign' class='fnname'>mul_assign</a>(&amp;mut self, <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;Multiplicative&gt;)</code></span></h4>
+<div class='docblock'><p>The method for the <code>*=</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;O&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../nalgebra/struct.Id.html' title='nalgebra::Id'>Id</a>&lt;O&gt; <span class='where fmt-newline'>where O: Operator + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a></span></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.fmt-1' class='method'><span id='fmt.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>

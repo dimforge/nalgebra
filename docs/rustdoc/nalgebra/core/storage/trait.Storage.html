@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Storage` trait in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Storage">
+
+    <title>nalgebra::core::storage::Storage - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>storage</a></p><script>window.sidebarCurrent = {name: 'Storage', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>storage</a>::<wbr><a class='trait' href=''>Storage</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/nalgebra/core/storage.rs.html#48-113' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub unsafe trait Storage&lt;N:&nbsp;<a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>, R:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, C:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
+    type <a href='#associatedtype.RStride' class='type'>RStride</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>;
+    type <a href='#associatedtype.CStride' class='type'>CStride</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>;
+    type <a href='#associatedtype.Alloc' class='type'>Alloc</a>: <a class='trait' href='../../../nalgebra/core/allocator/trait.Allocator.html' title='nalgebra::core::allocator::Allocator'>Allocator</a>&lt;N, R, C&gt;;
+    fn <a href='#tymethod.into_owned' class='fnname'>into_owned</a>(self) -&gt; <a class='type' href='../../../nalgebra/core/storage/type.Owned.html' title='nalgebra::core::storage::Owned'>Owned</a>&lt;N, R, C, Self::<a class='trait' href='../../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>Alloc</a>&gt;;
+    fn <a href='#tymethod.clone_owned' class='fnname'>clone_owned</a>(&amp;self) -&gt; <a class='type' href='../../../nalgebra/core/storage/type.Owned.html' title='nalgebra::core::storage::Owned'>Owned</a>&lt;N, R, C, Self::<a class='trait' href='../../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>Alloc</a>&gt;;
+    fn <a href='#tymethod.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const N</a>;
+    fn <a href='#tymethod.shape' class='fnname'>shape</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>R, C<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>;
+    fn <a href='#tymethod.strides' class='fnname'>strides</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self::<a class='trait' href='../../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>RStride</a>, Self::<a class='trait' href='../../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>CStride</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>;
+
+    fn <a href='#method.linear_index' class='fnname'>linear_index</a>(&amp;self, irow: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, icol: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a> { ... }
+    unsafe fn <a href='#method.get_address_unchecked_linear' class='fnname'>get_address_unchecked_linear</a>(&amp;self, i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const N</a> { ... }
+    unsafe fn <a href='#method.get_address_unchecked' class='fnname'>get_address_unchecked</a>(&amp;self, irow: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, icol: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const N</a> { ... }
+    unsafe fn <a href='#method.get_unchecked_linear' class='fnname'>get_unchecked_linear</a>(&amp;self, i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; &amp;N { ... }
+    unsafe fn <a href='#method.get_unchecked' class='fnname'>get_unchecked</a>(&amp;self, irow: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, icol: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; &amp;N { ... }
+}</pre><div class='docblock'><p>The trait shared by all matrix data storage.</p>
+
+<p>FIXME: doc</p>
+
+<p>Note that <code>Self</code> must always have a number of elements compatible with the matrix length (given
+by <code>R</code> and <code>C</code> if they are known at compile-time). For example, implementors of this trait
+should <strong>not</strong> allow the user to modify the size of the underlying buffer with safe methods
+(for example the <code>MatrixVec::data_mut</code> method is unsafe because the user could change the
+vector&#39;s size so that it no longer contains enough elements: this will lead to UB.</p>
+</div>
+            <h2 id='associated-types'>Associated Types</h2>
+            <div class='methods'>
+        <h3 id='associatedtype.RStride' class='method'><span id='RStride.t' class='invisible'><code>type <a href='#associatedtype.RStride' class='type'>RStride</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a></code></span></h3><div class='docblock'><p>The static stride of this storage&#39;s rows.</p>
+</div><h3 id='associatedtype.CStride' class='method'><span id='CStride.t' class='invisible'><code>type <a href='#associatedtype.CStride' class='type'>CStride</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a></code></span></h3><div class='docblock'><p>The static stride of this storage&#39;s columns.</p>
+</div><h3 id='associatedtype.Alloc' class='method'><span id='Alloc.t' class='invisible'><code>type <a href='#associatedtype.Alloc' class='type'>Alloc</a>: <a class='trait' href='../../../nalgebra/core/allocator/trait.Allocator.html' title='nalgebra::core::allocator::Allocator'>Allocator</a>&lt;N, R, C&gt;</code></span></h3><div class='docblock'><p>The allocator for this family of storage.</p>
+</div></div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.into_owned' class='method'><span id='into_owned.v' class='invisible'><code>fn <a href='#tymethod.into_owned' class='fnname'>into_owned</a>(self) -&gt; <a class='type' href='../../../nalgebra/core/storage/type.Owned.html' title='nalgebra::core::storage::Owned'>Owned</a>&lt;N, R, C, Self::<a class='trait' href='../../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>Alloc</a>&gt;</code></span></h3><div class='docblock'><p>Builds a matrix data storage that does not contain any reference.</p>
+</div><h3 id='tymethod.clone_owned' class='method'><span id='clone_owned.v' class='invisible'><code>fn <a href='#tymethod.clone_owned' class='fnname'>clone_owned</a>(&amp;self) -&gt; <a class='type' href='../../../nalgebra/core/storage/type.Owned.html' title='nalgebra::core::storage::Owned'>Owned</a>&lt;N, R, C, Self::<a class='trait' href='../../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>Alloc</a>&gt;</code></span></h3><div class='docblock'><p>Clones this data storage into one that does not contain any reference.</p>
+</div><h3 id='tymethod.ptr' class='method'><span id='ptr.v' class='invisible'><code>fn <a href='#tymethod.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const N</a></code></span></h3><div class='docblock'><p>The matrix data pointer.</p>
+</div><h3 id='tymethod.shape' class='method'><span id='shape.v' class='invisible'><code>fn <a href='#tymethod.shape' class='fnname'>shape</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>R, C<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></span></h3><div class='docblock'><p>The dimension of the matrix at run-time. Arr length of zero indicates the additive identity
+element of any dimension. Must be equal to <code>Self::dimension()</code> if it is not <code>None</code>.</p>
+</div><h3 id='tymethod.strides' class='method'><span id='strides.v' class='invisible'><code>fn <a href='#tymethod.strides' class='fnname'>strides</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self::<a class='trait' href='../../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>RStride</a>, Self::<a class='trait' href='../../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>CStride</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></span></h3><div class='docblock'><p>The spacing between concecutive row elements and consecutive column elements.</p>
+
+<p>For example this returns <code>(1, 5)</code> for a row-major matrix with 5 columns.</p>
+</div></div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.linear_index' class='method'><span id='linear_index.v' class='invisible'><code>fn <a href='#method.linear_index' class='fnname'>linear_index</a>(&amp;self, irow: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, icol: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></span></h3><div class='docblock'><p>Compute the index corresponding to the irow-th row and icol-th column of this matrix. The
+index must be such that the following holds:</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>lindex</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>linear_index</span>(<span class='ident'>irow</span>, <span class='ident'>icol</span>);
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='kw-2'>*</span><span class='self'>self</span>.<span class='ident'>get_unchecked</span>(<span class='ident'>irow</span>, <span class='ident'>icol</span>) <span class='op'>==</span> <span class='kw-2'>*</span><span class='self'>self</span>.<span class='ident'>get_unchecked_linear</span>(<span class='ident'>lindex</span>)</pre>
+</div><h3 id='method.get_address_unchecked_linear' class='method'><span id='get_address_unchecked_linear.v' class='invisible'><code>unsafe fn <a href='#method.get_address_unchecked_linear' class='fnname'>get_address_unchecked_linear</a>(&amp;self, i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const N</a></code></span></h3><div class='docblock'><p>Gets the address of the i-th matrix component without performing bound-checking.</p>
+</div><h3 id='method.get_address_unchecked' class='method'><span id='get_address_unchecked.v' class='invisible'><code>unsafe fn <a href='#method.get_address_unchecked' class='fnname'>get_address_unchecked</a>(&amp;self, irow: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, icol: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const N</a></code></span></h3><div class='docblock'><p>Gets the address of the i-th matrix component without performing bound-checking.</p>
+</div><h3 id='method.get_unchecked_linear' class='method'><span id='get_unchecked_linear.v' class='invisible'><code>unsafe fn <a href='#method.get_unchecked_linear' class='fnname'>get_unchecked_linear</a>(&amp;self, i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; &amp;N</code></span></h3><div class='docblock'><p>Retrieves a reference to the i-th element without bound-checking.</p>
+</div><h3 id='method.get_unchecked' class='method'><span id='get_unchecked.v' class='invisible'><code>unsafe fn <a href='#method.get_unchecked' class='fnname'>get_unchecked</a>(&amp;self, irow: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, icol: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; &amp;N</code></span></h3><div class='docblock'><p>Retrieves a reference to the i-th element without bound-checking.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;'a, N, R:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, C:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, RStride:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, CStride:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, Alloc&gt; Storage&lt;N, R, C&gt; for <a class='struct' href='../../../nalgebra/core/struct.SliceStorage.html' title='nalgebra::core::SliceStorage'>SliceStorage</a>&lt;'a, N, R, C, RStride, CStride, Alloc&gt; <span class='where fmt-newline'>where N: <a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Alloc: <a class='trait' href='../../../nalgebra/core/allocator/trait.Allocator.html' title='nalgebra::core::allocator::Allocator'>Allocator</a>&lt;N, R, C&gt;</span></code></li>
+<li><code>impl&lt;'a, N, R:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, C:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, RStride:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, CStride:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, Alloc&gt; Storage&lt;N, R, C&gt; for <a class='struct' href='../../../nalgebra/core/struct.SliceStorageMut.html' title='nalgebra::core::SliceStorageMut'>SliceStorageMut</a>&lt;'a, N, R, C, RStride, CStride, Alloc&gt; <span class='where fmt-newline'>where N: <a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Alloc: <a class='trait' href='../../../nalgebra/core/allocator/trait.Allocator.html' title='nalgebra::core::allocator::Allocator'>Allocator</a>&lt;N, R, C&gt;</span></code></li>
+<li><code>impl&lt;N, R, C&gt; Storage&lt;N, R, C&gt; for <a class='struct' href='../../../nalgebra/core/struct.MatrixArray.html' title='nalgebra::core::MatrixArray'>MatrixArray</a>&lt;N, R, C&gt; <span class='where fmt-newline'>where N: <a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R: <a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C: <a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R::<a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>Value</a>: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;C::<a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>Value</a>&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prod&lt;R::<a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>Value</a>, C::<a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>Value</a>&gt;: ArrayLength&lt;N&gt;</span></code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>, C:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>&gt; Storage&lt;N, <a class='struct' href='../../../nalgebra/core/dimension/struct.Dynamic.html' title='nalgebra::core::dimension::Dynamic'>Dynamic</a>, C&gt; for <a class='struct' href='../../../nalgebra/core/struct.MatrixVec.html' title='nalgebra::core::MatrixVec'>MatrixVec</a>&lt;N, <a class='struct' href='../../../nalgebra/core/dimension/struct.Dynamic.html' title='nalgebra::core::dimension::Dynamic'>Dynamic</a>, C&gt;</code></li>
+<li><code>impl&lt;N:&nbsp;<a class='trait' href='../../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a>, R:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>&gt; Storage&lt;N, R, <a class='struct' href='../../../nalgebra/core/dimension/struct.Dynamic.html' title='nalgebra::core::dimension::Dynamic'>Dynamic</a>&gt; for <a class='struct' href='../../../nalgebra/core/struct.MatrixVec.html' title='nalgebra::core::MatrixVec'>MatrixVec</a>&lt;N, R, <a class='struct' href='../../../nalgebra/core/dimension/struct.Dynamic.html' title='nalgebra::core::dimension::Dynamic'>Dynamic</a>&gt;</code></li>
+</ul><script type="text/javascript" async
+                         src="../../../implementors/nalgebra/core/storage/trait.Storage.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>
