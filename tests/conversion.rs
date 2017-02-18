@@ -8,8 +8,16 @@ extern crate alga;
 extern crate nalgebra as na;
 
 use alga::linear::Transformation;
-use na::{Vector3, Point3, Translation3, Isometry3, Similarity3, Affine3, Projective3, Transform3,
-         Rotation3, UnitQuaternion};
+use na::{
+    Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
+    Matrix2, Matrix3, Matrix4, Matrix5, Matrix6,
+    Matrix2x3, Matrix2x4, Matrix2x5, Matrix2x6,
+    Matrix3x2, Matrix3x4, Matrix3x5, Matrix3x6,
+    Matrix4x2, Matrix4x3, Matrix4x5, Matrix4x6,
+    Matrix5x2, Matrix5x3, Matrix5x4, Matrix5x6,
+    Matrix6x2, Matrix6x3, Matrix6x4, Matrix6x5,
+    Point3, Translation3, Isometry3, Similarity3, Affine3,
+    Projective3, Transform3, Rotation3, UnitQuaternion};
 
 
 #[cfg(feature = "arbitrary")]
@@ -145,3 +153,84 @@ quickcheck!{
 
     // XXX test TransformBase
 }
+
+macro_rules! array_vector_conversion(
+    ($($array_vector_conversion_i: ident, $Vector: ident, $SZ: expr);* $(;)*) => {$(
+        #[test]
+        fn $array_vector_conversion_i() {
+            let v  = $Vector::from_fn(|i, _| i);
+            let arr: [usize; $SZ] = v.into();
+            let arr_ref: &[usize; $SZ] = v.as_ref();
+            let v2 = $Vector::from(arr);
+        
+            for i in 0 .. $SZ {
+                assert_eq!(arr[i], i);
+                assert_eq!(arr_ref[i], i);
+            }
+        
+            assert_eq!(v, v2);
+        }
+    )*}
+);
+
+array_vector_conversion!(
+    array_vector_conversion_1, Vector1, 1;
+    array_vector_conversion_2, Vector2, 2;
+    array_vector_conversion_3, Vector3, 3;
+    array_vector_conversion_4, Vector4, 4;
+    array_vector_conversion_5, Vector5, 5;
+    array_vector_conversion_6, Vector6, 6;
+);
+
+macro_rules! array_matrix_conversion(
+    ($($array_matrix_conversion_i_j: ident, $Matrix: ident, ($NRows: expr, $NCols: expr));* $(;)*) => {$(
+        #[test]
+        fn $array_matrix_conversion_i_j() {
+            let m  = $Matrix::from_fn(|i, j| i * 10 + j);
+            let arr: [[usize; $NRows]; $NCols] = m.into();
+            let arr_ref: &[[usize; $NRows]; $NCols] = m.as_ref();
+            let m2 = $Matrix::from(arr);
+        
+            for i in 0 .. $NRows {
+                for j in 0 .. $NCols {
+                    assert_eq!(arr[j][i], i * 10 + j);
+                    assert_eq!(arr_ref[j][i], i * 10 + j);
+                }
+            }
+        
+            assert_eq!(m, m2);
+        }
+    )*}
+);
+
+array_matrix_conversion!(
+    array_matrix_conversion_2_2, Matrix2,   (2, 2);
+    array_matrix_conversion_2_3, Matrix2x3, (2, 3);
+    array_matrix_conversion_2_4, Matrix2x4, (2, 4);
+    array_matrix_conversion_2_5, Matrix2x5, (2, 5);
+    array_matrix_conversion_2_6, Matrix2x6, (2, 6);
+
+    array_matrix_conversion_3_2, Matrix3x2, (3, 2);
+    array_matrix_conversion_3_3, Matrix3,   (3, 3);
+    array_matrix_conversion_3_4, Matrix3x4, (3, 4);
+    array_matrix_conversion_3_5, Matrix3x5, (3, 5);
+    array_matrix_conversion_3_6, Matrix3x6, (3, 6);
+
+    array_matrix_conversion_4_2, Matrix4x2, (4, 2);
+    array_matrix_conversion_4_3, Matrix4x3, (4, 3);
+    array_matrix_conversion_4_4, Matrix4,   (4, 4);
+    array_matrix_conversion_4_5, Matrix4x5, (4, 5);
+    array_matrix_conversion_4_6, Matrix4x6, (4, 6);
+
+    array_matrix_conversion_5_2, Matrix5x2, (5, 2);
+    array_matrix_conversion_5_3, Matrix5x3, (5, 3);
+    array_matrix_conversion_5_4, Matrix5x4, (5, 4);
+    array_matrix_conversion_5_5, Matrix5,   (5, 5);
+    array_matrix_conversion_5_6, Matrix5x6, (5, 6);
+
+    array_matrix_conversion_6_2, Matrix6x2, (6, 2);
+    array_matrix_conversion_6_3, Matrix6x3, (6, 3);
+    array_matrix_conversion_6_4, Matrix6x4, (6, 4);
+    array_matrix_conversion_6_5, Matrix6x5, (6, 5);
+    array_matrix_conversion_6_6, Matrix6,   (6, 6);
+);
