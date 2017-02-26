@@ -1,11 +1,15 @@
 use std::ptr;
 use std::mem;
 use std::convert::{From, Into, AsRef, AsMut};
-use typenum::{self, Cmp, Equal};
 use alga::general::{SubsetOf, SupersetOf};
 
 use core::{Scalar, Matrix};
-use core::dimension::{Dim, DimName, DimNameMul, DimNameProd, U1, U2, U3, U4, U5, U6};
+use core::dimension::{Dim,
+    U1,  U2,  U3,  U4,
+    U5,  U6,  U7,  U8,
+    U9,  U10, U11, U12,
+    U13, U14, U15, U16
+};
 use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns};
 use core::storage::{Storage, StorageMut, OwnedStorage};
 use core::iter::{MatrixIter, MatrixIterMut};
@@ -85,14 +89,11 @@ impl<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator for &'a
 
 
 macro_rules! impl_from_into_asref_1D(
-    ($($Dim: ident => $SZ: expr);* $(;)*) => {$(
-        impl<N, R, C, S> From<[N; $SZ]> for Matrix<N, R, C, S>
+    ($(($NRows: ident, $NCols: ident) => $SZ: expr);* $(;)*) => {$(
+        impl<N, S> From<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
         where N: Scalar,
-              R: DimName + DimNameMul<C>,
-              C: DimName,
-              S: OwnedStorage<N, R, C>,
-              S::Alloc: OwnedAllocator<N, R, C, S>,
-              <DimNameProd<R, C> as DimName>::Value: Cmp<typenum::$Dim, Output = Equal> {
+              S: OwnedStorage<N, $NRows, $NCols>,
+              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
             #[inline]
             fn from(arr: [N; $SZ]) -> Self {
                 unsafe {
@@ -104,13 +105,10 @@ macro_rules! impl_from_into_asref_1D(
             }
         }
 
-        impl<N, R, C, S> Into<[N; $SZ]> for Matrix<N, R, C, S>
+        impl<N, S> Into<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
         where N: Scalar,
-              R: DimName + DimNameMul<C>,
-              C: DimName,
-              S: OwnedStorage<N, R, C>,
-              S::Alloc: OwnedAllocator<N, R, C, S>,
-              <DimNameProd<R, C> as DimName>::Value: Cmp<typenum::$Dim, Output = Equal> {
+              S: OwnedStorage<N, $NRows, $NCols>,
+              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
             #[inline]
             fn into(self) -> [N; $SZ] {
                 unsafe {
@@ -122,13 +120,10 @@ macro_rules! impl_from_into_asref_1D(
             }
         }
 
-        impl<N, R, C, S> AsRef<[N; $SZ]> for Matrix<N, R, C, S>
+        impl<N, S> AsRef<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
         where N: Scalar,
-              R: DimName + DimNameMul<C>,
-              C: DimName,
-              S: OwnedStorage<N, R, C>,
-              S::Alloc: OwnedAllocator<N, R, C, S>,
-              <DimNameProd<R, C> as DimName>::Value: Cmp<typenum::$Dim, Output = Equal> {
+              S: OwnedStorage<N, $NRows, $NCols>,
+              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
             #[inline]
             fn as_ref(&self) -> &[N; $SZ] {
                 unsafe {
@@ -137,13 +132,10 @@ macro_rules! impl_from_into_asref_1D(
             }
         }
 
-        impl<N, R, C, S> AsMut<[N; $SZ]> for Matrix<N, R, C, S>
+        impl<N, S> AsMut<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
         where N: Scalar,
-              R: DimName + DimNameMul<C>,
-              C: DimName,
-              S: OwnedStorage<N, R, C>,
-              S::Alloc: OwnedAllocator<N, R, C, S>,
-              <DimNameProd<R, C> as DimName>::Value: Cmp<typenum::$Dim, Output = Equal> {
+              S: OwnedStorage<N, $NRows, $NCols>,
+              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
             #[inline]
             fn as_mut(&mut self) -> &mut [N; $SZ] {
                 unsafe {
@@ -154,14 +146,19 @@ macro_rules! impl_from_into_asref_1D(
     )*}
 );
 
-// Implement for vectors of dimension 1 .. 36 and matrices with shape 1x1 .. 6x6.
+// Implement for vectors of dimension 1 .. 16.
 impl_from_into_asref_1D!(
-    U1  => 1;  U2  => 2;  U3  => 3;  U4  => 4;  U5  => 5;  U6  => 6;
-    U7  => 7;  U8  => 8;  U9  => 9;  U10 => 10; U11 => 11; U12 => 12;
-    U13 => 13; U14 => 14; U15 => 15; U16 => 16; U17 => 17; U18 => 18;
-    U19 => 19; U20 => 20; U21 => 21; U22 => 22; U23 => 23; U24 => 24;
-    U25 => 25; U26 => 26; U27 => 27; U28 => 28; U29 => 29; U30 => 30;
-    U31 => 31; U32 => 32; U33 => 33; U34 => 34; U35 => 35; U36 => 36;
+    // Row vectors.
+    (U1, U1 ) => 1;  (U1, U2 ) => 2;  (U1, U3 ) => 3;  (U1, U4 ) => 4;
+    (U1, U5 ) => 5;  (U1, U6 ) => 6;  (U1, U7 ) => 7;  (U1, U8 ) => 8;
+    (U1, U9 ) => 9;  (U1, U10) => 10; (U1, U11) => 11; (U1, U12) => 12;
+    (U1, U13) => 13; (U1, U14) => 14; (U1, U15) => 15; (U1, U16) => 16;
+
+    // Column vectors.
+                     (U2 , U1) => 2;  (U3 , U1) => 3;  (U4 , U1) => 4;
+    (U5 , U1) => 5;  (U6 , U1) => 6;  (U7 , U1) => 7;  (U8 , U1) => 8;
+    (U9 , U1) => 9;  (U10, U1) => 10; (U11, U1) => 11; (U12, U1) => 12;
+    (U13, U1) => 13; (U14, U1) => 14; (U15, U1) => 15; (U16, U1) => 16;
 );
 
 
@@ -225,12 +222,11 @@ macro_rules! impl_from_into_asref_2D(
 );
 
 
-// Implement for matrices with shape 1x1 .. 4x4.
+// Implement for matrices with shape 2x2 .. 4x4.
 impl_from_into_asref_2D!(
-    (U1, U1) => (1, 1); (U1, U2) => (1, 2); (U1, U3) => (1, 3); (U1, U4) => (1, 4); (U1, U5) => (1, 5); (U1, U6) => (1, 6);
-    (U2, U1) => (2, 1); (U2, U2) => (2, 2); (U2, U3) => (2, 3); (U2, U4) => (2, 4); (U2, U5) => (2, 5); (U2, U6) => (2, 6);
-    (U3, U1) => (3, 1); (U3, U2) => (3, 2); (U3, U3) => (3, 3); (U3, U4) => (3, 4); (U3, U5) => (3, 5); (U3, U6) => (3, 6);
-    (U4, U1) => (4, 1); (U4, U2) => (4, 2); (U4, U3) => (4, 3); (U4, U4) => (4, 4); (U4, U5) => (4, 5); (U4, U6) => (4, 6);
-    (U5, U1) => (5, 1); (U5, U2) => (5, 2); (U5, U3) => (5, 3); (U5, U4) => (5, 4); (U5, U5) => (5, 5); (U5, U6) => (5, 6);
-    (U6, U1) => (6, 1); (U6, U2) => (6, 2); (U6, U3) => (6, 3); (U6, U4) => (6, 4); (U6, U5) => (6, 5); (U6, U6) => (6, 6);
+    (U2, U2) => (2, 2); (U2, U3) => (2, 3); (U2, U4) => (2, 4); (U2, U5) => (2, 5); (U2, U6) => (2, 6);
+    (U3, U2) => (3, 2); (U3, U3) => (3, 3); (U3, U4) => (3, 4); (U3, U5) => (3, 5); (U3, U6) => (3, 6);
+    (U4, U2) => (4, 2); (U4, U3) => (4, 3); (U4, U4) => (4, 4); (U4, U5) => (4, 5); (U4, U6) => (4, 6);
+    (U5, U2) => (5, 2); (U5, U3) => (5, 3); (U5, U4) => (5, 4); (U5, U5) => (5, 5); (U5, U6) => (5, 6);
+    (U6, U2) => (6, 2); (U6, U3) => (6, 3); (U6, U4) => (6, 4); (U6, U5) => (6, 5); (U6, U6) => (6, 6);
 );
