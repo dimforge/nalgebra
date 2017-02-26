@@ -10,6 +10,7 @@ extern crate nalgebra as na;
 use alga::linear::Transformation;
 use na::{
     Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
+    RowVector1, RowVector2, RowVector3, RowVector4, RowVector5, RowVector6,
     Matrix2, Matrix3, Matrix4, Matrix5, Matrix6,
     Matrix2x3, Matrix2x4, Matrix2x5, Matrix2x6,
     Matrix3x2, Matrix3x4, Matrix3x5, Matrix3x6,
@@ -158,10 +159,10 @@ macro_rules! array_vector_conversion(
     ($($array_vector_conversion_i: ident, $Vector: ident, $SZ: expr);* $(;)*) => {$(
         #[test]
         fn $array_vector_conversion_i() {
-            let v  = $Vector::from_fn(|i, _| i);
+            let v       = $Vector::from_fn(|i, _| i);
             let arr: [usize; $SZ] = v.into();
-            let arr_ref: &[usize; $SZ] = v.as_ref();
-            let v2 = $Vector::from(arr);
+            let arr_ref = v.as_ref();
+            let v2      = $Vector::from(arr);
         
             for i in 0 .. $SZ {
                 assert_eq!(arr[i], i);
@@ -174,22 +175,50 @@ macro_rules! array_vector_conversion(
 );
 
 array_vector_conversion!(
-    array_vector_conversion_1, Vector1, 1;
-    array_vector_conversion_2, Vector2, 2;
-    array_vector_conversion_3, Vector3, 3;
-    array_vector_conversion_4, Vector4, 4;
-    array_vector_conversion_5, Vector5, 5;
-    array_vector_conversion_6, Vector6, 6;
+    array_vector_conversion_1,  Vector1,  1;
+    array_vector_conversion_2,  Vector2,  2;
+    array_vector_conversion_3,  Vector3,  3;
+    array_vector_conversion_4,  Vector4,  4;
+    array_vector_conversion_5,  Vector5,  5;
+    array_vector_conversion_6,  Vector6,  6;
+);
+
+macro_rules! array_row_vector_conversion(
+    ($($array_vector_conversion_i: ident, $Vector: ident, $SZ: expr);* $(;)*) => {$(
+        #[test]
+        fn $array_vector_conversion_i() {
+            let v       = $Vector::from_fn(|_, i| i);
+            let arr: [usize; $SZ] = v.into();
+            let arr_ref = v.as_ref();
+            let v2      = $Vector::from(arr);
+        
+            for i in 0 .. $SZ {
+                assert_eq!(arr[i], i);
+                assert_eq!(arr_ref[i], i);
+            }
+        
+            assert_eq!(v, v2);
+        }
+    )*}
+);
+
+array_row_vector_conversion!(
+    array_row_vector_conversion_1,  RowVector1,  1;
+    array_row_vector_conversion_2,  RowVector2,  2;
+    array_row_vector_conversion_3,  RowVector3,  3;
+    array_row_vector_conversion_4,  RowVector4,  4;
+    array_row_vector_conversion_5,  RowVector5,  5;
+    array_row_vector_conversion_6,  RowVector6,  6;
 );
 
 macro_rules! array_matrix_conversion(
     ($($array_matrix_conversion_i_j: ident, $Matrix: ident, ($NRows: expr, $NCols: expr));* $(;)*) => {$(
         #[test]
         fn $array_matrix_conversion_i_j() {
-            let m  = $Matrix::from_fn(|i, j| i * 10 + j);
+            let m       = $Matrix::from_fn(|i, j| i * 10 + j);
             let arr: [[usize; $NRows]; $NCols] = m.into();
-            let arr_ref: &[[usize; $NRows]; $NCols] = m.as_ref();
-            let m2 = $Matrix::from(arr);
+            let arr_ref = m.as_ref();
+            let m2      = $Matrix::from(arr);
         
             for i in 0 .. $NRows {
                 for j in 0 .. $NCols {
