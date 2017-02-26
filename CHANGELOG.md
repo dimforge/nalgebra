@@ -47,6 +47,10 @@ details. The following free-functions have been added as well:
   * `::dimension::<P>`  -> `::dimension::<P::Vector>`
   * `::angle_between`   -> `::angle`
 
+Componentwise multiplication and division has been replaced by methods: 
+  * multiplication -> `.componentwise_mul`, `.componentwise_mul_mut`.
+  * division       -> `.componentwise_div`, `.componentwise_div_mut`.
+
 The following free-functions are now replaced by methods (with the same names)
 only:
 `::cross`, `::cholesky`, `::determinant`, `::diagonal`, `::eigen_qr` (becomes
