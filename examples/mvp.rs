@@ -18,7 +18,7 @@ fn main() {
     let projection = Perspective3::new(16.0 / 9.0, 3.14 / 2.0, 1.0, 1000.0);
 
     // The combination of the model with the view is still an isometry.
-    let model_view = model * view;
+    let model_view = view * model;
 
     // Convert everything to a `Matrix4` so that they can be combined.
     let mat_model_view = model_view.to_homogeneous();
