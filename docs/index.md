@@ -18,14 +18,14 @@
 
 <table markdown="1">
   <tr>
-      <td>[![](../img/reference.svg)](../vectors_and_matrices)</td>
+      <td>[![](../img/reference.svg)](../quick_reference)</td>
       <td style="vertical-align:middle">
       <a href="../quick_reference" id="no_highlight">
       <div>
       <big>**Quick reference**</big>
       <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
       <br>
-      A global view of all the types, functions, and methods.
+      A [global view](../quick_reference) of all the types, functions, and methods.
       </div>
       </a>
       </td>
