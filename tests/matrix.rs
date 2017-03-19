@@ -309,6 +309,20 @@ fn simple_scalar_conversion() {
 }
 
 #[test]
+#[should_panic]
+fn trace_panic() {
+    let m = DMatrix::<f32>::new_random(2, 3);
+    let _ = m.trace();
+}
+
+#[test]
+fn trace() {
+    let m = Matrix2::new(1.0,  20.0,
+                         30.0, 4.0);
+    assert_eq!(m.trace(), 5.0);
+}
+
+#[test]
 fn simple_transpose() {
     let a = Matrix2x3::new(1.0, 2.0, 3.0,
                            4.0, 5.0, 6.0);

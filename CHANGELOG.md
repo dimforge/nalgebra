@@ -4,6 +4,12 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.0] - WIP
+
+### Added
+ * `.trace()` that computes the trace of a matrix (i.e., the sum of its
+   diagonal elements.)
+
 ## [0.11.0]
 The [website](http://nalgebra.org) has been fully rewritten and gives a good
 overview of all the added/modified features.
