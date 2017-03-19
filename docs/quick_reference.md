@@ -116,8 +116,8 @@ dimensions 1 to 6 for vectors and 1x1 to 6x6 for matrices.
 <br/>
 
 `.relative_eq(...)`       <span style="float:right;">Componentwise approximate matrix equality.</span><br />
-`.component_mul(rhs)`     <span style="float:right;">Componentwise multiplication.</span><br />
-`.component_mul_mut(rhs)` <span style="float:right;">In-place componentwise multiplication.</span><br />
+`.component_mul(rhs)`     <span style="float:right;">Componentwise multiplication (aka. Hadamard product).</span><br />
+`.component_mul_mut(rhs)` <span style="float:right;">In-place componentwise multiplication (aka. Hadamard product).</span><br />
 `.component_div(rhs)`     <span style="float:right;">Componentwise division.</span><br />
 `.component_div_mut(rhs)` <span style="float:right;">In-place componentwise division.</span><br />
 
@@ -131,8 +131,9 @@ dimensions 1 to 6 for vectors and 1x1 to 6x6 for matrices.
 <br/>
 
 `.diagonal()`          <span style="float:right;">The matrix diagonal.</span><br />
-`.abs()`               <span style="float:right;">The matrix diagonal.</span><br />
+`.abs()`               <span style="float:right;">The absolute value of this matrix components.</span><br />
 `.determinant()`       <span style="float:right;">The matrix determinant.</span><br />
+`.trace()`             <span style="float:right;">The trace of this matrix.</span><br />
 `.norm()`              <span style="float:right;">The L2 norm.</span><br />
 `.norm_squared()`      <span style="float:right;">The squared L2 norm.</span><br />
 `.normalize()`         <span style="float:right;">Normalization using the L2 norm.</span><br />
