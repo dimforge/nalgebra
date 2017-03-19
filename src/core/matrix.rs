@@ -403,7 +403,7 @@ impl<N, D: Dim, S> SquareMatrix<N, D, S>
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     #[inline]
     pub fn diagonal(&self) -> OwnedColumnVector<N, D, S::Alloc> {
-        assert!(self.is_square(), "Unable to transpose a non-square matrix in-place.");
+        assert!(self.is_square(), "Unable to get the diagonal of a non-square.");
 
         let dim = self.data.shape().0;
         let mut res = unsafe { OwnedColumnVector::<N, D, S::Alloc>::new_uninitialized_generic(dim, U1) };
@@ -413,6 +413,23 @@ impl<N, D: Dim, S> SquareMatrix<N, D, S>
         }
 
         res
+    }
+
+    /// Computes a trace of a square matrix, i.e., the sum of its diagonal elements.
+    #[inline]
+    pub fn trace(&self) -> N
+        where N: Ring {
+        assert!(self.is_square(), "Cannot compute the trace of non-square matrix.");
+
+        let dim = self.data.shape().0;
+        let mut res = N::zero();
+
+        for i in 0 .. dim.value() {
+            res += unsafe { *self.get_unchecked(i, i) };
+        }
+
+        res
+
     }
 }
 
