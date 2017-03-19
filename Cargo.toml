@@ -3,7 +3,7 @@ name    = "nalgebra"
 version = "0.11.1"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
-description = "Linear algebra library for computer physics, computer graphics and general low-dimensional linear algebra for Rust."
+description = "Linear algebra library with transformations and satically-sized or dynamically-sized matrices."
 documentation = "http://nalgebra.org/doc/nalgebra/index.html"
 homepage = "http://nalgebra.org"
 repository = "https://github.com/sebcrozet/nalgebra"
