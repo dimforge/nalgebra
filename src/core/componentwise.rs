@@ -32,9 +32,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 macro_rules! component_binop_impl(
-    ($($binop: ident, $binop_mut: ident, $Trait: ident . $binop_assign: ident);* $(;)*) => {$(
+    ($($binop: ident, $binop_mut: ident, $Trait: ident . $binop_assign: ident, $desc:expr, $desc_mut:expr);* $(;)*) => {$(
         impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-            /// Componentwise matrix multiplication.
+            #[doc = $desc]
             #[inline]
             pub fn $binop<R2, C2, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> MatrixComponentOp<N, R, C, R2, C2, S>
                 where N: $Trait,
@@ -54,7 +54,7 @@ macro_rules! component_binop_impl(
         }
         
         impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
-            /// Componentwise matrix multiplication.
+            #[doc = $desc_mut]
             #[inline]
             pub fn $binop_mut<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
                 where N: $Trait,
@@ -71,7 +71,9 @@ macro_rules! component_binop_impl(
 );
 
 component_binop_impl!(
-    component_mul, component_mul_mut, ClosedMul.mul_assign;
-    component_div, component_div_mut, ClosedDiv.div_assign;
+    component_mul, component_mul_mut, ClosedMul.mul_assign,
+    "Componentwise matrix multiplication.", "Mutable, componentwise matrix multiplication.";
+    component_div, component_div_mut, ClosedDiv.div_assign,
+    "Componentwise matrix division.", "Mutable, componentwise matrix division.";
     // FIXME: add other operators like bitshift, etc. ?
 );
