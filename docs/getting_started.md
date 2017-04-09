@@ -57,7 +57,7 @@ free-functions. Instead, see the details of each data structure and the traits
 they implement.
 
 
-Finally, two optional fatures can be enabled if needed:
+Finally, two optional features can be enabled if needed:
 
   * **arbitrary**: makes possible the use of [quickcheck](https://crates.io/crates/quickcheck).
   by adding implementations of the `Arbitrary` trait from quickcheck.
