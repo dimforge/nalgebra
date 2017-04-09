@@ -4,7 +4,7 @@ version = "0.11.2"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "Linear algebra library with transformations and satically-sized or dynamically-sized matrices."
-documentation = "http://nalgebra.org/doc/nalgebra/index.html"
+documentation = "http://nalgebra.org/rustdoc/nalgebra/index.html"
 homepage = "http://nalgebra.org"
 repository = "https://github.com/sebcrozet/nalgebra"
 readme = "README.md"
