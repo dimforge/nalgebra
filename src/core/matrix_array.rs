@@ -7,7 +7,7 @@ use serde::{Serialize, Serializer, Deserialize, Deserializer};
 #[cfg(feature = "serde-serialize")]
 use serde::ser::SerializeSeq;
 #[cfg(feature = "serde-serialize")]
-use serde::de::{SeqVisitor, Visitor};
+use serde::de::{SeqAccess, Visitor, Error};
 #[cfg(feature = "serde-serialize")]
 use std::mem;
 #[cfg(feature = "serde-serialize")]
@@ -216,7 +216,7 @@ where N: Scalar + Serialize,
 
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where S: Serializer {
-            let mut serializer = serializer.serialize_seq_fixed_size(R::dim() * C::dim())?;
+            let mut serializer = serializer.serialize_seq(Some(R::dim() * C::dim()))?;
 
             for e in self.iter() {
                 serializer.serialize_element(e)?;
@@ -228,8 +228,8 @@ where N: Scalar + Serialize,
 
 
 #[cfg(feature = "serde-serialize")]
-impl<N, R, C> Deserialize for MatrixArray<N, R, C>
-where N: Scalar + Deserialize,
+impl<'a, N, R, C> Deserialize<'a> for MatrixArray<N, R, C>
+where N: Scalar + Deserialize<'a>,
       R: DimName,
       C: DimName,
       R::Value: Mul<C::Value>,
@@ -237,10 +237,8 @@ where N: Scalar + Deserialize,
 
 
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer {
-
-            let len = R::dim() * C::dim();
-            deserializer.deserialize_seq_fixed_size(len, MatrixArrayVisitor::new())
+        where D: Deserializer<'a> {
+            deserializer.deserialize_seq(MatrixArrayVisitor::new())
         }
 }
 
@@ -268,8 +266,8 @@ where N: Scalar,
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N, R, C> Visitor for MatrixArrayVisitor<N, R, C>
-where N: Scalar + Deserialize,
+impl<'a, N, R, C> Visitor<'a> for MatrixArrayVisitor<N, R, C>
+where N: Scalar + Deserialize<'a>,
       R: DimName,
       C: DimName,
       R::Value: Mul<C::Value>,
@@ -283,16 +281,21 @@ where N: Scalar + Deserialize,
 
     #[inline]
     fn visit_seq<V>(self, mut visitor: V) -> Result<MatrixArray<N, R, C>, V::Error>
-        where V: SeqVisitor {
+        where V: SeqAccess<'a> {
 
         let mut out: Self::Value = unsafe { mem::uninitialized() };
         let mut curr = 0;
 
-        while let Some(value) = try!(visitor.visit()) {
+        while let Some(value) = try!(visitor.next_element()) {
             out[curr] = value;
             curr += 1;
         }
 
-        Ok(out)
+        if curr == R::dim() * C::dim() {
+            Ok(out)
+        }
+        else {
+            Err(V::Error::invalid_length(curr, &self))
+        }
     }
 }
