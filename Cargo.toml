@@ -27,8 +27,8 @@ num-traits      = "0.1"
 num-complex     = "0.1"
 approx          = "0.1"
 alga            = "0.5"
-serde           = { version = "0.9", optional = true }
-serde_derive    = { version = "0.9", optional = true }
+serde           = { version = "1.0", optional = true }
+serde_derive    = { version = "1.0", optional = true }
 # clippy = "*"
 
 [dependencies.quickcheck]
@@ -36,4 +36,4 @@ optional = true
 version  = "0.3"
 
 [dev-dependencies]
-serde_json = "0.9"
+serde_json = "1.0"
