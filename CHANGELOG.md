@@ -4,7 +4,8 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.12.0] - WIP
+## [0.12.0]
+The main change of this release is the update of the dependency serde to 1.0.
 
 ### Added
  * `.trace()` that computes the trace of a matrix (i.e., the sum of its
