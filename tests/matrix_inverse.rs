@@ -61,3 +61,61 @@ fn matrix5_try_inverse() {
 
     assert_relative_eq!(a_inv, expected_inverse, max_relative=1e-4);
 }
+
+#[test]
+fn matrix1_try_inverse_scaled_identity() {
+    // A perfectly invertible matrix with
+    // very small coefficients
+    let a = Matrix1::new(1.0e-20);
+    let expected_inverse = Matrix1::new(1.0e20);
+    let a_inv = a.try_inverse().expect("Matrix is invertible");
+
+    assert_relative_eq!(a_inv, expected_inverse);
+}
+
+#[test]
+fn matrix2_try_inverse_scaled_identity() {
+    // A perfectly invertible matrix with
+    // very small coefficients
+    let a = Matrix2::new(1.0e-20,     0.0,
+                             0.0, 1.0e-20);
+    let expected_inverse = Matrix2::new(1.0e20,    0.0,
+                                           0.0, 1.0e20);
+    let a_inv = a.try_inverse().expect("Matrix is invertible");
+
+    assert_relative_eq!(a_inv, expected_inverse);
+}
+
+#[test]
+fn matrix3_try_inverse_scaled_identity() {
+    // A perfectly invertible matrix with
+    // very small coefficients
+    let a = Matrix3::new(1.0e-20,     0.0,     0.0,
+                             0.0, 1.0e-20,     0.0,
+                             0.0,     0.0, 1.0e-20);
+    let expected_inverse = Matrix3::new(1.0e20,    0.0,    0.0,
+                                           0.0, 1.0e20,    0.0,
+                                           0.0,    0.0, 1.0e20);
+    let a_inv = a.try_inverse().expect("Matrix is invertible");
+
+    assert_relative_eq!(a_inv, expected_inverse);
+}
+
+#[test]
+fn matrix5_try_inverse_scaled_identity() {
+    // A perfectly invertible matrix with
+    // very small coefficients
+    let a = Matrix5::new(1.0e-20,     0.0,     0.0,     0.0,     0.0,
+                             0.0, 1.0e-20,     0.0,     0.0,     0.0,
+                             0.0,     0.0, 1.0e-20,     0.0,     0.0,
+                             0.0,     0.0,     0.0, 1.0e-20,     0.0,
+                             0.0,     0.0,     0.0,     0.0, 1.0e-20);
+    let expected_inverse = Matrix5::new(1.0e+20,     0.0,     0.0,     0.0,     0.0,
+                                            0.0, 1.0e+20,     0.0,     0.0,     0.0,
+                                            0.0,     0.0, 1.0e+20,     0.0,     0.0,
+                                            0.0,     0.0,     0.0, 1.0e+20,     0.0,
+                                            0.0,     0.0,     0.0,     0.0, 1.0e+20);;
+    let a_inv = a.try_inverse().expect("Matrix is invertible");
+
+    assert_relative_eq!(a_inv, expected_inverse);
+}

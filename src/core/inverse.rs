@@ -45,18 +45,19 @@ impl<N, D: Dim, S> SquareMatrix<N, D, S>
             match dim {
                 0 => true,
                 1 => {
-                    if relative_eq!(self.get_unchecked(0, 0), &N::zero()) {
+                    let determinant = self.get_unchecked(0, 0).clone();
+                    if determinant == N::zero() {
                         false
                     }
                     else {
-                        *self.get_unchecked_mut(0, 0) = N::one() / self.determinant();
+                        *self.get_unchecked_mut(0, 0) = N::one() / determinant;
                         true
                     }
                 },
                 2 => {
                     let determinant = self.determinant();
 
-                    if relative_eq!(&determinant, &N::zero()) {
+                    if determinant == N::zero() {
                         false
                     }
                     else {
@@ -94,7 +95,7 @@ impl<N, D: Dim, S> SquareMatrix<N, D, S>
                                       m12 * minor_m11_m23 +
                                       m13 * minor_m11_m22;
 
-                    if relative_eq!(&determinant, &N::zero()) {
+                    if determinant == N::zero() {
                         false
                     }
                     else {
