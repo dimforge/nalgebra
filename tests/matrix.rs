@@ -12,11 +12,12 @@ use std::fmt::Display;
 
 use alga::linear::FiniteDimInnerSpace;
 
-use na::{DVector, DMatrix,
+use na::{U8, U15,
+         DVector, DMatrix,
          Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
          RowVector4,
          Matrix1, Matrix2, Matrix3, Matrix4, Matrix5, Matrix6,
-         Matrix2x3, Matrix3x2, Matrix3x4, Matrix4x3, Matrix2x4, Matrix4x6};
+         MatrixNM, Matrix2x3, Matrix3x2, Matrix3x4, Matrix4x3, Matrix2x4, Matrix4x5, Matrix4x6};
 
 
 #[test]
@@ -431,6 +432,47 @@ fn components_mut() {
                                    21.0, 22.0, 23.0,
                                    31.0, 32.0, 33.0);
     assert_eq!(expected_m3, m3);
+}
+
+#[test]
+fn kronecker() {
+    let a = Matrix2x3::new(
+        11, 12, 13,
+        21, 22, 23);
+
+    let b = Matrix4x5::new(
+        110, 120, 130, 140, 150,
+        210, 220, 230, 240, 250,
+        310, 320, 330, 340, 350,
+        410, 420, 430, 440, 450);
+
+    let expected  = MatrixNM::<_, U8, U15>::from_row_slice(&[
+        1210, 1320, 1430, 1540, 1650, 1320, 1440, 1560, 1680, 1800, 1430, 1560, 1690, 1820,  1950,
+        2310, 2420, 2530, 2640, 2750, 2520, 2640, 2760, 2880, 3000, 2730, 2860, 2990, 3120,  3250,
+        3410, 3520, 3630, 3740, 3850, 3720, 3840, 3960, 4080, 4200, 4030, 4160, 4290, 4420,  4550,
+        4510, 4620, 4730, 4840, 4950, 4920, 5040, 5160, 5280, 5400, 5330, 5460, 5590, 5720,  5850,
+        2310, 2520, 2730, 2940, 3150, 2420, 2640, 2860, 3080, 3300, 2530, 2760, 2990, 3220,  3450,
+        4410, 4620, 4830, 5040, 5250, 4620, 4840, 5060, 5280, 5500, 4830, 5060, 5290, 5520,  5750,
+        6510, 6720, 6930, 7140, 7350, 6820, 7040, 7260, 7480, 7700, 7130, 7360, 7590, 7820,  8050,
+        8610, 8820, 9030, 9240, 9450, 9020, 9240, 9460, 9680, 9900, 9430, 9660, 9890, 10120, 10350 ]);
+
+    let computed = a.kronecker(&b);
+
+    assert_eq!(computed, expected);
+
+    let a = Vector2::new(1, 2);
+    let b = Vector3::new(10, 20, 30);
+    let expected = Vector6::new(10, 20, 30, 20, 40, 60);
+
+    assert_eq!(a.kronecker(&b), expected);
+
+    let a = Vector2::new(1, 2);
+    let b = RowVector4::new(10, 20, 30, 40);
+    let expected = Matrix2x4::new(
+        10, 20, 30, 40,
+        20, 40, 60, 80);
+
+    assert_eq!(a.kronecker(&b), expected);
 }
 
 #[cfg(feature = "arbitrary")]
