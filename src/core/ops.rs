@@ -5,7 +5,7 @@ use num::Zero;
 use alga::general::{ClosedMul, ClosedDiv, ClosedAdd, ClosedSub, ClosedNeg};
 
 use core::{Scalar, Matrix, OwnedMatrix, MatrixSum, MatrixMul, MatrixTrMul};
-use core::dimension::Dim;
+use core::dimension::{Dim, DimMul, DimProd};
 use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns, AreMultipliable};
 use core::storage::{Storage, StorageMut, OwnedStorage};
 use core::allocator::{SameShapeAllocator, Allocator, OwnedAllocator};
@@ -453,13 +453,15 @@ impl<'b, N, R1, C1, R2, SA, SB> MulAssign<&'b Matrix<N, R2, C1, SB>> for Matrix<
 }
 
 
+// Transpose-multiplication.
 impl<N, R1: Dim, C1: Dim, SA> Matrix<N, R1, C1, SA>
-    where N:  Scalar + Zero + ClosedAdd + ClosedMul,
+    where N:  Scalar,
           SA: Storage<N, R1, C1> {
     /// Equivalent to `self.transpose() * right`.
     #[inline]
     pub fn tr_mul<R2: Dim, C2: Dim, SB>(&self, right: &Matrix<N, R2, C2, SB>) -> MatrixTrMul<N, R1, C1, C2, SA>
-        where SB: Storage<N, R2, C2>,
+        where N: Zero + ClosedAdd + ClosedMul,
+              SB: Storage<N, R2, C2>,
               SA::Alloc: Allocator<N, C1, C2>,
               ShapeConstraint: AreMultipliable<C1, R1, R2, C2> {
         let (nrows1, ncols1) = self.shape();
@@ -477,10 +479,48 @@ impl<N, R1: Dim, C1: Dim, SA> Matrix<N, R1, C1, SA>
 
                 unsafe {
                     for k in 0 .. nrows1 {
-                        acc = acc + *self.get_unchecked(k, i) * *right.get_unchecked(k, j);
+                        acc += *self.get_unchecked(k, i) * *right.get_unchecked(k, j);
                     }
 
                     *res.get_unchecked_mut(i, j) = acc;
+                }
+            }
+        }
+
+        res
+    }
+
+
+    /// The kronecker product of two matrices (aka. tensor product of the corresponding linear
+    /// maps).
+    pub fn kronecker<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>)
+                                           -> OwnedMatrix<N, DimProd<R1, R2>, DimProd<C1, C2>, SA::Alloc>
+        where N:  ClosedMul,
+              R1: DimMul<R2>,
+              C1: DimMul<C2>,
+              SB: Storage<N, R2, C2>,
+              SA::Alloc: Allocator<N, DimProd<R1, R2>, DimProd<C1, C2>> {
+        let (nrows1, ncols1) = self.data.shape();
+        let (nrows2, ncols2) = rhs.data.shape();
+
+        let mut res: OwnedMatrix<_, _, _, SA::Alloc> =
+            unsafe { Matrix::new_uninitialized_generic(nrows1.mul(nrows2), ncols1.mul(ncols2)) };
+
+        {
+            let mut data_res = res.data.ptr_mut();
+
+            for j1 in 0 .. ncols1.value() {
+                for j2 in 0 .. ncols2.value() {
+                    for i1 in 0 .. nrows1.value() {
+                        unsafe {
+                            let coeff = *self.get_unchecked(i1, j1);
+
+                            for i2 in 0 .. nrows2.value() {
+                                *data_res = coeff * *rhs.get_unchecked(i2, j2);
+                                data_res = data_res.offset(1);
+                            }
+                        }
+                    }
                 }
             }
         }

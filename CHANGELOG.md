@@ -4,6 +4,12 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.13.0] - WIP
+### Added
+  * `.kronecker(a, b)` computes the kronecker product (i.e. matrix tensor
+    product) of two matrices.
+
+
 ## [0.12.0]
 The main change of this release is the update of the dependency serde to 1.0.
 
