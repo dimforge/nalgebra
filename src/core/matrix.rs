@@ -7,6 +7,9 @@ use std::any::TypeId;
 use std::mem;
 use approx::ApproxEq;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
 use alga::general::{Ring, Real};
 
 use core::{Scalar, Unit};
@@ -80,14 +83,40 @@ Matrix<NNew, R, C, <<S as Storage<NOld, R, C>>::Alloc as Allocator<NNew, R, C>>:
 /// some concrete types for `N` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Hash, Debug, Clone, Copy)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
     /// The data storage that contains all the matrix components and informations about its number
     /// of rows and column (if needed).
     pub data:  S,
 
-    #[cfg_attr(feature = "serde-serialize", serde(skip_serializing, skip_deserializing))]
     _phantoms: PhantomData<(N, R, C)>
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<N, R, C, S> Serialize for Matrix<N, R, C, S>
+    where N: Scalar,
+          R: Dim,
+          C: Dim,
+          S: Serialize,
+{
+    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
+        where T: Serializer
+    {
+        self.data.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, N, R, C, S> Deserialize<'de> for Matrix<N, R, C, S>
+    where N: Scalar,
+          R: Dim,
+          C: Dim,
+          S: Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        S::deserialize(deserializer).map(|x| Matrix { data: x, _phantoms: PhantomData })
+    }
 }
 
 impl<N: Scalar, R: Dim, C: Dim, S> Matrix<N, R, C, S> {

@@ -2,6 +2,9 @@ use num::{Zero, One};
 use std::fmt;
 use approx::ApproxEq;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
 use alga::general::Real;
 
 use core::{SquareMatrix, Scalar, OwnedSquareMatrix};
@@ -16,9 +19,34 @@ pub type OwnedRotation<N, D, A> = RotationBase<N, D, <A as Allocator<N, D, D>>::
 /// A rotation matrix.
 #[repr(C)]
 #[derive(Hash, Debug, Clone, Copy)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct RotationBase<N: Scalar, D: DimName, S> {
     matrix: SquareMatrix<N, D, S>
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<N, D, S> Serialize for RotationBase<N, D, S>
+    where N: Scalar,
+          D: DimName,
+          SquareMatrix<N, D, S>: Serialize,
+{
+    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
+        where T: Serializer
+    {
+        self.matrix.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, N, D, S> Deserialize<'de> for RotationBase<N, D, S>
+    where N: Scalar,
+          D: DimName,
+          SquareMatrix<N, D, S>: Deserialize<'de>,
+{
+    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
+        where T: Deserializer<'de>
+    {
+        SquareMatrix::deserialize(deserializer).map(|x| RotationBase { matrix: x })
+    }
 }
 
 impl<N: Scalar, D: DimName, S: Storage<N, D, D>> RotationBase<N, D, S>

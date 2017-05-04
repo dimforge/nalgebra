@@ -13,7 +13,8 @@ use na::{
     IsometryMatrix3,
     Similarity3,
     SimilarityMatrix3,
-    Quaternion
+    Quaternion,
+    Unit,
 };
 
 macro_rules! test_serde(
@@ -45,3 +46,11 @@ test_serde!(
     serde_similarity_matrix3, SimilarityMatrix3;
     serde_quaternion,         Quaternion;
 );
+
+#[test]
+fn serde_flat() {
+    // The actual storage is hidden behind three layers of wrapper types that shouldn't appear in serialized form.
+    let v = Unit::new_normalize(Quaternion::new(0., 0., 0., 1.));
+    let serialized = serde_json::to_string(&v).unwrap();
+    assert_eq!(serialized, "[0.0,0.0,1.0,0.0]");
+}

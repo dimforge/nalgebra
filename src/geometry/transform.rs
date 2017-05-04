@@ -3,6 +3,9 @@ use std::fmt::Debug;
 use std::marker::PhantomData;
 use approx::ApproxEq;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
 use alga::general::Field;
 
 use core::{Scalar, SquareMatrix, OwnedSquareMatrix};
@@ -53,17 +56,14 @@ where T1: TCategory,
 
 /// Tag representing the most general (not necessarily inversible) `Transform` type.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub enum TGeneral { }
 
 /// Tag representing the most general inversible `Transform` type.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub enum TProjective { }
 
 /// Tag representing an affine `Transform`. Its bottom-row is equal to `(0, 0 ... 0, 1)`.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub enum TAffine { }
 
 impl TCategory for TGeneral {
@@ -159,12 +159,38 @@ pub type OwnedTransform<N, D, A, C>
 /// 3D transformation.
 #[repr(C)]
 #[derive(Debug, Clone, Copy)] // FIXME: Hash
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct TransformBase<N: Scalar, D: DimNameAdd<U1>, S, C: TCategory> {
     matrix:   SquareMatrix<N, DimNameSum<D, U1>, S>,
 
-    #[cfg_attr(feature = "serde-serialize", serde(skip_serializing, skip_deserializing))]
     _phantom: PhantomData<C>
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<N, D, S, C> Serialize for TransformBase<N, D, S, C>
+    where N: Scalar,
+          D: DimNameAdd<U1>,
+          C: TCategory,
+          SquareMatrix<N, DimNameSum<D, U1>, S>: Serialize,
+{
+    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
+        where T: Serializer
+    {
+        self.matrix.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, N, D, S, C> Deserialize<'de> for TransformBase<N, D, S, C>
+    where N: Scalar,
+          D: DimNameAdd<U1>,
+          C: TCategory,
+          SquareMatrix<N, DimNameSum<D, U1>, S>: Deserialize<'de>,
+{
+    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
+        where T: Deserializer<'de>
+    {
+        SquareMatrix::deserialize(deserializer).map(|x| TransformBase { matrix: x, _phantom: PhantomData })
+    }
 }
 
 // XXX: for some reasons, implementing Clone and Copy manually causes an ICE…

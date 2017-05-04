@@ -3,6 +3,9 @@ use std::fmt;
 use std::cmp::Ordering;
 use approx::ApproxEq;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
 use core::{Scalar, ColumnVector, OwnedColumnVector};
 use core::iter::{MatrixIter, MatrixIterMut};
 use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
@@ -24,7 +27,6 @@ pub type OwnedPoint<N, D, A> = PointBase<N, D, <A as Allocator<N, D, U1>>::Buffe
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]
 #[derive(Hash, Debug)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct PointBase<N: Scalar, D: DimName, S: Storage<N, D, U1>> {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: ColumnVector<N, D, S>
@@ -42,6 +44,34 @@ impl<N, D, S> Clone for PointBase<N, D, S>
     #[inline]
     fn clone(&self) -> Self {
         PointBase::from_coordinates(self.coords.clone())
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<N, D, S> Serialize for PointBase<N, D, S>
+    where N: Scalar,
+          D: DimName,
+          S: Storage<N, D, U1>,
+          ColumnVector<N, D, S>: Serialize,
+{
+    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
+        where T: Serializer
+    {
+        self.coords.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, N, D, S> Deserialize<'de> for PointBase<N, D, S>
+    where N: Scalar,
+          D: DimName,
+          S: Storage<N, D, U1>,
+          ColumnVector<N, D, S>: Deserialize<'de>,
+{
+    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
+        where T: Deserializer<'de>
+    {
+        ColumnVector::deserialize(deserializer).map(|x| PointBase { coords: x })
     }
 }
 

@@ -2,6 +2,9 @@ use std::mem;
 use std::ops::{Neg, Deref};
 use approx::ApproxEq;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
 use alga::general::SubsetOf;
 use alga::linear::NormedSpace;
 
@@ -11,9 +14,26 @@ use alga::linear::NormedSpace;
 /// Use `.as_ref()` or `.unwrap()` to obtain the undelying value by-reference or by-move.
 #[repr(C)]
 #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct Unit<T> {
     value: T
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<T: Serialize> Serialize for Unit<T> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        self.value.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        T::deserialize(deserializer).map(|x| Unit { value: x })
+    }
 }
 
 impl<T: NormedSpace> Unit<T> {

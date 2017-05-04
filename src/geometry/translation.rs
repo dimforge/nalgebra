@@ -2,6 +2,9 @@ use num::{Zero, One};
 use std::fmt;
 use approx::ApproxEq;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
 use alga::general::{Real, ClosedNeg};
 
 use core::{Scalar, ColumnVector, OwnedSquareMatrix};
@@ -15,11 +18,36 @@ pub type OwnedTranslation<N, D, S> = TranslationBase<N, D, Owned<N, D, U1, <S as
 /// A translation.
 #[repr(C)]
 #[derive(Hash, Debug, Clone, Copy)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct TranslationBase<N: Scalar, D: DimName, S/*: Storage<N, D, U1>*/> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
     pub vector: ColumnVector<N, D, S>
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<N, D, S> Serialize for TranslationBase<N, D, S>
+    where N: Scalar,
+          D: DimName,
+          ColumnVector<N, D, S>: Serialize,
+{
+    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
+        where T: Serializer
+    {
+        self.vector.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, N, D, S> Deserialize<'de> for TranslationBase<N, D, S>
+    where N: Scalar,
+          D: DimName,
+          ColumnVector<N, D, S>: Deserialize<'de>,
+{
+    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
+        where T: Deserializer<'de>
+    {
+        ColumnVector::deserialize(deserializer).map(|x| TranslationBase { vector: x })
+    }
 }
 
 impl<N, D: DimName, S> TranslationBase<N, D, S>

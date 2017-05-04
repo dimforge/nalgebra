@@ -2,6 +2,9 @@
 use quickcheck::{Arbitrary, Gen};
 use rand::{Rand, Rng};
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
 use alga::general::Real;
 
 use core::{Scalar, SquareMatrix, OwnedSquareMatrix, ColumnVector, OwnedColumnVector, MatrixArray};
@@ -14,9 +17,34 @@ use geometry::{PointBase, OwnedPoint};
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
 #[derive(Debug, Clone, Copy)] // FIXME: Hash
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct PerspectiveBase<N: Scalar, S: Storage<N, U4, U4>> {
     matrix: SquareMatrix<N, U4, S>
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<N, S> Serialize for PerspectiveBase<N, S>
+    where N: Scalar,
+          S: Storage<N, U4, U4>,
+          SquareMatrix<N, U4, S>: Serialize,
+{
+    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
+        where T: Serializer
+    {
+        self.matrix.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, N, S> Deserialize<'de> for PerspectiveBase<N, S>
+    where N: Scalar,
+          S: Storage<N, U4, U4>,
+          SquareMatrix<N, U4, S>: Deserialize<'de>,
+{
+    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
+        where T: Deserializer<'de>
+    {
+        SquareMatrix::deserialize(deserializer).map(|x| PerspectiveBase { matrix: x })
+    }
 }
 
 /// A 3D perspective projection stored as a static homogeneous 4x4 matrix.

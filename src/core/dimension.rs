@@ -7,9 +7,11 @@ use std::any::Any;
 use std::ops::{Add, Sub, Mul, Div};
 use typenum::{self, Unsigned, UInt, B1, Bit, UTerm, Sum, Prod, Diff, Quot};
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
 /// Dim of dynamically-sized algebraic entities.
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct Dynamic {
     value: usize
 }
@@ -21,6 +23,24 @@ impl Dynamic {
         Dynamic {
             value: value
         }
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl Serialize for Dynamic {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        self.value.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de> Deserialize<'de> for Dynamic {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        usize::deserialize(deserializer).map(|x| Dynamic { value: x })
     }
 }
 
