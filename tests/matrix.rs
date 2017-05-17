@@ -15,7 +15,7 @@ use alga::linear::FiniteDimInnerSpace;
 use na::{U8, U15,
          DVector, DMatrix,
          Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
-         RowVector4,
+         RowVector4, RowVector5,
          Matrix1, Matrix2, Matrix3, Matrix4, Matrix5, Matrix6,
          MatrixNM, Matrix2x3, Matrix3x2, Matrix3x4, Matrix4x3, Matrix2x4, Matrix4x5, Matrix4x6};
 
@@ -473,6 +473,38 @@ fn kronecker() {
         20, 40, 60, 80);
 
     assert_eq!(a.kronecker(&b), expected);
+}
+
+#[test]
+fn set_row_column() {
+    let a = Matrix4x5::new(
+        11, 12, 13, 14, 15,
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35,
+        41, 42, 43, 44, 45);
+
+    let expected1 = Matrix4x5::new(
+        11, 12, 13, 14, 15,
+        42, 43, 44, 45, 46,
+        31, 32, 33, 34, 35,
+        41, 42, 43, 44, 45);
+
+    let expected2 = Matrix4x5::new(
+        11, 12, 100, 14, 15,
+        42, 43, 101, 45, 46,
+        31, 32, 102, 34, 35,
+        41, 42, 103, 44, 45);
+
+    let row = RowVector5::new(42, 43, 44, 45, 46);
+    let col = Vector4::new(100, 101, 102, 103);
+
+    let mut computed = a;
+
+    computed.set_row(1, &row);
+    assert_eq!(expected1, computed);
+
+    computed.set_column(2, &col);
+    assert_eq!(expected2, computed);
 }
 
 #[cfg(feature = "arbitrary")]
