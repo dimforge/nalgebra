@@ -31,6 +31,9 @@ pub type ColumnVector<N, D, S> = Matrix<N, D, U1, S>;
 /// An owned matrix with one column and `D` rows.
 pub type OwnedColumnVector<N, D, A> = OwnedMatrix<N, D, U1, A>;
 
+/// A matrix with one row and `D` columns.
+pub type RowVector<N, D, S> = Matrix<N, U1, D, S>;
+
 /// An owned matrix with one row and `D` columns.
 pub type OwnedRowVector<N, D, A> = OwnedMatrix<N, U1, D, A>;
 
@@ -300,6 +303,24 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         for e in self.iter_mut() {
             *e = value
         }
+    }
+
+    /// Fills the selected row of this matrix with the content of the given vector.
+    #[inline]
+    pub fn set_row<C2: Dim, S2>(&mut self, i: usize, row: &RowVector<N, C2, S2>)
+        where S2: Storage<N, U1, C2>,
+              S::Alloc: Allocator<N, U1, C>,
+              ShapeConstraint: SameNumberOfColumns<C, C2> {
+        self.row_mut(i).copy_from(row);
+    }
+
+    /// Fills the selected column of this matrix with the content of the given vector.
+    #[inline]
+    pub fn set_column<R2: Dim, S2>(&mut self, i: usize, column: &ColumnVector<N, R2, S2>)
+        where S2: Storage<N, R2, U1>,
+              S::Alloc: Allocator<N, R, U1>,
+              ShapeConstraint: SameNumberOfRows<R, R2> {
+        self.column_mut(i).copy_from(column);
     }
 }
 

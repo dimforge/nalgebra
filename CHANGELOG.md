@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
   * `.kronecker(a, b)` computes the kronecker product (i.e. matrix tensor
     product) of two matrices.
+  * `.set_row(i, row)` sets the i-th row of the matrix.
+  * `.set_column(j, column)` sets the i-th column of the matrix.
 
 
 ## [0.12.0]

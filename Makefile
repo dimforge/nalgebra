@@ -8,4 +8,4 @@ bench:
 	cargo bench
 
 test:
-	CARGO_INCREMENTAL=1 cargo test --features "arbitrary serde-serialize"
+	cargo test --features "arbitrary serde-serialize"
