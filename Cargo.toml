@@ -17,7 +17,7 @@ path = "src/lib.rs"
 
 [features]
 arbitrary = [ "quickcheck" ]
-serde-serialize = [ "serde", "serde_derive" ]
+serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
 
 [dependencies]
 typenum         = "1.4"
