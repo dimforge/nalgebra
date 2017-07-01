@@ -1,11 +1,12 @@
+use std::iter;
 use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Neg,
                Index, IndexMut};
-use num::Zero;
+use num::{Zero, One};
 
 use alga::general::{ClosedMul, ClosedDiv, ClosedAdd, ClosedSub, ClosedNeg};
 
-use core::{Scalar, Matrix, OwnedMatrix, MatrixSum, MatrixMul, MatrixTrMul};
-use core::dimension::{Dim, DimMul, DimProd};
+use core::{Scalar, Matrix, OwnedMatrix, SquareMatrix, MatrixSum, MatrixMul, MatrixTrMul};
+use core::dimension::{Dim, DimMul, DimName, DimProd};
 use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns, AreMultipliable};
 use core::storage::{Storage, StorageMut, OwnedStorage};
 use core::allocator::{SameShapeAllocator, Allocator, OwnedAllocator};
@@ -231,6 +232,25 @@ macro_rules! componentwise_binop_impl(
 componentwise_binop_impl!(Add, add, ClosedAdd; AddAssign, add_assign);
 componentwise_binop_impl!(Sub, sub, ClosedSub; SubAssign, sub_assign);
 
+impl<N, R: DimName, C: DimName, S> iter::Sum for Matrix<N, R, C, S>
+    where N: Scalar + ClosedAdd + Zero,
+          S: OwnedStorage<N, R, C>,
+          S::Alloc: OwnedAllocator<N, R, C, S>
+{
+    fn sum<I: Iterator<Item = Matrix<N, R, C, S>>>(iter: I) -> Matrix<N, R, C, S> {
+        iter.fold(Matrix::zero(), |acc, x| acc + x)
+    }
+}
+
+impl<'a, N, R: DimName, C: DimName, S> iter::Sum<&'a Matrix<N, R, C, S>> for Matrix<N, R, C, S>
+    where N: Scalar + ClosedAdd + Zero,
+          S: OwnedStorage<N, R, C>,
+          S::Alloc: OwnedAllocator<N, R, C, S>
+{
+    fn sum<I: Iterator<Item = &'a Matrix<N, R, C, S>>>(iter: I) -> Matrix<N, R, C, S> {
+        iter.fold(Matrix::zero(), |acc, x| acc + x)
+    }
+}
 
 
 /*
@@ -526,5 +546,25 @@ impl<N, R1: Dim, C1: Dim, SA> Matrix<N, R1, C1, SA>
         }
 
         res
+    }
+}
+
+impl<N, D: DimName, S> iter::Product for SquareMatrix<N, D, S>
+    where N: Scalar + Zero + One + ClosedMul + ClosedAdd,
+          S: OwnedStorage<N, D, D>,
+          S::Alloc: OwnedAllocator<N, D, D, S>
+{
+    fn product<I: Iterator<Item = SquareMatrix<N, D, S>>>(iter: I) -> SquareMatrix<N, D, S> {
+        iter.fold(Matrix::one(), |acc, x| acc * x)
+    }
+}
+
+impl<'a, N, D: DimName, S> iter::Product<&'a SquareMatrix<N, D, S>> for SquareMatrix<N, D, S>
+    where N: Scalar + Zero + One + ClosedMul + ClosedAdd,
+          S: OwnedStorage<N, D, D>,
+          S::Alloc: OwnedAllocator<N, D, D, S>
+{
+    fn product<I: Iterator<Item = &'a SquareMatrix<N, D, S>>>(iter: I) -> SquareMatrix<N, D, S> {
+        iter.fold(Matrix::one(), |acc, x| acc * x)
     }
 }

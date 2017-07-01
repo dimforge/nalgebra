@@ -264,6 +264,25 @@ fn simple_add() {
 }
 
 #[test]
+fn simple_sum() {
+    type M = Matrix2x3<f32>;
+
+    let a = M::new(1.0, 2.0, 3.0,
+                   4.0, 5.0, 6.0);
+    let b = M::new(10.0, 20.0, 30.0,
+                   40.0, 50.0, 60.0);
+    let c = M::new(100.0, 200.0, 300.0,
+                   400.0, 500.0, 600.0);
+
+    assert_eq!(M::zero(), Vec::<M>::new().iter().sum());
+    assert_eq!(M::zero(), Vec::<M>::new().into_iter().sum());
+    assert_eq!(a + b, vec![a, b].iter().sum());
+    assert_eq!(a + b, vec![a, b].into_iter().sum());
+    assert_eq!(a + b + c, vec![a, b, c].iter().sum());
+    assert_eq!(a + b + c, vec![a, b, c].into_iter().sum());
+}
+
+#[test]
 fn simple_scalar_mul() {
     let a = Matrix2x3::new(1.0, 2.0, 3.0,
                            4.0, 5.0, 6.0);
@@ -293,6 +312,28 @@ fn simple_mul() {
     assert_eq!(expected,  a * &b);
     assert_eq!(expected, &a *  b);
     assert_eq!(expected,  a *  b);
+}
+
+#[test]
+fn simple_product() {
+    type M = Matrix3<f32>;
+
+    let a = M::new(1.0, 2.0, 3.0,
+                   4.0, 5.0, 6.0,
+                   7.0, 8.0, 9.0);
+    let b = M::new(10.0, 20.0, 30.0,
+                   40.0, 50.0, 60.0,
+                   70.0, 80.0, 90.0);
+    let c = M::new(100.0, 200.0, 300.0,
+                   400.0, 500.0, 600.0,
+                   700.0, 800.0, 900.0);
+
+    assert_eq!(M::one(), Vec::<M>::new().iter().product());
+    assert_eq!(M::one(), Vec::<M>::new().into_iter().product());
+    assert_eq!(a * b, vec![a, b].iter().product());
+    assert_eq!(a * b, vec![a, b].into_iter().product());
+    assert_eq!(a * b * c, vec![a, b, c].iter().product());
+    assert_eq!(a * b * c, vec![a, b, c].into_iter().product());
 }
 
 #[test]
