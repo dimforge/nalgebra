@@ -7,7 +7,8 @@ use alga::general::{SubsetOf, SupersetOf};
 use core::{Scalar, Matrix};
 use core::dimension::{Dim, DimName, DimNameMul, DimNameProd, U1, U2, U3, U4, U5, U6};
 use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns};
-use core::storage::OwnedStorage;
+use core::storage::{Storage, StorageMut, OwnedStorage};
+use core::iter::{MatrixIter, MatrixIterMut};
 use core::allocator::{OwnedAllocator, SameShapeAllocator};
 
 
@@ -59,6 +60,26 @@ impl<N1, N2, R1, C1, R2, C2, SA, SB> SubsetOf<Matrix<N2, R2, C2, SB>> for Matrix
         }
 
         res
+    }
+}
+
+impl<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> IntoIterator for &'a Matrix<N, R, C, S> {
+    type Item     = &'a N;
+    type IntoIter = MatrixIter<'a, N, R, C, S>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator for &'a mut Matrix<N, R, C, S> {
+    type Item     = &'a mut N;
+    type IntoIter = MatrixIterMut<'a, N, R, C, S>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
     }
 }
 
