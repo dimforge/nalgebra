@@ -15,7 +15,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-nalgebra = "0.11"
+nalgebra = "0.12"
 ```
 
 
