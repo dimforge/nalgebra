@@ -280,8 +280,61 @@ macro_rules! impl_from_into_mint_1D(
 
 // Implement for vectors of dimension 2 .. 4.
 #[cfg(feature = "mint")]
-impl_from_into_mint_1D!(    // Column vectors.
+impl_from_into_mint_1D!(
     U2 => Vector2[2];
     U3 => Vector3[3];
     U4 => Vector4[4];
+);
+
+#[cfg(feature = "mint")]
+macro_rules! impl_from_into_mint_2D(
+    ($(($NRows: ty, $NCols: ty) => $MV:ident{ $($component:ident),* }[$SZRows: expr]);* $(;)*) => {$(
+        impl<N, S> From<mint::$MV<N>> for Matrix<N, $NRows, $NCols, S>
+        where N: Scalar,
+              S: OwnedStorage<N, $NRows, $NCols>,
+              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+            #[inline]
+            fn from(m: mint::$MV<N>) -> Self {
+                unsafe {
+                    let mut res = Self::new_uninitialized();
+                    let mut ptr = res.data.ptr_mut();
+                    $(
+                        ptr::copy_nonoverlapping(&m.$component.x, ptr, $SZRows);
+                        ptr = ptr.offset($SZRows);
+                    )*
+                    let _ = ptr;
+                    res
+                }
+            }
+        }
+
+        impl<N, S> Into<mint::$MV<N>> for Matrix<N, $NRows, $NCols, S>
+        where N: Scalar,
+              S: OwnedStorage<N, $NRows, $NCols>,
+              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+            #[inline]
+            fn into(self) -> mint::$MV<N> {
+                unsafe {
+                    let mut res: mint::$MV<N> = mem::uninitialized();
+                    let mut ptr = self.data.ptr();
+                    $(
+                        ptr::copy_nonoverlapping(ptr, &mut res.$component.x, $SZRows);
+                        ptr = ptr.offset($SZRows);
+                    )*
+                    let _ = ptr;
+                    res
+                }
+            }
+        }
+    )*}
+);
+
+// Implement for matrices with shape 2x2 .. 4x4.
+#[cfg(feature = "mint")]
+impl_from_into_mint_2D!(
+    (U2, U2) => ColumnMatrix2{x, y}[2];
+    (U3, U2) => ColumnMatrix3x2{x, y}[3];
+    (U3, U3) => ColumnMatrix3{x, y, z}[3];
+    (U4, U3) => ColumnMatrix4x3{x, y, z}[4];
+    (U4, U4) => ColumnMatrix4{x, y, z, w}[4];
 );
