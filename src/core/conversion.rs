@@ -2,6 +2,8 @@ use std::ptr;
 use std::mem;
 use std::convert::{From, Into, AsRef, AsMut};
 use alga::general::{SubsetOf, SupersetOf};
+#[cfg(feature = "mint")]
+use mint;
 
 use core::{DefaultAllocator, Scalar, Matrix, MatrixMN};
 use core::dimension::{Dim,
@@ -215,4 +217,71 @@ impl_from_into_asref_2D!(
     (U4, U2) => (4, 2); (U4, U3) => (4, 3); (U4, U4) => (4, 4); (U4, U5) => (4, 5); (U4, U6) => (4, 6);
     (U5, U2) => (5, 2); (U5, U3) => (5, 3); (U5, U4) => (5, 4); (U5, U5) => (5, 5); (U5, U6) => (5, 6);
     (U6, U2) => (6, 2); (U6, U3) => (6, 3); (U6, U4) => (6, 4); (U6, U5) => (6, 5); (U6, U6) => (6, 6);
+);
+
+#[cfg(feature = "mint")]
+macro_rules! impl_from_into_mint_1D(
+    ($($NRows: ident => $VT:ident [$SZ: expr]);* $(;)*) => {$(
+        impl<N, S> From<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
+        where N: Scalar,
+              S: OwnedStorage<N, $NRows, U1>,
+              S::Alloc: OwnedAllocator<N, $NRows, U1, S> {
+            #[inline]
+            fn from(v: mint::$VT<N>) -> Self {
+                unsafe {
+                    let mut res = Self::new_uninitialized();
+                    ptr::copy_nonoverlapping(&v.x, res.data.ptr_mut(), $SZ);
+
+                    res
+                }
+            }
+        }
+
+        impl<N, S> Into<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
+        where N: Scalar,
+              S: OwnedStorage<N, $NRows, U1>,
+              S::Alloc: OwnedAllocator<N, $NRows, U1, S> {
+            #[inline]
+            fn into(self) -> mint::$VT<N> {
+                unsafe {
+                    let mut res: mint::$VT<N> = mem::uninitialized();
+                    ptr::copy_nonoverlapping(self.data.ptr(), &mut res.x, $SZ);
+
+                    res
+                }
+            }
+        }
+
+        impl<N, S> AsRef<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
+        where N: Scalar,
+              S: OwnedStorage<N, $NRows, U1>,
+              S::Alloc: OwnedAllocator<N, $NRows, U1, S> {
+            #[inline]
+            fn as_ref(&self) -> &mint::$VT<N> {
+                unsafe {
+                    mem::transmute(self.data.ptr())
+                }
+            }
+        }
+
+        impl<N, S> AsMut<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
+        where N: Scalar,
+              S: OwnedStorage<N, $NRows, U1>,
+              S::Alloc: OwnedAllocator<N, $NRows, U1, S> {
+            #[inline]
+            fn as_mut(&mut self) -> &mut mint::$VT<N> {
+                unsafe {
+                    mem::transmute(self.data.ptr_mut())
+                }
+            }
+        }
+    )*}
+);
+
+// Implement for vectors of dimension 2 .. 4.
+#[cfg(feature = "mint")]
+impl_from_into_mint_1D!(    // Column vectors.
+    U2 => Vector2[2];
+    U3 => Vector3[3];
+    U4 => Vector4[4];
 );

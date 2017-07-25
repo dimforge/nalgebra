@@ -100,6 +100,9 @@ extern crate serde_derive;
 #[cfg(feature = "abomonation-serialize")]
 extern crate abomonation;
 
+#[cfg(feature = "mint")]
+extern crate mint;
+
 extern crate num_traits as num;
 extern crate num_complex;
 extern crate rand;
