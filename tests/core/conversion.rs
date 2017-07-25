@@ -153,14 +153,14 @@ macro_rules! array_vector_conversion(
         fn $array_vector_conversion_i() {
             let v       = $Vector::from_fn(|i, _| i);
             let arr: [usize; $SZ] = v.into();
-            let arr_ref = v.as_ref();
+            let arr_ref: &[usize; $SZ] = v.as_ref();
             let v2      = $Vector::from(arr);
-        
+
             for i in 0 .. $SZ {
                 assert_eq!(arr[i], i);
                 assert_eq!(arr_ref[i], i);
             }
-        
+
             assert_eq!(v, v2);
         }
     )*}
@@ -183,12 +183,12 @@ macro_rules! array_row_vector_conversion(
             let arr: [usize; $SZ] = v.into();
             let arr_ref = v.as_ref();
             let v2      = $Vector::from(arr);
-        
+
             for i in 0 .. $SZ {
                 assert_eq!(arr[i], i);
                 assert_eq!(arr_ref[i], i);
             }
-        
+
             assert_eq!(v, v2);
         }
     )*}
@@ -211,14 +211,14 @@ macro_rules! array_matrix_conversion(
             let arr: [[usize; $NRows]; $NCols] = m.into();
             let arr_ref = m.as_ref();
             let m2      = $Matrix::from(arr);
-        
+
             for i in 0 .. $NRows {
                 for j in 0 .. $NCols {
                     assert_eq!(arr[j][i], i * 10 + j);
                     assert_eq!(arr_ref[j][i], i * 10 + j);
                 }
             }
-        
+
             assert_eq!(m, m2);
         }
     )*}
@@ -254,4 +254,32 @@ array_matrix_conversion!(
     array_matrix_conversion_6_4, Matrix6x4, (6, 4);
     array_matrix_conversion_6_5, Matrix6x5, (6, 5);
     array_matrix_conversion_6_6, Matrix6,   (6, 6);
+);
+
+#[cfg(feature = "mint")]
+macro_rules! mint_vector_conversion(
+    ($($mint_vector_conversion_i: ident, $Vector: ident, $SZ: expr);* $(;)*) => {$(
+        #[test]
+        fn $mint_vector_conversion_i() {
+            let v       = $Vector::from_fn(|i, _| i);
+            let mv: mint::$Vector<usize> = v.into();
+            let mv_ref: &mint::$Vector<usize> = v.as_ref();
+            let v2      = $Vector::from(mv);
+
+            let arr: [usize; $SZ] = mv.into();
+            for i in 0 .. $SZ {
+                assert_eq!(arr[i], i);
+            }
+
+            assert_eq!(&mv, mv_ref);
+            assert_eq!(v, v2);
+        }
+    )*}
+);
+
+#[cfg(feature = "mint")]
+mint_vector_conversion!(
+    mint_vector_conversion_2,  Vector2,  2;
+    mint_vector_conversion_3,  Vector3,  3;
+    mint_vector_conversion_4,  Vector4,  4;
 );
