@@ -11,6 +11,8 @@ use na::{
     Matrix6x2, Matrix6x3, Matrix6x4, Matrix6x5,
     Point3, Translation3, Isometry3, Similarity3, Affine3,
     Projective3, Transform3, Rotation3, UnitQuaternion};
+#[cfg(feature = "mint")]
+use na::Quaternion;
 
 
 #[cfg(feature = "arbitrary")]
@@ -283,3 +285,18 @@ mint_vector_conversion!(
     mint_vector_conversion_3,  Vector3,  3;
     mint_vector_conversion_4,  Vector4,  4;
 );
+
+
+#[test]
+fn mint_quaternion_conversions() {
+    let q = Quaternion::new(0.1f64, 0.2, 0.3, 0.4);
+    let mq: mint::Quaternion<f64> = q.into();
+    let q2 = Quaternion::from(mq);
+
+    assert_eq!(mq.v.x, q[0]);
+    assert_eq!(mq.v.y, q[1]);
+    assert_eq!(mq.v.z, q[2]);
+    assert_eq!(mq.s, q[3]);
+
+    assert_eq!(q, q2);
+}
