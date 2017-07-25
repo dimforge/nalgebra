@@ -22,7 +22,9 @@ use geometry::{Point, Translation, Rotation, UnitQuaternion, UnitComplex, Isomet
  * Rotation  -> Similarity
  * Rotation  -> Transform
  * Rotation  -> Matrix (homogeneous)
- */
+ * mint::EulerAngles -> RotationBase
+ 
+*/
 
 
 impl<N1, N2, D: DimName> SubsetOf<Rotation<N2, D>> for Rotation<N1, D>
@@ -199,5 +201,16 @@ impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Rotation<N1, D>
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let r = m.fixed_slice::<D, D>(0, 0);
         Self::from_matrix_unchecked(::convert_unchecked(r.into_owned()))
+    }
+}
+
+#[cfg(feature = "mint")]
+impl<N, S> From<mint::EulerAngles<N, mint::IntraXYZ>> for  RotationBase<N, U3, S>
+where N: Real,
+      S: OwnedStorage<N, U3, U3>,
+      S::Alloc: OwnedAllocator<N, U3, U3, S> {
+
+    fn from(euler: mint::EulerAngles<N, mint::IntraXYZ>) -> Self {
+        Self::from_euler_angles(euler.a, euler.b, euler.c)
     }
 }
