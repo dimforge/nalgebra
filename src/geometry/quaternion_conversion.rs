@@ -5,6 +5,8 @@ use alga::linear::Rotation as AlgaRotation;
 
 use core::{Vector4, Matrix4};
 use core::dimension::U3;
+#[cfg(feature = "mint")]
+use core::storage::Storage;
 use geometry::{Quaternion, UnitQuaternion, Rotation, Isometry, Similarity,
                Transform, SuperTCategoryOf, TAffine, Translation,
                Rotation3, Point3};
@@ -20,6 +22,9 @@ use geometry::{Quaternion, UnitQuaternion, Rotation, Isometry, Similarity,
  * UnitQuaternion -> Similarity<U3>
  * UnitQuaternion -> Transform<U3>
  * UnitQuaternion -> Matrix<U4> (homogeneous)
+ *
+ * mint::Quaternion <-> Quaternion
+ * UnitQuaternion -> mint::Quaternion
  *
  * NOTE:
  * UnitQuaternion -> Quaternion is already provided by: Unit<T> -> T
@@ -164,5 +169,45 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaterni
     unsafe fn from_superset_unchecked(m: &Matrix4<N2>) -> Self {
         let rot: Rotation3<N1> = ::convert_ref_unchecked(m);
         Self::from_rotation_matrix(&rot)
+    }
+}
+
+#[cfg(feature = "mint")]
+impl<N, S> From<mint::Quaternion<N>> for QuaternionBase<N, S>
+where
+    N: Real,
+    S: OwnedStorage<N, U4, U1>,
+    S::Alloc: OwnedAllocator<N, U4, U1, S>,
+{
+    fn from(q: mint::Quaternion<N>) -> Self {
+        QuaternionBase::new(q.s, q.v.x, q.v.y, q.v.z)
+    }
+}
+
+#[cfg(feature = "mint")]
+impl<N: Real, S: Storage<N, U4, U1>> Into<mint::Quaternion<N>> for QuaternionBase<N, S> {
+    fn into(self) -> mint::Quaternion<N> {
+        mint::Quaternion {
+            v: mint::Vector3 {
+                x: self[0],
+                y: self[1],
+                z: self[2],
+            },
+            s: self[3],
+        }
+    }
+}
+
+#[cfg(feature = "mint")]
+impl<N: Real, S: Storage<N, U4, U1>> Into<mint::Quaternion<N>> for UnitQuaternionBase<N, S> {
+    fn into(self) -> mint::Quaternion<N> {
+        mint::Quaternion {
+            v: mint::Vector3 {
+                x: self[0],
+                y: self[1],
+                z: self[2],
+            },
+            s: self[3],
+        }
     }
 }
