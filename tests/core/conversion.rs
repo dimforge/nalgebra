@@ -267,8 +267,8 @@ macro_rules! mint_vector_conversion(
             let mv: mint::$Vector<usize> = v.into();
             let mv_ref: &mint::$Vector<usize> = v.as_ref();
             let v2      = $Vector::from(mv);
-
             let arr: [usize; $SZ] = mv.into();
+
             for i in 0 .. $SZ {
                 assert_eq!(arr[i], i);
             }
@@ -300,3 +300,31 @@ fn mint_quaternion_conversions() {
 
     assert_eq!(q, q2);
 }
+
+macro_rules! mint_matrix_conversion(
+    ($($mint_matrix_conversion_i_j: ident, $Matrix: ident, $Mint: ident, ($NRows: expr, $NCols: expr));* $(;)*) => {$(
+        #[test]
+        fn $mint_matrix_conversion_i_j() {
+            let m       = $Matrix::from_fn(|i, j| i * 10 + j);
+            let mm: mint::$Mint<usize> = m.into();
+            let m2      = $Matrix::from(mm);
+            let arr: [[usize; $NRows]; $NCols] = mm.into();
+
+            for i in 0 .. $NRows {
+                for j in 0 .. $NCols {
+                    assert_eq!(arr[j][i], i * 10 + j);
+                }
+            }
+
+            assert_eq!(m, m2);
+        }
+    )*}
+);
+
+mint_matrix_conversion!(
+    mint_matrix_conversion_2_2, Matrix2,   ColumnMatrix2,   (2, 2);
+    mint_matrix_conversion_3_2, Matrix3x2, ColumnMatrix3x2, (3, 2);
+    mint_matrix_conversion_3_3, Matrix3,   ColumnMatrix3,   (3, 3);
+    mint_matrix_conversion_4_3, Matrix4x3, ColumnMatrix4x3, (4, 3);
+    mint_matrix_conversion_4_4, Matrix4,   ColumnMatrix4,   (4, 4);
+);
