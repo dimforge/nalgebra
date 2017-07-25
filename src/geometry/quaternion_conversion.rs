@@ -177,8 +177,8 @@ impl<N, S> From<mint::Quaternion<N>> for QuaternionBase<N, S>
 where
     N: Real,
     S: OwnedStorage<N, U4, U1>,
-    S::Alloc: OwnedAllocator<N, U4, U1, S>,
-{
+    S::Alloc: OwnedAllocator<N, U4, U1, S> {
+
     fn from(q: mint::Quaternion<N>) -> Self {
         QuaternionBase::new(q.s, q.v.x, q.v.y, q.v.z)
     }
