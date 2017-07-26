@@ -2,6 +2,9 @@ use std::fmt;
 use num::Zero;
 use approx::ApproxEq;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
 use alga::general::Real;
 
 use core::{Unit, ColumnVector, OwnedColumnVector, MatrixSlice, MatrixSliceMut, SquareMatrix,
@@ -22,11 +25,37 @@ pub type OwnedUnitQuaternionBase<N, A> = UnitQuaternionBase<N, <A as Allocator<N
 /// that may be used as a rotation.
 #[repr(C)]
 #[derive(Hash, Debug, Copy, Clone)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct QuaternionBase<N: Real, S: Storage<N, U4, U1>> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: ColumnVector<N, U4, S>
 }
+
+#[cfg(feature = "serde-serialize")]
+impl<N, S> Serialize for QuaternionBase<N, S>
+    where N: Real,
+          S: Storage<N, U4, U1>,
+          ColumnVector<N, U4, S>: Serialize,
+{
+    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
+        where T: Serializer
+    {
+        self.coords.serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, N, S> Deserialize<'de> for QuaternionBase<N, S>
+    where N: Real,
+          S: Storage<N, U4, U1>,
+          ColumnVector<N, U4, S>: Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de>
+    {
+        ColumnVector::deserialize(deserializer).map(|x| QuaternionBase { coords: x })
+    }
+}
+
 
 impl<N, S> Eq for QuaternionBase<N, S>
     where N: Real + Eq,
