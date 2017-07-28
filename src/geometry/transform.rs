@@ -100,9 +100,10 @@ impl TCategory for TAffine {
               D: DimName,
               S: Storage<N, D, D>,
               N::Epsilon: Copy {
-        mat.is_invertible()                   &&
-        mat[(D::dim(), D::dim())] == N::one() &&
-        (0 .. D::dim()).all(|i| mat[(D::dim(), i)].is_zero())
+        let last = D::dim() - 1;
+        mat.is_invertible()           &&
+        mat[(last, last)] == N::one() &&
+        (0 .. last).all(|i| mat[(last, i)].is_zero())
     }
 }
 
@@ -333,4 +334,16 @@ impl<N, D, S> TransformBase<N, D, S, TGeneral>
     pub fn matrix_mut(&mut self) -> &mut SquareMatrix<N, DimNameSum<D, U1>, S> {
         self.matrix_mut_unchecked()
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ::core::Matrix4;
+
+    #[test]
+    fn checks_homogeneous_invariants_of_square_identity_matrix() {
+        assert!(TAffine::check_homogeneous_invariants(&Matrix4::<f32>::identity()));
+    }
+
 }
