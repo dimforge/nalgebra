@@ -444,12 +444,16 @@ pub fn distance_squared<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
  * Cast
  */
 /// Converts an object from one type to an equivalent or more general one.
+///
+/// See also `::try_convert` for conversion to more specific types.
 #[inline]
 pub fn convert<From, To: SupersetOf<From>>(t: From) -> To {
     To::from_subset(&t)
 }
 
 /// Attempts to convert an object to a more specific one.
+///
+/// See also `::convert` for conversion to more general types.
 #[inline]
 pub fn try_convert<From: SupersetOf<To>, To>(t: From) -> Option<To> {
     t.to_subset()
