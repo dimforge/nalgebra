@@ -4,17 +4,11 @@ use std::ops::{Deref, DerefMut};
 use alga::general::Real;
 
 use core::coordinates::IJKW;
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
-use core::dimension::{U1, U4};
 
-use geometry::QuaternionBase;
+use geometry::Quaternion;
 
 
-impl<N, S> Deref for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> Deref for Quaternion<N> {
     type Target = IJKW<N>;
 
     #[inline]
@@ -23,10 +17,7 @@ impl<N, S> Deref for QuaternionBase<N, S>
     }
 }
 
-impl<N, S> DerefMut for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> DerefMut for Quaternion<N> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe { mem::transmute(self) }

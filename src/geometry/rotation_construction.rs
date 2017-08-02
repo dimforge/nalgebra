@@ -2,28 +2,25 @@ use num::{Zero, One};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use core::{SquareMatrix, Scalar};
+use core::{DefaultAllocator, MatrixN, Scalar};
 use core::dimension::DimName;
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::allocator::Allocator;
 
-use geometry::RotationBase;
+use geometry::Rotation;
 
-impl<N, D: DimName, S> RotationBase<N, D, S>
+impl<N, D: DimName> Rotation<N, D>
     where N: Scalar + Zero + One,
-          S: OwnedStorage<N, D, D>,
-          S::Alloc: OwnedAllocator<N, D, D, S> {
+          DefaultAllocator: Allocator<N, D, D> {
     /// Creates a new square identity rotation of the given `dimension`.
     #[inline]
-    pub fn identity() -> RotationBase<N, D, S> {
-        Self::from_matrix_unchecked(SquareMatrix::<N, D, S>::identity())
+    pub fn identity() -> Rotation<N, D> {
+        Self::from_matrix_unchecked(MatrixN::<N, D>::identity())
     }
 }
 
-impl<N, D: DimName, S> One for RotationBase<N, D, S>
+impl<N, D: DimName> One for Rotation<N, D>
     where N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-          S: OwnedStorage<N, D, D>,
-          S::Alloc: OwnedAllocator<N, D, D, S> {
+          DefaultAllocator: Allocator<N, D, D> {
     #[inline]
     fn one() -> Self {
         Self::identity()

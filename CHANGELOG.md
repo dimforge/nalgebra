@@ -4,20 +4,89 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.13.0] - WIP
+
+## [0.13.0]
+
+### Modified
+  * The trait `Axpy` takes one additional parameter for the type of `x`.
+  * The alias `MatrixNM` is now deprecated. Use `MatrixMN` instead (we
+    reordered M and N to be in alphabetical order).
+
 ### Added
+  * `alga::general::Real` is now re-exported by nalgebra.
+  * `.trace()` that computes the trace of a matrix (the sum of its diagonal
+    elements.)
+  * `::zeros(...)` that creates a matrix filled with zeroes.
+  * `::from_partial_diagonal(...)` that creates a matrix from diagonal elements.
+    The matrix can be rectangular. If not enough elements are provided, the rest
+    of the diagonal is set to 0.
+  * `.conjugate_transpose()` computes the transposed conjugate of a
+    complex matrix.
+  * `.conjugate_transpose_to(...)` computes the transposed conjugate of a
+    complex matrix. The result written into a user-provided matrix.
+  * `.transpose_to(...)` is the same as `.transpose()` but stores the result in
+    the provided matrix.
+  * `.conjugate_transpose_to(...)` is the same as `.conjugate_transpose()` but
+    stores the result in the provided matrix.
+  * Implements `IntoIterator` for `&Matrix`, `&mut Matrix` and `Matrix`.
+  * `.mul_to(...)` multiplies two matrices and stores the result to the given buffer.
+  * `.tr_mul_to(...)` left-multiplies `self.transpose()` to another matrix and stores the result to the given buffer.
+  * `.rows_range(...)` that retrieves a reference to a range of rows.
+  * `.rows_range_mut(...)` that retrieves a mutable reference to a range of rows.
+  * `.columns_range(...)` that retrieves a reference to a range of columns.
+  * `.columns_range_mut(...)` that retrieves a mutable reference to a range of columns.
+  * `.add_scalar(...)` that adds a scalar to each component of a matrix.
+  * `.add_scalar_mut(...)` that adds in-place a scalar to each component of a matrix.
   * `.kronecker(a, b)` computes the kronecker product (i.e. matrix tensor
     product) of two matrices.
-  * `.set_row(i, row)` sets the i-th row of the matrix.
-  * `.set_column(j, column)` sets the i-th column of the matrix.
 
+Matrix decompositions:
+  * Cholesky, SVD, LU, QR, Hessenberg, Schur, Symmetric eigendecompositions,
+    Bidiagonal, Symmetric tridiagonal
+  * Computation of householder reflectors and givens rotations.
+
+Matrix edition:
+  * `.upper_triangle()` extracts the upper triangle of a matrix, including the diagonal.
+  * `.lower_triangle()` extracts the lower triangle of a matrix, including the diagonal.
+  * `.fill(...)` fills the matrix with a single value.
+  * `.fill_with_identity(...)` fills the matrix with the identity.
+  * `.fill_diagonal(...)` fills the matrix diagonal with a single value.
+  * `.fill_row(...)` fills a selected matrix row with a single value.
+  * `.fill_column(...)` fills a selected matrix column with a single value.
+  * `.set_diagonal(...)` sets the matrix diagonal.
+  * `.set_row(...)` sets a selected row.
+  * `.set_column(...)` sets a selected column.
+  * `.fill_lower_triangle(...)` fills some sub-diagonals bellow the main diagonal with a value.
+  * `.fill_upper_triangle(...)` fills some sub-diagonals above the main diagonal with a value.
+  * `.swap_rows(...)` swaps two rows.
+  * `.swap_columns(...)` swaps two columns.
+
+Column removal:
+  * `.remove_column(...)` removes one column.
+  * `.remove_fixed_columns<D>(...)` removes `D` columns.
+  * `.remove_columns(...)` removes a number of columns known at run-time.
+
+Row removal:
+  * `.remove_row(...)` removes one row.
+  * `.remove_fixed_rows<D>(...)` removes `D` rows.
+  * `.remove_rows(...)` removes a number of rows known at run-time.
+
+Column insertion:
+  * `.insert_column(...)` adds one column at the given position.
+  * `.insert_fixed_columns<D>(...)` adds `D` columns at the given position.
+  * `.insert_columns(...)` adds at the given position a number of columns known at run-time.
+
+Row insertion:
+  * `.insert_row(...)` adds one row at the given position.
+  * `.insert_fixed_rows<D>(...)` adds `D` rows at the given position.
+  * `.insert_rows(...)` adds at the given position a number of rows known at run-time.
 
 ## [0.12.0]
 The main change of this release is the update of the dependency serde to 1.0.
 
 ### Added
- * `.trace()` that computes the trace of a matrix (i.e., the sum of its
-   diagonal elements.)
+ * `.trace()` that computes the trace of a matrix (the sum of its diagonal
+   elements.)
 
 ## [0.11.0]
 The [website](http://nalgebra.org) has been fully rewritten and gives a good

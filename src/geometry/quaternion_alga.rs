@@ -7,57 +7,39 @@ use alga::linear::{Transformation, AffineTransformation, Similarity, Isometry, D
                    OrthogonalTransformation, VectorSpace, FiniteDimVectorSpace, NormedSpace,
                    Rotation, ProjectiveTransformation};
 
-use core::ColumnVector;
-use core::storage::OwnedStorage;
-use core::allocator::{Allocator, OwnedAllocator};
-use core::dimension::{U1, U3, U4};
-use geometry::{PointBase, QuaternionBase, UnitQuaternionBase};
+use core::{Vector3, Vector4};
+use geometry::{Point3, Quaternion, UnitQuaternion};
 
 
-impl<N, S> Identity<Multiplicative> for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> Identity<Multiplicative> for Quaternion<N> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N, S> Identity<Additive> for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> Identity<Additive> for Quaternion<N> {
     #[inline]
     fn identity() -> Self {
         Self::zero()
     }
 }
 
-impl<N, S> AbstractMagma<Multiplicative> for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> AbstractMagma<Multiplicative> for Quaternion<N> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
     }
 }
 
-impl<N, S> AbstractMagma<Additive> for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> AbstractMagma<Additive> for Quaternion<N> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self + rhs
     }
 }
 
-impl<N, S> Inverse<Additive> for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> Inverse<Additive> for Quaternion<N> {
     #[inline]
     fn inverse(&self) -> Self {
         -self
@@ -66,15 +48,12 @@ impl<N, S> Inverse<Additive> for QuaternionBase<N, S>
 
 macro_rules! impl_structures(
     ($Quaternion: ident; $($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N, S> $marker<$operator> for $Quaternion<N, S>
-            where N: Real,
-                  S: OwnedStorage<N, U4, U1>,
-                  S::Alloc: OwnedAllocator<N, U4, U1, S> { }
+        impl<N: Real> $marker<$operator> for $Quaternion<N> { }
     )*}
 );
 
 impl_structures!(
-    QuaternionBase;
+    Quaternion;
     AbstractSemigroup<Multiplicative>,
     AbstractMonoid<Multiplicative>,
 
@@ -92,10 +71,7 @@ impl_structures!(
  * Vector space.
  *
  */
-impl<N, S> AbstractModule for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> AbstractModule for Quaternion<N> {
     type AbstractRing = N;
 
     #[inline]
@@ -104,24 +80,15 @@ impl<N, S> AbstractModule for QuaternionBase<N, S>
     }
 }
 
-impl<N, S> Module for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> Module for Quaternion<N> {
     type Ring = N;
 }
 
-impl<N, S> VectorSpace for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> VectorSpace for Quaternion<N> {
     type Field = N;
 }
 
-impl<N, S> FiniteDimVectorSpace for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> FiniteDimVectorSpace for Quaternion<N> {
     #[inline]
     fn dimension() -> usize {
         4
@@ -129,7 +96,7 @@ impl<N, S> FiniteDimVectorSpace for QuaternionBase<N, S>
 
     #[inline]
     fn canonical_basis_element(i: usize) -> Self {
-        Self::from_vector(ColumnVector::canonical_basis_element(i))
+        Self::from_vector(Vector4::canonical_basis_element(i))
     }
 
     #[inline]
@@ -148,10 +115,7 @@ impl<N, S> FiniteDimVectorSpace for QuaternionBase<N, S>
     }
 }
 
-impl<N, S> NormedSpace for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> NormedSpace for Quaternion<N> {
     #[inline]
     fn norm_squared(&self) -> N {
         self.coords.norm_squared()
@@ -191,33 +155,24 @@ impl<N, S> NormedSpace for QuaternionBase<N, S>
 
 /*
  *
- * Implementations for UnitQuaternionBase.
+ * Implementations for UnitQuaternion.
  *
  */
-impl<N, S> Identity<Multiplicative> for UnitQuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> Identity<Multiplicative> for UnitQuaternion<N> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N, S> AbstractMagma<Multiplicative> for UnitQuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> AbstractMagma<Multiplicative> for UnitQuaternion<N> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
     }
 }
 
-impl<N, S> Inverse<Multiplicative> for UnitQuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> Inverse<Multiplicative> for UnitQuaternion<N> {
     #[inline]
     fn inverse(&self) -> Self {
         self.inverse()
@@ -230,7 +185,7 @@ impl<N, S> Inverse<Multiplicative> for UnitQuaternionBase<N, S>
 }
 
 impl_structures!(
-    UnitQuaternionBase;
+    UnitQuaternion;
     AbstractSemigroup<Multiplicative>,
     AbstractQuasigroup<Multiplicative>,
     AbstractMonoid<Multiplicative>,
@@ -238,48 +193,33 @@ impl_structures!(
     AbstractGroup<Multiplicative>
 );
 
-impl<N, SA, SB> Transformation<PointBase<N, U3, SB>> for UnitQuaternionBase<N, SA>
-    where N: Real,
-          SA: OwnedStorage<N, U4, U1>,
-          SB: OwnedStorage<N, U3, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, U4, U1, SA>,
-          SB::Alloc: OwnedAllocator<N, U3, U1, SB> {
+impl<N: Real> Transformation<Point3<N>> for UnitQuaternion<N> {
     #[inline]
-    fn transform_point(&self, pt: &PointBase<N, U3, SB>) -> PointBase<N, U3, SB> {
+    fn transform_point(&self, pt: &Point3<N>) -> Point3<N> {
         self * pt
     }
 
     #[inline]
-    fn transform_vector(&self, v: &ColumnVector<N, U3, SB>) -> ColumnVector<N, U3, SB> {
+    fn transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
         self * v
     }
 }
 
-impl<N, SA, SB> ProjectiveTransformation<PointBase<N, U3, SB>> for UnitQuaternionBase<N, SA>
-    where N: Real,
-          SA: OwnedStorage<N, U4, U1>,
-          SB: OwnedStorage<N, U3, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, U4, U1, SA>,
-          SB::Alloc: OwnedAllocator<N, U3, U1, SB> {
+impl<N: Real> ProjectiveTransformation<Point3<N>> for UnitQuaternion<N> {
     #[inline]
-    fn inverse_transform_point(&self, pt: &PointBase<N, U3, SB>) -> PointBase<N, U3, SB> {
+    fn inverse_transform_point(&self, pt: &Point3<N>) -> Point3<N> {
         // FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement
         // the inverse transformation explicitly here) ?
         self.inverse() * pt
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &ColumnVector<N, U3, SB>) -> ColumnVector<N, U3, SB> {
+    fn inverse_transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
         self.inverse() * v
     }
 }
 
-impl<N, SA, SB> AffineTransformation<PointBase<N, U3, SB>> for UnitQuaternionBase<N, SA>
-    where N: Real,
-          SA: OwnedStorage<N, U4, U1>,
-          SB: OwnedStorage<N, U3, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, U4, U1, SA>,
-          SB::Alloc: OwnedAllocator<N, U3, U1, SB> {
+impl<N: Real> AffineTransformation<Point3<N>> for UnitQuaternion<N> {
     type Rotation          = Self;
     type NonUniformScaling = Id;
     type Translation       = Id;
@@ -320,12 +260,7 @@ impl<N, SA, SB> AffineTransformation<PointBase<N, U3, SB>> for UnitQuaternionBas
     }
 }
 
-impl<N, SA, SB> Similarity<PointBase<N, U3, SB>> for UnitQuaternionBase<N, SA>
-    where N: Real,
-          SA: OwnedStorage<N, U4, U1>,
-          SB: OwnedStorage<N, U3, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, U4, U1, SA>,
-          SB::Alloc: OwnedAllocator<N, U3, U1, SB> {
+impl<N: Real> Similarity<Point3<N>> for UnitQuaternion<N> {
     type Scaling  = Id;
 
     #[inline]
@@ -346,12 +281,7 @@ impl<N, SA, SB> Similarity<PointBase<N, U3, SB>> for UnitQuaternionBase<N, SA>
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N, SA, SB> $Trait<PointBase<N, U3, SB>> for UnitQuaternionBase<N, SA>
-        where N: Real,
-              SA: OwnedStorage<N, U4, U1>,
-              SB: OwnedStorage<N, U3, U1, Alloc = SA::Alloc>,
-              SA::Alloc: OwnedAllocator<N, U4, U1, SA>,
-              SB::Alloc: OwnedAllocator<N, U3, U1, SB> { }
+        impl<N: Real> $Trait<Point3<N>> for UnitQuaternion<N> { }
     )*}
 );
 
@@ -359,24 +289,19 @@ marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
 
 
-impl<N, SA, SB> Rotation<PointBase<N, U3, SB>> for UnitQuaternionBase<N, SA>
-    where N:  Real,
-          SA: OwnedStorage<N, U4, U1>,
-          SB: OwnedStorage<N, U3, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, U4, U1, SA> + Allocator<N, U3, U1>,
-          SB::Alloc: OwnedAllocator<N, U3, U1, SB> {
+impl<N: Real> Rotation<Point3<N>> for UnitQuaternion<N> {
     #[inline]
     fn powf(&self, n: N) -> Option<Self> {
         Some(self.powf(n))
     }
 
     #[inline]
-    fn rotation_between(a: &ColumnVector<N, U3, SB>, b: &ColumnVector<N, U3, SB>) -> Option<Self> {
+    fn rotation_between(a: &Vector3<N>, b: &Vector3<N>) -> Option<Self> {
         Self::rotation_between(a, b)
     }
 
     #[inline]
-    fn scaled_rotation_between(a: &ColumnVector<N, U3, SB>, b: &ColumnVector<N, U3, SB>, s: N) -> Option<Self> {
+    fn scaled_rotation_between(a: &Vector3<N>, b: &Vector3<N>, s: N) -> Option<Self> {
         Self::scaled_rotation_between(a, b, s)
     }
 }

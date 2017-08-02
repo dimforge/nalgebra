@@ -81,6 +81,13 @@ macro_rules! iterator {
                 self.size_hint().0
             }
         }
+
+        impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> ExactSizeIterator for $Name<'a, N, R, C, S> {
+            #[inline]
+            fn len(&self) -> usize {
+                self.size
+            }
+        }
     }
 }
 

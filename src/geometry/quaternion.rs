@@ -1,70 +1,34 @@
 use std::fmt;
+use std::hash;
 use num::Zero;
 use approx::ApproxEq;
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde;
+#[cfg(feature = "serde-serialize")]
+use core::storage::Owned;
 
 use alga::general::Real;
 
-use core::{Unit, ColumnVector, OwnedColumnVector, MatrixSlice, MatrixSliceMut, SquareMatrix,
-           OwnedSquareMatrix};
-use core::storage::{Storage, StorageMut};
-use core::allocator::Allocator;
+use core::{Unit, Vector3, Vector4, MatrixSlice, MatrixSliceMut, SquareMatrix, MatrixN};
 use core::dimension::{U1, U3, U4};
+use core::storage::{RStride, CStride};
 
-use geometry::{RotationBase, OwnedRotation};
+use geometry::Rotation;
 
-/// A quaternion with an owned storage allocated by `A`.
-pub type OwnedQuaternionBase<N, A> = QuaternionBase<N, <A as Allocator<N, U4, U1>>::Buffer>;
-
-/// A unit quaternion with an owned storage allocated by `A`.
-pub type OwnedUnitQuaternionBase<N, A> = UnitQuaternionBase<N, <A as Allocator<N, U4, U1>>::Buffer>;
-
-/// A quaternion. See the type alias `UnitQuaternionBase = Unit<QuaternionBase>` for a quaternion
+/// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
-#[derive(Hash, Debug, Copy, Clone)]
-pub struct QuaternionBase<N: Real, S: Storage<N, U4, U1>> {
+#[derive(Debug)]
+pub struct Quaternion<N: Real> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
-    pub coords: ColumnVector<N, U4, S>
+    pub coords: Vector4<N>
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<N, S> Serialize for QuaternionBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U1>,
-          ColumnVector<N, U4, S>: Serialize,
-{
-    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-        where T: Serializer
-    {
-        self.coords.serialize(serializer)
-    }
+impl<N: Real + Eq> Eq for Quaternion<N> {
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<'de, N, S> Deserialize<'de> for QuaternionBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U1>,
-          ColumnVector<N, U4, S>: Deserialize<'de>,
-{
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
-    {
-        ColumnVector::deserialize(deserializer).map(|x| QuaternionBase { coords: x })
-    }
-}
-
-
-impl<N, S> Eq for QuaternionBase<N, S>
-    where N: Real + Eq,
-          S: Storage<N, U4, U1> {
-}
-
-impl<N, S> PartialEq for QuaternionBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U1> {
+impl<N: Real> PartialEq for Quaternion<N> {
     fn eq(&self, rhs: &Self) -> bool {
         self.coords == rhs.coords ||
         // Account for the double-covering of S², i.e. q = -q
@@ -72,24 +36,91 @@ impl<N, S> PartialEq for QuaternionBase<N, S>
     }
 }
 
-impl<N, S> QuaternionBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U1> {
-    /// Moves this quaternion into one that owns its data.
+impl<N: Real + hash::Hash> hash::Hash for Quaternion<N> {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.coords.hash(state)
+    }
+}
+
+impl<N: Real> Copy for Quaternion<N> { }
+
+impl<N: Real> Clone for Quaternion<N> {
     #[inline]
-    pub fn into_owned(self) -> OwnedQuaternionBase<N, S::Alloc> {
-        QuaternionBase::from_vector(self.coords.into_owned())
+    fn clone(&self) -> Self {
+        Quaternion::from_vector(self.coords.clone())
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<N: Real> serde::Serialize for Quaternion<N>
+where Owned<N, U4>: serde::Serialize {
+
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: serde::Serializer {
+            self.coords.serialize(serializer)
+        }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'a, N: Real> serde::Deserialize<'a> for Quaternion<N>
+where Owned<N, U4>: serde::Deserialize<'a> {
+
+    fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
+        where Des: serde::Deserializer<'a> {
+            let coords = Vector4::<N>::deserialize(deserializer)?;
+
+            Ok(Quaternion::from_vector(coords))
+        }
+}
+
+impl<N: Real> Quaternion<N> {
+    /// Moves this unit quaternion into one that owns its data.
+    #[inline]
+    pub fn into_owned(self) -> Quaternion<N> {
+        self
     }
 
-    /// Clones this quaternion into one that owns its data.
+    /// Clones this unit quaternion into one that owns its data.
     #[inline]
-    pub fn clone_owned(&self) -> OwnedQuaternionBase<N, S::Alloc> {
-        QuaternionBase::from_vector(self.coords.clone_owned())
+    pub fn clone_owned(&self) -> Quaternion<N> {
+        Quaternion::from_vector(self.coords.clone_owned())
+    }
+
+    /// Normalizes this quaternion.
+    #[inline]
+    pub fn normalize(&self) -> Quaternion<N> {
+        Quaternion::from_vector(self.coords.normalize())
+    }
+
+    /// Compute the conjugate of this quaternion.
+    #[inline]
+    pub fn conjugate(&self) -> Quaternion<N> {
+        let v = Vector4::new(-self.coords[0], -self.coords[1], -self.coords[2], self.coords[3]);
+        Quaternion::from_vector(v)
+    }
+
+    /// Inverts this quaternion if it is not zero.
+    #[inline]
+    pub fn try_inverse(&self) -> Option<Quaternion<N>> {
+        let mut res = Quaternion::from_vector(self.coords.clone_owned());
+
+        if res.try_inverse_mut() {
+            Some(res)
+        }
+        else {
+            None
+        }
+    }
+
+    /// Linear interpolation between two quaternion.
+    #[inline]
+    pub fn lerp(&self, other: &Quaternion<N>, t: N) -> Quaternion<N> {
+        self * (N::one() - t) + other * t
     }
 
     /// The vector part `(i, j, k)` of this quaternion.
     #[inline]
-    pub fn vector(&self) -> MatrixSlice<N, U3, U1, S::RStride, S::CStride, S::Alloc> {
+    pub fn vector(&self) -> MatrixSlice<N, U3, U1, RStride<N, U4, U1>, CStride<N, U4, U1>> {
         self.coords.fixed_rows::<U3>(0)
     }
 
@@ -101,7 +132,7 @@ impl<N, S> QuaternionBase<N, S>
 
     /// Reinterprets this quaternion as a 4D vector.
     #[inline]
-    pub fn as_vector(&self) -> &ColumnVector<N, U4, S> {
+    pub fn as_vector(&self) -> &Vector4<N> {
         &self.coords
     }
 
@@ -117,53 +148,11 @@ impl<N, S> QuaternionBase<N, S>
         self.coords.norm_squared()
     }
 
-    /// Normalizes this quaternion.
-    #[inline]
-    pub fn normalize(&self) -> OwnedQuaternionBase<N, S::Alloc> {
-        QuaternionBase::from_vector(self.coords.normalize())
-    }
-
-    /// Compute the conjugate of this quaternion.
-    #[inline]
-    pub fn conjugate(&self) -> OwnedQuaternionBase<N, S::Alloc> {
-        let v = OwnedColumnVector::<N, U4, S::Alloc>::new(-self.coords[0],
-                                                          -self.coords[1],
-                                                          -self.coords[2],
-                                                          self.coords[3]);
-        QuaternionBase::from_vector(v)
-    }
-
-    /// Inverts this quaternion if it is not zero.
-    #[inline]
-    pub fn try_inverse(&self) -> Option<OwnedQuaternionBase<N, S::Alloc>> {
-        let mut res = QuaternionBase::from_vector(self.coords.clone_owned());
-
-        if res.try_inverse_mut() {
-            Some(res)
-        }
-        else {
-            None
-        }
-    }
-
-    /// Linear interpolation between two quaternion.
-    #[inline]
-    pub fn lerp<S2>(&self, other: &QuaternionBase<N, S2>, t: N) -> OwnedQuaternionBase<N, S::Alloc>
-        where S2: Storage<N, U4, U1> {
-        self * (N::one() - t) + other * t
-    }
-}
-
-
-impl<N, S> QuaternionBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U1>,
-          S::Alloc: Allocator<N, U3, U1> {
     /// The polar decomposition of this quaternion.
     ///
     /// Returns, from left to right: the quaternion norm, the half rotation angle, the rotation
     /// axis. If the rotation angle is zero, the rotation axis is set to `None`.
-    pub fn polar_decomposition(&self) -> (N, N, Option<Unit<OwnedColumnVector<N, U3, S::Alloc>>>) {
+    pub fn polar_decomposition(&self) -> (N, N, Option<Unit<Vector3<N>>>) {
         if let Some((q, n)) = Unit::try_new_and_get(self.clone_owned(), N::zero()) {
             if let Some(axis) = Unit::try_new(self.vector().clone_owned(), N::zero()) {
                 let angle = q.angle() / ::convert(2.0f64);
@@ -181,51 +170,47 @@ impl<N, S> QuaternionBase<N, S>
 
     /// Compute the exponential of a quaternion.
     #[inline]
-    pub fn exp(&self) -> OwnedQuaternionBase<N, S::Alloc> {
+    pub fn exp(&self) -> Quaternion<N> {
         let v  = self.vector();
         let nn = v.norm_squared();
 
         if relative_eq!(nn, N::zero()) {
-            QuaternionBase::identity()
+            Quaternion::identity()
         }
         else {
             let w_exp = self.scalar().exp();
             let n  = nn.sqrt();
             let nv = v * (w_exp * n.sin() / n);
 
-            QuaternionBase::from_parts(n.cos(), nv)
+            Quaternion::from_parts(n.cos(), nv)
         }
     }
 
     /// Compute the natural logarithm of a quaternion.
     #[inline]
-    pub fn ln(&self) -> OwnedQuaternionBase<N, S::Alloc> {
+    pub fn ln(&self) -> Quaternion<N> {
         let n = self.norm();
         let v = self.vector();
         let s = self.scalar();
 
-        QuaternionBase::from_parts(n.ln(), v.normalize() *  (s / n).acos())
+        Quaternion::from_parts(n.ln(), v.normalize() *  (s / n).acos())
     }
 
     /// Raise the quaternion to a given floating power.
     #[inline]
-    pub fn powf(&self, n: N) -> OwnedQuaternionBase<N, S::Alloc> {
+    pub fn powf(&self, n: N) -> Quaternion<N> {
         (self.ln() * n).exp()
     }
-}
 
-impl<N, S> QuaternionBase<N, S>
-    where N: Real,
-          S: StorageMut<N, U4, U1> {
     /// Transforms this quaternion into its 4D vector form (Vector part, Scalar part).
     #[inline]
-    pub fn as_vector_mut(&mut self) -> &mut ColumnVector<N, U4, S> {
+    pub fn as_vector_mut(&mut self) -> &mut Vector4<N> {
         &mut self.coords
     }
 
     /// The mutable vector part `(i, j, k)` of this quaternion.
     #[inline]
-    pub fn vector_mut(&mut self) -> MatrixSliceMut<N, U3, U1, S::RStride, S::CStride, S::Alloc> {
+    pub fn vector_mut(&mut self) -> MatrixSliceMut<N, U3, U1, RStride<N, U4, U1>, CStride<N, U4, U1>> {
         self.coords.fixed_rows_mut::<U3>(0)
     }
 
@@ -260,9 +245,7 @@ impl<N, S> QuaternionBase<N, S>
     }
 }
 
-impl<N, S> ApproxEq for QuaternionBase<N, S>
-    where N: Real + ApproxEq<Epsilon = N>,
-          S: Storage<N, U4, U1> {
+impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for Quaternion<N> {
     type Epsilon = N;
 
     #[inline]
@@ -296,9 +279,7 @@ impl<N, S> ApproxEq for QuaternionBase<N, S>
 }
 
 
-impl<N, S> fmt::Display for QuaternionBase<N, S>
-    where N: Real + fmt::Display,
-          S: Storage<N, U4, U1> {
+impl<N: Real + fmt::Display> fmt::Display for Quaternion<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Quaternion {} − ({}, {}, {})", self[3], self[0], self[1], self[2])
     }
@@ -325,118 +306,115 @@ impl<N, S> fmt::Display for QuaternionBase<N, S>
 /// <code>fn <a class="fnname">angle</a>(&self) -> N</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">angle_to</a>(&self, other: &UnitQuaternionBase) -> N</code>
+/// <code>fn <a class="fnname">angle_to</a>(&self, other: &UnitQuaternion) -> N</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">axis</a>(&self) -> Option&lt;Unit&lt;OwnedColumnVector&gt;&gt;</code>
+/// <code>fn <a class="fnname">axis</a>(&self) -> Option&lt;Unit&lt;Vector3&gt;&gt;</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">clone_owned</a>(&self) -> OwnedUnitQuaternionBase</code>
+/// <code>fn <a class="fnname">clone_owned</a>(&self) -> UnitQuaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
 /// <code>fn <a class="fnname">conjugate_mut</a>(&mut self)</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">conjugate</a>(&self) -> OwnedUnitQuaternionBase</code>
+/// <code>fn <a class="fnname">conjugate</a>(&self) -> UnitQuaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">exp</a>(&self) -> OwnedQuaternionBase</code>
+/// <code>fn <a class="fnname">exp</a>(&self) -> Quaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">from_axis_angle</a>(axis: &Unit&lt;ColumnVector&gt;, angle: N) -> Self</code>
+/// <code>fn <a class="fnname">from_axis_angle</a>(axis: &Unit&lt;Vector&gt;, angle: N) -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
 /// <code>fn <a class="fnname">from_euler_angles</a>(roll: N, pitch: N, yaw: N) -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">from_quaternion</a>(q: QuaternionBase) -> Self</code>
+/// <code>fn <a class="fnname">from_quaternion</a>(q: Quaternion) -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">from_rotation_matrix</a>(rotmat: &RotationBase) -> Self</code>
+/// <code>fn <a class="fnname">from_rotation_matrix</a>(rotmat: &Rotation) -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">from_scaled_axis</a>(axisangle: ColumnVector) -> Self</code>
+/// <code>fn <a class="fnname">from_scaled_axis</a>(axisangle: Vector) -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
 /// <code>fn <a class="fnname">identity</a>() -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">into_owned</a>(self) -> OwnedUnitQuaternionBase</code>
+/// <code>fn <a class="fnname">into_owned</a>(self) -> UnitQuaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
 /// <code>fn <a class="fnname">inverse_mut</a>(&mut self)</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">inverse</a>(&self) -> OwnedUnitQuaternionBase</code>
+/// <code>fn <a class="fnname">inverse</a>(&self) -> UnitQuaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">lerp</a>(&self, other: &UnitQuaternionBase, t: N) -> OwnedQuaternionBase</code>
+/// <code>fn <a class="fnname">lerp</a>(&self, other: &UnitQuaternion, t: N) -> Quaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">ln</a>(&self) -> OwnedQuaternionBase</code>
+/// <code>fn <a class="fnname">ln</a>(&self) -> Quaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">look_at_lh</a>(dir: &ColumnVector, up: &ColumnVector) -> Self</code>
+/// <code>fn <a class="fnname">look_at_lh</a>(dir: &Vector, up: &Vector) -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">look_at_rh</a>(dir: &ColumnVector, up: &ColumnVector) -> Self</code>
+/// <code>fn <a class="fnname">look_at_rh</a>(dir: &Vector, up: &Vector) -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">new</a>(axisangle: ColumnVector) -> Self</code>
+/// <code>fn <a class="fnname">new</a>(axisangle: Vector) -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">new_observer_frame</a>(dir: &ColumnVector, up: &ColumnVector) -> Self</code>
+/// <code>fn <a class="fnname">new_observer_frame</a>(dir: &Vector, up: &Vector) -> Self</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">nlerp</a>(&self, other: &UnitQuaternionBase, t: N) -> OwnedUnitQuaternionBase</code>
+/// <code>fn <a class="fnname">nlerp</a>(&self, other: &UnitQuaternion, t: N) -> UnitQuaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">powf</a>(&self, n: N) -> OwnedUnitQuaternionBase</code>
+/// <code>fn <a class="fnname">powf</a>(&self, n: N) -> UnitQuaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">quaternion</a>(&self) -> &QuaternionBase</code>
+/// <code>fn <a class="fnname">quaternion</a>(&self) -> &Quaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">rotation_between</a>(a: &ColumnVector, b: &ColumnVector) -> Option&lt;Self&gt;</code>
+/// <code>fn <a class="fnname">rotation_between</a>(a: &Vector, b: &Vector) -> Option&lt;Self&gt;</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">rotation_to</a>(&self, other: &UnitQuaternionBase) -> OwnedUnitQuaternionBase</code>
+/// <code>fn <a class="fnname">rotation_to</a>(&self, other: &UnitQuaternion) -> UnitQuaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">scaled_axis</a>(&self) -> OwnedColumnVector</code>
+/// <code>fn <a class="fnname">scaled_axis</a>(&self) -> Vector3</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">scaled_rotation_between</a>(a: &ColumnVector, b: &ColumnVector, s: N) -> Option&lt;Self&gt;</code>
+/// <code>fn <a class="fnname">scaled_rotation_between</a>(a: &Vector, b: &Vector, s: N) -> Option&lt;Self&gt;</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">slerp</a>(&self, other: &UnitQuaternionBase, t: N) -> OwnedUnitQuaternionBase</code>
+/// <code>fn <a class="fnname">slerp</a>(&self, other: &UnitQuaternion, t: N) -> UnitQuaternion</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">to_homogeneous</a>(&self) -> OwnedSquareMatrix</code>
+/// <code>fn <a class="fnname">to_homogeneous</a>(&self) -> MatrixN</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">to_rotation_matrix</a>(&self) -> OwnedRotation</code>
+/// <code>fn <a class="fnname">to_rotation_matrix</a>(&self) -> Rotation</code>
 /// </h4>
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">try_slerp</a>(&self, other: &UnitQuaternionBase, t: N, epsilon: N) -> Option&lt;OwnedUnitQuaternionBase&gt;</code>
+/// <code>fn <a class="fnname">try_slerp</a>(&self, other: &UnitQuaternion, t: N, epsilon: N) -> Option&lt;UnitQuaternion&gt;</code>
 /// </h4>
-pub type UnitQuaternionBase<N, S> = Unit<QuaternionBase<N, S>>;
+pub type UnitQuaternion<N> = Unit<Quaternion<N>>;
 
 
-
-impl<N, S> UnitQuaternionBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U1> {
+impl<N: Real> UnitQuaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
-    pub fn into_owned(self) -> OwnedUnitQuaternionBase<N, S::Alloc> {
-        UnitQuaternionBase::new_unchecked(self.unwrap().into_owned())
+    pub fn into_owned(self) -> UnitQuaternion<N> {
+        self
     }
 
     /// Clones this unit quaternion into one that owns its data.
     #[inline]
-    pub fn clone_owned(&self) -> OwnedUnitQuaternionBase<N, S::Alloc> {
-        UnitQuaternionBase::new_unchecked(self.as_ref().clone_owned())
+    pub fn clone_owned(&self) -> UnitQuaternion<N> {
+        UnitQuaternion::new_unchecked(self.as_ref().clone_owned())
     }
 
     /// The rotation angle in [0; pi] of this unit quaternion.
@@ -457,26 +435,25 @@ impl<N, S> UnitQuaternionBase<N, S>
     ///
     /// Same as `self.as_ref()`.
     #[inline]
-    pub fn quaternion(&self) -> &QuaternionBase<N, S> {
+    pub fn quaternion(&self) -> &Quaternion<N> {
         self.as_ref()
     }
 
     /// Compute the conjugate of this unit quaternion.
     #[inline]
-    pub fn conjugate(&self) -> OwnedUnitQuaternionBase<N, S::Alloc> {
-        UnitQuaternionBase::new_unchecked(self.as_ref().conjugate())
+    pub fn conjugate(&self) -> UnitQuaternion<N> {
+        UnitQuaternion::new_unchecked(self.as_ref().conjugate())
     }
 
     /// Inverts this quaternion if it is not zero.
     #[inline]
-    pub fn inverse(&self) -> OwnedUnitQuaternionBase<N, S::Alloc> {
+    pub fn inverse(&self) -> UnitQuaternion<N> {
         self.conjugate()
     }
 
     /// The rotation angle needed to make `self` and `other` coincide.
     #[inline]
-    pub fn angle_to<S2>(&self, other: &UnitQuaternionBase<N, S2>) -> N
-        where S2: Storage<N, U4, U1> {
+    pub fn angle_to(&self, other: &UnitQuaternion<N>) -> N {
         let delta = self.rotation_to(other);
         delta.angle()
     }
@@ -485,8 +462,7 @@ impl<N, S> UnitQuaternionBase<N, S>
     ///
     /// The result is such that: `self.rotation_to(other) * self == other`.
     #[inline]
-    pub fn rotation_to<S2>(&self, other: &UnitQuaternionBase<N, S2>) -> OwnedUnitQuaternionBase<N, S2::Alloc>
-        where S2: Storage<N, U4, U1> {
+    pub fn rotation_to(&self, other: &UnitQuaternion<N>) -> UnitQuaternion<N> {
         other / self
     }
 
@@ -494,19 +470,17 @@ impl<N, S> UnitQuaternionBase<N, S>
     ///
     /// The result is not normalized.
     #[inline]
-    pub fn lerp<S2>(&self, other: &UnitQuaternionBase<N, S2>, t: N) -> OwnedQuaternionBase<N, S::Alloc>
-        where S2: Storage<N, U4, U1> {
+    pub fn lerp(&self, other: &UnitQuaternion<N>, t: N) -> Quaternion<N> {
         self.as_ref().lerp(other.as_ref(), t)
     }
 
     /// Normalized linear interpolation between two unit quaternions.
     #[inline]
-    pub fn nlerp<S2>(&self, other: &UnitQuaternionBase<N, S2>, t: N) -> OwnedUnitQuaternionBase<N, S::Alloc>
-        where S2: Storage<N, U4, U1> {
+    pub fn nlerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
         let mut res = self.lerp(other, t);
         let _ = res.normalize_mut();
 
-        UnitQuaternionBase::new_unchecked(res)
+        UnitQuaternion::new_unchecked(res)
     }
 
     /// Spherical linear interpolation between two unit quaternions.
@@ -514,8 +488,7 @@ impl<N, S> UnitQuaternionBase<N, S>
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
     /// is not well-defined).
     #[inline]
-    pub fn slerp<S2>(&self, other: &UnitQuaternionBase<N, S2>, t: N) -> OwnedUnitQuaternionBase<N, S::Alloc>
-        where S2: Storage<N, U4, U1, Alloc = S::Alloc> {
+    pub fn slerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
         self.try_slerp(other, t, N::zero()).expect(
             "Unable to perform a spherical quaternion interpolation when they \
              are 180 degree apart (the result is not unique).")
@@ -532,9 +505,7 @@ impl<N, S> UnitQuaternionBase<N, S>
     /// * `epsilon`: the value bellow which the sinus of the angle separating both quaternion
     /// must be to return `None`.
     #[inline]
-    pub fn try_slerp<S2>(&self, other: &UnitQuaternionBase<N, S2>, t: N, epsilon: N)
-                         -> Option<OwnedUnitQuaternionBase<N, S::Alloc>>
-        where S2: Storage<N, U4, U1, Alloc = S::Alloc> {
+    pub fn try_slerp(&self, other: &UnitQuaternion<N>, t: N, epsilon: N) -> Option<UnitQuaternion<N>> {
 
         let c_hang = self.coords.dot(&other.coords);
 
@@ -555,14 +526,10 @@ impl<N, S> UnitQuaternionBase<N, S>
             let tb = (t * hang).sin() / s_hang; 
             let res = self.as_ref() * ta + other.as_ref() * tb;
 
-            Some(UnitQuaternionBase::new_unchecked(res))
+            Some(UnitQuaternion::new_unchecked(res))
         }
     }
-}
 
-impl<N, S> UnitQuaternionBase<N, S>
-    where N: Real,
-          S: StorageMut<N, U4, U1> {
     /// Compute the conjugate of this unit quaternion in-place.
     #[inline]
     pub fn conjugate_mut(&mut self) {
@@ -574,15 +541,10 @@ impl<N, S> UnitQuaternionBase<N, S>
     pub fn inverse_mut(&mut self) {
         self.as_mut_unchecked().conjugate_mut()
     }
-}
 
-impl<N, S> UnitQuaternionBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U1>,
-          S::Alloc: Allocator<N, U3, U1> {
     /// The rotation axis of this unit quaternion or `None` if the rotation is zero.
     #[inline]
-    pub fn axis(&self) -> Option<Unit<OwnedColumnVector<N, U3, S::Alloc>>> {
+    pub fn axis(&self) -> Option<Unit<Vector3<N>>> {
         let v =
             if self.quaternion().scalar() >= N::zero() {
                 self.as_ref().vector().clone_owned()
@@ -597,35 +559,35 @@ impl<N, S> UnitQuaternionBase<N, S>
 
     /// The rotation axis of this unit quaternion multiplied by the rotation agle.
     #[inline]
-    pub fn scaled_axis(&self) -> OwnedColumnVector<N, U3, S::Alloc> {
+    pub fn scaled_axis(&self) -> Vector3<N> {
         if let Some(axis) = self.axis() {
             axis.unwrap() * self.angle()
         }
         else {
-            ColumnVector::zero()
+            Vector3::zero()
         }
     }
 
     /// Compute the exponential of a quaternion.
     ///
-    /// Note that this function yields a `QuaternionBase<N>` because it looses the unit property.
+    /// Note that this function yields a `Quaternion<N>` because it looses the unit property.
     #[inline]
-    pub fn exp(&self) -> OwnedQuaternionBase<N, S::Alloc> {
+    pub fn exp(&self) -> Quaternion<N> {
         self.as_ref().exp()
     }
 
     /// Compute the natural logarithm of a quaternion.
     ///
-    /// Note that this function yields a `QuaternionBase<N>` because it looses the unit property.
+    /// Note that this function yields a `Quaternion<N>` because it looses the unit property.
     /// The vector part of the return value corresponds to the axis-angle representation (divided
     /// by 2.0) of this unit quaternion.
     #[inline]
-    pub fn ln(&self) -> OwnedQuaternionBase<N, S::Alloc> {
+    pub fn ln(&self) -> Quaternion<N> {
         if let Some(v) = self.axis() {
-            QuaternionBase::from_parts(N::zero(), v.unwrap() * self.angle())
+            Quaternion::from_parts(N::zero(), v.unwrap() * self.angle())
         }
         else {
-            QuaternionBase::zero()
+            Quaternion::zero()
         }
     }
 
@@ -634,23 +596,18 @@ impl<N, S> UnitQuaternionBase<N, S>
     /// This returns the unit quaternion that identifies a rotation with axis `self.axis()` and
     /// angle `self.angle() × n`.
     #[inline]
-    pub fn powf(&self, n: N) -> OwnedUnitQuaternionBase<N, S::Alloc> {
+    pub fn powf(&self, n: N) -> UnitQuaternion<N> {
         if let Some(v) = self.axis() {
-            UnitQuaternionBase::from_axis_angle(&v, self.angle() * n)
+            UnitQuaternion::from_axis_angle(&v, self.angle() * n)
         }
         else {
-            UnitQuaternionBase::identity()
+            UnitQuaternion::identity()
         }
     }
-}
 
-impl<N, S> UnitQuaternionBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U1>,
-          S::Alloc: Allocator<N, U3, U3> {
     /// Builds a rotation matrix from this unit quaternion.
     #[inline]
-    pub fn to_rotation_matrix(&self) -> OwnedRotation<N, U3, S::Alloc> {
+    pub fn to_rotation_matrix(&self) -> Rotation<N, U3> {
         let i = self.as_ref()[0];
         let j = self.as_ref()[1];
         let k = self.as_ref()[2];
@@ -667,7 +624,7 @@ impl<N, S> UnitQuaternionBase<N, S>
         let jk = j * k * ::convert(2.0f64);
         let wi = w * i * ::convert(2.0f64);
 
-        RotationBase::from_matrix_unchecked(
+        Rotation::from_matrix_unchecked(
             SquareMatrix::<_, U3, _>::new(
                 ww + ii - jj - kk, ij - wk,           wj + ik,
                 wk + ij,           ww - ii + jj - kk, jk - wi,
@@ -678,17 +635,13 @@ impl<N, S> UnitQuaternionBase<N, S>
 
     /// Converts this unit quaternion into its equivalent homogeneous transformation matrix.
     #[inline]
-    pub fn to_homogeneous(&self) -> OwnedSquareMatrix<N, U4, S::Alloc>
-        where S::Alloc: Allocator<N, U4, U4> {
+    pub fn to_homogeneous(&self) -> MatrixN<N, U4> {
         self.to_rotation_matrix().to_homogeneous()
     }
 }
 
 
-impl<N, S> fmt::Display for UnitQuaternionBase<N, S>
-    where N: Real + fmt::Display,
-          S: Storage<N, U4, U1>,
-          S::Alloc: Allocator<N, U3, U1> {
+impl<N: Real + fmt::Display> fmt::Display for UnitQuaternion<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(axis) = self.axis() {
             let axis = axis.unwrap();
@@ -700,9 +653,7 @@ impl<N, S> fmt::Display for UnitQuaternionBase<N, S>
     }
 }
 
-impl<N, S> ApproxEq for UnitQuaternionBase<N, S>
-    where N: Real + ApproxEq<Epsilon = N>,
-          S: Storage<N, U4, U1> {
+impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for UnitQuaternion<N> {
     type Epsilon = N;
 
     #[inline]

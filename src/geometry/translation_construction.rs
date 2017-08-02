@@ -1,43 +1,39 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
+#[cfg(feature = "arbitrary")]
+use core::storage::Owned;
 
 use num::{Zero, One};
 use rand::{Rng, Rand};
 
 use alga::general::ClosedAdd;
 
-use core::{ColumnVector, Scalar};
+use core::{DefaultAllocator, Scalar, VectorN};
 use core::dimension::{DimName, U1, U2, U3, U4, U5, U6};
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::allocator::Allocator;
 
-use geometry::TranslationBase;
+use geometry::Translation;
 
-impl<N, D: DimName, S> TranslationBase<N, D, S>
-    where N: Scalar + Zero,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Scalar + Zero, D: DimName> Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
+
     /// Creates a new square identity rotation of the given `dimension`.
     #[inline]
-    pub fn identity() -> TranslationBase<N, D, S> {
-        Self::from_vector(ColumnVector::<N, D, S>::from_element(N::zero()))
+    pub fn identity() -> Translation<N, D> {
+        Self::from_vector(VectorN::<N, D>::from_element(N::zero()))
     }
 }
 
-impl<N, D: DimName, S> One for TranslationBase<N, D, S>
-    where N: Scalar + Zero + ClosedAdd,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Scalar + Zero + ClosedAdd, D: DimName> One for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N, D: DimName, S> Rand for TranslationBase<N, D, S>
-    where N: Scalar + Rand,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Scalar + Rand, D: DimName> Rand for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn rand<G: Rng>(rng: &mut G) -> Self {
         Self::from_vector(rng.gen())
@@ -46,10 +42,9 @@ impl<N, D: DimName, S> Rand for TranslationBase<N, D, S>
 
 
 #[cfg(feature = "arbitrary")]
-impl<N, D: DimName, S> Arbitrary for TranslationBase<N, D, S>
-    where N: Scalar + Arbitrary + Send,
-          S: OwnedStorage<N, D, U1> + Send,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Scalar + Arbitrary, D: DimName> Arbitrary for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D>,
+          Owned<N, D>: Send {
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
         Self::from_vector(Arbitrary::arbitrary(rng))
@@ -63,14 +58,12 @@ impl<N, D: DimName, S> Arbitrary for TranslationBase<N, D, S>
  */
 macro_rules! componentwise_constructors_impl(
     ($($D: ty, $($args: ident:$irow: expr),*);* $(;)*) => {$(
-        impl<N, S> TranslationBase<N, $D, S>
-            where N: Scalar,
-                  S: OwnedStorage<N, $D, U1>,
-                  S::Alloc: OwnedAllocator<N, $D, U1, S> {
+        impl<N: Scalar> Translation<N, $D>
+            where DefaultAllocator: Allocator<N, $D> {
             /// Initializes this matrix from its components.
             #[inline]
             pub fn new($($args: N),*) -> Self {
-                Self::from_vector(ColumnVector::<N, $D, S>::new($($args),*))
+                Self::from_vector(VectorN::<N, $D>::new($($args),*))
             }
         }
     )*}

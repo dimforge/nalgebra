@@ -1,25 +1,23 @@
 use std::mem;
 use std::ops::{Deref, DerefMut};
 
-use core::Scalar;
+use core::{DefaultAllocator, Scalar};
 use core::dimension::{U1, U2, U3, U4, U5, U6};
 use core::coordinates::{X, XY, XYZ, XYZW, XYZWA, XYZWAB};
-use core::allocator::OwnedAllocator;
-use core::storage::OwnedStorage;
+use core::allocator::Allocator;
 
-use geometry::PointBase;
+use geometry::Point;
 
 /*
  *
- * Give coordinates to PointBase{1 .. 6}
+ * Give coordinates to Point{1 .. 6}
  *
  */
 
 macro_rules! deref_impl(
     ($D: ty, $Target: ident $(, $comps: ident)*) => {
-        impl<N: Scalar, S> Deref for PointBase<N, $D, S>
-            where S: OwnedStorage<N, $D, U1>,
-                  S::Alloc: OwnedAllocator<N, $D, U1, S> {
+        impl<N: Scalar> Deref for Point<N, $D>
+            where DefaultAllocator: Allocator<N, $D> {
             type Target = $Target<N>;
 
             #[inline]
@@ -28,9 +26,8 @@ macro_rules! deref_impl(
             }
         }
 
-        impl<N: Scalar, S> DerefMut for PointBase<N, $D, S>
-            where S: OwnedStorage<N, $D, U1>,
-                  S::Alloc: OwnedAllocator<N, $D, U1, S> {
+        impl<N: Scalar> DerefMut for Point<N, $D>
+            where DefaultAllocator: Allocator<N, $D> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
                 unsafe { mem::transmute(self) }

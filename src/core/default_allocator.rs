@@ -4,6 +4,8 @@
 //! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
 
 use std::mem;
+use std::ptr;
+use std::cmp;
 use std::ops::Mul;
 
 use typenum::Prod;
@@ -11,7 +13,8 @@ use generic_array::ArrayLength;
 
 use core::Scalar;
 use core::dimension::{Dim, DimName, Dynamic};
-use core::allocator::Allocator;
+use core::allocator::{Allocator, Reallocator};
+use core::storage::{Storage, StorageMut};
 use core::matrix_array::MatrixArray;
 use core::matrix_vec::MatrixVec;
 
@@ -105,5 +108,112 @@ impl<N: Scalar, R: DimName> Allocator<N, R, Dynamic> for DefaultAllocator {
                 "Allocation from iterator error: the iterator did not yield the correct number of elements.");
 
         MatrixVec::new(nrows, ncols, res)
+    }
+}
+
+/*
+ *
+ * Reallocator.
+ *
+ */
+// Anything -> Static × Static
+impl<N: Scalar, RFrom, CFrom, RTo, CTo> Reallocator<N, RFrom, CFrom, RTo, CTo> for DefaultAllocator
+    where RFrom: Dim,
+          CFrom: Dim,
+          RTo:   DimName,
+          CTo:   DimName,
+          Self: Allocator<N, RFrom, CFrom>,
+          RTo::Value: Mul<CTo::Value>,
+          Prod<RTo::Value, CTo::Value>: ArrayLength<N> {
+
+    #[inline]
+    unsafe fn reallocate_copy(rto: RTo, cto: CTo, buf: <Self as Allocator<N, RFrom, CFrom>>::Buffer) -> MatrixArray<N, RTo, CTo> {
+        let mut res = <Self as Allocator<N, RTo, CTo>>::allocate_uninitialized(rto, cto);
+
+        let (rfrom, cfrom) = buf.shape();
+
+        let len_from = rfrom.value() * cfrom.value();
+        let len_to   = rto.value()   * cto.value();
+        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut(), cmp::min(len_from, len_to));
+
+        res
+    }
+}
+
+
+// Static × Static -> Dynamic × Any
+impl<N: Scalar, RFrom, CFrom, CTo> Reallocator<N, RFrom, CFrom, Dynamic, CTo> for DefaultAllocator
+    where RFrom: DimName,
+          CFrom: DimName,
+          CTo:   Dim,
+          RFrom::Value: Mul<CFrom::Value>,
+          Prod<RFrom::Value, CFrom::Value>: ArrayLength<N> {
+
+    #[inline]
+    unsafe fn reallocate_copy(rto: Dynamic, cto: CTo, buf: MatrixArray<N, RFrom, CFrom>) -> MatrixVec<N, Dynamic, CTo> {
+        let mut res = <Self as Allocator<N, Dynamic, CTo>>::allocate_uninitialized(rto, cto);
+
+        let (rfrom, cfrom) = buf.shape();
+
+        let len_from = rfrom.value() * cfrom.value();
+        let len_to   = rto.value()   * cto.value();
+        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut(), cmp::min(len_from, len_to));
+
+        res
+    }
+}
+
+// Static × Static -> Static × Dynamic
+impl<N: Scalar, RFrom, CFrom, RTo> Reallocator<N, RFrom, CFrom, RTo, Dynamic> for DefaultAllocator
+    where RFrom: DimName,
+          CFrom: DimName,
+          RTo:   DimName,
+          RFrom::Value: Mul<CFrom::Value>,
+          Prod<RFrom::Value, CFrom::Value>: ArrayLength<N> {
+
+    #[inline]
+    unsafe fn reallocate_copy(rto: RTo, cto: Dynamic, buf: MatrixArray<N, RFrom, CFrom>) -> MatrixVec<N, RTo, Dynamic> {
+        let mut res = <Self as Allocator<N, RTo, Dynamic>>::allocate_uninitialized(rto, cto);
+
+        let (rfrom, cfrom) = buf.shape();
+
+        let len_from = rfrom.value() * cfrom.value();
+        let len_to   = rto.value()   * cto.value();
+        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut(), cmp::min(len_from, len_to));
+
+        res
+    }
+}
+
+// All conversion from a dynamic buffer to a dynamic buffer.
+impl<N: Scalar, CFrom: Dim, CTo: Dim> Reallocator<N, Dynamic, CFrom, Dynamic, CTo> for DefaultAllocator {
+    #[inline]
+    unsafe fn reallocate_copy(rto: Dynamic, cto: CTo, buf: MatrixVec<N, Dynamic, CFrom>) -> MatrixVec<N, Dynamic, CTo> {
+        let new_buf = buf.resize(rto.value() * cto.value());
+        MatrixVec::new(rto, cto, new_buf)
+    }
+}
+
+impl<N: Scalar, CFrom: Dim, RTo: DimName> Reallocator<N, Dynamic, CFrom, RTo, Dynamic> for DefaultAllocator {
+    #[inline]
+    unsafe fn reallocate_copy(rto: RTo, cto: Dynamic, buf: MatrixVec<N, Dynamic, CFrom>) -> MatrixVec<N, RTo, Dynamic> {
+        let new_buf = buf.resize(rto.value() * cto.value());
+        MatrixVec::new(rto, cto, new_buf)
+    }
+}
+
+impl<N: Scalar, RFrom: DimName, CTo: Dim> Reallocator<N, RFrom, Dynamic, Dynamic, CTo> for DefaultAllocator {
+    #[inline]
+    unsafe fn reallocate_copy(rto: Dynamic, cto: CTo, buf: MatrixVec<N, RFrom, Dynamic>) -> MatrixVec<N, Dynamic, CTo> {
+        let new_buf = buf.resize(rto.value() * cto.value());
+        MatrixVec::new(rto, cto, new_buf)
+    }
+}
+
+impl<N: Scalar, RFrom: DimName, RTo: DimName> Reallocator<N, RFrom, Dynamic, RTo, Dynamic> for DefaultAllocator {
+    #[inline]
+    unsafe fn reallocate_copy(rto: RTo, cto: Dynamic, buf: MatrixVec<N, RFrom, Dynamic>) -> MatrixVec<N, RTo, Dynamic> {
+        let new_buf = buf.resize(rto.value() * cto.value());
+        MatrixVec::new(rto, cto, new_buf)
     }
 }

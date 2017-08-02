@@ -1,60 +1,79 @@
 use num::{Zero, One};
+use std::hash;
 use std::fmt;
 use approx::ApproxEq;
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde;
+
+#[cfg(feature = "serde-serialize")]
+use core::storage::Owned;
 
 use alga::general::Real;
 
-use core::{SquareMatrix, Scalar, OwnedSquareMatrix};
+use core::{DefaultAllocator, Scalar, MatrixN};
 use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
-use core::storage::{Storage, StorageMut};
 use core::allocator::Allocator;
 
 
-/// A rotation matrix with an owned storage.
-pub type OwnedRotation<N, D, A> = RotationBase<N, D, <A as Allocator<N, D, D>>::Buffer>;
-
 /// A rotation matrix.
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy)]
-pub struct RotationBase<N: Scalar, D: DimName, S> {
-    matrix: SquareMatrix<N, D, S>
+#[derive(Debug)]
+pub struct Rotation<N: Scalar, D: DimName>
+    where DefaultAllocator: Allocator<N, D, D> {
+    matrix: MatrixN<N, D>
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<N, D, S> Serialize for RotationBase<N, D, S>
-    where N: Scalar,
-          D: DimName,
-          SquareMatrix<N, D, S>: Serialize,
-{
-    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-        where T: Serializer
-    {
-        self.matrix.serialize(serializer)
+impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D>,
+          <DefaultAllocator as Allocator<N, D, D>>::Buffer: hash::Hash {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.matrix.hash(state)
+    }
+}
+
+impl<N: Scalar, D: DimName> Copy for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D>,
+          <DefaultAllocator as Allocator<N, D, D>>::Buffer: Copy { }
+
+impl<N: Scalar, D: DimName> Clone for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D>,
+          <DefaultAllocator as Allocator<N, D, D>>::Buffer: Clone {
+    #[inline]
+    fn clone(&self) -> Self {
+        Rotation::from_matrix_unchecked(self.matrix.clone())
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'de, N, D, S> Deserialize<'de> for RotationBase<N, D, S>
-    where N: Scalar,
-          D: DimName,
-          SquareMatrix<N, D, S>: Deserialize<'de>,
-{
-    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
-        where T: Deserializer<'de>
-    {
-        SquareMatrix::deserialize(deserializer).map(|x| RotationBase { matrix: x })
-    }
+impl<N: Scalar, D: DimName> serde::Serialize for Rotation<N, D>
+where DefaultAllocator: Allocator<N, D, D>,
+      Owned<N, D, D>: serde::Serialize {
+
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: serde::Serializer {
+            self.matrix.serialize(serializer)
+        }
 }
 
-impl<N: Scalar, D: DimName, S: Storage<N, D, D>> RotationBase<N, D, S>
-    where N: Scalar,
-          S: Storage<N, D, D> {
+#[cfg(feature = "serde-serialize")]
+impl<'a, N: Scalar, D: DimName> serde::Deserialize<'a> for Rotation<N, D>
+where DefaultAllocator: Allocator<N, D, D>,
+      Owned<N, D, D>: serde::Deserialize<'a> {
+
+    fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
+        where Des: serde::Deserializer<'a> {
+            let matrix = MatrixN::<N, D>::deserialize(deserializer)?;
+
+            Ok(Rotation::from_matrix_unchecked(matrix))
+        }
+}
+
+impl<N: Scalar, D: DimName> Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> {
     /// A reference to the underlying matrix representation of this rotation.
     #[inline]
-    pub fn matrix(&self) -> &SquareMatrix<N, D, S> {
+    pub fn matrix(&self) -> &MatrixN<N, D> {
         &self.matrix
     }
 
@@ -64,57 +83,52 @@ impl<N: Scalar, D: DimName, S: Storage<N, D, D>> RotationBase<N, D, S>
     /// non-square, non-inversible, or non-orthonormal. If one of those properties is broken,
     /// subsequent method calls may be UB.
     #[inline]
-    pub unsafe fn matrix_mut(&mut self) -> &mut SquareMatrix<N, D, S> {
+    pub unsafe fn matrix_mut(&mut self) -> &mut MatrixN<N, D> {
         &mut self.matrix
     }
 
     /// Unwraps the underlying matrix.
     #[inline]
-    pub fn unwrap(self) -> SquareMatrix<N, D, S> {
+    pub fn unwrap(self) -> MatrixN<N, D> {
         self.matrix
     }
 
     /// Converts this rotation into its equivalent homogeneous transformation matrix.
     #[inline]
-    pub fn to_homogeneous(&self) -> OwnedSquareMatrix<N, DimNameSum<D, U1>, S::Alloc>
+    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
         where N: Zero + One,
               D: DimNameAdd<U1>,
-              S::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
-        let mut res = OwnedSquareMatrix::<N, _, S::Alloc>::identity();
+              DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+        let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
         res.fixed_slice_mut::<D, D>(0, 0).copy_from(&self.matrix);
 
         res
     }
-}
 
-impl<N: Scalar, D: DimName, S: Storage<N, D, D>> RotationBase<N, D, S> {
     /// Creates a new rotation from the given square matrix.
     ///
     /// The matrix squareness is checked but not its orthonormality.
     #[inline]
-    pub fn from_matrix_unchecked(matrix: SquareMatrix<N, D, S>) -> RotationBase<N, D, S> {
+    pub fn from_matrix_unchecked(matrix: MatrixN<N, D>) -> Rotation<N, D> {
         assert!(matrix.is_square(), "Unable to create a rotation from a non-square matrix.");
 
-        RotationBase {
+        Rotation {
             matrix: matrix
         }
     }
 
     /// Transposes `self`.
     #[inline]
-    pub fn transpose(&self) -> OwnedRotation<N, D, S::Alloc> {
-        RotationBase::from_matrix_unchecked(self.matrix.transpose())
+    pub fn transpose(&self) -> Rotation<N, D> {
+        Rotation::from_matrix_unchecked(self.matrix.transpose())
     }
 
     /// Inverts `self`.
     #[inline]
-    pub fn inverse(&self) -> OwnedRotation<N, D, S::Alloc> {
+    pub fn inverse(&self) -> Rotation<N, D> {
         self.transpose()
     }
-}
 
-
-impl<N: Scalar, D: DimName, S: StorageMut<N, D, D>> RotationBase<N, D, S> {
     /// Transposes `self` in-place.
     #[inline]
     pub fn transpose_mut(&mut self) {
@@ -128,18 +142,20 @@ impl<N: Scalar, D: DimName, S: StorageMut<N, D, D>> RotationBase<N, D, S> {
     }
 }
 
-impl<N: Scalar + Eq, D: DimName, S: Storage<N, D, D>> Eq for RotationBase<N, D, S> { }
+impl<N: Scalar + Eq, D: DimName> Eq for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> { }
 
-impl<N: Scalar + PartialEq, D: DimName, S: Storage<N, D, D>> PartialEq for RotationBase<N, D, S> {
+impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> {
     #[inline]
-    fn eq(&self, right: &RotationBase<N, D, S>) -> bool {
+    fn eq(&self, right: &Rotation<N, D>) -> bool {
         self.matrix == right.matrix
     }
 }
 
-impl<N, D: DimName, S> ApproxEq for RotationBase<N, D, S>
+impl<N, D: DimName> ApproxEq for Rotation<N, D>
     where N: Scalar + ApproxEq,
-          S: Storage<N, D, D>,
+          DefaultAllocator: Allocator<N, D, D>,
           N::Epsilon: Copy {
     type Epsilon = N::Epsilon;
 
@@ -174,14 +190,14 @@ impl<N, D: DimName, S> ApproxEq for RotationBase<N, D, S>
  * Display
  *
  */
-impl<N, D: DimName, S> fmt::Display for RotationBase<N, D, S>
+impl<N, D: DimName> fmt::Display for Rotation<N, D>
     where N: Real + fmt::Display,
-          S: Storage<N, D, D>,
-          S::Alloc: Allocator<usize, D, D> {
+          DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<usize, D, D> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "RotationBase matrix {{"));
+        try!(writeln!(f, "Rotation matrix {{"));
         try!(write!(f, "{:.*}", precision, self.matrix));
         writeln!(f, "}}")
     }

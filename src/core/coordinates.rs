@@ -9,8 +9,7 @@ use std::ops::{Deref, DerefMut};
 
 use core::{Scalar, Matrix};
 use core::dimension::{U1, U2, U3, U4, U5, U6};
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::storage::{ContiguousStorage, ContiguousStorageMut};
 
 /*
  *
@@ -35,22 +34,20 @@ macro_rules! coords_impl(
 macro_rules! deref_impl(
     ($R: ty, $C: ty; $Target: ident) => {
         impl<N: Scalar, S> Deref for Matrix<N, $R, $C, S>
-            where S: OwnedStorage<N, $R, $C>,
-                  S::Alloc: OwnedAllocator<N, $R, $C, S> {
+            where S: ContiguousStorage<N, $R, $C> {
             type Target = $Target<N>;
 
             #[inline]
             fn deref(&self) -> &Self::Target {
-                unsafe { mem::transmute(self) }
+                unsafe { mem::transmute(self.data.ptr()) }
             }
         }
 
         impl<N: Scalar, S> DerefMut for Matrix<N, $R, $C, S>
-            where S: OwnedStorage<N, $R, $C>,
-                  S::Alloc: OwnedAllocator<N, $R, $C, S> {
+            where S: ContiguousStorageMut<N, $R, $C> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
-                unsafe { mem::transmute(self) }
+                unsafe { mem::transmute(self.data.ptr_mut()) }
             }
         }
     }

@@ -3,11 +3,10 @@ use alga::general::{AbstractMagma, AbstractGroup, AbstractLoop, AbstractMonoid, 
 use alga::linear::{Transformation, AffineTransformation, Similarity, Isometry, DirectIsometry,
                    OrthogonalTransformation, Rotation, ProjectiveTransformation};
 
-use core::ColumnVector;
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
-use core::dimension::{U1, U2};
-use geometry::{PointBase, UnitComplex};
+use core::{DefaultAllocator, Vector2};
+use core::allocator::Allocator;
+use core::dimension::U2;
+use geometry::{Point2, UnitComplex};
 
 /*
  *
@@ -56,42 +55,36 @@ impl_structures!(
     AbstractGroup<Multiplicative>
 );
 
-impl<N, S> Transformation<PointBase<N, U2, S>> for UnitComplex<N>
-    where N: Real,
-          S: OwnedStorage<N, U2, U1>,
-          S::Alloc: OwnedAllocator<N, U2, U1, S> {
+impl<N: Real> Transformation<Point2<N>> for UnitComplex<N>
+    where DefaultAllocator: Allocator<N, U2> {
     #[inline]
-    fn transform_point(&self, pt: &PointBase<N, U2, S>) -> PointBase<N, U2, S> {
+    fn transform_point(&self, pt: &Point2<N>) -> Point2<N> {
         self * pt
     }
 
     #[inline]
-    fn transform_vector(&self, v: &ColumnVector<N, U2, S>) -> ColumnVector<N, U2, S> {
+    fn transform_vector(&self, v: &Vector2<N>) -> Vector2<N> {
         self * v
     }
 }
 
-impl<N, S> ProjectiveTransformation<PointBase<N, U2, S>> for UnitComplex<N>
-    where N: Real,
-          S: OwnedStorage<N, U2, U1>,
-          S::Alloc: OwnedAllocator<N, U2, U1, S> {
+impl<N: Real> ProjectiveTransformation<Point2<N>> for UnitComplex<N>
+    where DefaultAllocator: Allocator<N, U2> {
     #[inline]
-    fn inverse_transform_point(&self, pt: &PointBase<N, U2, S>) -> PointBase<N, U2, S> {
+    fn inverse_transform_point(&self, pt: &Point2<N>) -> Point2<N> {
         // FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement
         // the inverse transformation explicitly here) ?
         self.inverse() * pt
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &ColumnVector<N, U2, S>) -> ColumnVector<N, U2, S> {
+    fn inverse_transform_vector(&self, v: &Vector2<N>) -> Vector2<N> {
         self.inverse() * v
     }
 }
 
-impl<N, S> AffineTransformation<PointBase<N, U2, S>> for UnitComplex<N>
-    where N: Real,
-          S: OwnedStorage<N, U2, U1>,
-          S::Alloc: OwnedAllocator<N, U2, U1, S> {
+impl<N: Real> AffineTransformation<Point2<N>> for UnitComplex<N>
+    where DefaultAllocator: Allocator<N, U2> {
     type Rotation          = Self;
     type NonUniformScaling = Id;
     type Translation       = Id;
@@ -132,10 +125,8 @@ impl<N, S> AffineTransformation<PointBase<N, U2, S>> for UnitComplex<N>
     }
 }
 
-impl<N, S> Similarity<PointBase<N, U2, S>> for UnitComplex<N>
-    where N: Real,
-          S: OwnedStorage<N, U2, U1>,
-          S::Alloc: OwnedAllocator<N, U2, U1, S> {
+impl<N: Real> Similarity<Point2<N>> for UnitComplex<N>
+    where DefaultAllocator: Allocator<N, U2> {
     type Scaling  = Id;
 
     #[inline]
@@ -156,10 +147,8 @@ impl<N, S> Similarity<PointBase<N, U2, S>> for UnitComplex<N>
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N, S> $Trait<PointBase<N, U2, S>> for UnitComplex<N>
-        where N: Real,
-              S: OwnedStorage<N, U2, U1>,
-              S::Alloc: OwnedAllocator<N, U2, U1, S> { }
+        impl<N: Real> $Trait<Point2<N>> for UnitComplex<N>
+        where DefaultAllocator: Allocator<N, U2> { }
     )*}
 );
 
@@ -167,22 +156,20 @@ marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
 
 
-impl<N, S> Rotation<PointBase<N, U2, S>> for UnitComplex<N>
-    where N: Real,
-          S: OwnedStorage<N, U2, U1>,
-          S::Alloc: OwnedAllocator<N, U2, U1, S> {
+impl<N: Real> Rotation<Point2<N>> for UnitComplex<N>
+    where DefaultAllocator: Allocator<N, U2> {
     #[inline]
     fn powf(&self, n: N) -> Option<Self> {
         Some(self.powf(n))
     }
 
     #[inline]
-    fn rotation_between(a: &ColumnVector<N, U2, S>, b: &ColumnVector<N, U2, S>) -> Option<Self> {
+    fn rotation_between(a: &Vector2<N>, b: &Vector2<N>) -> Option<Self> {
         Some(Self::rotation_between(a, b))
     }
 
     #[inline]
-    fn scaled_rotation_between(a: &ColumnVector<N, U2, S>, b: &ColumnVector<N, U2, S>, s: N) -> Option<Self> {
+    fn scaled_rotation_between(a: &Vector2<N>, b: &Vector2<N>, s: N) -> Option<Self> {
         Some(Self::scaled_rotation_between(a, b, s))
     }
 }

@@ -18,7 +18,7 @@ use generic_array::{ArrayLength, GenericArray};
 
 use core::Scalar;
 use core::dimension::{DimName, U1};
-use core::storage::{Storage, StorageMut, Owned, OwnedStorage};
+use core::storage::{Storage, StorageMut, Owned, ContiguousStorage, ContiguousStorageMut};
 use core::allocator::Allocator;
 use core::default_allocator::DefaultAllocator;
 
@@ -136,22 +136,10 @@ unsafe impl<N, R, C> Storage<N, R, C> for MatrixArray<N, R, C>
           R: DimName,
           C: DimName,
           R::Value: Mul<C::Value>,
-          Prod<R::Value, C::Value>: ArrayLength<N> {
+          Prod<R::Value, C::Value>: ArrayLength<N>,
+          DefaultAllocator: Allocator<N, R, C, Buffer = Self> {
     type RStride = U1;
     type CStride = R;
-    type Alloc   = DefaultAllocator;
-
-    #[inline]
-    fn into_owned(self) -> Owned<N, R, C, Self::Alloc> {
-        self
-    }
-
-    #[inline]
-    fn clone_owned(&self) -> Owned<N, R, C, Self::Alloc> {
-        let it = self.iter().cloned();
-
-        Self::Alloc::allocate_from_iterator(self.shape().0, self.shape().1, it)
-    }
 
     #[inline]
     fn ptr(&self) -> *const N {
@@ -167,35 +155,67 @@ unsafe impl<N, R, C> Storage<N, R, C> for MatrixArray<N, R, C>
     fn strides(&self) -> (Self::RStride, Self::CStride) {
         (Self::RStride::name(), Self::CStride::name())
     }
+
+    #[inline]
+    fn is_contiguous(&self) -> bool {
+        true
+    }
+
+    #[inline]
+    fn into_owned(self) -> Owned<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        self
+    }
+
+    #[inline]
+    fn clone_owned(&self) -> Owned<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        let it = self.iter().cloned();
+
+        DefaultAllocator::allocate_from_iterator(self.shape().0, self.shape().1, it)
+    }
+
+    #[inline]
+    fn as_slice(&self) -> &[N] {
+        &self[..]
+    }
 }
+
 
 unsafe impl<N, R, C> StorageMut<N, R, C> for MatrixArray<N, R, C>
     where N: Scalar,
           R: DimName,
           C: DimName,
           R::Value: Mul<C::Value>,
-          Prod<R::Value, C::Value>: ArrayLength<N> {
+          Prod<R::Value, C::Value>: ArrayLength<N>,
+          DefaultAllocator: Allocator<N, R, C, Buffer = Self> {
     #[inline]
     fn ptr_mut(&mut self) -> *mut N {
         self[..].as_mut_ptr()
-    }
-}
-
-unsafe impl<N, R, C> OwnedStorage<N, R, C> for MatrixArray<N, R, C>
-    where N: Scalar,
-          R: DimName,
-          C: DimName,
-          R::Value: Mul<C::Value>,
-          Prod<R::Value, C::Value>: ArrayLength<N> {
-    #[inline]
-    fn as_slice(&self) -> &[N] {
-        &self[..]
     }
 
     #[inline]
     fn as_mut_slice(&mut self) -> &mut [N] {
         &mut self[..]
     }
+}
+
+unsafe impl<N, R, C> ContiguousStorage<N, R, C> for MatrixArray<N, R, C>
+    where N: Scalar,
+          R: DimName,
+          C: DimName,
+          R::Value: Mul<C::Value>,
+          Prod<R::Value, C::Value>: ArrayLength<N>,
+          DefaultAllocator: Allocator<N, R, C, Buffer = Self> {
+}
+
+unsafe impl<N, R, C> ContiguousStorageMut<N, R, C> for MatrixArray<N, R, C>
+    where N: Scalar,
+          R: DimName,
+          C: DimName,
+          R::Value: Mul<C::Value>,
+          Prod<R::Value, C::Value>: ArrayLength<N>,
+          DefaultAllocator: Allocator<N, R, C, Buffer = Self> {
 }
 
 

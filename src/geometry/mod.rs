@@ -14,7 +14,7 @@ mod point_coordinates;
 mod rotation;
 mod rotation_construction;
 mod rotation_ops;
-mod rotation_alga; // FIXME: implement RotationBase methods.
+mod rotation_alga; // FIXME: implement Rotation methods.
 mod rotation_conversion;
 mod rotation_alias;
 mod rotation_specialization;
@@ -23,9 +23,8 @@ mod quaternion;
 mod quaternion_construction;
 mod quaternion_ops;
 mod quaternion_alga;
-mod quaternion_alias;
-mod quaternion_coordinates;
 mod quaternion_conversion;
+mod quaternion_coordinates;
 
 mod unit_complex;
 mod unit_complex_construction;
@@ -61,6 +60,8 @@ mod transform_alga;
 mod transform_conversion;
 mod transform_alias;
 
+mod reflection;
+
 mod orthographic;
 mod perspective;
 
@@ -71,7 +72,6 @@ pub use self::rotation::*;
 pub use self::rotation_alias::*;
 
 pub use self::quaternion::*;
-pub use self::quaternion_alias::*;
 
 pub use self::unit_complex::*;
 
@@ -87,5 +87,7 @@ pub use self::similarity_alias::*;
 pub use self::transform::*;
 pub use self::transform_alias::*;
 
-pub use self::orthographic::{OrthographicBase, Orthographic3};
-pub use self::perspective::{PerspectiveBase, Perspective3};
+pub use self::reflection::*;
+
+pub use self::orthographic::Orthographic3;
+pub use self::perspective::Perspective3;

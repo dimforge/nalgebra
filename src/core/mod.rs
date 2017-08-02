@@ -6,6 +6,7 @@ pub mod allocator;
 pub mod storage;
 pub mod coordinates;
 mod ops;
+mod blas;
 pub mod iter;
 pub mod default_allocator;
 
@@ -15,8 +16,6 @@ mod construction;
 mod properties;
 mod alias;
 mod matrix_alga;
-mod determinant;
-mod inverse;
 mod conversion;
 mod matrix_slice;
 mod matrix_array;
@@ -24,8 +23,7 @@ mod matrix_vec;
 mod cg;
 mod unit;
 mod componentwise;
-
-mod decompositions;
+mod edition;
 
 #[doc(hidden)]
 pub mod helper;

@@ -1,14 +1,14 @@
 use alga::general::{AbstractMagma, AbstractGroup, AbstractLoop, AbstractMonoid, AbstractQuasigroup,
                     AbstractSemigroup, Real, Inverse, Multiplicative, Identity, Id};
 use alga::linear::{Transformation, ProjectiveTransformation, Similarity, AffineTransformation,
-                   Isometry, DirectIsometry, Translation};
+                   Isometry, DirectIsometry};
+use alga::linear::Translation as AlgaTranslation;
 
-use core::ColumnVector;
-use core::dimension::{DimName, U1};
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::{DefaultAllocator, VectorN};
+use core::dimension::DimName;
+use core::allocator::Allocator;
 
-use geometry::{TranslationBase, PointBase};
+use geometry::{Translation, Point};
 
 
 /*
@@ -16,20 +16,16 @@ use geometry::{TranslationBase, PointBase};
  * Algebraic structures.
  *
  */
-impl<N, D: DimName, S> Identity<Multiplicative> for TranslationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName> Identity<Multiplicative> for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N, D: DimName, S> Inverse<Multiplicative> for TranslationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName> Inverse<Multiplicative> for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn inverse(&self) -> Self {
         self.inverse()
@@ -41,10 +37,8 @@ impl<N, D: DimName, S> Inverse<Multiplicative> for TranslationBase<N, D, S>
     }
 }
 
-impl<N, D: DimName, S> AbstractMagma<Multiplicative> for TranslationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName> AbstractMagma<Multiplicative> for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
@@ -53,10 +47,8 @@ impl<N, D: DimName, S> AbstractMagma<Multiplicative> for TranslationBase<N, D, S
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N, D: DimName, S> $marker<$operator> for TranslationBase<N, D, S>
-            where N: Real,
-                  S: OwnedStorage<N, D, U1>,
-                  S::Alloc: OwnedAllocator<N, D, U1, S> { }
+        impl<N: Real, D: DimName> $marker<$operator> for Translation<N, D>
+            where DefaultAllocator: Allocator<N, D> { }
     )*}
 );
 
@@ -73,40 +65,34 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N, D: DimName, S> Transformation<PointBase<N, D, S>> for TranslationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName> Transformation<Point<N, D>> for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn transform_point(&self, pt: &PointBase<N, D, S>) -> PointBase<N, D, S> {
+    fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         pt + &self.vector
     }
 
     #[inline]
-    fn transform_vector(&self, v: &ColumnVector<N, D, S>) -> ColumnVector<N, D, S> {
+    fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         v.clone()
     }
 }
 
-impl<N, D: DimName, S> ProjectiveTransformation<PointBase<N, D, S>> for TranslationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName> ProjectiveTransformation<Point<N, D>> for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn inverse_transform_point(&self, pt: &PointBase<N, D, S>) -> PointBase<N, D, S> {
+    fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         pt - &self.vector
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &ColumnVector<N, D, S>) -> ColumnVector<N, D, S> {
+    fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         v.clone()
     }
 }
 
-impl<N, D: DimName, S> AffineTransformation<PointBase<N, D, S>> for TranslationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName> AffineTransformation<Point<N, D>> for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     type Rotation          = Id;
     type NonUniformScaling = Id;
     type Translation       = Self;
@@ -148,10 +134,9 @@ impl<N, D: DimName, S> AffineTransformation<PointBase<N, D, S>> for TranslationB
 }
 
 
-impl<N, D: DimName, S> Similarity<PointBase<N, D, S>> for TranslationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName> Similarity<Point<N, D>> for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
+
     type Scaling = Id;
 
     #[inline]
@@ -172,10 +157,8 @@ impl<N, D: DimName, S> Similarity<PointBase<N, D, S>> for TranslationBase<N, D, 
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N, D: DimName, S> $Trait<PointBase<N, D, S>> for TranslationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> { }
+        impl<N: Real, D: DimName> $Trait<Point<N, D>> for Translation<N, D>
+            where DefaultAllocator: Allocator<N, D> { }
     )*}
 );
 
@@ -183,17 +166,15 @@ marker_impl!(Isometry, DirectIsometry);
 
 
 /// Subgroups of the n-dimensional translation group `T(n)`.
-impl<N, D: DimName, S> Translation<PointBase<N, D, S>> for TranslationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName> AlgaTranslation<Point<N, D>> for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn to_vector(&self) -> ColumnVector<N, D, S> {
+    fn to_vector(&self) -> VectorN<N, D> {
         self.vector.clone()
     }
 
     #[inline]
-    fn from_vector(v: ColumnVector<N, D, S>) -> Option<Self> {
+    fn from_vector(v: VectorN<N, D>) -> Option<Self> {
         Some(Self::from_vector(v))
     }
 
@@ -203,7 +184,7 @@ impl<N, D: DimName, S> Translation<PointBase<N, D, S>> for TranslationBase<N, D,
     }
 
     #[inline]
-    fn translation_between(a: &PointBase<N, D, S>, b: &PointBase<N, D, S>) -> Option<Self> {
+    fn translation_between(a: &Point<N, D>, b: &Point<N, D>) -> Option<Self> {
         Some(Self::from_vector(b - a))
     }
 }

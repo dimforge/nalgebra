@@ -3,8 +3,7 @@ use approx::ApproxEq;
 use num_complex::Complex;
 
 use alga::general::Real;
-use core::{Unit, SquareMatrix, Vector1, Matrix3};
-use core::dimension::U2;
+use core::{Unit, Vector1, Matrix2, Matrix3};
 use geometry::Rotation2;
 
 /// A complex number with a norm equal to 1.
@@ -52,11 +51,11 @@ use geometry::Rotation2;
 /// </h4>
 ///
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">from_rotation_matrix</a>(rotmat: &RotationBase) -> Self</code>
+/// <code>fn <a class="fnname">from_rotation_matrix</a>(rotmat: &Rotation) -> Self</code>
 /// </h4>
 ///
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">from_scaled_axis</a>(axisangle: ColumnVector) -> Self</code>
+/// <code>fn <a class="fnname">from_scaled_axis</a>(axisangle: Vector) -> Self</code>
 /// </h4>
 ///
 /// <h4 class="method"><span class="invisible">
@@ -80,7 +79,7 @@ use geometry::Rotation2;
 /// </h4>
 ///
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">rotation_between</a>(a: &ColumnVector<N, U2, SB>, b: &ColumnVector) -> Self</code>
+/// <code>fn <a class="fnname">rotation_between</a>(a: &Vector<N, U2, SB>, b: &Vector) -> Self</code>
 /// </h4>
 ///
 /// <h4 class="method"><span class="invisible">
@@ -92,7 +91,7 @@ use geometry::Rotation2;
 /// </h4>
 ///
 /// <h4 class="method"><span class="invisible">
-/// <code>fn <a class="fnname">scaled_rotation_between</a>(a: &ColumnVector<N, U2, SB>, b: &ColumnVector, s: N) -> Self</code>
+/// <code>fn <a class="fnname">scaled_rotation_between</a>(a: &Vector<N, U2, SB>, b: &Vector, s: N) -> Self</code>
 /// </h4>
 ///
 /// <h4 class="method"><span class="invisible">
@@ -109,6 +108,18 @@ impl<N: Real> UnitComplex<N> {
     #[inline]
     pub fn angle(&self) -> N {
         self.im.atan2(self.re)
+    }
+
+    /// The sine of the rotation angle.
+    #[inline]
+    pub fn sin_angle(&self) -> N {
+        self.im
+    }
+
+    /// The cosine of the rotation angle.
+    #[inline]
+    pub fn cos_angle(&self) -> N {
+        self.re
     }
 
     /// The rotation angle returned as a 1-dimensional vector.
@@ -180,12 +191,8 @@ impl<N: Real> UnitComplex<N> {
         let r = self.re;
         let i = self.im;
 
-        Rotation2::from_matrix_unchecked(
-            SquareMatrix::<_, U2, _>::new(
-                r, -i,
-                i,  r
-            )
-        )
+        Rotation2::from_matrix_unchecked(Matrix2::new(r, -i,
+                                                      i,  r))
     }
 
     /// Converts this unit complex number into its equivalent homogeneous transformation matrix.

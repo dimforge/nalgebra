@@ -66,7 +66,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * General transformations that does not have to be invertible, stored as an homogeneous matrix:
   `Transform2`, `Transform3`.
 * 3D projections for computer graphics: `Perspective3`, `Orthographic3`.
-* Linear algebra and data analysis operators: QR decomposition, eigen-decomposition.
+* Linear algebra decompositions: Cholesky, QR, LU, SVD, Schur, symmetric-eigendecomposition,.
 * Implements traits from the [alga](https://crates.io/crates/alga) crate for
   generic programming.
 */
@@ -84,7 +84,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
-#![warn(missing_docs)]
+//#![warn(missing_docs)]
 #![doc(html_root_url = "http://nalgebra.org/rustdoc")]
 
 #[cfg(feature = "arbitrary")]
@@ -101,17 +101,20 @@ extern crate rand;
 extern crate approx;
 extern crate typenum;
 extern crate generic_array;
+extern crate matrixmultiply;
 
 extern crate alga;
 
 
 pub mod core;
+pub mod linalg;
 pub mod geometry;
-mod traits;
+#[cfg(feature = "debug")]
+pub mod debug;
 
 pub use core::*;
+pub use linalg::*;
 pub use geometry::*;
-pub use traits::*;
 
 
 use std::cmp::{self, PartialOrd, Ordering};
@@ -122,7 +125,7 @@ use alga::general::{Identity, SupersetOf, MeetSemilattice, JoinSemilattice, Latt
 use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{InnerSpace, NormedSpace, FiniteDimVectorSpace, EuclideanSpace};
 
-pub use alga::general::Id;
+pub use alga::general::{Real, Id};
 
 
 /*
