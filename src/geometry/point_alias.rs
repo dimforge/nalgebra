@@ -1,10 +1,6 @@
-use core::MatrixArray;
 use core::dimension::{U1, U2, U3, U4, U5, U6};
 
-use geometry::PointBase;
-
-/// A statically sized D-dimensional column point.
-pub type Point<N, D> = PointBase<N, D, MatrixArray<N, D, U1>>;
+use geometry::Point;
 
 /// A statically sized 1-dimensional column point.
 pub type Point1<N> = Point<N, U1>;

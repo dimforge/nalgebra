@@ -3,9 +3,11 @@
 //! Traits and tags for identifying the dimension of all algebraic entities.
 
 use std::fmt::Debug;
-use std::any::Any;
+use std::any::{TypeId, Any};
+use std::cmp;
 use std::ops::{Add, Sub, Mul, Div};
-use typenum::{self, Unsigned, UInt, B1, Bit, UTerm, Sum, Prod, Diff, Quot};
+use typenum::{self, Unsigned, UInt, B1, Bit, UTerm, Sum, Prod, Diff, Quot,
+              Min, Minimum, Max, Maximum};
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
@@ -55,6 +57,11 @@ impl IsNotStaticOne for Dynamic { }
 /// Trait implemented by any type that can be used as a dimension. This includes type-level
 /// integers and `Dynamic` (for dimensions not known at compile-time).
 pub trait Dim: Any + Debug + Copy + PartialEq + Send {
+    #[inline(always)]
+    fn is<D: Dim>() -> bool {
+        TypeId::of::<Self>() == TypeId::of::<D>()
+    }
+
     /// Gets the compile-time value of `Self`. Returns `None` if it is not known, i.e., if `Self =
     /// Dynamic`.
     fn try_to_usize() -> Option<usize>;
@@ -85,6 +92,24 @@ impl Dim for Dynamic {
     }
 }
 
+impl Add<usize> for Dynamic {
+    type Output = Dynamic;
+
+    #[inline]
+    fn add(self, rhs: usize) -> Dynamic {
+        Dynamic::new(self.value + rhs)
+    }
+}
+
+impl Sub<usize> for Dynamic {
+    type Output = Dynamic;
+
+    #[inline]
+    fn sub(self, rhs: usize) -> Dynamic {
+        Dynamic::new(self.value - rhs)
+    }
+}
+
 /*
  *
  * Operations.
@@ -93,7 +118,7 @@ impl Dim for Dynamic {
 
 macro_rules! dim_ops(
     ($($DimOp:    ident, $DimNameOp: ident,
-       $Op:       ident, $op: ident,
+       $Op:       ident, $op: ident, $op_path: path,
        $DimResOp: ident, $DimNameResOp: ident,
        $ResOp: ident);* $(;)*) => {$(
         pub type $DimResOp<D1, D2> = <D1 as $DimOp<D2>>::Output;
@@ -120,7 +145,7 @@ macro_rules! dim_ops(
 
             #[inline]
             fn $op(self, other: D) -> Dynamic {
-                Dynamic::new(self.value.$op(other.value()))
+                Dynamic::new($op_path(self.value, other.value()))
             }
         }
 
@@ -129,7 +154,7 @@ macro_rules! dim_ops(
 
             #[inline]
             fn $op(self, other: Dynamic) -> Dynamic {
-                Dynamic::new(self.value().$op(other.value))
+                Dynamic::new($op_path(self.value(), other.value))
             }
         }
 
@@ -155,10 +180,12 @@ macro_rules! dim_ops(
 );
 
 dim_ops!(
-    DimAdd, DimNameAdd, Add, add, DimSum,  DimNameSum,  Sum;
-    DimMul, DimNameMul, Mul, mul, DimProd, DimNameProd, Prod;
-    DimSub, DimNameSub, Sub, sub, DimDiff, DimNameDiff, Diff;
-    DimDiv, DimNameDiv, Div, div, DimQuot, DimNameQuot, Quot;
+    DimAdd, DimNameAdd, Add, add, Add::add, DimSum,     DimNameSum,     Sum;
+    DimMul, DimNameMul, Mul, mul, Mul::mul, DimProd,    DimNameProd,    Prod;
+    DimSub, DimNameSub, Sub, sub, Sub::sub, DimDiff,    DimNameDiff,    Diff;
+    DimDiv, DimNameDiv, Div, div, Div::div, DimQuot,    DimNameQuot,    Quot;
+    DimMin, DimNameMin, Min, min, cmp::min, DimMinimum, DimNameNimimum, Minimum;
+    DimMax, DimNameMax, Max, max, cmp::max, DimMaximum, DimNameMaximum, Maximum;
 );
 
 

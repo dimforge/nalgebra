@@ -1,14 +1,13 @@
 use std::ops::{Mul, MulAssign, Div, DivAssign};
 
 use alga::general::Real;
-use alga::linear::Rotation;
+use alga::linear::Rotation as AlgaRotation;
 
-use core::ColumnVector;
+use core::{DefaultAllocator, VectorN};
 use core::dimension::{DimName, U1, U3, U4};
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::allocator::Allocator;
 
-use geometry::{PointBase, RotationBase, SimilarityBase, TranslationBase, UnitQuaternionBase, IsometryBase};
+use geometry::{Point, Rotation, Similarity, Translation, UnitQuaternion, Isometry};
 
 // FIXME: there are several cloning of rotations that we could probably get rid of (but we didn't
 // yet because that would require to add a bound like `where for<'a, 'b> &'a R: Mul<&'b R, Output = R>`
@@ -22,43 +21,43 @@ use geometry::{PointBase, RotationBase, SimilarityBase, TranslationBase, UnitQua
  *
  * (Operators)
  *
- * SimilarityBase × SimilarityBase
- * SimilarityBase × R
- * SimilarityBase × IsometryBase
+ * Similarity × Similarity
+ * Similarity × R
+ * Similarity × Isometry
  *
- * IsometryBase × SimilarityBase
- * IsometryBase ÷ SimilarityBase
- *
- *
- * SimilarityBase ÷ SimilarityBase
- * SimilarityBase ÷ R
- * SimilarityBase ÷ IsometryBase
- *
- * SimilarityBase × PointBase
- * SimilarityBase × ColumnVector
+ * Isometry × Similarity
+ * Isometry ÷ Similarity
  *
  *
- * SimilarityBase  × TranslationBase
- * TranslationBase × SimilarityBase
+ * Similarity ÷ Similarity
+ * Similarity ÷ R
+ * Similarity ÷ Isometry
  *
- * NOTE: The following are provided explicitly because we can't have R × SimilarityBase.
- * RotationBase   × SimilarityBase<RotationBase>
- * UnitQuaternion × SimilarityBase<UnitQuaternion>
+ * Similarity × Point
+ * Similarity × Vector
  *
- * RotationBase   ÷ SimilarityBase<RotationBase>
- * UnitQuaternion ÷ SimilarityBase<UnitQuaternion>
+ *
+ * Similarity  × Translation
+ * Translation × Similarity
+ *
+ * NOTE: The following are provided explicitly because we can't have R × Similarity.
+ * Rotation   × Similarity<Rotation>
+ * UnitQuaternion × Similarity<UnitQuaternion>
+ *
+ * Rotation   ÷ Similarity<Rotation>
+ * UnitQuaternion ÷ Similarity<UnitQuaternion>
  *
  * (Assignment Operators)
  *
- * SimilarityBase ×= TranslationBase
+ * Similarity ×= Translation
  *
- * SimilarityBase ×= SimilarityBase
- * SimilarityBase ×= IsometryBase
- * SimilarityBase ×= R
+ * Similarity ×= Similarity
+ * Similarity ×= Isometry
+ * Similarity ×= R
  *
- * SimilarityBase ÷= SimilarityBase
- * SimilarityBase ÷= IsometryBase
- * SimilarityBase ÷= R
+ * Similarity ÷= Similarity
+ * Similarity ÷= Isometry
+ * Similarity ÷= R
  *
  */
 
@@ -68,11 +67,9 @@ macro_rules! similarity_binop_impl(
     ($Op: ident, $op: ident;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N, D: DimName, S, R> $Op<$Rhs> for $Lhs
-            where N: Real,
-                  S: OwnedStorage<N, D, U1>,
-                  R: Rotation<PointBase<N, D, S>>,
-                  S::Alloc: OwnedAllocator<N, D, U1, S> {
+        impl<$($lives ,)* N: Real, D: DimName, R> $Op<$Rhs> for $Lhs
+            where R: AlgaRotation<Point<N, D>>,
+                  DefaultAllocator: Allocator<N, D> {
             type Output = $Output;
 
             #[inline]
@@ -117,22 +114,18 @@ macro_rules! similarity_binop_assign_impl_all(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
      [val] => $action_val: expr;
      [ref] => $action_ref: expr;) => {
-        impl<N, D: DimName, S, R> $OpAssign<$Rhs> for $Lhs
-            where N: Real,
-                  S: OwnedStorage<N, D, U1>,
-                  R: Rotation<PointBase<N, D, S>>,
-                  S::Alloc: OwnedAllocator<N, D, U1, S> {
+        impl<N: Real, D: DimName, R> $OpAssign<$Rhs> for $Lhs
+            where R: AlgaRotation<Point<N, D>>,
+                  DefaultAllocator: Allocator<N, D> {
             #[inline]
             fn $op_assign(&mut $lhs, $rhs: $Rhs) {
                 $action_val
             }
         }
 
-        impl<'b, N, D: DimName, S, R> $OpAssign<&'b $Rhs> for $Lhs
-            where N: Real,
-                  S: OwnedStorage<N, D, U1>,
-                  R: Rotation<PointBase<N, D, S>>,
-                  S::Alloc: OwnedAllocator<N, D, U1, S> {
+        impl<'b, N: Real, D: DimName, R> $OpAssign<&'b $Rhs> for $Lhs
+            where R: AlgaRotation<Point<N, D>>,
+                  DefaultAllocator: Allocator<N, D> {
             #[inline]
             fn $op_assign(&mut $lhs, $rhs: &'b $Rhs) {
                 $action_ref
@@ -141,11 +134,11 @@ macro_rules! similarity_binop_assign_impl_all(
     }
 );
 
-// SimilarityBase × SimilarityBase
-// SimilarityBase ÷ SimilarityBase
+// Similarity × Similarity
+// Similarity ÷ Similarity
 similarity_binop_impl_all!(
     Mul, mul;
-    self: SimilarityBase<N, D, S, R>, rhs: SimilarityBase<N, D, S, R>, Output = SimilarityBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -159,7 +152,7 @@ similarity_binop_impl_all!(
 
 similarity_binop_impl_all!(
     Div, div;
-    self: SimilarityBase<N, D, S, R>, rhs: SimilarityBase<N, D, S, R>, Output = SimilarityBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
     [val val] => self * rhs.inverse();
     [ref val] => self * rhs.inverse();
     [val ref] => self * rhs.inverse();
@@ -167,10 +160,10 @@ similarity_binop_impl_all!(
 );
 
 
-// SimilarityBase ×= TranslationBase
+// Similarity ×= Translation
 similarity_binop_assign_impl_all!(
     MulAssign, mul_assign;
-    self: SimilarityBase<N, D, S, R>, rhs: TranslationBase<N, D, S>;
+    self: Similarity<N, D, R>, rhs: Translation<N, D>;
     [val] => *self *= &rhs;
     [ref] => {
         let shift = self.isometry.rotation.transform_vector(&rhs.vector) * self.scaling();
@@ -179,11 +172,11 @@ similarity_binop_assign_impl_all!(
 );
 
 
-// SimilarityBase ×= SimilarityBase
-// SimilarityBase ÷= SimilarityBase
+// Similarity ×= Similarity
+// Similarity ÷= Similarity
 similarity_binop_assign_impl_all!(
     MulAssign, mul_assign;
-    self: SimilarityBase<N, D, S, R>, rhs: SimilarityBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: Similarity<N, D, R>;
     [val] => *self *= &rhs;
     [ref] => {
         *self *= &rhs.isometry;
@@ -194,18 +187,18 @@ similarity_binop_assign_impl_all!(
 
 similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
-    self: SimilarityBase<N, D, S, R>, rhs: SimilarityBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: Similarity<N, D, R>;
     [val] => *self /= &rhs;
     // FIXME: don't invert explicitly.
     [ref] => *self *= rhs.inverse();
 );
 
 
-// SimilarityBase ×= IsometryBase
-// SimilarityBase ÷= IsometryBase
+// Similarity ×= Isometry
+// Similarity ÷= Isometry
 similarity_binop_assign_impl_all!(
     MulAssign, mul_assign;
-    self: SimilarityBase<N, D, S, R>, rhs: IsometryBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: Isometry<N, D, R>;
     [val] => *self *= &rhs;
     [ref] => {
         let shift = self.isometry.rotation.transform_vector(&rhs.translation.vector) * self.scaling();
@@ -217,18 +210,18 @@ similarity_binop_assign_impl_all!(
 
 similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
-    self: SimilarityBase<N, D, S, R>, rhs: IsometryBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: Isometry<N, D, R>;
     [val] => *self /= &rhs;
     // FIXME: don't invert explicitly.
     [ref] => *self *= rhs.inverse();
 );
 
 
-// SimilarityBase ×= R
-// SimilarityBase ÷= R
+// Similarity ×= R
+// Similarity ÷= R
 similarity_binop_assign_impl_all!(
     MulAssign, mul_assign;
-    self: SimilarityBase<N, D, S, R>, rhs: R;
+    self: Similarity<N, D, R>, rhs: R;
     [val] => self.isometry.rotation *= rhs;
     [ref] => self.isometry.rotation *= rhs.clone();
 );
@@ -236,59 +229,59 @@ similarity_binop_assign_impl_all!(
 
 similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
-    self: SimilarityBase<N, D, S, R>, rhs: R;
+    self: Similarity<N, D, R>, rhs: R;
     // FIXME: don't invert explicitly?
     [val] => *self *= rhs.inverse();
     [ref] => *self *= rhs.inverse();
 );
 
 
-// SimilarityBase × R
-// SimilarityBase ÷ R
+// Similarity × R
+// Similarity ÷ R
 similarity_binop_impl_all!(
     Mul, mul;
-    self: SimilarityBase<N, D, S, R>, rhs: R, Output = SimilarityBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: R, Output = Similarity<N, D, R>;
     [val val] => {
         let scaling = self.scaling();
-        SimilarityBase::from_isometry(self.isometry * rhs, scaling)
+        Similarity::from_isometry(self.isometry * rhs, scaling)
     };
-    [ref val] => SimilarityBase::from_isometry(&self.isometry * rhs, self.scaling());
+    [ref val] => Similarity::from_isometry(&self.isometry * rhs, self.scaling());
     [val ref] => {
         let scaling = self.scaling();
-        SimilarityBase::from_isometry(self.isometry * rhs, scaling)
+        Similarity::from_isometry(self.isometry * rhs, scaling)
     };
-    [ref ref] => SimilarityBase::from_isometry(&self.isometry * rhs, self.scaling());
+    [ref ref] => Similarity::from_isometry(&self.isometry * rhs, self.scaling());
 );
 
 
 
 similarity_binop_impl_all!(
     Div, div;
-    self: SimilarityBase<N, D, S, R>, rhs: R, Output = SimilarityBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: R, Output = Similarity<N, D, R>;
     [val val] => {
         let scaling = self.scaling();
-        SimilarityBase::from_isometry(self.isometry / rhs, scaling)
+        Similarity::from_isometry(self.isometry / rhs, scaling)
     };
-    [ref val] => SimilarityBase::from_isometry(&self.isometry / rhs, self.scaling());
+    [ref val] => Similarity::from_isometry(&self.isometry / rhs, self.scaling());
     [val ref] => {
         let scaling = self.scaling();
-        SimilarityBase::from_isometry(self.isometry / rhs, scaling)
+        Similarity::from_isometry(self.isometry / rhs, scaling)
     };
-    [ref ref] => SimilarityBase::from_isometry(&self.isometry / rhs, self.scaling());
+    [ref ref] => Similarity::from_isometry(&self.isometry / rhs, self.scaling());
 );
 
-// SimilarityBase × IsometryBase
-// SimilarityBase ÷ IsometryBase
+// Similarity × Isometry
+// Similarity ÷ Isometry
 similarity_binop_impl_all!(
     Mul, mul;
-    self: SimilarityBase<N, D, S, R>, rhs: IsometryBase<N, D, S, R>, Output = SimilarityBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: Isometry<N, D, R>, Output = Similarity<N, D, R>;
     [val val] => &self * &rhs;
     [ref val] => self * &rhs;
     [val ref] => &self * rhs;
     [ref ref] => {
         let shift = self.isometry.rotation.transform_vector(&rhs.translation.vector) * self.scaling();
-        SimilarityBase::from_parts(
-            TranslationBase::from_vector(&self.isometry.translation.vector + shift),
+        Similarity::from_parts(
+            Translation::from_vector(&self.isometry.translation.vector + shift),
             self.isometry.rotation.clone() * rhs.rotation.clone(),
             self.scaling())
     };
@@ -298,40 +291,40 @@ similarity_binop_impl_all!(
 
 similarity_binop_impl_all!(
     Div, div;
-    self: SimilarityBase<N, D, S, R>, rhs: IsometryBase<N, D, S, R>, Output = SimilarityBase<N, D, S, R>;
+    self: Similarity<N, D, R>, rhs: Isometry<N, D, R>, Output = Similarity<N, D, R>;
     [val val] => self * rhs.inverse();
     [ref val] => self * rhs.inverse();
     [val ref] => self * rhs.inverse();
     [ref ref] => self * rhs.inverse();
 );
 
-// IsometryBase × SimilarityBase
-// IsometryBase ÷ SimilarityBase
+// Isometry × Similarity
+// Isometry ÷ Similarity
 similarity_binop_impl_all!(
     Mul, mul;
-    self: IsometryBase<N, D, S, R>, rhs: SimilarityBase<N, D, S, R>, Output = SimilarityBase<N, D, S, R>;
+    self: Isometry<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
     [val val] => {
         let scaling = rhs.scaling();
-        SimilarityBase::from_isometry(self * rhs.isometry, scaling)
+        Similarity::from_isometry(self * rhs.isometry, scaling)
     };
     [ref val] => {
         let scaling = rhs.scaling();
-        SimilarityBase::from_isometry(self * rhs.isometry, scaling)
+        Similarity::from_isometry(self * rhs.isometry, scaling)
     };
     [val ref] => {
         let scaling = rhs.scaling();
-        SimilarityBase::from_isometry(self * &rhs.isometry, scaling)
+        Similarity::from_isometry(self * &rhs.isometry, scaling)
     };
     [ref ref] => {
         let scaling = rhs.scaling();
-        SimilarityBase::from_isometry(self * &rhs.isometry, scaling)
+        Similarity::from_isometry(self * &rhs.isometry, scaling)
     };
 );
 
 
 similarity_binop_impl_all!(
     Div, div;
-    self: IsometryBase<N, D, S, R>, rhs: SimilarityBase<N, D, S, R>, Output = SimilarityBase<N, D, S, R>;
+    self: Isometry<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
     [val val] => self * rhs.inverse();
     [ref val] => self * rhs.inverse();
     [val ref] => self * rhs.inverse();
@@ -339,10 +332,10 @@ similarity_binop_impl_all!(
 );
 
 
-// SimilarityBase × PointBase
+// Similarity × Point
 similarity_binop_impl_all!(
     Mul, mul;
-    self: SimilarityBase<N, D, S, R>, right: PointBase<N, D, S>, Output = PointBase<N, D, S>;
+    self: Similarity<N, D, R>, right: Point<N, D>, Output = Point<N, D>;
     [val val] => {
         let scaling = self.scaling();
         self.isometry.translation * (self.isometry.rotation.transform_point(&right) * scaling)
@@ -356,10 +349,10 @@ similarity_binop_impl_all!(
 );
 
 
-// SimilarityBase × Vector
+// Similarity × Vector
 similarity_binop_impl_all!(
     Mul, mul;
-    self: SimilarityBase<N, D, S, R>, right: ColumnVector<N, D, S>, Output = ColumnVector<N, D, S>;
+    self: Similarity<N, D, R>, right: VectorN<N, D>, Output = VectorN<N, D>;
     [val val] => self.isometry.rotation.transform_vector(&right) * self.scaling();
     [ref val] => self.isometry.rotation.transform_vector(&right) * self.scaling();
     [val ref] => self.isometry.rotation.transform_vector(right) * self.scaling();
@@ -367,37 +360,37 @@ similarity_binop_impl_all!(
 );
 
 
-// SimilarityBase × TranslationBase
+// Similarity × Translation
 similarity_binop_impl_all!(
     Mul, mul;
-    self: SimilarityBase<N, D, S, R>, right: TranslationBase<N, D, S>, Output = SimilarityBase<N, D, S, R>;
+    self: Similarity<N, D, R>, right: Translation<N, D>, Output = Similarity<N, D, R>;
     [val val] => &self * &right;
     [ref val] => self * &right;
     [val ref] => &self * right;
     [ref ref] => {
         let shift = self.isometry.rotation.transform_vector(&right.vector) * self.scaling();
-        SimilarityBase::from_parts(
-            TranslationBase::from_vector(&self.isometry.translation.vector + shift),
+        Similarity::from_parts(
+            Translation::from_vector(&self.isometry.translation.vector + shift),
             self.isometry.rotation.clone(),
             self.scaling())
     };
 );
 
 
-// TranslationBase × SimilarityBase
+// Translation × Similarity
 similarity_binop_impl_all!(
     Mul, mul;
-    self: TranslationBase<N, D, S>, right: SimilarityBase<N, D, S, R>, Output = SimilarityBase<N, D, S, R>;
+    self: Translation<N, D>, right: Similarity<N, D, R>, Output = Similarity<N, D, R>;
     [val val] => {
         let scaling = right.scaling();
-        SimilarityBase::from_isometry(self * right.isometry, scaling)
+        Similarity::from_isometry(self * right.isometry, scaling)
     };
     [ref val] => {
         let scaling = right.scaling();
-        SimilarityBase::from_isometry(self * right.isometry, scaling)
+        Similarity::from_isometry(self * right.isometry, scaling)
     };
-    [val ref] => SimilarityBase::from_isometry(self * &right.isometry, right.scaling());
-    [ref ref] => SimilarityBase::from_isometry(self * &right.isometry, right.scaling());
+    [val ref] => Similarity::from_isometry(self * &right.isometry, right.scaling());
+    [ref ref] => Similarity::from_isometry(self * &right.isometry, right.scaling());
 );
 
 
@@ -406,12 +399,9 @@ macro_rules! similarity_from_composition_impl(
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty) $(for $Dims: ident: $DimsBound: ident),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N $(, $Dims: $DimsBound)*, SA, SB> $Op<$Rhs> for $Lhs
-            where N: Real,
-                  SA: OwnedStorage<N, $R1, $C1>,
-                  SB: OwnedStorage<N, $R2, $C2, Alloc = SA::Alloc>,
-                  SA::Alloc: OwnedAllocator<N, $R1, $C1, SA>,
-                  SB::Alloc: OwnedAllocator<N, $R2, $C2, SB> {
+        impl<$($lives ,)* N: Real $(, $Dims: $DimsBound)*> $Op<$Rhs> for $Lhs
+            where DefaultAllocator: Allocator<N, $R1, $C1> +
+                                    Allocator<N, $R2, $C2> {
             type Output = $Output;
 
             #[inline]
@@ -458,25 +448,25 @@ macro_rules! similarity_from_composition_impl_all(
 );
 
 
-// RotationBase × SimilarityBase
+// Rotation × Similarity
 similarity_from_composition_impl_all!(
     Mul, mul;
     (D, D), (D, U1) for D: DimName;
-    self: RotationBase<N, D, SA>, right: SimilarityBase<N, D, SB, RotationBase<N, D, SA>>,
-    Output = SimilarityBase<N, D, SB, RotationBase<N, D, SA>>;
+    self: Rotation<N, D>, right: Similarity<N, D, Rotation<N, D>>,
+    Output = Similarity<N, D, Rotation<N, D>>;
     [val val] => &self * &right;
     [ref val] =>  self * &right;
     [val ref] => &self *  right;
-    [ref ref] => SimilarityBase::from_isometry(self * &right.isometry, right.scaling());
+    [ref ref] => Similarity::from_isometry(self * &right.isometry, right.scaling());
 );
 
 
-// RotationBase ÷ SimilarityBase
+// Rotation ÷ Similarity
 similarity_from_composition_impl_all!(
     Div, div;
     (D, D), (D, U1) for D: DimName;
-    self: RotationBase<N, D, SA>, right: SimilarityBase<N, D, SB, RotationBase<N, D, SA>>,
-    Output = SimilarityBase<N, D, SB, RotationBase<N, D, SA>>;
+    self: Rotation<N, D>, right: Similarity<N, D, Rotation<N, D>>,
+    Output = Similarity<N, D, Rotation<N, D>>;
     // FIXME: don't call iverse explicitly?
     [val val] => self * right.inverse();
     [ref val] => self * right.inverse();
@@ -485,25 +475,25 @@ similarity_from_composition_impl_all!(
 );
 
 
-// UnitQuaternion × SimilarityBase
+// UnitQuaternion × Similarity
 similarity_from_composition_impl_all!(
     Mul, mul;
     (U4, U1), (U3, U1);
-    self: UnitQuaternionBase<N, SA>, right: SimilarityBase<N, U3, SB, UnitQuaternionBase<N, SA>>,
-    Output = SimilarityBase<N, U3, SB, UnitQuaternionBase<N, SA>>;
+    self: UnitQuaternion<N>, right: Similarity<N, U3, UnitQuaternion<N>>,
+    Output = Similarity<N, U3, UnitQuaternion<N>>;
     [val val] => &self * &right;
     [ref val] =>  self * &right;
     [val ref] => &self *  right;
-    [ref ref] => SimilarityBase::from_isometry(self * &right.isometry, right.scaling());
+    [ref ref] => Similarity::from_isometry(self * &right.isometry, right.scaling());
 );
 
 
-// UnitQuaternion ÷ SimilarityBase
+// UnitQuaternion ÷ Similarity
 similarity_from_composition_impl_all!(
     Div, div;
     (U4, U1), (U3, U1);
-    self: UnitQuaternionBase<N, SA>, right: SimilarityBase<N, U3, SB, UnitQuaternionBase<N, SA>>,
-    Output = SimilarityBase<N, U3, SB, UnitQuaternionBase<N, SA>>;
+    self: UnitQuaternion<N>, right: Similarity<N, U3, UnitQuaternion<N>>,
+    Output = Similarity<N, U3, UnitQuaternion<N>>;
     // FIXME: don't call inverse explicitly?
     [val val] => self * right.inverse();
     [ref val] => self * right.inverse();

@@ -1,11 +1,11 @@
 all:
-	CARGO_INCREMENTAL=1 cargo build --features "arbitrary serde-serialize"
+	cargo check --features "debug arbitrary serde-serialize"
 
 doc:
-	CARGO_INCREMENTAL=1 cargo doc --no-deps --features "arbitrary serde-serialize"
+	cargo doc --no-deps --features "debug arbitrary serde-serialize"
 
 bench:
 	cargo bench
 
 test:
-	cargo test --features "arbitrary serde-serialize"
+	cargo test --features "debug arbitrary serde-serialize"

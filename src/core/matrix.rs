@@ -1,4 +1,5 @@
 use num::Zero;
+use num_complex::Complex;
 
 use std::cmp::Ordering;
 use std::marker::PhantomData;
@@ -12,54 +13,33 @@ use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
 use alga::general::{Ring, Real};
 
-use core::{Scalar, Unit};
+use core::{Scalar, DefaultAllocator, Unit, VectorN, MatrixMN};
 use core::dimension::{Dim, DimAdd, DimSum, U1, U2};
-use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns};
+use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns, DimEq};
 use core::iter::{MatrixIter, MatrixIterMut};
-use core::allocator::{Allocator, OwnedAllocator, SameShapeAllocator, SameShapeR, SameShapeC};
-use core::storage::{Storage, StorageMut, Owned, OwnedStorage, MulStorage, TrMulStorage, SumStorage};
-
-/// The type of the result of a matrix allocation by the allocator `A`.
-pub type OwnedMatrix<N, R, C, A> = Matrix<N, R, C, <A as Allocator<N, R, C>>::Buffer>;
+use core::allocator::{Allocator, SameShapeAllocator, SameShapeR, SameShapeC};
+use core::storage::{Storage, StorageMut, Owned, ContiguousStorage, ContiguousStorageMut, SameShapeStorage};
 
 /// A square matrix.
 pub type SquareMatrix<N, D, S> = Matrix<N, D, D, S>;
 
-/// The type of the result of a square matrix allocation by the allocator `A`.
-pub type OwnedSquareMatrix<N, D, A> = OwnedMatrix<N, D, D, A>;
-
 /// A matrix with one column and `D` rows.
-pub type ColumnVector<N, D, S> = Matrix<N, D, U1, S>;
+pub type Vector<N, D, S> = Matrix<N, D, U1, S>;
 
-/// An owned matrix with one column and `D` rows.
-pub type OwnedColumnVector<N, D, A> = OwnedMatrix<N, D, U1, A>;
-
-/// A matrix with one row and `D` columns.
+/// A matrix with one row and `D` columns .
 pub type RowVector<N, D, S> = Matrix<N, U1, D, S>;
 
-/// An owned matrix with one row and `D` columns.
-pub type OwnedRowVector<N, D, A> = OwnedMatrix<N, U1, D, A>;
+/// The type of the result of a matrix sum.
+pub type MatrixSum<N, R1, C1, R2, C2> =
+    Matrix<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>, SameShapeStorage<N, R1, C1, R2, C2>>;
 
 /// The type of the result of a matrix sum.
-pub type MatrixSum<N, R1, C1, R2, C2, SA> =
-    Matrix<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>, SumStorage<N, R1, C1, R2, C2, SA>>;
-
-/// The type of the result of a matrix sum.
-pub type ColumnVectorSum<N, R1, R2, SA> =
-    Matrix<N, SameShapeR<R1, R2>, U1, SumStorage<N, R1, U1, R2, U1, SA>>;
+pub type VectorSum<N, R1, R2> =
+    Matrix<N, SameShapeR<R1, R2>, U1, SameShapeStorage<N, R1, U1, R2, U1>>;
 
 /// The type of the result of a matrix cross product.
-pub type MatrixCross<N, R1, C1, R2, C2, SA> = MatrixSum<N, R1, C1, R2, C2, SA>;
-
-/// The type of the result of a matrix multiplication.
-pub type MatrixMul<N, R1, C1, C2, SA> = Matrix<N, R1, C2, MulStorage<N, R1, C1, C2, SA>>;
-
-/// The type of the result of a matrix transpose-multiplication.
-pub type MatrixTrMul<N, R1, C1, C2, SA> = Matrix<N, C1, C2, TrMulStorage<N, R1, C1, C2, SA>>;
-
-/// The matrix with storage `S` and scalar type changed from `NOld` to `NNew`.
-pub type MatrixWithScalar<NOld, NNew, R, C, S> =
-Matrix<NNew, R, C, <<S as Storage<NOld, R, C>>::Alloc as Allocator<NNew, R, C>>::Buffer>;
+pub type MatrixCross<N, R1, C1, R2, C2> =
+    Matrix<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>, SameShapeStorage<N, R1, C1, R2, C2>>;
 
 /// The most generic column-major matrix (and vector) type.
 ///
@@ -89,7 +69,7 @@ Matrix<NNew, R, C, <<S as Storage<NOld, R, C>>::Alloc as Allocator<NNew, R, C>>:
 pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
     /// The data storage that contains all the matrix components and informations about its number
     /// of rows and column (if needed).
-    pub data:  S,
+    pub data: S,
 
     _phantoms: PhantomData<(N, R, C)>
 }
@@ -141,65 +121,6 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         unsafe {
             Self::from_data_statically_unchecked(data)
         }
-    }
-
-    /// Moves this matrix into one that owns its data.
-    #[inline]
-    pub fn into_owned(self) -> OwnedMatrix<N, R, C, S::Alloc> {
-        Matrix::from_data(self.data.into_owned())
-    }
-
-    // FIXME: this could probably benefit from specialization.
-    // XXX: bad name.
-    /// Moves this matrix into one that owns its data. The actual type of the result depends on
-    /// matrix storage combination rules for addition.
-    #[inline]
-    pub fn into_owned_sum<R2, C2>(self) -> MatrixSum<N, R, C, R2, C2, S>
-        where R2: Dim, C2: Dim,
-              S::Alloc: SameShapeAllocator<N, R, C, R2, C2, S>,
-              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
-        if TypeId::of::<SumStorage<N, R, C, R2, C2, S>>() == TypeId::of::<Owned<N, R, C, S::Alloc>>() {
-            // We can just return `self.into_owned()`.
-
-            unsafe {
-                // FIXME: check that those copies are optimized away by the compiler.
-                let owned = self.into_owned();
-                let res = mem::transmute_copy(&owned);
-                mem::forget(owned);
-                res
-            }
-        }
-        else {
-            self.clone_owned_sum()
-        }
-    }
-
-    /// Clones this matrix into one that owns its data.
-    #[inline]
-    pub fn clone_owned(&self) -> OwnedMatrix<N, R, C, S::Alloc> {
-        Matrix::from_data(self.data.clone_owned())
-    }
-
-    /// Clones this matrix into one that owns its data. The actual type of the result depends on
-    /// matrix storage combination rules for addition.
-    #[inline]
-    pub fn clone_owned_sum<R2, C2>(&self) -> MatrixSum<N, R, C, R2, C2, S>
-        where R2: Dim, C2: Dim,
-              S::Alloc: SameShapeAllocator<N, R, C, R2, C2, S>,
-              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
-        let (nrows, ncols) = self.shape();
-        let nrows: SameShapeR<R, R2> = Dim::from_usize(nrows);
-        let ncols: SameShapeC<C, C2> = Dim::from_usize(ncols);
-
-        let mut res: MatrixSum<N, R, C, R2, C2, S> = unsafe {
-            Matrix::new_uninitialized_generic(nrows, ncols)
-        };
-
-        for (r, s) in res.iter_mut().zip(self.iter()) {
-            *r = *s
-        }
-
-        res
     }
 
     /// The total number of elements of this matrix.
@@ -264,6 +185,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// bound-checking.
     #[inline]
     pub unsafe fn get_unchecked(&self, irow: usize, icol: usize) -> &N {
+        debug_assert!(irow < self.nrows() && icol < self.ncols(), "Matrix index out of bounds.");
         self.data.get_unchecked(irow, icol)
     }
 
@@ -283,7 +205,163 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
        assert!(self.shape() == other.shape());
        self.iter().zip(other.iter()).all(|(a, b)| a.relative_eq(b, eps, max_relative))
     }
+
+    /// Tests whether `self` and `rhs` are exactly equal.
+    #[inline]
+    pub fn eq<R2, C2, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> bool
+        where N: PartialEq,
+              R2: Dim, C2: Dim,
+              SB: Storage<N, R2, C2>,
+              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+
+       assert!(self.shape() == other.shape());
+       self.iter().zip(other.iter()).all(|(a, b)| *a == *b)
+    }
+
+    /// Moves this matrix into one that owns its data.
+    #[inline]
+    pub fn into_owned(self) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        Matrix::from_data(self.data.into_owned())
+    }
+
+    // FIXME: this could probably benefit from specialization.
+    // XXX: bad name.
+    /// Moves this matrix into one that owns its data. The actual type of the result depends on
+    /// matrix storage combination rules for addition.
+    #[inline]
+    pub fn into_owned_sum<R2, C2>(self) -> MatrixSum<N, R, C, R2, C2>
+        where R2: Dim, C2: Dim,
+              DefaultAllocator: SameShapeAllocator<N, R, C, R2, C2>,
+              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+        if TypeId::of::<SameShapeStorage<N, R, C, R2, C2>>() == TypeId::of::<Owned<N, R, C>>() {
+            // We can just return `self.into_owned()`.
+
+            unsafe {
+                // FIXME: check that those copies are optimized away by the compiler.
+                let owned = self.into_owned();
+                let res = mem::transmute_copy(&owned);
+                mem::forget(owned);
+                res
+            }
+        }
+        else {
+            self.clone_owned_sum()
+        }
+    }
+
+    /// Clones this matrix into one that owns its data.
+    #[inline]
+    pub fn clone_owned(&self) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        Matrix::from_data(self.data.clone_owned())
+    }
+
+    /// Clones this matrix into one that owns its data. The actual type of the result depends on
+    /// matrix storage combination rules for addition.
+    #[inline]
+    pub fn clone_owned_sum<R2, C2>(&self) -> MatrixSum<N, R, C, R2, C2>
+        where R2: Dim, C2: Dim,
+              DefaultAllocator: SameShapeAllocator<N, R, C, R2, C2>,
+              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+        let (nrows, ncols) = self.shape();
+        let nrows: SameShapeR<R, R2> = Dim::from_usize(nrows);
+        let ncols: SameShapeC<C, C2> = Dim::from_usize(ncols);
+
+        let mut res: MatrixSum<N, R, C, R2, C2> = unsafe {
+            Matrix::new_uninitialized_generic(nrows, ncols)
+        };
+
+        // FIXME: use copy_from
+        for j in 0 .. res.ncols() {
+            for i in 0 .. res.nrows() {
+                unsafe { *res.get_unchecked_mut(i, j) = *self.get_unchecked(i, j); }
+            }
+        }
+
+        res
+    }
+
+    /// Returns a matrix containing the result of `f` applied to each of its entries.
+    #[inline]
+    pub fn map<F: FnMut(N) -> N>(&self, mut f: F) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        let (nrows, ncols) = self.data.shape();
+
+        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
+
+        for j in 0 .. ncols.value() {
+            for i in 0 .. nrows.value() {
+                unsafe {
+                    let a = *self.data.get_unchecked(i, j);
+                    *res.data.get_unchecked_mut(i, j) = f(a)
+                }
+            }
+        }
+
+        res
+    }
+
+    /// Returns a matrix containing the result of `f` applied to each entries of `self` and
+    /// `rhs`.
+    #[inline]
+    pub fn zip_map<F: FnMut(N, N) -> N>(&self, rhs: &Matrix<N, R, C, S>, mut f: F) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        let (nrows, ncols) = self.data.shape();
+
+        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
+
+        assert!((nrows.value(), ncols.value()) == rhs.shape(), "Matrix simultaneous traversal error: dimension mismatch.");
+
+        for j in 0 .. ncols.value() {
+            for i in 0 .. nrows.value() {
+                unsafe {
+                    let a = *self.data.get_unchecked(i, j);
+                    let b = *rhs.data.get_unchecked(i, j);
+                    *res.data.get_unchecked_mut(i, j) = f(a, b)
+                }
+            }
+        }
+
+        res
+    }
+
+    /// Transposes `self` and store the result into `out`.
+    #[inline]
+    pub fn transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
+        where R2: Dim, C2: Dim,
+              SB: StorageMut<N, R2, C2>,
+              ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2> {
+
+        let (nrows, ncols) = self.shape();
+        assert!((ncols, nrows) == out.shape(), "Incompatible shape for transpose-copy.");
+
+        // FIXME: optimize that.
+        for i in 0 .. nrows {
+            for j in 0 .. ncols {
+                unsafe {
+                    *out.get_unchecked_mut(j, i) = *self.get_unchecked(i, j);
+                }
+            }
+        }
+    }
+
+
+    /// Transposes `self`.
+    #[inline]
+    pub fn transpose(&self) -> MatrixMN<N, C, R>
+        where DefaultAllocator: Allocator<N, C, R> {
+        let (nrows, ncols) = self.data.shape();
+
+        unsafe {
+            let mut res = Matrix::new_uninitialized_generic(ncols, nrows);
+            self.transpose_to(&mut res);
+
+            res
+        }
+    }
 }
+
 
 impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Mutably iterates through this matrix coordinates.
@@ -295,12 +373,15 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Gets a mutable reference to the i-th element of this matrix.
     #[inline]
     pub unsafe fn get_unchecked_mut(&mut self, irow: usize, icol: usize) -> &mut N {
+        debug_assert!(irow < self.nrows() && icol < self.ncols(), "Matrix index out of bounds.");
         self.data.get_unchecked_mut(irow, icol)
     }
 
     /// Swaps two entries without bound-checking.
     #[inline]
     pub unsafe fn swap_unchecked(&mut self, row_cols1: (usize, usize), row_cols2: (usize, usize)) {
+        debug_assert!(row_cols1.0 < self.nrows() && row_cols1.1 < self.ncols());
+        debug_assert!(row_cols2.0 < self.nrows() && row_cols2.1 < self.ncols());
         self.data.swap_unchecked(row_cols1, row_cols2)
     }
 
@@ -321,16 +402,26 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
               ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
         assert!(self.shape() == other.shape(), "Unable to copy from a matrix with a different shape.");
 
-        for (out, other) in self.iter_mut().zip(other.iter()) {
-            *out = *other
+        for j in 0 .. self.ncols() {
+            for i in 0 .. self.nrows() {
+                unsafe { *self.get_unchecked_mut(i, j) = *other.get_unchecked(i, j); }
+            }
         }
     }
 
-    /// Sets all the entries of this matrix to `value`.
+    /// Fills this matrix with the content of the transpose another one.
     #[inline]
-    pub fn fill(&mut self, value: N) {
-        for e in self.iter_mut() {
-            *e = value
+    pub fn tr_copy_from<R2, C2, SB>(&mut self, other: &Matrix<N, R2, C2, SB>)
+        where R2: Dim, C2: Dim,
+              SB: Storage<N, R2, C2>,
+              ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2> {
+        let (nrows, ncols) = self.shape();
+        assert!((ncols, nrows) == other.shape(), "Unable to copy from a matrix with incompatible shape.");
+
+        for j in 0 .. ncols {
+            for i in 0 .. nrows {
+                unsafe { *self.get_unchecked_mut(i, j) = *other.get_unchecked(j, i); }
+            }
         }
     }
 
@@ -338,96 +429,53 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn set_row<C2: Dim, S2>(&mut self, i: usize, row: &RowVector<N, C2, S2>)
         where S2: Storage<N, U1, C2>,
-              S::Alloc: Allocator<N, U1, C>,
               ShapeConstraint: SameNumberOfColumns<C, C2> {
         self.row_mut(i).copy_from(row);
     }
 
     /// Fills the selected column of this matrix with the content of the given vector.
     #[inline]
-    pub fn set_column<R2: Dim, S2>(&mut self, i: usize, column: &ColumnVector<N, R2, S2>)
+    pub fn set_column<R2: Dim, S2>(&mut self, i: usize, column: &Vector<N, R2, S2>)
         where S2: Storage<N, R2, U1>,
-              S::Alloc: Allocator<N, R, U1>,
               ShapeConstraint: SameNumberOfRows<R, R2> {
         self.column_mut(i).copy_from(column);
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim, S: OwnedStorage<N, R, C>> Matrix<N, R, C, S>
-    // XXX: see the rust issue #26026
-    where S::Alloc: OwnedAllocator<N, R, C, S> {
+impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
+    /// Gets a reference to the i-th element of this column vector without bound checking.
+    #[inline]
+    pub unsafe fn vget_unchecked(&self, i: usize) -> &N {
+        debug_assert!(i < self.nrows(), "Vector index out of bounds.");
+        let i = i * self.strides().0;
+        self.data.get_unchecked_linear(i)
+    }
+}
 
-    /// Extracts a slice containing the entire matrix entries orderd column-by-columns.
+impl<N: Scalar, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
+    /// Gets a mutable reference to the i-th element of this column vector without bound checking.
+    #[inline]
+    pub unsafe fn vget_unchecked_mut(&mut self, i: usize) -> &mut N {
+        debug_assert!(i < self.nrows(), "Vector index out of bounds.");
+        let i = i * self.strides().0;
+        self.data.get_unchecked_linear_mut(i)
+    }
+}
+
+
+impl<N: Scalar, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Matrix<N, R, C, S> {
+    /// Extracts a slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
     pub fn as_slice(&self) -> &[N] {
         self.data.as_slice()
     }
+}
 
-    /// Extracts a mutable slice containing the entire matrix entries orderd column-by-columns.
+impl<N: Scalar, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Matrix<N, R, C, S> {
+    /// Extracts a mutable slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [N] {
         self.data.as_mut_slice()
-    }
-
-    /// Returns a matrix containing the result of `f` applied to each of its entries.
-    #[inline]
-    pub fn map<F: FnMut(N) -> N>(&self, mut f: F) -> Matrix<N, R, C, S> {
-        let shape = self.data.shape();
-
-        let mut res: Matrix<N, R, C, S>;
-        res = unsafe { Self::new_uninitialized_generic(shape.0, shape.1) };
-
-        for i in 0 .. shape.0.value() * shape.1.value() {
-            unsafe {
-                let a = *self.data.get_unchecked_linear(i);
-                *res.data.get_unchecked_linear_mut(i) = f(a)
-            }
-        }
-
-        res
-    }
-
-    /// Returns a matrix containing the result of `f` applied to each entries of `self` and
-    /// `rhs`.
-    #[inline]
-    pub fn zip_map<F: FnMut(N, N) -> N>(&self, rhs: &Matrix<N, R, C, S>, mut f: F) -> Matrix<N, R, C, S> {
-        let shape_generic = self.data.shape();
-        let shape = self.shape();
-
-        let mut res: Matrix<N, R, C, S>;
-        res = unsafe { Self::new_uninitialized_generic(shape_generic.0, shape_generic.1) };
-
-        assert!(shape == rhs.shape(), "Matrix simultaneous traversal error: dimension mismatch.");
-
-        for i in 0 .. shape.0 * shape.1 {
-            unsafe {
-                let a = *self.data.get_unchecked_linear(i);
-                let b = *rhs.data.get_unchecked_linear(i);
-                *res.data.get_unchecked_linear_mut(i) = f(a, b)
-            }
-        }
-
-        res
-    }
-}
-
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-    where S::Alloc: Allocator<N, C, R> {
-    /// Transposes `self`.
-    #[inline]
-    pub fn transpose(&self) -> OwnedMatrix<N, C, R, S::Alloc> {
-        let (nrows, ncols) = self.data.shape();
-
-        unsafe {
-            let mut res: OwnedMatrix<N, C, R, S::Alloc> = Matrix::new_uninitialized_generic(ncols, nrows);
-            for i in 0 .. nrows.value() {
-                for j in 0 .. ncols.value() {
-                    *res.get_unchecked_mut(j, i) = *self.get_unchecked(i, j);
-                }
-            }
-
-            res
-        }
     }
 }
 
@@ -446,20 +494,76 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     }
 }
 
-impl<N, D: Dim, S> SquareMatrix<N, D, S>
-    where N: Scalar,
-          S: Storage<N, D, D>,
-          S::Alloc: Allocator<N, D, U1> {
+impl<N: Real, R: Dim, C: Dim, S: Storage<Complex<N>, R, C>> Matrix<Complex<N>, R, C, S> {
+    /// Takes the conjugate and transposes `self` and store the result into `out`.
+    #[inline]
+    pub fn conjugate_transpose_to<R2, C2, SB>(&self, out: &mut Matrix<Complex<N>, R2, C2, SB>)
+        where R2: Dim, C2: Dim,
+              SB: StorageMut<Complex<N>, R2, C2>,
+              ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2> {
+
+        let (nrows, ncols) = self.shape();
+        assert!((ncols, nrows) == out.shape(), "Incompatible shape for transpose-copy.");
+
+        // FIXME: optimize that.
+        for i in 0 .. nrows {
+            for j in 0 .. ncols {
+                unsafe {
+                    *out.get_unchecked_mut(j, i) = self.get_unchecked(i, j).conj();
+                }
+            }
+        }
+    }
+
+    /// The conjugate transposition of `self`.
+    #[inline]
+    pub fn conjugate_transpose(&self) -> MatrixMN<Complex<N>, C, R>
+        where DefaultAllocator: Allocator<Complex<N>, C, R> {
+        let (nrows, ncols) = self.data.shape();
+
+        unsafe {
+            let mut res: MatrixMN<_, C, R> = Matrix::new_uninitialized_generic(ncols, nrows);
+            self.conjugate_transpose_to(&mut res);
+
+            res
+        }
+    }
+}
+
+impl<N: Real, D: Dim, S: StorageMut<Complex<N>, D, D>> Matrix<Complex<N>, D, D, S> {
+    /// Sets `self` to its conjugate transpose.
+    pub fn conjugate_transpose_mut(&mut self) {
+        assert!(self.is_square(), "Unable to transpose a non-square matrix in-place.");
+
+        let dim = self.shape().0;
+
+        for i in 1 .. dim {
+            for j in 0 .. i {
+                unsafe {
+                    let ref_ij = self.get_unchecked_mut(i, j) as *mut Complex<N>;
+                    let ref_ji = self.get_unchecked_mut(j, i) as *mut Complex<N>;
+                    let conj_ij = (*ref_ij).conj();
+                    let conj_ji = (*ref_ji).conj();
+                    *ref_ij = conj_ji;
+                    *ref_ji = conj_ij;
+                }
+            }
+        }
+    }
+}
+
+impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     #[inline]
-    pub fn diagonal(&self) -> OwnedColumnVector<N, D, S::Alloc> {
-        assert!(self.is_square(), "Unable to get the diagonal of a non-square.");
+    pub fn diagonal(&self) -> VectorN<N, D>
+        where DefaultAllocator: Allocator<N, D> {
+        assert!(self.is_square(), "Unable to get the diagonal of a non-square matrix.");
 
         let dim = self.data.shape().0;
-        let mut res = unsafe { OwnedColumnVector::<N, D, S::Alloc>::new_uninitialized_generic(dim, U1) };
+        let mut res = unsafe { VectorN::new_uninitialized_generic(dim, U1) };
 
         for i in 0 .. dim.value() {
-            unsafe { *res.get_unchecked_mut(i, 0) = *self.get_unchecked(i, i); }
+            unsafe { *res.vget_unchecked_mut(i) = *self.get_unchecked(i, i); }
         }
 
         res
@@ -483,18 +587,16 @@ impl<N, D: Dim, S> SquareMatrix<N, D, S>
     }
 }
 
-impl<N, D, S> ColumnVector<N, D, S>
-    where N: Scalar + Zero,
-          D: DimAdd<U1>,
-          S: Storage<N, D, U1>,
-          S::Alloc: Allocator<N, DimSum<D, U1>, U1> {
+impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// Computes the coordinates in projective space of this vector, i.e., appends a `0` to its
     /// coordinates.
     #[inline]
-    pub fn to_homogeneous(&self) -> OwnedColumnVector<N, DimSum<D, U1>, S::Alloc> {
+    pub fn to_homogeneous(&self) -> VectorN<N, DimSum<D, U1>>
+        where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
+
         let len = self.len();
         let hnrows = DimSum::<D, U1>::from_usize(len + 1);
-        let mut res = unsafe { OwnedColumnVector::<N, _, S::Alloc>::new_uninitialized_generic(hnrows, U1) };
+        let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
         res.generic_slice_mut((0, 0), self.data.shape()).copy_from(self);
         res[(len, 0)] = N::zero();
 
@@ -504,8 +606,9 @@ impl<N, D, S> ColumnVector<N, D, S>
     /// Constructs a vector from coordinates in projective space, i.e., removes a `0` at the end of
     /// `self`. Returns `None` if this last component is not zero.
     #[inline]
-    pub fn from_homogeneous<SB>(v: ColumnVector<N, DimSum<D, U1>, SB>) -> Option<OwnedColumnVector<N, D, S::Alloc>>
-        where SB: Storage<N, DimSum<D, U1>, U1, Alloc = S::Alloc> {
+    pub fn from_homogeneous<SB>(v: Vector<N, DimSum<D, U1>, SB>) -> Option<VectorN<N, D>>
+        where SB: Storage<N, DimSum<D, U1>>,
+              DefaultAllocator: Allocator<N, D> {
         if v[v.len() - 1].is_zero() {
             let nrows = D::from_usize(v.len() - 1);
             Some(v.generic_slice((0, 0), (nrows, U1)).into_owned())
@@ -515,232 +618,6 @@ impl<N, D, S> ColumnVector<N, D, S>
         }
     }
 }
-
-
-// // /*
-// //  *
-// //  * Conversions (AsRef, AsMut, From)
-// //  *
-// //  */
-// // impl<N, R, C, A> FromIterator for Matrix<N, R, C, A>
-// //     where N: Scalar + Rand,
-// //           R: Dim,
-// //           C: Dim,
-// //           A: Allocator<N, R, C> {
-// //     #[inline]
-// //     fn from_iter<I: IntoIterator<Item = N>>(iter: I) -> Matrix<N, R, C, A> {
-// //         let mut iter = iter.into_iter();
-// //     }
-// // }
-// //
-// //         impl<N> AsRef<[[N; $dimension]; $dimension]> for $t<N> {
-// //             #[inline]
-// //             fn as_ref(&self) -> &[[N; $dimension]; $dimension] {
-// //                 unsafe {
-// //                     mem::transmute(self)
-// //                 }
-// //             }
-// //         }
-//
-// //         impl<N> AsMut<[[N; $dimension]; $dimension]> for $t<N> {
-// //             #[inline]
-// //             fn as_mut(&mut self) -> &mut [[N; $dimension]; $dimension] {
-// //                 unsafe {
-// //                     mem::transmute(self)
-// //                 }
-// //             }
-// //         }
-//
-// //         impl<'a, N> From<&'a [[N; $dimension]; $dimension]> for &'a $t<N> {
-// //             #[inline]
-// //             fn from(arr: &'a [[N; $dimension]; $dimension]) -> &'a $t<N> {
-// //                 unsafe {
-// //                     mem::transmute(arr)
-// //                 }
-// //             }
-// //         }
-//
-// //         impl<'a, N> From<&'a mut [[N; $dimension]; $dimension]> for &'a mut $t<N> {
-// //             #[inline]
-// //             fn from(arr: &'a mut [[N; $dimension]; $dimension]) -> &'a mut $t<N> {
-// //                 unsafe {
-// //                     mem::transmute(arr)
-// //                 }
-// //             }
-// //         }
-//
-// //         impl<'a, N: Clone> From<&'a [[N; $dimension]; $dimension]> for $t<N> {
-// //             #[inline]
-// //             fn from(arr: &'a [[N; $dimension]; $dimension]) -> $t<N> {
-// //                 let tref: &$t<N> = From::from(arr);
-// //                 tref.clone()
-// //             }
-// //         }
-//
-// //         impl<N: Field + Copy> MatrixEdit for $t<N> {
-// //             type RowSlice    = $dvector<N>;
-// //             type ColumnSlice = $dvector<N>;
-// //             type MinorMatrix = $tsmaller<N>;
-// //
-// //             #[inline]
-// //             fn column_slice(&self, cid: usize, rstart: usize, rend: usize) -> Self::ColumnSlice {
-// //                 let column = self.column(cid);
-// //
-// //                 $dvector::from_slice(rend - rstart, &column.as_ref()[rstart .. rend])
-// //             }
-//
-// //             #[inline]
-// //             fn row_slice(&self, rid: usize, cstart: usize, cend: usize) -> Self::RowSlice {
-// //                 let row = self.row(rid);
-// //
-// //                 $dvector::from_slice(cend - cstart, &row.as_ref()[cstart .. cend])
-// //             }
-//
-// //             // FIXME: optimize that (+ this is a Copy/paste from dmatrix).
-// //             #[inline]
-// //             fn delete_row_column(&self, row_id: usize, column_id: usize) -> Self::MinorMatrix {
-// //                 assert!(row_id < $dimension && column_id < $dimension);
-// //
-// //                 unsafe {
-// //                     let mut res = $tsmaller::new_uninitialized_generic($dimension - 1, $dimension - 1);
-// //
-// //                     for irow in 0 .. row_id {
-// //                         for icol in 0 .. column_id {
-// //                             res.unsafe_set((irow, icol), self.unsafe_at((irow, icol)))
-// //                         }
-// //
-// //                         for icol in column_id + 1 .. $dimension {
-// //                             res.unsafe_set((irow, icol - 1), self.unsafe_at((irow, icol)))
-// //                         }
-// //                     }
-// //
-// //                     for irow in row_id + 1 .. $dimension {
-// //                         for icol in 0 .. column_id {
-// //                             res.unsafe_set((irow - 1, icol), self.unsafe_at((irow, icol)))
-// //                         }
-// //
-// //                         for icol in column_id + 1 .. $dimension {
-// //                             res.unsafe_set((irow - 1, icol - 1), self.unsafe_at((irow, icol)))
-// //                         }
-// //                     }
-// //
-// //                     res
-// //                 }
-// //             }
-//
-// //             // FIXME: optimize that (+ this is a Copy/paste from dmatrix).
-// //             #[inline]
-// //             fn swap_rows(&mut self, row_id1: usize, row_id2: usize) {
-// //                 if row_id1 != row_id2 {
-// //                     assert!(row_id1 < $dimension && row_id2 < $dimension);
-// //
-// //                     for icol in 0 .. $dimension {
-// //                         self.swap((row_id1, icol), (row_id2, icol))
-// //                     }
-// //                 }
-// //             }
-// //
-// //             // FIXME: optimize that (+ this is a Copy/paste from dmatrix).
-// //             #[inline]
-// //             fn swap_columns(&mut self, column_id1: usize, column_id2: usize) {
-// //                 if column_id1 != column_id2 {
-// //                     assert!(column_id1 < $dimension && column_id2 < $dimension);
-// //
-// //                     for irow in 0 .. $dimension {
-// //                         self.swap((irow, column_id1), (irow, column_id2))
-// //                     }
-// //                 }
-// //             }
-// //         }
-// //
-// //         /*
-// //          *
-// //          * Mean
-// //          *
-// //          */
-// //         impl<N: Field  + Copy+ SupersetOf<f64>> Mean<$vector<N>> for $t<N> {
-// //             fn mean(&self) -> $vector<N> {
-// //                 let mut res: $vector<N> = ::zero();
-// //                 let normalizer: N  = ::convert(1.0f64 / $dimension as f64);
-// //
-// //                 for i in 0 .. $dimension {
-// //                     for j in 0 .. $dimension {
-// //                         unsafe {
-// //                             let acc = res.unsafe_at(j) + self.unsafe_at((i, j)) * normalizer;
-// //                             res.unsafe_set(j, acc);
-// //                         }
-// //                     }
-// //                 }
-// //
-// //                 res
-// //             }
-// //         }
-// //
-// //         /*
-// //          *
-// //          * Componentwise unary operations.
-// //          *
-// //          */
-// //         componentwise_absolute!($t, $($compN),+);
-// //     )
-// // );
-//
-//
-// // FIXME: specialize for row-major/column major
-// //
-//
-// // macro_rules! to_homogeneous_impl(
-// //   ($t: ident, $t2: ident, $dimension: expr, $dim2: expr) => (
-// //     impl<N: Field + Copy> ToHomogeneous<$t2<N>> for $t<N> {
-// //         #[inline]
-// //         fn to_homogeneous(&self) -> $t2<N> {
-// //             let mut res: $t2<N> = ::one();
-// //
-// //             for i in 0 .. $dimension {
-// //                 for j in 0 .. $dimension {
-// //                     res[(i, j)] = self[(i, j)]
-// //                 }
-// //             }
-// //
-// //             res
-// //         }
-// //     }
-// //   )
-// // );
-//
-// // macro_rules! from_homogeneous_impl(
-// //   ($t: ident, $t2: ident, $dimension: expr, $dim2: expr) => (
-// //     impl<N: Field + Copy> FromHomogeneous<$t2<N>> for $t<N> {
-// //         #[inline]
-// //         fn from(m: &$t2<N>) -> $t<N> {
-// //             let mut res: $t<N> = ::one();
-// //
-// //             for i in 0 .. $dimension {
-// //                 for j in 0 .. $dimension {
-// //                     res[(i, j)] = m[(i, j)]
-// //                 }
-// //             }
-// //
-// //             // FIXME: do we have to deal the lost components
-// //             // (like if the 1 is not a 1… do we have to divide?)
-// //
-// //             res
-// //         }
-// //     }
-// //   )
-// // );
-//
-//
-// // macro_rules! eigen_qr_impl(
-// //     ($t: ident, $v: ident) => (
-// //         impl<N: Real> EigenQR for $t<N> {
-// //             fn eigen_qr(&self, eps: N, niter: usize) -> ($t<N>, $v<N>) {
-// //                 linalg::eigen_qr(self, eps, niter)
-// //             }
-// //         }
-// //     )
-// // );
-
 
 impl<N, R: Dim, C: Dim, S> ApproxEq for Matrix<N, R, C, S>
     where N: Scalar + ApproxEq,
@@ -777,7 +654,7 @@ impl<N, R: Dim, C: Dim, S> ApproxEq for Matrix<N, R, C, S>
 
 impl<N, R: Dim, C: Dim, S> PartialOrd for Matrix<N, R, C, S>
     where N: Scalar + PartialOrd,
-          S: Storage<N, R, C,> {
+          S: Storage<N, R, C> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         assert!(self.shape() == other.shape(), "Matrix comparison error: dimensions mismatch.");
@@ -855,107 +732,62 @@ impl<N, R: Dim, C: Dim, S> PartialEq for Matrix<N, R, C, S>
 }
 
 
-// FIXME: the bounds are much too restrictive here! This won't even work for, e.g.,
-// integer-valued matrices...
 impl<N, R: Dim, C: Dim, S> fmt::Display for Matrix<N, R, C, S>
-    where N: Real + fmt::Display,
+    where N: Scalar + fmt::Display,
           S: Storage<N, R, C>,
-          S::Alloc: Allocator<usize, R, C> {
-    // XXX: will not always work correctly due to rounding errors.
+          DefaultAllocator: Allocator<usize, R, C> {
+
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fn integral_length<N: Real>(val: &N) -> usize {
-            let mut res = 1;
-            let mut curr: N = ::convert(10.0f64);
-
-            while curr <= *val {
-                curr = curr * ::convert(10.0f64);
-                res += 1;
-            }
-
-            if val.is_sign_negative() {
-                res + 1
-            }
-            else {
-                res
+        fn val_width<N: Scalar + fmt::Display>(val: N, f: &mut fmt::Formatter) -> usize {
+            match f.precision() {
+                Some(precision) => format!("{:.1$}", val, precision).chars().count(),
+                None            => format!("{}", val).chars().count()
             }
         }
 
         let (nrows, ncols) = self.data.shape();
-        let mut max_decimal_length = 0;
-        let mut decimal_lengths: MatrixWithScalar<N, usize, R, C, S> =
-            Matrix::from_element_generic(nrows, ncols, 0);
+
+        if nrows.value() == 0 || ncols.value() == 0 {
+            return write!(f, "[ ]");
+        }
+
+        let mut max_length = 0;
+        let mut lengths: MatrixMN<usize, R, C> = Matrix::zeros_generic(nrows, ncols);
         let (nrows, ncols) = self.shape();
 
         for i in 0 .. nrows {
             for j in 0 .. ncols {
-                decimal_lengths[(i, j)] = integral_length(&self[(i, j)]);
-                max_decimal_length = ::max(max_decimal_length, decimal_lengths[(i, j)]);
+                lengths[(i, j)] = val_width(self[(i, j)], f);
+                max_length = ::max(max_length, lengths[(i, j)]);
             }
         }
 
-        let precision = f.precision().unwrap_or(3);
-        let max_number_length = max_decimal_length + precision + 1;
+        let max_length_with_space = max_length + 1;
 
-        try!(writeln!(f, "  ┌ {:>width$} ┐", "", width = max_number_length * ncols + ncols - 1));
+        try!(writeln!(f, ""));
+        try!(writeln!(f, "  ┌ {:>width$} ┐", "", width = max_length_with_space * ncols - 1));
 
         for i in 0 .. nrows {
             try!(write!(f, "  │"));
             for j in 0 .. ncols {
-                let number_length = decimal_lengths[(i, j)] + precision + 1;
-                let pad = max_number_length - number_length;
+                let number_length = lengths[(i, j)] + 1;
+                let pad = max_length_with_space - number_length;
                 try!(write!(f, " {:>thepad$}", "", thepad = pad));
-                try!(write!(f, "{:.*}", precision, (*self)[(i, j)]));
+                match f.precision() {
+                    Some(precision) => try!(write!(f, "{:.1$}", (*self)[(i, j)], precision)),
+                    None            => try!(write!(f, "{}", (*self)[(i, j)]))
+                }
             }
             try!(writeln!(f, " │"));
         }
 
-        writeln!(f, "  └ {:>width$} ┘", "", width = max_number_length * ncols + ncols - 1)
+        try!(writeln!(f, "  └ {:>width$} ┘", "", width = max_length_with_space * ncols - 1));
+        writeln!(f, "")
     }
 }
 
 
-impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
-    where N: Scalar + Ring,
-          S: Storage<N, R, C> {
-    /// The dot product between two matrices (seen as vectors).
-    #[inline]
-    pub fn dot<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N
-        where SB: Storage<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
-        assert!(self.shape() == other.shape(), "Dot product dimension mismatch.");
-        self.iter().zip(other.iter()).fold(N::zero(), |acc, (a, b)| acc + *a * *b)
-    }
-
-    // FIXME: we could specialize this for when we only have vectors in which case we can just use
-    // `iter().zip(iter())` as for the regular `.dot` method.
-    /// The dot product between the transpose of `self` and `other`.
-    #[inline]
-    pub fn tr_dot<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N
-        where SB: Storage<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<C, R2> + SameNumberOfColumns<R, C2> {
-        let (nrows, ncols) = self.shape();
-        assert!((ncols, nrows) == other.shape(), "Dot product dimension mismatch.");
-
-        let mut res = N::zero();
-
-        for i in 0 .. nrows {
-            for j in 0 .. ncols {
-                unsafe {
-                    res += *self.get_unchecked(i, j) * *other.get_unchecked(j, i);
-                }
-            }
-        }
-
-        res
-    }
-
-
-    /// The squared L2 norm of this matrix.
-    #[inline]
-    pub fn norm_squared(&self) -> N {
-        self.dot(self)
-    }
-
+impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]
     pub fn perp<R2, C2, SB>(&self, b: &Matrix<N, R2, C2, SB>) -> N
@@ -979,10 +811,10 @@ impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
     /// Panics if the shape is not 3D vector. In the future, this will be implemented only for
     /// dynamically-sized matrices and statically-sized 3D matrices.
     #[inline]
-    pub fn cross<R2, C2, SB>(&self, b: &Matrix<N, R2, C2, SB>) -> MatrixCross<N, R, C, R2, C2, S>
+    pub fn cross<R2, C2, SB>(&self, b: &Matrix<N, R2, C2, SB>) -> MatrixCross<N, R, C, R2, C2>
         where R2: Dim, C2: Dim,
               SB: Storage<N, R2, C2>,
-              S::Alloc: SameShapeAllocator<N, R, C, R2, C2, S>,
+              DefaultAllocator: SameShapeAllocator<N, R, C, R2, C2>,
               ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
         let shape = self.shape();
         assert!(shape == b.shape(), "Vector cross product dimension mismatch.");
@@ -1013,7 +845,7 @@ impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
         }
         else {
             unsafe {
-                // FIXME: soooo ugly!
+                // FIXME: ugly!
                 let nrows = SameShapeR::<R, R2>::from_usize(1);
                 let ncols = SameShapeC::<C, C2>::from_usize(3);
                 let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
@@ -1036,14 +868,12 @@ impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
     }
 }
 
-impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
-    where N: Real,
-          S: Storage<N, R, C> {
-    /// The smallest angle between two matrices seen as vectors.
+impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    /// The smallest angle between two vectors.
     #[inline]
     pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N
         where SB: Storage<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+              ShapeConstraint: DimEq<R, R2> + DimEq<C, C2> {
         let prod = self.dot(other);
         let n1   = self.norm();
         let n2   = other.norm();
@@ -1065,6 +895,21 @@ impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
             }
         }
     }
+}
+
+impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    /// The squared L2 norm of this vector.
+    #[inline]
+    pub fn norm_squared(&self) -> N {
+        let mut res = N::zero();
+
+        for i in 0 .. self.ncols() {
+            let col = self.column(i);
+            res += col.dot(&col)
+        }
+
+        res
+    }
 
     /// The L2 norm of this matrix.
     #[inline]
@@ -1074,13 +919,15 @@ impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
 
     /// Returns a normalized version of this matrix.
     #[inline]
-    pub fn normalize(&self) -> OwnedMatrix<N, R, C, S::Alloc> {
+    pub fn normalize(&self) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
         self / self.norm()
     }
 
     /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
     #[inline]
-    pub fn try_normalize(&self, min_norm: N) -> Option<OwnedMatrix<N, R, C, S::Alloc>> {
+    pub fn try_normalize(&self, min_norm: N) -> Option<MatrixMN<N, R, C>>
+        where DefaultAllocator: Allocator<N, R, C> {
         let n = self.norm();
 
         if n <= min_norm {
@@ -1092,9 +939,7 @@ impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
     }
 }
 
-impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
-    where N: Real,
-          S: StorageMut<N, R, C> {
+impl<N: Real, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Normalizes this matrix in-place and returns its norm.
     #[inline]
     pub fn normalize_mut(&mut self) -> N {

@@ -3,77 +3,71 @@ use quickcheck::{Arbitrary, Gen};
 use rand::{Rand, Rng};
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde;
+use std::fmt;
 
 use alga::general::Real;
 
-use core::{Scalar, SquareMatrix, OwnedSquareMatrix, ColumnVector, OwnedColumnVector, MatrixArray};
-use core::dimension::{U1, U3, U4};
-use core::storage::{OwnedStorage, Storage, StorageMut};
-use core::allocator::OwnedAllocator;
+use core::{Scalar, Matrix4, Vector, Vector3};
+use core::dimension::U3;
+use core::storage::Storage;
 use core::helper;
 
-use geometry::{PointBase, OwnedPoint};
+use geometry::Point3;
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
-#[derive(Debug, Clone, Copy)] // FIXME: Hash
-pub struct PerspectiveBase<N: Scalar, S: Storage<N, U4, U4>> {
-    matrix: SquareMatrix<N, U4, S>
+pub struct Perspective3<N: Scalar> {
+    matrix: Matrix4<N>
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<N, S> Serialize for PerspectiveBase<N, S>
-    where N: Scalar,
-          S: Storage<N, U4, U4>,
-          SquareMatrix<N, U4, S>: Serialize,
-{
-    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-        where T: Serializer
-    {
-        self.matrix.serialize(serializer)
+impl<N: Real> Copy for Perspective3<N> { }
+
+impl<N: Real> Clone for Perspective3<N> {
+    #[inline]
+    fn clone(&self) -> Self {
+        Perspective3::from_matrix_unchecked(self.matrix.clone())
     }
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<'de, N, S> Deserialize<'de> for PerspectiveBase<N, S>
-    where N: Scalar,
-          S: Storage<N, U4, U4>,
-          SquareMatrix<N, U4, S>: Deserialize<'de>,
-{
-    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
-        where T: Deserializer<'de>
-    {
-        SquareMatrix::deserialize(deserializer).map(|x| PerspectiveBase { matrix: x })
+impl<N: Real> fmt::Debug for Perspective3<N> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        self.matrix.fmt(f)
     }
 }
 
-/// A 3D perspective projection stored as a static homogeneous 4x4 matrix.
-pub type Perspective3<N> = PerspectiveBase<N, MatrixArray<N, U4, U4>>;
-
-impl<N, S> Eq for PerspectiveBase<N, S>
-    where N: Scalar + Eq,
-          S: Storage<N, U4, U4> { }
-
-impl<N, S> PartialEq for PerspectiveBase<N, S>
-    where N: Scalar,
-          S: Storage<N, U4, U4> {
+impl<N: Real> PartialEq for Perspective3<N> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.matrix == right.matrix
     }
 }
 
-impl<N, S> PerspectiveBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U4>,
-          S::Alloc: OwnedAllocator<N, U4, U4, S> {
+#[cfg(feature = "serde-serialize")]
+impl<N: Real + serde::Serialize> serde::Serialize for Perspective3<N> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: serde::Serializer {
+            self.matrix.serialize(serializer)
+        }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'a, N: Real + serde::Deserialize<'a>> serde::Deserialize<'a> for Perspective3<N> {
+    fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
+        where Des: serde::Deserializer<'a> {
+            let matrix = Matrix4::<N>::deserialize(deserializer)?;
+
+            Ok(Perspective3::from_matrix_unchecked(matrix))
+        }
+}
+
+impl<N: Real> Perspective3<N> {
     /// Creates a new perspective matrix from the aspect ratio, y field of view, and near/far planes.
     pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
         assert!(!relative_eq!(zfar - znear, N::zero()), "The near-plane and far-plane must not be superimposed.");
         assert!(!relative_eq!(aspect, N::zero()), "The apsect ratio must not be zero.");
 
-        let matrix = SquareMatrix::<N, U4, S>::identity();
-        let mut res = PerspectiveBase::from_matrix_unchecked(matrix);
+        let matrix = Matrix4::identity();
+        let mut res = Perspective3::from_matrix_unchecked(matrix);
 
         res.set_fovy(fovy);
         res.set_aspect(aspect);
@@ -91,32 +85,15 @@ impl<N, S> PerspectiveBase<N, S>
     /// It is not checked whether or not the given matrix actually represents an orthographic
     /// projection.
     #[inline]
-    pub fn from_matrix_unchecked(matrix: SquareMatrix<N, U4, S>) -> Self {
-        PerspectiveBase {
+    pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> Self {
+        Perspective3 {
             matrix: matrix
         }
-    }
-}
-
-impl<N, S> PerspectiveBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U4> {
-
-    /// A reference to the underlying homogeneous transformation matrix.
-    #[inline]
-    pub fn as_matrix(&self) -> &SquareMatrix<N, U4, S> {
-        &self.matrix
-    }
-
-    /// Retrieves the underlying homogeneous matrix.
-    #[inline]
-    pub fn unwrap(self) -> SquareMatrix<N, U4, S> {
-        self.matrix
     }
 
     /// Retrieves the inverse of the underlying homogeneous matrix.
     #[inline]
-    pub fn inverse(&self) -> OwnedSquareMatrix<N, U4, S::Alloc> {
+    pub fn inverse(&self) -> Matrix4<N> {
         let mut res = self.to_homogeneous();
 
         res[(0, 0)] = N::one() / self.matrix[(0, 0)];
@@ -135,8 +112,20 @@ impl<N, S> PerspectiveBase<N, S>
 
     /// Computes the corresponding homogeneous matrix.
     #[inline]
-    pub fn to_homogeneous(&self) -> OwnedSquareMatrix<N, U4, S::Alloc> {
+    pub fn to_homogeneous(&self) -> Matrix4<N> {
         self.matrix.clone_owned()
+    }
+
+    /// A reference to the underlying homogeneous transformation matrix.
+    #[inline]
+    pub fn as_matrix(&self) -> &Matrix4<N> {
+        &self.matrix
+    }
+
+    /// Retrieves the underlying homogeneous matrix.
+    #[inline]
+    pub fn unwrap(self) -> Matrix4<N> {
+        self.matrix
     }
 
     /// Gets the `width / height` aspect ratio of the view frustrum.
@@ -174,11 +163,9 @@ impl<N, S> PerspectiveBase<N, S>
     // FIXME: when we get specialization, specialize the Mul impl instead.
     /// Projects a point. Faster than matrix multiplication.
     #[inline]
-    pub fn project_point<SB>(&self, p: &PointBase<N, U3, SB>) -> OwnedPoint<N, U3, SB::Alloc>
-        where SB: Storage<N, U3, U1> {
-
+    pub fn project_point(&self, p: &Point3<N>) -> Point3<N> {
         let inverse_denom = -N::one() / p[2];
-        OwnedPoint::<N, U3, SB::Alloc>::new(
+        Point3::new(
              self.matrix[(0, 0)] * p[0] * inverse_denom,
              self.matrix[(1, 1)] * p[1] * inverse_denom,
             (self.matrix[(2, 2)] * p[2] + self.matrix[(2, 3)]) * inverse_denom
@@ -187,12 +174,10 @@ impl<N, S> PerspectiveBase<N, S>
 
     /// Un-projects a point. Faster than multiplication by the matrix inverse.
     #[inline]
-    pub fn unproject_point<SB>(&self, p: &PointBase<N, U3, SB>) -> OwnedPoint<N, U3, SB::Alloc>
-        where SB: Storage<N, U3, U1> {
-
+    pub fn unproject_point(&self, p: &Point3<N>) -> Point3<N> {
         let inverse_denom = self.matrix[(2, 3)] / (p[2] + self.matrix[(2, 2)]);
 
-        OwnedPoint::<N, U3, SB::Alloc>::new(
+        Point3::new(
             p[0] * inverse_denom / self.matrix[(0, 0)],
             p[1] * inverse_denom / self.matrix[(1, 1)],
             -inverse_denom
@@ -202,22 +187,17 @@ impl<N, S> PerspectiveBase<N, S>
     // FIXME: when we get specialization, specialize the Mul impl instead.
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
-    pub fn project_vector<SB>(&self, p: &ColumnVector<N, U3, SB>) -> OwnedColumnVector<N, U3, SB::Alloc>
-        where SB: Storage<N, U3, U1> {
+    pub fn project_vector<SB>(&self, p: &Vector<N, U3, SB>) -> Vector3<N>
+        where SB: Storage<N, U3> {
 
         let inverse_denom = -N::one() / p[2];
-        OwnedColumnVector::<N, U3, SB::Alloc>::new(
+        Vector3::new(
             self.matrix[(0, 0)] * p[0] * inverse_denom,
             self.matrix[(1, 1)] * p[1] * inverse_denom,
             self.matrix[(2, 2)]
         )
     }
-}
 
-
-impl<N, S> PerspectiveBase<N, S>
-    where N: Real,
-          S: StorageMut<N, U4, U4> {
     /// Updates this perspective matrix with a new `width / height` aspect ratio of the view
     /// frustrum.
     #[inline]
@@ -256,10 +236,7 @@ impl<N, S> PerspectiveBase<N, S>
     }
 }
 
-impl<N, S> Rand for PerspectiveBase<N, S>
-    where N: Real + Rand,
-          S: OwnedStorage<N, U4, U4>,
-          S::Alloc: OwnedAllocator<N, U4, U4, S> {
+impl<N: Real + Rand> Rand for Perspective3<N> {
     fn rand<R: Rng>(r: &mut R) -> Self {
         let znear  = Rand::rand(r);
         let zfar   = helper::reject_rand(r, |&x: &N| !(x - znear).is_zero());
@@ -270,10 +247,7 @@ impl<N, S> Rand for PerspectiveBase<N, S>
 }
 
 #[cfg(feature="arbitrary")]
-impl<N, S> Arbitrary for PerspectiveBase<N, S>
-    where N: Real + Arbitrary,
-          S: OwnedStorage<N, U4, U4> + Send,
-          S::Alloc: OwnedAllocator<N, U4, U4, S> {
+impl<N: Real + Arbitrary> Arbitrary for Perspective3<N> {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let znear  = Arbitrary::arbitrary(g);
         let zfar   = helper::reject(g, |&x: &N| !(x - znear).is_zero());

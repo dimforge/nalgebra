@@ -1,67 +1,60 @@
-use approx::ApproxEq;
+use alga::general::{SubsetOf, Real};
 
-use alga::general::{SubsetOf, Field};
-
-use core::{Scalar, SquareMatrix};
+use core::{DefaultAllocator, MatrixN};
 use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::allocator::Allocator;
 
-use geometry::{TransformBase, TCategory, SuperTCategoryOf};
+use geometry::{Transform, TCategory, SuperTCategoryOf};
 
 
-impl<N1, N2, D: DimName, SA, SB, C1, C2> SubsetOf<TransformBase<N2, D, SB, C2>> for TransformBase<N1, D, SA, C1>
-    where N1: Scalar + Field + ApproxEq + SubsetOf<N2>,
-          N2: Scalar + Field + ApproxEq,
+impl<N1, N2, D: DimName, C1, C2> SubsetOf<Transform<N2, D, C2>> for Transform<N1, D, C1>
+    where N1: Real + SubsetOf<N2>,
+          N2: Real,
           C1: TCategory,
           C2: SuperTCategoryOf<C1>,
           D: DimNameAdd<U1>,
-          SA: OwnedStorage<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          SB: OwnedStorage<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          SA::Alloc: OwnedAllocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>, SA>,
-          SB::Alloc: OwnedAllocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>, SB>,
+          DefaultAllocator: Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
+                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
           N1::Epsilon: Copy,
           N2::Epsilon: Copy {
     #[inline]
-    fn to_superset(&self) -> TransformBase<N2, D, SB, C2> {
-        TransformBase::from_matrix_unchecked(self.to_homogeneous().to_superset())
+    fn to_superset(&self) -> Transform<N2, D, C2> {
+        Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
     }
 
     #[inline]
-    fn is_in_subset(t: &TransformBase<N2, D, SB, C2>) -> bool {
+    fn is_in_subset(t: &Transform<N2, D, C2>) -> bool {
         <Self as SubsetOf<_>>::is_in_subset(t.matrix())
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &TransformBase<N2, D, SB, C2>) -> Self {
+    unsafe fn from_superset_unchecked(t: &Transform<N2, D, C2>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
 
 
-impl<N1, N2, D: DimName, SA, SB, C> SubsetOf<SquareMatrix<N2, DimNameSum<D, U1>, SB>> for TransformBase<N1, D, SA, C>
-    where N1: Scalar + Field + ApproxEq + SubsetOf<N2>,
-          N2: Scalar + Field + ApproxEq,
+impl<N1, N2, D: DimName, C> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Transform<N1, D, C>
+    where N1: Real + SubsetOf<N2>,
+          N2: Real,
           C: TCategory,
           D: DimNameAdd<U1>,
-          SA: OwnedStorage<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          SB: OwnedStorage<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          SA::Alloc: OwnedAllocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>, SA>,
-          SB::Alloc: OwnedAllocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>, SB>,
+          DefaultAllocator: Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
+                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
           N1::Epsilon: Copy,
           N2::Epsilon: Copy {
     #[inline]
-    fn to_superset(&self) -> SquareMatrix<N2, DimNameSum<D, U1>, SB> {
+    fn to_superset(&self) -> MatrixN<N2, DimNameSum<D, U1>> {
         self.matrix().to_superset()
     }
 
     #[inline]
-    fn is_in_subset(m: &SquareMatrix<N2, DimNameSum<D, U1>, SB>) -> bool {
+    fn is_in_subset(m: &MatrixN<N2, DimNameSum<D, U1>>) -> bool {
         C::check_homogeneous_invariants(m)
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &SquareMatrix<N2, DimNameSum<D, U1>, SB>) -> Self {
-        TransformBase::from_matrix_unchecked(::convert_ref_unchecked(m))
+    unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
+        Transform::from_matrix_unchecked(::convert_ref_unchecked(m))
     }
 }

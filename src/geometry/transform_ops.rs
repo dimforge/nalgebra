@@ -1,17 +1,15 @@
 use num::{Zero, One};
 use std::ops::{Index, IndexMut, Mul, MulAssign, Div, DivAssign};
-use approx::ApproxEq;
 
-use alga::general::{Field, Real, ClosedAdd, ClosedMul, ClosedNeg, SubsetOf};
+use alga::general::{Real, ClosedAdd, ClosedMul, SubsetOf};
 
-use core::{Scalar, ColumnVector, OwnedColumnVector, OwnedSquareMatrix};
-use core::storage::{Storage, StorageMut, OwnedStorage};
-use core::allocator::{Allocator, OwnedAllocator};
+use core::{DefaultAllocator, Scalar, VectorN, MatrixN};
+use core::allocator::Allocator;
 use core::dimension::{DimName, DimNameAdd, DimNameSum, U1, U3, U4};
 
-use geometry::{PointBase, OwnedPoint, TransformBase, OwnedTransform, TCategory, TCategoryMul,
-               SubTCategoryOf, SuperTCategoryOf, TGeneral, TProjective, TAffine, RotationBase,
-               UnitQuaternionBase, IsometryBase, SimilarityBase, TranslationBase};
+use geometry::{Point, Transform, TCategory, TCategoryMul,
+               SubTCategoryOf, SuperTCategoryOf, TGeneral, TProjective, TAffine, Rotation,
+               UnitQuaternion, Isometry, Similarity, Translation};
 
 /*
  *
@@ -23,55 +21,55 @@ use geometry::{PointBase, OwnedPoint, TransformBase, OwnedTransform, TCategory, 
  *
  * (Operators)
  *
- * TransformBase × IsometryBase
- * TransformBase × RotationBase
- * TransformBase × SimilarityBase
- * TransformBase × TransformBase
- * TransformBase × UnitQuaternion
- * FIXME: TransformBase × UnitComplex
- * TransformBase × TranslationBase
- * TransformBase × ColumnVector
- * TransformBase × PointBase
+ * Transform × Isometry
+ * Transform × Rotation
+ * Transform × Similarity
+ * Transform × Transform
+ * Transform × UnitQuaternion
+ * FIXME: Transform × UnitComplex
+ * Transform × Translation
+ * Transform × Vector
+ * Transform × Point
  *
- * IsometryBase       × TransformBase
- * RotationBase       × TransformBase
- * SimilarityBase     × TransformBase
- * TranslationBase    × TransformBase
- * UnitQuaternionBase × TransformBase
- * FIXME: UnitComplex × TransformBase
+ * Isometry       × Transform
+ * Rotation       × Transform
+ * Similarity     × Transform
+ * Translation    × Transform
+ * UnitQuaternion × Transform
+ * FIXME: UnitComplex × Transform
  *
- * FIXME: TransformBase ÷ IsometryBase
- * TransformBase ÷ RotationBase
- * FIXME: TransformBase ÷ SimilarityBase
- * TransformBase ÷ TransformBase
- * TransformBase ÷ UnitQuaternion
- * TransformBase ÷ TranslationBase
+ * FIXME: Transform ÷ Isometry
+ * Transform ÷ Rotation
+ * FIXME: Transform ÷ Similarity
+ * Transform ÷ Transform
+ * Transform ÷ UnitQuaternion
+ * Transform ÷ Translation
  *
- * FIXME: IsometryBase       ÷ TransformBase
- * RotationBase       ÷ TransformBase
- * FIXME: SimilarityBase     ÷ TransformBase
- * TranslationBase    ÷ TransformBase
- * UnitQuaternionBase ÷ TransformBase
- * FIXME: UnitComplex ÷ TransformBase
+ * FIXME: Isometry       ÷ Transform
+ * Rotation       ÷ Transform
+ * FIXME: Similarity     ÷ Transform
+ * Translation    ÷ Transform
+ * UnitQuaternion ÷ Transform
+ * FIXME: UnitComplex ÷ Transform
  *
  *
  * (Assignment Operators)
  *
  *
- * TransformBase ×= TransformBase
- * TransformBase ×= SimilarityBase
- * TransformBase ×= IsometryBase
- * TransformBase ×= RotationBase
- * TransformBase ×= UnitQuaternionBase
- * FIXME: TransformBase ×= UnitComplex
- * TransformBase ×= TranslationBase
+ * Transform ×= Transform
+ * Transform ×= Similarity
+ * Transform ×= Isometry
+ * Transform ×= Rotation
+ * Transform ×= UnitQuaternion
+ * FIXME: Transform ×= UnitComplex
+ * Transform ×= Translation
  *
- * TransformBase ÷= TransformBase
- * FIXME: TransformBase ÷= SimilarityBase
- * FIXME: TransformBase ÷= IsometryBase
- * TransformBase ÷= RotationBase
- * TransformBase ÷= UnitQuaternionBase
- * FIXME: TransformBase ÷= UnitComplex
+ * Transform ÷= Transform
+ * FIXME: Transform ÷= Similarity
+ * FIXME: Transform ÷= Isometry
+ * Transform ÷= Rotation
+ * Transform ÷= UnitQuaternion
+ * FIXME: Transform ÷= UnitComplex
  *
  */
 
@@ -80,10 +78,9 @@ use geometry::{PointBase, OwnedPoint, TransformBase, OwnedTransform, TCategory, 
  * Indexing.
  *
  */
-impl<N, D, S, C: TCategory> Index<(usize, usize)> for TransformBase<N, D, S, C>
-    where N: Scalar,
-          D: DimName + DimNameAdd<U1>,
-          S: Storage<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+impl<N: Real, D, C: TCategory> Index<(usize, usize)> for Transform<N, D, C>
+    where D: DimName + DimNameAdd<U1>,
+          DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
     type Output = N;
 
     #[inline]
@@ -93,10 +90,9 @@ impl<N, D, S, C: TCategory> Index<(usize, usize)> for TransformBase<N, D, S, C>
 }
 
 // Only general transformations are mutably indexable.
-impl<N, D, S> IndexMut<(usize, usize)> for TransformBase<N, D, S, TGeneral>
-    where N: Scalar,
-          D: DimName + DimNameAdd<U1>,
-          S: StorageMut<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+impl<N: Real, D> IndexMut<(usize, usize)> for Transform<N, D, TGeneral>
+    where D: DimName + DimNameAdd<U1>,
+          DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
     #[inline]
     fn index_mut(&mut self, ij: (usize, usize)) -> &mut N {
         self.matrix_mut().index_mut(ij)
@@ -104,14 +100,11 @@ impl<N, D, S> IndexMut<(usize, usize)> for TransformBase<N, D, S, TGeneral>
 }
 
 
-// TransformBase × ColumnVector
+// Transform × Vector
 md_impl_all!(
-    Mul, mul where N: Field;
-    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory
-    where SA::Alloc: Allocator<N, D, D>
-    where SA::Alloc: Allocator<N, D, U1>
-    where SA::Alloc: Allocator<N, U1, D>;
-    self: TransformBase<N, D, SA, C>, rhs: ColumnVector<N, D, SB>, Output = OwnedColumnVector<N, D, SA::Alloc>;
+    Mul, mul where N: Real;
+    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory;
+    self: Transform<N, D, C>, rhs: VectorN<N, D>, Output = VectorN<N, D>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -132,14 +125,12 @@ md_impl_all!(
 );
 
 
-// TransformBase × PointBase
+// Transform × Point
 md_impl_all!(
-    Mul, mul where N: Field;
+    Mul, mul where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory
-    where SA::Alloc: Allocator<N, D, D>
-    where SA::Alloc: Allocator<N, D, U1>
-    where SA::Alloc: Allocator<N, U1, D>;
-    self: TransformBase<N, D, SA, C>, rhs: PointBase<N, D, SB>, Output = OwnedPoint<N, D, SA::Alloc>;
+    where DefaultAllocator: Allocator<N, D, D>;
+    self: Transform<N, D, C>, rhs: Point<N, D>, Output = Point<N, D>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -161,11 +152,11 @@ md_impl_all!(
 );
 
 
-// TransformBase × TransformBase
+// Transform × Transform
 md_impl_all!(
-    Mul, mul;
+    Mul, mul where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, CA: TCategoryMul<CB>, CB: TCategory;
-    self: TransformBase<N, D, SA, CA>, rhs: TransformBase<N, D, SB, CB>, Output = OwnedTransform<N, D, SA::Alloc, CA::Representative>;
+    self: Transform<N, D, CA>, rhs: Transform<N, D, CB>, Output = Transform<N, D, CA::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.unwrap());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.unwrap());
     [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.matrix());
@@ -173,12 +164,11 @@ md_impl_all!(
 );
 
 
-// TransformBase × RotationBase
+// Transform × Rotation
 md_impl_all!(
-    Mul, mul where N: One;
-    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: RotationBase<N, D, SB>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    Mul, mul where N: Real;
+    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    self: Transform<N, D, C>, rhs: Rotation<N, D>, Output = Transform<N, D, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
@@ -186,12 +176,11 @@ md_impl_all!(
 );
 
 
-// RotationBase × TransformBase
+// Rotation × Transform
 md_impl_all!(
-    Mul, mul where N: One;
-    (D, D), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>
-    where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: RotationBase<N, D, SA>, rhs: TransformBase<N, D, SB, C>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    Mul, mul where N: Real;
+    (D, D), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    self: Rotation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -199,13 +188,11 @@ md_impl_all!(
 );
 
 
-// TransformBase × UnitQuaternionBase
+// Transform × UnitQuaternion
 md_impl_all!(
     Mul, mul where N: Real;
-    (U4, U4), (U4, U1) for C: TCategoryMul<TAffine>
-    where SB::Alloc: Allocator<N, U3, U3>
-    where SB::Alloc: Allocator<N, U4, U4>;
-    self: TransformBase<N, U3, SA, C>, rhs: UnitQuaternionBase<N, SB>, Output = OwnedTransform<N, U3, SA::Alloc, C::Representative>;
+    (U4, U4), (U4, U1) for C: TCategoryMul<TAffine>;
+    self: Transform<N, U3, C>, rhs: UnitQuaternion<N>, Output = Transform<N, U3, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
@@ -213,13 +200,11 @@ md_impl_all!(
 );
 
 
-// UnitQuaternionBase × TransformBase
+// UnitQuaternion × Transform
 md_impl_all!(
     Mul, mul where N: Real;
-    (U4, U1), (U4, U4) for C: TCategoryMul<TAffine>
-    where SA::Alloc: Allocator<N, U3, U3>
-    where SA::Alloc: Allocator<N, U4, U4>;
-    self: UnitQuaternionBase<N, SA>, rhs: TransformBase<N, U3, SB, C>, Output = OwnedTransform<N, U3, SA::Alloc, C::Representative>;
+    (U4, U1), (U4, U4) for C: TCategoryMul<TAffine>;
+    self: UnitQuaternion<N>, rhs: Transform<N, U3, C>, Output = Transform<N, U3, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -228,26 +213,24 @@ md_impl_all!(
 
 
 
-// TransformBase × IsometryBase
+// Transform × Isometry
 md_impl_all!(
     Mul, mul where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
-    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SB::Alloc> >
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: IsometryBase<N, D, SB, R>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
+    self: Transform<N, D, C>, rhs: Isometry<N, D, R>, Output = Transform<N, D, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
-// IsometryBase × TransformBase
+// Isometry × Transform
 md_impl_all!(
     Mul, mul where N: Real;
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
-    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SA::Alloc> >
-    where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: IsometryBase<N, D, SA, R>, rhs: TransformBase<N, D, SB, C>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
+    self: Isometry<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -255,28 +238,24 @@ md_impl_all!(
 );
 
 
-// TransformBase × SimilarityBase
+// Transform × Similarity
 md_impl_all!(
     Mul, mul where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
-    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SB::Alloc> >
-    where SB::Alloc: Allocator<N, D, D >
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: SimilarityBase<N, D, SB, R>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
+    self: Transform<N, D, C>, rhs: Similarity<N, D, R>, Output = Transform<N, D, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
-// SimilarityBase × TransformBase
+// Similarity × Transform
 md_impl_all!(
     Mul, mul where N: Real;
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
-    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SA::Alloc> >
-    where SA::Alloc: Allocator<N, D, D >
-    where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: SimilarityBase<N, D, SA, R>, rhs: TransformBase<N, D, SB, C>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
+    self: Similarity<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -293,25 +272,23 @@ md_impl_all!(
  * `DimNameAdd` requirement).
  *
  */
-// TransformBase × TranslationBase
+// Transform × Translation
 md_impl_all!(
     Mul, mul where N: Real;
-    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: TranslationBase<N, D, SB>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    self: Transform<N, D, C>, rhs: Translation<N, D>, Output = Transform<N, D, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
-// TranslationBase × TransformBase
+// Translation × Transform
 md_impl_all!(
     Mul, mul where N: Real;
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
-    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>
-    where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TranslationBase<N, D, SA>, rhs: TransformBase<N, D, SB, C>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    self: Translation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -320,23 +297,22 @@ md_impl_all!(
 
 
 
-// TransformBase ÷ TransformBase
+// Transform ÷ Transform
 md_impl_all!(
-    Div, div where N: ApproxEq, Field;
+    Div, div where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, CA: TCategoryMul<CB>, CB: SubTCategoryOf<TProjective>;
-    self: TransformBase<N, D, SA, CA>, rhs: TransformBase<N, D, SB, CB>, Output = OwnedTransform<N, D, SA::Alloc, CA::Representative>;
+    self: Transform<N, D, CA>, rhs: Transform<N, D, CB>, Output = Transform<N, D, CA::Representative>;
     [val val] => self * rhs.inverse();
     [ref val] => self * rhs.inverse();
     [val ref] => self * rhs.clone_owned().inverse();
     [ref ref] => self * rhs.clone_owned().inverse();
 );
 
-// TransformBase ÷ RotationBase
+// Transform ÷ Rotation
 md_impl_all!(
-    Div, div where N: One;
-    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: RotationBase<N, D, SB>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    Div, div where N: Real;
+    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    self: Transform<N, D, C>, rhs: Rotation<N, D>, Output = Transform<N, D, C::Representative>;
     [val val] => self * rhs.inverse();
     [ref val] => self * rhs.inverse();
     [val ref] => self * rhs.inverse();
@@ -344,12 +320,11 @@ md_impl_all!(
 );
 
 
-// RotationBase ÷ TransformBase
+// Rotation ÷ Transform
 md_impl_all!(
-    Div, div where N: One;
-    (D, D), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>
-    where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: RotationBase<N, D, SA>, rhs: TransformBase<N, D, SB, C>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    Div, div where N: Real;
+    (D, D), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    self: Rotation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
     [val val] => self.inverse() * rhs;
     [ref val] => self.inverse() * rhs;
     [val ref] => self.inverse() * rhs;
@@ -357,13 +332,11 @@ md_impl_all!(
 );
 
 
-// TransformBase ÷ UnitQuaternionBase
+// Transform ÷ UnitQuaternion
 md_impl_all!(
     Div, div where N: Real;
-    (U4, U4), (U4, U1) for C: TCategoryMul<TAffine>
-    where SB::Alloc: Allocator<N, U3, U3>
-    where SB::Alloc: Allocator<N, U4, U4>;
-    self: TransformBase<N, U3, SA, C>, rhs: UnitQuaternionBase<N, SB>, Output = OwnedTransform<N, U3, SA::Alloc, C::Representative>;
+    (U4, U4), (U4, U1) for C: TCategoryMul<TAffine>;
+    self: Transform<N, U3, C>, rhs: UnitQuaternion<N>, Output = Transform<N, U3, C::Representative>;
     [val val] => self * rhs.inverse();
     [ref val] => self * rhs.inverse();
     [val ref] => self * rhs.inverse();
@@ -371,13 +344,11 @@ md_impl_all!(
 );
 
 
-// UnitQuaternionBase ÷ TransformBase
+// UnitQuaternion ÷ Transform
 md_impl_all!(
     Div, div where N: Real;
-    (U4, U1), (U4, U4) for C: TCategoryMul<TAffine>
-    where SA::Alloc: Allocator<N, U3, U3>
-    where SA::Alloc: Allocator<N, U4, U4>;
-    self: UnitQuaternionBase<N, SA>, rhs: TransformBase<N, U3, SB, C>, Output = OwnedTransform<N, U3, SA::Alloc, C::Representative>;
+    (U4, U1), (U4, U4) for C: TCategoryMul<TAffine>;
+    self: UnitQuaternion<N>, rhs: Transform<N, U3, C>, Output = Transform<N, U3, C::Representative>;
     [val val] => self.inverse() * rhs;
     [ref val] => self.inverse() * rhs;
     [val ref] => self.inverse() * rhs;
@@ -386,26 +357,26 @@ md_impl_all!(
 
 
 
-//      // TransformBase ÷ IsometryBase
+//      // Transform ÷ Isometry
 //      md_impl_all!(
 //          Div, div where N: Real;
 //          (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
-//          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SB::Alloc> >
+//          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-//          self: TransformBase<N, D, SA, C>, rhs: IsometryBase<N, D, SB, R>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+//          self: Transform<N, D, C>, rhs: Isometry<N, D, R>, Output = Transform<N, D, C::Representative>;
 //          [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.inverse().to_homogeneous());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.inverse().to_homogeneous());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.inverse().to_homogeneous());
 //          [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.inverse().to_homogeneous());
 //      );
 
-//      // IsometryBase ÷ TransformBase
+//      // Isometry ÷ Transform
 //      md_impl_all!(
 //          Div, div where N: Real;
 //          (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
-//          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SA::Alloc> >
+//          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-//          self: IsometryBase<N, D, SA, R>, rhs: TransformBase<N, D, SB, C>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+//          self: Isometry<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
 //          [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -413,28 +384,28 @@ md_impl_all!(
 //      );
 
 
-//      // TransformBase ÷ SimilarityBase
+//      // Transform ÷ Similarity
 //      md_impl_all!(
 //          Div, div where N: Real;
 //          (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
-//          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SB::Alloc> >
+//          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SB::Alloc: Allocator<N, D, D >
 //          where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-//          self: TransformBase<N, D, SA, C>, rhs: SimilarityBase<N, D, SB, R>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+//          self: Transform<N, D, C>, rhs: Similarity<N, D, R>, Output = Transform<N, D, C::Representative>;
 //          [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
 //          [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 //      );
 
-//      // SimilarityBase ÷ TransformBase
+//      // Similarity ÷ Transform
 //      md_impl_all!(
 //          Div, div where N: Real;
 //          (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
-//          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SA::Alloc> >
+//          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SA::Alloc: Allocator<N, D, D >
 //          where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-//          self: SimilarityBase<N, D, SA, R>, rhs: TransformBase<N, D, SB, C>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+//          self: Similarity<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
 //          [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -443,25 +414,23 @@ md_impl_all!(
 
 
 
-// TransformBase ÷ TranslationBase
+// Transform ÷ Translation
 md_impl_all!(
     Div, div where N: Real;
-    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: TranslationBase<N, D, SB>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    self: Transform<N, D, C>, rhs: Translation<N, D>, Output = Transform<N, D, C::Representative>;
     [val val] => self * rhs.inverse();
     [ref val] => self * rhs.inverse();
     [val ref] => self * rhs.inverse();
     [ref ref] => self * rhs.inverse();
 );
 
-// TranslationBase ÷ TransformBase
+// Translation ÷ Transform
 md_impl_all!(
     Div, div where N: Real;
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
-    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>
-    where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TranslationBase<N, D, SA>, rhs: TransformBase<N, D, SB, C>, Output = OwnedTransform<N, D, SA::Alloc, C::Representative>;
+    for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    self: Translation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
     [val val] => self.inverse() * rhs;
     [ref val] => self.inverse() * rhs;
     [val ref] => self.inverse() * rhs;
@@ -469,36 +438,33 @@ md_impl_all!(
 );
 
 
-// TransformBase ×= TransformBase
+// Transform ×= Transform
 md_assign_impl_all!(
-    MulAssign, mul_assign;
+    MulAssign, mul_assign where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, CA: TCategory, CB: SubTCategoryOf<CA>;
-    self: TransformBase<N, D, SA, CA>, rhs: TransformBase<N, D, SB, CB>;
+    self: Transform<N, D, CA>, rhs: Transform<N, D, CB>;
     [val] => *self.matrix_mut_unchecked() *= rhs.unwrap();
     [ref] => *self.matrix_mut_unchecked() *= rhs.matrix();
 );
 
 
-// TransformBase ×= SimilarityBase
+// Transform ×= Similarity
 md_assign_impl_all!(
-    MulAssign, mul_assign;
+    MulAssign, mul_assign where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
-    for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SB::Alloc> >
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >
-    where SB::Alloc: Allocator<N, D, D>;
-    self: TransformBase<N, D, SA, C>, rhs: SimilarityBase<N, D, SB, R>;
+    for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
+    self: Transform<N, D, C>, rhs: Similarity<N, D, R>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
 
 
-// TransformBase ×= IsometryBase
+// Transform ×= Isometry
 md_assign_impl_all!(
-    MulAssign, mul_assign;
+    MulAssign, mul_assign where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
-    for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SB::Alloc> >
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: IsometryBase<N, D, SB, R>;
+    for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
+    self: Transform<N, D, C>, rhs: Isometry<N, D, R>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
@@ -511,105 +477,94 @@ md_assign_impl_all!(
  * `DimNameAdd` requirement).
  *
  */
-// TransformBase ×= TranslationBase
-md_assign_impl_all!(
-    MulAssign, mul_assign where N: One;
-    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: TranslationBase<N, D, SB>;
-    [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
-    [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
-);
-
-
-// TransformBase ×= RotationBase
-md_assign_impl_all!(
-    MulAssign, mul_assign where N: One;
-    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategory
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: RotationBase<N, D, SB>;
-    [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
-    [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
-);
-
-
-// TransformBase ×= UnitQuaternionBase
+// Transform ×= Translation
 md_assign_impl_all!(
     MulAssign, mul_assign where N: Real;
-    (U4, U4), (U4, U1) for C: TCategory
-    where SB::Alloc: Allocator<N, U3, U3>
-    where SB::Alloc: Allocator<N, U4, U4>;
-    self: TransformBase<N, U3, SA, C>, rhs: UnitQuaternionBase<N, SB>;
+    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory;
+    self: Transform<N, D, C>, rhs: Translation<N, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
 
 
-// TransformBase ÷= TransformBase
+// Transform ×= Rotation
 md_assign_impl_all!(
-    DivAssign, div_assign where N: Field, ApproxEq;
+    MulAssign, mul_assign where N: Real;
+    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategory;
+    self: Transform<N, D, C>, rhs: Rotation<N, D>;
+    [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
+    [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
+);
+
+
+// Transform ×= UnitQuaternion
+md_assign_impl_all!(
+    MulAssign, mul_assign where N: Real;
+    (U4, U4), (U4, U1) for C: TCategory;
+    self: Transform<N, U3, C>, rhs: UnitQuaternion<N>;
+    [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
+    [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
+);
+
+
+// Transform ÷= Transform
+md_assign_impl_all!(
+    DivAssign, div_assign where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, CA: SuperTCategoryOf<CB>, CB: SubTCategoryOf<TProjective>;
-    self: TransformBase<N, D, SA, CA>, rhs: TransformBase<N, D, SB, CB>;
+    self: Transform<N, D, CA>, rhs: Transform<N, D, CB>;
     [val] => *self *= rhs.clone_owned().inverse();
     [ref] => *self *= rhs.clone_owned().inverse();
 );
 
 
-//      // TransformBase ÷= SimilarityBase
+//      // Transform ÷= Similarity
 //      md_assign_impl_all!(
 //          DivAssign, div_assign;
 //          (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
-//          for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SB::Alloc> >
-//          where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >
-//          where SB::Alloc: Allocator<N, D, D>;
-//          self: TransformBase<N, D, SA, C>, rhs: SimilarityBase<N, D, SB, R>;
+//          for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
+//          self: Transform<N, D, C>, rhs: Similarity<N, D, R>;
 //          [val] => *self *= rhs.inverse();
 //          [ref] => *self *= rhs.inverse();
 //      );
 //      
 //      
-//      // TransformBase ÷= IsometryBase
+//      // Transform ÷= Isometry
 //      md_assign_impl_all!(
 //          DivAssign, div_assign;
 //          (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
-//          for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, SB::Alloc> >
-//          where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-//          self: TransformBase<N, D, SA, C>, rhs: IsometryBase<N, D, SB, R>;
+//          for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
+//          self: Transform<N, D, C>, rhs: Isometry<N, D, R>;
 //          [val] => *self *= rhs.inverse();
 //          [ref] => *self *= rhs.inverse();
 //      );
 
 
-// TransformBase ÷= TranslationBase
-md_assign_impl_all!(
-    DivAssign, div_assign where N: One, ClosedNeg;
-    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: TranslationBase<N, D, SB>;
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
-);
-
-
-// TransformBase ÷= RotationBase
-md_assign_impl_all!(
-    DivAssign, div_assign where N: One;
-    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategory
-    where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-    self: TransformBase<N, D, SA, C>, rhs: RotationBase<N, D, SB>;
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
-);
-
-
-// TransformBase ÷= UnitQuaternionBase
+// Transform ÷= Translation
 md_assign_impl_all!(
     DivAssign, div_assign where N: Real;
-    (U4, U4), (U4, U1) for C: TCategory
-    where SB::Alloc: Allocator<N, U3, U3>
-    where SB::Alloc: Allocator<N, U4, U4>;
-    self: TransformBase<N, U3, SA, C>, rhs: UnitQuaternionBase<N, SB>;
+    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory;
+    self: Transform<N, D, C>, rhs: Translation<N, D>;
+    [val] => *self *= rhs.inverse();
+    [ref] => *self *= rhs.inverse();
+);
+
+
+// Transform ÷= Rotation
+md_assign_impl_all!(
+    DivAssign, div_assign where N: Real;
+    (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategory;
+    self: Transform<N, D, C>, rhs: Rotation<N, D>;
+    [val] => *self *= rhs.inverse();
+    [ref] => *self *= rhs.inverse();
+);
+
+
+// Transform ÷= UnitQuaternion
+md_assign_impl_all!(
+    DivAssign, div_assign where N: Real;
+    (U4, U4), (U4, U1) for C: TCategory;
+    self: Transform<N, U3, C>, rhs: UnitQuaternion<N>;
     [val] => *self *= rhs.inverse();
     [ref] => *self *= rhs.inverse();
 );

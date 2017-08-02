@@ -1,14 +1,14 @@
 use alga::general::{AbstractMagma, AbstractGroup, AbstractLoop, AbstractMonoid, AbstractQuasigroup,
                     AbstractSemigroup, Real, Inverse, Multiplicative, Identity, Id};
-use alga::linear::{Transformation, Similarity, AffineTransformation, DirectIsometry, Isometry,
+use alga::linear::{Transformation, Similarity, AffineTransformation, DirectIsometry,
                    Rotation, ProjectiveTransformation};
+use alga::linear::Isometry as AlgaIsometry;
 
-use core::ColumnVector;
-use core::dimension::{DimName, U1};
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::{DefaultAllocator, VectorN};
+use core::dimension::DimName;
+use core::allocator::Allocator;
 
-use geometry::{IsometryBase, TranslationBase, PointBase};
+use geometry::{Isometry, Translation, Point};
 
 
 /*
@@ -16,22 +16,18 @@ use geometry::{IsometryBase, TranslationBase, PointBase};
  * Algebraic structures.
  *
  */
-impl<N, D: DimName, S, R> Identity<Multiplicative> for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Identity<Multiplicative> for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N, D: DimName, S, R> Inverse<Multiplicative> for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Inverse<Multiplicative> for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn inverse(&self) -> Self {
         self.inverse()
@@ -43,11 +39,9 @@ impl<N, D: DimName, S, R> Inverse<Multiplicative> for IsometryBase<N, D, S, R>
     }
 }
 
-impl<N, D: DimName, S, R> AbstractMagma<Multiplicative> for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> AbstractMagma<Multiplicative> for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
@@ -56,11 +50,9 @@ impl<N, D: DimName, S, R> AbstractMagma<Multiplicative> for IsometryBase<N, D, S
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N, D: DimName, S, R> $marker<$operator> for IsometryBase<N, D, S, R>
-            where N: Real,
-                  S: OwnedStorage<N, D, U1>,
-                  R: Rotation<PointBase<N, D, S>>,
-                  S::Alloc: OwnedAllocator<N, D, U1, S> { }
+        impl<N: Real, D: DimName, R> $marker<$operator> for Isometry<N, D, R>
+            where R: Rotation<Point<N, D>>,
+                  DefaultAllocator: Allocator<N, D> { }
     )*}
 );
 
@@ -77,49 +69,43 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N, D: DimName, S, R> Transformation<PointBase<N, D, S>> for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Transformation<Point<N, D>> for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn transform_point(&self, pt: &PointBase<N, D, S>) -> PointBase<N, D, S> {
+    fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self * pt
     }
 
     #[inline]
-    fn transform_vector(&self, v: &ColumnVector<N, D, S>) -> ColumnVector<N, D, S> {
+    fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self * v
     }
 }
 
-impl<N, D: DimName, S, R> ProjectiveTransformation<PointBase<N, D, S>> for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> ProjectiveTransformation<Point<N, D>> for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn inverse_transform_point(&self, pt: &PointBase<N, D, S>) -> PointBase<N, D, S> {
+    fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self.rotation.inverse_transform_point(&(pt - &self.translation.vector))
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &ColumnVector<N, D, S>) -> ColumnVector<N, D, S> {
+    fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self.rotation.inverse_transform_vector(v)
     }
 }
 
-impl<N, D: DimName, S, R> AffineTransformation<PointBase<N, D, S>> for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> AffineTransformation<Point<N, D>> for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     type Rotation          = R;
     type NonUniformScaling = Id;
-    type Translation       = TranslationBase<N, D, S>;
+    type Translation       = Translation<N, D>;
 
     #[inline]
-    fn decompose(&self) -> (TranslationBase<N, D, S>, R, Id, R) {
+    fn decompose(&self) -> (Translation<N, D>, R, Id, R) {
         (self.translation.clone(), self.rotation.clone(), Id::new(), R::identity())
     }
 
@@ -136,7 +122,7 @@ impl<N, D: DimName, S, R> AffineTransformation<PointBase<N, D, S>> for IsometryB
     #[inline]
     fn append_rotation(&self, r: &Self::Rotation) -> Self {
         let shift = r.transform_vector(&self.translation.vector);
-        IsometryBase::from_parts(TranslationBase::from_vector(shift), r.clone() * self.rotation.clone())
+        Isometry::from_parts(Translation::from_vector(shift), r.clone() * self.rotation.clone())
     }
 
     #[inline]
@@ -155,22 +141,20 @@ impl<N, D: DimName, S, R> AffineTransformation<PointBase<N, D, S>> for IsometryB
     }
 
     #[inline]
-    fn append_rotation_wrt_point(&self, r: &Self::Rotation, p: &PointBase<N, D, S>) -> Option<Self> {
+    fn append_rotation_wrt_point(&self, r: &Self::Rotation, p: &Point<N, D>) -> Option<Self> {
         let mut res = self.clone();
         res.append_rotation_wrt_point_mut(r, p);
         Some(res)
     }
 }
 
-impl<N, D: DimName, S, R> Similarity<PointBase<N, D, S>> for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Similarity<Point<N, D>> for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     type Scaling = Id;
 
     #[inline]
-    fn translation(&self) -> TranslationBase<N, D, S> {
+    fn translation(&self) -> Translation<N, D> {
         self.translation.clone()
     }
 
@@ -187,12 +171,10 @@ impl<N, D: DimName, S, R> Similarity<PointBase<N, D, S>> for IsometryBase<N, D, 
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N, D: DimName, S, R> $Trait<PointBase<N, D, S>> for IsometryBase<N, D, S, R>
-        where N: Real,
-              S: OwnedStorage<N, D, U1>,
-              R: Rotation<PointBase<N, D, S>>,
-              S::Alloc: OwnedAllocator<N, D, U1, S> { }
+        impl<N: Real, D: DimName, R> $Trait<Point<N, D>> for Isometry<N, D, R>
+        where R: Rotation<Point<N, D>>,
+              DefaultAllocator: Allocator<N, D> { }
     )*}
 );
 
-marker_impl!(Isometry, DirectIsometry);
+marker_impl!(AlgaIsometry, DirectIsometry);

@@ -1,14 +1,13 @@
 use alga::general::{AbstractMagma, AbstractGroup, AbstractLoop, AbstractMonoid, AbstractQuasigroup,
                     AbstractSemigroup, Real, Inverse, Multiplicative, Identity, Id};
-use alga::linear::{Transformation, Similarity, AffineTransformation, Isometry, DirectIsometry,
-                   OrthogonalTransformation, ProjectiveTransformation, Rotation};
+use alga::linear::{self, Transformation, Similarity, AffineTransformation, Isometry,
+                   DirectIsometry, OrthogonalTransformation, ProjectiveTransformation};
 
-use core::ColumnVector;
-use core::dimension::{DimName, U1};
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::{DefaultAllocator, VectorN};
+use core::dimension::DimName;
+use core::allocator::Allocator;
 
-use geometry::{RotationBase, PointBase};
+use geometry::{Rotation, Point};
 
 
 
@@ -17,20 +16,16 @@ use geometry::{RotationBase, PointBase};
  * Algebraic structures.
  *
  */
-impl<N, D: DimName, S> Identity<Multiplicative> for RotationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, D>,
-          S::Alloc: OwnedAllocator<N, D, D, S> {
+impl<N: Real, D: DimName> Identity<Multiplicative> for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N, D: DimName, S> Inverse<Multiplicative> for RotationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, D>,
-          S::Alloc: OwnedAllocator<N, D, D, S> {
+impl<N: Real, D: DimName> Inverse<Multiplicative> for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> {
     #[inline]
     fn inverse(&self) -> Self {
         self.transpose()
@@ -42,10 +37,8 @@ impl<N, D: DimName, S> Inverse<Multiplicative> for RotationBase<N, D, S>
     }
 }
 
-impl<N, D: DimName, S> AbstractMagma<Multiplicative> for RotationBase<N, D, S>
-    where N: Real,
-          S: OwnedStorage<N, D, D>,
-          S::Alloc: OwnedAllocator<N, D, D, S> {
+impl<N: Real, D: DimName> AbstractMagma<Multiplicative> for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
@@ -54,10 +47,8 @@ impl<N, D: DimName, S> AbstractMagma<Multiplicative> for RotationBase<N, D, S>
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N, D: DimName, S> $marker<$operator> for RotationBase<N, D, S>
-            where N: Real,
-                  S: OwnedStorage<N, D, D>,
-                  S::Alloc: OwnedAllocator<N, D, D, S> { }
+        impl<N: Real, D: DimName> $marker<$operator> for Rotation<N, D>
+            where DefaultAllocator: Allocator<N, D, D> { }
     )*}
 );
 
@@ -74,46 +65,37 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N, D: DimName, SA, SB> Transformation<PointBase<N, D, SB>> for RotationBase<N, D, SA>
-    where N:  Real,
-          SA: OwnedStorage<N, D, D>,
-          SB: OwnedStorage<N, D, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, D, D, SA>,
-          SB::Alloc: OwnedAllocator<N, D, U1, SB> {
+impl<N: Real, D: DimName> Transformation<Point<N, D>> for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, D> {
     #[inline]
-    fn transform_point(&self, pt: &PointBase<N, D, SB>) -> PointBase<N, D, SB> {
+    fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self * pt
     }
 
     #[inline]
-    fn transform_vector(&self, v: &ColumnVector<N, D, SB>) -> ColumnVector<N, D, SB> {
+    fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self * v
     }
 }
 
-impl<N, D: DimName, SA, SB> ProjectiveTransformation<PointBase<N, D, SB>> for RotationBase<N, D, SA>
-    where N:  Real,
-          SA: OwnedStorage<N, D, D>,
-          SB: OwnedStorage<N, D, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, D, D, SA>,
-          SB::Alloc: OwnedAllocator<N, D, U1, SB> {
+impl<N: Real, D: DimName> ProjectiveTransformation<Point<N, D>> for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, D> {
     #[inline]
-    fn inverse_transform_point(&self, pt: &PointBase<N, D, SB>) -> PointBase<N, D, SB> {
-        PointBase::from_coordinates(self.inverse_transform_vector(&pt.coords))
+    fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        Point::from_coordinates(self.inverse_transform_vector(&pt.coords))
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &ColumnVector<N, D, SB>) -> ColumnVector<N, D, SB> {
+    fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self.matrix().tr_mul(v)
     }
 }
 
-impl<N, D: DimName, SA, SB> AffineTransformation<PointBase<N, D, SB>> for RotationBase<N, D, SA>
-    where N:  Real,
-          SA: OwnedStorage<N, D, D>,
-          SB: OwnedStorage<N, D, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, D, D, SA>,
-          SB::Alloc: OwnedAllocator<N, D, U1, SB> {
+impl<N: Real, D: DimName> AffineTransformation<Point<N, D>> for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, D> {
     type Rotation          = Self;
     type NonUniformScaling = Id;
     type Translation       = Id;
@@ -155,12 +137,9 @@ impl<N, D: DimName, SA, SB> AffineTransformation<PointBase<N, D, SB>> for Rotati
 }
 
 
-impl<N, D: DimName, SA, SB> Similarity<PointBase<N, D, SB>> for RotationBase<N, D, SA>
-    where N:  Real,
-          SA: OwnedStorage<N, D, D>,
-          SB: OwnedStorage<N, D, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, D, D, SA>,
-          SB::Alloc: OwnedAllocator<N, D, U1, SB> {
+impl<N: Real, D: DimName> Similarity<Point<N, D>> for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, D> {
     type Scaling  = Id;
 
     #[inline]
@@ -181,12 +160,9 @@ impl<N, D: DimName, SA, SB> Similarity<PointBase<N, D, SB>> for RotationBase<N, 
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N, D: DimName, SA, SB> $Trait<PointBase<N, D, SB>> for RotationBase<N, D, SA>
-        where N:  Real,
-              SA: OwnedStorage<N, D, D>,
-              SB: OwnedStorage<N, D, U1, Alloc = SA::Alloc>,
-              SA::Alloc: OwnedAllocator<N, D, D, SA>,
-              SB::Alloc: OwnedAllocator<N, D, U1, SB> { }
+        impl<N: Real, D: DimName> $Trait<Point<N, D>> for Rotation<N, D>
+        where DefaultAllocator: Allocator<N, D, D> +
+                                Allocator<N, D> { }
     )*}
 );
 
@@ -194,12 +170,9 @@ marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
 
 /// Subgroups of the n-dimensional rotation group `SO(n)`.
-impl<N, D: DimName, SA, SB> Rotation<PointBase<N, D, SB>> for RotationBase<N, D, SA>
-    where N:  Real,
-          SA: OwnedStorage<N, D, D>,
-          SB: OwnedStorage<N, D, U1, Alloc = SA::Alloc>,
-          SA::Alloc: OwnedAllocator<N, D, D, SA>,
-          SB::Alloc: OwnedAllocator<N, D, U1, SB> {
+impl<N: Real, D: DimName> linear::Rotation<Point<N, D>> for Rotation<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, D> {
     #[inline]
     fn powf(&self, _: N) -> Option<Self> {
         // XXX: Add the general case.
@@ -208,14 +181,14 @@ impl<N, D: DimName, SA, SB> Rotation<PointBase<N, D, SB>> for RotationBase<N, D,
     }
 
     #[inline]
-    fn rotation_between(_: &ColumnVector<N, D, SB>, _: &ColumnVector<N, D, SB>) -> Option<Self> {
+    fn rotation_between(_: &VectorN<N, D>, _: &VectorN<N, D>) -> Option<Self> {
         // XXX: Add the general case.
         // XXX: Use specialization for 2D and 3D.
         unimplemented!()
     }
 
     #[inline]
-    fn scaled_rotation_between(_: &ColumnVector<N, D, SB>, _: &ColumnVector<N, D, SB>, _: N) -> Option<Self> {
+    fn scaled_rotation_between(_: &VectorN<N, D>, _: &VectorN<N, D>, _: N) -> Option<Self> {
         // XXX: Add the general case.
         // XXX: Use specialization for 2D and 3D.
         unimplemented!()
@@ -223,7 +196,7 @@ impl<N, D: DimName, SA, SB> Rotation<PointBase<N, D, SB>> for RotationBase<N, D,
 }
 
 /*
-impl<N: Real> Matrix for RotationBase<N> {
+impl<N: Real> Matrix for Rotation<N> {
     type Field     = N;
     type Row       = Matrix<N>;
     type Column    = Matrix<N>;
@@ -261,11 +234,11 @@ impl<N: Real> Matrix for RotationBase<N> {
 
     #[inline]
     fn transpose(&self) -> Self::Transpose {
-        RotationBase::from_matrix_unchecked(self.submatrix.transpose())
+        Rotation::from_matrix_unchecked(self.submatrix.transpose())
     }
 }
 
-impl<N: Real> SquareMatrix for RotationBase<N> {
+impl<N: Real> SquareMatrix for Rotation<N> {
     type Vector = Matrix<N>;
 
     #[inline]
@@ -295,7 +268,7 @@ impl<N: Real> SquareMatrix for RotationBase<N> {
     }
 }
 
-impl<N: Real> InversibleSquareMatrix for RotationBase<N> { }
+impl<N: Real> InversibleSquareMatrix for Rotation<N> { }
 */
 
 

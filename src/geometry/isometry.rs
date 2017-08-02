@@ -1,30 +1,40 @@
 use std::fmt;
+use std::hash;
 use std::marker::PhantomData;
 use approx::ApproxEq;
+
+#[cfg(feature = "serde-serialize")]
+use serde;
 
 use alga::general::{Real, SubsetOf};
 use alga::linear::Rotation;
 
-use core::{Scalar, OwnedSquareMatrix};
+use core::{DefaultAllocator, MatrixN};
 use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
-use core::storage::{Storage, OwnedStorage};
-use core::allocator::{Allocator, OwnedAllocator};
-use geometry::{TranslationBase, PointBase};
-
-
-/// An isometry that uses a data storage deduced from the allocator `A`.
-pub type OwnedIsometryBase<N, D, A, R> =
-    IsometryBase<N, D, <A as Allocator<N, D, U1>>::Buffer, R>;
+use core::storage::Owned;
+use core::allocator::Allocator;
+use geometry::{Translation, Point};
 
 /// A direct isometry, i.e., a rotation followed by a translation.
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-pub struct IsometryBase<N: Scalar, D: DimName, S, R> {
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(
+        serialize = "R: serde::Serialize,
+                     DefaultAllocator: Allocator<N, D>,
+                     Owned<N, D>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(
+        deserialize = "R: serde::Deserialize<'de>,
+                       DefaultAllocator: Allocator<N, D>,
+                       Owned<N, D>: serde::Deserialize<'de>")))]
+pub struct Isometry<N: Real, D: DimName, R>
+    where DefaultAllocator: Allocator<N, D> {
     /// The pure rotational part of this isometry.
     pub rotation:    R,
     /// The pure translational part of this isometry.
-    pub translation: TranslationBase<N, D, S>,
+    pub translation: Translation<N, D>,
 
 
     // One dummy private field just to prevent explicit construction.
@@ -32,15 +42,34 @@ pub struct IsometryBase<N: Scalar, D: DimName, S, R> {
     _noconstruct: PhantomData<N>
 }
 
-impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash for Isometry<N, D, R>
+    where DefaultAllocator: Allocator<N, D>,
+          Owned<N, D>: hash::Hash {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.translation.hash(state);
+        self.rotation.hash(state);
+    }
+}
+
+impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Isometry<N, D, R>
+    where DefaultAllocator: Allocator<N, D>,
+          Owned<N, D>: Copy {
+}
+
+impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Isometry<N, D, R>
+    where DefaultAllocator: Allocator<N, D> {
+    #[inline]
+    fn clone(&self) -> Self {
+        Isometry::from_parts(self.translation.clone(), self.rotation.clone())
+    }
+}
+
+impl<N: Real, D: DimName, R: Rotation<Point<N, D>>> Isometry<N, D, R>
+    where DefaultAllocator: Allocator<N, D> {
     /// Creates a new isometry from its rotational and translational parts.
     #[inline]
-    pub fn from_parts(translation: TranslationBase<N, D, S>, rotation: R) -> IsometryBase<N, D, S, R> {
-        IsometryBase {
+    pub fn from_parts(translation: Translation<N, D>, rotation: R) -> Isometry<N, D, R> {
+        Isometry {
             rotation:     rotation,
             translation:  translation,
             _noconstruct: PhantomData
@@ -49,7 +78,7 @@ impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>
 
     /// Inverts `self`.
     #[inline]
-    pub fn inverse(&self) -> IsometryBase<N, D, S, R> {
+    pub fn inverse(&self) -> Isometry<N, D, R> {
         let mut res = self.clone();
         res.inverse_mut();
         res
@@ -65,7 +94,7 @@ impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>
 
     /// Appends to `self` the given translation in-place.
     #[inline]
-    pub fn append_translation_mut(&mut self, t: &TranslationBase<N, D, S>) {
+    pub fn append_translation_mut(&mut self, t: &Translation<N, D>) {
         self.translation.vector += &t.vector
     }
 
@@ -79,7 +108,7 @@ impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>
     /// Appends in-place to `self` a rotation centered at the point `p`, i.e., the rotation that
     /// lets `p` invariant.
     #[inline]
-    pub fn append_rotation_wrt_point_mut(&mut self, r: &R, p: &PointBase<N, D, S>) {
+    pub fn append_rotation_wrt_point_mut(&mut self, r: &R, p: &Point<N, D>) {
         self.translation.vector -= &p.coords;
         self.append_rotation_mut(r);
         self.translation.vector += &p.coords;
@@ -89,7 +118,7 @@ impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>
     /// `self.translation`.
     #[inline]
     pub fn append_rotation_wrt_center_mut(&mut self, r: &R) {
-        let center = PointBase::from_coordinates(self.translation.vector.clone());
+        let center = Point::from_coordinates(self.translation.vector.clone());
         self.append_rotation_wrt_point_mut(r, &center)
     }
 }
@@ -98,16 +127,15 @@ impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>
 // and makes it hard to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the dummy ZST field).
-impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>
-    where N: Scalar,
-          S: Storage<N, D, U1> {
+impl<N: Real, D: DimName, R> Isometry<N, D, R>
+    where DefaultAllocator: Allocator<N, D> {
     /// Converts this isometry into its equivalent homogeneous transformation matrix.
     #[inline]
-    pub fn to_homogeneous(&self) -> OwnedSquareMatrix<N, DimNameSum<D, U1>, S::Alloc>
+    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
         where D: DimNameAdd<U1>,
-              R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, S::Alloc>>,
-              S::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
-        let mut res: OwnedSquareMatrix<N, _, S::Alloc> = ::convert_ref(&self.rotation);
+              R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,
+              DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+        let mut res: MatrixN<N, _> = ::convert_ref(&self.rotation);
         res.fixed_slice_mut::<D, U1>(0, D::dim()).copy_from(&self.translation.vector);
 
         res
@@ -115,30 +143,24 @@ impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>
 }
 
 
-impl<N, D: DimName, S, R> Eq for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>> + Eq,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Eq for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>> + Eq,
+          DefaultAllocator: Allocator<N, D> {
 }
 
-impl<N, D: DimName, S, R> PartialEq for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>> + PartialEq,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> PartialEq for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>> + PartialEq,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn eq(&self, right: &IsometryBase<N, D, S, R>) -> bool {
+    fn eq(&self, right: &Isometry<N, D, R>) -> bool {
         self.translation == right.translation &&
         self.rotation    == right.rotation
     }
 }
 
-impl<N, D: DimName, S, R> ApproxEq for IsometryBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>> + ApproxEq<Epsilon = N::Epsilon>,
-          S::Alloc: OwnedAllocator<N, D, U1, S>,
+impl<N: Real, D: DimName, R> ApproxEq for Isometry<N, D, R>
+    where R: Rotation<Point<N, D>> + ApproxEq<Epsilon = N::Epsilon>,
+          DefaultAllocator: Allocator<N, D>,
           N::Epsilon: Copy {
     type Epsilon = N::Epsilon;
 
@@ -175,32 +197,16 @@ impl<N, D: DimName, S, R> ApproxEq for IsometryBase<N, D, S, R>
  * Display
  *
  */
-impl<N, D: DimName, S, R> fmt::Display for IsometryBase<N, D, S, R>
-    where N: Real + fmt::Display,
-          S: OwnedStorage<N, D, U1>,
-          R: fmt::Display,
-          S::Alloc: OwnedAllocator<N, D, U1, S> + Allocator<usize, D, U1> {
+impl<N: Real + fmt::Display, D: DimName, R> fmt::Display for Isometry<N, D, R>
+    where R: fmt::Display,
+          DefaultAllocator: Allocator<N, D> +
+                            Allocator<usize, D> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "IsometryBase {{"));
+        try!(writeln!(f, "Isometry {{"));
         try!(write!(f, "{:.*}", precision, self.translation));
         try!(write!(f, "{:.*}", precision, self.rotation));
         writeln!(f, "}}")
     }
 }
-
-
-//         /*
-//          *
-//          * Absolute
-//          *
-//          */
-//         impl<N: Absolute> Absolute for $t<N> {
-//             type AbsoluteValue = $submatrix<N::AbsoluteValue>;
-//
-//             #[inline]
-//             fn abs(m: &$t<N>) -> $submatrix<N::AbsoluteValue> {
-//                 Absolute::abs(&m.submatrix)
-//             }
-//         }

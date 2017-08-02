@@ -1,5 +1,7 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
+#[cfg(feature = "arbitrary")]
+use core::storage::Owned;
 
 use num::One;
 use rand::{Rng, Rand};
@@ -7,32 +9,27 @@ use rand::{Rng, Rand};
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
 
-use core::ColumnVector;
-use core::dimension::{DimName, U1, U2, U3, U4};
-use core::allocator::{OwnedAllocator, Allocator};
-use core::storage::OwnedStorage;
+use core::{DefaultAllocator, Vector2, Vector3};
+use core::dimension::{DimName, U2, U3};
+use core::allocator::Allocator;
 
-use geometry::{PointBase, TranslationBase, RotationBase, SimilarityBase,
-               UnitComplex, UnitQuaternionBase, IsometryBase};
+use geometry::{Point, Translation, Similarity, UnitComplex, UnitQuaternion, Isometry,
+               Point3, Rotation2, Rotation3};
 
 
-impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: AlgaRotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Similarity<N, D, R>
+    where R: AlgaRotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     /// Creates a new identity similarity.
     #[inline]
     pub fn identity() -> Self {
-        Self::from_isometry(IsometryBase::identity(), N::one())
+        Self::from_isometry(Isometry::identity(), N::one())
     }
 }
 
-impl<N, D: DimName, S, R> One for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: AlgaRotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> One for Similarity<N, D, R>
+    where R: AlgaRotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     /// Creates a new identity similarity.
     #[inline]
     fn one() -> Self {
@@ -40,11 +37,9 @@ impl<N, D: DimName, S, R> One for SimilarityBase<N, D, S, R>
     }
 }
 
-impl<N, D: DimName, S, R> Rand for SimilarityBase<N, D, S, R>
-    where N: Real + Rand,
-          S: OwnedStorage<N, D, U1>,
-          R: AlgaRotation<PointBase<N, D, S>> + Rand,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real + Rand, D: DimName, R> Rand for Similarity<N, D, R>
+    where R: AlgaRotation<Point<N, D>> + Rand,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn rand<G: Rng>(rng: &mut G) -> Self {
         let mut s = rng.gen();
@@ -56,26 +51,24 @@ impl<N, D: DimName, S, R> Rand for SimilarityBase<N, D, S, R>
     }
 }
 
-impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: AlgaRotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Similarity<N, D, R>
+    where R: AlgaRotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     /// The similarity that applies tha scaling factor `scaling`, followed by the rotation `r` with
     /// its axis passing through the point `p`.
     #[inline]
-    pub fn rotation_wrt_point(r: R, p: PointBase<N, D, S>, scaling: N) -> Self {
+    pub fn rotation_wrt_point(r: R, p: Point<N, D>, scaling: N) -> Self {
         let shift = r.transform_vector(&-&p.coords);
-        Self::from_parts(TranslationBase::from_vector(shift + p.coords), r, scaling)
+        Self::from_parts(Translation::from_vector(shift + p.coords), r, scaling)
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N, D: DimName, S, R> Arbitrary for SimilarityBase<N, D, S, R>
+impl<N, D: DimName, R> Arbitrary for Similarity<N, D, R>
     where N: Real + Arbitrary + Send,
-          S: OwnedStorage<N, D, U1> + Send,
-          R: AlgaRotation<PointBase<N, D, S>> + Arbitrary + Send,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+          R: AlgaRotation<Point<N, D>> + Arbitrary + Send,
+          DefaultAllocator: Allocator<N, D>,
+          Owned<N, D>: Send {
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
         let mut s = Arbitrary::arbitrary(rng);
@@ -94,45 +87,31 @@ impl<N, D: DimName, S, R> Arbitrary for SimilarityBase<N, D, S, R>
  */
 
 // 2D rotation.
-impl<N, S, SR> SimilarityBase<N, U2, S, RotationBase<N, U2, SR>>
-    where N: Real,
-          S:  OwnedStorage<N, U2, U1, Alloc = SR::Alloc>,
-          SR: OwnedStorage<N, U2, U2>,
-          S::Alloc:  OwnedAllocator<N, U2, U1, S>,
-          SR::Alloc: OwnedAllocator<N, U2, U2, SR> {
+impl<N: Real> Similarity<N, U2, Rotation2<N>> {
     /// Creates a new similarity from a translation and a rotation angle.
     #[inline]
-    pub fn new(translation: ColumnVector<N, U2, S>, angle: N, scaling: N) -> Self {
-        Self::from_parts(TranslationBase::from_vector(translation), RotationBase::<N, U2, SR>::new(angle), scaling)
+    pub fn new(translation: Vector2<N>, angle: N, scaling: N) -> Self {
+        Self::from_parts(Translation::from_vector(translation), Rotation2::new(angle), scaling)
     }
 }
 
-impl<N, S> SimilarityBase<N, U2, S, UnitComplex<N>>
-    where N: Real,
-          S: OwnedStorage<N, U2, U1>,
-          S::Alloc: OwnedAllocator<N, U2, U1, S> {
+impl<N: Real> Similarity<N, U2, UnitComplex<N>> {
     /// Creates a new similarity from a translation and a rotation angle.
     #[inline]
-    pub fn new(translation: ColumnVector<N, U2, S>, angle: N, scaling: N) -> Self {
-        Self::from_parts(TranslationBase::from_vector(translation), UnitComplex::new(angle), scaling)
+    pub fn new(translation: Vector2<N>, angle: N, scaling: N) -> Self {
+        Self::from_parts(Translation::from_vector(translation), UnitComplex::new(angle), scaling)
     }
 }
 
 // 3D rotation.
 macro_rules! similarity_construction_impl(
-    ($Rot: ty, $RotId: ident, $RRDim: ty, $RCDim: ty) => {
-        impl<N, S, SR> SimilarityBase<N, U3, S, $Rot>
-            where N: Real,
-                  S:  OwnedStorage<N, U3, U1, Alloc = SR::Alloc>,
-                  SR: OwnedStorage<N, $RRDim, $RCDim>,
-                  S::Alloc:  OwnedAllocator<N, U3, U1, S>,
-                  SR::Alloc: OwnedAllocator<N, $RRDim, $RCDim, SR> +
-                             Allocator<N, U3, U3> {
+    ($Rot: ty) => {
+        impl<N: Real> Similarity<N, U3, $Rot> {
             /// Creates a new similarity from a translation, rotation axis-angle, and scaling
             /// factor.
             #[inline]
-            pub fn new(translation: ColumnVector<N, U3, S>, axisangle: ColumnVector<N, U3, S>, scaling: N) -> Self {
-                Self::from_isometry(IsometryBase::<_, _, _, $Rot>::new(translation, axisangle), scaling)
+            pub fn new(translation: Vector3<N>, axisangle: Vector3<N>, scaling: N) -> Self {
+                Self::from_isometry(Isometry::<_, U3, $Rot>::new(translation, axisangle), scaling)
             }
 
             /// Creates an similarity that corresponds to the a scaling factor and a local frame of
@@ -147,12 +126,12 @@ macro_rules! similarity_construction_impl(
             ///   * up - Vertical direction. The only requirement of this parameter is to not be collinear
             ///   to `eye - at`. Non-collinearity is not checked.
             #[inline]
-            pub fn new_observer_frame(eye:    &PointBase<N, U3, S>,
-                                      target: &PointBase<N, U3, S>,
-                                      up:     &ColumnVector<N, U3, S>,
+            pub fn new_observer_frame(eye:    &Point3<N>,
+                                      target: &Point3<N>,
+                                      up:     &Vector3<N>,
                                       scaling: N)
                                       -> Self {
-                Self::from_isometry(IsometryBase::<_, _, _, $Rot>::new_observer_frame(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, U3, $Rot>::new_observer_frame(eye, target, up), scaling)
             }
 
             /// Builds a right-handed look-at view matrix including scaling factor.
@@ -166,12 +145,12 @@ macro_rules! similarity_construction_impl(
             ///   * up - A vector approximately aligned with required the vertical axis. The only
             ///   requirement of this parameter is to not be collinear to `target - eye`.
             #[inline]
-            pub fn look_at_rh(eye:     &PointBase<N, U3, S>,
-                              target:  &PointBase<N, U3, S>,
-                              up:      &ColumnVector<N, U3, S>,
+            pub fn look_at_rh(eye:     &Point3<N>,
+                              target:  &Point3<N>,
+                              up:      &Vector3<N>,
                               scaling: N)
                               -> Self {
-                Self::from_isometry(IsometryBase::<_, _, _, $Rot>::look_at_rh(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, U3, $Rot>::look_at_rh(eye, target, up), scaling)
             }
 
             /// Builds a left-handed look-at view matrix including a scaling factor.
@@ -185,16 +164,16 @@ macro_rules! similarity_construction_impl(
             ///   * up - A vector approximately aligned with required the vertical axis. The only
             ///   requirement of this parameter is to not be collinear to `target - eye`.
             #[inline]
-            pub fn look_at_lh(eye:     &PointBase<N, U3, S>,
-                              target:  &PointBase<N, U3, S>,
-                              up:      &ColumnVector<N, U3, S>,
+            pub fn look_at_lh(eye:     &Point3<N>,
+                              target:  &Point3<N>,
+                              up:      &Vector3<N>,
                               scaling: N)
                               -> Self {
-                Self::from_isometry(IsometryBase::<_, _, _, $Rot>::look_at_lh(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, _, $Rot>::look_at_lh(eye, target, up), scaling)
             }
         }
     }
 );
 
-similarity_construction_impl!(RotationBase<N, U3, SR>, RotationBase, U3, U3);
-similarity_construction_impl!(UnitQuaternionBase<N, SR>, UnitQuaternionBase, U4, U1);
+similarity_construction_impl!(Rotation3<N>);
+similarity_construction_impl!(UnitQuaternion<N>);

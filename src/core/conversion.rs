@@ -3,37 +3,35 @@ use std::mem;
 use std::convert::{From, Into, AsRef, AsMut};
 use alga::general::{SubsetOf, SupersetOf};
 
-use core::{Scalar, Matrix};
+use core::{DefaultAllocator, Scalar, Matrix, MatrixMN};
 use core::dimension::{Dim,
     U1,  U2,  U3,  U4,
     U5,  U6,  U7,  U8,
     U9,  U10, U11, U12,
     U13, U14, U15, U16
 };
-use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns};
-use core::storage::{Storage, StorageMut, OwnedStorage};
 use core::iter::{MatrixIter, MatrixIterMut};
-use core::allocator::{OwnedAllocator, SameShapeAllocator};
+use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns};
+use core::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
+use core::allocator::{Allocator, SameShapeAllocator};
 
 
 // FIXME: too bad this won't work allo slice conversions.
-impl<N1, N2, R1, C1, R2, C2, SA, SB> SubsetOf<Matrix<N2, R2, C2, SB>> for Matrix<N1, R1, C1, SA>
+impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>
     where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
           N1: Scalar,
           N2: Scalar + SupersetOf<N1>,
-          SA: OwnedStorage<N1, R1, C1>,
-          SB: OwnedStorage<N2, R2, C2>,
-          SB::Alloc: OwnedAllocator<N2, R2, C2, SB>,
-          SA::Alloc: OwnedAllocator<N1, R1, C1, SA> +
-                     SameShapeAllocator<N1, R1, C1, R2, C2, SA>,
+          DefaultAllocator: Allocator<N2, R2, C2> +
+                            Allocator<N1, R1, C1> +
+                            SameShapeAllocator<N1, R1, C1, R2, C2>,
           ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
     #[inline]
-    fn to_superset(&self) -> Matrix<N2, R2, C2, SB> {
+    fn to_superset(&self) -> MatrixMN<N2, R2, C2> {
         let (nrows, ncols) = self.shape();
         let nrows2 = R2::from_usize(nrows);
         let ncols2 = C2::from_usize(ncols);
 
-        let mut res = unsafe { Matrix::<N2, R2, C2, SB>::new_uninitialized_generic(nrows2, ncols2) };
+        let mut res = unsafe { MatrixMN::<N2, R2, C2>::new_uninitialized_generic(nrows2, ncols2) };
         for i in 0 .. nrows {
             for j in 0 .. ncols {
                 unsafe {
@@ -46,12 +44,12 @@ impl<N1, N2, R1, C1, R2, C2, SA, SB> SubsetOf<Matrix<N2, R2, C2, SB>> for Matrix
     }
 
     #[inline]
-    fn is_in_subset(m: &Matrix<N2, R2, C2, SB>) -> bool {
+    fn is_in_subset(m: &MatrixMN<N2, R2, C2>) -> bool {
         m.iter().all(|e| e.is_in_subset())
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &Matrix<N2, R2, C2, SB>) -> Self {
+    unsafe fn from_superset_unchecked(m: &MatrixMN<N2, R2, C2>) -> Self {
         let (nrows2, ncols2) = m.shape();
         let nrows = R1::from_usize(nrows2);
         let ncols = C1::from_usize(ncols2);
@@ -90,10 +88,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator for &'a
 
 macro_rules! impl_from_into_asref_1D(
     ($(($NRows: ident, $NCols: ident) => $SZ: expr);* $(;)*) => {$(
-        impl<N, S> From<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
+        impl<N> From<[N; $SZ]> for MatrixMN<N, $NRows, $NCols>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+              DefaultAllocator: Allocator<N, $NRows, $NCols> {
             #[inline]
             fn from(arr: [N; $SZ]) -> Self {
                 unsafe {
@@ -107,8 +104,7 @@ macro_rules! impl_from_into_asref_1D(
 
         impl<N, S> Into<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+              S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> [N; $SZ] {
                 unsafe {
@@ -122,8 +118,7 @@ macro_rules! impl_from_into_asref_1D(
 
         impl<N, S> AsRef<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+              S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn as_ref(&self) -> &[N; $SZ] {
                 unsafe {
@@ -134,8 +129,7 @@ macro_rules! impl_from_into_asref_1D(
 
         impl<N, S> AsMut<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+              S: ContiguousStorageMut<N, $NRows, $NCols> {
             #[inline]
             fn as_mut(&mut self) -> &mut [N; $SZ] {
                 unsafe {
@@ -165,10 +159,8 @@ impl_from_into_asref_1D!(
 
 macro_rules! impl_from_into_asref_2D(
     ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
-        impl<N, S> From<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
-        where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+        impl<N: Scalar> From<[[N; $SZRows]; $SZCols]> for MatrixMN<N, $NRows, $NCols>
+        where DefaultAllocator: Allocator<N, $NRows, $NCols> {
             #[inline]
             fn from(arr: [[N; $SZRows]; $SZCols]) -> Self {
                 unsafe {
@@ -180,10 +172,8 @@ macro_rules! impl_from_into_asref_2D(
             }
         }
 
-        impl<N, S> Into<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
-        where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+        impl<N: Scalar, S> Into<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
+        where S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> [[N; $SZRows]; $SZCols] {
                 unsafe {
@@ -195,10 +185,8 @@ macro_rules! impl_from_into_asref_2D(
             }
         }
 
-        impl<N, S> AsRef<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
-        where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+        impl<N: Scalar, S> AsRef<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
+        where S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn as_ref(&self) -> &[[N; $SZRows]; $SZCols] {
                 unsafe {
@@ -207,10 +195,8 @@ macro_rules! impl_from_into_asref_2D(
             }
         }
 
-        impl<N, S> AsMut<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
-        where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+        impl<N: Scalar, S> AsMut<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
+        where S: ContiguousStorageMut<N, $NRows, $NCols> {
             #[inline]
             fn as_mut(&mut self) -> &mut [[N; $SZRows]; $SZCols] {
                 unsafe {
@@ -222,7 +208,7 @@ macro_rules! impl_from_into_asref_2D(
 );
 
 
-// Implement for matrices with shape 2x2 .. 4x4.
+// Implement for matrices with shape 2x2 .. 6x6.
 impl_from_into_asref_2D!(
     (U2, U2) => (2, 2); (U2, U3) => (2, 3); (U2, U4) => (2, 4); (U2, U5) => (2, 5); (U2, U6) => (2, 6);
     (U3, U2) => (3, 2); (U3, U3) => (3, 3); (U3, U4) => (3, 4); (U3, U5) => (3, 5); (U3, U6) => (3, 6);

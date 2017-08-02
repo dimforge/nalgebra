@@ -1,101 +1,103 @@
 use num::One;
+use std::hash;
 use std::fmt;
 use std::cmp::Ordering;
 use approx::ApproxEq;
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde;
 
-use core::{Scalar, ColumnVector, OwnedColumnVector};
+use core::{DefaultAllocator, Scalar, VectorN};
 use core::iter::{MatrixIter, MatrixIterMut};
 use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
-use core::storage::{Storage, StorageMut, MulStorage};
-use core::allocator::{Allocator, SameShapeR};
-
-// XXX Bad name: we can't even add points…
-/// The type of the result of the sum of a point with a vector.
-pub type PointSum<N, D1, D2, SA> =
-    PointBase<N, SameShapeR<D1, D2>,
-    <<SA as Storage<N, D1, U1>>::Alloc as Allocator<N, SameShapeR<D1, D2>, U1>>::Buffer>;
-
-/// The type of the result of the multiplication of a point by a matrix.
-pub type PointMul<N, R1, C1, SA> = PointBase<N, R1, MulStorage<N, R1, C1, U1, SA>>;
-
-/// A point with an owned storage.
-pub type OwnedPoint<N, D, A> = PointBase<N, D, <A as Allocator<N, D, U1>>::Buffer>;
+use core::allocator::Allocator;
 
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]
-#[derive(Hash, Debug)]
-pub struct PointBase<N: Scalar, D: DimName, S: Storage<N, D, U1>> {
+#[derive(Debug)]
+pub struct Point<N: Scalar, D: DimName>
+    where DefaultAllocator: Allocator<N, D> {
     /// The coordinates of this point, i.e., the shift from the origin.
-    pub coords: ColumnVector<N, D, S>
+    pub coords: VectorN<N, D>
 }
 
-impl<N, D, S> Copy for PointBase<N, D, S>
-    where N: Scalar,
-          D: DimName,
-          S: Storage<N, D, U1> + Copy { }
+impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Point<N, D>
+    where DefaultAllocator: Allocator<N, D>,
+          <DefaultAllocator as Allocator<N, D>>::Buffer: hash::Hash {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.coords.hash(state)
+    }
+}
 
-impl<N, D, S> Clone for PointBase<N, D, S>
-    where N: Scalar,
-          D: DimName,
-          S: Storage<N, D, U1> + Clone {
+impl<N: Scalar, D: DimName> Copy for Point<N, D>
+    where DefaultAllocator: Allocator<N, D>,
+          <DefaultAllocator as Allocator<N, D>>::Buffer: Copy { }
+
+impl<N: Scalar, D: DimName> Clone for Point<N, D>
+    where DefaultAllocator: Allocator<N, D>,
+          <DefaultAllocator as Allocator<N, D>>::Buffer: Clone {
     #[inline]
     fn clone(&self) -> Self {
-        PointBase::from_coordinates(self.coords.clone())
+        Point::from_coordinates(self.coords.clone())
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N, D, S> Serialize for PointBase<N, D, S>
-    where N: Scalar,
-          D: DimName,
-          S: Storage<N, D, U1>,
-          ColumnVector<N, D, S>: Serialize,
-{
-    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-        where T: Serializer
-    {
-        self.coords.serialize(serializer)
-    }
-}
+impl<N: Scalar, D: DimName> serde::Serialize for Point<N, D>
+where DefaultAllocator: Allocator<N, D>,
+      <DefaultAllocator as Allocator<N, D>>::Buffer: serde::Serialize {
 
-#[cfg(feature = "serde-serialize")]
-impl<'de, N, D, S> Deserialize<'de> for PointBase<N, D, S>
-    where N: Scalar,
-          D: DimName,
-          S: Storage<N, D, U1>,
-          ColumnVector<N, D, S>: Deserialize<'de>,
-{
-    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
-        where T: Deserializer<'de>
-    {
-        ColumnVector::deserialize(deserializer).map(|x| PointBase { coords: x })
-    }
-}
-
-impl<N: Scalar, D: DimName, S: Storage<N, D, U1>> PointBase<N, D, S> {
-    /// Creates a new point with the given coordinates.
-    #[inline]
-    pub fn from_coordinates(coords: ColumnVector<N, D, S>) -> PointBase<N, D, S> {
-        PointBase {
-            coords: coords
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: serde::Serializer {
+            self.coords.serialize(serializer)
         }
-    }
 }
 
-impl<N: Scalar, D: DimName, S: Storage<N, D, U1>> PointBase<N, D, S> {
-    /// Moves this point into one that owns its data.
-    #[inline]
-    pub fn into_owned(self) -> OwnedPoint<N, D, S::Alloc> {
-        PointBase::from_coordinates(self.coords.into_owned())
-    }
+#[cfg(feature = "serde-serialize")]
+impl<'a, N: Scalar, D: DimName> serde::Deserialize<'a> for Point<N, D>
+where DefaultAllocator: Allocator<N, D>,
+      <DefaultAllocator as Allocator<N, D>>::Buffer: serde::Deserialize<'a> {
+
+    fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
+        where Des: serde::Deserializer<'a> {
+            let coords = VectorN::<N, D>::deserialize(deserializer)?;
+
+            Ok(Point::from_coordinates(coords))
+        }
+}
+
+impl<N: Scalar, D: DimName> Point<N, D>
+    where DefaultAllocator: Allocator<N, D> {
 
     /// Clones this point into one that owns its data.
     #[inline]
-    pub fn clone_owned(&self) -> OwnedPoint<N, D, S::Alloc> {
-        PointBase::from_coordinates(self.coords.clone_owned())
+    pub fn clone(&self) -> Point<N, D> {
+        Point::from_coordinates(self.coords.clone_owned())
+    }
+
+    /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
+    /// end of it.
+    #[inline]
+    pub fn to_homogeneous(&self) -> VectorN<N, DimNameSum<D, U1>>
+        where N: One,
+              D: DimNameAdd<U1>,
+              DefaultAllocator: Allocator<N, DimNameSum<D, U1>> {
+
+        let mut res = unsafe {
+            VectorN::<_, DimNameSum<D, U1>>::new_uninitialized()
+        };
+        res.fixed_slice_mut::<D, U1>(0, 0).copy_from(&self.coords);
+        res[(D::dim(), 0)] = N::one();
+
+        res
+    }
+
+    /// Creates a new point with the given coordinates.
+    #[inline]
+    pub fn from_coordinates(coords: VectorN<N, D>) -> Point<N, D> {
+        Point {
+            coords: coords
+        }
     }
 
     /// The dimension of this point.
@@ -113,44 +115,26 @@ impl<N: Scalar, D: DimName, S: Storage<N, D, U1>> PointBase<N, D, S> {
 
     /// Iterates through this point coordinates.
     #[inline]
-    pub fn iter(&self) -> MatrixIter<N, D, U1, S> {
+    pub fn iter(&self) -> MatrixIter<N, D, U1, <DefaultAllocator as Allocator<N, D>>::Buffer> {
         self.coords.iter()
     }
 
     /// Gets a reference to i-th element of this point without bound-checking.
     #[inline]
     pub unsafe fn get_unchecked(&self, i: usize) -> &N {
-        self.coords.get_unchecked(i, 0)
+        self.coords.vget_unchecked(i)
     }
 
-
-    /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
-    /// end of it.
-    #[inline]
-    pub fn to_homogeneous(&self) -> OwnedColumnVector<N, DimNameSum<D, U1>, S::Alloc>
-        where N: One,
-              D: DimNameAdd<U1>,
-              S::Alloc: Allocator<N, DimNameSum<D, U1>, U1> {
-
-        let mut res = unsafe { OwnedColumnVector::<N, _, S::Alloc>::new_uninitialized() };
-        res.fixed_slice_mut::<D, U1>(0, 0).copy_from(&self.coords);
-        res[(D::dim(), 0)] = N::one();
-
-        res
-    }
-}
-
-impl<N: Scalar, D: DimName, S: StorageMut<N, D, U1>> PointBase<N, D, S> {
     /// Mutably iterates through this point coordinates.
     #[inline]
-    pub fn iter_mut(&mut self) -> MatrixIterMut<N, D, U1, S> {
+    pub fn iter_mut(&mut self) -> MatrixIterMut<N, D, U1, <DefaultAllocator as Allocator<N, D>>::Buffer> {
         self.coords.iter_mut()
     }
 
     /// Gets a mutable reference to i-th element of this point without bound-checking.
     #[inline]
     pub unsafe fn get_unchecked_mut(&mut self, i: usize) -> &mut N {
-        self.coords.get_unchecked_mut(i, 0)
+        self.coords.vget_unchecked_mut(i)
     }
 
     /// Swaps two entries without bound-checking.
@@ -160,9 +144,8 @@ impl<N: Scalar, D: DimName, S: StorageMut<N, D, U1>> PointBase<N, D, S> {
     }
 }
 
-impl<N, D: DimName, S> ApproxEq for PointBase<N, D, S>
-    where N: Scalar + ApproxEq,
-          S: Storage<N, D, U1>,
+impl<N: Scalar + ApproxEq, D: DimName> ApproxEq for Point<N, D>
+    where DefaultAllocator: Allocator<N, D>,
           N::Epsilon: Copy {
     type Epsilon = N::Epsilon;
 
@@ -192,22 +175,19 @@ impl<N, D: DimName, S> ApproxEq for PointBase<N, D, S>
     }
 }
 
-impl<N, D: DimName, S> Eq for PointBase<N, D, S>
-    where N: Scalar + Eq,
-          S: Storage<N, D, U1> { }
+impl<N: Scalar + Eq, D: DimName> Eq for Point<N, D>
+    where DefaultAllocator: Allocator<N, D> { }
 
-impl<N, D: DimName, S> PartialEq for PointBase<N, D, S>
-    where N: Scalar,
-          S: Storage<N, D, U1> {
+impl<N: Scalar, D: DimName> PartialEq for Point<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.coords == right.coords
     }
 }
 
-impl<N, D: DimName, S> PartialOrd for PointBase<N, D, S>
-    where N: Scalar + PartialOrd,
-          S: Storage<N, D, U1> {
+impl<N: Scalar + PartialOrd, D: DimName> PartialOrd for Point<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.coords.partial_cmp(&other.coords)
@@ -239,9 +219,8 @@ impl<N, D: DimName, S> PartialOrd for PointBase<N, D, S>
  * Display
  *
  */
-impl<N, D: DimName, S> fmt::Display for PointBase<N, D, S>
-    where N: Scalar + fmt::Display,
-          S: Storage<N, D, U1> {
+impl<N: Scalar + fmt::Display, D: DimName> fmt::Display for Point<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         try!(write!(f, "{{"));
 

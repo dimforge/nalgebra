@@ -1,70 +1,65 @@
 #[cfg(feature="arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 use rand::{Rand, Rng};
-
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde;
+use std::fmt;
 
 use alga::general::Real;
 
-use core::{Scalar, SquareMatrix, OwnedSquareMatrix, ColumnVector, OwnedColumnVector, MatrixArray};
-use core::dimension::{U1, U3, U4};
-use core::storage::{OwnedStorage, Storage, StorageMut};
-use core::allocator::OwnedAllocator;
+use core::{Matrix4, Vector, Vector3};
+use core::dimension::U3;
+use core::storage::Storage;
 use core::helper;
 
-use geometry::{PointBase, OwnedPoint};
+use geometry::Point3;
 
 /// A 3D orthographic projection stored as an homogeneous 4x4 matrix.
-#[derive(Debug, Clone, Copy)] // FIXME: Hash
-pub struct OrthographicBase<N: Scalar, S: Storage<N, U4, U4>> {
-    matrix: SquareMatrix<N, U4, S>
+pub struct Orthographic3<N: Real> {
+    matrix: Matrix4<N>
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<N, S> Serialize for OrthographicBase<N, S>
-    where N: Scalar,
-          S: Storage<N, U4, U4>,
-          SquareMatrix<N, U4, S>: Serialize,
-{
-    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-        where T: Serializer
-    {
-        self.matrix.serialize(serializer)
+impl<N: Real> Copy for Orthographic3<N> { }
+
+impl<N: Real> Clone for Orthographic3<N> {
+    #[inline]
+    fn clone(&self) -> Self {
+        Orthographic3::from_matrix_unchecked(self.matrix.clone())
     }
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<'de, N, S> Deserialize<'de> for OrthographicBase<N, S>
-    where N: Scalar,
-          S: Storage<N, U4, U4>,
-          SquareMatrix<N, U4, S>: Deserialize<'de>,
-{
-    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
-        where T: Deserializer<'de>
-    {
-        SquareMatrix::deserialize(deserializer).map(|x| OrthographicBase { matrix: x })
+impl<N: Real> fmt::Debug for Orthographic3<N> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        self.matrix.fmt(f)
     }
 }
 
-/// A 3D orthographic projection stored as a static homogeneous 4x4 matrix.
-pub type Orthographic3<N> = OrthographicBase<N, MatrixArray<N, U4, U4>>;
-
-impl<N, S> Eq for OrthographicBase<N, S>
-    where N: Scalar + Eq,
-          S: Storage<N, U4, U4> { }
-
-impl<N: Scalar, S: Storage<N, U4, U4>> PartialEq for OrthographicBase<N, S> {
+impl<N: Real> PartialEq for Orthographic3<N> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.matrix == right.matrix
     }
 }
 
-impl<N, S> OrthographicBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U4>,
-          S::Alloc: OwnedAllocator<N, U4, U4, S> {
+#[cfg(feature = "serde-serialize")]
+impl<N: Real + serde::Serialize> serde::Serialize for Orthographic3<N> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: serde::Serializer {
+            self.matrix.serialize(serializer)
+        }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'a, N: Real + serde::Deserialize<'a>> serde::Deserialize<'a> for Orthographic3<N> {
+    fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
+        where Des: serde::Deserializer<'a> {
+            let matrix = Matrix4::<N>::deserialize(deserializer)?;
+
+            Ok(Orthographic3::from_matrix_unchecked(matrix))
+        }
+}
+
+impl<N: Real> Orthographic3<N> {
     /// Creates a new orthographic projection matrix.
     #[inline]
     pub fn new(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> Self {
@@ -72,7 +67,7 @@ impl<N, S> OrthographicBase<N, S>
         assert!(bottom < top, "The top corner must be higher than the bottom corner.");
         assert!(znear < zfar, "The far plane must be farther than the near plane.");
 
-        let matrix = SquareMatrix::<N, U4, S>::identity();
+        let matrix = Matrix4::<N>::identity();
         let mut res = Self::from_matrix_unchecked(matrix);
 
         res.set_left_and_right(left, right);
@@ -87,8 +82,8 @@ impl<N, S> OrthographicBase<N, S>
     /// It is not checked whether or not the given matrix actually represents an orthographic
     /// projection.
     #[inline]
-    pub fn from_matrix_unchecked(matrix: SquareMatrix<N, U4, S>) -> Self {
-        OrthographicBase {
+    pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> Self {
+        Orthographic3 {
             matrix: matrix
         }
     }
@@ -105,24 +100,10 @@ impl<N, S> OrthographicBase<N, S>
 
         Self::new(-width * half, width * half, -height * half, height * half, znear, zfar)
     }
-}
-
-impl<N: Real, S: Storage<N, U4, U4>> OrthographicBase<N, S> {
-    /// A reference to the underlying homogeneous transformation matrix.
-    #[inline]
-    pub fn as_matrix(&self) -> &SquareMatrix<N, U4, S> {
-        &self.matrix
-    }
-
-    /// Retrieves the underlying homogeneous matrix.
-    #[inline]
-    pub fn unwrap(self) -> SquareMatrix<N, U4, S> {
-        self.matrix
-    }
 
     /// Retrieves the inverse of the underlying homogeneous matrix.
     #[inline]
-    pub fn inverse(&self) -> OwnedSquareMatrix<N, U4, S::Alloc> {
+    pub fn inverse(&self) -> Matrix4<N> {
         let mut res = self.to_homogeneous();
 
         let inv_m11 = N::one() / self.matrix[(0, 0)];
@@ -142,8 +123,20 @@ impl<N: Real, S: Storage<N, U4, U4>> OrthographicBase<N, S> {
 
     /// Computes the corresponding homogeneous matrix.
     #[inline]
-    pub fn to_homogeneous(&self) -> OwnedSquareMatrix<N, U4, S::Alloc> {
+    pub fn to_homogeneous(&self) -> Matrix4<N> {
         self.matrix.clone_owned()
+    }
+
+    /// A reference to the underlying homogeneous transformation matrix.
+    #[inline]
+    pub fn as_matrix(&self) -> &Matrix4<N> {
+        &self.matrix
+    }
+
+    /// Retrieves the underlying homogeneous matrix.
+    #[inline]
+    pub fn unwrap(self) -> Matrix4<N> {
+        self.matrix
     }
 
     /// The smallest x-coordinate of the view cuboid.
@@ -185,10 +178,8 @@ impl<N: Real, S: Storage<N, U4, U4>> OrthographicBase<N, S> {
     // FIXME: when we get specialization, specialize the Mul impl instead.
     /// Projects a point. Faster than matrix multiplication.
     #[inline]
-    pub fn project_point<SB>(&self, p: &PointBase<N, U3, SB>) -> OwnedPoint<N, U3, SB::Alloc>
-        where SB: Storage<N, U3, U1> {
-
-        OwnedPoint::<N, U3, SB::Alloc>::new(
+    pub fn project_point(&self, p: &Point3<N>) -> Point3<N> {
+        Point3::new(
             self.matrix[(0, 0)] * p[0] + self.matrix[(0, 3)],
             self.matrix[(1, 1)] * p[1] + self.matrix[(1, 3)],
             self.matrix[(2, 2)] * p[2] + self.matrix[(2, 3)]
@@ -197,10 +188,9 @@ impl<N: Real, S: Storage<N, U4, U4>> OrthographicBase<N, S> {
 
     /// Un-projects a point. Faster than multiplication by the underlying matrix inverse.
     #[inline]
-    pub fn unproject_point<SB>(&self, p: &PointBase<N, U3, SB>) -> OwnedPoint<N, U3, SB::Alloc>
-        where SB: Storage<N, U3, U1> {
+    pub fn unproject_point(&self, p: &Point3<N>) -> Point3<N> {
 
-        OwnedPoint::<N, U3, SB::Alloc>::new(
+        Point3::new(
             (p[0] - self.matrix[(0, 3)]) / self.matrix[(0, 0)],
             (p[1] - self.matrix[(1, 3)]) / self.matrix[(1, 1)],
             (p[2] - self.matrix[(2, 3)]) / self.matrix[(2, 2)]
@@ -210,18 +200,16 @@ impl<N: Real, S: Storage<N, U4, U4>> OrthographicBase<N, S> {
     // FIXME: when we get specialization, specialize the Mul impl instead.
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
-    pub fn project_vector<SB>(&self, p: &ColumnVector<N, U3, SB>) -> OwnedColumnVector<N, U3, SB::Alloc>
-        where SB: Storage<N, U3, U1> {
+    pub fn project_vector<SB>(&self, p: &Vector<N, U3, SB>) -> Vector3<N>
+        where SB: Storage<N, U3> {
 
-        OwnedColumnVector::<N, U3, SB::Alloc>::new(
+        Vector3::new(
             self.matrix[(0, 0)] * p[0],
             self.matrix[(1, 1)] * p[1],
             self.matrix[(2, 2)] * p[2]
         )
     }
-}
 
-impl<N: Real, S: StorageMut<N, U4, U4>> OrthographicBase<N, S> {
     /// Sets the smallest x-coordinate of the view cuboid.
     #[inline]
     pub fn set_left(&mut self, left: N) {
@@ -289,10 +277,7 @@ impl<N: Real, S: StorageMut<N, U4, U4>> OrthographicBase<N, S> {
     }
 }
 
-impl<N, S> Rand for OrthographicBase<N, S>
-    where N: Real + Rand,
-          S: OwnedStorage<N, U4, U4>,
-          S::Alloc: OwnedAllocator<N, U4, U4, S> {
+impl<N: Real + Rand> Rand for Orthographic3<N> {
     fn rand<R: Rng>(r: &mut R) -> Self {
         let left   = Rand::rand(r);
         let right  = helper::reject_rand(r, |x: &N| *x > left);
@@ -306,10 +291,8 @@ impl<N, S> Rand for OrthographicBase<N, S>
 }
 
 #[cfg(feature="arbitrary")]
-impl<N, S> Arbitrary for OrthographicBase<N, S>
-    where N: Real + Arbitrary,
-          S: OwnedStorage<N, U4, U4> + Send,
-          S::Alloc: OwnedAllocator<N, U4, U4, S> {
+impl<N: Real + Arbitrary> Arbitrary for Orthographic3<N>
+    where Matrix4<N>: Send {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let left   = Arbitrary::arbitrary(g);
         let right  = helper::reject(g, |x: &N| *x > left);

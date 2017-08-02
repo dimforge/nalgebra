@@ -7,42 +7,39 @@ use alga::general::{AbstractMagma, AbstractGroupAbelian, AbstractGroup, Abstract
                     ClosedAdd, ClosedNeg, ClosedMul};
 use alga::linear::{VectorSpace, NormedSpace, InnerSpace, FiniteDimVectorSpace, FiniteDimInnerSpace};
 
-use core::{Scalar, Matrix, SquareMatrix};
+use core::{DefaultAllocator, Scalar, MatrixMN, MatrixN};
 use core::dimension::{Dim, DimName};
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::storage::{Storage, StorageMut};
+use core::allocator::Allocator;
 
 /*
  *
  * Additive structures.
  *
  */
-impl<N, R: DimName, C: DimName, S> Identity<Additive> for Matrix<N, R, C, S>
+impl<N, R: DimName, C: DimName> Identity<Additive> for MatrixMN<N, R, C>
     where N: Scalar + Zero,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     #[inline]
     fn identity() -> Self {
         Self::from_element(N::zero())
     }
 }
 
-impl<N, R: DimName, C: DimName, S> AbstractMagma<Additive> for Matrix<N, R, C, S>
+impl<N, R: DimName, C: DimName> AbstractMagma<Additive> for MatrixMN<N, R, C>
     where N: Scalar + ClosedAdd,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     #[inline]
     fn operate(&self, other: &Self) -> Self {
         self + other
     }
 }
 
-impl<N, R: DimName, C: DimName, S> Inverse<Additive> for Matrix<N, R, C, S>
+impl<N, R: DimName, C: DimName> Inverse<Additive> for MatrixMN<N, R, C>
     where N: Scalar + ClosedNeg,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     #[inline]
-    fn inverse(&self) -> Matrix<N, R, C, S> {
+    fn inverse(&self) -> MatrixMN<N, R, C> {
         -self
     }
 
@@ -54,10 +51,9 @@ impl<N, R: DimName, C: DimName, S> Inverse<Additive> for Matrix<N, R, C, S>
 
 macro_rules! inherit_additive_structure(
     ($($marker: ident<$operator: ident> $(+ $bounds: ident)*),* $(,)*) => {$(
-        impl<N, R: DimName, C: DimName, S> $marker<$operator> for Matrix<N, R, C, S>
+        impl<N, R: DimName, C: DimName> $marker<$operator> for MatrixMN<N, R, C>
             where N: Scalar + $marker<$operator> $(+ $bounds)*,
-                  S: OwnedStorage<N, R, C>,
-                  S::Alloc: OwnedAllocator<N, R, C, S> { }
+                  DefaultAllocator: Allocator<N, R, C> { }
     )*}
 );
 
@@ -70,10 +66,9 @@ inherit_additive_structure!(
     AbstractGroupAbelian<Additive> + Zero + ClosedAdd + ClosedNeg
 );
 
-impl<N, R: DimName, C: DimName, S> AbstractModule for Matrix<N, R, C, S>
+impl<N, R: DimName, C: DimName> AbstractModule for MatrixMN<N, R, C>
     where N: Scalar + RingCommutative,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     type AbstractRing = N;
 
     #[inline]
@@ -82,24 +77,21 @@ impl<N, R: DimName, C: DimName, S> AbstractModule for Matrix<N, R, C, S>
     }
 }
 
-impl<N, R: DimName, C: DimName, S> Module for Matrix<N, R, C, S>
+impl<N, R: DimName, C: DimName> Module for MatrixMN<N, R, C>
     where N: Scalar + RingCommutative,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     type Ring = N;
 }
 
-impl<N, R: DimName, C: DimName, S> VectorSpace for Matrix<N, R, C, S>
+impl<N, R: DimName, C: DimName> VectorSpace for MatrixMN<N, R, C>
     where N: Scalar + Field,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     type Field = N;
 }
 
-impl<N, R: DimName, C: DimName, S> FiniteDimVectorSpace for Matrix<N, R, C, S>
+impl<N, R: DimName, C: DimName> FiniteDimVectorSpace for MatrixMN<N, R, C>
     where N: Scalar + Field,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     #[inline]
     fn dimension() -> usize {
         R::dim() * C::dim()
@@ -131,10 +123,8 @@ impl<N, R: DimName, C: DimName, S> FiniteDimVectorSpace for Matrix<N, R, C, S>
     }
 }
 
-impl<N, R: DimName, C: DimName, S> NormedSpace for Matrix<N, R, C, S>
-    where N: Real,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+impl<N: Real, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
+    where DefaultAllocator: Allocator<N, R, C> {
     #[inline]
     fn norm_squared(&self) -> N {
         self.norm_squared()
@@ -166,10 +156,8 @@ impl<N, R: DimName, C: DimName, S> NormedSpace for Matrix<N, R, C, S>
     }
 }
 
-impl<N, R: DimName, C: DimName, S> InnerSpace for Matrix<N, R, C, S>
-    where N: Real,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+impl<N: Real, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
+    where DefaultAllocator: Allocator<N, R, C> {
     type Real = N;
 
     #[inline]
@@ -187,12 +175,10 @@ impl<N, R: DimName, C: DimName, S> InnerSpace for Matrix<N, R, C, S>
 // In particular:
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
-impl<N, R: DimName, C: DimName, S> FiniteDimInnerSpace for Matrix<N, R, C, S>
-    where N: Real,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+impl<N: Real, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
+    where DefaultAllocator: Allocator<N, R, C> {
     #[inline]
-    fn orthonormalize(vs: &mut [Matrix<N, R, C, S>]) -> usize {
+    fn orthonormalize(vs: &mut [MatrixMN<N, R, C>]) -> usize {
         let mut nbasis_elements = 0;
 
         for i in 0 .. vs.len() {
@@ -307,20 +293,18 @@ impl<N, R: DimName, C: DimName, S> FiniteDimInnerSpace for Matrix<N, R, C, S>
  *
  *
  */
-impl<N, D: DimName, S> Identity<Multiplicative> for SquareMatrix<N, D, S>
+impl<N, D: DimName> Identity<Multiplicative> for MatrixN<N, D>
     where N: Scalar + Zero + One,
-          S: OwnedStorage<N, D, D>,
-          S::Alloc: OwnedAllocator<N, D, D, S> {
+          DefaultAllocator: Allocator<N, D, D> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N, D: DimName, S> AbstractMagma<Multiplicative> for SquareMatrix<N, D, S>
-    where N: Scalar + Zero + ClosedAdd + ClosedMul,
-          S: OwnedStorage<N, D, D>,
-          S::Alloc: OwnedAllocator<N, D, D, S> {
+impl<N, D: DimName> AbstractMagma<Multiplicative> for MatrixN<N, D>
+    where N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+          DefaultAllocator: Allocator<N, D, D> {
     #[inline]
     fn operate(&self, other: &Self) -> Self {
         self * other
@@ -329,10 +313,9 @@ impl<N, D: DimName, S> AbstractMagma<Multiplicative> for SquareMatrix<N, D, S>
 
 macro_rules! impl_multiplicative_structure(
     ($($marker: ident<$operator: ident> $(+ $bounds: ident)*),* $(,)*) => {$(
-        impl<N, D: DimName, S> $marker<$operator> for SquareMatrix<N, D, S>
-            where N: Scalar + Zero + ClosedAdd + ClosedMul + $marker<$operator> $(+ $bounds)*,
-                  S: OwnedStorage<N, D, D>,
-                  S::Alloc: OwnedAllocator<N, D, D, S> { }
+        impl<N, D: DimName> $marker<$operator> for MatrixN<N, D>
+            where N: Scalar + Zero + One + ClosedAdd + ClosedMul + $marker<$operator> $(+ $bounds)*,
+                  DefaultAllocator: Allocator<N, D, D> { }
     )*}
 );
 
@@ -341,421 +324,24 @@ impl_multiplicative_structure!(
     AbstractMonoid<Multiplicative> + One
 );
 
-// // FIXME: Field too strong?
-// impl<N, S> Matrix for Matrix<N, S>
-//     where N: Scalar + Field,
-//           S: Storage<N> {
-//     type Field     = N;
-//     type Row       = OwnedMatrix<N, Static<U1>, S::C, S::Alloc>;
-//     type Column    = OwnedMatrix<N, S::R, Static<U1>, S::Alloc>;
-//     type Transpose = OwnedMatrix<N, S::C, S::R, S::Alloc>;
-
-//     #[inline]
-//     fn nrows(&self) -> usize {
-//         self.shape().0
-//     }
-
-//     #[inline]
-//     fn ncolumns(&self) -> usize {
-//         self.shape().1
-//     }
-
-//     #[inline]
-//     fn row(&self, row: usize) -> Self::Row {
-//         let mut res: Self::Row = ::zero();
-
-//         for (column, e) in res.iter_mut().enumerate() {
-//             *e = self[(row, column)];
-//         }
-
-//         res
-//     }
-
-//     #[inline]
-//     fn column(&self, column: usize) -> Self::Column {
-//         let mut res: Self::Column = ::zero();
-
-//         for (row, e) in res.iter_mut().enumerate() {
-//             *e = self[(row, column)];
-//         }
-
-//         res
-//     }
-
-//     #[inline]
-//     unsafe fn get_unchecked(&self, i: usize, j: usize) -> Self::Field {
-//         self.get_unchecked(i, j)
-//     }
-
-//     #[inline]
-//     fn transpose(&self) -> Self::Transpose {
-//         self.transpose()
-//     }
-// }
-
-// impl<N, S> MatrixMut for Matrix<N, S>
-//     where N: Scalar + Field,
-//           S: StorageMut<N> {
-//     #[inline]
-//     fn set_row_mut(&mut self, irow: usize, row: &Self::Row) {
-//         assert!(irow < self.shape().0, "Row index out of bounds.");
-
-//         for (icol, e) in row.iter().enumerate() {
-//             unsafe { self.set_unchecked(irow, icol, *e) }
-//         }
-//     }
-
-//     #[inline]
-//     fn set_column_mut(&mut self, icol: usize, col: &Self::Column) {
-//         assert!(icol < self.shape().1, "Column index out of bounds.");
-//         for (irow, e) in col.iter().enumerate() {
-//             unsafe { self.set_unchecked(irow, icol, *e) }
-//         }
-//     }
-
-//     #[inline]
-//     unsafe fn set_unchecked(&mut self, i: usize, j: usize, val: Self::Field) {
-//         *self.get_unchecked_mut(i, j) = val
-//     }
-// }
-
-// // FIXME: Real is needed here only for invertibility...
-// impl<N: Real> SquareMatrixMut for $t<N> {
-//     #[inline]
-//     fn from_diagonal(diag: &Self::Coordinates) -> Self {
-//         let mut res: $t<N> = ::zero();
-//         res.set_diagonal_mut(diag);
-//         res
-//     }
-
-//     #[inline]
-//     fn set_diagonal_mut(&mut self, diag: &Self::Coordinates) {
-//         for (i, e) in diag.iter().enumerate() {
-//             unsafe { self.set_unchecked(i, i, *e) }
-//         }
-//     }
-// }
-
-
-
-// Specializations depending on the dimension.
-// matrix_group_approx_impl!(common: $t, 1, $vector, $($compN),+);
-
-// // FIXME: Real is needed here only for invertibility...
-// impl<N: Real> SquareMatrix for $t<N> {
-//     type Vector = $vector<N>;
-
-//     #[inline]
-//     fn diagonal(&self) -> Self::Coordinates {
-//         $vector::new(self.m11)
-//     }
-
-//     #[inline]
-//     fn determinant(&self) -> Self::Field {
-//         self.m11
-//     }
-
-//     #[inline]
-//     fn try_inverse(&self) -> Option<Self> {
-//         let mut res = *self;
-//         if res.try_inverse_mut() {
-//             Some(res)
-//         }
-//         else {
-//             None
-//         }
-//     }
-
-//     #[inline]
-//     fn try_inverse_mut(&mut self) -> bool {
-//         if relative_eq!(&self.m11, &::zero()) {
-//             false
-//         }
-//         else {
-//             self.m11 = ::one::<N>() / ::determinant(self);
-
-//             true
-//         }
-//     }
-
-//     #[inline]
-//     fn transpose_mut(&mut self) {
-//         // no-op
-//     }
-// }
-
-//  ident, 2, $vector: ident, $($compN: ident),+) => {
-// matrix_group_approx_impl!(common: $t, 2, $vector, $($compN),+);
-
-// // FIXME: Real is needed only for inversion here.
-// impl<N: Real> SquareMatrix for $t<N> {
-//     type Vector = $vector<N>;
-
-//     #[inline]
-//     fn diagonal(&self) -> Self::Coordinates {
-//         $vector::new(self.m11, self.m22)
-//     }
-
-//     #[inline]
-//     fn determinant(&self) -> Self::Field {
-//         self.m11 * self.m22 - self.m21 * self.m12
-//     }
-
-//     #[inline]
-//     fn try_inverse(&self) -> Option<Self> {
-//         let mut res = *self;
-//         if res.try_inverse_mut() {
-//             Some(res)
-//         }
-//         else {
-//             None
-//         }
-//     }
-
-//     #[inline]
-//     fn try_inverse_mut(&mut self) -> bool {
-//         let determinant = ::determinant(self);
-
-//         if relative_eq!(&determinant, &::zero()) {
-//             false
-//         }
-//         else {
-//             *self = Matrix2::new(
-//                 self.m22 / determinant , -self.m12 / determinant,
-//                 -self.m21 / determinant, self.m11 / determinant);
-
-//             true
-//         }
-//     }
-
-//     #[inline]
-//     fn transpose_mut(&mut self) {
-//         mem::swap(&mut self.m12, &mut self.m21)
-//     }
-// }
-
-//  ident, 3, $vector: ident, $($compN: ident),+) => {
-// matrix_group_approx_impl!(common: $t, 3, $vector, $($compN),+);
-
-// // FIXME: Real is needed only for inversion here.
-// impl<N: Real> SquareMatrix for $t<N> {
-//     type Vector = $vector<N>;
-
-//     #[inline]
-//     fn diagonal(&self) -> Self::Coordinates {
-//         $vector::new(self.m11, self.m22, self.m33)
-//     }
-
-//     #[inline]
-//     fn determinant(&self) -> Self::Field {
-//         let minor_m12_m23 = self.m22 * self.m33 - self.m32 * self.m23;
-//         let minor_m11_m23 = self.m21 * self.m33 - self.m31 * self.m23;
-//         let minor_m11_m22 = self.m21 * self.m32 - self.m31 * self.m22;
-
-//         self.m11 * minor_m12_m23 - self.m12 * minor_m11_m23 + self.m13 * minor_m11_m22
-//     }
-
-//     #[inline]
-//     fn try_inverse(&self) -> Option<Self> {
-//         let mut res = *self;
-//         if res.try_inverse_mut() {
-//             Some(res)
-//         }
-//         else {
-//             None
-//         }
-//     }
-
-//     #[inline]
-//     fn try_inverse_mut(&mut self) -> bool {
-//         let minor_m12_m23 = self.m22 * self.m33 - self.m32 * self.m23;
-//         let minor_m11_m23 = self.m21 * self.m33 - self.m31 * self.m23;
-//         let minor_m11_m22 = self.m21 * self.m32 - self.m31 * self.m22;
-
-//         let determinant = self.m11 * minor_m12_m23 -
-//                           self.m12 * minor_m11_m23 +
-//                           self.m13 * minor_m11_m22;
-
-//         if relative_eq!(&determinant, &::zero()) {
-//             false
-//         }
-//         else {
-//             *self = Matrix3::new(
-//                 (minor_m12_m23 / determinant),
-//                 ((self.m13 * self.m32 - self.m33 * self.m12) / determinant),
-//                 ((self.m12 * self.m23 - self.m22 * self.m13) / determinant),
-
-//                 (-minor_m11_m23 / determinant),
-//                 ((self.m11 * self.m33 - self.m31 * self.m13) / determinant),
-//                 ((self.m13 * self.m21 - self.m23 * self.m11) / determinant),
-
-//                 (minor_m11_m22  / determinant),
-//                 ((self.m12 * self.m31 - self.m32 * self.m11) / determinant),
-//                 ((self.m11 * self.m22 - self.m21 * self.m12) / determinant)
-//                 );
-
-//             true
-//         }
-//     }
-
-//     #[inline]
-//     fn transpose_mut(&mut self) {
-//         mem::swap(&mut self.m12, &mut self.m21);
-//         mem::swap(&mut self.m13, &mut self.m31);
-//         mem::swap(&mut self.m23, &mut self.m32);
-//     }
-// }
-
-//  ident, $dimension: expr, $vector: ident, $($compN: ident),+) => {
-// matrix_group_approx_impl!(common: $t, $dimension, $vector, $($compN),+);
-
-// // FIXME: Real is needed only for inversion here.
-// impl<N: Real> SquareMatrix for $t<N> {
-//     type Vector = $vector<N>;
-
-//     #[inline]
-//     fn diagonal(&self) -> Self::Coordinates {
-//         let mut diagonal: $vector<N> = ::zero();
-
-//         for i in 0 .. $dimension {
-//             unsafe { diagonal.unsafe_set(i, self.get_unchecked(i, i)) }
-//         }
-
-//         diagonal
-//     }
-
-//     #[inline]
-//     fn determinant(&self) -> Self::Field {
-//         // FIXME: extremely naive implementation.
-//         let mut det = ::zero();
-
-//         for icol in 0 .. $dimension {
-//             let e = unsafe { self.unsafe_at((0, icol)) };
-
-//             if e != ::zero() {
-//                 let minor_mat = self.delete_row_column(0, icol);
-//                 let minor     = minor_mat.determinant();
-
-//                 if icol % 2 == 0 {
-//                     det += minor;
-//                 }
-//                 else {
-//                     det -= minor;
-//                 }
-//             }
-//         }
-
-//         det
-//     }
-
-//     #[inline]
-//     fn try_inverse(&self) -> Option<Self> {
-//         let mut res = *self;
-//         if res.try_inverse_mut() {
-//             Some(res)
-//         }
-//         else {
-//             None
-//         }
-//     }
-
-//     #[inline]
-//     fn try_inverse_mut(&mut self) -> bool {
-//         let mut res: $t<N> = ::one();
-
-//         // Inversion using Gauss-Jordan elimination
-//         for k in 0 .. $dimension {
-//             // search a non-zero value on the k-th column
-//             // FIXME: would it be worth it to spend some more time searching for the
-//             // max instead?
-
-//             let mut n0 = k; // index of a non-zero entry
-
-//             while n0 != $dimension {
-//                 if self[(n0, k)] != ::zero() {
-//                     break;
-//                 }
-
-//                 n0 = n0 + 1;
-//             }
-
-//             if n0 == $dimension {
-//                 return false
-//             }
-
-//             // swap pivot line
-//             if n0 != k {
-//                 for j in 0 .. $dimension {
-//                     self.swap((n0, j), (k, j));
-//                     res.swap((n0, j), (k, j));
-//                 }
-//             }
-
-//             let pivot = self[(k, k)];
-
-//             for j in k .. $dimension {
-//                 let selfval = self[(k, j)] / pivot;
-//                 self[(k, j)] = selfval;
-//             }
-
-//             for j in 0 .. $dimension {
-//                 let resval = res[(k, j)] / pivot;
-//                 res[(k, j)] = resval;
-//             }
-
-//             for l in 0 .. $dimension {
-//                 if l != k {
-//                     let normalizer = self[(l, k)];
-
-//                     for j in k .. $dimension {
-//                         let selfval = self[(l, j)] - self[(k, j)] * normalizer;
-//                         self[(l, j)] = selfval;
-//                     }
-
-//                     for j in 0 .. $dimension {
-//                         let resval  = res[(l, j)] - res[(k, j)] * normalizer;
-//                         res[(l, j)] = resval;
-//                     }
-//                 }
-//             }
-//         }
-
-//         *self = res;
-
-//         true
-//     }
-
-//     #[inline]
-//     fn transpose_mut(&mut self) {
-//         for i in 1 .. $dimension {
-//             for j in 0 .. i {
-//                 self.swap((i, j), (j, i))
-//             }
-//         }
-//     }
-
-
-
 
 /*
  *
  * Ordering
  *
  */
-impl<N, R: Dim, C: Dim, S> MeetSemilattice for Matrix<N, R, C, S>
+impl<N, R: Dim, C: Dim> MeetSemilattice for MatrixMN<N, R, C>
     where N: Scalar + MeetSemilattice,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     #[inline]
     fn meet(&self, other: &Self) -> Self {
         self.zip_map(other, |a, b| a.meet(&b))
     }
 }
 
-impl<N, R: Dim, C: Dim, S> JoinSemilattice for Matrix<N, R, C, S>
+impl<N, R: Dim, C: Dim> JoinSemilattice for MatrixMN<N, R, C>
     where N: Scalar + JoinSemilattice,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     #[inline]
     fn join(&self, other: &Self) -> Self {
         self.zip_map(other, |a, b| a.join(&b))
@@ -763,10 +349,9 @@ impl<N, R: Dim, C: Dim, S> JoinSemilattice for Matrix<N, R, C, S>
 }
 
 
-impl<N, R: Dim, C: Dim, S> Lattice for Matrix<N, R, C, S>
+impl<N, R: Dim, C: Dim> Lattice for MatrixMN<N, R, C>
     where N: Scalar + Lattice,
-          S: OwnedStorage<N, R, C>,
-          S::Alloc: OwnedAllocator<N, R, C, S> {
+          DefaultAllocator: Allocator<N, R, C> {
     #[inline]
     fn meet_join(&self, other: &Self) -> (Self, Self) {
         let shape = self.data.shape();
