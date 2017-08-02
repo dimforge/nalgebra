@@ -1,0 +1,40 @@
+[package]
+name    = "nalgebra-lapack"
+version = "0.11.2"
+authors = [ "Sébastien Crozet <developer@crozet.re>" ]
+
+description   = "Linear algebra library with transformations and satically-sized or dynamically-sized matrices."
+documentation = "http://nalgebra.org/doc/nalgebra/index.html"
+homepage      = "http://nalgebra.org"
+repository    = "https://github.com/sebcrozet/nalgebra"
+readme        = "README.md"
+keywords      = [ "linear", "algebra", "matrix", "vector" ]
+license       = "BSD-3-Clause"
+
+[features]
+serde-serialize = [ "serde", "serde_derive" ]
+
+# For BLAS/LAPACK
+default    = ["openblas"]
+openblas   = ["lapack/openblas"]
+netlib     = ["lapack/netlib"]
+accelerate = ["lapack/accelerate"]
+
+[dependencies]
+nalgebra      = { version = "0.12", path = ".." }
+num-traits    = "0.1"
+num-complex   = "0.1"
+alga          = "0.5"
+serde         = { version = "0.9", optional = true }
+serde_derive  = { version = "0.9", optional = true }
+# clippy = "*"
+
+[dependencies.lapack]
+version          = "0.11"
+default-features = false
+
+[dev-dependencies]
+nalgebra   = { version = "0.12", path = "..", features = [ "arbitrary" ] }
+quickcheck = "0.4"
+approx     = "0.1"
+rand       = "0.3"
