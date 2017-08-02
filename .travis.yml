@@ -17,4 +17,4 @@ script:
     - cargo build --verbose
     - cargo build --verbose --features arbitrary
     - cargo build --verbose --features serde-serialize
-    - cargo test --verbose --features "arbitrary serde-serialize"
+    - cargo test --verbose --features "arbitrary debug serde-serialize"
