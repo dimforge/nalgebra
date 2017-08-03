@@ -1,6 +1,6 @@
 # nalgebra-lapack [![Version][version-img]][version-url] [![Status][status-img]][status-url] [![Doc][doc-img]][doc-url]
 
-Rust library for linear algebra using nalgebra and LAPACK
+Rust library for linear algebra using nalgebra and LAPACK.
 
 ## Documentation
 
@@ -51,3 +51,9 @@ On Mac OS X, do this to use Apple's Accelerate framework:
 [status-url]: https://travis-ci.org/strawlab/nalgebra-lapack
 [doc-img]: https://docs.rs/nalgebra-lapack/badge.svg
 [doc-url]: https://docs.rs/nalgebra-lapack/
+
+## Contributors
+This integration of LAPACK on nalgebra was
+[initiated](https://github.com/strawlab/nalgebra-lapack) by Andrew Straw. It
+then became officially supported and integrated to the main nalgebra
+repository.
