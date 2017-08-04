@@ -123,8 +123,8 @@ dimensions 1 to 6 for vectors and 1x1 to 6x6 for matrices.
 
 <br/>
 
-`.tranpose()`        <span style="float:right;">Matrix transposition.</span><br />
-`.tranpose_mut()`    <span style="float:right;">In-place matrix transposition.</span><br />
+`.transpose()`       <span style="float:right;">Matrix transposition.</span><br />
+`.transpose_mut()`   <span style="float:right;">In-place matrix transposition.</span><br />
 `.try_inverse()`     <span style="float:right;">Matrix inverse. Returns `None` if it fails.</span><br />
 `.try_inverse_mut()` <span style="float:right;">In-place matrix inverse. Returns `false` if it fails.</span><br />
 
