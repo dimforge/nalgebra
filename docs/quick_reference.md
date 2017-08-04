@@ -135,20 +135,20 @@ compile-time of the matrix being created.
 
 `.relative_eq(abolutes_eps, relative_eps)` <span style="float:right;">Componentwise approximate matrix equality.</span><br />
 `.component_mul(rhs)`                      <span style="float:right;">Componentwise multiplication (aka. Hadamard product).</span><br />
-`.component_mul_mut(rhs)`                  <span style="float:right;">In-place componentwise multiplication (aka. Hadamard product).</span><br />
+`.component_mul_assign(rhs)`               <span style="float:right;">In-place componentwise multiplication (aka. Hadamard product).</span><br />
 `.component_div(rhs)`                      <span style="float:right;">Componentwise division.</span><br />
-`.component_div_mut(rhs)`                  <span style="float:right;">In-place componentwise division.</span><br />
+`.component_div_assign(rhs)`               <span style="float:right;">In-place componentwise division.</span><br />
 
 <br/>
 
-`.transpose()`                   <span style="float:right;">Matrix transposition.</span><br />
-`.transpose_mut()`               <span style="float:right;">In-place matrix transposition.</span><br />
-`.transpose_to(output)`          <span style="float:right;">Transposes a matrix to the given output.</span><br />
-`.conjugate_transpose()`         <span style="float:right;">Complex matrix transposed conjugate.</span><br />
-`.conjugate_transpose_mut()`     <span style="float:right;">In-place complex matrix transposed conjugate.</span><br />
-`.conjugate_transpose_to(outut)` <span style="float:right;">Conjugate-transposes a complex matrix to the given output matrix.</span><br />
-`.try_inverse()`                 <span style="float:right;">Matrix inverse. Returns `None` if it fails.</span><br />
-`.try_inverse_mut()`             <span style="float:right;">In-place matrix inverse. Returns `false` if it fails.</span><br />
+`.transpose()`                    <span style="float:right;">Matrix transposition.</span><br />
+`.transpose_mut()`                <span style="float:right;">In-place matrix transposition.</span><br />
+`.transpose_to(output)`           <span style="float:right;">Transposes a matrix to the given output.</span><br />
+`.conjugate_transpose()`          <span style="float:right;">Complex matrix transposed conjugate.</span><br />
+`.conjugate_transpose_mut()`      <span style="float:right;">In-place complex matrix transposed conjugate.</span><br />
+`.conjugate_transpose_to(output)` <span style="float:right;">Conjugate-transposes a complex matrix to the given output matrix.</span><br />
+`.try_inverse()`                  <span style="float:right;">Matrix inverse. Returns `None` if it fails.</span><br />
+`.try_inverse_mut()`              <span style="float:right;">In-place matrix inverse. Returns `false` if it fails.</span><br />
 
 <br/>
 
