@@ -21,16 +21,18 @@ mod cholesky;
 mod lu;
 mod qr;
 mod hessenberg;
+mod schur;
 
 use num_complex::Complex;
 
 pub use self::svd::SVD;
 pub use self::cholesky::{Cholesky, CholeskyScalar};
 pub use self::lu::{LU, LUScalar};
-pub use self::eigen::RealEigensystem;
+pub use self::eigen::Eigen;
 pub use self::symmetric_eigen::SymmetricEigen;
 pub use self::qr::QR;
 pub use self::hessenberg::Hessenberg;
+pub use self::schur::RealSchur;
 
 
 trait ComplexHelper {
