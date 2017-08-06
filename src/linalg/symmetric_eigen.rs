@@ -2,8 +2,9 @@ use num_complex::Complex;
 use std::ops::MulAssign;
 
 use alga::general::Real;
-use core::{MatrixN, VectorN, DefaultAllocator, Matrix2, Vector2};
+use core::{MatrixN, VectorN, DefaultAllocator, Matrix2, Vector2, SquareMatrix};
 use dimension::{Dim, DimSub, DimDiff, U1, U2};
+use storage::Storage;
 use allocator::Allocator;
 
 use linalg::givens;
@@ -46,7 +47,19 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_new(mut m: MatrixN<N, D>, eps: N, max_niter: usize) -> Option<Self>
+    pub fn try_new(m: MatrixN<N, D>, eps: N, max_niter: usize) -> Option<Self>
+        where D: DimSub<U1>,
+              DefaultAllocator: Allocator<N, DimDiff<D, U1>> {
+        Self::do_decompose(m, true, eps, max_niter).map(|(vals, vecs)| {
+            SymmetricEigen {
+                eigenvectors: vecs.unwrap(),
+                eigenvalues:  vals
+            }
+        })
+    }
+
+    fn do_decompose(mut m: MatrixN<N, D>, eigenvectors: bool, eps: N, max_niter: usize)
+        -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)>
         where D: DimSub<U1>,
               DefaultAllocator: Allocator<N, DimDiff<D, U1>> {
 
@@ -59,15 +72,24 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
             m /= m_amax;
         }
 
-        let (mut q, mut diag, mut off_diag) = SymmetricTridiagonal::new(m).unpack();
+        let (mut q, mut diag, mut off_diag);
+
+        if eigenvectors {
+           let res = SymmetricTridiagonal::new(m).unpack();
+           q        = Some(res.0);
+           diag     = res.1;
+           off_diag = res.2;
+        }
+        else {
+           let res = SymmetricTridiagonal::new(m).unpack_tridiagonal();
+           q        = None;
+           diag     = res.0;
+           off_diag = res.1;
+        }
 
         if dim == 1 {
             diag *= m_amax;
-
-            return Some(SymmetricEigen {
-                eigenvectors: q,
-                eigenvalues:  diag
-            });
+            return Some((diag, q));
         }
 
         let mut niter = 0;
@@ -114,7 +136,9 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
                             off_diag[i + 1] *= rot.cos_angle();
                         }
 
-                        rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<U2>(i));
+                        if let Some(ref mut q) = q {
+                            rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<U2>(i));
+                        }
                     }
                     else {
                         break;
@@ -134,9 +158,11 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
                 diag[start + 0] = eigvals[0];
                 diag[start + 1] = eigvals[1];
 
-                if let Some(basis) = basis.try_normalize(eps) {
-                    let rot = UnitComplex::new_unchecked(Complex::new(basis.x, basis.y));
-                    rot.rotate_rows(&mut q.fixed_columns_mut::<U2>(start));
+                if let Some(ref mut q) = q {
+                    if let Some(basis) = basis.try_normalize(eps) {
+                        let rot = UnitComplex::new_unchecked(Complex::new(basis.x, basis.y));
+                        rot.rotate_rows(&mut q.fixed_columns_mut::<U2>(start));
+                    }
                 }
 
                 end -= 1;
@@ -156,12 +182,7 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
 
         diag *= m_amax;
 
-        // Solve the remaining 2x2 subproblem.
-
-        Some(SymmetricEigen {
-            eigenvectors: q,
-            eigenvalues:  diag
-        })
+        Some((diag, q))
     }
 
     fn delimit_subproblem(diag:     &VectorN<N, D>,
@@ -235,6 +256,28 @@ pub fn wilkinson_shift<N: Real>(tmm: N, tnn: N, tmn: N) -> N {
         tnn
     }
 }
+
+
+/*
+ *
+ * Computations of eigenvalues for symmetric matrices.
+ *
+ */
+impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, D>    +
+                            Allocator<N, DimDiff<D, U1>> {
+    /// Computes the eigenvalues of this symmetric matrix.
+    ///
+    /// Only the lower-triangular part of the matrix is read.
+    pub fn symmetric_eigenvalues(&self) -> VectorN<N, D> {
+        SymmetricEigen::do_decompose(self.clone_owned(), false, N::default_epsilon(), 0).unwrap().0
+    }
+}
+
+
+
+
 
 #[cfg(test)]
 mod test {
