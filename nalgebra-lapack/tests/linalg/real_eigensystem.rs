@@ -1,6 +1,6 @@
 use std::cmp;
 
-use nl::RealEigensystem;
+use nl::Eigen;
 use na::{DMatrix, Matrix4};
 
 quickcheck!{
@@ -9,7 +9,7 @@ quickcheck!{
             let n = cmp::min(n, 25);
             let m = DMatrix::<f64>::new_random(n, n);
 
-            match RealEigensystem::new(m.clone(), true, true) {
+            match Eigen::new(m.clone(), true, true) {
                 Some(eig) => {
                     let eigvals                = DMatrix::from_diagonal(&eig.eigenvalues);
                     let transformed_eigvectors = &m * eig.eigenvectors.as_ref().unwrap();
@@ -30,7 +30,7 @@ quickcheck!{
     }
 
     fn eigensystem_static(m: Matrix4<f64>) -> bool {
-        match RealEigensystem::new(m, true, true) {
+        match Eigen::new(m, true, true) {
             Some(eig) => {
                 let eigvals                = Matrix4::from_diagonal(&eig.eigenvalues);
                 let transformed_eigvectors = m * eig.eigenvectors.unwrap();
