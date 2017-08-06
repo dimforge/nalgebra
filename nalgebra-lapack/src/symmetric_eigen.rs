@@ -11,7 +11,7 @@ use na::allocator::Allocator;
 
 use lapack::fortran as interface;
 
-/// Eigendecomposition of a real square matrix with real eigenvalues.
+/// SymmetricEigendecomposition of a real square matrix with real eigenvalues.
 pub struct SymmetricEigen<N: Scalar, D: Dim>
     where DefaultAllocator: Allocator<N, D> +
     Allocator<N, D, D> {
@@ -20,7 +20,7 @@ pub struct SymmetricEigen<N: Scalar, D: Dim>
 }
 
 
-impl<N: RealEigensystemScalar + Real, D: Dim> SymmetricEigen<N, D>
+impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
     where DefaultAllocator: Allocator<N, D, D> +
                             Allocator<N, D> {
 
@@ -113,7 +113,7 @@ impl<N: RealEigensystemScalar + Real, D: Dim> SymmetricEigen<N, D>
  * Lapack functions dispatch.
  *
  */
-pub trait RealEigensystemScalar: Scalar {
+pub trait SymmetricEigenScalar: Scalar {
     fn xsyev(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, w: &mut [Self], work: &mut [Self],
              lwork: i32, info: &mut i32);
     fn xsyev_work_size(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32) -> i32;
@@ -121,7 +121,7 @@ pub trait RealEigensystemScalar: Scalar {
 
 macro_rules! real_eigensystem_scalar_impl (
     ($N: ty, $xsyev: path) => (
-        impl RealEigensystemScalar for $N {
+        impl SymmetricEigenScalar for $N {
             #[inline]
             fn xsyev(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, w: &mut [Self], work: &mut [Self],
                      lwork: i32, info: &mut i32) {

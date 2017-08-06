@@ -1,4 +1,5 @@
 use num::Zero;
+use num_complex::Complex;
 
 use alga::general::Real;
 
@@ -11,7 +12,7 @@ use na::allocator::Allocator;
 use lapack::fortran as interface;
 
 /// Eigendecomposition of a real square matrix with real eigenvalues.
-pub struct RealEigensystem<N: Scalar, D: Dim>
+pub struct Eigen<N: Scalar, D: Dim>
     where DefaultAllocator: Allocator<N, D> +
              Allocator<N, D, D> {
     pub eigenvalues:       VectorN<N, D>,
@@ -20,14 +21,14 @@ pub struct RealEigensystem<N: Scalar, D: Dim>
 }
 
 
-impl<N: RealEigensystemScalar + Real, D: Dim> RealEigensystem<N, D>
+impl<N: EigenScalar + Real, D: Dim> Eigen<N, D>
     where DefaultAllocator: Allocator<N, D, D> +
                             Allocator<N, D> {
     /// Computes the eigenvalues and eigenvectors of the square matrix `m`.
     ///
     /// If `eigenvectors` is `false` then, the eigenvectors are not computed explicitly.
     pub fn new(mut m: MatrixN<N, D>, left_eigenvectors: bool, eigenvectors: bool)
-           -> Option<RealEigensystem<N, D>> {
+           -> Option<Eigen<N, D>> {
 
         assert!(m.is_square(), "Unable to compute the eigenvalue decomposition of a non-square matrix.");
 
@@ -67,7 +68,7 @@ impl<N: RealEigensystemScalar + Real, D: Dim> RealEigensystem<N, D>
                 lapack_check!(info);
 
                 if wi.iter().all(|e| e.is_zero()) {
-                    return Some(RealEigensystem {
+                    return Some(Eigen {
                         eigenvalues: wr, left_eigenvectors: Some(vl), eigenvectors: Some(vr)
                     })
                 }
@@ -81,7 +82,7 @@ impl<N: RealEigensystemScalar + Real, D: Dim> RealEigensystem<N, D>
                 lapack_check!(info);
 
                 if wi.iter().all(|e| e.is_zero()) {
-                    return Some(RealEigensystem {
+                    return Some(Eigen {
                         eigenvalues: wr, left_eigenvectors: Some(vl), eigenvectors: None
                     });
                 }
@@ -95,7 +96,7 @@ impl<N: RealEigensystemScalar + Real, D: Dim> RealEigensystem<N, D>
                 lapack_check!(info);
 
                 if wi.iter().all(|e| e.is_zero()) {
-                    return Some(RealEigensystem {
+                    return Some(Eigen {
                         eigenvalues: wr, left_eigenvectors: None, eigenvectors: Some(vr)
                     });
                 }
@@ -107,7 +108,7 @@ impl<N: RealEigensystemScalar + Real, D: Dim> RealEigensystem<N, D>
                 lapack_check!(info);
 
                 if wi.iter().all(|e| e.is_zero()) {
-                    return Some(RealEigensystem {
+                    return Some(Eigen {
                         eigenvalues: wr, left_eigenvectors: None, eigenvectors: None
                     });
                 }
@@ -115,6 +116,48 @@ impl<N: RealEigensystemScalar + Real, D: Dim> RealEigensystem<N, D>
         }
 
         None
+    }
+
+    /// The complex eigenvalues of the given matrix.
+    ///
+    /// Panics if the eigenvalue computation does not converge.
+    pub fn complex_eigenvalues(mut m: MatrixN<N, D>) -> VectorN<Complex<N>, D>
+        where DefaultAllocator: Allocator<Complex<N>, D> {
+        assert!(m.is_square(), "Unable to compute the eigenvalue decomposition of a non-square matrix.");
+
+        let (nrows, ncols) = m.data.shape();
+        let n = nrows.value();
+
+        let lda = n as i32;
+
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
+
+
+        let mut info = 0;
+        let mut placeholder1 = [ N::zero() ];
+        let mut placeholder2 = [ N::zero() ];
+
+        let lwork = N::xgeev_work_size(b'N', b'N', n as i32, m.as_mut_slice(), lda,
+                                       wr.as_mut_slice(), wi.as_mut_slice(), &mut placeholder1,
+                                       n as i32, &mut placeholder2, n as i32, &mut info);
+
+        lapack_panic!(info);
+
+        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+
+        N::xgeev(b'N', b'N', n as i32, m.as_mut_slice(), lda, wr.as_mut_slice(),
+            wi.as_mut_slice(), &mut placeholder1, 1 as i32, &mut placeholder2,
+            1 as i32, &mut work, lwork, &mut info);
+        lapack_panic!(info);
+
+        let mut res = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
+
+        for i in 0 .. res.len() {
+            res[i] = Complex::new(wr[i], wi[i]);
+        }
+
+        res
     }
 
     /// The determinant of the decomposed matrix.
@@ -138,7 +181,7 @@ impl<N: RealEigensystemScalar + Real, D: Dim> RealEigensystem<N, D>
  * Lapack functions dispatch.
  *
  */
-pub trait RealEigensystemScalar: Scalar {
+pub trait EigenScalar: Scalar {
     fn xgeev(jobvl: u8, jobvr: u8, n: i32, a: &mut [Self], lda: i32,
              wr: &mut [Self], wi: &mut [Self],
              vl: &mut [Self], ldvl: i32, vr: &mut [Self], ldvr: i32,
@@ -150,7 +193,7 @@ pub trait RealEigensystemScalar: Scalar {
 
 macro_rules! real_eigensystem_scalar_impl (
     ($N: ty, $xgeev: path) => (
-        impl RealEigensystemScalar for $N {
+        impl EigenScalar for $N {
             #[inline]
             fn xgeev(jobvl: u8, jobvr: u8, n: i32, a: &mut [Self], lda: i32,
                      wr: &mut [Self], wi: &mut [Self],
