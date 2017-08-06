@@ -16,6 +16,7 @@ extern crate nalgebra as na;
 mod lapack_check;
 mod svd;
 mod eigen;
+mod symmetric_eigen;
 mod cholesky;
 mod lu;
 mod qr;
@@ -27,6 +28,7 @@ pub use self::svd::SVD;
 pub use self::cholesky::{Cholesky, CholeskyScalar};
 pub use self::lu::{LU, LUScalar};
 pub use self::eigen::RealEigensystem;
+pub use self::symmetric_eigen::SymmetricEigen;
 pub use self::qr::QR;
 pub use self::hessenberg::Hessenberg;
 
