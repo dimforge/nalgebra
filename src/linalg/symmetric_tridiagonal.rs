@@ -71,6 +71,14 @@ impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
         (q, diag, self.off_diagonal)
     }
 
+    /// Retrieve the diagonal, and off diagonal elements of this decomposition.
+    pub fn unpack_tridiagonal(self) -> (VectorN<N, D>, VectorN<N, DimDiff<D, U1>>)
+        where DefaultAllocator: Allocator<N, D> {
+        let diag = self.diagonal();
+
+        (diag, self.off_diagonal)
+    }
+
     /// The diagonal components of this decomposition.
     pub fn diagonal(&self) -> VectorN<N, D>
         where DefaultAllocator: Allocator<N, D> {
