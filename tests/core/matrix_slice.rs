@@ -189,3 +189,59 @@ fn columns_range_pair() {
                                   32.0, 33.0, 34.0);
     assert!(l.eq(&expected_l) && r.eq(&expected_r));
 }
+
+#[test]
+#[should_panic]
+fn row_out_of_bounds() {
+    let a = Matrix3x4::<f32>::zeros();
+    a.row(3);
+}
+
+#[test]
+#[should_panic]
+fn rows_out_of_bounds() {
+    let a = Matrix3x4::<f32>::zeros();
+    a.rows(1, 3);
+}
+
+#[test]
+#[should_panic]
+fn rows_with_step_out_of_bounds() {
+    let a = Matrix3x4::<f32>::zeros();
+    a.rows_with_step(1, 2, 1);
+}
+
+#[test]
+#[should_panic]
+fn column_out_of_bounds() {
+    let a = Matrix3x4::<f32>::zeros();
+    a.column(4);
+}
+
+#[test]
+#[should_panic]
+fn columns_out_of_bounds() {
+    let a = Matrix3x4::<f32>::zeros();
+    a.columns(2, 3);
+}
+
+#[test]
+#[should_panic]
+fn columns_with_step_out_of_bounds() {
+    let a = Matrix3x4::<f32>::zeros();
+    a.columns_with_step(2, 2, 1);
+}
+
+#[test]
+#[should_panic]
+fn slice_out_of_bounds() {
+    let a = Matrix3x4::<f32>::zeros();
+    a.slice((1, 2), (3, 1));
+}
+
+#[test]
+#[should_panic]
+fn slice_with_steps_out_of_bounds() {
+    let a = Matrix3x4::<f32>::zeros();
+    a.slice_with_steps((1, 2), (2, 2), (0, 1));
+}

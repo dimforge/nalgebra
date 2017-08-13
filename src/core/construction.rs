@@ -586,7 +586,7 @@ where N: Scalar + Zero + One,
     #[inline]
     pub fn x() -> Self
       where R::Value: Cmp<typenum::U0, Output = Greater> {
-        let mut res = Self::from_element(N::zero());
+        let mut res = Self::zeros();
         unsafe { *res.vget_unchecked_mut(0) = N::one(); }
 
         res
@@ -596,7 +596,7 @@ where N: Scalar + Zero + One,
     #[inline]
     pub fn y() -> Self
       where R::Value: Cmp<typenum::U1, Output = Greater> {
-        let mut res = Self::from_element(N::zero());
+        let mut res = Self::zeros();
         unsafe { *res.vget_unchecked_mut(1) = N::one(); }
 
         res
@@ -606,7 +606,7 @@ where N: Scalar + Zero + One,
     #[inline]
     pub fn z() -> Self
       where R::Value: Cmp<typenum::U2, Output = Greater> {
-        let mut res = Self::from_element(N::zero());
+        let mut res = Self::zeros();
         unsafe { *res.vget_unchecked_mut(2) = N::one(); }
 
         res
@@ -616,7 +616,7 @@ where N: Scalar + Zero + One,
     #[inline]
     pub fn w() -> Self
       where R::Value: Cmp<typenum::U3, Output = Greater> {
-        let mut res = Self::from_element(N::zero());
+        let mut res = Self::zeros();
         unsafe { *res.vget_unchecked_mut(3) = N::one(); }
 
         res
@@ -626,7 +626,7 @@ where N: Scalar + Zero + One,
     #[inline]
     pub fn a() -> Self
       where R::Value: Cmp<typenum::U4, Output = Greater> {
-        let mut res = Self::from_element(N::zero());
+        let mut res = Self::zeros();
         unsafe { *res.vget_unchecked_mut(4) = N::one(); }
 
         res
@@ -636,7 +636,7 @@ where N: Scalar + Zero + One,
     #[inline]
     pub fn b() -> Self
       where R::Value: Cmp<typenum::U5, Output = Greater> {
-        let mut res = Self::from_element(N::zero());
+        let mut res = Self::zeros();
         unsafe { *res.vget_unchecked_mut(5) = N::one(); }
 
         res

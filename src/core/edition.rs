@@ -438,21 +438,30 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
      *
      */
 
+    /// Resizes this matrix so that it contains `new_nrows` rows and `new_ncols` columns.
+    ///
+    /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
+    /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
     pub fn resize(self, new_nrows: usize, new_ncols: usize, val: N) -> DMatrix<N>
         where DefaultAllocator: Reallocator<N, R, C, Dynamic, Dynamic> {
 
         self.resize_generic(Dynamic::new(new_nrows), Dynamic::new(new_ncols), val)
     }
 
+    /// Resizes this matrix so that it contains `R2::value()` rows and `C2::value()` columns.
+    ///
+    /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
+    /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
     pub fn fixed_resize<R2: DimName, C2: DimName>(self, val: N) -> MatrixMN<N, R2, C2>
         where DefaultAllocator: Reallocator<N, R, C, R2, C2> {
 
         self.resize_generic(R2::name(), C2::name(), val)
     }
 
-    /// Resizes `self` such that it has dimensions `new_nrows × now_ncols`. The values are copied
-    /// such that `self[(i, j)] == result[(i, j)]`. If the result has more rows and/or columns than
-    /// `self`, then the extra rows or columns are filled with `val`.
+    /// Resizes `self` such that it has dimensions `new_nrows × now_ncols`.
+    ///
+    /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
+    /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
     #[inline]
     pub fn resize_generic<R2: Dim, C2: Dim>(self, new_nrows: R2, new_ncols: C2, val: N) -> MatrixMN<N, R2, C2>
         where DefaultAllocator: Reallocator<N, R, C, R2, C2> {

@@ -193,11 +193,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     fn assert_slice_index(&self, start: (usize, usize), shape: (usize, usize), steps: (usize, usize)) {
         let my_shape = self.shape();
-        // NOTE: we previously did: (shape.0 - 1) * steps.0
-        // which was wrong because underflow may occur for zero-sized matrices.
-        // Istead, we moved the subtraction into an addition on the right hand side.
-        assert!(start.0 + shape.0 * steps.0 <= my_shape.0 + steps.0, "Matrix slicing out of bounds.");
-        assert!(start.1 + shape.1 * steps.1 <= my_shape.1 + steps.1, "Matrix slicing out of bounds.");
+        // NOTE: we don't do any subtraction to avoid underflow for zero-sized matrices.
+        //
+        // Terms that would have been negative are moved to the other side of the inequality
+        // instead.
+        assert!(start.0 + (steps.0 + 1) * shape.0 <= my_shape.0 + steps.0, "Matrix slicing out of bounds.");
+        assert!(start.1 + (steps.1 + 1) * shape.1 <= my_shape.1 + steps.1, "Matrix slicing out of bounds.");
     }
 }
 
@@ -290,7 +291,7 @@ macro_rules! matrix_slice_impl(
                 -> $MatrixSlice<N, RSlice, C, S::RStride, S::CStride> {
 
                 let my_shape   = $me.data.shape();
-                $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (1, 1));
+                $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (0, 0));
 
                 let shape = (nrows, my_shape.1);
 
@@ -309,7 +310,7 @@ macro_rules! matrix_slice_impl(
 
                 let my_shape   = $me.data.shape();
                 let my_strides = $me.data.strides();
-                $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step, 1));
+                $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step, 0));
 
                 let strides = (Dynamic::new((step + 1) * my_strides.0.value()), my_strides.1);
                 let shape   = (nrows, my_shape.1);
@@ -378,7 +379,7 @@ macro_rules! matrix_slice_impl(
                 -> $MatrixSlice<N, R, CSlice, S::RStride, S::CStride> {
 
                 let my_shape = $me.data.shape();
-                $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (1, 1));
+                $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, 0));
                 let shape = (my_shape.0, ncols);
 
                 unsafe {
@@ -397,7 +398,7 @@ macro_rules! matrix_slice_impl(
                 let my_shape   = $me.data.shape();
                 let my_strides = $me.data.strides();
 
-                $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (1, step));
+                $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, step));
 
                 let strides = (my_strides.0, Dynamic::new((step + 1) * my_strides.1.value()));
                 let shape   = (my_shape.0, ncols);
@@ -419,7 +420,7 @@ macro_rules! matrix_slice_impl(
             pub fn $slice($me: $Me, start: (usize, usize), shape: (usize, usize))
                 -> $MatrixSlice<N, Dynamic, Dynamic, S::RStride, S::CStride> {
 
-                $me.assert_slice_index(start, shape, (1, 1));
+                $me.assert_slice_index(start, shape, (0, 0));
                 let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
 
                 unsafe {
@@ -449,7 +450,7 @@ macro_rules! matrix_slice_impl(
                 where RSlice: DimName,
                       CSlice: DimName {
 
-                $me.assert_slice_index((irow, icol), (RSlice::dim(), CSlice::dim()), (1, 1));
+                $me.assert_slice_index((irow, icol), (RSlice::dim(), CSlice::dim()), (0, 0));
                 let shape = (RSlice::name(), CSlice::name());
 
                 unsafe {
@@ -478,7 +479,7 @@ macro_rules! matrix_slice_impl(
                 where RSlice: Dim,
                       CSlice: Dim {
 
-                $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), (1, 1));
+                $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), (0, 0));
 
                 unsafe {
                     let data = $SliceStorage::new_unchecked($data, start, shape);
@@ -644,12 +645,23 @@ matrix_slice_impl!(
      columns_range_pair_mut);
 
 
+/// A range with a size that may be known at compile-time.
+///
+/// This may be:
+/// * A single `usize` index, e.g., `4`
+/// * A left-open range `std::ops::RangeTo`, e.g., `.. 4`
+/// * A right-open range `std::ops::RangeFrom`, e.g., `4 ..`
+/// * A full range `std::ops::RangeFull`, e.g., `..`
 pub trait SliceRange<D: Dim> {
+    /// Type of the range size. May be a type-level integer.
     type Size: Dim;
 
+    /// The start index of the range.
     fn begin(&self, shape: D) -> usize;
     // NOTE: this is the index immediatly after the last index.
+    /// The index immediatly after the last index inside of the range.
     fn end(&self, shape: D) -> usize;
+    /// The number of elements of the range, i.e., `self.end - self.begin`.
     fn size(&self, shape: D) -> Self::Size;
 }
 
@@ -750,6 +762,8 @@ impl<D: Dim> SliceRange<D> for RangeFull {
 
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    /// Slices a sub-matrix containing the rows indexed by the range `rows` and the columns indexed
+    /// by the range `cols`.
     #[inline]
     pub fn slice_range<RowRange, ColRange>(&self, rows: RowRange, cols: ColRange)
         -> MatrixSlice<N, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
@@ -761,6 +775,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                            (rows.size(nrows), cols.size(ncols)))
     }
 
+    /// Slice containing all the rows indexed by the range `rows`.
     #[inline]
     pub fn rows_range<RowRange: SliceRange<R>>(&self, rows: RowRange)
         -> MatrixSlice<N, RowRange::Size, C, S::RStride, S::CStride> {
@@ -768,6 +783,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.slice_range(rows, ..)
     }
 
+    /// Slice containing all the columns indexed by the range `rows`.
     #[inline]
     pub fn columns_range<ColRange: SliceRange<C>>(&self, cols: ColRange)
         -> MatrixSlice<N, R, ColRange::Size, S::RStride, S::CStride> {
@@ -777,6 +793,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+    /// Slices a mutable sub-matrix containing the rows indexed by the range `rows` and the columns
+    /// indexed by the range `cols`.
     pub fn slice_range_mut<RowRange, ColRange>(&mut self, rows: RowRange, cols: ColRange)
         -> MatrixSliceMut<N, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
         where RowRange: SliceRange<R>,
@@ -787,6 +805,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
                                (rows.size(nrows), cols.size(ncols)))
     }
 
+    /// Slice containing all the rows indexed by the range `rows`.
     #[inline]
     pub fn rows_range_mut<RowRange: SliceRange<R>>(&mut self, rows: RowRange)
         -> MatrixSliceMut<N, RowRange::Size, C, S::RStride, S::CStride> {
@@ -794,6 +813,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         self.slice_range_mut(rows, ..)
     }
 
+    /// Slice containing all the columns indexed by the range `cols`.
     #[inline]
     pub fn columns_range_mut<ColRange: SliceRange<C>>(&mut self, cols: ColRange)
         -> MatrixSliceMut<N, R, ColRange::Size, S::RStride, S::CStride> {
