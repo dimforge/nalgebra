@@ -23,7 +23,7 @@ pub struct RealSchur<N: Scalar, D: Dim>
 }
 
 
-impl<N: EigenScalar + Real, D: Dim> RealSchur<N, D>
+impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>
     where DefaultAllocator: Allocator<N, D, D> +
                             Allocator<N, D> {
     /// Computes the eigenvalues and real Schur foorm of the matrix `m`.
@@ -106,7 +106,9 @@ impl<N: EigenScalar + Real, D: Dim> RealSchur<N, D>
  * Lapack functions dispatch.
  *
  */
-pub trait EigenScalar: Scalar {
+/// Trait implemented by scalars for which Lapack implements the Real Schur decomposition.
+pub trait RealSchurScalar: Scalar {
+    #[allow(missing_docs)]
     fn xgees(jobvs:  u8, 
              sort:   u8, 
              // select: ???
@@ -122,7 +124,8 @@ pub trait EigenScalar: Scalar {
              lwork:  i32, 
              bwork:  &mut [i32], 
              info:   &mut i32);
-        
+
+    #[allow(missing_docs)]
     fn xgees_work_size(jobvs:  u8, 
                        sort:   u8, 
                        // select: ???
@@ -141,7 +144,7 @@ pub trait EigenScalar: Scalar {
 
 macro_rules! real_eigensystem_scalar_impl (
     ($N: ty, $xgees: path) => (
-        impl EigenScalar for $N {
+        impl RealSchurScalar for $N {
             #[inline]
             fn xgees(jobvs:  u8, 
                      sort:   u8, 

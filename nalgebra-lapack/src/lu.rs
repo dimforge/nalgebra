@@ -33,6 +33,7 @@ impl<N: LUScalar, R: Dim, C: Dim> LU<N, R, C>
                             Allocator<N, DimMinimum<R, C>, C> +
                             Allocator<i32, DimMinimum<R, C>> {
 
+    /// Computes the LU decomposition with partial (row) pivoting of `matrix`.
     pub fn new(mut m: MatrixMN<N, R, C>) -> Self {
         let (nrows, ncols)  = m.data.shape();
         let min_nrows_ncols = nrows.min(ncols);
@@ -238,13 +239,19 @@ impl<N: LUScalar, D: Dim> LU<N, D, D>
  * Lapack functions dispatch.
  *
  */
+/// Trait implemented by scalars for which Lapack implements the LU decomposition.
 pub trait LUScalar: Scalar {
+    #[allow(missing_docs)]
     fn xgetrf(m: i32, n: i32, a: &mut [Self], lda: i32, ipiv: &mut [i32], info: &mut i32);
+    #[allow(missing_docs)]
     fn xlaswp(n: i32, a: &mut [Self], lda: i32, k1: i32, k2: i32, ipiv: &[i32], incx: i32);
+    #[allow(missing_docs)]
     fn xgetrs(trans: u8, n: i32, nrhs: i32, a: &[Self], lda: i32, ipiv: &[i32],
               b: &mut [Self], ldb: i32, info: &mut i32);
+    #[allow(missing_docs)]
     fn xgetri(n: i32, a: &mut [Self], lda: i32, ipiv: &[i32],
               work: &mut [Self], lwork: i32, info: &mut i32);
+    #[allow(missing_docs)]
     fn xgetri_work_size(n: i32, a: &mut [Self], lda: i32, ipiv: &[i32], info: &mut i32) -> i32;
 }
 

@@ -15,8 +15,11 @@ use lapack::fortran as interface;
 pub struct SymmetricEigen<N: Scalar, D: Dim>
     where DefaultAllocator: Allocator<N, D> +
     Allocator<N, D, D> {
-    pub eigenvalues:  VectorN<N, D>,
+    /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
+
+    /// The unsorted eigenvalues of the decomposed matrix.
+    pub eigenvalues:  VectorN<N, D>,
 }
 
 
@@ -48,7 +51,7 @@ impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
 
         let jobz = if eigenvectors { b'V' } else { b'N' };
 
-        let (nrows, ncols) = m.data.shape();
+        let nrows = m.data.shape().0;
         let n = nrows.value();
 
         let lda = n as i32;
@@ -71,14 +74,14 @@ impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
     /// Computes only the eigenvalues of the input matrix.
     ///
     /// Panics if the method does not converge.
-    pub fn eigenvalues(mut m: MatrixN<N, D>) -> VectorN<N, D> {
+    pub fn eigenvalues(m: MatrixN<N, D>) -> VectorN<N, D> {
         Self::do_decompose(m, false).expect("SymmetricEigen eigenvalues: convergence failure.").0
     }
 
     /// Computes only the eigenvalues of the input matrix.
     ///
     /// Returns `None` if the method does not converge.
-    pub fn try_eigenvalues(mut m: MatrixN<N, D>) -> Option<VectorN<N, D>> {
+    pub fn try_eigenvalues(m: MatrixN<N, D>) -> Option<VectorN<N, D>> {
         Self::do_decompose(m, false).map(|res| res.0)
     }
 
@@ -113,9 +116,13 @@ impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
  * Lapack functions dispatch.
  *
  */
+/// Trait implemented by scalars for which Lapack implements the eigendecomposition of symmetric
+/// real matrices.
 pub trait SymmetricEigenScalar: Scalar {
+    #[allow(missing_docs)]
     fn xsyev(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, w: &mut [Self], work: &mut [Self],
              lwork: i32, info: &mut i32);
+    #[allow(missing_docs)]
     fn xsyev_work_size(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32) -> i32;
 }
 

@@ -94,9 +94,12 @@ pub trait HessenbergScalar: Scalar {
                         tau: &mut [Self], info: &mut i32) -> i32;
 }
 
+/// Trait implemented by scalars for which Lapack implements the hessenberg decomposition.
 pub trait HessenbergReal: HessenbergScalar {
+    #[allow(missing_docs)]
     fn xorghr(n: i32, ilo: i32, ihi: i32, a: &mut [Self], lda: i32, tau: &[Self],
               work: &mut [Self], lwork: i32, info: &mut i32);
+    #[allow(missing_docs)]
     fn xorghr_work_size(n: i32, ilo: i32, ihi: i32, a: &mut [Self], lda: i32,
                         tau: &[Self], info: &mut i32) -> i32;
 }

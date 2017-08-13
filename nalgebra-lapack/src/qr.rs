@@ -102,6 +102,8 @@ impl<N: QRReal + Zero, R: DimMin<C>, C: Dim> QR<N, R, C>
  * Lapack functions dispatch.
  *
  */
+/// Trait implemented by scalar types for which Lapack funtion exist to compute the
+/// QR decomposition.
 pub trait QRScalar: Scalar {
     fn xgeqrf(m: i32, n: i32, a: &mut [Self], lda: i32, tau: &mut [Self],
               work: &mut [Self], lwork: i32, info: &mut i32);
@@ -110,10 +112,14 @@ pub trait QRScalar: Scalar {
                         tau: &mut [Self], info: &mut i32) -> i32;
 }
 
+/// Trait implemented by reals for which Lapack funtion exist to compute the
+/// QR decomposition.
 pub trait QRReal: QRScalar {
+    #[allow(missing_docs)]
     fn xorgqr(m: i32, n: i32, k: i32, a: &mut [Self], lda: i32, tau: &[Self], work: &mut [Self],
               lwork: i32, info: &mut i32);
 
+    #[allow(missing_docs)]
     fn xorgqr_work_size(m: i32, n: i32, k: i32, a: &mut [Self], lda: i32,
                         tau: &[Self], info: &mut i32) -> i32;
 }

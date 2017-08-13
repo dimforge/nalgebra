@@ -36,15 +36,35 @@ impl<N: CholeskyScalar + Zero, D: Dim> Cholesky<N, D>
         Some(Cholesky { l: m })
     }
 
+    /// Retrieves the lower-triangular factor of the cholesky decomposition.
     pub fn unpack(mut self) -> MatrixN<N, D> {
         self.l.fill_upper_triangle(Zero::zero(), 1);
         self.l
     }
 
+    /// Retrieves the lower-triangular factor of che cholesky decomposition, without zeroing-out
+    /// its strict upper-triangular part.
+    ///
+    /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
+    /// part are garbage and should be ignored by further computations.
+    pub fn unpack_dirty(self) -> MatrixN<N, D> {
+        self.l
+    }
+
+    /// Retrieves the lower-triangular factor of the cholesky decomposition.
     pub fn l(&self) -> MatrixN<N, D> {
         let mut res = self.l.clone();
         res.fill_upper_triangle(Zero::zero(), 1);
         res
+    }
+
+    /// Retrieves the lower-triangular factor of the cholesky decomposition, without zeroing-out
+    /// its strict upper-triangular part.
+    ///
+    /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
+    /// part are garbage and should be ignored by further computations.
+    pub fn l_dirty(&self) -> &MatrixN<N, D> {
+        &self.l
     }
 
     /// Solves the symmetric-definite-positive linear system `self * x = b`, where `x` is the
@@ -110,8 +130,11 @@ impl<N: CholeskyScalar + Zero, D: Dim> Cholesky<N, D>
 /// Trait implemented by floats (`f32`, `f64`) and complex floats (`Complex<f32>`, `Complex<f64>`)
 /// supported by the cholesky decompotition.
 pub trait CholeskyScalar: Scalar {
+    #[allow(missing_docs)]
     fn xpotrf(uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32);
+    #[allow(missing_docs)]
     fn xpotrs(uplo: u8, n: i32, nrhs: i32, a: &[Self], lda: i32, b: &mut [Self], ldb: i32, info: &mut i32);
+    #[allow(missing_docs)]
     fn xpotri(uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32);
 }
 
