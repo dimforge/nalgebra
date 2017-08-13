@@ -250,7 +250,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         }
     }
 
-    /// Clones this matrix into one that owns its data.
+    /// Clones this matrix to one that owns its data.
     #[inline]
     pub fn clone_owned(&self) -> MatrixMN<N, R, C>
         where DefaultAllocator: Allocator<N, R, C> {

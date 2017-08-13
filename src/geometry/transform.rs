@@ -257,6 +257,7 @@ impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
 
     /// Clones this transform into one that owns its data.
     #[inline]
+    #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
     pub fn clone_owned(&self) -> Transform<N, D, C> {
         Transform::from_matrix_unchecked(self.matrix.clone_owned())
     }
