@@ -1,8 +1,9 @@
 use num::Zero;
 use num_complex::Complex;
 
-use na::{Scalar, DefaultAllocator, MatrixN, MatrixMN};
+use na::{Scalar, DefaultAllocator, Matrix, MatrixN, MatrixMN};
 use na::dimension::Dim;
+use na::storage::Storage;
 use na::allocator::Allocator;
 
 use lapack::fortran as interface;
@@ -48,8 +49,22 @@ impl<N: CholeskyScalar + Zero, D: Dim> Cholesky<N, D>
 
     /// Solves the symmetric-definite-positive linear system `self * x = b`, where `x` is the
     /// unknown to be determined.
-    pub fn solve<R2: Dim, C2: Dim>(&self, mut b: MatrixMN<N, R2, C2>)
-        -> Option<MatrixMN<N, R2, C2>>
+    pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<N, R2, C2, S2>) -> Option<MatrixMN<N, R2, C2>>
+        where S2: Storage<N, R2, C2>,
+              DefaultAllocator: Allocator<N, R2, C2> {
+
+        let mut res = b.clone_owned();
+        if self.solve_mut(&mut res) {
+            Some(res)
+        }
+        else {
+            None
+        }
+    }
+
+    /// Solves in-place the symmetric-definite-positive linear system `self * x = b`, where `x` is
+    /// the unknown to be determined.
+    pub fn solve_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
         where DefaultAllocator: Allocator<N, R2, C2> {
 
         let dim = self.l.nrows();
@@ -62,9 +77,7 @@ impl<N: CholeskyScalar + Zero, D: Dim> Cholesky<N, D>
         let mut info = 0;
 
         N::xpotrs(b'L', dim as i32, nrhs, self.l.as_slice(), lda, b.as_mut_slice(), ldb, &mut info);
-        lapack_check!(info);
-
-        Some(b)
+        lapack_test!(info)
     }
 
     /// Computes the inverse of the decomposed matrix.

@@ -19,3 +19,9 @@ macro_rules! lapack_panic(
         assert!($info == 0, "Lapack error.");
     );
 );
+
+macro_rules! lapack_test(
+    ($info: expr) => (
+        $info == 0
+    );
+);
