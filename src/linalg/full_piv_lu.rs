@@ -23,7 +23,9 @@ pub struct FullPivLU<N: Real, R: DimMin<C>, C: Dim>
 impl<N: Real, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
     where DefaultAllocator: Allocator<N, R, C> +
                             Allocator<(usize, usize), DimMinimum<R, C>> {
-    /// This computes the matrixces `P, L, U` such that `P * matrix = LU`.
+    /// Computes the LU decomposition with full-pivoting of `matrix`.
+    ///
+    /// This effectively computes `P, L, U, Q` such that `P * matrix * Q = LU`.
     pub fn new(mut matrix: MatrixMN<N, R, C>) -> Self {
         let (nrows, ncols)  = matrix.data.shape();
         let min_nrows_ncols = nrows.min(ncols);
@@ -201,5 +203,16 @@ impl<N: Real, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
         else {
             N::zero()
         }
+    }
+}
+
+impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+    where DefaultAllocator: Allocator<N, R, C> +
+                            Allocator<(usize, usize), DimMinimum<R, C>> {
+    /// Computes the LU decomposition with full-pivoting of `matrix`.
+    ///
+    /// This effectively computes `P, L, U, Q` such that `P * matrix * Q = LU`.
+    pub fn full_piv_lu(self) -> FullPivLU<N, R, C> {
+        FullPivLU::new(self.into_owned())
     }
 }

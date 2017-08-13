@@ -300,3 +300,13 @@ pub fn gauss_step_swap<N, R: Dim, C: Dim, S>(matrix: &mut Matrix<N, R, C, S>, di
         down.column_mut(k).axpy(-pivot_row[k], &coeffs, N::one());
     }
 }
+
+impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+    where DefaultAllocator: Allocator<N, R, C> +
+                            Allocator<(usize, usize), DimMinimum<R, C>> {
+
+    /// Computes the LU decomposition with partial (row) pivoting of `matrix`.
+    pub fn lu(self) -> LU<N, R, C> {
+        LU::new(self.into_owned())
+    }
+}

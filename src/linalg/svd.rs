@@ -45,7 +45,7 @@ impl<N: Real, R: DimMin<C>, C: Dim> SVD<N, R, C>
         Self::try_new(matrix, compute_u, compute_v, N::default_epsilon(), 0).unwrap()
     }
 
-    /// Computes the Singular Value Decomposition of `matrix` using implicit shift.
+    /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
     ///
     /// # Arguments
     ///
@@ -487,6 +487,25 @@ impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
                             Allocator<N, DimMinimum<R, C>, C> +
                             Allocator<N, R, DimMinimum<R, C>> +
                             Allocator<N, DimMinimum<R, C>> {
+    /// Computes the Singular Value Decomposition using implicit shift.
+    pub fn svd(self, compute_u: bool, compute_v: bool) -> SVD<N, R, C> {
+        SVD::new(self.into_owned(), compute_u, compute_v)
+    }
+
+    /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
+    ///
+    /// # Arguments
+    ///
+    /// * `compute_u` − set this to `true` to enable the computation of left-singular vectors.
+    /// * `compute_v` − set this to `true` to enable the computation of left-singular vectors.
+    /// * `eps`       − tolerence used to determine when a value converged to 0.
+    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
+    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    /// continues indefinitely until convergence.
+    pub fn try_svd(self, compute_u: bool, compute_v: bool, eps: N, max_niter: usize) -> Option<SVD<N, R, C>> {
+        SVD::try_new(self.into_owned(), compute_u, compute_v, eps, max_niter)
+    }
+
     /// Computes the singular values of this matrix.
     pub fn singular_values(&self) -> VectorN<N, DimMinimum<R, C>> {
         SVD::new(self.clone_owned(), false, false).singular_values

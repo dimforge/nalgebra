@@ -35,7 +35,7 @@ impl<N: Real, D: Dim> RealSchur<N, D>
         Self::try_new(m, N::default_epsilon(), 0).unwrap()
     }
 
-    /// Computes the schur decomposition of a square matrix.
+    /// Attempts to compute the schur decomposition of a square matrix.
     ///
     /// If only eigenvalues are needed, it is more efficient to call the matrix method
     /// `.eigenvalues()` instead.
@@ -444,6 +444,26 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
                             Allocator<N, DimDiff<D, U1>>    + // For Hessenberg.
                             Allocator<N, D, D>              + 
                             Allocator<N, D> {
+    /// Computes the schur decomposition of a square matrix.
+    pub fn real_schur(self) -> RealSchur<N, D> {
+        RealSchur::new(self.into_owned())
+    }
+
+    /// Attempts to compute the schur decomposition of a square matrix.
+    ///
+    /// If only eigenvalues are needed, it is more efficient to call the matrix method
+    /// `.eigenvalues()` instead.
+    ///
+    /// # Arguments
+    ///
+    /// * `eps`       − tolerence used to determine when a value converged to 0.
+    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
+    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    /// continues indefinitely until convergence.
+    pub fn try_real_schur(self, eps: N, max_niter: usize) -> Option<RealSchur<N, D>> {
+        RealSchur::try_new(self.into_owned(), eps, max_niter)
+    }
+
     /// Computes the eigenvalues of this matrix.
     pub fn eigenvalues(&self) -> Option<VectorN<N, D>> {
         assert!(self.is_square(), "Unable to compute eigenvalues of a non-square matrix.");
