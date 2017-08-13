@@ -1,11 +1,11 @@
 use std::cmp;
 use na::{DMatrix, Matrix4, Matrix4x3, Matrix5x3, Matrix3x5,
-         DVector, Vector4, QR};
+         DVector, Vector4};
 
 #[cfg(feature = "arbitrary")]
 quickcheck! {
     fn qr(m: DMatrix<f64>) -> bool {
-        let qr = QR::new(m.clone());
+        let qr = m.clone().qr();
         let q  = qr.q();
         let r  = qr.r();
 
@@ -14,7 +14,7 @@ quickcheck! {
     }
 
     fn qr_static_5_3(m: Matrix5x3<f64>) -> bool {
-        let qr = QR::new(m);
+        let qr = m.qr();
         let q  = qr.q();
         let r  = qr.r();
 
@@ -23,7 +23,7 @@ quickcheck! {
     }
 
     fn qr_static_3_5(m: Matrix3x5<f64>) -> bool {
-        let qr = QR::new(m);
+        let qr = m.qr();
         let q  = qr.q();
         let r  = qr.r();
 
@@ -32,7 +32,7 @@ quickcheck! {
     }
 
     fn qr_static_square(m: Matrix4<f64>) -> bool {
-        let qr = QR::new(m);
+        let qr = m.qr();
         let q  = qr.q();
         let r  = qr.r();
 
@@ -48,7 +48,7 @@ quickcheck! {
             let nb = cmp::min(nb, 50); // To avoid slowing down the test too much.
             let m  = DMatrix::<f64>::new_random(n, n);
 
-            let qr = QR::new(m.clone());
+            let qr = m.clone().qr();
             let b1 = DVector::new_random(n);
             let b2 = DMatrix::new_random(n, nb);
 
@@ -65,7 +65,7 @@ quickcheck! {
     }
 
     fn qr_solve_static(m: Matrix4<f64>) -> bool {
-         let qr = QR::new(m);
+         let qr = m.qr();
          let b1 = Vector4::new_random();
          let b2 = Matrix4x3::new_random();
 
@@ -85,7 +85,7 @@ quickcheck! {
         let n = cmp::max(1, cmp::min(n, 15)); // To avoid slowing down the test too much.
         let m = DMatrix::<f64>::new_random(n, n);
 
-        if let Some(m1) = QR::new(m.clone()).try_inverse() {
+        if let Some(m1) = m.clone().qr().try_inverse() {
             let id1 = &m  * &m1;
             let id2 = &m1 * &m;
 
@@ -97,7 +97,7 @@ quickcheck! {
     }
 
     fn qr_inverse_static(m: Matrix4<f64>) -> bool {
-        let qr  = QR::new(m);
+        let qr  = m.qr();
 
         if let Some(m1) = qr.try_inverse() {
             let id1 = &m  * &m1;

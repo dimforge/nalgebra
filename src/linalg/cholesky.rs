@@ -1,6 +1,6 @@
 use alga::general::Real;
 
-use core::{DefaultAllocator, MatrixN, MatrixMN, Matrix};
+use core::{DefaultAllocator, MatrixN, MatrixMN, Matrix, SquareMatrix};
 use constraint::{ShapeConstraint, SameNumberOfRows};
 use storage::{Storage, StorageMut};
 use allocator::Allocator;
@@ -108,5 +108,17 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
 
         self.solve_mut(&mut res);
         res
+    }
+}
+
+impl<N: Real, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+    where DefaultAllocator: Allocator<N, D, D> {
+
+    /// Attempts to compute the sholesky decomposition of this matrix.
+    ///
+    /// Returns `None` if the input matrix is not definite-positive. The intput matrix is assumed
+    /// to be symmetric and only the lower-triangular part is read.
+    pub fn cholesky(self) -> Option<Cholesky<N, D>> {
+        Cholesky::new(self.into_owned())
     }
 }

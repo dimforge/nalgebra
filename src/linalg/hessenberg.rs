@@ -1,5 +1,5 @@
 use alga::general::Real;
-use core::{MatrixN, MatrixMN, VectorN, DefaultAllocator};
+use core::{SquareMatrix, MatrixN, MatrixMN, VectorN, DefaultAllocator};
 use dimension::{DimSub, DimDiff, Dynamic, U1};
 use storage::Storage;
 use allocator::Allocator;
@@ -93,5 +93,16 @@ impl<N: Real, D: DimSub<U1>> Hessenberg<N, D>
     #[doc(hidden)]
     pub fn hess_internal(&self) -> &MatrixN<N, D> {
         &self.hess
+    }
+}
+
+
+impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, D>    +
+                            Allocator<N, DimDiff<D, U1>> {
+    /// Computes the Hessenberg decomposition of this matrix using householder reflections.
+    pub fn hessenberg(self) -> Hessenberg<N, D> {
+        Hessenberg::new(self.into_owned())
     }
 }

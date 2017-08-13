@@ -1,15 +1,14 @@
 use std::cmp;
 
 use na::{DMatrix, Matrix2, Matrix3, Matrix4, Matrix6, Matrix5x2, Matrix5x3, Matrix2x5, Matrix3x5,
-         DVector,
-         SVD};
+         DVector};
 
 
 #[cfg(feature = "arbitrary")]
 quickcheck! {
     fn svd(m: DMatrix<f64>) -> bool {
         if m.len() > 0 {
-            let svd = SVD::new(m.clone(), true, true);
+            let svd = m.clone().svd(true, true);
             let recomp_m = svd.clone().recompose();
             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
             let ds = DMatrix::from_diagonal(&s);
@@ -26,7 +25,7 @@ quickcheck! {
     }
 
     fn svd_static_5_3(m: Matrix5x3<f64>) -> bool {
-        let svd = SVD::new(m, true, true);
+        let svd = m.svd(true, true);
         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
         let ds = Matrix3::from_diagonal(&s);
 
@@ -37,7 +36,7 @@ quickcheck! {
     }
 
     fn svd_static_5_2(m: Matrix5x2<f64>) -> bool {
-        let svd = SVD::new(m, true, true);
+        let svd = m.svd(true, true);
         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
         let ds = Matrix2::from_diagonal(&s);
 
@@ -48,7 +47,7 @@ quickcheck! {
     }
 
     fn svd_static_3_5(m: Matrix3x5<f64>) -> bool {
-        let svd = SVD::new(m, true, true);
+        let svd = m.svd(true, true);
         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
 
         let ds = Matrix3::from_diagonal(&s);
@@ -58,7 +57,7 @@ quickcheck! {
     }
 
     fn svd_static_2_5(m: Matrix2x5<f64>) -> bool {
-        let svd = SVD::new(m, true, true);
+        let svd = m.svd(true, true);
         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
         let ds = Matrix2::from_diagonal(&s);
 
@@ -67,7 +66,7 @@ quickcheck! {
     }
 
     fn svd_static_square(m: Matrix4<f64>) -> bool {
-        let svd = SVD::new(m, true, true);
+        let svd = m.svd(true, true);
         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
         let ds = Matrix4::from_diagonal(&s);
 
@@ -78,7 +77,7 @@ quickcheck! {
     }
 
     fn svd_static_square_2x2(m: Matrix2<f64>) -> bool {
-        let svd = SVD::new(m, true, true);
+        let svd = m.svd(true, true);
         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
         let ds = Matrix2::from_diagonal(&s);
 
@@ -90,7 +89,7 @@ quickcheck! {
 
     fn svd_pseudo_inverse(m: DMatrix<f64>) -> bool {
         if m.len() > 0 {
-            let svd = SVD::new(m.clone(), true, true);
+            let svd = m.clone().svd(true, true);
             let pinv = svd.pseudo_inverse(1.0e-10);
 
             if m.nrows() > m.ncols() {
@@ -112,7 +111,7 @@ quickcheck! {
         let nb = cmp::min(nb, 10);
         let m  = DMatrix::<f64>::new_random(n, n);
 
-        let svd = SVD::new(m.clone(), true, true);
+        let svd = m.clone().svd(true, true);
 
         if svd.rank(1.0e-7) == n {
             let b1 = DVector::new_random(n);
@@ -169,7 +168,7 @@ fn svd_singular() {
         0.0,  0.0,  0.0,  0.0,  0.0, -4.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0, -4.0,  0.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0,  0.0,  0.0,
         0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0, -4.0,  0.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0,  0.0,  0.0]);
 
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
     let ds = DMatrix::from_diagonal(&s);
 
@@ -212,7 +211,7 @@ fn svd_singular_vertical() {
         0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0, -4.0,  0.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0,  0.0,  0.0]);
 
 
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
     let ds = DMatrix::from_diagonal(&s);
 
@@ -249,7 +248,7 @@ fn svd_singular_horizontal() {
         0.0,  0.0,  0.0,  0.0,  0.0, -4.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0, -4.0,  0.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,
         0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0, -4.0,  0.0,  0.0,  0.0,  0.0,  4.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0]);
 
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
     let ds = DMatrix::from_diagonal(&s);
 
@@ -261,22 +260,22 @@ fn svd_singular_horizontal() {
 #[test]
 fn svd_zeros() {
     let m = DMatrix::from_element(10, 10, 0.0);
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     assert_eq!(m, svd.recompose());
 }
 
 #[test]
 fn svd_identity() {
     let m = DMatrix::<f64>::identity(10, 10);
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     assert_eq!(m, svd.recompose());
 
     let m = DMatrix::<f64>::identity(10, 15);
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     assert_eq!(m, svd.recompose());
 
     let m = DMatrix::<f64>::identity(15, 10);
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     assert_eq!(m, svd.recompose());
 }
 
@@ -293,7 +292,7 @@ fn svd_with_delimited_subproblem() {
     m[(7,7)] = 14.0; m[(3,8)] = 13.0;
     m[(8,8)] = 16.0; m[(3,9)] = 17.0;
     m[(9,9)] = 18.0;
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     assert!(relative_eq!(m, svd.recompose(), epsilon = 1.0e-7));
 
     // Rectangular versions.
@@ -308,10 +307,10 @@ fn svd_with_delimited_subproblem() {
     m[(7,7)] = 14.0; m[(3,8)] = 13.0;
     m[(8,8)] = 16.0; m[(3,9)] = 17.0;
     m[(9,9)] = 18.0;
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     assert!(relative_eq!(m, svd.recompose(), epsilon = 1.0e-7));
 
-    let svd = SVD::new(m.transpose(), true, true);
+    let svd = m.transpose().svd(true, true);
     assert!(relative_eq!(m.transpose(), svd.recompose(), epsilon = 1.0e-7));
 }
 
@@ -324,7 +323,7 @@ fn svd_fail() {
         0.07311092531259344,   0.5579247949052946,  0.14518764691585773,  0.03502980663114896,   0.7991329455957719,   0.4929930019965745,
         0.12293810556077789,   0.6617084679545999,   0.9002240700227326, 0.027153062135304884,   0.3630189466989524,  0.18207502727558866,
           0.843196731466686,  0.08951878746549924,   0.7533450877576973, 0.009558876499740077,   0.9429679490873482,   0.9355764454129878);
-    let svd = SVD::new(m.clone(), true, true);
+    let svd = m.clone().svd(true, true);
     println!("Singular values: {}", svd.singular_values);
     println!("u: {:.5}", svd.u.unwrap());
     println!("v: {:.5}", svd.v_t.unwrap());

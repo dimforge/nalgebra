@@ -1,4 +1,4 @@
-use na::{DMatrix, Matrix2, Matrix4, Matrix5x3, Matrix3x5, Bidiagonal};
+use na::{DMatrix, Matrix2, Matrix4, Matrix5x3, Matrix3x5};
 
 
 #[cfg(feature = "arbitrary")]
@@ -8,7 +8,7 @@ quickcheck! {
             return true;
         }
 
-        let bidiagonal = Bidiagonal::new(m.clone());
+        let bidiagonal = m.clone().bidiagonalize();
         let (u, d, v_t) = bidiagonal.unpack();
 
         println!("{}{}{}", &u, &d, &v_t);
@@ -18,7 +18,7 @@ quickcheck! {
     }
 
     fn bidiagonal_static_5_3(m: Matrix5x3<f64>) -> bool {
-        let bidiagonal = Bidiagonal::new(m);
+        let bidiagonal = m.bidiagonalize();
         let (u, d, v_t) = bidiagonal.unpack();
 
         println!("{}{}{}", &u, &d, &v_t);
@@ -28,7 +28,7 @@ quickcheck! {
     }
 
     fn bidiagonal_static_3_5(m: Matrix3x5<f64>) -> bool {
-        let bidiagonal = Bidiagonal::new(m);
+        let bidiagonal = m.bidiagonalize();
         let (u, d, v_t) = bidiagonal.unpack();
 
         println!("{}{}{}", &u, &d, &v_t);
@@ -38,7 +38,7 @@ quickcheck! {
     }
 
     fn bidiagonal_static_square(m: Matrix4<f64>) -> bool {
-        let bidiagonal = Bidiagonal::new(m);
+        let bidiagonal = m.bidiagonalize();
         let (u, d, v_t) = bidiagonal.unpack();
 
         println!("{}{}{}", &u, &d, &v_t);
@@ -48,7 +48,7 @@ quickcheck! {
     }
 
     fn bidiagonal_static_square_2x2(m: Matrix2<f64>) -> bool {
-        let bidiagonal = Bidiagonal::new(m);
+        let bidiagonal = m.bidiagonalize();
         let (u, d, v_t) = bidiagonal.unpack();
 
         println!("{}{}{}", &u, &d, &v_t);

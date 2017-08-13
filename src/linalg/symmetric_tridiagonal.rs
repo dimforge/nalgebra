@@ -1,5 +1,5 @@
 use alga::general::Real;
-use core::{MatrixN, MatrixMN, VectorN, DefaultAllocator};
+use core::{SquareMatrix, MatrixN, MatrixMN, VectorN, DefaultAllocator};
 use dimension::{DimSub, DimDiff, U1};
 use storage::Storage;
 use allocator::Allocator;
@@ -108,5 +108,17 @@ impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
         }
 
         &q * self.tri * q.transpose()
+    }
+}
+
+impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, DimDiff<D, U1>> {
+
+    /// Computes the tridiagonalization of this symmetric matrix.
+    ///
+    /// Only the lower-triangular and diagonal parts of `self` are read.
+    pub fn symmetric_tridiagonalize(self) -> SymmetricTridiagonal<N, D> {
+        SymmetricTridiagonal::new(self.into_owned())
     }
 }

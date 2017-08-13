@@ -255,3 +255,17 @@ impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
 //     //     res self.q_determinant()
 //     // }
 // }
+
+impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+    where DimMinimum<R, C>: DimSub<U1>,
+          DefaultAllocator: Allocator<N, R, C>             +
+                            Allocator<N, C>                +
+                            Allocator<N, R>                +
+                            Allocator<N, DimMinimum<R, C>> +
+                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>> {
+
+    /// Computes the bidiagonalization using householder reflections.
+    pub fn bidiagonalize(self) -> Bidiagonal<N, R, C> {
+        Bidiagonal::new(self.into_owned())
+    }
+}

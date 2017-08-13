@@ -1,7 +1,6 @@
 use std::cmp;
 use na::{DMatrix, Matrix3, Matrix4, Matrix4x3, Matrix5x3, Matrix3x5,
-         DVector, Vector4,
-         LU};
+         DVector, Vector4};
 
 
 #[test]
@@ -11,7 +10,7 @@ fn lu_simple() {
        -1.0,  2.0, -1.0,
         0.0, -1.0,  2.0);
 
-    let lu = LU::new(m);
+    let lu = m.lu();
     assert_eq!(lu.determinant(), 4.0);
 
     let (p, l, u) = lu.unpack();
@@ -29,7 +28,7 @@ fn lu_simple_with_pivot() {
        -1.0,  2.0, -1.0,
         2.0, -1.0,  0.0);
 
-    let lu = LU::new(m);
+    let lu = m.lu();
     assert_eq!(lu.determinant(), -4.0);
 
     let (p, l, u) = lu.unpack();
@@ -48,7 +47,7 @@ quickcheck! {
             m = DMatrix::new_random(1, 1);
         }
 
-        let lu = LU::new(m.clone());
+        let lu = m.clone().lu();
         let (p, l, u) = lu.unpack();
         let mut lu = l * u;
         p.inv_permute_rows(&mut lu);
@@ -57,7 +56,7 @@ quickcheck! {
     }
 
     fn lu_static_3_5(m: Matrix3x5<f64>) -> bool {
-        let lu = LU::new(m);
+        let lu = m.lu();
         let (p, l, u) = lu.unpack();
         let mut lu = l * u;
         p.inv_permute_rows(&mut lu);
@@ -66,7 +65,7 @@ quickcheck! {
     }
 
     fn lu_static_5_3(m: Matrix5x3<f64>) -> bool {
-        let lu = LU::new(m);
+        let lu = m.lu();
         let (p, l, u) = lu.unpack();
         let mut lu = l * u;
         p.inv_permute_rows(&mut lu);
@@ -75,7 +74,7 @@ quickcheck! {
     }
 
     fn lu_static_square(m: Matrix4<f64>) -> bool {
-        let lu = LU::new(m);
+        let lu = m.lu();
         let (p, l, u) = lu.unpack();
         let mut lu = l * u;
         p.inv_permute_rows(&mut lu);
@@ -89,7 +88,7 @@ quickcheck! {
             let nb = cmp::min(nb, 50); // To avoid slowing down the test too much.
             let m  = DMatrix::<f64>::new_random(n, n);
 
-            let lu = LU::new(m.clone());
+            let lu = m.clone().lu();
             let b1 = DVector::new_random(n);
             let b2 = DMatrix::new_random(n, nb);
 
@@ -104,7 +103,7 @@ quickcheck! {
     }
 
     fn lu_solve_static(m: Matrix4<f64>) -> bool {
-         let lu = LU::new(m);
+         let lu = m.lu();
          let b1 = Vector4::new_random();
          let b2 = Matrix4x3::new_random();
 
@@ -127,7 +126,7 @@ quickcheck! {
         u.fill_diagonal(1.0);
         let m = l * u;
 
-        let m1  = LU::new(m.clone()).try_inverse().unwrap();
+        let m1  = m.clone().lu().try_inverse().unwrap();
         let id1 = &m  * &m1;
         let id2 = &m1 * &m;
 
@@ -135,7 +134,7 @@ quickcheck! {
     }
 
     fn lu_inverse_static(m: Matrix4<f64>) -> bool {
-        let lu  = LU::new(m);
+        let lu  = m.lu();
 
         if let Some(m1) = lu.try_inverse() {
             let id1 = &m  * &m1;
