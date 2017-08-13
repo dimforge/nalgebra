@@ -30,20 +30,24 @@
 //! the system installation of netlib without LAPACKE (note the E) or
 //! CBLAS:
 //! 
-//!     sudo apt-get install gfortran libblas3gf liblapack3gf
-//!     export CARGO_FEATURE_SYSTEM_NETLIB=1
-//!     export CARGO_FEATURE_EXCLUDE_LAPACKE=1
-//!     export CARGO_FEATURE_EXCLUDE_CBLAS=1
+//! ```.ignore
+//! sudo apt-get install gfortran libblas3gf liblapack3gf
+//! export CARGO_FEATURE_SYSTEM_NETLIB=1
+//! export CARGO_FEATURE_EXCLUDE_LAPACKE=1
+//! export CARGO_FEATURE_EXCLUDE_CBLAS=1
 //! 
-//!     export CARGO_FEATURES='--no-default-features --features netlib'
-//!     cargo build ${CARGO_FEATURES}
+//! export CARGO_FEATURES='--no-default-features --features netlib'
+//! cargo build ${CARGO_FEATURES}
+//! ```
 //! 
 //! ### Mac OS X
 //! 
 //! On Mac OS X, do this to use Apple's Accelerate framework:
 //! 
-//!     export CARGO_FEATURES='--no-default-features --features accelerate'
-//!     cargo build ${CARGO_FEATURES}
+//! ```.ignore
+//! export CARGO_FEATURES='--no-default-features --features accelerate'
+//! cargo build ${CARGO_FEATURES}
+//! ```
 //! 
 //! [version-img]: https://img.shields.io/crates/v/nalgebra-lapack.svg
 //! [version-url]: https://crates.io/crates/nalgebra-lapack

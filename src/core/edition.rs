@@ -206,8 +206,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.remove_fixed_columns::<U1>(i)
     }
 
-    /// Removes a fixed number − `D::dim()` − of consecutive columns from this matrix, starting
-    /// with the `i`-th (included).
+    /// Removes `D::dim()` consecutive columns from this matrix, starting with the `i`-th
+    /// (included).
     #[inline]
     pub fn remove_fixed_columns<D>(self, i: usize) -> MatrixMN<N, R, DimDiff<C, D>>
         where D: DimName,
@@ -271,8 +271,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.remove_fixed_rows::<U1>(i)
     }
 
-    /// Removes a fixed number − `D::dim()` − of consecutive rows from this matrix, starting
-    /// with the `i`-th (included).
+    /// Removes `D::dim()` consecutive rows from this matrix, starting with the `i`-th (included).
     #[inline]
     pub fn remove_fixed_rows<D>(self, i: usize) -> MatrixMN<N, DimDiff<R, D>, C>
         where D: DimName,
@@ -328,7 +327,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.insert_fixed_columns::<U1>(i, val)
     }
 
-    /// Inserts `D` column filled with `val` at the `i-th` position.
+    /// Inserts `D::dim()` columns filled with `val` starting at the `i-th` position.
     #[inline]
     pub fn insert_fixed_columns<D>(self, i: usize, val: N) -> MatrixMN<N, R, DimSum<C, D>>
         where D: DimName,
@@ -339,7 +338,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
-    /// Inserts `n` column filled with `val` at the `i-th` position.
+    /// Inserts `n` columns filled with `val` starting at the `i-th` position.
     #[inline]
     pub fn insert_columns(self, i: usize, n: usize, val: N) -> MatrixMN<N, R, Dynamic>
         where C: DimAdd<Dynamic, Output = Dynamic>,
@@ -349,7 +348,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
-    /// Inserts `ninsert.value()` columns at the `i-th` place of this matrix.
+    /// Inserts `ninsert.value()` columns starting at the `i-th` place of this matrix.
     ///
     /// The added column values are not initialized.
     #[inline]
@@ -388,7 +387,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.insert_fixed_rows::<U1>(i, val)
     }
 
-    /// Inserts `D` row filled with `val` at the `i-th` position.
+    /// Inserts `D::dim()` rows filled with `val` starting at the `i-th` position.
     #[inline]
     pub fn insert_fixed_rows<D>(self, i: usize, val: N) -> MatrixMN<N, DimSum<R, D>, C>
         where D: DimName,
@@ -399,7 +398,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
-    /// Inserts `n` rows filled with `val` at the `i-th` position.
+    /// Inserts `n` rows filled with `val` starting at the `i-th` position.
     #[inline]
     pub fn insert_rows(self, i: usize, n: usize, val: N) -> MatrixMN<N, Dynamic, C>
         where R: DimAdd<Dynamic, Output = Dynamic>,
@@ -412,6 +411,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Inserts `ninsert.value()` rows at the `i-th` place of this matrix.
     ///
     /// The added rows values are not initialized.
+    /// This is the generic implementation of `.insert_rows(...)` and
+    /// `.insert_fixed_rows(...)` which have nicer API interfaces.
     #[inline]
     pub unsafe fn insert_rows_generic_uninitialized<D>(self, i: usize, ninsert: D)
         -> MatrixMN<N, DimSum<R, D>, C>

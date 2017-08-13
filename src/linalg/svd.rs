@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use num_complex::Complex;
 use std::ops::MulAssign;
 
@@ -15,11 +18,29 @@ use geometry::UnitComplex;
 
 
 
-/// The Singular Value Decomposition of a real matrix.
+/// Singular Value Decomposition of a general matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, R, C>                +
+                           Allocator<N, DimMinimum<R, C>>    +
+                           Allocator<N, DimMinimum<R, C>, C> +
+                           Allocator<N, R, DimMinimum<R, C>>,
+         MatrixMN<N, R, DimMinimum<R, C>>: serde::Serialize,
+         MatrixMN<N, DimMinimum<R, C>, C>: serde::Serialize,
+         VectorN<N, DimMinimum<R, C>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, R, C>                +
+                           Allocator<N, DimMinimum<R, C>>    +
+                           Allocator<N, DimMinimum<R, C>, C> +
+                           Allocator<N, R, DimMinimum<R, C>>,
+         MatrixMN<N, R, DimMinimum<R, C>>: serde::Deserialize<'de>,
+         MatrixMN<N, DimMinimum<R, C>, C>: serde::Deserialize<'de>,
+         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct SVD<N: Real, R: DimMin<C>, C: Dim>
-    where DefaultAllocator: Allocator<N, R, C>                +
-                            Allocator<N, DimMinimum<R, C>, C> +
+    where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C> +
                             Allocator<N, R, DimMinimum<R, C>> +
                             Allocator<N, DimMinimum<R, C>> {
     /// The left-singular vectors `U` of this SVD.
@@ -31,9 +52,8 @@ pub struct SVD<N: Real, R: DimMin<C>, C: Dim>
 }
 
 
-impl<N: Real, R: DimMin<C>, C: Dim> SVD<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C>                +
-                            Allocator<N, DimMinimum<R, C>, C> +
+impl<N: Real, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
+    where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C> +
                             Allocator<N, R, DimMinimum<R, C>> +
                             Allocator<N, DimMinimum<R, C>>,
           MatrixMN<N, R, DimMinimum<R, C>>: Copy,

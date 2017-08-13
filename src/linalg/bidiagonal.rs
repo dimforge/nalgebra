@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use alga::general::Real;
 use core::{Unit, Matrix, MatrixN, MatrixMN, VectorN, DefaultAllocator};
 use dimension::{Dim, DimMin, DimMinimum, DimSub, DimDiff, Dynamic, U1};
@@ -10,6 +13,25 @@ use geometry::Reflection;
 
 
 /// The bidiagonalization of a general matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DimMinimum<R, C>: DimSub<U1>,
+         DefaultAllocator: Allocator<N, R, C>             +
+                           Allocator<N, DimMinimum<R, C>> +
+                           Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
+         MatrixMN<N, R, C>: serde::Serialize,
+         VectorN<N, DimMinimum<R, C>>: serde::Serialize,
+         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DimMinimum<R, C>: DimSub<U1>,
+         DefaultAllocator: Allocator<N, R, C>             +
+                           Allocator<N, DimMinimum<R, C>> +
+                           Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
+         MatrixMN<N, R, C>: serde::Deserialize<'de>,
+         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>,
+         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct Bidiagonal<N: Real, R: DimMin<C>, C: Dim>
     where DimMinimum<R, C>: DimSub<U1>,
@@ -34,6 +56,7 @@ impl<N: Real, R: DimMin<C>, C: Dim> Copy for Bidiagonal<N, R, C>
           MatrixMN<N, R, C>: Copy,
           VectorN<N, DimMinimum<R, C>>: Copy,
           VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Copy { }
+
 
 impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
     where DimMinimum<R, C>: DimSub<U1>,
@@ -93,7 +116,7 @@ impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
         }
     }
 
-    /// Unpacks thi decomposition into its thrme matrix factors `(U, D, V^t)`.
+    /// Unpacks this decomposition into its three matrix factors `(U, D, V^t)`.
     ///
     /// The decomposed matrix `M` is equal to `U * D * V^t`.
     #[inline]

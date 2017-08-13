@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use alga::general::Real;
 use core::{Matrix, MatrixN, MatrixMN, DefaultAllocator};
 use dimension::{Dim, DimMin, DimMinimum};
@@ -10,7 +13,20 @@ use linalg::PermutationSequence;
 
 
 
-/// LU decomposition with full pivoting.
+/// LU decomposition with full row and column pivoting.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<(usize, usize), DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Serialize,
+         PermutationSequence<DimMinimum<R, C>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<(usize, usize), DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Deserialize<'de>,
+         PermutationSequence<DimMinimum<R, C>>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct FullPivLU<N: Real, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<N, R, C> +
@@ -31,7 +47,7 @@ impl<N: Real, R: DimMin<C>, C: Dim> Copy for FullPivLU<N, R, C>
 impl<N: Real, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
     where DefaultAllocator: Allocator<N, R, C> +
                             Allocator<(usize, usize), DimMinimum<R, C>> {
-    /// Computes the LU decomposition with full-pivoting of `matrix`.
+    /// Computes the LU decomposition with full pivoting of `matrix`.
     ///
     /// This effectively computes `P, L, U, Q` such that `P * matrix * Q = LU`.
     pub fn new(mut matrix: MatrixMN<N, R, C>) -> Self {
@@ -103,13 +119,13 @@ impl<N: Real, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
         &self.p
     }
 
-    /// The q permutations of this decomposition.
+    /// The column permutations of this decomposition.
     #[inline]
     pub fn q(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.q
     }
 
-    /// The two matrix of this decomposition and the permutation matrix: `(P, L, U, Q)`.
+    /// The two matrices of this decomposition and the row and column permutations: `(P, L, U, Q)`.
     #[inline]
     pub fn unpack(self) -> (PermutationSequence<DimMinimum<R, C>>,
                             MatrixMN<N, R, DimMinimum<R, C>>,
@@ -148,8 +164,8 @@ impl<N: Real, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
 
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
-    /// If the decomposed matrix is not invertible, this returns `false` and its input `b` is
-    /// left unchanged.
+    /// If the decomposed matrix is not invertible, this returns `false` and its input `b` may
+    /// be overwritten with garbage.
     pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>) -> bool
         where S2: StorageMut<N, R2, C2>,
               ShapeConstraint: SameNumberOfRows<R2, D> {
@@ -217,7 +233,7 @@ impl<N: Real, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
 impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
     where DefaultAllocator: Allocator<N, R, C> +
                             Allocator<(usize, usize), DimMinimum<R, C>> {
-    /// Computes the LU decomposition with full-pivoting of `matrix`.
+    /// Computes the LU decomposition with full pivoting of `matrix`.
     ///
     /// This effectively computes `P, L, U, Q` such that `P * matrix * Q = LU`.
     pub fn full_piv_lu(self) -> FullPivLU<N, R, C> {

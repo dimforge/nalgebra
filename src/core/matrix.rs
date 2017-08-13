@@ -79,11 +79,9 @@ impl<N, R, C, S> Serialize for Matrix<N, R, C, S>
     where N: Scalar,
           R: Dim,
           C: Dim,
-          S: Serialize,
-{
+          S: Serialize, {
     fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-        where T: Serializer
-    {
+        where T: Serializer {
         self.data.serialize(serializer)
     }
 }
@@ -93,8 +91,7 @@ impl<'de, N, R, C, S> Deserialize<'de> for Matrix<N, R, C, S>
     where N: Scalar,
           R: Dim,
           C: Dim,
-          S: Deserialize<'de>,
-{
+          S: Deserialize<'de> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where D: Deserializer<'de>
     {

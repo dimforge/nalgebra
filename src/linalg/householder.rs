@@ -1,4 +1,4 @@
-//! Construction of transformations.
+//! Construction of householder elementary reflections.
 
 use alga::general::Real;
 use core::{Unit, MatrixN, MatrixMN, Vector, VectorN, DefaultAllocator};

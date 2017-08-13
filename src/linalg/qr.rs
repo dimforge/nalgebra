@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use alga::general::Real;
 use core::{Unit, Matrix, MatrixN, MatrixMN, VectorN, DefaultAllocator};
 use dimension::{Dim, DimMin, DimMinimum, U1};
@@ -10,6 +13,19 @@ use geometry::Reflection;
 
 
 /// The QR decomposition of a general matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<N, DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Serialize,
+         VectorN<N, DimMinimum<R, C>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<N, DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Deserialize<'de>,
+         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct QR<N: Real, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<N, R, C> +
@@ -150,7 +166,7 @@ impl<N: Real, D: DimMin<D, Output = D>> QR<N, D, D>
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
     /// If the decomposed matrix is not invertible, this returns `false` and its input `b` is
-    /// overwritten with meaningless informations.
+    /// overwritten with garbage.
     pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>) -> bool
         where S2: StorageMut<N, R2, C2>,
               ShapeConstraint: SameNumberOfRows<R2, D> {

@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use std::mem;
 use alga::general::{Field, Real};
 use core::{Scalar, Matrix, MatrixN, MatrixMN, DefaultAllocator};
@@ -11,6 +14,19 @@ use linalg::PermutationSequence;
 
 
 /// LU decomposition with partial (row) pivoting.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<(usize, usize), DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Serialize,
+         PermutationSequence<DimMinimum<R, C>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<(usize, usize), DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Deserialize<'de>,
+         PermutationSequence<DimMinimum<R, C>>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct LU<N: Real, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<N, R, C> +
@@ -147,13 +163,13 @@ impl<N: Real, R: DimMin<C>, C: Dim> LU<N, R, C>
         self.lu.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
 
-    /// The row permutation matrix of this decomposition.
+    /// The row permutations of this decomposition.
     #[inline]
     pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
     }
 
-    /// The two matrix of this decomposition and the permutation matrix: `(P, L, U)`.
+    /// The row permutations and two triangular matrices of this decomposition: `(P, L, U)`.
     #[inline]
     pub fn unpack(self) -> (PermutationSequence<DimMinimum<R, C>>,
                             MatrixMN<N, R, DimMinimum<R, C>>,
@@ -190,8 +206,8 @@ impl<N: Real, D: DimMin<D, Output = D>> LU<N, D, D>
 
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
-    /// If the decomposed matrix is not invertible, this returns `false` and its input `b` is
-    /// overwritten with meaningless informations.
+    /// If the decomposed matrix is not invertible, this returns `false` and its input `b` may
+    /// be overwritten with garbage.
     pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>) -> bool
         where S2: StorageMut<N, R2, C2>,
               ShapeConstraint: SameNumberOfRows<R2, D> {
@@ -206,7 +222,7 @@ impl<N: Real, D: DimMin<D, Output = D>> LU<N, D, D>
 
     /// Computes the inverse of the decomposed matrix.
     ///
-    /// Returnrs `None` if the matrix is not invertible.
+    /// Returns `None` if the matrix is not invertible.
     pub fn try_inverse(&self) -> Option<MatrixN<N, D>> {
         assert!(self.lu.is_square(), "LU inverse: unable to compute the inverse of a non-square matrix.");
 
@@ -222,8 +238,8 @@ impl<N: Real, D: DimMin<D, Output = D>> LU<N, D, D>
 
     /// Computes the inverse of the decomposed matrix and outputs the result to `out`.
     ///
-    /// If the decomposed matrix is not invertible, this returns `false` and `out` may contain
-    /// meaninless informations.
+    /// If the decomposed matrix is not invertible, this returns `false` and `out` may be
+    /// overwritten with garbage.
     pub fn try_inverse_to<S2: StorageMut<N, D, D>>(&self, out: &mut Matrix<N, D, D, S2>) -> bool {
         assert!(self.lu.is_square(), "LU inverse: unable to compute the inverse of a non-square matrix.");
         assert!(self.lu.shape() == out.shape(), "LU inverse: mismatched output shape.");

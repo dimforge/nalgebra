@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use alga::general::Real;
 
 use core::{DefaultAllocator, MatrixN, MatrixMN, Matrix, SquareMatrix};
@@ -6,7 +9,16 @@ use storage::{Storage, StorageMut};
 use allocator::Allocator;
 use dimension::{Dim, Dynamic, DimSub};
 
-/// The cholesky decomposion of a symmetric-definite-positive matrix.
+/// The Cholesky decomposion of a symmetric-definite-positive matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct Cholesky<N: Real, D: Dim>
     where DefaultAllocator: Allocator<N, D, D> {
@@ -19,7 +31,7 @@ impl<N: Real, D: Dim> Copy for Cholesky<N, D>
 
 impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
     where DefaultAllocator: Allocator<N, D, D> {
-    /// Attempts to compute the sholesky decomposition of `matrix`.
+    /// Attempts to compute the Cholesky decomposition of `matrix`.
     ///
     /// Returns `None` if the input matrix is not definite-positive. The intput matrix is assumed
     /// to be symmetric and only the lower-triangular part is read.
@@ -55,27 +67,29 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
         Some(Cholesky { chol: matrix })
     }
 
-    /// Retrieves the lower-triangular factor of the cholesky decomposition.
+    /// Retrieves the lower-triangular factor of the Cholesky decomposition with its strictly
+    /// upper-triangular part filled with zeros.
     pub fn unpack(mut self) -> MatrixN<N, D> {
         self.chol.fill_upper_triangle(N::zero(), 1);
         self.chol
     }
 
-    /// Retrieves the lower-triangular factor of che cholesky decomposition, without zeroing-out
+    /// Retrieves the lower-triangular factor of the Cholesky decomposition, without zeroing-out
     /// its strict upper-triangular part.
     ///
-    /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
-    /// part are garbage and should be ignored by further computations.
+    /// The values of the strict upper-triangular part are garbage and should be ignored by further
+    /// computations.
     pub fn unpack_dirty(self) -> MatrixN<N, D> {
         self.chol
     }
 
-    /// Retrieves the lower-triangular factor of the cholesky decomposition.
+    /// Retrieves the lower-triangular factor of the Cholesky decomposition with its strictly
+    /// uppen-triangular part filled with zeros.
     pub fn l(&self) -> MatrixN<N, D> {
         self.chol.lower_triangle()
     }
 
-    /// Retrieves the lower-triangular factor of the cholesky decomposition, without zeroing-out
+    /// Retrieves the lower-triangular factor of the Cholesky decomposition, without zeroing-out
     /// its strict upper-triangular part.
     ///
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
@@ -94,9 +108,8 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
         self.chol.tr_solve_lower_triangular_mut(b);
     }
 
-    /// Solves the system `self * x = b` where `self` is the decomposed matrix and `x` the unknown.
-    ///
-    /// The result is stored on `b`.
+    /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and
+    /// `x` the unknown.
     pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<N, R2, C2, S2>) -> MatrixMN<N, R2, C2>
         where S2: StorageMut<N, R2, C2>,
               DefaultAllocator: Allocator<N, R2, C2>,
@@ -119,7 +132,7 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
 impl<N: Real, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
     where DefaultAllocator: Allocator<N, D, D> {
 
-    /// Attempts to compute the sholesky decomposition of this matrix.
+    /// Attempts to compute the Cholesky decomposition of this matrix.
     ///
     /// Returns `None` if the input matrix is not definite-positive. The intput matrix is assumed
     /// to be symmetric and only the lower-triangular part is read.

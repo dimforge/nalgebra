@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use std::cmp;
 use num::Signed;
 
@@ -11,18 +14,43 @@ use lapack::fortran as interface;
 
 
 /// The SVD decomposition of a general matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
+                           Allocator<N, R, R> +
+                           Allocator<N, C, C>,
+         MatrixN<N, R>: serde::Serialize,
+         MatrixN<N, C>: serde::Serialize,
+         VectorN<N, DimMinimum<R, C>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
+                           Allocator<N, R, R> +
+                           Allocator<N, C, C>,
+         MatrixN<N, R>: serde::Deserialize<'de>,
+         MatrixN<N, C>: serde::Deserialize<'de>,
+         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>")))]
+#[derive(Clone, Debug)]
 pub struct SVD<N: Scalar, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<N, R, R>                 +
                             Allocator<N, DimMinimum<R, C>> +
                             Allocator<N, C, C> {
     /// The left-singular vectors `U` of this SVD.
-    pub u:  MatrixN<N, R>,
+    pub u:  MatrixN<N, R>, // FIXME: should be MatrixMN<N, R, DimMinimum<R, C>>
     /// The right-singular vectors `V^t` of this SVD.
-    pub vt: MatrixN<N, C>,
+    pub vt: MatrixN<N, C>, // FIXME: should be MatrixMN<N, DimMinimum<R, C>, C>
     /// The singular values of this SVD.
     pub singular_values: VectorN<N, DimMinimum<R, C>>
 }
 
+impl<N: Scalar, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
+    where DefaultAllocator: Allocator<N, C, C> +
+                            Allocator<N, R, R> +
+                            Allocator<N, DimMinimum<R, C>>,
+          MatrixMN<N, R, R>: Copy,
+          MatrixMN<N, C, C>: Copy,
+          VectorN<N, DimMinimum<R, C>>: Copy { }
 
 /// Trait implemented by floats (`f32`, `f64`) and complex floats (`Complex<f32>`, `Complex<f64>`)
 /// supported by the Singular Value Decompotition.

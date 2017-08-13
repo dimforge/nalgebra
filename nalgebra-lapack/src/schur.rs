@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use num::Zero;
 use num_complex::Complex;
 
@@ -12,15 +15,32 @@ use na::allocator::Allocator;
 use lapack::fortran as interface;
 
 /// Eigendecomposition of a real square matrix with real eigenvalues.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+         VectorN<N, D>: serde::Serialize,
+         MatrixN<N, D>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+         VectorN<N, D>: serde::Serialize,
+         MatrixN<N, D>: serde::Deserialize<'de>")))]
+#[derive(Clone, Debug)]
 pub struct RealSchur<N: Scalar, D: Dim>
     where DefaultAllocator: Allocator<N, D> +
-    Allocator<N, D, D> {
+                            Allocator<N, D, D> {
 
     re: VectorN<N, D>,
     im: VectorN<N, D>,
     t:  MatrixN<N, D>,
     q:  MatrixN<N, D>
 }
+
+impl<N: Scalar, D: Dim> Copy for RealSchur<N, D>
+    where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+                            MatrixN<N, D>: Copy,
+                            VectorN<N, D>: Copy { }
 
 
 impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>

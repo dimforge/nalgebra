@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use num::Zero;
 use std::ops::MulAssign;
 
@@ -11,7 +14,21 @@ use na::allocator::Allocator;
 
 use lapack::fortran as interface;
 
-/// SymmetricEigendecomposition of a real square matrix with real eigenvalues.
+/// Eigendecomposition of a real square symmetric matrix with real eigenvalues.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, D>,
+         VectorN<N, D>: serde::Serialize,
+         MatrixN<N, D>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, D>,
+         VectorN<N, D>: serde::Deserialize<'de>,
+         MatrixN<N, D>: serde::Deserialize<'de>")))]
+#[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Scalar, D: Dim>
     where DefaultAllocator: Allocator<N, D> +
     Allocator<N, D, D> {
@@ -22,6 +39,12 @@ pub struct SymmetricEigen<N: Scalar, D: Dim>
     pub eigenvalues:  VectorN<N, D>,
 }
 
+
+impl<N: Scalar, D: Dim> Copy for SymmetricEigen<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, D>,
+          MatrixN<N, D>: Copy,
+          VectorN<N, D>: Copy { }
 
 impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
     where DefaultAllocator: Allocator<N, D, D> +

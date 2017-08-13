@@ -5,10 +5,10 @@ quickcheck!{
     fn svd(m: DMatrix<f64>) -> bool {
         if m.nrows() != 0 && m.ncols() != 0 {
             let svd = SVD::new(m.clone()).unwrap();
-            let sm  = DMatrix::from_partial_diagonal(m.nrows(), m.ncols(), svd.s.as_slice());
+            let sm  = DMatrix::from_partial_diagonal(m.nrows(), m.ncols(), svd.singular_values.as_slice());
 
             let reconstructed_m = &svd.u * sm * &svd.vt;
-            let reconstructed_m2 = svd.matrix();
+            let reconstructed_m2 = svd.recompose();
 
             relative_eq!(reconstructed_m, m, epsilon = 1.0e-7) &&
             relative_eq!(reconstructed_m2, reconstructed_m, epsilon = 1.0e-7)
@@ -20,10 +20,10 @@ quickcheck!{
 
     fn svd_static(m: Matrix3x4<f64>) -> bool {
         let svd = SVD::new(m).unwrap();
-        let sm  = Matrix3x4::from_partial_diagonal(svd.s.as_slice());
+        let sm  = Matrix3x4::from_partial_diagonal(svd.singular_values.as_slice());
 
         let reconstructed_m  = &svd.u * &sm * &svd.vt;
-        let reconstructed_m2 = svd.matrix();
+        let reconstructed_m2 = svd.recompose();
 
         relative_eq!(reconstructed_m, m, epsilon = 1.0e-7) &&
         relative_eq!(reconstructed_m2, m, epsilon = 1.0e-7)

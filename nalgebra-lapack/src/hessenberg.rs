@@ -11,6 +11,20 @@ use lapack::fortran as interface;
 
 
 /// The Hessenberg decomposition of a general matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, DimDiff<D, U1>>,
+         MatrixN<N, D>: serde::Serialize,
+         VectorN<N, DimDiff<D, U1>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, DimDiff<D, U1>>,
+         MatrixN<N, D>: serde::Deserialize<'de>,
+         VectorN<N, DimDiff<D, U1>>: serde::Deserialize<'de>")))]
+#[derive(Clone, Debug)]
 pub struct Hessenberg<N: Scalar, D: DimSub<U1>>
     where DefaultAllocator: Allocator<N, D, D> +
                             Allocator<N, DimDiff<D, U1>> {
@@ -18,6 +32,12 @@ pub struct Hessenberg<N: Scalar, D: DimSub<U1>>
     tau: VectorN<N, DimDiff<D, U1>>
 }
 
+
+impl<N: Scalar, D: DimSub<U1>> Copy for Hessenberg<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, DimDiff<D, U1>>,
+          MatrixN<N, D>: Copy,
+          VectorN<N, DimDiff<D, U1>>: Copy { }
 
 impl<N: HessenbergScalar + Zero, D: DimSub<U1>> Hessenberg<N, D>
         where DefaultAllocator: Allocator<N, D, D> +

@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use std::cmp;
 use num_complex::Complex;
 use alga::general::Real;
@@ -14,19 +17,26 @@ use geometry::{Reflection, UnitComplex};
 
 
 
-/// Real RealSchur decomposition of a square matrix.
+/// Real Schur decomposition of a square matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct RealSchur<N: Real, D: Dim>
-    where DefaultAllocator: Allocator<N, D, D> + 
-                            Allocator<N, D> {
+    where DefaultAllocator: Allocator<N, D, D> {
     q: MatrixN<N, D>,
     t: MatrixN<N, D>
 }
 
 
 impl<N: Real, D: Dim> Copy for RealSchur<N, D>
-    where DefaultAllocator: Allocator<N, D, D> + 
-                            Allocator<N, D>,
+    where DefaultAllocator: Allocator<N, D, D>,
           MatrixN<N, D>: Copy { }
 
 impl<N: Real, D: Dim> RealSchur<N, D>
@@ -37,12 +47,12 @@ impl<N: Real, D: Dim> RealSchur<N, D>
                             Allocator<N, D, D>              + 
                             Allocator<N, D> {
 
-    /// Computes the schur decomposition of a square matrix.
+    /// Computes the Schur decomposition of a square matrix.
     pub fn new(m: MatrixN<N, D>) -> RealSchur<N, D> {
         Self::try_new(m, N::default_epsilon(), 0).unwrap()
     }
 
-    /// Attempts to compute the schur decomposition of a square matrix.
+    /// Attempts to compute the Schur decomposition of a square matrix.
     ///
     /// If only eigenvalues are needed, it is more efficient to call the matrix method
     /// `.eigenvalues()` instead.
@@ -451,12 +461,12 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
                             Allocator<N, DimDiff<D, U1>>    + // For Hessenberg.
                             Allocator<N, D, D>              + 
                             Allocator<N, D> {
-    /// Computes the schur decomposition of a square matrix.
+    /// Computes the Schur decomposition of a square matrix.
     pub fn real_schur(self) -> RealSchur<N, D> {
         RealSchur::new(self.into_owned())
     }
 
-    /// Attempts to compute the schur decomposition of a square matrix.
+    /// Attempts to compute the Schur decomposition of a square matrix.
     ///
     /// If only eigenvalues are needed, it is more efficient to call the matrix method
     /// `.eigenvalues()` instead.
