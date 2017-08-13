@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use num_complex::Complex;
 use num::Zero;
 
@@ -11,12 +14,32 @@ use lapack::fortran as interface;
 
 
 /// The QR decomposition of a general matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<N, DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Serialize,
+         VectorN<N, DimMinimum<R, C>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<N, DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Deserialize<'de>,
+         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>")))]
+#[derive(Clone, Debug)]
 pub struct QR<N: Scalar, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<N, R, C> +
                             Allocator<N, DimMinimum<R, C>> {
     qr:  MatrixMN<N, R, C>,
     tau: VectorN<N, DimMinimum<R, C>>
 }
+
+impl<N: Scalar, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
+    where DefaultAllocator: Allocator<N, R, C> +
+                            Allocator<N, DimMinimum<R, C>>,
+          MatrixMN<N, R, C>: Copy,
+          VectorN<N, DimMinimum<R, C>>: Copy { }
 
 impl<N: QRScalar + Zero, R: DimMin<C>, C: Dim> QR<N, R, C>
     where DefaultAllocator: Allocator<N, R, C> +

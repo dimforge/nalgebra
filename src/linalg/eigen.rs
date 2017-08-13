@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use std::fmt::Display;
 use std::cmp;
 use num_complex::Complex;
@@ -15,7 +18,18 @@ use linalg::RealSchur;
 use geometry::{Reflection, UnitComplex};
 
 
-/// The eigendecomposition of a matrix with real eigenvalues.
+/// Eigendecomposition of a matrix with real eigenvalues.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D>,
+         VectorN<N, D>: serde::Serialize,
+         MatrixN<N, D>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D>,
+         VectorN<N, D>: serde::Serialize,
+         MatrixN<N, D>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct RealEigen<N: Real, D: Dim>
     where DefaultAllocator: Allocator<N, D, D> + 

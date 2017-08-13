@@ -33,7 +33,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 macro_rules! component_binop_impl(
-    ($($binop: ident, $binop_mut: ident, $Trait: ident . $binop_assign: ident, $desc:expr, $desc_mut:expr);* $(;)*) => {$(
+    ($($binop: ident, $binop_mut: ident, $binop_assign: ident, $Trait: ident . $op_assign: ident, $desc:expr, $desc_mut:expr);* $(;)*) => {$(
         impl<N: Scalar, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA> {
             #[doc = $desc]
             #[inline]
@@ -50,7 +50,7 @@ macro_rules! component_binop_impl(
                 for j in 0 .. res.ncols() {
                     for i in 0 .. res.nrows() {
                         unsafe {
-                            res.get_unchecked_mut(i, j).$binop_assign(*rhs.get_unchecked(i, j));
+                            res.get_unchecked_mut(i, j).$op_assign(*rhs.get_unchecked(i, j));
                         }
                     }
                 }
@@ -62,7 +62,7 @@ macro_rules! component_binop_impl(
         impl<N: Scalar, R1: Dim, C1: Dim, SA: StorageMut<N, R1, C1>> Matrix<N, R1, C1, SA> {
             #[doc = $desc_mut]
             #[inline]
-            pub fn $binop_mut<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
+            pub fn $binop_assign<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
                 where N: $Trait,
                       R2: Dim,
                       C2: Dim,
@@ -74,19 +74,31 @@ macro_rules! component_binop_impl(
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
                         unsafe {
-                            self.get_unchecked_mut(i, j).$binop_assign(*rhs.get_unchecked(i, j));
+                            self.get_unchecked_mut(i, j).$op_assign(*rhs.get_unchecked(i, j));
                         }
                     }
                 }
+            }
+
+            #[doc = $desc_mut]
+            #[inline]
+            #[deprecated(note = "This is renamed using the `_assign` sufix instead of the `_mut` suffix.")]
+            pub fn $binop_mut<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
+                where N: $Trait,
+                      R2: Dim,
+                      C2: Dim,
+                      SB: Storage<N, R2, C2>,
+                      ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
+                self.$binop_assign(rhs)
             }
         }
     )*}
 );
 
 component_binop_impl!(
-    component_mul, component_mul_mut, ClosedMul.mul_assign,
+    component_mul, component_mul_mut, component_mul_assign, ClosedMul.mul_assign,
     "Componentwise matrix multiplication.", "Mutable, componentwise matrix multiplication.";
-    component_div, component_div_mut, ClosedDiv.div_assign,
+    component_div, component_div_mut, component_div_assign, ClosedDiv.div_assign,
     "Componentwise matrix division.", "Mutable, componentwise matrix division.";
     // FIXME: add other operators like bitshift, etc. ?
 );

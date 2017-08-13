@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use alga::general::Real;
 use core::{SquareMatrix, MatrixN, MatrixMN, VectorN, DefaultAllocator};
 use dimension::{DimSub, DimDiff, Dynamic, U1};
@@ -7,7 +10,20 @@ use constraint::{ShapeConstraint, DimEq};
 
 use linalg::householder;
 
-/// The Hessenberg decomposition of a general matrix.
+/// Hessenberg decomposition of a general matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, DimDiff<D, U1>>,
+         MatrixN<N, D>: serde::Serialize,
+         VectorN<N, DimDiff<D, U1>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, DimDiff<D, U1>>,
+         MatrixN<N, D>: serde::Deserialize<'de>,
+         VectorN<N, DimDiff<D, U1>>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct Hessenberg<N: Real, D: DimSub<U1>>
     where DefaultAllocator: Allocator<N, D, D> +
@@ -36,7 +52,8 @@ impl<N: Real, D: DimSub<U1>> Hessenberg<N, D>
 
     /// Computes the Hessenberg decomposition using householder reflections.
     ///
-    /// The workspace containing `D` elements must be provided and may be uninitialized.
+    /// The workspace containing `D` elements must be provided but its content does not have to be
+    /// initialized.
     pub fn new_with_workspace(mut hess: MatrixN<N, D>, work: &mut VectorN<N, D>) -> Self {
         assert!(hess.is_square(), "Cannot compute the hessenberg decomposition of a non-square matrix.");
 
@@ -81,7 +98,7 @@ impl<N: Real, D: DimSub<U1>> Hessenberg<N, D>
     // FIXME: add a h that moves out of self.
     /// Retrieves the upper trapezoidal submatrix `H` of this decomposition.
     ///
-    /// This is less efficient than `.unpack_h()`.
+    /// This is less efficient than `.unpack_h()` as it allocates a new matrix.
     #[inline]
     pub fn h(&self) -> MatrixN<N, D>
         where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {

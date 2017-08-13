@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use num_complex::Complex;
 use std::ops::MulAssign;
 
@@ -12,7 +15,20 @@ use linalg::SymmetricTridiagonal;
 use geometry::UnitComplex;
 
 
-/// The eigendecomposition of a symmetric matrix.
+/// Eigendecomposition of a symmetric matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, D>,
+         VectorN<N, D>: serde::Serialize,
+         MatrixN<N, D>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, D>,
+         VectorN<N, D>: serde::Deserialize<'de>,
+         MatrixN<N, D>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Real, D: Dim>
     where DefaultAllocator: Allocator<N, D, D> +
@@ -24,7 +40,7 @@ pub struct SymmetricEigen<N: Real, D: Dim>
     pub eigenvalues: VectorN<N, D>
 }
 
-impl<N: Real, D: Dim> SymmetricEigen<N, D>
+impl<N: Real, D: Dim> Copy for SymmetricEigen<N, D>
     where DefaultAllocator: Allocator<N, D, D> +
                             Allocator<N, D>,
           MatrixN<N, D>: Copy,
@@ -35,7 +51,7 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
                             Allocator<N, D> {
     /// Computes the eigendecomposition of the given symmetric matrix.
     ///
-    /// Only the lower-triangular and diagonal parts of `m` are read.
+    /// Only the lower-triangular parts (including its diagonal) of `m` is read.
     pub fn new(m: MatrixN<N, D>) -> Self
         where D: DimSub<U1>,
               DefaultAllocator: Allocator<N, DimDiff<D, U1>> {
@@ -46,11 +62,11 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
     /// Computes the eigendecomposition of the given symmetric matrix with user-specified
     /// convergence parameters.
     ///
-    /// Only the lower-triangular and diagonal parts of `m` are read.
+    /// Only the lower-triangular part (including its diagonal) of `m` is read.
     ///
     /// # Arguments
     ///
-    /// * `eps`       − tolerence used to determine when a value converged to 0.
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
@@ -277,7 +293,7 @@ impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 
     /// Computes the eigendecomposition of this symmetric matrix.
     ///
-    /// Only the lower-triangular part (including the diagonal) of `m` are read.
+    /// Only the lower-triangular part (including the diagonal) of `m` is read.
     pub fn symmetric_eigen(self) -> SymmetricEigen<N, D> {
         SymmetricEigen::new(self.into_owned())
     }
@@ -285,11 +301,11 @@ impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
     /// Computes the eigendecomposition of the given symmetric matrix with user-specified
     /// convergence parameters.
     ///
-    /// Only the lower-triangular and diagonal parts of `m` are read.
+    /// Only the lower-triangular part (including the diagonal) of `m` is read.
     ///
     /// # Arguments
     ///
-    /// * `eps`       − tolerence used to determine when a value converged to 0.
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.

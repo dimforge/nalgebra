@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.13.0]
 
+The **nalgebra-lapack** crate has been updated. This now includes a broad range
+matrix decompositions using LAPACK bindings.
+
 ### Breaking semantic change
   * The implementation of slicing with steps now matches the documentation.
     Before, step identified the number to add to pass from one column/row index
@@ -19,10 +22,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * The trait `Axpy` takes one additional parameter for the type of `x`.
   * The alias `MatrixNM` is now deprecated. Use `MatrixMN` instead (we
     reordered M and N to be in alphabetical order).
+  * In-place componentwise multiplication and division
+    `.component_mul_mut(...)` and `.component_div_mut(...)` have bee deprecated
+    for a future renaming. Use `.component_mul_assign(...)` and
+    `.component_div_assign(...)` instead.
 
 ### Added
   * `alga::general::Real` is now re-exported by nalgebra.
-  * `.trace()` that computes the trace of a matrix (the sum of its diagonal
     elements.)
   * `::zeros(...)` that creates a matrix filled with zeroes.
   * `::from_partial_diagonal(...)` that creates a matrix from diagonal elements.
@@ -39,16 +45,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Implements `IntoIterator` for `&Matrix`, `&mut Matrix` and `Matrix`.
   * `.mul_to(...)` multiplies two matrices and stores the result to the given buffer.
   * `.tr_mul_to(...)` left-multiplies `self.transpose()` to another matrix and stores the result to the given buffer.
-  * `.rows_range(...)` that retrieves a reference to a range of rows.
-  * `.rows_range_mut(...)` that retrieves a mutable reference to a range of rows.
-  * `.columns_range(...)` that retrieves a reference to a range of columns.
-  * `.columns_range_mut(...)` that retrieves a mutable reference to a range of columns.
   * `.add_scalar(...)` that adds a scalar to each component of a matrix.
   * `.add_scalar_mut(...)` that adds in-place a scalar to each component of a matrix.
   * `.kronecker(a, b)` computes the kronecker product (i.e. matrix tensor
     product) of two matrices.
+  * `.apply(f)` replaces each component of a matrix with the results of the
+    closure `f` called on each of them.
 
-Matrix decompositions:
+New slicing methods:
+  * `.rows_range(...)` that retrieves a reference to a range of rows.
+  * `.rows_range_mut(...)` that retrieves a mutable reference to a range of rows.
+  * `.columns_range(...)` that retrieves a reference to a range of columns.
+  * `.columns_range_mut(...)` that retrieves a mutable reference to a range of columns.
+
+Matrix decompositions implemented in pure Rust:
   * Cholesky, SVD, LU, QR, Hessenberg, Schur, Symmetric eigendecompositions,
     Bidiagonal, Symmetric tridiagonal
   * Computation of householder reflectors and givens rotations.

@@ -17,12 +17,32 @@ use lapack::fortran as interface;
 /// * `P` which is a `m * m` permutation matrix.
 ///
 /// Those are such that `M == P * L * U`.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<i32, DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Serialize,
+         PermutationSequence<DimMinimum<R, C>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, R, C> +
+                           Allocator<i32, DimMinimum<R, C>>,
+         MatrixMN<N, R, C>: serde::Deserialize<'de>,
+         PermutationSequence<DimMinimum<R, C>>: serde::Deserialize<'de>")))]
+#[derive(Clone, Debug)]
 pub struct LU<N: Scalar, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<i32, DimMinimum<R, C>> +
                             Allocator<N, R, C> {
     lu: MatrixMN<N, R, C>,
     p:  VectorN<i32, DimMinimum<R, C>>
 }
+
+impl<N: Scalar, R: DimMin<C>, C: Dim> Copy for LU<N, R, C>
+    where DefaultAllocator: Allocator<N, R, C> +
+                            Allocator<i32, DimMinimum<R, C>>,
+          MatrixMN<N, R, C>: Copy,
+          VectorN<i32, DimMinimum<R, C>>: Copy { }
 
 impl<N: LUScalar, R: Dim, C: Dim> LU<N, R, C>
     where N: Zero + One,

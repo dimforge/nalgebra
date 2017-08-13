@@ -50,7 +50,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Matrices and vectors with compile-time sizes are statically allocated while dynamic ones are
   allocated on the heap.
 * Convenient aliases for low-dimensional matrices and vectors: `Vector1` to `Vector6` and
-  `Matrix1x1` to `Matrix6x6` (including rectangular matrices like `Matrix2x5`.
+  `Matrix1x1` to `Matrix6x6`, including rectangular matrices like `Matrix2x5`.
 * Points sizes known at compile time, and convenience aliases: `Point1` to `Point6`.
 * Translation (seen as a transformation that composes by multiplication): `Translation2`,
   `Translation3`.
@@ -66,7 +66,8 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * General transformations that does not have to be invertible, stored as an homogeneous matrix:
   `Transform2`, `Transform3`.
 * 3D projections for computer graphics: `Perspective3`, `Orthographic3`.
-* Linear algebra decompositions: Cholesky, QR, LU, SVD, Schur, symmetric-eigendecomposition,.
+* Matrix factorizations: `Cholesky`, `QR`, `LU`, `FullPivLU`, `SVD`, `RealSchur`, `Hessenberg`, `SymmetricEigen`.
+* Insertion and removal of rows of columns of a matrix.
 * Implements traits from the [alga](https://crates.io/crates/alga) crate for
   generic programming.
 */

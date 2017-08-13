@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use alga::general::Real;
 use core::{SquareMatrix, MatrixN, MatrixMN, VectorN, DefaultAllocator};
 use dimension::{DimSub, DimDiff, U1};
@@ -7,7 +10,20 @@ use allocator::Allocator;
 use linalg::householder;
 
 
-/// The tridiagonalization of a symmetric matrix.
+/// Tridiagonalization of a symmetric matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, DimDiff<D, U1>>,
+         MatrixN<N, D>: serde::Serialize,
+         VectorN<N, DimDiff<D, U1>>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D, D> +
+                           Allocator<N, DimDiff<D, U1>>,
+         MatrixN<N, D>: serde::Deserialize<'de>,
+         VectorN<N, DimDiff<D, U1>>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct SymmetricTridiagonal<N: Real, D: DimSub<U1>>
     where DefaultAllocator: Allocator<N, D, D> +
@@ -16,7 +32,7 @@ pub struct SymmetricTridiagonal<N: Real, D: DimSub<U1>>
     off_diagonal: VectorN<N, DimDiff<D, U1>>
 }
 
-impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
+impl<N: Real, D: DimSub<U1>> Copy for SymmetricTridiagonal<N, D>
     where DefaultAllocator: Allocator<N, D, D> +
                             Allocator<N, DimDiff<D, U1>>,
           MatrixN<N, D>: Copy,
@@ -28,7 +44,7 @@ impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
 
     /// Computes the tridiagonalization of the symmetric matrix `m`.
     ///
-    /// Only the lower-triangular and diagonal parts of `m` are read.
+    /// Only the lower-triangular part (including the diagonal) of `m` is read.
     pub fn new(mut m: MatrixN<N, D>) -> Self {
         let dim = m.data.shape().0;
 
@@ -124,7 +140,7 @@ impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 
     /// Computes the tridiagonalization of this symmetric matrix.
     ///
-    /// Only the lower-triangular and diagonal parts of `self` are read.
+    /// Only the lower-triangular part (including the diagonal) of `m` is read.
     pub fn symmetric_tridiagonalize(self) -> SymmetricTridiagonal<N, D> {
         SymmetricTridiagonal::new(self.into_owned())
     }

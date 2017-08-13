@@ -1,3 +1,6 @@
+#[cfg(feature = "serde-serialize")]
+use serde;
+
 use num::Zero;
 use num_complex::Complex;
 
@@ -9,10 +12,24 @@ use na::allocator::Allocator;
 use lapack::fortran as interface;
 
 /// The cholesky decomposion of a symmetric-definite-positive matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(serialize =
+        "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(deserialize =
+        "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: serde::Deserialize<'de>")))]
+#[derive(Clone, Debug)]
 pub struct Cholesky<N: Scalar, D: Dim>
     where DefaultAllocator: Allocator<N, D, D> {
     l: MatrixN<N, D>
 }
+
+impl<N: Scalar, D: Dim> Copy for Cholesky<N, D>
+    where DefaultAllocator: Allocator<N, D, D>,
+          MatrixN<N, D>: Copy { }
 
 impl<N: CholeskyScalar + Zero, D: Dim> Cholesky<N, D>
     where DefaultAllocator: Allocator<N, D, D> {

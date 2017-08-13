@@ -1,4 +1,4 @@
-//! Linear algebra operators: decompositions, inversion, linear system resolution, etc.
+//! Factorization of real matrices.
 
 mod solve;
 mod determinant;
