@@ -105,7 +105,7 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     fn into_owned(self) -> Owned<N, R, C>
         where DefaultAllocator: Allocator<N, R, C>;
 
-    /// Clones this data storage into one that does not contain any reference.
+    /// Clones this data storage to one that does not contain any reference.
     fn clone_owned(&self) -> Owned<N, R, C>
         where DefaultAllocator: Allocator<N, R, C>;
 }

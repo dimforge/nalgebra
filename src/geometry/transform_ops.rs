@@ -304,8 +304,8 @@ md_impl_all!(
     self: Transform<N, D, CA>, rhs: Transform<N, D, CB>, Output = Transform<N, D, CA::Representative>;
     [val val] => self * rhs.inverse();
     [ref val] => self * rhs.inverse();
-    [val ref] => self * rhs.clone_owned().inverse();
-    [ref ref] => self * rhs.clone_owned().inverse();
+    [val ref] => self * rhs.clone().inverse();
+    [ref ref] => self * rhs.clone().inverse();
 );
 
 // Transform ÷ Rotation
@@ -513,8 +513,8 @@ md_assign_impl_all!(
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, CA: SuperTCategoryOf<CB>, CB: SubTCategoryOf<TProjective>;
     self: Transform<N, D, CA>, rhs: Transform<N, D, CB>;
-    [val] => *self *= rhs.clone_owned().inverse();
-    [ref] => *self *= rhs.clone_owned().inverse();
+    [val] => *self *= rhs.inverse();
+    [ref] => *self *= rhs.clone().inverse();
 );
 
 

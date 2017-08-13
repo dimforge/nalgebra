@@ -76,12 +76,14 @@ where Owned<N, U4>: serde::Deserialize<'a> {
 impl<N: Real> Quaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
+    #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
     pub fn into_owned(self) -> Quaternion<N> {
         self
     }
 
     /// Clones this unit quaternion into one that owns its data.
     #[inline]
+    #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
     pub fn clone_owned(&self) -> Quaternion<N> {
         Quaternion::from_vector(self.coords.clone_owned())
     }
@@ -153,7 +155,7 @@ impl<N: Real> Quaternion<N> {
     /// Returns, from left to right: the quaternion norm, the half rotation angle, the rotation
     /// axis. If the rotation angle is zero, the rotation axis is set to `None`.
     pub fn polar_decomposition(&self) -> (N, N, Option<Unit<Vector3<N>>>) {
-        if let Some((q, n)) = Unit::try_new_and_get(self.clone_owned(), N::zero()) {
+        if let Some((q, n)) = Unit::try_new_and_get(*self, N::zero()) {
             if let Some(axis) = Unit::try_new(self.vector().clone_owned(), N::zero()) {
                 let angle = q.angle() / ::convert(2.0f64);
 
@@ -292,14 +294,16 @@ pub type UnitQuaternion<N> = Unit<Quaternion<N>>;
 impl<N: Real> UnitQuaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
+    #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
     pub fn into_owned(self) -> UnitQuaternion<N> {
         self
     }
 
     /// Clones this unit quaternion into one that owns its data.
     #[inline]
+    #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
     pub fn clone_owned(&self) -> UnitQuaternion<N> {
-        UnitQuaternion::new_unchecked(self.as_ref().clone_owned())
+        *self
     }
 
     /// The rotation angle in [0; pi] of this unit quaternion.
@@ -396,7 +400,7 @@ impl<N: Real> UnitQuaternion<N> {
 
         // self == other
         if c_hang.abs() >= N::one() {
-            return Some(self.clone_owned())
+            return Some(*self)
         }
 
         let hang   = c_hang.acos();
