@@ -1,4 +1,5 @@
 use num::{Zero, One};
+use num::Float;
 use std::fmt::Display;
 
 use alga::linear::FiniteDimInnerSpace;
@@ -393,6 +394,44 @@ fn simple_scalar_conversion() {
 
     assert_eq!(a, a_f32);
     assert_eq!(expected, a_u32);
+}
+
+#[test]
+fn apply() {
+    let mut a = Matrix4::new(
+        1.1, 2.2, 3.3, 4.4,
+        5.5, 6.6, 7.7, 8.8,
+        9.9, 8.8, 7.7, 6.6,
+        5.5, 4.4, 3.3, 2.2);
+
+    let expected = Matrix4::new(
+        1.0,  2.0, 3.0, 4.0,
+        6.0,  7.0, 8.0, 9.0,
+        10.0, 9.0, 8.0, 7.0,
+        6.0,  4.0, 3.0, 2.0);
+
+    a.apply(|e| e.round());
+
+    assert_eq!(a, expected);
+}
+
+#[test]
+fn map() {
+    let a = Matrix4::new(
+        1.1f64, 2.2, 3.3, 4.4,
+        5.5, 6.6, 7.7, 8.8,
+        9.9, 8.8, 7.7, 6.6,
+        5.5, 4.4, 3.3, 2.2);
+
+    let expected = Matrix4::new(
+        1,  2, 3, 4,
+        6,  7, 8, 9,
+        10, 9, 8, 7,
+        6,  4, 3, 2);
+
+    let computed = a.map(|e| e.round() as i64);
+
+    assert_eq!(computed, expected);
 }
 
 #[test]

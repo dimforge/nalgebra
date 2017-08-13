@@ -284,8 +284,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
-    pub fn map<F: FnMut(N) -> N>(&self, mut f: F) -> MatrixMN<N, R, C>
-        where DefaultAllocator: Allocator<N, R, C> {
+    pub fn map<N2: Scalar, F: FnMut(N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
+        where DefaultAllocator: Allocator<N2, R, C> {
         let (nrows, ncols) = self.data.shape();
 
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
@@ -439,6 +439,22 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         where S2: Storage<N, R2, U1>,
               ShapeConstraint: SameNumberOfRows<R, R2> {
         self.column_mut(i).copy_from(column);
+    }
+
+    /// Replaces each component of `self` by the result of a closure `f` applied on it.
+    #[inline]
+    pub fn apply<F: FnMut(N) -> N>(&mut self, mut f: F)
+        where DefaultAllocator: Allocator<N, R, C> {
+        let (nrows, ncols) = self.shape();
+
+        for j in 0 .. ncols {
+            for i in 0 .. nrows {
+                unsafe {
+                    let e = self.data.get_unchecked_mut(i, j);
+                    *e = f(*e)
+                }
+            }
+        }
     }
 }
 
