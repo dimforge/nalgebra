@@ -105,8 +105,7 @@ impl<N: LUScalar, R: Dim, C: Dim> LU<N, R, C>
                   1, self.p.len() as i32, self.p.as_slice(), -1);
     }
 
-    fn generic_solve<R2: Dim, C2: Dim>(&self, trans: u8, mut b: MatrixMN<N, R2, C2>)
-        -> Option<MatrixMN<N, R2, C2>>
+    fn generic_solve_mut<R2: Dim, C2: Dim>(&self, trans: u8, b: &mut MatrixMN<N, R2, C2>) -> bool
         where DefaultAllocator: Allocator<N, R2, C2> +
                                 Allocator<i32, R2> {
 
@@ -121,39 +120,89 @@ impl<N: LUScalar, R: Dim, C: Dim> LU<N, R, C>
         let mut info = 0;
 
         N::xgetrs(trans, dim as i32, nrhs, self.lu.as_slice(), lda, self.p.as_slice(),
-                      b.as_mut_slice(), ldb, &mut info);
-        lapack_check!(info);
-
-        Some(b)
+                  b.as_mut_slice(), ldb, &mut info);
+        lapack_test!(info)
     }
 
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
-    pub fn solve<R2: Dim, C2: Dim>(&self, b: MatrixMN<N, R2, C2>)
-        -> Option<MatrixMN<N, R2, C2>>
-        where DefaultAllocator: Allocator<N, R2, C2> +
+    pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<N, R2, C2, S2>) -> Option<MatrixMN<N, R2, C2>>
+        where S2: Storage<N, R2, C2>,
+              DefaultAllocator: Allocator<N, R2, C2> +
                                 Allocator<i32, R2> {
 
-        self.generic_solve(b'N', b)
+        let mut res = b.clone_owned();
+        if self.generic_solve_mut(b'N', &mut res) {
+            Some(res)
+        }
+        else {
+            None
+        }
     }
 
     /// Solves the linear system `self.transpose() * x = b`, where `x` is the unknown to be
     /// determined.
-    pub fn solve_transpose<R2: Dim, C2: Dim>(&self, b: MatrixMN<N, R2, C2>)
+    pub fn solve_transpose<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<N, R2, C2, S2>)
         -> Option<MatrixMN<N, R2, C2>>
-        where DefaultAllocator: Allocator<N, R2, C2> +
+        where S2: Storage<N, R2, C2>,
+              DefaultAllocator: Allocator<N, R2, C2> +
                                 Allocator<i32, R2> {
 
-        self.generic_solve(b'T', b)
+        let mut res = b.clone_owned();
+        if self.generic_solve_mut(b'T', &mut res) {
+            Some(res)
+        }
+        else {
+            None
+        }
     }
 
     /// Solves the linear system `self.conjugate_transpose() * x = b`, where `x` is the unknown to
     /// be determined.
-    pub fn solve_conjugate_transpose<R2: Dim, C2: Dim>(&self, b: MatrixMN<N, R2, C2>)
+    pub fn solve_conjugate_transpose<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<N, R2, C2, S2>)
         -> Option<MatrixMN<N, R2, C2>>
+        where S2: Storage<N, R2, C2>,
+              DefaultAllocator: Allocator<N, R2, C2> +
+                                Allocator<i32, R2> {
+
+        let mut res = b.clone_owned();
+        if self.generic_solve_mut(b'T', &mut res) {
+            Some(res)
+        }
+        else {
+            None
+        }
+    }
+
+    /// Solves in-place the linear system `self * x = b`, where `x` is the unknown to be determined.
+    ///
+    /// Retuns `false` if no solution was found (the decomposed matrix is singular).
+    pub fn solve_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
         where DefaultAllocator: Allocator<N, R2, C2> +
                                 Allocator<i32, R2> {
 
-        self.generic_solve(b'T', b)
+        self.generic_solve_mut(b'N', b)
+    }
+
+    /// Solves in-place the linear system `self.transpose() * x = b`, where `x` is the unknown to be
+    /// determined.
+    ///
+    /// Retuns `false` if no solution was found (the decomposed matrix is singular).
+    pub fn solve_transpose_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
+        where DefaultAllocator: Allocator<N, R2, C2> +
+                                Allocator<i32, R2> {
+
+        self.generic_solve_mut(b'T', b)
+    }
+
+    /// Solves in-place the linear system `self.conjugate_transpose() * x = b`, where `x` is the unknown to
+    /// be determined.
+    ///
+    /// Retuns `false` if no solution was found (the decomposed matrix is singular).
+    pub fn solve_conjugate_transpose_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
+        where DefaultAllocator: Allocator<N, R2, C2> +
+                                Allocator<i32, R2> {
+
+        self.generic_solve_mut(b'T', b)
     }
 }
 

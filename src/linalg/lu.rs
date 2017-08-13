@@ -169,7 +169,7 @@ impl<N: Real, D: DimMin<D, Output = D>> LU<N, D, D>
     ///
     /// Returns `None` if `self` is not invertible.
     pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<N, R2, C2, S2>) -> Option<MatrixMN<N, R2, C2>>
-        where S2: StorageMut<N, R2, C2>,
+        where S2: Storage<N, R2, C2>,
               ShapeConstraint: SameNumberOfRows<R2, D>,
               DefaultAllocator: Allocator<N, R2, C2> {
         let mut res = b.clone_owned();
