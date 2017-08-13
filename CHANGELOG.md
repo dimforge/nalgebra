@@ -7,6 +7,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.13.0]
 
+### Breaking semantic change
+  * The implementation of slicing with steps now matches the documentation.
+    Before, step identified the number to add to pass from one column/row index
+    to the next one. This made 0 step invalid. Now (and on the documentation so
+    far), the step is the number of ignored row/columns between each
+    row/column. Thus, a step of 0 means that no row/column is ignored.  For
+    example, a step of, say, 3 on previous versions should now bet set to 2.
+
 ### Modified
   * The trait `Axpy` takes one additional parameter for the type of `x`.
   * The alias `MatrixNM` is now deprecated. Use `MatrixMN` instead (we

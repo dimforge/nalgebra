@@ -13,7 +13,7 @@ fn nested_fixed_slices() {
 
     let s1 = a.fixed_slice::<U3, U3>(0, 1);                       // Simple slice.
     let s2 = s1.fixed_slice::<U2, U2>(1, 1);                      // Slice of slice.
-    let s3 = s1.fixed_slice_with_steps::<U2, U2>((0, 0), (2, 2)); // Slice of slice with steps.
+    let s3 = s1.fixed_slice_with_steps::<U2, U2>((0, 0), (1, 1)); // Slice of slice with steps.
 
     let expected_owned_s1 = Matrix3::new(12.0, 13.0, 14.0,
                                          22.0, 23.0, 24.0,
@@ -38,7 +38,7 @@ fn nested_slices() {
 
     let s1 = a.slice((0, 1), (3, 3));
     let s2 = s1.slice((1, 1), (2, 2));
-    let s3 = s1.slice_with_steps((0, 0), (2, 2), (2, 2));
+    let s3 = s1.slice_with_steps((0, 0), (2, 2), (1, 1));
 
     let expected_owned_s1 = DMatrix::from_row_slice(3, 3, &[ 12.0, 13.0, 14.0,
                                                              22.0, 23.0, 24.0,
@@ -63,7 +63,7 @@ fn slice_mut() {
 
     {
         // We modify `a` through the mutable slice.
-        let mut s1 = a.slice_with_steps_mut((0, 1), (2, 2), (2, 2));
+        let mut s1 = a.slice_with_steps_mut((0, 1), (2, 2), (1, 1));
         s1.fill(0.0);
     }
 
@@ -83,7 +83,7 @@ fn nested_row_slices() {
                            51.0, 52.0,
                            61.0, 62.0);
     let s1 = a.fixed_rows::<U4>(1);
-    let s2 = s1.fixed_rows_with_step::<U2>(1, 2);
+    let s2 = s1.fixed_rows_with_step::<U2>(1, 1);
 
     let expected_owned_s1 = Matrix4x2::new(21.0, 22.0,
                                            31.0, 32.0,
@@ -107,7 +107,7 @@ fn row_slice_mut() {
                                61.0, 62.0);
     {
         // We modify `a` through the mutable slice.
-        let mut s1 = a.rows_with_step_mut(1, 3, 2);
+        let mut s1 = a.rows_with_step_mut(1, 3, 1);
         s1.fill(0.0);
     }
 
@@ -126,7 +126,7 @@ fn nested_col_slices() {
     let a = Matrix2x6::new(11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
                            21.0, 22.0, 23.0, 24.0, 25.0, 26.0);
     let s1 = a.fixed_columns::<U4>(1);
-    let s2 = s1.fixed_columns_with_step::<U2>(1, 2);
+    let s2 = s1.fixed_columns_with_step::<U2>(1, 1);
 
     let expected_owned_s1 = Matrix2x4::new(12.0, 13.0, 14.0, 15.0,
                                            22.0, 23.0, 24.0, 25.0);
@@ -145,7 +145,7 @@ fn col_slice_mut() {
 
     {
         // We modify `a` through the mutable slice.
-        let mut s1 = a.columns_with_step_mut(1, 3, 2);
+        let mut s1 = a.columns_with_step_mut(1, 3, 1);
         s1.fill(0.0);
     }
 

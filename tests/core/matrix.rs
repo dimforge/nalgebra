@@ -435,6 +435,28 @@ fn map() {
 }
 
 #[test]
+fn zip_map() {
+    let a = Matrix3::new(
+        11i32, 12, 13,
+        21,    22, 23,
+        31,    32, 33);
+
+    let b = Matrix3::new(
+        11u32, 12, 13,
+        21,    22, 23,
+        31,    32, 33);
+
+    let expected = Matrix3::new(
+        22.0f32, 24.0, 26.0,
+        42.0,    44.0, 46.0,
+        62.0,    64.0, 66.0);
+
+    let computed = a.zip_map(&b, |ea, eb| ea as f32 + eb as f32);
+
+    assert_eq!(computed, expected);
+}
+
+#[test]
 #[should_panic]
 fn trace_panic() {
     let m = DMatrix::<f32>::new_random(2, 3);
