@@ -15,8 +15,11 @@ use lapack::fortran as interface;
 pub struct Eigen<N: Scalar, D: Dim>
     where DefaultAllocator: Allocator<N, D> +
              Allocator<N, D, D> {
+    /// The eigenvalues of the decomposed matrix.
     pub eigenvalues:       VectorN<N, D>,
+    /// The (right) eigenvectors of the decomposed matrix.
     pub eigenvectors:      Option<MatrixN<N, D>>,
+    /// The left eigenvectors of the decomposed matrix.
     pub left_eigenvectors: Option<MatrixN<N, D>>
 }
 
@@ -125,7 +128,7 @@ impl<N: EigenScalar + Real, D: Dim> Eigen<N, D>
         where DefaultAllocator: Allocator<Complex<N>, D> {
         assert!(m.is_square(), "Unable to compute the eigenvalue decomposition of a non-square matrix.");
 
-        let (nrows, ncols) = m.data.shape();
+        let nrows = m.data.shape().0;
         let n = nrows.value();
 
         let lda = n as i32;
@@ -181,11 +184,15 @@ impl<N: EigenScalar + Real, D: Dim> Eigen<N, D>
  * Lapack functions dispatch.
  *
  */
+/// Trait implemented by scalar type for which Lapack funtion exist to compute the
+/// eigendecomposition.
 pub trait EigenScalar: Scalar {
+    #[allow(missing_docs)]
     fn xgeev(jobvl: u8, jobvr: u8, n: i32, a: &mut [Self], lda: i32,
              wr: &mut [Self], wi: &mut [Self],
              vl: &mut [Self], ldvl: i32, vr: &mut [Self], ldvr: i32,
              work: &mut [Self], lwork: i32, info: &mut i32);
+    #[allow(missing_docs)]
     fn xgeev_work_size(jobvl: u8, jobvr: u8, n: i32, a: &mut [Self], lda: i32,
                        wr: &mut [Self], wi: &mut [Self], vl: &mut [Self], ldvl: i32,
                        vr: &mut [Self], ldvr: i32, info: &mut i32) -> i32;

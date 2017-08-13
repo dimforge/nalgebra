@@ -15,9 +15,12 @@ pub struct SVD<N: Scalar, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<N, R, R>                 +
                             Allocator<N, DimMinimum<R, C>> +
                             Allocator<N, C, C> {
+    /// The left-singular vectors `U` of this SVD.
     pub u:  MatrixN<N, R>,
-    pub s:  VectorN<N, DimMinimum<R, C>>,
-    pub vt: MatrixN<N, C>
+    /// The right-singular vectors `V^t` of this SVD.
+    pub vt: MatrixN<N, C>,
+    /// The singular values of this SVD.
+    pub singular_values: VectorN<N, DimMinimum<R, C>>
 }
 
 
@@ -37,6 +40,7 @@ impl<N: SVDScalar<R, C>, R: DimMin<C>, C: Dim> SVD<N, R, C>
                             Allocator<N, R, C>             +
                             Allocator<N, DimMinimum<R, C>> +
                             Allocator<N, C, C> {
+    /// Computes the Singular Value Decomposition of `matrix`.
     pub fn new(m: MatrixMN<N, R, C>) -> Option<Self> {
         N::compute(m)
     }
@@ -87,7 +91,7 @@ macro_rules! svd_impl(
                     ldvt as i32, &mut work, lwork, &mut iwork, &mut info);
                 lapack_check!(info);
 
-                Some(SVD { u: u, s: s, vt: vt })
+                Some(SVD { u: u, singular_values: s, vt: vt })
             }
         }
 
@@ -108,7 +112,7 @@ macro_rules! svd_impl(
             /// Useful if some components (e.g. some singular values) of this decomposition have
             /// been manually changed by the user.
             #[inline]
-            pub fn matrix(&self) -> MatrixMN<$t, R, C> {
+            pub fn recompose(self) -> MatrixMN<$t, R, C> {
                 let nrows           = self.u.data.shape().0;
                 let ncols           = self.vt.data.shape().1;
                 let min_nrows_ncols = nrows.min(ncols);
@@ -120,13 +124,13 @@ macro_rules! svd_impl(
                     sres.copy_from(&self.vt.rows_generic(0, min_nrows_ncols));
 
                     for i in 0 .. min_nrows_ncols.value() {
-                        let eigval  = self.s[i];
+                        let eigval  = self.singular_values[i];
                         let mut row = sres.row_mut(i);
                         row *= eigval;
                     }
                 }
 
-                &self.u * res
+                self.u * res
             }
 
             /// Computes the pseudo-inverse of the decomposed matrix.
@@ -145,7 +149,7 @@ macro_rules! svd_impl(
                     self.u.columns_generic(0, min_nrows_ncols).transpose_to(&mut sres);
 
                     for i in 0 .. min_nrows_ncols.value() {
-                        let eigval  = self.s[i];
+                        let eigval  = self.singular_values[i];
                         let mut row = sres.row_mut(i);
 
                         if eigval.abs() > epsilon {
@@ -168,7 +172,7 @@ macro_rules! svd_impl(
             pub fn rank(&self, epsilon: $t) -> usize {
                 let mut i = 0;
 
-                for e in self.s.as_slice().iter() {
+                for e in self.singular_values.as_slice().iter() {
                     if e.abs() > epsilon {
                         i += 1;
                     }
