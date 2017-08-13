@@ -344,11 +344,11 @@ impl<N: Real, R: DimMin<C>, C: Dim> SVD<N, R, C>
 
                 if b.is_upper_diagonal() {
                     if let Some(ref mut u) = *u {
-                        rot.inverse().rotate_rows(&mut u.fixed_columns_with_step_mut::<U2>(i, k - i + 1));
+                        rot.inverse().rotate_rows(&mut u.fixed_columns_with_step_mut::<U2>(i, k - i));
                     }
                 }
                 else if let Some(ref mut v_t) = *v_t {
-                    rot.rotate(&mut v_t.fixed_rows_with_step_mut::<U2>(i, k - i + 1));
+                    rot.rotate(&mut v_t.fixed_rows_with_step_mut::<U2>(i, k - i));
                 }
 
                 if k + 1 != end {
@@ -377,11 +377,11 @@ impl<N: Real, R: DimMin<C>, C: Dim> SVD<N, R, C>
 
                 if b.is_upper_diagonal() {
                     if let Some(ref mut v_t) = *v_t {
-                        rot.rotate(&mut v_t.fixed_rows_with_step_mut::<U2>(k, i + 1 - k));
+                        rot.rotate(&mut v_t.fixed_rows_with_step_mut::<U2>(k, i - k));
                     }
                 }
                 else if let Some(ref mut u) = *u {
-                    rot.inverse().rotate_rows(&mut u.fixed_columns_with_step_mut::<U2>(k, i + 1 - k));
+                    rot.inverse().rotate_rows(&mut u.fixed_columns_with_step_mut::<U2>(k, i - k));
                 }
 
                 if k > 0 {

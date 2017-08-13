@@ -41,8 +41,8 @@ quickcheck!{
                 let b1 = DVector::new_random(n);
                 let b2 = DMatrix::new_random(n, nb);
 
-                let sol1 = chol.solve(b1.clone()).unwrap();
-                let sol2 = chol.solve(b2.clone()).unwrap();
+                let sol1 = chol.solve(&b1).unwrap();
+                let sol2 = chol.solve(&b2).unwrap();
 
                 return relative_eq!(&m * sol1, b1, epsilon = 1.0e-6) &&
                        relative_eq!(&m * sol2, b2, epsilon = 1.0e-6)
@@ -59,8 +59,8 @@ quickcheck!{
                 let b1 = Vector4::new_random();
                 let b2 = Matrix4x3::new_random();
 
-                let sol1 = chol.solve(b1).unwrap();
-                let sol2 = chol.solve(b2).unwrap();
+                let sol1 = chol.solve(&b1).unwrap();
+                let sol2 = chol.solve(&b2).unwrap();
 
                 relative_eq!(m * sol1, b1, epsilon = 1.0e-7) &&
                 relative_eq!(m * sol2, b2, epsilon = 1.0e-7)

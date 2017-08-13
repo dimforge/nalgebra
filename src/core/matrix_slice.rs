@@ -3,7 +3,7 @@ use std::ops::{Range, RangeFrom, RangeTo, RangeFull};
 use std::slice;
 
 use core::{Scalar, Matrix};
-use core::dimension::{Dim, DimName, Dynamic, DimMul, DimProd, U1};
+use core::dimension::{Dim, DimName, Dynamic, U1};
 use core::iter::MatrixIter;
 use core::storage::{Storage, StorageMut, Owned};
 use core::allocator::Allocator;
@@ -258,38 +258,36 @@ macro_rules! matrix_slice_impl(
                 $me.$rows_generic(first_row, Dynamic::new(nrows))
             }
 
-            /// Extracts from this matrix a set of consecutive rows regularly spaced by `step` rows.
+            /// Extracts from this matrix a set of consecutive rows regularly skipping `step` rows.
             #[inline]
             pub fn $rows_with_step($me: $Me, first_row: usize, nrows: usize, step: usize)
                 -> $MatrixSlice<N, Dynamic, C, Dynamic, S::CStride> {
 
-                $me.$rows_generic_with_step(first_row, Dynamic::new(nrows), Dynamic::new(step))
+                $me.$rows_generic_with_step(first_row, Dynamic::new(nrows), step)
             }
 
             /// Extracts a compile-time number of consecutive rows from this matrix.
             #[inline]
-            pub fn $fixed_rows<RSlice>($me: $Me, first_row: usize)
-                -> $MatrixSlice<N, RSlice, C, S::RStride, S::CStride>
-                where RSlice: DimName {
+            pub fn $fixed_rows<RSlice: DimName>($me: $Me, first_row: usize)
+                -> $MatrixSlice<N, RSlice, C, S::RStride, S::CStride> {
 
                 $me.$rows_generic(first_row, RSlice::name())
             }
 
-            /// Extracts from this matrix a compile-time number of rows regularly spaced by `step` rows.
+            /// Extracts from this matrix a compile-time number of rows regularly skipping `step`
+            /// rows.
             #[inline]
-            pub fn $fixed_rows_with_step<RSlice>($me: $Me, first_row: usize, step: usize)
-                -> $MatrixSlice<N, RSlice, C, Dynamic, S::CStride>
-                where RSlice: DimName {
+            pub fn $fixed_rows_with_step<RSlice: DimName>($me: $Me, first_row: usize, step: usize)
+                -> $MatrixSlice<N, RSlice, C, Dynamic, S::CStride> {
 
-                $me.$rows_generic_with_step(first_row, RSlice::name(), Dynamic::new(step))
+                $me.$rows_generic_with_step(first_row, RSlice::name(), step)
             }
 
-            /// Extracts from this matrix `nrows` rows regularly spaced by `step` rows. Both argument may
-            /// or may not be values known at compile-time.
+            /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
+            /// argument may or may not be values known at compile-time.
             #[inline]
-            pub fn $rows_generic<RSlice>($me: $Me, row_start: usize, nrows: RSlice)
-                -> $MatrixSlice<N, RSlice, C, S::RStride, S::CStride>
-                where RSlice: Dim {
+            pub fn $rows_generic<RSlice: Dim>($me: $Me, row_start: usize, nrows: RSlice)
+                -> $MatrixSlice<N, RSlice, C, S::RStride, S::CStride> {
 
                 let my_shape   = $me.data.shape();
                 $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (1, 1));
@@ -302,19 +300,18 @@ macro_rules! matrix_slice_impl(
                 }
             }
 
-            /// Extracts from this matrix `nrows` rows regularly spaced by `step` rows. Both argument may
-            /// or may not be values known at compile-time.
+            /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
+            /// argument may or may not be values known at compile-time.
             #[inline]
-            pub fn $rows_generic_with_step<RSlice, RStep>($me: $Me, row_start: usize, nrows: RSlice, step: RStep)
-                -> $MatrixSlice<N, RSlice, C, DimProd<RStep, S::RStride>, S::CStride>
-                where RSlice: Dim,
-                      RStep: DimMul<S::RStride> {
+            pub fn $rows_generic_with_step<RSlice>($me: $Me, row_start: usize, nrows: RSlice, step: usize)
+                -> $MatrixSlice<N, RSlice, C, Dynamic, S::CStride>
+                where RSlice: Dim {
 
                 let my_shape   = $me.data.shape();
                 let my_strides = $me.data.strides();
-                $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step.value(), 1));
+                $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step, 1));
 
-                let strides = (step.mul(my_strides.0), my_strides.1);
+                let strides = (Dynamic::new((step + 1) * my_strides.0.value()), my_strides.1);
                 let shape   = (nrows, my_shape.1);
 
                 unsafe {
@@ -348,39 +345,37 @@ macro_rules! matrix_slice_impl(
                 $me.$columns_generic(first_col, Dynamic::new(ncols))
             }
 
-            /// Extracts from this matrix a set of consecutive columns regularly spaced by `step` columns.
+            /// Extracts from this matrix a set of consecutive columns regularly skipping `step`
+            /// columns.
             #[inline]
             pub fn $columns_with_step($me: $Me, first_col: usize, ncols: usize, step: usize)
                 -> $MatrixSlice<N, R, Dynamic, S::RStride, Dynamic> {
 
-                $me.$columns_generic_with_step(first_col, Dynamic::new(ncols), Dynamic::new(step))
+                $me.$columns_generic_with_step(first_col, Dynamic::new(ncols), step)
             }
 
             /// Extracts a compile-time number of consecutive columns from this matrix.
             #[inline]
-            pub fn $fixed_columns<CSlice>($me: $Me, first_col: usize)
-                -> $MatrixSlice<N, R, CSlice, S::RStride, S::CStride>
-                where CSlice: DimName {
+            pub fn $fixed_columns<CSlice: DimName>($me: $Me, first_col: usize)
+                -> $MatrixSlice<N, R, CSlice, S::RStride, S::CStride> {
 
                 $me.$columns_generic(first_col, CSlice::name())
             }
 
-            /// Extracts from this matrix a compile-time number of columns regularly spaced by `step`
-            /// columns.
+            /// Extracts from this matrix a compile-time number of columns regularly skipping
+            /// `step` columns.
             #[inline]
-            pub fn $fixed_columns_with_step<CSlice>($me: $Me, first_col: usize, step: usize)
-                -> $MatrixSlice<N, R, CSlice, S::RStride, Dynamic>
-                where CSlice: DimName {
+            pub fn $fixed_columns_with_step<CSlice: DimName>($me: $Me, first_col: usize, step: usize)
+                -> $MatrixSlice<N, R, CSlice, S::RStride, Dynamic> {
 
-                $me.$columns_generic_with_step(first_col, CSlice::name(), Dynamic::new(step))
+                $me.$columns_generic_with_step(first_col, CSlice::name(), step)
             }
 
             /// Extracts from this matrix `ncols` columns. The number of columns may or may not be
             /// known at compile-time.
             #[inline]
-            pub fn $columns_generic<CSlice>($me: $Me, first_col: usize, ncols: CSlice)
-                -> $MatrixSlice<N, R, CSlice, S::RStride, S::CStride>
-                where CSlice: Dim {
+            pub fn $columns_generic<CSlice: Dim>($me: $Me, first_col: usize, ncols: CSlice)
+                -> $MatrixSlice<N, R, CSlice, S::RStride, S::CStride> {
 
                 let my_shape = $me.data.shape();
                 $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (1, 1));
@@ -393,20 +388,18 @@ macro_rules! matrix_slice_impl(
             }
 
 
-            /// Extracts from this matrix `ncols` columns regularly spaced by `step` columns. Both argument may
+            /// Extracts from this matrix `ncols` columns skipping `step` columns. Both argument may
             /// or may not be values known at compile-time.
             #[inline]
-            pub fn $columns_generic_with_step<CSlice, CStep>($me: $Me, first_col: usize, ncols: CSlice, step: CStep)
-                -> $MatrixSlice<N, R, CSlice, S::RStride, DimProd<CStep, S::CStride>>
-                where CSlice: Dim,
-                      CStep:  DimMul<S::CStride> {
+            pub fn $columns_generic_with_step<CSlice: Dim>($me: $Me, first_col: usize, ncols: CSlice, step: usize)
+                -> $MatrixSlice<N, R, CSlice, S::RStride, Dynamic> {
 
                 let my_shape   = $me.data.shape();
                 let my_strides = $me.data.strides();
 
-                $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (1, step.value()));
+                $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (1, step));
 
-                let strides = (my_strides.0, step.mul(my_strides.1));
+                let strides = (my_strides.0, Dynamic::new((step + 1) * my_strides.1.value()));
                 let shape   = (my_shape.0, ncols);
 
                 unsafe {
@@ -444,7 +437,6 @@ macro_rules! matrix_slice_impl(
             pub fn $slice_with_steps($me: $Me, start: (usize, usize), shape: (usize, usize), steps: (usize, usize))
                 -> $MatrixSlice<N, Dynamic, Dynamic, Dynamic, Dynamic> {
                 let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
-                let steps = (Dynamic::new(steps.0), Dynamic::new(steps.1));
 
                 $me.$generic_slice_with_steps(start, shape, steps)
             }
@@ -476,7 +468,6 @@ macro_rules! matrix_slice_impl(
                 where RSlice: DimName,
                       CSlice: DimName {
                 let shape = (RSlice::name(), CSlice::name());
-                let steps = (Dynamic::new(steps.0), Dynamic::new(steps.1));
                 $me.$generic_slice_with_steps(start, shape, steps)
             }
 
@@ -497,21 +488,19 @@ macro_rules! matrix_slice_impl(
 
             /// Creates a slice that may or may not have a fixed size and stride.
             #[inline]
-            pub fn $generic_slice_with_steps<RSlice, CSlice, RStep, CStep>($me: $Me,
-                                                                           start: (usize, usize),
-                                                                           shape: (RSlice, CSlice),
-                                                                           steps: (RStep, CStep))
-                -> $MatrixSlice<N, RSlice, CSlice, DimProd<RStep, S::RStride>, DimProd<CStep, S::CStride>>
+            pub fn $generic_slice_with_steps<RSlice, CSlice>($me: $Me,
+                                                             start: (usize, usize),
+                                                             shape: (RSlice, CSlice),
+                                                             steps: (usize, usize))
+                -> $MatrixSlice<N, RSlice, CSlice, Dynamic, Dynamic>
                 where RSlice: Dim,
-                      CSlice: Dim,
-                      RStep: DimMul<S::RStride>,
-                      CStep: DimMul<S::CStride> {
+                      CSlice: Dim {
 
-                assert!(steps.0.value() > 0 && steps.1.value() > 0, "Matrix slicing steps must not be zero.");
-                $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), (steps.0.value(), steps.1.value()));
+                $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), steps);
 
                 let my_strides = $me.data.strides();
-                let strides    = (steps.0.mul(my_strides.0), steps.1.mul(my_strides.1));
+                let strides    = (Dynamic::new((steps.0 + 1) * my_strides.0.value()),
+                                  Dynamic::new((steps.1 + 1) * my_strides.1.value()));
 
                 unsafe {
                     let data = $SliceStorage::new_with_strides_unchecked($data, start, shape, strides);

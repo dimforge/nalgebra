@@ -305,8 +305,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each entries of `self` and
     /// `rhs`.
     #[inline]
-    pub fn zip_map<F: FnMut(N, N) -> N>(&self, rhs: &Matrix<N, R, C, S>, mut f: F) -> MatrixMN<N, R, C>
-        where DefaultAllocator: Allocator<N, R, C> {
+    pub fn zip_map<N2, N3, S2, F>(&self, rhs: &Matrix<N2, R, C, S2>, mut f: F) -> MatrixMN<N3, R, C>
+        where N2: Scalar,
+              N3: Scalar,
+              S2: Storage<N2, R, C>,
+              F: FnMut(N, N2) -> N3,
+              DefaultAllocator: Allocator<N3, R, C> {
         let (nrows, ncols) = self.data.shape();
 
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
