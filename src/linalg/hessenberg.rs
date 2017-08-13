@@ -8,6 +8,7 @@ use constraint::{ShapeConstraint, DimEq};
 use linalg::householder;
 
 /// The Hessenberg decomposition of a general matrix.
+#[derive(Clone, Debug)]
 pub struct Hessenberg<N: Real, D: DimSub<U1>>
     where DefaultAllocator: Allocator<N, D, D> +
                             Allocator<N, DimDiff<D, U1>> {
@@ -15,6 +16,12 @@ pub struct Hessenberg<N: Real, D: DimSub<U1>>
     hess:    MatrixN<N, D>,
     subdiag: VectorN<N, DimDiff<D, U1>>
 }
+
+impl<N: Real, D: DimSub<U1>> Copy for Hessenberg<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, DimDiff<D, U1>>,
+          MatrixN<N, D>: Copy,
+          VectorN<N, DimDiff<D, U1>>: Copy { }
 
 impl<N: Real, D: DimSub<U1>> Hessenberg<N, D>
     where DefaultAllocator: Allocator<N, D, D> +

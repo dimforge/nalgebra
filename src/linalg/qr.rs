@@ -10,12 +10,20 @@ use geometry::Reflection;
 
 
 /// The QR decomposition of a general matrix.
+#[derive(Clone, Debug)]
 pub struct QR<N: Real, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<N, R, C> +
                             Allocator<N, DimMinimum<R, C>> {
     qr:   MatrixMN<N, R, C>,
     diag: VectorN<N, DimMinimum<R, C>>,
 }
+
+
+impl<N: Real, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
+    where DefaultAllocator: Allocator<N, R, C> +
+                            Allocator<N, DimMinimum<R, C>>,
+          MatrixMN<N, R, C>: Copy,
+          VectorN<N, DimMinimum<R, C>>: Copy { }
 
 impl<N: Real, R: DimMin<C>, C: Dim> QR<N, R, C>
     where DefaultAllocator: Allocator<N, R, C> +

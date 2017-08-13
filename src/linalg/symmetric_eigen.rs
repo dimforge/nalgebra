@@ -13,6 +13,7 @@ use geometry::UnitComplex;
 
 
 /// The eigendecomposition of a symmetric matrix.
+#[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Real, D: Dim>
     where DefaultAllocator: Allocator<N, D, D> +
                             Allocator<N, D> {
@@ -22,6 +23,12 @@ pub struct SymmetricEigen<N: Real, D: Dim>
     /// The unsorted eigenvalues of the decomposed matrix.
     pub eigenvalues: VectorN<N, D>
 }
+
+impl<N: Real, D: Dim> SymmetricEigen<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, D>,
+          MatrixN<N, D>: Copy,
+          VectorN<N, D>: Copy { }
 
 impl<N: Real, D: Dim> SymmetricEigen<N, D>
     where DefaultAllocator: Allocator<N, D, D> +

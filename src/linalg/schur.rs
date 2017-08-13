@@ -15,12 +15,19 @@ use geometry::{Reflection, UnitComplex};
 
 
 /// Real RealSchur decomposition of a square matrix.
+#[derive(Clone, Debug)]
 pub struct RealSchur<N: Real, D: Dim>
     where DefaultAllocator: Allocator<N, D, D> + 
                             Allocator<N, D> {
     q: MatrixN<N, D>,
     t: MatrixN<N, D>
 }
+
+
+impl<N: Real, D: Dim> Copy for RealSchur<N, D>
+    where DefaultAllocator: Allocator<N, D, D> + 
+                            Allocator<N, D>,
+          MatrixN<N, D>: Copy { }
 
 impl<N: Real, D: Dim> RealSchur<N, D>
     where D: DimSub<U1>,                        // For Hessenberg.
