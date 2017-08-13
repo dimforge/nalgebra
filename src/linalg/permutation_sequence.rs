@@ -8,11 +8,16 @@ use allocator::Allocator;
 
 
 /// A sequence of permutations.
+#[derive(Clone, Debug)]
 pub struct PermutationSequence<D: Dim>
-    where DefaultAllocator: Allocator<(usize, usize), D>{
+    where DefaultAllocator: Allocator<(usize, usize), D> {
     len:  usize,
     ipiv: VectorN<(usize, usize), D>
 }
+
+impl<D: Dim> Copy for PermutationSequence<D>
+    where DefaultAllocator: Allocator<(usize, usize), D>,
+          VectorN<(usize, usize), D>: Copy { }
 
 impl<D: Dim> PermutationSequence<D>
     where DefaultAllocator: Allocator<(usize, usize), D> {

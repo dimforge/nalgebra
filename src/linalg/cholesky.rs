@@ -7,10 +7,15 @@ use allocator::Allocator;
 use dimension::{Dim, Dynamic, DimSub};
 
 /// The cholesky decomposion of a symmetric-definite-positive matrix.
+#[derive(Clone, Debug)]
 pub struct Cholesky<N: Real, D: Dim>
     where DefaultAllocator: Allocator<N, D, D> {
     chol: MatrixN<N, D>
 }
+
+impl<N: Real, D: Dim> Copy for Cholesky<N, D>
+    where DefaultAllocator: Allocator<N, D, D>,
+          MatrixN<N, D>: Copy { }
 
 impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
     where DefaultAllocator: Allocator<N, D, D> {

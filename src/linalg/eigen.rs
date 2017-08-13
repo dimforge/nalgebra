@@ -16,12 +16,20 @@ use geometry::{Reflection, UnitComplex};
 
 
 /// The eigendecomposition of a matrix with real eigenvalues.
+#[derive(Clone, Debug)]
 pub struct RealEigen<N: Real, D: Dim>
     where DefaultAllocator: Allocator<N, D, D> + 
                             Allocator<N, D> {
     pub eigenvectors: MatrixN<N, D>,
     pub eigenvalues:  VectorN<N, D>
 }
+
+
+impl<N: Real, D: Dim> Copy for RealEigen<N, D>
+    where DefaultAllocator: Allocator<N, D, D> + 
+                            Allocator<N, D>,
+          MatrixN<N, D>: Copy,
+          VectorN<N, D>: Copy { }
 
 impl<N: Real, D: Dim> RealEigen<N, D>
     where D: DimSub<U1>,                        // For Hessenberg.

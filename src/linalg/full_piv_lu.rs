@@ -11,6 +11,7 @@ use linalg::PermutationSequence;
 
 
 /// LU decomposition with full pivoting.
+#[derive(Clone, Debug)]
 pub struct FullPivLU<N: Real, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<N, R, C> +
                             Allocator<(usize, usize), DimMinimum<R, C>> {
@@ -18,6 +19,13 @@ pub struct FullPivLU<N: Real, R: DimMin<C>, C: Dim>
     p:  PermutationSequence<DimMinimum<R, C>>,
     q:  PermutationSequence<DimMinimum<R, C>>
 }
+
+
+impl<N: Real, R: DimMin<C>, C: Dim> Copy for FullPivLU<N, R, C>
+    where DefaultAllocator: Allocator<N, R, C> +
+                            Allocator<(usize, usize), DimMinimum<R, C>>,
+          MatrixMN<N, R, C>: Copy,
+          PermutationSequence<DimMinimum<R, C>>: Copy { }
 
 
 impl<N: Real, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>

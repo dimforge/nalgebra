@@ -16,7 +16,7 @@ use geometry::UnitComplex;
 
 
 /// The Singular Value Decomposition of a real matrix.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SVD<N: Real, R: DimMin<C>, C: Dim>
     where DefaultAllocator: Allocator<N, R, C>                +
                             Allocator<N, DimMinimum<R, C>, C> +
@@ -29,6 +29,16 @@ pub struct SVD<N: Real, R: DimMin<C>, C: Dim>
     /// The singular values of this SVD.
     pub singular_values: VectorN<N, DimMinimum<R, C>>,
 }
+
+
+impl<N: Real, R: DimMin<C>, C: Dim> SVD<N, R, C>
+    where DefaultAllocator: Allocator<N, R, C>                +
+                            Allocator<N, DimMinimum<R, C>, C> +
+                            Allocator<N, R, DimMinimum<R, C>> +
+                            Allocator<N, DimMinimum<R, C>>,
+          MatrixMN<N, R, DimMinimum<R, C>>: Copy,
+          MatrixMN<N, DimMinimum<R, C>, C>: Copy,
+          VectorN<N, DimMinimum<R, C>>:     Copy { }
 
 impl<N: Real, R: DimMin<C>, C: Dim> SVD<N, R, C>
     where DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.

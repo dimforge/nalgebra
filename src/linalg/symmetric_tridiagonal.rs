@@ -8,12 +8,19 @@ use linalg::householder;
 
 
 /// The tridiagonalization of a symmetric matrix.
+#[derive(Clone, Debug)]
 pub struct SymmetricTridiagonal<N: Real, D: DimSub<U1>>
     where DefaultAllocator: Allocator<N, D, D> +
                             Allocator<N, DimDiff<D, U1>> {
     tri:          MatrixN<N, D>,
     off_diagonal: VectorN<N, DimDiff<D, U1>>
 }
+
+impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
+    where DefaultAllocator: Allocator<N, D, D> +
+                            Allocator<N, DimDiff<D, U1>>,
+          MatrixN<N, D>: Copy,
+          VectorN<N, DimDiff<D, U1>>: Copy { }
 
 impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
     where DefaultAllocator: Allocator<N, D, D> +

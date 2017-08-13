@@ -10,6 +10,7 @@ use geometry::Reflection;
 
 
 /// The bidiagonalization of a general matrix.
+#[derive(Clone, Debug)]
 pub struct Bidiagonal<N: Real, R: DimMin<C>, C: Dim>
     where DimMinimum<R, C>: DimSub<U1>,
           DefaultAllocator: Allocator<N, R, C>             +
@@ -17,13 +18,22 @@ pub struct Bidiagonal<N: Real, R: DimMin<C>, C: Dim>
                             Allocator<N, DimDiff<DimMinimum<R, C>, U1>> {
     // FIXME: perhaps we should pack the axises into different vectors so that axises for `v_t` are
     // contiguous. This prevents some useless copies.
-    uv:      MatrixMN<N, R, C>,
+    uv: MatrixMN<N, R, C>,
     /// The diagonal elements of the decomposed matrix.
-    pub diagonal:    VectorN<N, DimMinimum<R, C>>,
+    pub diagonal: VectorN<N, DimMinimum<R, C>>,
     /// The off-diagonal elements of the decomposed matrix.
     pub off_diagonal: VectorN<N, DimDiff<DimMinimum<R, C>, U1>>,
     upper_diagonal: bool
 }
+
+impl<N: Real, R: DimMin<C>, C: Dim> Copy for Bidiagonal<N, R, C>
+    where DimMinimum<R, C>: DimSub<U1>,
+          DefaultAllocator: Allocator<N, R, C>             +
+                            Allocator<N, DimMinimum<R, C>> +
+                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
+          MatrixMN<N, R, C>: Copy,
+          VectorN<N, DimMinimum<R, C>>: Copy,
+          VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Copy { }
 
 impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
     where DimMinimum<R, C>: DimSub<U1>,
