@@ -11,14 +11,14 @@ use nalgebra::{
 
 #[test]
 fn abomonate_dmatrix() {
-    assert_encode_and_decode(&DMatrix::<f32>::new_random(3, 5));
+    assert_encode_and_decode(DMatrix::<f32>::new_random(3, 5));
 }
 
 macro_rules! test_abomonation(
     ($($test: ident, $ty: ty);* $(;)*) => {$(
         #[test]
         fn $test() {
-            assert_encode_and_decode(&random::<$ty>());
+            assert_encode_and_decode(random::<$ty>());
         }
     )*}
 );
@@ -35,12 +35,21 @@ test_abomonation! {
     abomonate_quaternion, Quaternion<f32>;
 }
 
-fn assert_encode_and_decode<T: Abomonation + PartialEq>(data: &T) {
+fn assert_encode_and_decode<T: Abomonation + PartialEq + Clone>(original_data: T) {
+    use std::mem::drop;
+
+    // Hold on to a clone for later comparison
+    let data = original_data.clone();
+
+    // Encode
     let mut bytes = Vec::new();
-    unsafe { encode(data, &mut bytes); }
+    unsafe { encode(&original_data, &mut bytes); }
+
+    // Drop the original, so that dangling pointers are revealed by the test
+    drop(original_data);
 
     if let Some((result, rest)) = unsafe { decode::<T>(&mut bytes) } {
-        assert!(result == data);
+        assert!(result == &data);
         assert!(rest.len() == 0, "binary data was not decoded completely");
     }
 }
