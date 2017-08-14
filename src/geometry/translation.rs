@@ -5,6 +5,9 @@ use approx::ApproxEq;
 #[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use alga::general::{Real, ClosedNeg};
 
 use core::{Scalar, ColumnVector, OwnedSquareMatrix};
@@ -47,6 +50,25 @@ impl<'de, N, D, S> Deserialize<'de> for TranslationBase<N, D, S>
         where T: Deserializer<'de>
     {
         ColumnVector::deserialize(deserializer).map(|x| TranslationBase { vector: x })
+    }
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N, D, S> Abomonation for TranslationBase<N, D, S>
+    where N: Scalar,
+          D: DimName,
+          ColumnVector<N, D, S>: Abomonation
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.vector.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.vector.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.vector.exhume(bytes)
     }
 }
 
