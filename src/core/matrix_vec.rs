@@ -5,6 +5,9 @@ use core::dimension::{Dim, DimName, Dynamic, U1};
 use core::storage::{Storage, StorageMut, Owned, OwnedStorage};
 use core::default_allocator::DefaultAllocator;
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 /*
  *
  * Storage.
@@ -169,5 +172,20 @@ unsafe impl<N: Scalar, R: DimName> OwnedStorage<N, R, Dynamic> for MatrixVec<N, 
     #[inline]
     fn as_mut_slice(&mut self) -> &mut [N] {
         &mut self.data[..]
+    }
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N: Abomonation, R: Dim, C: Dim> Abomonation for MatrixVec<N, R, C> {
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.data.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.data.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.data.exhume(bytes)
     }
 }
