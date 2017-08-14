@@ -7,28 +7,24 @@ use abomonation::{Abomonation, encode, decode};
 use nalgebra::{DMatrix, Matrix3x4, Point3, Translation3, Rotation3};
 
 #[test]
-fn abomonate_matrix3x4() {
-    assert_encode_and_decode(&random::<Matrix3x4<f32>>());
-}
-
-#[test]
-fn abomonate_point3() {
-    assert_encode_and_decode(&random::<Point3<f64>>());
-}
-
-#[test]
 fn abomonate_dmatrix() {
     assert_encode_and_decode(&DMatrix::<f32>::new_random(3, 5));
 }
 
-#[test]
-fn abomonate_translation3() {
-    assert_encode_and_decode(&random::<Translation3<f32>>());
-}
+macro_rules! test_abomonation(
+    ($($test: ident, $ty: ty);* $(;)*) => {$(
+        #[test]
+        fn $test() {
+            assert_encode_and_decode(&random::<$ty>());
+        }
+    )*}
+);
 
-#[test]
-fn abomonate_rotation3() {
-    assert_encode_and_decode(&random::<Rotation3<f64>>());
+test_abomonation! {
+    abomonate_matrix3x4, Matrix3x4<f32>;
+    abomonate_point3, Point3<f32>;
+    abomonate_translation3, Translation3<f64>;
+    abomonate_rotation3, Rotation3<f64>;
 }
 
 fn assert_encode_and_decode<T: Abomonation + PartialEq>(data: &T) {
