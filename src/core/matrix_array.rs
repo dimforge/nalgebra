@@ -312,14 +312,26 @@ impl<N, R, C> Abomonation for MatrixArray<N, R, C>
           N: Abomonation
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {
-        self.data.as_slice().entomb(writer)
+        for element in self.data.as_slice() {
+            element.entomb(writer);
+        }
     }
 
     unsafe fn embalm(&mut self) {
-        self.data.as_slice().embalm()
+        for element in self.data.as_mut_slice() {
+            element.embalm();
+        }
     }
 
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.data.as_slice().exhume(bytes)
+    unsafe fn exhume<'a, 'b>(&'a mut self, mut bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        for element in self.data.as_mut_slice() {
+            let temp = bytes;
+            bytes = if let Some(remainder) = element.exhume(temp) {
+                remainder
+            } else {
+                return None;
+            }
+        }
+        Some(bytes)
     }
 }
