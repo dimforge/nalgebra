@@ -11,6 +11,9 @@ use core::storage::{Storage, OwnedStorage};
 use core::allocator::{Allocator, OwnedAllocator};
 use geometry::{TranslationBase, PointBase};
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 
 /// An isometry that uses a data storage deduced from the allocator `A`.
 pub type OwnedIsometryBase<N, D, A, R> =
@@ -30,6 +33,29 @@ pub struct IsometryBase<N: Scalar, D: DimName, S, R> {
     // One dummy private field just to prevent explicit construction.
     #[cfg_attr(feature = "serde-serialize", serde(skip_serializing, skip_deserializing))]
     _noconstruct: PhantomData<N>
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N, D, S, R> Abomonation for IsometryBase<N, D, S, R>
+    where N: Scalar,
+          D: DimName,
+          R: Abomonation,
+          TranslationBase<N, D, S>: Abomonation
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.rotation.entomb(writer);
+        self.translation.entomb(writer);
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.rotation.embalm();
+        self.translation.embalm();
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.rotation.exhume(bytes)
+            .and_then(|bytes| self.translation.exhume(bytes))
+    }
 }
 
 impl<N, D: DimName, S, R> IsometryBase<N, D, S, R>

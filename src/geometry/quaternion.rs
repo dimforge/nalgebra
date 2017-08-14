@@ -5,6 +5,9 @@ use approx::ApproxEq;
 #[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use alga::general::Real;
 
 use core::{Unit, ColumnVector, OwnedColumnVector, MatrixSlice, MatrixSliceMut, SquareMatrix,
@@ -56,6 +59,24 @@ impl<'de, N, S> Deserialize<'de> for QuaternionBase<N, S>
     }
 }
 
+#[cfg(feature = "abomonation-serialize")]
+impl<N, S> Abomonation for QuaternionBase<N, S>
+    where N: Real,
+          S: Storage<N, U4, U1>,
+          ColumnVector<N, U4, S>: Abomonation
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.coords.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.coords.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.coords.exhume(bytes)
+    }
+}
 
 impl<N, S> Eq for QuaternionBase<N, S>
     where N: Real + Eq,

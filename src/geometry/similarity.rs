@@ -10,6 +10,9 @@ use core::storage::{Storage, OwnedStorage};
 use core::allocator::{Allocator, OwnedAllocator};
 use geometry::{PointBase, TranslationBase, IsometryBase};
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 
 /// A similarity that uses a data storage deduced from the allocator `A`.
 pub type OwnedSimilarityBase<N, D, A, R> =
@@ -23,6 +26,24 @@ pub struct SimilarityBase<N: Scalar, D: DimName, S, R> {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: IsometryBase<N, D, S, R>,
     scaling:      N
+}
+
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N: Scalar, D: DimName, S, R> Abomonation for SimilarityBase<N, D, S, R>
+    where IsometryBase<N, D, S, R>: Abomonation
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.isometry.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.isometry.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.isometry.exhume(bytes)
+    }
 }
 
 impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
