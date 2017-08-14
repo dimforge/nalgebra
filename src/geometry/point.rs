@@ -6,6 +6,9 @@ use approx::ApproxEq;
 #[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use core::{Scalar, ColumnVector, OwnedColumnVector};
 use core::iter::{MatrixIter, MatrixIterMut};
 use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
@@ -72,6 +75,26 @@ impl<'de, N, D, S> Deserialize<'de> for PointBase<N, D, S>
         where T: Deserializer<'de>
     {
         ColumnVector::deserialize(deserializer).map(|x| PointBase { coords: x })
+    }
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N, D, S> Abomonation for PointBase<N, D, S>
+    where N: Scalar,
+          D: DimName,
+          S: Storage<N, D, U1>,
+          ColumnVector<N, D, S>: Abomonation
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.coords.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.coords.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.coords.exhume(bytes)
     }
 }
 
