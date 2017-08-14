@@ -4,7 +4,7 @@ extern crate abomonation;
 
 use rand::random;
 use abomonation::{Abomonation, encode, decode};
-use nalgebra::{DMatrix, Matrix3x4, Point3, Translation3};
+use nalgebra::{DMatrix, Matrix3x4, Point3, Translation3, Rotation3};
 
 #[test]
 fn abomonate_matrix3x4() {
@@ -24,6 +24,11 @@ fn abomonate_dmatrix() {
 #[test]
 fn abomonate_translation3() {
     assert_encode_and_decode(&random::<Translation3<f32>>());
+}
+
+#[test]
+fn abomonate_rotation3() {
+    assert_encode_and_decode(&random::<Rotation3<f64>>());
 }
 
 fn assert_encode_and_decode<T: Abomonation + PartialEq>(data: &T) {
