@@ -94,6 +94,8 @@ extern crate serde;
 #[cfg(feature = "serde")]
 #[macro_use]
 extern crate serde_derive;
+#[cfg(feature = "abomonation")]
+extern crate abomonation;
 extern crate num_traits as num;
 extern crate num_complex;
 extern crate rand;

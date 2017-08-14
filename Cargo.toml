@@ -18,6 +18,7 @@ path = "src/lib.rs"
 [features]
 arbitrary = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
+abomonation-serialize = [ "abomonation", "abomonation_derive" ]
 
 [dependencies]
 typenum         = "1.4"
@@ -29,6 +30,8 @@ approx          = "0.1"
 alga            = "0.5"
 serde           = { version = "1.0", optional = true }
 serde_derive    = { version = "1.0", optional = true }
+abomonation     = { version = "0.4", optional = true }
+abomonation_derive = { version = "0.2", optional = true }
 # clippy = "*"
 
 [dependencies.quickcheck]
