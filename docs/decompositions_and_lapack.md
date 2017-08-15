@@ -229,7 +229,6 @@ Decomposition            | Factors                   | Rust constructors
 -------------------------|---------------------------|--------------
 QR                       | $Q ~ R$                   | `QR::new(matrix)`
 LU with partial pivoting | $P^{-1} ~ L ~ U$          | `LU::new(matrix)`
-LU with full pivoting    | $P^{-1} ~ L ~ U ~ Q^{-1}$ | `FullPivLU::new(matrix)`
 Hessenberg               | $P ~ H ~ P^*$             | `Hessenberg::new(matrix)`
 Cholesky                 | $L ~ L^*$                 | `Cholesky::new(matrix)`
 Real Schur decomposition | $Q ~ U ~ Q^*$             | `Schur::new(matrix)` or `Schur::try_new(matrix)`
