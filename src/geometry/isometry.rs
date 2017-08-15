@@ -46,11 +46,11 @@ pub struct Isometry<N: Real, D: DimName, R>
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, D, R> Abomonation for IsometryBase<N, D, R>
-    where N: Scalar,
+impl<N, D, R> Abomonation for Isometry<N, D, R>
+    where N: Real,
           D: DimName,
           R: Abomonation,
-          TranslationBase<N, D>: Abomonation,
+          Translation<N, D>: Abomonation,
           DefaultAllocator: Allocator<N, D>
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {

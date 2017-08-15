@@ -71,10 +71,10 @@ where DefaultAllocator: Allocator<N, D>,
 
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, D> Abomonation for PointBase<N, D>
+impl<N, D> Abomonation for Point<N, D>
     where N: Scalar,
           D: DimName,
-          ColumnVector<N, D>: Abomonation,
+          VectorN<N, D>: Abomonation,
           DefaultAllocator: Allocator<N, D>
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {

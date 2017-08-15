@@ -83,7 +83,7 @@ quickcheck!(
 
     /*
      *
-     * Quaterion * Vector == RotationBase * Vector
+     * Quaterion * Vector == Rotation * Vector
      *
      */
     fn unit_quaternion_mul_vector(q: UnitQuaternion<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {

@@ -29,7 +29,7 @@ pub struct Quaternion<N: Real> {
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Real> Abomonation for QuaternionBase<N>
+impl<N: Real> Abomonation for Quaternion<N>
     where Vector4<N>: Abomonation
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {

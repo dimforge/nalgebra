@@ -43,8 +43,8 @@ pub struct Similarity<N: Real, D: DimName, R>
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Scalar, D: DimName, R> Abomonation for SimilarityBase<N, D, R>
-    where IsometryBase<N, D, R>: Abomonation,
+impl<N: Real, D: DimName, R> Abomonation for Similarity<N, D, R>
+    where Isometry<N, D, R>: Abomonation,
           DefaultAllocator: Allocator<N, D>
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {

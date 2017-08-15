@@ -1,10 +1,6 @@
-extern crate rand;
-extern crate nalgebra;
-extern crate abomonation;
-
 use rand::random;
 use abomonation::{Abomonation, encode, decode};
-use nalgebra::{
+use na::{
     DMatrix, Matrix3x4, Point3, Translation3, Rotation3, Isometry3, Quaternion,
     IsometryMatrix3, Similarity3, SimilarityMatrix3
 };

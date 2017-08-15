@@ -79,7 +79,7 @@ quickcheck!(
 
     /*
      *
-     * RotationBase matrix between vectors.
+     * Rotation matrix between vectors.
      *
      */
     fn rotation_between_is_anticommutative_2(a: Vector2<f64>, b: Vector2<f64>) -> bool {
@@ -132,7 +132,7 @@ quickcheck!(
 
     /*
      *
-     * RotationBase construction.
+     * Rotation construction.
      *
      */
     fn new_rotation_2(angle: f64) -> bool {
@@ -159,7 +159,7 @@ quickcheck!(
 
     /*
      *
-     * RotationBase pow.
+     * Rotation pow.
      *
      */
     fn powf_rotation_2(angle: f64, pow: f64) -> bool {

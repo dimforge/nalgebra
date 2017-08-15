@@ -49,7 +49,7 @@ impl<N: Scalar, D: DimName> Clone for Rotation<N, D>
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, D> Abomonation for RotationBase<N, D>
+impl<N, D> Abomonation for Rotation<N, D>
     where N: Scalar,
           D: DimName,
           MatrixN<N, D>: Abomonation,
