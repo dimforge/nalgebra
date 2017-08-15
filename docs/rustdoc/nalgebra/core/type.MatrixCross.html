@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc type">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'MatrixCross', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Type Definition MatrixCross</p><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'MatrixCross', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,13 +43,13 @@
         </form>
     </nav>
 
-    <section id='main' class="content type">
-<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a>::<wbr><a class='type' href=''>MatrixCross</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a>::<wbr><a class="type" href=''>MatrixCross</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/nalgebra/core/matrix.rs.html#46' title='goto source code'>[src]</a></span></h1>
-<pre class='rust typedef'>type MatrixCross&lt;N, R1, C1, R2, C2, SA&gt; = <a class='type' href='../../nalgebra/core/type.MatrixSum.html' title='nalgebra::core::MatrixSum'>MatrixSum</a>&lt;N, R1, C1, R2, C2, SA&gt;;</pre><div class='docblock'><p>The type of the result of a matrix cross product.</p>
+               </span><a class='srclink' href='../../src/nalgebra/core/matrix.rs.html#41-42' title='goto source code'>[src]</a></span></h1>
+<pre class='rust typedef'>type MatrixCross&lt;N, R1, C1, R2, C2&gt; = <a class="struct" href="../../nalgebra/core/struct.Matrix.html" title="struct nalgebra::core::Matrix">Matrix</a>&lt;N, <a class="type" href="../../nalgebra/core/allocator/type.SameShapeR.html" title="type nalgebra::core::allocator::SameShapeR">SameShapeR</a>&lt;R1, R2&gt;, <a class="type" href="../../nalgebra/core/allocator/type.SameShapeC.html" title="type nalgebra::core::allocator::SameShapeC">SameShapeC</a>&lt;C1, C2&gt;, <a class="type" href="../../nalgebra/core/storage/type.SameShapeStorage.html" title="type nalgebra::core::storage::SameShapeStorage">SameShapeStorage</a>&lt;N, R1, C1, R2, C2&gt;&gt;;</pre><div class='docblock'><p>The type of the result of a matrix cross product.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -107,7 +107,6 @@
         window.rootPath = "../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 

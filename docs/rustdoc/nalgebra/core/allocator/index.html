@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc mod">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a></p><script>window.sidebarCurrent = {name: 'allocator', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module allocator</p><div class="block items"><ul><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a></p><script>window.sidebarCurrent = {name: 'allocator', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,56 +43,56 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a class='mod' href=''>allocator</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a class="mod" href=''>allocator</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/nalgebra/core/allocator.rs.html#1-89' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../../../src/nalgebra/core/allocator.rs.html#1-85' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Abstract definition of a matrix data storage allocator.</p>
 </div><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.Allocator.html'
-                                  title='nalgebra::core::allocator::Allocator'>Allocator</a></td>
+                           <td><a class="trait" href="trait.Allocator.html"
+                                  title='trait nalgebra::core::allocator::Allocator'>Allocator</a></td>
                            <td class='docblock-short'>
                                 <p>A matrix allocator of a memory buffer that may contain <code>R::to_usize() * C::to_usize()</code>
 elements of type <code>N</code>.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.OwnedAllocator.html'
-                                  title='nalgebra::core::allocator::OwnedAllocator'>OwnedAllocator</a></td>
+                           <td><a class="trait" href="trait.Reallocator.html"
+                                  title='trait nalgebra::core::allocator::Reallocator'>Reallocator</a></td>
                            <td class='docblock-short'>
-                                <p>A matrix data allocator dedicated to the given owned matrix storage.</p>
+                                <p>A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
+CFrom) elements to a smaller or larger size (RTo, CTo).</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.SameShapeAllocator.html'
-                                  title='nalgebra::core::allocator::SameShapeAllocator'>SameShapeAllocator</a></td>
+                           <td><a class="trait" href="trait.SameShapeAllocator.html"
+                                  title='trait nalgebra::core::allocator::SameShapeAllocator'>SameShapeAllocator</a></td>
                            <td class='docblock-short'>
-                                <p>Restricts the given number of rows and columns to be respectively the same. Can only be used
-when <code>Self = SA::Alloc</code>.</p>
+                                <p>Restricts the given number of rows and columns to be respectively the same.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.SameShapeColumnVectorAllocator.html'
-                                  title='nalgebra::core::allocator::SameShapeColumnVectorAllocator'>SameShapeColumnVectorAllocator</a></td>
+                           <td><a class="trait" href="trait.SameShapeVectorAllocator.html"
+                                  title='trait nalgebra::core::allocator::SameShapeVectorAllocator'>SameShapeVectorAllocator</a></td>
                            <td class='docblock-short'>
-                                <p>Restricts the given number of rows to be equal. Can only be used when <code>Self = SA::Alloc</code>.</p>
+                                <p>Restricts the given number of rows to be equal.</p>
                            </td>
                        </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.SameShapeC.html'
-                                  title='nalgebra::core::allocator::SameShapeC'>SameShapeC</a></td>
+                           <td><a class="type" href="type.SameShapeC.html"
+                                  title='type nalgebra::core::allocator::SameShapeC'>SameShapeC</a></td>
                            <td class='docblock-short'>
                                 <p>The number of columns of the result of a componentwise operation on two matrices.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.SameShapeR.html'
-                                  title='nalgebra::core::allocator::SameShapeR'>SameShapeR</a></td>
+                           <td><a class="type" href="type.SameShapeR.html"
+                                  title='type nalgebra::core::allocator::SameShapeR'>SameShapeR</a></td>
                            <td class='docblock-short'>
                                 <p>The number of rows of the result of a componentwise operation on two matrices.</p>
                            </td>
@@ -153,7 +153,6 @@ when <code>Self = SA::Alloc</code>.</p>
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

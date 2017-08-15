@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -350,462 +350,312 @@
 <span id="305">305</span>
 <span id="306">306</span>
 <span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>num</span>::<span class='ident'>Zero</span>;
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">num</span>::<span class="ident">Zero</span>;
 
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::{<span class='ident'>AbstractMagma</span>, <span class='ident'>AbstractGroup</span>, <span class='ident'>AbstractGroupAbelian</span>, <span class='ident'>AbstractLoop</span>,
-                    <span class='ident'>AbstractMonoid</span>, <span class='ident'>AbstractQuasigroup</span>, <span class='ident'>AbstractSemigroup</span>, <span class='ident'>AbstractModule</span>,
-                    <span class='ident'>Module</span>, <span class='ident'>Real</span>, <span class='ident'>Inverse</span>, <span class='ident'>Multiplicative</span>, <span class='ident'>Additive</span>, <span class='ident'>Identity</span>, <span class='ident'>Id</span>};
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>linear</span>::{<span class='ident'>Transformation</span>, <span class='ident'>AffineTransformation</span>, <span class='ident'>Similarity</span>, <span class='ident'>Isometry</span>, <span class='ident'>DirectIsometry</span>,
-                   <span class='ident'>OrthogonalTransformation</span>, <span class='ident'>VectorSpace</span>, <span class='ident'>FiniteDimVectorSpace</span>, <span class='ident'>NormedSpace</span>,
-                   <span class='ident'>Rotation</span>, <span class='ident'>ProjectiveTransformation</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">AbstractMagma</span>, <span class="ident">AbstractGroup</span>, <span class="ident">AbstractGroupAbelian</span>, <span class="ident">AbstractLoop</span>,
+                    <span class="ident">AbstractMonoid</span>, <span class="ident">AbstractQuasigroup</span>, <span class="ident">AbstractSemigroup</span>, <span class="ident">AbstractModule</span>,
+                    <span class="ident">Module</span>, <span class="ident">Real</span>, <span class="ident">Inverse</span>, <span class="ident">Multiplicative</span>, <span class="ident">Additive</span>, <span class="ident">Identity</span>, <span class="ident">Id</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::{<span class="ident">Transformation</span>, <span class="ident">AffineTransformation</span>, <span class="ident">Similarity</span>, <span class="ident">Isometry</span>, <span class="ident">DirectIsometry</span>,
+                   <span class="ident">OrthogonalTransformation</span>, <span class="ident">VectorSpace</span>, <span class="ident">FiniteDimVectorSpace</span>, <span class="ident">NormedSpace</span>,
+                   <span class="ident">Rotation</span>, <span class="ident">ProjectiveTransformation</span>};
 
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>ColumnVector</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::<span class='ident'>OwnedStorage</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::{<span class='ident'>Allocator</span>, <span class='ident'>OwnedAllocator</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>U1</span>, <span class='ident'>U3</span>, <span class='ident'>U4</span>};
-<span class='kw'>use</span> <span class='ident'>geometry</span>::{<span class='ident'>PointBase</span>, <span class='ident'>QuaternionBase</span>, <span class='ident'>UnitQuaternionBase</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Vector3</span>, <span class="ident">Vector4</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point3</span>, <span class="ident">Quaternion</span>, <span class="ident">UnitQuaternion</span>};
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Identity</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>identity</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>identity</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Identity</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">identity</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Identity</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>identity</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>zero</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Identity</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">zero</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>AbstractMagma</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>operate</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rhs</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">AbstractMagma</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">operate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>AbstractMagma</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>operate</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rhs</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span> <span class='op'>+</span> <span class='ident'>rhs</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">AbstractMagma</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">operate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span> <span class="op">+</span> <span class="ident">rhs</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Inverse</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='op'>-</span><span class='self'>self</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Inverse</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="op">-</span><span class="self">self</span>
     }
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_structures</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Quaternion</span>: <span class='ident'>ident</span>; $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>marker</span>: <span class='ident'>ident</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>operator</span>: <span class='ident'>ident</span><span class='op'>&gt;</span>),<span class='op'>*</span> $(,)<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {$(
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>marker</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>operator</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Quaternion</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-            <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-                  <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> { }
-    )<span class='kw-2'>*</span>}
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_structures</span>(
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Quaternion</span>: <span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">marker</span>: <span class="ident">ident</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">operator</span>: <span class="ident">ident</span><span class="op">&gt;</span>),<span class="op">*</span> $(,)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">marker</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">operator</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> { }
+    )<span class="kw-2">*</span>}
 );
 
-<span class='macro'>impl_structures</span><span class='macro'>!</span>(
-    <span class='ident'>QuaternionBase</span>;
-    <span class='ident'>AbstractSemigroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractMonoid</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
+<span class="macro">impl_structures</span><span class="macro">!</span>(
+    <span class="ident">Quaternion</span>;
+    <span class="ident">AbstractSemigroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractMonoid</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
 
-    <span class='ident'>AbstractSemigroup</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractQuasigroup</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractMonoid</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractLoop</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractGroup</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractGroupAbelian</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;</span>
+    <span class="ident">AbstractSemigroup</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractQuasigroup</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractMonoid</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractLoop</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractGroup</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractGroupAbelian</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>
 );
 
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Vector space.
  *
  */</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>AbstractModule</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>AbstractRing</span> <span class='op'>=</span> <span class='ident'>N</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">AbstractModule</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">AbstractRing</span> <span class="op">=</span> <span class="ident">N</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>multiply_by</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>n</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">multiply_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">n</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">n</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Module</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Ring</span> <span class='op'>=</span> <span class='ident'>N</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Module</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Ring</span> <span class="op">=</span> <span class="ident">N</span>;
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>VectorSpace</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Field</span> <span class='op'>=</span> <span class='ident'>N</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">VectorSpace</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Field</span> <span class="op">=</span> <span class="ident">N</span>;
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>FiniteDimVectorSpace</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>dimension</span>() <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='number'>4</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">FiniteDimVectorSpace</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">dimension</span>() <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="number">4</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>canonical_basis_element</span>(<span class='ident'>i</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>from_vector</span>(<span class='ident'>ColumnVector</span>::<span class='ident'>canonical_basis_element</span>(<span class='ident'>i</span>))
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">canonical_basis_element</span>(<span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">from_vector</span>(<span class="ident">Vector4</span>::<span class="ident">canonical_basis_element</span>(<span class="ident">i</span>))
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>dot</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>dot</span>(<span class='kw-2'>&amp;</span><span class='ident'>other</span>.<span class='ident'>coords</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">dot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">dot</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">coords</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>component_unchecked</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>component_unchecked</span>(<span class='ident'>i</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">component_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">component_unchecked</span>(<span class="ident">i</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>component_unchecked_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>component_unchecked_mut</span>(<span class='ident'>i</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">component_unchecked_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">component_unchecked_mut</span>(<span class="ident">i</span>)
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>NormedSpace</span> <span class='kw'>for</span> <span class='ident'>QuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>norm_squared</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>norm_squared</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">NormedSpace</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">norm_squared</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">norm_squared</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>norm</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>as_vector</span>().<span class='ident'>norm</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">norm</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">as_vector</span>().<span class="ident">norm</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>normalize</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='kw'>let</span> <span class='ident'>v</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>normalize</span>();
-        <span class='self'>Self</span>::<span class='ident'>from_vector</span>(<span class='ident'>v</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">normalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">normalize</span>();
+        <span class="self">Self</span>::<span class="ident">from_vector</span>(<span class="ident">v</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>normalize_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>normalize_mut</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">normalize_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">normalize_mut</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>try_normalize</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>min_norm</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span> {
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>v</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>try_normalize</span>(<span class='ident'>min_norm</span>) {
-            <span class='prelude-val'>Some</span>(<span class='self'>Self</span>::<span class='ident'>from_vector</span>(<span class='ident'>v</span>))
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">try_normalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">min_norm</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">try_normalize</span>(<span class="ident">min_norm</span>) {
+            <span class="prelude-val">Some</span>(<span class="self">Self</span>::<span class="ident">from_vector</span>(<span class="ident">v</span>))
         }
-        <span class='kw'>else</span> {
-            <span class='prelude-val'>None</span>
+        <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
         }
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>try_normalize_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>min_norm</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>coords</span>.<span class='ident'>try_normalize_mut</span>(<span class='ident'>min_norm</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">try_normalize_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">min_norm</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">try_normalize_mut</span>(<span class="ident">min_norm</span>)
     }
 }
 
-<span class='comment'>/*
+<span class="comment">/*
  *
- * Implementations for UnitQuaternionBase.
+ * Implementations for UnitQuaternion.
  *
  */</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Identity</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>identity</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>identity</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Identity</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">identity</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>AbstractMagma</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>operate</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rhs</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">AbstractMagma</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">operate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Inverse</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>inverse</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Inverse</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">inverse</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>inverse_mut</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">inverse_mut</span>()
     }
 }
 
-<span class='macro'>impl_structures</span><span class='macro'>!</span>(
-    <span class='ident'>UnitQuaternionBase</span>;
-    <span class='ident'>AbstractSemigroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractQuasigroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractMonoid</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractLoop</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractGroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>
+<span class="macro">impl_structures</span><span class="macro">!</span>(
+    <span class="ident">UnitQuaternion</span>;
+    <span class="ident">AbstractSemigroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractQuasigroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractMonoid</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractLoop</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractGroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>
 );
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>Transformation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>transform_point</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>pt</span>: <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>pt</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Transformation</span><span class="op">&lt;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">transform_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">pt</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>v</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">v</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>ProjectiveTransformation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse_transform_point</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>pt</span>: <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='comment'>// FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement</span>
-        <span class='comment'>// the inverse transformation explicitly here) ?</span>
-        <span class='self'>self</span>.<span class='ident'>inverse</span>() <span class='op'>*</span> <span class='ident'>pt</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">ProjectiveTransformation</span><span class="op">&lt;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse_transform_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="comment">// FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement</span>
+        <span class="comment">// the inverse transformation explicitly here) ?</span>
+        <span class="self">self</span>.<span class="ident">inverse</span>() <span class="op">*</span> <span class="ident">pt</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse_transform_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>inverse</span>() <span class='op'>*</span> <span class='ident'>v</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse_transform_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">inverse</span>() <span class="op">*</span> <span class="ident">v</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>AffineTransformation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Rotation</span>          <span class='op'>=</span> <span class='self'>Self</span>;
-    <span class='kw'>type</span> <span class='ident'>NonUniformScaling</span> <span class='op'>=</span> <span class='ident'>Id</span>;
-    <span class='kw'>type</span> <span class='ident'>Translation</span>       <span class='op'>=</span> <span class='ident'>Id</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">AffineTransformation</span><span class="op">&lt;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Rotation</span>          <span class="op">=</span> <span class="self">Self</span>;
+    <span class="kw">type</span> <span class="ident">NonUniformScaling</span> <span class="op">=</span> <span class="ident">Id</span>;
+    <span class="kw">type</span> <span class="ident">Translation</span>       <span class="op">=</span> <span class="ident">Id</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>decompose</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> (<span class='ident'>Id</span>, <span class='self'>Self</span>, <span class='ident'>Id</span>, <span class='self'>Self</span>) {
-        (<span class='ident'>Id</span>::<span class='ident'>new</span>(), <span class='self'>self</span>.<span class='ident'>clone</span>(), <span class='ident'>Id</span>::<span class='ident'>new</span>(), <span class='self'>Self</span>::<span class='ident'>identity</span>())
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">decompose</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">Id</span>, <span class="self">Self</span>, <span class="ident">Id</span>, <span class="self">Self</span>) {
+        (<span class="ident">Id</span>::<span class="ident">new</span>(), <span class="self">self</span>.<span class="ident">clone</span>(), <span class="ident">Id</span>::<span class="ident">new</span>(), <span class="self">Self</span>::<span class="ident">identity</span>())
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>Translation</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">append_translation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Translation</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>Translation</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">prepend_translation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Translation</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>Rotation</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='ident'>r</span> <span class='op'>*</span> <span class='self'>self</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">append_rotation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Rotation</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">r</span> <span class="op">*</span> <span class="self">self</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>Rotation</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>r</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">prepend_rotation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Rotation</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">r</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_scaling</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>NonUniformScaling</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">append_scaling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">NonUniformScaling</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_scaling</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>NonUniformScaling</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">prepend_scaling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">NonUniformScaling</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>Similarity</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Scaling</span>  <span class='op'>=</span> <span class='ident'>Id</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Scaling</span>  <span class="op">=</span> <span class="ident">Id</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Id</span> {
-        <span class='ident'>Id</span>::<span class='ident'>new</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">translation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Id</span> {
+        <span class="ident">Id</span>::<span class="ident">new</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rotation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>scaling</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Id</span> {
-        <span class='ident'>Id</span>::<span class='ident'>new</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">scaling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Id</span> {
+        <span class="ident">Id</span>::<span class="ident">new</span>()
     }
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>marker_impl</span>(
-    ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Trait</span>: <span class='ident'>ident</span>),<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {$(
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Trait</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-              <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-              <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-              <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-              <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> { }
-    )<span class='kw-2'>*</span>}
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">marker_impl</span>(
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span>: <span class="ident">ident</span>),<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span><span class="op">&lt;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> { }
+    )<span class="kw-2">*</span>}
 );
 
-<span class='macro'>marker_impl</span><span class='macro'>!</span>(<span class='ident'>Isometry</span>, <span class='ident'>DirectIsometry</span>, <span class='ident'>OrthogonalTransformation</span>);
+<span class="macro">marker_impl</span><span class="macro">!</span>(<span class="ident">Isometry</span>, <span class="ident">DirectIsometry</span>, <span class="ident">OrthogonalTransformation</span>);
 
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>powf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Some</span>(<span class='self'>self</span>.<span class='ident'>powf</span>(<span class='ident'>n</span>))
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">powf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">n</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">powf</span>(<span class="ident">n</span>))
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rotation_between</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span> {
-        <span class='self'>Self</span>::<span class='ident'>rotation_between</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rotation_between</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="self">Self</span>::<span class="ident">rotation_between</span>(<span class="ident">a</span>, <span class="ident">b</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>scaled_rotation_between</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>s</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span> {
-        <span class='self'>Self</span>::<span class='ident'>scaled_rotation_between</span>(<span class='ident'>a</span>, <span class='ident'>b</span>, <span class='ident'>s</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">scaled_rotation_between</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">s</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="self">Self</span>::<span class="ident">scaled_rotation_between</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">s</span>)
     }
 }
 </pre>
@@ -866,7 +716,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -189,325 +189,151 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
-<span class='kw'>use</span> <span class='ident'>approx</span>::<span class='ident'>ApproxEq</span>;
-<span class='kw'>use</span> <span class='ident'>num_complex</span>::<span class='ident'>Complex</span>;
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">approx</span>::<span class="ident">ApproxEq</span>;
+<span class="kw">use</span> <span class="ident">num_complex</span>::<span class="ident">Complex</span>;
 
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::<span class='ident'>Real</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::{<span class='ident'>Unit</span>, <span class='ident'>SquareMatrix</span>, <span class='ident'>Vector1</span>, <span class='ident'>Matrix3</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::<span class='ident'>U2</span>;
-<span class='kw'>use</span> <span class='ident'>geometry</span>::<span class='ident'>Rotation2</span>;
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Unit</span>, <span class="ident">Vector1</span>, <span class="ident">Matrix2</span>, <span class="ident">Matrix3</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::<span class="ident">Rotation2</span>;
 
-<span class='doccomment'>/// A complex number with a norm equal to 1.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;center&gt;</span>
-<span class='doccomment'>/// &lt;big&gt;&lt;b&gt;</span>
-<span class='doccomment'>/// Due to a [bug](https://github.com/rust-lang/rust/issues/32077) in rustdoc, the documentation</span>
-<span class='doccomment'>/// below has been written manually lists only method signatures.&lt;br&gt;</span>
-<span class='doccomment'>/// Trait implementations are not listed either.</span>
-<span class='doccomment'>/// &lt;/b&gt;&lt;/big&gt;</span>
-<span class='doccomment'>/// &lt;/center&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Please refer directly to the documentation written above each function definition on the source</span>
-<span class='doccomment'>/// code for more details.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h2 id=&quot;methods&quot;&gt;Methods&lt;/h2&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;angle&lt;/a&gt;(&amp;self) -&gt; N&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;angle_to&lt;/a&gt;(&amp;self, other: &amp;Self) -&gt; N&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;complex&lt;/a&gt;(&amp;self) -&gt; &amp;Complex&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;conjugate&lt;/a&gt;(&amp;self) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;conjugate_mut&lt;/a&gt;(&amp;mut self)&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;from_angle&lt;/a&gt;(angle: N) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;from_complex&lt;/a&gt;(q: Complex) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;from_rotation_matrix&lt;/a&gt;(rotmat: &amp;RotationBase) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;from_scaled_axis&lt;/a&gt;(axisangle: ColumnVector) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;identity&lt;/a&gt;() -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;inverse&lt;/a&gt;(&amp;self) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;inverse_mut&lt;/a&gt;(&amp;mut self)&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;new&lt;/a&gt;(angle: N) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;powf&lt;/a&gt;(&amp;self, n: N) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;rotation_between&lt;/a&gt;(a: &amp;ColumnVector&lt;N, U2, SB&gt;, b: &amp;ColumnVector) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;rotation_to&lt;/a&gt;(&amp;self, other: &amp;Self) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;scaled_axis&lt;/a&gt;(&amp;self) -&gt; Vector1&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;scaled_rotation_between&lt;/a&gt;(a: &amp;ColumnVector&lt;N, U2, SB&gt;, b: &amp;ColumnVector, s: N) -&gt; Self&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;to_homogeneous&lt;/a&gt;(&amp;self) -&gt; Matrix3&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// &lt;h4 class=&quot;method&quot;&gt;&lt;span class=&quot;invisible&quot;&gt;</span>
-<span class='doccomment'>/// &lt;code&gt;fn &lt;a class=&quot;fnname&quot;&gt;to_rotation_matrix&lt;/a&gt;(&amp;self) -&gt; Rotation2&lt;/code&gt;</span>
-<span class='doccomment'>/// &lt;/h4&gt;</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>UnitComplex</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Unit</span><span class='op'>&lt;</span><span class='ident'>Complex</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>;
+<span class="doccomment">/// A complex number with a norm equal to 1.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>;
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Real</span><span class='op'>&gt;</span> <span class='ident'>UnitComplex</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The rotation angle in `]-pi; pi]` of this unit complex number.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>angle</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>im</span>.<span class='ident'>atan2</span>(<span class='self'>self</span>.<span class='ident'>re</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The rotation angle in `]-pi; pi]` of this unit complex number.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">angle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">im</span>.<span class="ident">atan2</span>(<span class="self">self</span>.<span class="ident">re</span>)
     }
 
-    <span class='doccomment'>/// The rotation angle returned as a 1-dimensional vector.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>scaled_axis</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Vector1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='ident'>Vector1</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>angle</span>())
+    <span class="doccomment">/// The sine of the rotation angle.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sin_angle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">im</span>
     }
 
-    <span class='doccomment'>/// The underlying complex number.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Same as `self.as_ref()`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>complex</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Complex</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>as_ref</span>()
+    <span class="doccomment">/// The cosine of the rotation angle.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cos_angle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">re</span>
     }
 
-    <span class='doccomment'>/// Compute the conjugate of this unit complex number.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>conjugate</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='ident'>UnitComplex</span>::<span class='ident'>new_unchecked</span>(<span class='self'>self</span>.<span class='ident'>conj</span>())
+    <span class="doccomment">/// The rotation angle returned as a 1-dimensional vector.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scaled_axis</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vector1</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="ident">Vector1</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">angle</span>())
     }
 
-    <span class='doccomment'>/// Inverts this complex number if it is not zero.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>conjugate</span>()
+    <span class="doccomment">/// The underlying complex number.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Same as `self.as_ref()`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">complex</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">as_ref</span>()
     }
 
-    <span class='doccomment'>/// The rotation angle needed to make `self` and `other` coincide.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>angle_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        <span class='kw'>let</span> <span class='ident'>delta</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>rotation_to</span>(<span class='ident'>other</span>);
-        <span class='ident'>delta</span>.<span class='ident'>angle</span>()
+    <span class="doccomment">/// Compute the conjugate of this unit complex number.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conjugate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">UnitComplex</span>::<span class="ident">new_unchecked</span>(<span class="self">self</span>.<span class="ident">conj</span>())
     }
 
-    <span class='doccomment'>/// The unit complex number needed to make `self` and `other` coincide.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The result is such that: `self.rotation_to(other) * self == other`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>rotation_to</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='ident'>other</span> <span class='op'>/</span> <span class='self'>self</span>
+    <span class="doccomment">/// Inverts this complex number if it is not zero.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">conjugate</span>()
     }
 
-    <span class='doccomment'>/// Compute in-place the conjugate of this unit complex number.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>conjugate_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='kw'>let</span> <span class='ident'>me</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>as_mut_unchecked</span>();
-        <span class='ident'>me</span>.<span class='ident'>im</span> <span class='op'>=</span> <span class='op'>-</span><span class='ident'>me</span>.<span class='ident'>im</span>;
+    <span class="doccomment">/// The rotation angle needed to make `self` and `other` coincide.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">angle_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        <span class="kw">let</span> <span class="ident">delta</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rotation_to</span>(<span class="ident">other</span>);
+        <span class="ident">delta</span>.<span class="ident">angle</span>()
     }
 
-    <span class='doccomment'>/// Inverts in-place this unit complex number.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>conjugate_mut</span>()
+    <span class="doccomment">/// The unit complex number needed to make `self` and `other` coincide.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The result is such that: `self.rotation_to(other) * self == other`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotation_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">other</span> <span class="op">/</span> <span class="self">self</span>
     }
 
-    <span class='doccomment'>/// Raise this unit complex number to a given floating power.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This returns the unit complex number that identifies a rotation angle equal to</span>
-    <span class='doccomment'>/// `self.angle() × n`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>powf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>n</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>from_angle</span>(<span class='self'>self</span>.<span class='ident'>angle</span>() <span class='op'>*</span> <span class='ident'>n</span>)
+    <span class="doccomment">/// Compute in-place the conjugate of this unit complex number.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conjugate_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="ident">me</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut_unchecked</span>();
+        <span class="ident">me</span>.<span class="ident">im</span> <span class="op">=</span> <span class="op">-</span><span class="ident">me</span>.<span class="ident">im</span>;
     }
 
-    <span class='doccomment'>/// Builds the rotation matrix corresponding to this unit complex number.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_rotation_matrix</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Rotation2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>r</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>re</span>;
-        <span class='kw'>let</span> <span class='ident'>i</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>im</span>;
-
-        <span class='ident'>Rotation2</span>::<span class='ident'>from_matrix_unchecked</span>(
-            <span class='ident'>SquareMatrix</span>::<span class='op'>&lt;</span>_, <span class='ident'>U2</span>, _<span class='op'>&gt;</span>::<span class='ident'>new</span>(
-                <span class='ident'>r</span>, <span class='op'>-</span><span class='ident'>i</span>,
-                <span class='ident'>i</span>,  <span class='ident'>r</span>
-            )
-        )
+    <span class="doccomment">/// Inverts in-place this unit complex number.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inverse_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">conjugate_mut</span>()
     }
 
-    <span class='doccomment'>/// Converts this unit complex number into its equivalent homogeneous transformation matrix.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_homogeneous</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Matrix3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>to_rotation_matrix</span>().<span class='ident'>to_homogeneous</span>()
+    <span class="doccomment">/// Raise this unit complex number to a given floating power.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This returns the unit complex number that identifies a rotation angle equal to</span>
+    <span class="doccomment">/// `self.angle() × n`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">powf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">n</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">from_angle</span>(<span class="self">self</span>.<span class="ident">angle</span>() <span class="op">*</span> <span class="ident">n</span>)
+    }
+
+    <span class="doccomment">/// Builds the rotation matrix corresponding to this unit complex number.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_rotation_matrix</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Rotation2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">re</span>;
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">im</span>;
+
+        <span class="ident">Rotation2</span>::<span class="ident">from_matrix_unchecked</span>(<span class="ident">Matrix2</span>::<span class="ident">new</span>(<span class="ident">r</span>, <span class="op">-</span><span class="ident">i</span>,
+                                                      <span class="ident">i</span>,  <span class="ident">r</span>))
+    }
+
+    <span class="doccomment">/// Converts this unit complex number into its equivalent homogeneous transformation matrix.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_homogeneous</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Matrix3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">to_rotation_matrix</span>().<span class="ident">to_homogeneous</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>fmt</span>::<span class='ident'>Display</span><span class='op'>&gt;</span> <span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='ident'>UnitComplex</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
-        <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;UnitComplex angle: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>angle</span>())
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">fmt</span>::<span class="ident">Display</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;UnitComplex angle: {}&quot;</span>, <span class="self">self</span>.<span class="ident">angle</span>())
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Real</span><span class='op'>&gt;</span> <span class='ident'>ApproxEq</span> <span class='kw'>for</span> <span class='ident'>UnitComplex</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Epsilon</span> <span class='op'>=</span> <span class='ident'>N</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">ApproxEq</span> <span class="kw">for</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Epsilon</span> <span class="op">=</span> <span class="ident">N</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>default_epsilon</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Epsilon</span> {
-        <span class='ident'>N</span>::<span class='ident'>default_epsilon</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">default_epsilon</span>() <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Epsilon</span> {
+        <span class="ident">N</span>::<span class="ident">default_epsilon</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>default_max_relative</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Epsilon</span> {
-        <span class='ident'>N</span>::<span class='ident'>default_max_relative</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">default_max_relative</span>() <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Epsilon</span> {
+        <span class="ident">N</span>::<span class="ident">default_max_relative</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>default_max_ulps</span>() <span class='op'>-&gt;</span> <span class='ident'>u32</span> {
-        <span class='ident'>N</span>::<span class='ident'>default_max_ulps</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">default_max_ulps</span>() <span class="op">-&gt;</span> <span class="ident">u32</span> {
+        <span class="ident">N</span>::<span class="ident">default_max_ulps</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>relative_eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>, <span class='ident'>epsilon</span>: <span class='self'>Self</span>::<span class='ident'>Epsilon</span>, <span class='ident'>max_relative</span>: <span class='self'>Self</span>::<span class='ident'>Epsilon</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>re</span>.<span class='ident'>relative_eq</span>(<span class='kw-2'>&amp;</span><span class='ident'>other</span>.<span class='ident'>re</span>, <span class='ident'>epsilon</span>, <span class='ident'>max_relative</span>) <span class='op'>&amp;&amp;</span>
-        <span class='self'>self</span>.<span class='ident'>im</span>.<span class='ident'>relative_eq</span>(<span class='kw-2'>&amp;</span><span class='ident'>other</span>.<span class='ident'>im</span>, <span class='ident'>epsilon</span>, <span class='ident'>max_relative</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">relative_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">epsilon</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>, <span class="ident">max_relative</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">re</span>.<span class="ident">relative_eq</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">re</span>, <span class="ident">epsilon</span>, <span class="ident">max_relative</span>) <span class="op">&amp;&amp;</span>
+        <span class="self">self</span>.<span class="ident">im</span>.<span class="ident">relative_eq</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">im</span>, <span class="ident">epsilon</span>, <span class="ident">max_relative</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>ulps_eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>, <span class='ident'>epsilon</span>: <span class='self'>Self</span>::<span class='ident'>Epsilon</span>, <span class='ident'>max_ulps</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>re</span>.<span class='ident'>ulps_eq</span>(<span class='kw-2'>&amp;</span><span class='ident'>other</span>.<span class='ident'>re</span>, <span class='ident'>epsilon</span>, <span class='ident'>max_ulps</span>) <span class='op'>&amp;&amp;</span>
-        <span class='self'>self</span>.<span class='ident'>im</span>.<span class='ident'>ulps_eq</span>(<span class='kw-2'>&amp;</span><span class='ident'>other</span>.<span class='ident'>im</span>, <span class='ident'>epsilon</span>, <span class='ident'>max_ulps</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">ulps_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">epsilon</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>, <span class="ident">max_ulps</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">re</span>.<span class="ident">ulps_eq</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">re</span>, <span class="ident">epsilon</span>, <span class="ident">max_ulps</span>) <span class="op">&amp;&amp;</span>
+        <span class="self">self</span>.<span class="ident">im</span>.<span class="ident">ulps_eq</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">im</span>, <span class="ident">epsilon</span>, <span class="ident">max_ulps</span>)
     }
 }
 </pre>
@@ -568,7 +394,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

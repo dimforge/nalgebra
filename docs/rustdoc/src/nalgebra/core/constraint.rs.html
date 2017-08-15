@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -118,81 +118,111 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! Compatibility constraints between matrix shapes, e.g., for addition or multiplication.</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Compatibility constraints between matrix shapes, e.g., for addition or multiplication.</span>
 
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>Dim</span>, <span class='ident'>DimName</span>, <span class='ident'>Dynamic</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimName</span>, <span class="ident">Dynamic</span>};
 
-<span class='doccomment'>/// A type used in `where` clauses for enforcing constraints.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ShapeConstraint</span>;
+<span class="doccomment">/// A type used in `where` clauses for enforcing constraints.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShapeConstraint</span>;
 
-<span class='doccomment'>/// Constraints `C1` and `R2` to be equivalent.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>AreMultipliable</span><span class='op'>&lt;</span><span class='ident'>R1</span>: <span class='ident'>Dim</span>, <span class='ident'>C1</span>: <span class='ident'>Dim</span>,
-                          <span class='ident'>R2</span>: <span class='ident'>Dim</span>, <span class='ident'>C2</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span> {
+<span class="doccomment">/// Constraints `C1` and `R2` to be equivalent.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AreMultipliable</span><span class="op">&lt;</span><span class="ident">R1</span>: <span class="ident">Dim</span>, <span class="ident">C1</span>: <span class="ident">Dim</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span><span class="op">&gt;</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">R2</span><span class="op">&gt;</span> {
 }
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>R1</span>: <span class='ident'>Dim</span>, <span class='ident'>C1</span>: <span class='ident'>Dim</span>, <span class='ident'>R2</span>: <span class='ident'>Dim</span>, <span class='ident'>C2</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span> <span class='ident'>AreMultipliable</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>C1</span>, <span class='ident'>R2</span>, <span class='ident'>C2</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ShapeConstraint</span>
-<span class='kw'>where</span> <span class='ident'>ShapeConstraint</span>: <span class='ident'>DimEq</span><span class='op'>&lt;</span><span class='ident'>C1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R1</span>: <span class="ident">Dim</span>, <span class="ident">C1</span>: <span class="ident">Dim</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">AreMultipliable</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">C1</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span>
+<span class="kw">where</span> <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">R2</span><span class="op">&gt;</span> {
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>equality_trait_decl</span>(
-    ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>doc</span>: <span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Trait</span>: <span class='ident'>ident</span>),<span class='op'>*</span> $(,)<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {$(
-        <span class='comment'>// XXX: we can&#39;t do something like `DimEq&lt;D1&gt; for D2` because we would require a blancket impl…</span>
-        <span class='attribute'>#[<span class='ident'>doc</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>doc</span>]</span>
-        <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Trait</span><span class='op'>&lt;</span><span class='ident'>D1</span>: <span class='ident'>Dim</span>, <span class='ident'>D2</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span> {
-            <span class='doccomment'>/// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level</span>
-            <span class='doccomment'>/// constant.</span>
-            <span class='kw'>type</span> <span class='ident'>Representative</span>: <span class='ident'>Dim</span>;
+<span class="doccomment">/// Constraints `D1` and `D2` to be equivalent.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">D1</span>: <span class="ident">Dim</span>, <span class="ident">D2</span>: <span class="ident">Dim</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level</span>
+    <span class="doccomment">/// constant.</span>
+    <span class="kw">type</span> <span class="ident">Representative</span>: <span class="ident">Dim</span>;
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span> {
+    <span class="kw">type</span> <span class="ident">Representative</span> <span class="op">=</span> <span class="ident">D</span>;
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span> {
+    <span class="kw">type</span> <span class="ident">Representative</span> <span class="op">=</span> <span class="ident">D</span>;
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span> {
+    <span class="kw">type</span> <span class="ident">Representative</span> <span class="op">=</span> <span class="ident">D</span>;
+}
+
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">equality_trait_decl</span>(
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>: <span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span>: <span class="ident">ident</span>),<span class="op">*</span> $(,)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+        <span class="comment">// XXX: we can&#39;t do something like `DimEq&lt;D1&gt; for D2` because we would require a blancket impl…</span>
+        <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span>
+        <span class="kw">pub</span> <span class="kw">trait</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span><span class="op">&lt;</span><span class="ident">D1</span>: <span class="ident">Dim</span>, <span class="ident">D2</span>: <span class="ident">Dim</span><span class="op">&gt;</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">D1</span>, <span class="ident">D2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">D2</span>, <span class="ident">D1</span><span class="op">&gt;</span> {
+            <span class="doccomment">/// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level</span>
+            <span class="doccomment">/// constant.</span>
+            <span class="kw">type</span> <span class="ident">Representative</span>: <span class="ident">Dim</span>;
         }
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Trait</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ShapeConstraint</span> {
-            <span class='kw'>type</span> <span class='ident'>Representative</span> <span class='op'>=</span> <span class='ident'>D</span>;
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span> {
+            <span class="kw">type</span> <span class="ident">Representative</span> <span class="op">=</span> <span class="ident">D</span>;
         }
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>DimName</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Trait</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>Dynamic</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ShapeConstraint</span> {
-            <span class='kw'>type</span> <span class='ident'>Representative</span> <span class='op'>=</span> <span class='ident'>D</span>;
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span> {
+            <span class="kw">type</span> <span class="ident">Representative</span> <span class="op">=</span> <span class="ident">D</span>;
         }
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>DimName</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Trait</span><span class='op'>&lt;</span><span class='ident'>Dynamic</span>, <span class='ident'>D</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ShapeConstraint</span> {
-            <span class='kw'>type</span> <span class='ident'>Representative</span> <span class='op'>=</span> <span class='ident'>D</span>;
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span> {
+            <span class="kw">type</span> <span class="ident">Representative</span> <span class="op">=</span> <span class="ident">D</span>;
         }
-    )<span class='kw-2'>*</span>}
+    )<span class="kw-2">*</span>}
 );
 
-<span class='macro'>equality_trait_decl</span><span class='macro'>!</span>(
-    <span class='string'>&quot;Constraints `D1` and `D2` to be equivalent.&quot;</span>,
-    <span class='ident'>DimEq</span>,
-
-    <span class='string'>&quot;Constraints `D1` and `D2` to be equivalent. \
+<span class="macro">equality_trait_decl</span><span class="macro">!</span>(
+    <span class="string">&quot;Constraints `D1` and `D2` to be equivalent. \
      They are both assumed to be the number of \
      rows of a matrix.&quot;</span>,
-    <span class='ident'>SameNumberOfRows</span>,
+    <span class="ident">SameNumberOfRows</span>,
 
-    <span class='string'>&quot;Constraints `D1` and `D2` to be equivalent. \
+    <span class="string">&quot;Constraints `D1` and `D2` to be equivalent. \
      They are both assumed to be the number of \
      columns of a matrix.&quot;</span>,
-    <span class='ident'>SameNumberOfColumns</span>
+    <span class="ident">SameNumberOfColumns</span>
 );
 
-<span class='doccomment'>/// Constraints D1 and D2 to be equivalent, where they both designate dimensions of algebraic</span>
-<span class='doccomment'>/// entities (e.g. square matrices).</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>SameDimension</span><span class='op'>&lt;</span><span class='ident'>D1</span>: <span class='ident'>Dim</span>, <span class='ident'>D2</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span>: <span class='ident'>SameNumberOfRows</span><span class='op'>&lt;</span><span class='ident'>D1</span>, <span class='ident'>D2</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>SameNumberOfColumns</span><span class='op'>&lt;</span><span class='ident'>D1</span>, <span class='ident'>D2</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level</span>
-    <span class='doccomment'>/// constant.</span>
-    <span class='kw'>type</span> <span class='ident'>Representative</span>: <span class='ident'>Dim</span>;
+<span class="doccomment">/// Constraints D1 and D2 to be equivalent, where they both designate dimensions of algebraic</span>
+<span class="doccomment">/// entities (e.g. square matrices).</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">SameDimension</span><span class="op">&lt;</span><span class="ident">D1</span>: <span class="ident">Dim</span>, <span class="ident">D2</span>: <span class="ident">Dim</span><span class="op">&gt;</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">D1</span>, <span class="ident">D2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SameNumberOfColumns</span><span class="op">&lt;</span><span class="ident">D1</span>, <span class="ident">D2</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level</span>
+    <span class="doccomment">/// constant.</span>
+    <span class="kw">type</span> <span class="ident">Representative</span>: <span class="ident">Dim</span>;
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span> <span class='ident'>SameDimension</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ShapeConstraint</span> {
-    <span class='kw'>type</span> <span class='ident'>Representative</span> <span class='op'>=</span> <span class='ident'>D</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">SameDimension</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span> {
+    <span class="kw">type</span> <span class="ident">Representative</span> <span class="op">=</span> <span class="ident">D</span>;
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>DimName</span><span class='op'>&gt;</span> <span class='ident'>SameDimension</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>Dynamic</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ShapeConstraint</span> {
-    <span class='kw'>type</span> <span class='ident'>Representative</span> <span class='op'>=</span> <span class='ident'>D</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">SameDimension</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span> {
+    <span class="kw">type</span> <span class="ident">Representative</span> <span class="op">=</span> <span class="ident">D</span>;
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>DimName</span><span class='op'>&gt;</span> <span class='ident'>SameDimension</span><span class='op'>&lt;</span><span class='ident'>Dynamic</span>, <span class='ident'>D</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ShapeConstraint</span> {
-    <span class='kw'>type</span> <span class='ident'>Representative</span> <span class='op'>=</span> <span class='ident'>D</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">SameDimension</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShapeConstraint</span> {
+    <span class="kw">type</span> <span class="ident">Representative</span> <span class="op">=</span> <span class="ident">D</span>;
 }
 </pre>
 </section>
@@ -252,7 +282,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

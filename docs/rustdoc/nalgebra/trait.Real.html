@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Real` trait in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Real">
+
+    <title>nalgebra::Real - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc trait">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        <p class='location'>Trait Real</p><div class="block items"><ul><li><a href="#required-methods">Required Methods</a></li><li><a href="#implementors">Implementors</a></li></ul></div><p class='location'><a href='index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'Real', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>nalgebra</a>::<wbr><a class="trait" href=''>Real</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span></span></h1>
+<pre class='rust trait'>pub trait Real: 'static + Lattice + SubsetOf&lt;Self&gt; + SupersetOf&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>&gt; + Field&lt;Output = Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Neg.html" title="trait core::ops::arith::Neg">Neg</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.AddAssign.html" title="trait core::ops::arith::AddAssign">AddAssign</a>&lt;Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.SubAssign.html" title="trait core::ops::arith::SubAssign">SubAssign</a>&lt;Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.MulAssign.html" title="trait core::ops::arith::MulAssign">MulAssign</a>&lt;Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.DivAssign.html" title="trait core::ops::arith::DivAssign">DivAssign</a>&lt;Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> + <a class="trait" href="https://rust-num.github.io/num/num_traits/sign/trait.Signed.html" title="trait num_traits::sign::Signed">Signed</a> + <a class="trait" href="https://rust-num.github.io/num/num_traits/bounds/trait.Bounded.html" title="trait num_traits::bounds::Bounded">Bounded</a> + <a class="trait" href="https://rust-num.github.io/num/num_traits/cast/trait.FromPrimitive.html" title="trait num_traits::cast::FromPrimitive">FromPrimitive</a> + <a class="trait" href="https://rust-num.github.io/num/num_traits/trait.Num.html" title="trait num_traits::Num">Num</a> + ApproxEq&lt;Epsilon = Self&gt; {
+    fn <a href='#tymethod.floor' class='fnname'>floor</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.ceil' class='fnname'>ceil</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.round' class='fnname'>round</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.trunc' class='fnname'>trunc</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.fract' class='fnname'>fract</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.abs' class='fnname'>abs</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.signum' class='fnname'>signum</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.is_sign_positive' class='fnname'>is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.is_sign_negative' class='fnname'>is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.mul_add' class='fnname'>mul_add</a>(self, a: Self, b: Self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.recip' class='fnname'>recip</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.powi' class='fnname'>powi</a>(self, n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.powf' class='fnname'>powf</a>(self, n: Self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.sqrt' class='fnname'>sqrt</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.exp' class='fnname'>exp</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.exp2' class='fnname'>exp2</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.ln' class='fnname'>ln</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.log' class='fnname'>log</a>(self, base: Self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.log2' class='fnname'>log2</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.log10' class='fnname'>log10</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.max' class='fnname'>max</a>(self, other: Self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.min' class='fnname'>min</a>(self, other: Self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.cbrt' class='fnname'>cbrt</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.hypot' class='fnname'>hypot</a>(self, other: Self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.sin' class='fnname'>sin</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.cos' class='fnname'>cos</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.tan' class='fnname'>tan</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.asin' class='fnname'>asin</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.acos' class='fnname'>acos</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.atan' class='fnname'>atan</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.atan2' class='fnname'>atan2</a>(self, other: Self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.sin_cos' class='fnname'>sin_cos</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>Self, Self<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.exp_m1' class='fnname'>exp_m1</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.ln_1p' class='fnname'>ln_1p</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.sinh' class='fnname'>sinh</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.cosh' class='fnname'>cosh</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.tanh' class='fnname'>tanh</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.asinh' class='fnname'>asinh</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.acosh' class='fnname'>acosh</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.atanh' class='fnname'>atanh</a>(self) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.pi' class='fnname'>pi</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.two_pi' class='fnname'>two_pi</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.frac_pi_2' class='fnname'>frac_pi_2</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.frac_pi_3' class='fnname'>frac_pi_3</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.frac_pi_4' class='fnname'>frac_pi_4</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.frac_pi_6' class='fnname'>frac_pi_6</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.frac_pi_8' class='fnname'>frac_pi_8</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.frac_1_pi' class='fnname'>frac_1_pi</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.frac_2_pi' class='fnname'>frac_2_pi</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.frac_2_sqrt_pi' class='fnname'>frac_2_sqrt_pi</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.e' class='fnname'>e</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.log2_e' class='fnname'>log2_e</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.log10_e' class='fnname'>log10_e</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.ln_2' class='fnname'>ln_2</a>() -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.ln_10' class='fnname'>ln_10</a>() -&gt; Self;
+}</pre><div class='docblock'><p>Trait shared by all reals.</p>
+
+<p>Reals are equipped with functions that are commonly used on reals. The results of those
+functions only have to be approximately equal to the actual theoretical values.</p>
+</div>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
+            <div class='methods'>
+        <h3 id='tymethod.floor' class='method'><span id='floor.v' class='invisible'><code>fn <a href='#tymethod.floor' class='fnname'>floor</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.ceil' class='method'><span id='ceil.v' class='invisible'><code>fn <a href='#tymethod.ceil' class='fnname'>ceil</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.round' class='method'><span id='round.v' class='invisible'><code>fn <a href='#tymethod.round' class='fnname'>round</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.trunc' class='method'><span id='trunc.v' class='invisible'><code>fn <a href='#tymethod.trunc' class='fnname'>trunc</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.fract' class='method'><span id='fract.v' class='invisible'><code>fn <a href='#tymethod.fract' class='fnname'>fract</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.abs' class='method'><span id='abs.v' class='invisible'><code>fn <a href='#tymethod.abs' class='fnname'>abs</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.signum' class='method'><span id='signum.v' class='invisible'><code>fn <a href='#tymethod.signum' class='fnname'>signum</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.is_sign_positive' class='method'><span id='is_sign_positive.v' class='invisible'><code>fn <a href='#tymethod.is_sign_positive' class='fnname'>is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span></h3><h3 id='tymethod.is_sign_negative' class='method'><span id='is_sign_negative.v' class='invisible'><code>fn <a href='#tymethod.is_sign_negative' class='fnname'>is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span></h3><h3 id='tymethod.mul_add' class='method'><span id='mul_add.v' class='invisible'><code>fn <a href='#tymethod.mul_add' class='fnname'>mul_add</a>(self, a: Self, b: Self) -&gt; Self</code></span></h3><h3 id='tymethod.recip' class='method'><span id='recip.v' class='invisible'><code>fn <a href='#tymethod.recip' class='fnname'>recip</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.powi' class='method'><span id='powi.v' class='invisible'><code>fn <a href='#tymethod.powi' class='fnname'>powi</a>(self, n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self</code></span></h3><h3 id='tymethod.powf' class='method'><span id='powf.v' class='invisible'><code>fn <a href='#tymethod.powf' class='fnname'>powf</a>(self, n: Self) -&gt; Self</code></span></h3><h3 id='tymethod.sqrt' class='method'><span id='sqrt.v' class='invisible'><code>fn <a href='#tymethod.sqrt' class='fnname'>sqrt</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.exp' class='method'><span id='exp.v' class='invisible'><code>fn <a href='#tymethod.exp' class='fnname'>exp</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.exp2' class='method'><span id='exp2.v' class='invisible'><code>fn <a href='#tymethod.exp2' class='fnname'>exp2</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.ln' class='method'><span id='ln.v' class='invisible'><code>fn <a href='#tymethod.ln' class='fnname'>ln</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.log' class='method'><span id='log.v' class='invisible'><code>fn <a href='#tymethod.log' class='fnname'>log</a>(self, base: Self) -&gt; Self</code></span></h3><h3 id='tymethod.log2' class='method'><span id='log2.v' class='invisible'><code>fn <a href='#tymethod.log2' class='fnname'>log2</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.log10' class='method'><span id='log10.v' class='invisible'><code>fn <a href='#tymethod.log10' class='fnname'>log10</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.max' class='method'><span id='max.v' class='invisible'><code>fn <a href='#tymethod.max' class='fnname'>max</a>(self, other: Self) -&gt; Self</code></span></h3><h3 id='tymethod.min' class='method'><span id='min.v' class='invisible'><code>fn <a href='#tymethod.min' class='fnname'>min</a>(self, other: Self) -&gt; Self</code></span></h3><h3 id='tymethod.cbrt' class='method'><span id='cbrt.v' class='invisible'><code>fn <a href='#tymethod.cbrt' class='fnname'>cbrt</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.hypot' class='method'><span id='hypot.v' class='invisible'><code>fn <a href='#tymethod.hypot' class='fnname'>hypot</a>(self, other: Self) -&gt; Self</code></span></h3><h3 id='tymethod.sin' class='method'><span id='sin.v' class='invisible'><code>fn <a href='#tymethod.sin' class='fnname'>sin</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.cos' class='method'><span id='cos.v' class='invisible'><code>fn <a href='#tymethod.cos' class='fnname'>cos</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.tan' class='method'><span id='tan.v' class='invisible'><code>fn <a href='#tymethod.tan' class='fnname'>tan</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.asin' class='method'><span id='asin.v' class='invisible'><code>fn <a href='#tymethod.asin' class='fnname'>asin</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.acos' class='method'><span id='acos.v' class='invisible'><code>fn <a href='#tymethod.acos' class='fnname'>acos</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.atan' class='method'><span id='atan.v' class='invisible'><code>fn <a href='#tymethod.atan' class='fnname'>atan</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.atan2' class='method'><span id='atan2.v' class='invisible'><code>fn <a href='#tymethod.atan2' class='fnname'>atan2</a>(self, other: Self) -&gt; Self</code></span></h3><h3 id='tymethod.sin_cos' class='method'><span id='sin_cos.v' class='invisible'><code>fn <a href='#tymethod.sin_cos' class='fnname'>sin_cos</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>Self, Self<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></span></h3><h3 id='tymethod.exp_m1' class='method'><span id='exp_m1.v' class='invisible'><code>fn <a href='#tymethod.exp_m1' class='fnname'>exp_m1</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.ln_1p' class='method'><span id='ln_1p.v' class='invisible'><code>fn <a href='#tymethod.ln_1p' class='fnname'>ln_1p</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.sinh' class='method'><span id='sinh.v' class='invisible'><code>fn <a href='#tymethod.sinh' class='fnname'>sinh</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.cosh' class='method'><span id='cosh.v' class='invisible'><code>fn <a href='#tymethod.cosh' class='fnname'>cosh</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.tanh' class='method'><span id='tanh.v' class='invisible'><code>fn <a href='#tymethod.tanh' class='fnname'>tanh</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.asinh' class='method'><span id='asinh.v' class='invisible'><code>fn <a href='#tymethod.asinh' class='fnname'>asinh</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.acosh' class='method'><span id='acosh.v' class='invisible'><code>fn <a href='#tymethod.acosh' class='fnname'>acosh</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.atanh' class='method'><span id='atanh.v' class='invisible'><code>fn <a href='#tymethod.atanh' class='fnname'>atanh</a>(self) -&gt; Self</code></span></h3><h3 id='tymethod.pi' class='method'><span id='pi.v' class='invisible'><code>fn <a href='#tymethod.pi' class='fnname'>pi</a>() -&gt; Self</code></span></h3><h3 id='tymethod.two_pi' class='method'><span id='two_pi.v' class='invisible'><code>fn <a href='#tymethod.two_pi' class='fnname'>two_pi</a>() -&gt; Self</code></span></h3><h3 id='tymethod.frac_pi_2' class='method'><span id='frac_pi_2.v' class='invisible'><code>fn <a href='#tymethod.frac_pi_2' class='fnname'>frac_pi_2</a>() -&gt; Self</code></span></h3><h3 id='tymethod.frac_pi_3' class='method'><span id='frac_pi_3.v' class='invisible'><code>fn <a href='#tymethod.frac_pi_3' class='fnname'>frac_pi_3</a>() -&gt; Self</code></span></h3><h3 id='tymethod.frac_pi_4' class='method'><span id='frac_pi_4.v' class='invisible'><code>fn <a href='#tymethod.frac_pi_4' class='fnname'>frac_pi_4</a>() -&gt; Self</code></span></h3><h3 id='tymethod.frac_pi_6' class='method'><span id='frac_pi_6.v' class='invisible'><code>fn <a href='#tymethod.frac_pi_6' class='fnname'>frac_pi_6</a>() -&gt; Self</code></span></h3><h3 id='tymethod.frac_pi_8' class='method'><span id='frac_pi_8.v' class='invisible'><code>fn <a href='#tymethod.frac_pi_8' class='fnname'>frac_pi_8</a>() -&gt; Self</code></span></h3><h3 id='tymethod.frac_1_pi' class='method'><span id='frac_1_pi.v' class='invisible'><code>fn <a href='#tymethod.frac_1_pi' class='fnname'>frac_1_pi</a>() -&gt; Self</code></span></h3><h3 id='tymethod.frac_2_pi' class='method'><span id='frac_2_pi.v' class='invisible'><code>fn <a href='#tymethod.frac_2_pi' class='fnname'>frac_2_pi</a>() -&gt; Self</code></span></h3><h3 id='tymethod.frac_2_sqrt_pi' class='method'><span id='frac_2_sqrt_pi.v' class='invisible'><code>fn <a href='#tymethod.frac_2_sqrt_pi' class='fnname'>frac_2_sqrt_pi</a>() -&gt; Self</code></span></h3><h3 id='tymethod.e' class='method'><span id='e.v' class='invisible'><code>fn <a href='#tymethod.e' class='fnname'>e</a>() -&gt; Self</code></span></h3><h3 id='tymethod.log2_e' class='method'><span id='log2_e.v' class='invisible'><code>fn <a href='#tymethod.log2_e' class='fnname'>log2_e</a>() -&gt; Self</code></span></h3><h3 id='tymethod.log10_e' class='method'><span id='log10_e.v' class='invisible'><code>fn <a href='#tymethod.log10_e' class='fnname'>log10_e</a>() -&gt; Self</code></span></h3><h3 id='tymethod.ln_2' class='method'><span id='ln_2.v' class='invisible'><code>fn <a href='#tymethod.ln_2' class='fnname'>ln_2</a>() -&gt; Self</code></span></h3><h3 id='tymethod.ln_10' class='method'><span id='ln_10.v' class='invisible'><code>fn <a href='#tymethod.ln_10' class='fnname'>ln_10</a>() -&gt; Self</code></span></h3></div>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl Real for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a></code></li>
+<li><code>impl Real for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a></code></li>
+</ul><script type="text/javascript" async
+                         src="../implementors/alga/general/real/trait.Real.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>

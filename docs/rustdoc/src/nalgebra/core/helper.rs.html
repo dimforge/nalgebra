@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -62,25 +62,25 @@
 <span id="17">17</span>
 <span id="18">18</span>
 <span id="19">19</span>
-</pre><pre class='rust '>
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;arbitrary&quot;</span>)]</span>
-<span class='kw'>use</span> <span class='ident'>quickcheck</span>::{<span class='ident'>Arbitrary</span>, <span class='ident'>Gen</span>};
-<span class='kw'>use</span> <span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
+</pre><pre class="rust ">
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;arbitrary&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">quickcheck</span>::{<span class="ident">Arbitrary</span>, <span class="ident">Gen</span>};
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rand</span>, <span class="ident">Rng</span>};
 
-<span class='doccomment'>/// Simple helper function for rejection sampling</span>
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;arbitrary&quot;</span>)]</span>
-<span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>reject</span><span class='op'>&lt;</span><span class='ident'>G</span>: <span class='ident'>Gen</span>, <span class='ident'>F</span>: <span class='ident'>FnMut</span>(<span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>, <span class='ident'>T</span>: <span class='ident'>Arbitrary</span><span class='op'>&gt;</span>(<span class='ident'>g</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>G</span>, <span class='ident'>f</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>;
-    <span class='ident'>iter</span>::<span class='ident'>repeat</span>(()).<span class='ident'>map</span>(<span class='op'>|</span>_<span class='op'>|</span> <span class='ident'>Arbitrary</span>::<span class='ident'>arbitrary</span>(<span class='ident'>g</span>)).<span class='ident'>find</span>(<span class='ident'>f</span>).<span class='ident'>unwrap</span>()
+<span class="doccomment">/// Simple helper function for rejection sampling</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;arbitrary&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reject</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>, <span class="ident">T</span>: <span class="ident">Arbitrary</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
+    <span class="ident">iter</span>::<span class="ident">repeat</span>(()).<span class="ident">map</span>(<span class="op">|</span>_<span class="op">|</span> <span class="ident">Arbitrary</span>::<span class="ident">arbitrary</span>(<span class="ident">g</span>)).<span class="ident">find</span>(<span class="ident">f</span>).<span class="ident">unwrap</span>()
 }
 
-<span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>reject_rand</span><span class='op'>&lt;</span><span class='ident'>G</span>: <span class='ident'>Rng</span>, <span class='ident'>F</span>: <span class='ident'>FnMut</span>(<span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>, <span class='ident'>T</span>: <span class='ident'>Rand</span><span class='op'>&gt;</span>(<span class='ident'>g</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>G</span>, <span class='ident'>f</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>;
-    <span class='ident'>iter</span>::<span class='ident'>repeat</span>(()).<span class='ident'>map</span>(<span class='op'>|</span>_<span class='op'>|</span> <span class='ident'>Rand</span>::<span class='ident'>rand</span>(<span class='ident'>g</span>)).<span class='ident'>find</span>(<span class='ident'>f</span>).<span class='ident'>unwrap</span>()
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reject_rand</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Rng</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>, <span class="ident">T</span>: <span class="ident">Rand</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>;
+    <span class="ident">iter</span>::<span class="ident">repeat</span>(()).<span class="ident">map</span>(<span class="op">|</span>_<span class="op">|</span> <span class="ident">Rand</span>::<span class="ident">rand</span>(<span class="ident">g</span>)).<span class="ident">find</span>(<span class="ident">f</span>).<span class="ident">unwrap</span>()
 }
 </pre>
 </section>
@@ -140,7 +140,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

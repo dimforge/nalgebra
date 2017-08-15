@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -177,187 +177,141 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>approx</span>::<span class='ident'>ApproxEq</span>;
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">AbstractMagma</span>, <span class="ident">AbstractGroup</span>, <span class="ident">AbstractLoop</span>, <span class="ident">AbstractMonoid</span>, <span class="ident">AbstractQuasigroup</span>,
+                    <span class="ident">AbstractSemigroup</span>, <span class="ident">Real</span>, <span class="ident">Inverse</span>, <span class="ident">Multiplicative</span>, <span class="ident">Identity</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::{<span class="ident">Transformation</span>, <span class="ident">ProjectiveTransformation</span>};
 
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::{<span class='ident'>AbstractMagma</span>, <span class='ident'>AbstractGroup</span>, <span class='ident'>AbstractLoop</span>, <span class='ident'>AbstractMonoid</span>, <span class='ident'>AbstractQuasigroup</span>,
-                    <span class='ident'>AbstractSemigroup</span>, <span class='ident'>Field</span>, <span class='ident'>Real</span>, <span class='ident'>Inverse</span>, <span class='ident'>Multiplicative</span>, <span class='ident'>Identity</span>};
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>linear</span>::{<span class='ident'>Transformation</span>, <span class='ident'>ProjectiveTransformation</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">VectorN</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimNameSum</span>, <span class="ident">DimNameAdd</span>, <span class="ident">U1</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-<span class='kw'>use</span> <span class='ident'>core</span>::{<span class='ident'>Scalar</span>, <span class='ident'>ColumnVector</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>DimNameSum</span>, <span class='ident'>DimNameAdd</span>, <span class='ident'>U1</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::<span class='ident'>OwnedStorage</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::{<span class='ident'>Allocator</span>, <span class='ident'>OwnedAllocator</span>};
-
-<span class='kw'>use</span> <span class='ident'>geometry</span>::{<span class='ident'>PointBase</span>, <span class='ident'>TransformBase</span>, <span class='ident'>TCategory</span>, <span class='ident'>SubTCategoryOf</span>, <span class='ident'>TProjective</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Transform</span>, <span class="ident">TCategory</span>, <span class="ident">SubTCategoryOf</span>, <span class="ident">TProjective</span>};
 
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Algebraic structures.
  *
  */</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimNameAdd</span><span class='op'>&lt;</span><span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='ident'>Identity</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Field</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>C</span>: <span class='ident'>TCategory</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>identity</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>identity</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Identity</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">TCategory</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">identity</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimNameAdd</span><span class='op'>&lt;</span><span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='ident'>Inverse</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Field</span> <span class='op'>+</span> <span class='ident'>ApproxEq</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>C</span>: <span class='ident'>SubTCategoryOf</span><span class='op'>&lt;</span><span class='ident'>TProjective</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>().<span class='ident'>inverse</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Inverse</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">SubTCategoryOf</span><span class="op">&lt;</span><span class="ident">TProjective</span><span class="op">&gt;</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">inverse</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>inverse_mut</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">inverse_mut</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimNameAdd</span><span class='op'>&lt;</span><span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='ident'>AbstractMagma</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Field</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>C</span>: <span class='ident'>TCategory</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>operate</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rhs</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">AbstractMagma</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">TCategory</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">operate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>
     }
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_multiplicative_structures</span>(
-    ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>marker</span>: <span class='ident'>ident</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>operator</span>: <span class='ident'>ident</span><span class='op'>&gt;</span>),<span class='op'>*</span> $(,)<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {$(
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimNameAdd</span><span class='op'>&lt;</span><span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>marker</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>operator</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span>
-            <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Field</span>,
-                  <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-                  <span class='ident'>C</span>: <span class='ident'>TCategory</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span><span class='op'>&gt;</span> { }
-    )<span class='kw-2'>*</span>}
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_multiplicative_structures</span>(
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">marker</span>: <span class="ident">ident</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">operator</span>: <span class="ident">ident</span><span class="op">&gt;</span>),<span class="op">*</span> $(,)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">marker</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">operator</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>
+            <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">TCategory</span>,
+                  <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> { }
+    )<span class="kw-2">*</span>}
 );
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_inversible_multiplicative_structures</span>(
-    ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>marker</span>: <span class='ident'>ident</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>operator</span>: <span class='ident'>ident</span><span class='op'>&gt;</span>),<span class='op'>*</span> $(,)<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {$(
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimNameAdd</span><span class='op'>&lt;</span><span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>marker</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>operator</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>C</span><span class='op'>&gt;</span>
-            <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Field</span> <span class='op'>+</span> <span class='ident'>ApproxEq</span>,
-                  <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-                  <span class='ident'>C</span>: <span class='ident'>SubTCategoryOf</span><span class='op'>&lt;</span><span class='ident'>TProjective</span><span class='op'>&gt;</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>S</span><span class='op'>&gt;</span> { }
-    )<span class='kw-2'>*</span>}
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_inversible_multiplicative_structures</span>(
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">marker</span>: <span class="ident">ident</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">operator</span>: <span class="ident">ident</span><span class="op">&gt;</span>),<span class="op">*</span> $(,)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">marker</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">operator</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>
+            <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">SubTCategoryOf</span><span class="op">&lt;</span><span class="ident">TProjective</span><span class="op">&gt;</span>,
+                  <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> { }
+    )<span class="kw-2">*</span>}
 );
 
-<span class='macro'>impl_multiplicative_structures</span><span class='macro'>!</span>(
-    <span class='ident'>AbstractSemigroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractMonoid</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
+<span class="macro">impl_multiplicative_structures</span><span class="macro">!</span>(
+    <span class="ident">AbstractSemigroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractMonoid</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
 );
 
-<span class='macro'>impl_inversible_multiplicative_structures</span><span class='macro'>!</span>(
-    <span class='ident'>AbstractQuasigroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractLoop</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractGroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>
+<span class="macro">impl_inversible_multiplicative_structures</span><span class="macro">!</span>(
+    <span class="ident">AbstractQuasigroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractLoop</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractGroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>
 );
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Transformation groups.
  *
  */</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimNameAdd</span><span class='op'>&lt;</span><span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='ident'>Transformation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span>, <span class='ident'>C</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>C</span>:  <span class='ident'>TCategory</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>  <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U1</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>transform_point</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>pt</span>: <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>pt</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Transformation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N</span>:  <span class="ident">Real</span>,
+          <span class="ident">C</span>:  <span class="ident">TCategory</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">transform_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">pt</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>v</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">v</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimNameAdd</span><span class='op'>&lt;</span><span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='ident'>ProjectiveTransformation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span>, <span class='ident'>C</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>C</span>:  <span class='ident'>SubTCategoryOf</span><span class='op'>&lt;</span><span class='ident'>TProjective</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>  <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U1</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse_transform_point</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>pt</span>: <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>inverse</span>() <span class='op'>*</span> <span class='ident'>pt</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">ProjectiveTransformation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N</span>:  <span class="ident">Real</span>,
+          <span class="ident">C</span>:  <span class="ident">SubTCategoryOf</span><span class="op">&lt;</span><span class="ident">TProjective</span><span class="op">&gt;</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse_transform_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">inverse</span>() <span class="op">*</span> <span class="ident">pt</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse_transform_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>inverse</span>() <span class='op'>*</span> <span class='ident'>v</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse_transform_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">inverse</span>() <span class="op">*</span> <span class="ident">v</span>
     }
 }
 
-<span class='comment'>// FIXME: we need to implement an SVD for this.</span>
-<span class='comment'>//</span>
-<span class='comment'>// impl&lt;N, D: DimNameAdd&lt;U1&gt;, SA, SB, C&gt; AffineTransformation&lt;PointBase&lt;N, D, SB&gt;&gt; for TransformBase&lt;N, D, SA, C&gt;</span>
-<span class='comment'>//     where N:  Real,</span>
-<span class='comment'>//           SA: OwnedStorage&lt;N, DimNameSum&lt;D, U1&gt;, DimNameSum&lt;D, U1&gt;&gt;,</span>
-<span class='comment'>//           SB: OwnedStorage&lt;N, D, U1, Alloc = SA::Alloc&gt;,</span>
-<span class='comment'>//           C: SubTCategoryOf&lt;TAffine&gt;,</span>
-<span class='comment'>//           SA::Alloc: OwnedAllocator&lt;N, DimNameSum&lt;D, U1&gt;, DimNameSum&lt;D, U1&gt;, SA&gt; +</span>
-<span class='comment'>//                      Allocator&lt;N, D, D&gt;  +</span>
-<span class='comment'>//                      Allocator&lt;N, D, U1&gt; +</span>
-<span class='comment'>//                      Allocator&lt;N, U1, D&gt;,</span>
-<span class='comment'>//           SB::Alloc: OwnedAllocator&lt;N, D, U1, SB&gt; {</span>
-<span class='comment'>//     type PreRotation       = OwnedRotation&lt;N, D, SA::Alloc&gt;;</span>
-<span class='comment'>//     type NonUniformScaling = OwnedColumnVector&lt;N, D, SA::Alloc&gt;;</span>
-<span class='comment'>//     type PostRotation      = OwnedRotation&lt;N, D, SA::Alloc&gt;;</span>
-<span class='comment'>//     type Translation       = OwnedTranslation&lt;N, D, SA::Alloc&gt;;</span>
-<span class='comment'>// </span>
-<span class='comment'>//     #[inline]</span>
-<span class='comment'>//     fn decompose(&amp;self) -&gt; (Self::Translation, Self::PostRotation, Self::NonUniformScaling, Self::PreRotation) {</span>
-<span class='comment'>//         unimplemented!()</span>
-<span class='comment'>//     }</span>
-<span class='comment'>// }</span>
+<span class="comment">// FIXME: we need to implement an SVD for this.</span>
+<span class="comment">//</span>
+<span class="comment">// impl&lt;N, D: DimNameAdd&lt;U1&gt;, C&gt; AffineTransformation&lt;Point&lt;N, D&gt;&gt; for Transform&lt;N, D, C&gt;</span>
+<span class="comment">//     where N:  Real,</span>
+<span class="comment">//           C: SubTCategoryOf&lt;TAffine&gt;,</span>
+<span class="comment">//           DefaultAllocator: Allocator&lt;N, DimNameSum&lt;D, U1&gt;, DimNameSum&lt;D, U1&gt;&gt; +</span>
+<span class="comment">//                             Allocator&lt;N, D, D&gt; +</span>
+<span class="comment">//                             Allocator&lt;N, D&gt; {</span>
+<span class="comment">//     type PreRotation       = Rotation&lt;N, D&gt;;</span>
+<span class="comment">//     type NonUniformScaling = VectorN&lt;N, D&gt;;</span>
+<span class="comment">//     type PostRotation      = Rotation&lt;N, D&gt;;</span>
+<span class="comment">//     type Translation       = Translation&lt;N, D&gt;;</span>
+<span class="comment">// </span>
+<span class="comment">//     #[inline]</span>
+<span class="comment">//     fn decompose(&amp;self) -&gt; (Self::Translation, Self::PostRotation, Self::NonUniformScaling, Self::PreRotation) {</span>
+<span class="comment">//         unimplemented!()</span>
+<span class="comment">//     }</span>
+<span class="comment">// }</span>
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -416,7 +370,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc trait">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a></p><script>window.sidebarCurrent = {name: 'TCategory', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait TCategory</p><div class="block items"><ul><li><a href="#required-methods">Required Methods</a></li><li><a href="#provided-methods">Provided Methods</a></li><li><a href="#implementors">Implementors</a></li></ul></div><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a></p><script>window.sidebarCurrent = {name: 'TCategory', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,35 +43,41 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a>::<wbr><a class='trait' href=''>TCategory</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a>::<wbr><a class="trait" href=''>TCategory</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/nalgebra/geometry/transform.rs.html#16-31' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait TCategory: <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> {
-    fn <a href='#tymethod.check_homogeneous_invariants' class='fnname'>check_homogeneous_invariants</a>&lt;N, D, S&gt;(mat: &amp;<a class='type' href='../../nalgebra/core/type.SquareMatrix.html' title='nalgebra::core::SquareMatrix'>SquareMatrix</a>&lt;N, D, S&gt;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where N: <a class='trait' href='../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a> + Field + ApproxEq,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D: <a class='trait' href='../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S: <a class='trait' href='../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>Storage</a>&lt;N, D, D&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N::Epsilon: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span>;
+               </span><a class='srclink' href='../../src/nalgebra/geometry/transform.rs.html#18-31' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait TCategory: <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> {
+    fn <a href='#tymethod.check_homogeneous_invariants' class='fnname'>check_homogeneous_invariants</a>&lt;N:&nbsp;<a class="trait" href="../../nalgebra/trait.Real.html" title="trait nalgebra::Real">Real</a>, D:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mat: &amp;<a class="type" href="../../nalgebra/core/type.MatrixN.html" title="type nalgebra::core::MatrixN">MatrixN</a>&lt;N, D&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a><br>&nbsp;&nbsp;&nbsp; <span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N::Epsilon: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, D, D&gt;</span>;
 
-    fn <a href='#method.has_normalizer' class='fnname'>has_normalizer</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.has_normalizer' class='fnname'>has_normalizer</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
 }</pre><div class='docblock'><p>Trait implemented by phantom types identifying the projective transformation type.</p>
 
 <p>NOTE: this trait is not intended to be implementable outside of the <code>nalgebra</code> crate.</p>
 </div>
-            <h2 id='required-methods'>Required Methods</h2>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='tymethod.check_homogeneous_invariants' class='method'><span id='check_homogeneous_invariants.v' class='invisible'><code>fn <a href='#tymethod.check_homogeneous_invariants' class='fnname'>check_homogeneous_invariants</a>&lt;N, D, S&gt;(mat: &amp;<a class='type' href='../../nalgebra/core/type.SquareMatrix.html' title='nalgebra::core::SquareMatrix'>SquareMatrix</a>&lt;N, D, S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> <span class='where fmt-newline'>where N: <a class='trait' href='../../nalgebra/core/trait.Scalar.html' title='nalgebra::core::Scalar'>Scalar</a> + Field + ApproxEq,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D: <a class='trait' href='../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S: <a class='trait' href='../../nalgebra/core/storage/trait.Storage.html' title='nalgebra::core::storage::Storage'>Storage</a>&lt;N, D, D&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N::Epsilon: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></code></span></h3><div class='docblock'><p>Checks that the given matrix is a valid homogeneous representation of an element of the
+        <h3 id='tymethod.check_homogeneous_invariants' class='method'><span id='check_homogeneous_invariants.v' class='invisible'><code>fn <a href='#tymethod.check_homogeneous_invariants' class='fnname'>check_homogeneous_invariants</a>&lt;N:&nbsp;<a class="trait" href="../../nalgebra/trait.Real.html" title="trait nalgebra::Real">Real</a>, D:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;mat: &amp;<a class="type" href="../../nalgebra/core/type.MatrixN.html" title="type nalgebra::core::MatrixN">MatrixN</a>&lt;N, D&gt;<br>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;N::Epsilon: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, D, D&gt;,&nbsp;</span></code></span></h3><div class='docblock'><p>Checks that the given matrix is a valid homogeneous representation of an element of the
 category <code>Self</code>.</p>
 </div></div>
-            <h2 id='provided-methods'>Provided Methods</h2>
+            <h2 id='provided-methods' class='small-section-header'>
+              Provided Methods<a href='#provided-methods' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='method.has_normalizer' class='method'><span id='has_normalizer.v' class='invisible'><code>fn <a href='#method.has_normalizer' class='fnname'>has_normalizer</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h3><div class='docblock'><p>Indicates whether a <code>Transform</code> with the category <code>Self</code> has a bottom-row different from
+        <h3 id='method.has_normalizer' class='method'><span id='has_normalizer.v' class='invisible'><code>fn <a href='#method.has_normalizer' class='fnname'>has_normalizer</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span></h3><div class='docblock'><p>Indicates whether a <code>Transform</code> with the category <code>Self</code> has a bottom-row different from
 <code>0 0 .. 1</code>.</p>
 </div></div>
-        <h2 id='implementors'>Implementors</h2>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl TCategory for <a class='enum' href='../../nalgebra/geometry/enum.TGeneral.html' title='nalgebra::geometry::TGeneral'>TGeneral</a></code></li>
-<li><code>impl TCategory for <a class='enum' href='../../nalgebra/geometry/enum.TProjective.html' title='nalgebra::geometry::TProjective'>TProjective</a></code></li>
-<li><code>impl TCategory for <a class='enum' href='../../nalgebra/geometry/enum.TAffine.html' title='nalgebra::geometry::TAffine'>TAffine</a></code></li>
+    <li><code>impl TCategory for <a class="enum" href="../../nalgebra/geometry/enum.TGeneral.html" title="enum nalgebra::geometry::TGeneral">TGeneral</a></code></li>
+<li><code>impl TCategory for <a class="enum" href="../../nalgebra/geometry/enum.TProjective.html" title="enum nalgebra::geometry::TProjective">TProjective</a></code></li>
+<li><code>impl TCategory for <a class="enum" href="../../nalgebra/geometry/enum.TAffine.html" title="enum nalgebra::geometry::TAffine">TAffine</a></code></li>
 </ul><script type="text/javascript" async
                          src="../../implementors/nalgebra/geometry/trait.TCategory.js">
                  </script></section>
@@ -131,7 +137,6 @@ category <code>Self</code>.</p>
         window.rootPath = "../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 

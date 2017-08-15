@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc type">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>storage</a></p><script>window.sidebarCurrent = {name: 'Owned', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Type Definition Owned</p><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>storage</a></p><script>window.sidebarCurrent = {name: 'Owned', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,13 +43,13 @@
         </form>
     </nav>
 
-    <section id='main' class="content type">
-<h1 class='fqn'><span class='in-band'>Type Definition <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>storage</a>::<wbr><a class='type' href=''>Owned</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Type Definition <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>storage</a>::<wbr><a class="type" href=''>Owned</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/nalgebra/core/storage.rs.html#35-36' title='goto source code'>[src]</a></span></h1>
-<pre class='rust typedef'>type Owned&lt;N, R, C, A&gt; = A::<a class='trait' href='../../../nalgebra/core/allocator/trait.Allocator.html' title='nalgebra::core::allocator::Allocator'>Buffer</a>;</pre><div class='docblock'><p>The owned data storage that can be allocated from <code>S</code>.</p>
+               </span><a class='srclink' href='../../../src/nalgebra/core/storage.rs.html#19' title='goto source code'>[src]</a></span></h1>
+<pre class='rust typedef'>type Owned&lt;N, R, C&nbsp;=&nbsp;<a class="struct" href="../../../nalgebra/core/dimension/struct.U1.html" title="struct nalgebra::core::dimension::U1">U1</a>&gt; = &lt;<a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a> as <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, R, C&gt;&gt;::<a class="type" href="../../../nalgebra/core/allocator/trait.Allocator.html#associatedtype.Buffer" title="type nalgebra::core::allocator::Allocator::Buffer">Buffer</a>;</pre><div class='docblock'><p>The owned data storage that can be allocated from <code>S</code>.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -107,7 +107,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

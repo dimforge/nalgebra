@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -210,174 +210,172 @@
 <span id="165">165</span>
 <span id="166">166</span>
 <span id="167">167</span>
-<span id="168">168</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Mul</span>, <span class='ident'>MulAssign</span>, <span class='ident'>Div</span>, <span class='ident'>DivAssign</span>};
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Mul</span>, <span class="ident">MulAssign</span>, <span class="ident">Div</span>, <span class="ident">DivAssign</span>};
 
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::{<span class='ident'>ClosedAdd</span>, <span class='ident'>ClosedSub</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">ClosedAdd</span>, <span class="ident">ClosedSub</span>};
 
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>Scalar</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>DimName</span>, <span class='ident'>U1</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>constraint</span>::{<span class='ident'>ShapeConstraint</span>, <span class='ident'>SameNumberOfRows</span>, <span class='ident'>SameNumberOfColumns</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::{<span class='ident'>OwnedStorage</span>, <span class='ident'>Storage</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::{<span class='ident'>OwnedAllocator</span>, <span class='ident'>SameShapeAllocator</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Scalar</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">U1</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">ShapeConstraint</span>, <span class="ident">SameNumberOfRows</span>, <span class="ident">SameNumberOfColumns</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::{<span class="ident">Allocator</span>, <span class="ident">SameShapeAllocator</span>};
 
-<span class='kw'>use</span> <span class='ident'>geometry</span>::{<span class='ident'>PointBase</span>, <span class='ident'>OwnedPoint</span>, <span class='ident'>TranslationBase</span>, <span class='ident'>OwnedTranslation</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Translation</span>};
 
-<span class='comment'>// TranslationBase × TranslationBase</span>
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Mul</span>, <span class='ident'>mul</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedTranslation</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>;
-    <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>+</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>vector</span>); <span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;b</span>);
+<span class="comment">// Translation × Translation</span>
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Mul</span>, <span class="ident">mul</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">vector</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">vector</span>); <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>);
 
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Mul</span>, <span class='ident'>mul</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedTranslation</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>;
-    <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>+</span> <span class='ident'>right</span>.<span class='ident'>vector</span>); <span class='lifetime'>&#39;a</span>);
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Mul</span>, <span class="ident">mul</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">vector</span> <span class="op">+</span> <span class="ident">right</span>.<span class="ident">vector</span>); <span class="lifetime">&#39;a</span>);
 
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Mul</span>, <span class='ident'>mul</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedTranslation</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>;
-    <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>+</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>vector</span>); <span class='lifetime'>&#39;b</span>);
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Mul</span>, <span class="ident">mul</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="self">self</span>.<span class="ident">vector</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">vector</span>); <span class="lifetime">&#39;b</span>);
 
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Mul</span>, <span class='ident'>mul</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedTranslation</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>;
-    <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>+</span> <span class='ident'>right</span>.<span class='ident'>vector</span>); );
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Mul</span>, <span class="ident">mul</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="self">self</span>.<span class="ident">vector</span> <span class="op">+</span> <span class="ident">right</span>.<span class="ident">vector</span>); );
 
-<span class='comment'>// TranslationBase ÷ TranslationBase</span>
-<span class='comment'>// FIXME: instead of calling inverse explicitely, could we just add a `mul_tr` or `mul_inv` method?</span>
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Div</span>, <span class='ident'>div</span>, <span class='ident'>ClosedSub</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedTranslation</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>;
-    <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>-</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>vector</span>); <span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;b</span>);
+<span class="comment">// Translation ÷ Translation</span>
+<span class="comment">// FIXME: instead of calling inverse explicitely, could we just add a `mul_tr` or `mul_inv` method?</span>
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Div</span>, <span class="ident">div</span>, <span class="ident">ClosedSub</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">vector</span> <span class="op">-</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">vector</span>); <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>);
 
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Div</span>, <span class='ident'>div</span>, <span class='ident'>ClosedSub</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedTranslation</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>;
-    <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>-</span> <span class='ident'>right</span>.<span class='ident'>vector</span>); <span class='lifetime'>&#39;a</span>);
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Div</span>, <span class="ident">div</span>, <span class="ident">ClosedSub</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">vector</span> <span class="op">-</span> <span class="ident">right</span>.<span class="ident">vector</span>); <span class="lifetime">&#39;a</span>);
 
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Div</span>, <span class='ident'>div</span>, <span class='ident'>ClosedSub</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedTranslation</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>;
-    <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>-</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>vector</span>); <span class='lifetime'>&#39;b</span>);
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Div</span>, <span class="ident">div</span>, <span class="ident">ClosedSub</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="self">self</span>.<span class="ident">vector</span> <span class="op">-</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">vector</span>); <span class="lifetime">&#39;b</span>);
 
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Div</span>, <span class='ident'>div</span>, <span class='ident'>ClosedSub</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedTranslation</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>;
-    <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>-</span> <span class='ident'>right</span>.<span class='ident'>vector</span>); );
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Div</span>, <span class="ident">div</span>, <span class="ident">ClosedSub</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="self">self</span>.<span class="ident">vector</span> <span class="op">-</span> <span class="ident">right</span>.<span class="ident">vector</span>); );
 
 
-<span class='comment'>// TranslationBase × PointBase</span>
-<span class='comment'>// FIXME: we don&#39;t handle properly non-zero origins here. Do we want this to be the intended</span>
-<span class='comment'>// behavior?</span>
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Mul</span>, <span class='ident'>mul</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedPoint</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>;
-    <span class='ident'>right</span> <span class='op'>+</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>vector</span>; <span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;b</span>);
+<span class="comment">// Translation × Point</span>
+<span class="comment">// FIXME: we don&#39;t handle properly non-zero origins here. Do we want this to be the intended</span>
+<span class="comment">// behavior?</span>
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Mul</span>, <span class="ident">mul</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">right</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">vector</span>; <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>);
 
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Mul</span>, <span class='ident'>mul</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedPoint</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>;
-    <span class='ident'>right</span> <span class='op'>+</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>vector</span>; <span class='lifetime'>&#39;a</span>);
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Mul</span>, <span class="ident">mul</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">right</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">vector</span>; <span class="lifetime">&#39;a</span>);
 
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Mul</span>, <span class='ident'>mul</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedPoint</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>;
-    <span class='ident'>right</span> <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>vector</span>; <span class='lifetime'>&#39;b</span>);
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Mul</span>, <span class="ident">mul</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">right</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">vector</span>; <span class="lifetime">&#39;b</span>);
 
-<span class='macro'>add_sub_impl</span><span class='macro'>!</span>(<span class='ident'>Mul</span>, <span class='ident'>mul</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='op'>-&gt;</span> (<span class='ident'>D</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>OwnedPoint</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>;
-    <span class='ident'>right</span> <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>vector</span>; );
-
-
-<span class='comment'>// TranslationBase *= TranslationBase</span>
-<span class='macro'>add_sub_assign_impl</span><span class='macro'>!</span>(<span class='ident'>MulAssign</span>, <span class='ident'>mul_assign</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>;
-    <span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>+=</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>vector</span>; <span class='lifetime'>&#39;b</span>);
-
-<span class='macro'>add_sub_assign_impl</span><span class='macro'>!</span>(<span class='ident'>MulAssign</span>, <span class='ident'>mul_assign</span>, <span class='ident'>ClosedAdd</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>;
-    <span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>+=</span> <span class='ident'>right</span>.<span class='ident'>vector</span>; );
+<span class="macro">add_sub_impl</span><span class="macro">!</span>(<span class="ident">Mul</span>, <span class="ident">mul</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="op">-&gt;</span> (<span class="ident">D</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="ident">right</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">vector</span>; );
 
 
-<span class='macro'>add_sub_assign_impl</span><span class='macro'>!</span>(<span class='ident'>DivAssign</span>, <span class='ident'>div_assign</span>, <span class='ident'>ClosedSub</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>;
-    <span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>-=</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>vector</span>; <span class='lifetime'>&#39;b</span>);
+<span class="comment">// Translation *= Translation</span>
+<span class="macro">add_sub_assign_impl</span><span class="macro">!</span>(<span class="ident">MulAssign</span>, <span class="ident">mul_assign</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="self">self</span>.<span class="ident">vector</span> <span class="op">+=</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">vector</span>; <span class="lifetime">&#39;b</span>);
 
-<span class='macro'>add_sub_assign_impl</span><span class='macro'>!</span>(<span class='ident'>DivAssign</span>, <span class='ident'>div_assign</span>, <span class='ident'>ClosedSub</span>;
-    (<span class='ident'>D</span>, <span class='ident'>U1</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>;
-    <span class='self'>self</span>.<span class='ident'>vector</span> <span class='op'>-=</span> <span class='ident'>right</span>.<span class='ident'>vector</span>; );
+<span class="macro">add_sub_assign_impl</span><span class="macro">!</span>(<span class="ident">MulAssign</span>, <span class="ident">mul_assign</span>, <span class="ident">ClosedAdd</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="self">self</span>.<span class="ident">vector</span> <span class="op">+=</span> <span class="ident">right</span>.<span class="ident">vector</span>; );
 
-<span class='comment'>/*
-// TranslationBase × Matrix
+
+<span class="macro">add_sub_assign_impl</span><span class="macro">!</span>(<span class="ident">DivAssign</span>, <span class="ident">div_assign</span>, <span class="ident">ClosedSub</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="self">self</span>.<span class="ident">vector</span> <span class="op">-=</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">vector</span>; <span class="lifetime">&#39;b</span>);
+
+<span class="macro">add_sub_assign_impl</span><span class="macro">!</span>(<span class="ident">DivAssign</span>, <span class="ident">div_assign</span>, <span class="ident">ClosedSub</span>;
+    (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    <span class="self">self</span>.<span class="ident">vector</span> <span class="op">-=</span> <span class="ident">right</span>.<span class="ident">vector</span>; );
+
+<span class="comment">/*
+// Translation × Matrix
 add_sub_impl!(Mul, mul;
          (D1, D1), (R2, C2) for D1, R2, C2;
-         self: &amp;&#39;a TranslationBase&lt;N, D1, SA&gt;, right: &amp;&#39;b Matrix&lt;N, R2, C2, SB&gt;, Output = MatrixMul&lt;N, D1, D1, C2 , SA&gt;;
+         self: &amp;&#39;a Translation&lt;N, D1&gt;, right: &amp;&#39;b Matrix&lt;N, R2, C2&gt;, Output = MatrixMN&lt;N, D1, C2&gt;;
          self.vector() * right; &#39;a, &#39;b);
 
 add_sub_impl!(Mul, mul;
          (D1, D1), (R2, C2) for D1, R2, C2;
-         self: &amp;&#39;a TranslationBase&lt;N, D1, SA&gt;, right: Matrix&lt;N, R2, C2, SB&gt;, Output = MatrixMul&lt;N, D1, D1, C2 , SA&gt;;
+         self: &amp;&#39;a Translation&lt;N, D1&gt;, right: Matrix&lt;N, R2, C2&gt;, Output = MatrixMN&lt;N, D1, C2&gt;;
          self.vector() * right; &#39;a);
 
 add_sub_impl!(Mul, mul;
          (D1, D1), (R2, C2) for D1, R2, C2;
-         self: TranslationBase&lt;N, D1, SA&gt;, right: &amp;&#39;b Matrix&lt;N, R2, C2, SB&gt;, Output = MatrixMul&lt;N, D1, D1, C2 , SA&gt;;
+         self: Translation&lt;N, D1&gt;, right: &amp;&#39;b Matrix&lt;N, R2, C2&gt;, Output = MatrixMN&lt;N, D1, C2&gt;;
          self.unwrap() * right; &#39;b);
 
 add_sub_impl!(Mul, mul;
          (D1, D1), (R2, C2) for D1, R2, C2;
-         self: TranslationBase&lt;N, D1, SA&gt;, right: Matrix&lt;N, R2, C2, SB&gt;, Output = MatrixMul&lt;N, D1, D1, C2 , SA&gt;;
+         self: Translation&lt;N, D1&gt;, right: Matrix&lt;N, R2, C2&gt;, Output = MatrixMN&lt;N, D1, C2&gt;;
          self.unwrap() * right; );
 
-// Matrix × TranslationBase
+// Matrix × Translation
 add_sub_impl!(Mul, mul;
          (R1, C1), (D2, D2) for R1, C1, D2;
-         self: &amp;&#39;a Matrix&lt;N, R1, C1, SA&gt;, right: &amp;&#39;b TranslationBase&lt;N, D2, SB&gt;, Output = MatrixMul&lt;N, R1, C1, D2, SA&gt;;
+         self: &amp;&#39;a Matrix&lt;N, R1, C1&gt;, right: &amp;&#39;b Translation&lt;N, D2&gt;, Output = MatrixMN&lt;N, R1, D2&gt;;
          self * right.vector(); &#39;a, &#39;b);
 
 add_sub_impl!(Mul, mul;
          (R1, C1), (D2, D2) for R1, C1, D2;
-         self: &amp;&#39;a Matrix&lt;N, R1, C1, SA&gt;, right: TranslationBase&lt;N, D2, SB&gt;, Output = MatrixMul&lt;N, R1, C1, D2, SA&gt;;
+         self: &amp;&#39;a Matrix&lt;N, R1, C1&gt;, right: Translation&lt;N, D2&gt;, Output = MatrixMN&lt;N, R1, D2&gt;;
          self * right.unwrap(); &#39;a);
 
 add_sub_impl!(Mul, mul;
          (R1, C1), (D2, D2) for R1, C1, D2;
-         self: Matrix&lt;N, R1, C1, SA&gt;, right: &amp;&#39;b TranslationBase&lt;N, D2, SB&gt;, Output = MatrixMul&lt;N, R1, C1, D2, SA&gt;;
+         self: Matrix&lt;N, R1, C1&gt;, right: &amp;&#39;b Translation&lt;N, D2&gt;, Output = MatrixMN&lt;N, R1, D2&gt;;
          self * right.vector(); &#39;b);
 
 
 add_sub_impl!(Mul, mul;
          (R1, C1), (D2, D2) for R1, C1, D2;
-         self: Matrix&lt;N, R1, C1, SA&gt;, right: TranslationBase&lt;N, D2, SB&gt;, Output = MatrixMul&lt;N, R1, C1, D2, SA&gt;;
+         self: Matrix&lt;N, R1, C1&gt;, right: Translation&lt;N, D2&gt;, Output = MatrixMN&lt;N, R1, D2&gt;;
          self * right.unwrap(); );
 
-// Matrix *= TranslationBase
+// Matrix *= Translation
 md_assign_impl!(MulAssign, mul_assign;
                 (R1, C1), (C1, C1) for R1, C1;
-                self: Matrix&lt;N, R1, C1, SA&gt;, right: &amp;&#39;b TranslationBase&lt;N, C1, SB&gt;;
+                self: Matrix&lt;N, R1, C1&gt;, right: &amp;&#39;b Translation&lt;N, C1&gt;;
                 self.mul_assign(right.vector()); &#39;b);
 
 md_assign_impl!(MulAssign, mul_assign;
                 (R1, C1), (C1, C1) for R1, C1;
-                self: Matrix&lt;N, R1, C1, SA&gt;, right: TranslationBase&lt;N, C1, SB&gt;;
+                self: Matrix&lt;N, R1, C1&gt;, right: Translation&lt;N, C1&gt;;
                 self.mul_assign(right.unwrap()); );
 
 
 md_assign_impl!(DivAssign, div_assign;
                 (R1, C1), (C1, C1) for R1, C1;
-                self: Matrix&lt;N, R1, C1, SA&gt;, right: &amp;&#39;b TranslationBase&lt;N, C1, SB&gt;;
+                self: Matrix&lt;N, R1, C1&gt;, right: &amp;&#39;b Translation&lt;N, C1&gt;;
                 self.mul_assign(right.inverse().vector()); &#39;b);
 
 md_assign_impl!(DivAssign, div_assign;
                 (R1, C1), (C1, C1) for R1, C1;
-                self: Matrix&lt;N, R1, C1, SA&gt;, right: TranslationBase&lt;N, C1, SB&gt;;
+                self: Matrix&lt;N, R1, C1&gt;, right: Translation&lt;N, C1&gt;;
                 self.mul_assign(right.inverse().unwrap()); );
 */</span>
 </pre>
@@ -438,7 +436,6 @@ md_assign_impl!(DivAssign, div_assign;
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

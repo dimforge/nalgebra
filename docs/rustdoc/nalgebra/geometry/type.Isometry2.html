@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc type">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a></p><script>window.sidebarCurrent = {name: 'Isometry2', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Type Definition Isometry2</p><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a></p><script>window.sidebarCurrent = {name: 'Isometry2', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,13 +43,13 @@
         </form>
     </nav>
 
-    <section id='main' class="content type">
-<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a>::<wbr><a class='type' href=''>Isometry2</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a>::<wbr><a class="type" href=''>Isometry2</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/nalgebra/geometry/isometry_alias.rs.html#10' title='goto source code'>[src]</a></span></h1>
-<pre class='rust typedef'>type Isometry2&lt;N&gt; = <a class='struct' href='../../nalgebra/geometry/struct.IsometryBase.html' title='nalgebra::geometry::IsometryBase'>IsometryBase</a>&lt;N, <a class='struct' href='../../nalgebra/core/dimension/struct.U2.html' title='nalgebra::core::dimension::U2'>U2</a>, <a class='struct' href='../../nalgebra/core/struct.MatrixArray.html' title='nalgebra::core::MatrixArray'>MatrixArray</a>&lt;N, <a class='struct' href='../../nalgebra/core/dimension/struct.U2.html' title='nalgebra::core::dimension::U2'>U2</a>, <a class='struct' href='../../nalgebra/core/dimension/struct.U1.html' title='nalgebra::core::dimension::U1'>U1</a>&gt;, <a class='type' href='../../nalgebra/geometry/type.UnitComplex.html' title='nalgebra::geometry::UnitComplex'>UnitComplex</a>&lt;N&gt;&gt;;</pre><div class='docblock'><p>A 2-dimensional isometry using a unit complex number for its rotational part.</p>
+               </span><a class='srclink' href='../../src/nalgebra/geometry/isometry_alias.rs.html#7' title='goto source code'>[src]</a></span></h1>
+<pre class='rust typedef'>type Isometry2&lt;N&gt; = <a class="struct" href="../../nalgebra/geometry/struct.Isometry.html" title="struct nalgebra::geometry::Isometry">Isometry</a>&lt;N, <a class="struct" href="../../nalgebra/core/dimension/struct.U2.html" title="struct nalgebra::core::dimension::U2">U2</a>, <a class="type" href="../../nalgebra/geometry/type.UnitComplex.html" title="type nalgebra::geometry::UnitComplex">UnitComplex</a>&lt;N&gt;&gt;;</pre><div class='docblock'><p>A 2-dimensional isometry using a unit complex number for its rotational part.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -107,7 +107,6 @@
         window.rootPath = "../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 

@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc trait">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>constraint</a></p><script>window.sidebarCurrent = {name: 'DimEq', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait DimEq</p><div class="block items"><ul><li><a href="#associated-types">Associated Types</a></li><li><a href="#implementors">Implementors</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>constraint</a></p><script>window.sidebarCurrent = {name: 'DimEq', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,26 +43,30 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>constraint</a>::<wbr><a class='trait' href=''>DimEq</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>constraint</a>::<wbr><a class="trait" href=''>DimEq</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/nalgebra/core/constraint.rs.html#22-26' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait DimEq&lt;D1:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>, D2:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>&gt; {
-    type <a href='#associatedtype.Representative' class='type'>Representative</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>;
+               </span><a class='srclink' href='../../../src/nalgebra/core/constraint.rs.html#18-22' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait DimEq&lt;D1:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, D2:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt; {
+    type <a href='#associatedtype.Representative' class="type">Representative</a>: <a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>;
 }</pre><div class='docblock'><p>Constraints <code>D1</code> and <code>D2</code> to be equivalent.</p>
 </div>
-            <h2 id='associated-types'>Associated Types</h2>
+            <h2 id='associated-types' class='small-section-header'>
+              Associated Types<a href='#associated-types' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='associatedtype.Representative' class='method'><span id='Representative.t' class='invisible'><code>type <a href='#associatedtype.Representative' class='type'>Representative</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a></code></span></h3><div class='docblock'><p>This is either equal to <code>D1</code> or <code>D2</code>, always choosing the one (if any) which is a type-level
+        <h3 id='associatedtype.Representative' class='method'><span id='Representative.t' class='invisible'><code>type <a href='#associatedtype.Representative' class="type">Representative</a>: <a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a></code></span></h3><div class='docblock'><p>This is either equal to <code>D1</code> or <code>D2</code>, always choosing the one (if any) which is a type-level
 constant.</p>
 </div></div>
-        <h2 id='implementors'>Implementors</h2>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;D:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.Dim.html' title='nalgebra::core::dimension::Dim'>Dim</a>&gt; DimEq&lt;D, D&gt; for <a class='struct' href='../../../nalgebra/core/constraint/struct.ShapeConstraint.html' title='nalgebra::core::constraint::ShapeConstraint'>ShapeConstraint</a></code></li>
-<li><code>impl&lt;D:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>&gt; DimEq&lt;D, <a class='struct' href='../../../nalgebra/core/dimension/struct.Dynamic.html' title='nalgebra::core::dimension::Dynamic'>Dynamic</a>&gt; for <a class='struct' href='../../../nalgebra/core/constraint/struct.ShapeConstraint.html' title='nalgebra::core::constraint::ShapeConstraint'>ShapeConstraint</a></code></li>
-<li><code>impl&lt;D:&nbsp;<a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>&gt; DimEq&lt;<a class='struct' href='../../../nalgebra/core/dimension/struct.Dynamic.html' title='nalgebra::core::dimension::Dynamic'>Dynamic</a>, D&gt; for <a class='struct' href='../../../nalgebra/core/constraint/struct.ShapeConstraint.html' title='nalgebra::core::constraint::ShapeConstraint'>ShapeConstraint</a></code></li>
+    <li><code>impl&lt;D:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt; DimEq&lt;D, D&gt; for <a class="struct" href="../../../nalgebra/core/constraint/struct.ShapeConstraint.html" title="struct nalgebra::core::constraint::ShapeConstraint">ShapeConstraint</a><span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = D;</span></code></li>
+<li><code>impl&lt;D:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; DimEq&lt;D, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt; for <a class="struct" href="../../../nalgebra/core/constraint/struct.ShapeConstraint.html" title="struct nalgebra::core::constraint::ShapeConstraint">ShapeConstraint</a><span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = D;</span></code></li>
+<li><code>impl&lt;D:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; DimEq&lt;<a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, D&gt; for <a class="struct" href="../../../nalgebra/core/constraint/struct.ShapeConstraint.html" title="struct nalgebra::core::constraint::ShapeConstraint">ShapeConstraint</a><span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = D;</span></code></li>
 </ul><script type="text/javascript" async
                          src="../../../implementors/nalgebra/core/constraint/trait.DimEq.js">
                  </script></section>
@@ -122,7 +126,6 @@ constant.</p>
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

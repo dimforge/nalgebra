@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc mod">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a></p><script>window.sidebarCurrent = {name: 'iter', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module iter</p><div class="block items"><ul><li><a href="#structs">Structs</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a></p><script>window.sidebarCurrent = {name: 'iter', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,25 +43,25 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a class='mod' href=''>iter</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a class="mod" href=''>iter</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/nalgebra/core/iter.rs.html#1-88' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../../../src/nalgebra/core/iter.rs.html#1-95' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Matrix iterators.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.MatrixIter.html'
-                                  title='nalgebra::core::iter::MatrixIter'>MatrixIter</a></td>
+                           <td><a class="struct" href="struct.MatrixIter.html"
+                                  title='struct nalgebra::core::iter::MatrixIter'>MatrixIter</a></td>
                            <td class='docblock-short'>
                                 <p>An iterator through a dense matrix with arbitrary strides matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.MatrixIterMut.html'
-                                  title='nalgebra::core::iter::MatrixIterMut'>MatrixIterMut</a></td>
+                           <td><a class="struct" href="struct.MatrixIterMut.html"
+                                  title='struct nalgebra::core::iter::MatrixIterMut'>MatrixIterMut</a></td>
                            <td class='docblock-short'>
                                 <p>An iterator through a dense matrix with arbitrary strides matrix.</p>
                            </td>
@@ -122,7 +122,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

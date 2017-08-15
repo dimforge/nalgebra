@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc trait">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a></p><script>window.sidebarCurrent = {name: 'TCategoryMul', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait TCategoryMul</p><div class="block items"><ul><li><a href="#associated-types">Associated Types</a></li><li><a href="#implementors">Implementors</a></li></ul></div><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a></p><script>window.sidebarCurrent = {name: 'TCategoryMul', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,32 +43,36 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a>::<wbr><a class='trait' href=''>TCategoryMul</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a>::<wbr><a class="trait" href=''>TCategoryMul</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
                </span><a class='srclink' href='../../src/nalgebra/geometry/transform.rs.html#35-40' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait TCategoryMul&lt;Other:&nbsp;<a class='trait' href='../../nalgebra/geometry/trait.TCategory.html' title='nalgebra::geometry::TCategory'>TCategory</a>&gt;: <a class='trait' href='../../nalgebra/geometry/trait.TCategory.html' title='nalgebra::geometry::TCategory'>TCategory</a> {
-    type <a href='#associatedtype.Representative' class='type'>Representative</a>: <a class='trait' href='../../nalgebra/geometry/trait.TCategory.html' title='nalgebra::geometry::TCategory'>TCategory</a>;
+<pre class='rust trait'>pub trait TCategoryMul&lt;Other:&nbsp;<a class="trait" href="../../nalgebra/geometry/trait.TCategory.html" title="trait nalgebra::geometry::TCategory">TCategory</a>&gt;: <a class="trait" href="../../nalgebra/geometry/trait.TCategory.html" title="trait nalgebra::geometry::TCategory">TCategory</a> {
+    type <a href='#associatedtype.Representative' class="type">Representative</a>: <a class="trait" href="../../nalgebra/geometry/trait.TCategory.html" title="trait nalgebra::geometry::TCategory">TCategory</a>;
 }</pre><div class='docblock'><p>Traits that gives the <code>Transform</code> category that is compatible with the result of the
 multiplication of transformations with categories <code>Self</code> and <code>Other</code>.</p>
 </div>
-            <h2 id='associated-types'>Associated Types</h2>
+            <h2 id='associated-types' class='small-section-header'>
+              Associated Types<a href='#associated-types' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='associatedtype.Representative' class='method'><span id='Representative.t' class='invisible'><code>type <a href='#associatedtype.Representative' class='type'>Representative</a>: <a class='trait' href='../../nalgebra/geometry/trait.TCategory.html' title='nalgebra::geometry::TCategory'>TCategory</a></code></span></h3><div class='docblock'><p>The transform category that results from the multiplication of a <code>Transform&lt;Self&gt;</code> to a
+        <h3 id='associatedtype.Representative' class='method'><span id='Representative.t' class='invisible'><code>type <a href='#associatedtype.Representative' class="type">Representative</a>: <a class="trait" href="../../nalgebra/geometry/trait.TCategory.html" title="trait nalgebra::geometry::TCategory">TCategory</a></code></span></h3><div class='docblock'><p>The transform category that results from the multiplication of a <code>Transform&lt;Self&gt;</code> to a
 <code>Transform&lt;Other&gt;</code>. This is usually equal to <code>Self</code> or <code>Other</code>, whichever is the most
 general category.</p>
 </div></div>
-        <h2 id='implementors'>Implementors</h2>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;T:&nbsp;<a class='trait' href='../../nalgebra/geometry/trait.TCategory.html' title='nalgebra::geometry::TCategory'>TCategory</a>&gt; TCategoryMul&lt;T&gt; for T</code></li>
-<li><code>impl TCategoryMul&lt;<a class='enum' href='../../nalgebra/geometry/enum.TGeneral.html' title='nalgebra::geometry::TGeneral'>TGeneral</a>&gt; for <a class='enum' href='../../nalgebra/geometry/enum.TProjective.html' title='nalgebra::geometry::TProjective'>TProjective</a></code></li>
-<li><code>impl TCategoryMul&lt;<a class='enum' href='../../nalgebra/geometry/enum.TGeneral.html' title='nalgebra::geometry::TGeneral'>TGeneral</a>&gt; for <a class='enum' href='../../nalgebra/geometry/enum.TAffine.html' title='nalgebra::geometry::TAffine'>TAffine</a></code></li>
-<li><code>impl TCategoryMul&lt;<a class='enum' href='../../nalgebra/geometry/enum.TProjective.html' title='nalgebra::geometry::TProjective'>TProjective</a>&gt; for <a class='enum' href='../../nalgebra/geometry/enum.TGeneral.html' title='nalgebra::geometry::TGeneral'>TGeneral</a></code></li>
-<li><code>impl TCategoryMul&lt;<a class='enum' href='../../nalgebra/geometry/enum.TProjective.html' title='nalgebra::geometry::TProjective'>TProjective</a>&gt; for <a class='enum' href='../../nalgebra/geometry/enum.TAffine.html' title='nalgebra::geometry::TAffine'>TAffine</a></code></li>
-<li><code>impl TCategoryMul&lt;<a class='enum' href='../../nalgebra/geometry/enum.TAffine.html' title='nalgebra::geometry::TAffine'>TAffine</a>&gt; for <a class='enum' href='../../nalgebra/geometry/enum.TGeneral.html' title='nalgebra::geometry::TGeneral'>TGeneral</a></code></li>
-<li><code>impl TCategoryMul&lt;<a class='enum' href='../../nalgebra/geometry/enum.TAffine.html' title='nalgebra::geometry::TAffine'>TAffine</a>&gt; for <a class='enum' href='../../nalgebra/geometry/enum.TProjective.html' title='nalgebra::geometry::TProjective'>TProjective</a></code></li>
+    <li><code>impl&lt;T:&nbsp;<a class="trait" href="../../nalgebra/geometry/trait.TCategory.html" title="trait nalgebra::geometry::TCategory">TCategory</a>&gt; TCategoryMul&lt;T&gt; for T<span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = T;</span></code></li>
+<li><code>impl TCategoryMul&lt;<a class="enum" href="../../nalgebra/geometry/enum.TGeneral.html" title="enum nalgebra::geometry::TGeneral">TGeneral</a>&gt; for <a class="enum" href="../../nalgebra/geometry/enum.TProjective.html" title="enum nalgebra::geometry::TProjective">TProjective</a><span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = <a class="enum" href="../../nalgebra/geometry/enum.TGeneral.html" title="enum nalgebra::geometry::TGeneral">TGeneral</a>;</span></code></li>
+<li><code>impl TCategoryMul&lt;<a class="enum" href="../../nalgebra/geometry/enum.TGeneral.html" title="enum nalgebra::geometry::TGeneral">TGeneral</a>&gt; for <a class="enum" href="../../nalgebra/geometry/enum.TAffine.html" title="enum nalgebra::geometry::TAffine">TAffine</a><span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = <a class="enum" href="../../nalgebra/geometry/enum.TGeneral.html" title="enum nalgebra::geometry::TGeneral">TGeneral</a>;</span></code></li>
+<li><code>impl TCategoryMul&lt;<a class="enum" href="../../nalgebra/geometry/enum.TProjective.html" title="enum nalgebra::geometry::TProjective">TProjective</a>&gt; for <a class="enum" href="../../nalgebra/geometry/enum.TGeneral.html" title="enum nalgebra::geometry::TGeneral">TGeneral</a><span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = <a class="enum" href="../../nalgebra/geometry/enum.TGeneral.html" title="enum nalgebra::geometry::TGeneral">TGeneral</a>;</span></code></li>
+<li><code>impl TCategoryMul&lt;<a class="enum" href="../../nalgebra/geometry/enum.TProjective.html" title="enum nalgebra::geometry::TProjective">TProjective</a>&gt; for <a class="enum" href="../../nalgebra/geometry/enum.TAffine.html" title="enum nalgebra::geometry::TAffine">TAffine</a><span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = <a class="enum" href="../../nalgebra/geometry/enum.TProjective.html" title="enum nalgebra::geometry::TProjective">TProjective</a>;</span></code></li>
+<li><code>impl TCategoryMul&lt;<a class="enum" href="../../nalgebra/geometry/enum.TAffine.html" title="enum nalgebra::geometry::TAffine">TAffine</a>&gt; for <a class="enum" href="../../nalgebra/geometry/enum.TGeneral.html" title="enum nalgebra::geometry::TGeneral">TGeneral</a><span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = <a class="enum" href="../../nalgebra/geometry/enum.TGeneral.html" title="enum nalgebra::geometry::TGeneral">TGeneral</a>;</span></code></li>
+<li><code>impl TCategoryMul&lt;<a class="enum" href="../../nalgebra/geometry/enum.TAffine.html" title="enum nalgebra::geometry::TAffine">TAffine</a>&gt; for <a class="enum" href="../../nalgebra/geometry/enum.TProjective.html" title="enum nalgebra::geometry::TProjective">TProjective</a><span class="where fmt-newline">  type <a href='#associatedtype.Representative' class="type">Representative</a> = <a class="enum" href="../../nalgebra/geometry/enum.TProjective.html" title="enum nalgebra::geometry::TProjective">TProjective</a>;</span></code></li>
 </ul><script type="text/javascript" async
                          src="../../implementors/nalgebra/geometry/trait.TCategoryMul.js">
                  </script></section>
@@ -128,7 +132,6 @@ general category.</p>
         window.rootPath = "../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 

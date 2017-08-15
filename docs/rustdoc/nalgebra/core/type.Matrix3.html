@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc type">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'Matrix3', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Type Definition Matrix3</p><div class="block items"><ul><li><a href="#methods">Methods</a></li></ul></div><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'Matrix3', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,14 +43,21 @@
         </form>
     </nav>
 
-    <section id='main' class="content type">
-<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a>::<wbr><a class='type' href=''>Matrix3</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a>::<wbr><a class="type" href=''>Matrix3</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/nalgebra/core/alias.rs.html#27' title='goto source code'>[src]</a></span></h1>
-<pre class='rust typedef'>type Matrix3&lt;N&gt; = <a class='type' href='../../nalgebra/core/type.MatrixN.html' title='nalgebra::core::MatrixN'>MatrixN</a>&lt;N, <a class='struct' href='../../nalgebra/core/dimension/struct.U3.html' title='nalgebra::core::dimension::U3'>U3</a>&gt;;</pre><div class='docblock'><p>A stack-allocated, column-major, 3x3 square matrix.</p>
-</div></section>
+               </span><a class='srclink' href='../../src/nalgebra/core/alias.rs.html#31' title='goto source code'>[src]</a></span></h1>
+<pre class='rust typedef'>type Matrix3&lt;N&gt; = <a class="type" href="../../nalgebra/core/type.MatrixN.html" title="type nalgebra::core::MatrixN">MatrixN</a>&lt;N, <a class="struct" href="../../nalgebra/core/dimension/struct.U3.html" title="struct nalgebra::core::dimension::U3">U3</a>&gt;;</pre><div class='docblock'><p>A stack-allocated, column-major, 3x3 square matrix.</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="../../nalgebra/trait.Real.html" title="trait nalgebra::Real">Real</a>&gt; <a class="type" href="../../nalgebra/core/type.Matrix3.html" title="type nalgebra::core::Matrix3">Matrix3</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#58-64' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new_rotation' class="method"><span id='new_rotation.v' class='invisible'><code>fn <a href='#method.new_rotation' class='fnname'>new_rotation</a>(angle: N) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#61-63' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a 2 dimensional homogeneous rotation matrix from an angle in radian.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>
@@ -107,7 +114,6 @@
         window.rootPath = "../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 

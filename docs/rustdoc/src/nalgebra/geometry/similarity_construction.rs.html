@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -222,228 +222,186 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-</pre><pre class='rust '>
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;arbitrary&quot;</span>)]</span>
-<span class='kw'>use</span> <span class='ident'>quickcheck</span>::{<span class='ident'>Arbitrary</span>, <span class='ident'>Gen</span>};
+</pre><pre class="rust ">
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;arbitrary&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">quickcheck</span>::{<span class="ident">Arbitrary</span>, <span class="ident">Gen</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;arbitrary&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::<span class="ident">Owned</span>;
 
-<span class='kw'>use</span> <span class='ident'>num</span>::<span class='ident'>One</span>;
-<span class='kw'>use</span> <span class='ident'>rand</span>::{<span class='ident'>Rng</span>, <span class='ident'>Rand</span>};
+<span class="kw">use</span> <span class="ident">num</span>::<span class="ident">One</span>;
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">Rand</span>};
 
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::<span class='ident'>Real</span>;
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>linear</span>::<span class='ident'>Rotation</span> <span class='kw'>as</span> <span class='ident'>AlgaRotation</span>;
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::<span class="ident">Rotation</span> <span class="kw">as</span> <span class="ident">AlgaRotation</span>;
 
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>ColumnVector</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>DimName</span>, <span class='ident'>U1</span>, <span class='ident'>U2</span>, <span class='ident'>U3</span>, <span class='ident'>U4</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::{<span class='ident'>OwnedAllocator</span>, <span class='ident'>Allocator</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::<span class='ident'>OwnedStorage</span>;
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Vector2</span>, <span class="ident">Vector3</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">U2</span>, <span class="ident">U3</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-<span class='kw'>use</span> <span class='ident'>geometry</span>::{<span class='ident'>PointBase</span>, <span class='ident'>TranslationBase</span>, <span class='ident'>RotationBase</span>, <span class='ident'>SimilarityBase</span>,
-               <span class='ident'>UnitComplex</span>, <span class='ident'>UnitQuaternionBase</span>, <span class='ident'>IsometryBase</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Translation</span>, <span class="ident">Similarity</span>, <span class="ident">UnitComplex</span>, <span class="ident">UnitQuaternion</span>, <span class="ident">Isometry</span>,
+               <span class="ident">Point3</span>, <span class="ident">Rotation2</span>, <span class="ident">Rotation3</span>};
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>R</span>: <span class='ident'>AlgaRotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new identity similarity.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>identity</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>from_isometry</span>(<span class='ident'>IsometryBase</span>::<span class='ident'>identity</span>(), <span class='ident'>N</span>::<span class='ident'>one</span>())
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new identity similarity.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">from_isometry</span>(<span class="ident">Isometry</span>::<span class="ident">identity</span>(), <span class="ident">N</span>::<span class="ident">one</span>())
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='ident'>One</span> <span class='kw'>for</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>R</span>: <span class='ident'>AlgaRotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new identity similarity.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>one</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>identity</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">One</span> <span class="kw">for</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new identity similarity.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">one</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">identity</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>Rand</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>R</span>: <span class='ident'>AlgaRotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;&gt;</span> <span class='op'>+</span> <span class='ident'>Rand</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>G</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>G</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>();
-        <span class='kw'>while</span> <span class='macro'>relative_eq</span><span class='macro'>!</span>(<span class='ident'>s</span>, <span class='ident'>N</span>::<span class='ident'>zero</span>()) {
-            <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">Rand</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="ident">Rand</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+        <span class="kw">while</span> <span class="macro">relative_eq</span><span class="macro">!</span>(<span class="ident">s</span>, <span class="ident">N</span>::<span class="ident">zero</span>()) {
+            <span class="ident">s</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>()
         }
 
-        <span class='self'>Self</span>::<span class='ident'>from_isometry</span>(<span class='ident'>rng</span>.<span class='ident'>gen</span>(), <span class='ident'>s</span>)
+        <span class="self">Self</span>::<span class="ident">from_isometry</span>(<span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">s</span>)
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>R</span>: <span class='ident'>AlgaRotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The similarity that applies tha scaling factor `scaling`, followed by the rotation `r` with</span>
-    <span class='doccomment'>/// its axis passing through the point `p`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>rotation_wrt_point</span>(<span class='ident'>r</span>: <span class='ident'>R</span>, <span class='ident'>p</span>: <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>scaling</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='kw'>let</span> <span class='ident'>shift</span> <span class='op'>=</span> <span class='ident'>r</span>.<span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='op'>-</span><span class='kw-2'>&amp;</span><span class='ident'>p</span>.<span class='ident'>coords</span>);
-        <span class='self'>Self</span>::<span class='ident'>from_parts</span>(<span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='ident'>shift</span> <span class='op'>+</span> <span class='ident'>p</span>.<span class='ident'>coords</span>), <span class='ident'>r</span>, <span class='ident'>scaling</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The similarity that applies tha scaling factor `scaling`, followed by the rotation `r` with</span>
+    <span class="doccomment">/// its axis passing through the point `p`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotation_wrt_point</span>(<span class="ident">r</span>: <span class="ident">R</span>, <span class="ident">p</span>: <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">scaling</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="op">-</span><span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">coords</span>);
+        <span class="self">Self</span>::<span class="ident">from_parts</span>(<span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="ident">shift</span> <span class="op">+</span> <span class="ident">p</span>.<span class="ident">coords</span>), <span class="ident">r</span>, <span class="ident">scaling</span>)
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;arbitrary&quot;</span>)]</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='ident'>Arbitrary</span> <span class='kw'>for</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>Arbitrary</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-          <span class='ident'>R</span>: <span class='ident'>AlgaRotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;&gt;</span> <span class='op'>+</span> <span class='ident'>Arbitrary</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>arbitrary</span><span class='op'>&lt;</span><span class='ident'>G</span>: <span class='ident'>Gen</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>G</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>Arbitrary</span>::<span class='ident'>arbitrary</span>(<span class='ident'>rng</span>);
-        <span class='kw'>while</span> <span class='macro'>relative_eq</span><span class='macro'>!</span>(<span class='ident'>s</span>, <span class='ident'>N</span>::<span class='ident'>zero</span>()) {
-            <span class='ident'>s</span> <span class='op'>=</span> <span class='ident'>Arbitrary</span>::<span class='ident'>arbitrary</span>(<span class='ident'>rng</span>)
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;arbitrary&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">Arbitrary</span> <span class="op">+</span> <span class="ident">Send</span>,
+          <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="ident">Arbitrary</span> <span class="op">+</span> <span class="ident">Send</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+          <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>: <span class="ident">Send</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Arbitrary</span>::<span class="ident">arbitrary</span>(<span class="ident">rng</span>);
+        <span class="kw">while</span> <span class="macro">relative_eq</span><span class="macro">!</span>(<span class="ident">s</span>, <span class="ident">N</span>::<span class="ident">zero</span>()) {
+            <span class="ident">s</span> <span class="op">=</span> <span class="ident">Arbitrary</span>::<span class="ident">arbitrary</span>(<span class="ident">rng</span>)
         }
 
-        <span class='self'>Self</span>::<span class='ident'>from_isometry</span>(<span class='ident'>Arbitrary</span>::<span class='ident'>arbitrary</span>(<span class='ident'>rng</span>), <span class='ident'>s</span>)
+        <span class="self">Self</span>::<span class="ident">from_isometry</span>(<span class="ident">Arbitrary</span>::<span class="ident">arbitrary</span>(<span class="ident">rng</span>), <span class="ident">s</span>)
     }
 }
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Constructors for various static dimensions.
  *
  */</span>
 
-<span class='comment'>// 2D rotation.</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span>, <span class='ident'>SR</span><span class='op'>&gt;</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>S</span>, <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>SR</span><span class='op'>&gt;&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>:  <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SR</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SR</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>U2</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>:  <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-          <span class='ident'>SR</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>U2</span>, <span class='ident'>SR</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new similarity from a translation and a rotation angle.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>translation</span>: <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>angle</span>: <span class='ident'>N</span>, <span class='ident'>scaling</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>from_parts</span>(<span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='ident'>translation</span>), <span class='ident'>RotationBase</span>::<span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>SR</span><span class='op'>&gt;</span>::<span class='ident'>new</span>(<span class='ident'>angle</span>), <span class='ident'>scaling</span>)
+<span class="comment">// 2D rotation.</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">Rotation2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> {
+    <span class="doccomment">/// Creates a new similarity from a translation and a rotation angle.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">translation</span>: <span class="ident">Vector2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">angle</span>: <span class="ident">N</span>, <span class="ident">scaling</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">from_parts</span>(<span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="ident">translation</span>), <span class="ident">Rotation2</span>::<span class="ident">new</span>(<span class="ident">angle</span>), <span class="ident">scaling</span>)
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>S</span>, <span class='ident'>UnitComplex</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new similarity from a translation and a rotation angle.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>translation</span>: <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>angle</span>: <span class='ident'>N</span>, <span class='ident'>scaling</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>from_parts</span>(<span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='ident'>translation</span>), <span class='ident'>UnitComplex</span>::<span class='ident'>new</span>(<span class='ident'>angle</span>), <span class='ident'>scaling</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> {
+    <span class="doccomment">/// Creates a new similarity from a translation and a rotation angle.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">translation</span>: <span class="ident">Vector2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">angle</span>: <span class="ident">N</span>, <span class="ident">scaling</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">from_parts</span>(<span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="ident">translation</span>), <span class="ident">UnitComplex</span>::<span class="ident">new</span>(<span class="ident">angle</span>), <span class="ident">scaling</span>)
     }
 }
 
-<span class='comment'>// 3D rotation.</span>
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>similarity_construction_impl</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rot</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>RotId</span>: <span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>RRDim</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>RCDim</span>: <span class='ident'>ty</span>) <span class='op'>=&gt;</span> {
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span>, <span class='ident'>SR</span><span class='op'>&gt;</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rot</span><span class='op'>&gt;</span>
-            <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-                  <span class='ident'>S</span>:  <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SR</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-                  <span class='ident'>SR</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>RRDim</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>RCDim</span><span class='op'>&gt;</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>:  <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                  <span class='ident'>SR</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>RRDim</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>RCDim</span>, <span class='ident'>SR</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                             <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U3</span><span class='op'>&gt;</span> {
-            <span class='doccomment'>/// Creates a new similarity from a translation, rotation axis-angle, and scaling</span>
-            <span class='doccomment'>/// factor.</span>
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>translation</span>: <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>axisangle</span>: <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>scaling</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-                <span class='self'>Self</span>::<span class='ident'>from_isometry</span>(<span class='ident'>IsometryBase</span>::<span class='op'>&lt;</span>_, _, _, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rot</span><span class='op'>&gt;</span>::<span class='ident'>new</span>(<span class='ident'>translation</span>, <span class='ident'>axisangle</span>), <span class='ident'>scaling</span>)
+<span class="comment">// 3D rotation.</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">similarity_construction_impl</span>(
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rot</span>: <span class="ident">ty</span>) <span class="op">=&gt;</span> {
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rot</span><span class="op">&gt;</span> {
+            <span class="doccomment">/// Creates a new similarity from a translation, rotation axis-angle, and scaling</span>
+            <span class="doccomment">/// factor.</span>
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">translation</span>: <span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">axisangle</span>: <span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">scaling</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+                <span class="self">Self</span>::<span class="ident">from_isometry</span>(<span class="ident">Isometry</span>::<span class="op">&lt;</span>_, <span class="ident">U3</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rot</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">translation</span>, <span class="ident">axisangle</span>), <span class="ident">scaling</span>)
             }
 
-            <span class='doccomment'>/// Creates an similarity that corresponds to the a scaling factor and a local frame of</span>
-            <span class='doccomment'>/// an observer standing at the point `eye` and looking toward `target`.</span>
-            <span class='doccomment'>///</span>
-            <span class='doccomment'>/// It maps the view direction `target - eye` to the positive `z` axis and the origin to the</span>
-            <span class='doccomment'>/// `eye`.</span>
-            <span class='doccomment'>///</span>
-            <span class='doccomment'>/// # Arguments</span>
-            <span class='doccomment'>///   * eye - The observer position.</span>
-            <span class='doccomment'>///   * target - The target position.</span>
-            <span class='doccomment'>///   * up - Vertical direction. The only requirement of this parameter is to not be collinear</span>
-            <span class='doccomment'>///   to `eye - at`. Non-collinearity is not checked.</span>
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new_observer_frame</span>(<span class='ident'>eye</span>:    <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                                      <span class='ident'>target</span>: <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                                      <span class='ident'>up</span>:     <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                                      <span class='ident'>scaling</span>: <span class='ident'>N</span>)
-                                      <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-                <span class='self'>Self</span>::<span class='ident'>from_isometry</span>(<span class='ident'>IsometryBase</span>::<span class='op'>&lt;</span>_, _, _, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rot</span><span class='op'>&gt;</span>::<span class='ident'>new_observer_frame</span>(<span class='ident'>eye</span>, <span class='ident'>target</span>, <span class='ident'>up</span>), <span class='ident'>scaling</span>)
+            <span class="doccomment">/// Creates an similarity that corresponds to the a scaling factor and a local frame of</span>
+            <span class="doccomment">/// an observer standing at the point `eye` and looking toward `target`.</span>
+            <span class="doccomment">///</span>
+            <span class="doccomment">/// It maps the view direction `target - eye` to the positive `z` axis and the origin to the</span>
+            <span class="doccomment">/// `eye`.</span>
+            <span class="doccomment">///</span>
+            <span class="doccomment">/// # Arguments</span>
+            <span class="doccomment">///   * eye - The observer position.</span>
+            <span class="doccomment">///   * target - The target position.</span>
+            <span class="doccomment">///   * up - Vertical direction. The only requirement of this parameter is to not be collinear</span>
+            <span class="doccomment">///   to `eye - at`. Non-collinearity is not checked.</span>
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_observer_frame</span>(<span class="ident">eye</span>:    <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+                                      <span class="ident">target</span>: <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+                                      <span class="ident">up</span>:     <span class="kw-2">&amp;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+                                      <span class="ident">scaling</span>: <span class="ident">N</span>)
+                                      <span class="op">-&gt;</span> <span class="self">Self</span> {
+                <span class="self">Self</span>::<span class="ident">from_isometry</span>(<span class="ident">Isometry</span>::<span class="op">&lt;</span>_, <span class="ident">U3</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rot</span><span class="op">&gt;</span>::<span class="ident">new_observer_frame</span>(<span class="ident">eye</span>, <span class="ident">target</span>, <span class="ident">up</span>), <span class="ident">scaling</span>)
             }
 
-            <span class='doccomment'>/// Builds a right-handed look-at view matrix including scaling factor.</span>
-            <span class='doccomment'>///</span>
-            <span class='doccomment'>/// This conforms to the common notion of right handed look-at matrix from the computer</span>
-            <span class='doccomment'>/// graphics community.</span>
-            <span class='doccomment'>///</span>
-            <span class='doccomment'>/// # Arguments</span>
-            <span class='doccomment'>///   * eye - The eye position.</span>
-            <span class='doccomment'>///   * target - The target position.</span>
-            <span class='doccomment'>///   * up - A vector approximately aligned with required the vertical axis. The only</span>
-            <span class='doccomment'>///   requirement of this parameter is to not be collinear to `target - eye`.</span>
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at_rh</span>(<span class='ident'>eye</span>:     <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                              <span class='ident'>target</span>:  <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                              <span class='ident'>up</span>:      <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                              <span class='ident'>scaling</span>: <span class='ident'>N</span>)
-                              <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-                <span class='self'>Self</span>::<span class='ident'>from_isometry</span>(<span class='ident'>IsometryBase</span>::<span class='op'>&lt;</span>_, _, _, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rot</span><span class='op'>&gt;</span>::<span class='ident'>look_at_rh</span>(<span class='ident'>eye</span>, <span class='ident'>target</span>, <span class='ident'>up</span>), <span class='ident'>scaling</span>)
+            <span class="doccomment">/// Builds a right-handed look-at view matrix including scaling factor.</span>
+            <span class="doccomment">///</span>
+            <span class="doccomment">/// This conforms to the common notion of right handed look-at matrix from the computer</span>
+            <span class="doccomment">/// graphics community.</span>
+            <span class="doccomment">///</span>
+            <span class="doccomment">/// # Arguments</span>
+            <span class="doccomment">///   * eye - The eye position.</span>
+            <span class="doccomment">///   * target - The target position.</span>
+            <span class="doccomment">///   * up - A vector approximately aligned with required the vertical axis. The only</span>
+            <span class="doccomment">///   requirement of this parameter is to not be collinear to `target - eye`.</span>
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">look_at_rh</span>(<span class="ident">eye</span>:     <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+                              <span class="ident">target</span>:  <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+                              <span class="ident">up</span>:      <span class="kw-2">&amp;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+                              <span class="ident">scaling</span>: <span class="ident">N</span>)
+                              <span class="op">-&gt;</span> <span class="self">Self</span> {
+                <span class="self">Self</span>::<span class="ident">from_isometry</span>(<span class="ident">Isometry</span>::<span class="op">&lt;</span>_, <span class="ident">U3</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rot</span><span class="op">&gt;</span>::<span class="ident">look_at_rh</span>(<span class="ident">eye</span>, <span class="ident">target</span>, <span class="ident">up</span>), <span class="ident">scaling</span>)
             }
 
-            <span class='doccomment'>/// Builds a left-handed look-at view matrix including a scaling factor.</span>
-            <span class='doccomment'>///</span>
-            <span class='doccomment'>/// This conforms to the common notion of left handed look-at matrix from the computer</span>
-            <span class='doccomment'>/// graphics community.</span>
-            <span class='doccomment'>///</span>
-            <span class='doccomment'>/// # Arguments</span>
-            <span class='doccomment'>///   * eye - The eye position.</span>
-            <span class='doccomment'>///   * target - The target position.</span>
-            <span class='doccomment'>///   * up - A vector approximately aligned with required the vertical axis. The only</span>
-            <span class='doccomment'>///   requirement of this parameter is to not be collinear to `target - eye`.</span>
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>look_at_lh</span>(<span class='ident'>eye</span>:     <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                              <span class='ident'>target</span>:  <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                              <span class='ident'>up</span>:      <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>S</span><span class='op'>&gt;</span>,
-                              <span class='ident'>scaling</span>: <span class='ident'>N</span>)
-                              <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-                <span class='self'>Self</span>::<span class='ident'>from_isometry</span>(<span class='ident'>IsometryBase</span>::<span class='op'>&lt;</span>_, _, _, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rot</span><span class='op'>&gt;</span>::<span class='ident'>look_at_lh</span>(<span class='ident'>eye</span>, <span class='ident'>target</span>, <span class='ident'>up</span>), <span class='ident'>scaling</span>)
+            <span class="doccomment">/// Builds a left-handed look-at view matrix including a scaling factor.</span>
+            <span class="doccomment">///</span>
+            <span class="doccomment">/// This conforms to the common notion of left handed look-at matrix from the computer</span>
+            <span class="doccomment">/// graphics community.</span>
+            <span class="doccomment">///</span>
+            <span class="doccomment">/// # Arguments</span>
+            <span class="doccomment">///   * eye - The eye position.</span>
+            <span class="doccomment">///   * target - The target position.</span>
+            <span class="doccomment">///   * up - A vector approximately aligned with required the vertical axis. The only</span>
+            <span class="doccomment">///   requirement of this parameter is to not be collinear to `target - eye`.</span>
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">look_at_lh</span>(<span class="ident">eye</span>:     <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+                              <span class="ident">target</span>:  <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+                              <span class="ident">up</span>:      <span class="kw-2">&amp;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+                              <span class="ident">scaling</span>: <span class="ident">N</span>)
+                              <span class="op">-&gt;</span> <span class="self">Self</span> {
+                <span class="self">Self</span>::<span class="ident">from_isometry</span>(<span class="ident">Isometry</span>::<span class="op">&lt;</span>_, _, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rot</span><span class="op">&gt;</span>::<span class="ident">look_at_lh</span>(<span class="ident">eye</span>, <span class="ident">target</span>, <span class="ident">up</span>), <span class="ident">scaling</span>)
             }
         }
     }
 );
 
-<span class='macro'>similarity_construction_impl</span><span class='macro'>!</span>(<span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SR</span><span class='op'>&gt;</span>, <span class='ident'>RotationBase</span>, <span class='ident'>U3</span>, <span class='ident'>U3</span>);
-<span class='macro'>similarity_construction_impl</span><span class='macro'>!</span>(<span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SR</span><span class='op'>&gt;</span>, <span class='ident'>UnitQuaternionBase</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>);
+<span class="macro">similarity_construction_impl</span><span class="macro">!</span>(<span class="ident">Rotation3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>);
+<span class="macro">similarity_construction_impl</span><span class="macro">!</span>(<span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -502,7 +460,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

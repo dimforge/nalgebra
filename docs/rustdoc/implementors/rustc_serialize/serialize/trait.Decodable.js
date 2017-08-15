@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["nalgebra"] = ["impl&lt;T&gt; <a class='trait' href='https://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a> for Complex&lt;T&gt; <span class='where fmt-newline'>where T: <a class='trait' href='https://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a></span>",];
+implementors["nalgebra"] = ["impl&lt;T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html\" title=\"trait rustc_serialize::serialize::Decodable\">Decodable</a> for <a class=\"struct\" href=\"https://rust-num.github.io/num/num_complex/struct.Complex.html\" title=\"struct num_complex::Complex\">Complex</a>&lt;T&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class=\"trait\" href=\"https://doc.rust-lang.org/rustc-serialize/rustc_serialize/serialize/trait.Decodable.html\" title=\"trait rustc_serialize::serialize::Decodable\">Decodable</a>,&nbsp;</span>",];
 
             if (window.register_implementors) {
                 window.register_implementors(implementors);

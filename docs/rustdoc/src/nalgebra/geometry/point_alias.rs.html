@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -59,31 +59,23 @@
 <span id="14">14</span>
 <span id="15">15</span>
 <span id="16">16</span>
-<span id="17">17</span>
-<span id="18">18</span>
-<span id="19">19</span>
-<span id="20">20</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>MatrixArray</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>U1</span>, <span class='ident'>U2</span>, <span class='ident'>U3</span>, <span class='ident'>U4</span>, <span class='ident'>U5</span>, <span class='ident'>U6</span>};
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">U1</span>, <span class="ident">U2</span>, <span class="ident">U3</span>, <span class="ident">U4</span>, <span class="ident">U5</span>, <span class="ident">U6</span>};
 
-<span class='kw'>use</span> <span class='ident'>geometry</span>::<span class='ident'>PointBase</span>;
+<span class="kw">use</span> <span class="ident">geometry</span>::<span class="ident">Point</span>;
 
-<span class='doccomment'>/// A statically sized D-dimensional column point.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Point</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>MatrixArray</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>;
-
-<span class='doccomment'>/// A statically sized 1-dimensional column point.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Point1</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Point</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>;
-<span class='doccomment'>/// A statically sized 2-dimensional column point.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Point2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Point</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span><span class='op'>&gt;</span>;
-<span class='doccomment'>/// A statically sized 3-dimensional column point.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Point3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Point</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span><span class='op'>&gt;</span>;
-<span class='doccomment'>/// A statically sized 4-dimensional column point.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Point4</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Point</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span><span class='op'>&gt;</span>;
-<span class='doccomment'>/// A statically sized 5-dimensional column point.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Point5</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Point</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U5</span><span class='op'>&gt;</span>;
-<span class='doccomment'>/// A statically sized 6-dimensional column point.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Point6</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Point</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U6</span><span class='op'>&gt;</span>;
+<span class="doccomment">/// A statically sized 1-dimensional column point.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Point1</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U1</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A statically sized 2-dimensional column point.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Point2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A statically sized 3-dimensional column point.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A statically sized 4-dimensional column point.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Point4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U4</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A statically sized 5-dimensional column point.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Point5</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U5</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A statically sized 6-dimensional column point.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Point6</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U6</span><span class="op">&gt;</span>;
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -142,7 +134,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

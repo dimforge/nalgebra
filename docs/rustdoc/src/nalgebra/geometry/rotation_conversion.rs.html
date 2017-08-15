@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -238,200 +238,216 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>num</span>::<span class='ident'>Zero</span>;
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">num</span>::<span class="ident">Zero</span>;
 
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::{<span class='ident'>Real</span>, <span class='ident'>SubsetOf</span>, <span class='ident'>SupersetOf</span>};
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>linear</span>::<span class='ident'>Rotation</span> <span class='kw'>as</span> <span class='ident'>AlgaRotation</span>;
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Real</span>, <span class="ident">SubsetOf</span>, <span class="ident">SupersetOf</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::<span class="ident">Rotation</span> <span class="kw">as</span> <span class="ident">AlgaRotation</span>;
 
-<span class='kw'>use</span> <span class='ident'>core</span>::{<span class='ident'>Matrix</span>, <span class='ident'>SquareMatrix</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>DimName</span>, <span class='ident'>DimNameSum</span>, <span class='ident'>DimNameAdd</span>, <span class='ident'>U1</span>, <span class='ident'>U3</span>, <span class='ident'>U4</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::<span class='ident'>OwnedStorage</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::{<span class='ident'>OwnedAllocator</span>, <span class='ident'>Allocator</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">MatrixN</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">DimNameSum</span>, <span class="ident">DimNameAdd</span>, <span class="ident">DimMin</span>, <span class="ident">U1</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-<span class='kw'>use</span> <span class='ident'>geometry</span>::{<span class='ident'>PointBase</span>, <span class='ident'>TranslationBase</span>, <span class='ident'>RotationBase</span>, <span class='ident'>UnitQuaternionBase</span>, <span class='ident'>OwnedUnitQuaternionBase</span>, <span class='ident'>IsometryBase</span>,
-               <span class='ident'>SimilarityBase</span>, <span class='ident'>TransformBase</span>, <span class='ident'>SuperTCategoryOf</span>, <span class='ident'>TAffine</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Translation</span>, <span class="ident">Rotation</span>, <span class="ident">UnitQuaternion</span>, <span class="ident">UnitComplex</span>, <span class="ident">Isometry</span>,
+               <span class="ident">Similarity</span>, <span class="ident">Transform</span>, <span class="ident">SuperTCategoryOf</span>, <span class="ident">TAffine</span>,
+               <span class="ident">Rotation2</span>, <span class="ident">Rotation3</span>};
 
-<span class='comment'>/*
+<span class="comment">/*
  * This file provides the following conversions:
  * =============================================
  *
- * RotationBase  -&gt; RotationBase
+ * Rotation  -&gt; Rotation
  * Rotation3 -&gt; UnitQuaternion
- * RotationBase  -&gt; IsometryBase
- * RotationBase  -&gt; SimilarityBase
- * RotationBase  -&gt; TransformBase
- * RotationBase  -&gt; Matrix (homogeneous)
+ * Rotation2 -&gt; UnitComplex
+ * Rotation  -&gt; Isometry
+ * Rotation  -&gt; Similarity
+ * Rotation  -&gt; Transform
+ * Rotation  -&gt; Matrix (homogeneous)
  */</span>
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>N2</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>SubsetOf</span><span class='op'>&lt;</span><span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N1</span>: <span class='ident'>Real</span>,
-          <span class='ident'>N2</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>N1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_superset</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='ident'>RotationBase</span>::<span class='ident'>from_matrix_unchecked</span>(<span class='self'>self</span>.<span class='ident'>matrix</span>().<span class='ident'>to_superset</span>())
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
+          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="ident">Rotation</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">matrix</span>().<span class="ident">to_superset</span>())
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>is_in_subset</span>(<span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        ::<span class='ident'>is_convertible</span>::<span class='op'>&lt;</span>_, <span class='ident'>Matrix</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>(<span class='ident'>rot</span>.<span class='ident'>matrix</span>())
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_in_subset</span>(<span class="ident">rot</span>: <span class="kw-2">&amp;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        ::<span class="ident">is_convertible</span>::<span class="op">&lt;</span>_, <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>(<span class="ident">rot</span>.<span class="ident">matrix</span>())
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>from_superset_unchecked</span>(<span class='ident'>rot</span>: <span class='kw-2'>&amp;</span><span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='ident'>RotationBase</span>::<span class='ident'>from_matrix_unchecked</span>(<span class='ident'>rot</span>.<span class='ident'>matrix</span>().<span class='ident'>to_subset_unchecked</span>())
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_superset_unchecked</span>(<span class="ident">rot</span>: <span class="kw-2">&amp;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Rotation</span>::<span class="ident">from_matrix_unchecked</span>(<span class="ident">rot</span>.<span class="ident">matrix</span>().<span class="ident">to_subset_unchecked</span>())
     }
 }
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>N2</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>SubsetOf</span><span class='op'>&lt;</span><span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>U3</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N1</span>: <span class='ident'>Real</span>,
-          <span class='ident'>N2</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>N1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>U3</span>, <span class='ident'>U3</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>U3</span>, <span class='ident'>U3</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>U4</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>U3</span>, <span class='ident'>U3</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_superset</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>q</span> <span class='op'>=</span> <span class='ident'>OwnedUnitQuaternionBase</span>::<span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>::<span class='ident'>from_rotation_matrix</span>(<span class='self'>self</span>);
-        <span class='ident'>q</span>.<span class='ident'>to_superset</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation3</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
+          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">UnitQuaternion</span>::<span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>::<span class="ident">from_rotation_matrix</span>(<span class="self">self</span>);
+        <span class="ident">q</span>.<span class="ident">to_superset</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>is_in_subset</span>(<span class='ident'>q</span>: <span class='kw-2'>&amp;</span><span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        ::<span class='ident'>is_convertible</span>::<span class='op'>&lt;</span>_, <span class='ident'>OwnedUnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;&gt;</span>(<span class='ident'>q</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_in_subset</span>(<span class="ident">q</span>: <span class="kw-2">&amp;</span><span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        ::<span class="ident">is_convertible</span>::<span class="op">&lt;</span>_, <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;&gt;</span>(<span class="ident">q</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>from_superset_unchecked</span>(<span class='ident'>q</span>: <span class='kw-2'>&amp;</span><span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='kw'>let</span> <span class='ident'>q</span>: <span class='ident'>OwnedUnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span> <span class='op'>=</span> ::<span class='ident'>convert_ref_unchecked</span>(<span class='ident'>q</span>);
-        <span class='ident'>q</span>.<span class='ident'>to_rotation_matrix</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_superset_unchecked</span>(<span class="ident">q</span>: <span class="kw-2">&amp;</span><span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">q</span>: <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span> <span class="op">=</span> ::<span class="ident">convert_ref_unchecked</span>(<span class="ident">q</span>);
+        <span class="ident">q</span>.<span class="ident">to_rotation_matrix</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation2</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
+          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">UnitComplex</span>::<span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>::<span class="ident">from_rotation_matrix</span>(<span class="self">self</span>);
+        <span class="ident">q</span>.<span class="ident">to_superset</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_in_subset</span>(<span class="ident">q</span>: <span class="kw-2">&amp;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        ::<span class="ident">is_convertible</span>::<span class="op">&lt;</span>_, <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;&gt;</span>(<span class="ident">q</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_superset_unchecked</span>(<span class="ident">q</span>: <span class="kw-2">&amp;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">q</span>: <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span> <span class="op">=</span> ::<span class="ident">convert_ref_unchecked</span>(<span class="ident">q</span>);
+        <span class="ident">q</span>.<span class="ident">to_rotation_matrix</span>()
     }
 }
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>N2</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='ident'>SubsetOf</span><span class='op'>&lt;</span><span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N1</span>: <span class='ident'>Real</span>,
-          <span class='ident'>N2</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>N1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>R</span>:  <span class='ident'>AlgaRotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='op'>+</span> <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_superset</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;</span> {
-        <span class='ident'>IsometryBase</span>::<span class='ident'>from_parts</span>(<span class='ident'>TranslationBase</span>::<span class='ident'>identity</span>(), ::<span class='ident'>convert_ref</span>(<span class='self'>self</span>))
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
+          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+          <span class="ident">R</span>:  <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span> {
+        <span class="ident">Isometry</span>::<span class="ident">from_parts</span>(<span class="ident">Translation</span>::<span class="ident">identity</span>(), ::<span class="ident">convert_ref</span>(<span class="self">self</span>))
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>is_in_subset</span>(<span class='ident'>iso</span>: <span class='kw-2'>&amp;</span><span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>iso</span>.<span class='ident'>translation</span>.<span class='ident'>vector</span>.<span class='ident'>is_zero</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_in_subset</span>(<span class="ident">iso</span>: <span class="kw-2">&amp;</span><span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">iso</span>.<span class="ident">translation</span>.<span class="ident">vector</span>.<span class="ident">is_zero</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>from_superset_unchecked</span>(<span class='ident'>iso</span>: <span class='kw-2'>&amp;</span><span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        ::<span class='ident'>convert_ref_unchecked</span>(<span class='kw-2'>&amp;</span><span class='ident'>iso</span>.<span class='ident'>rotation</span>)
-    }
-}
-
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>N2</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='ident'>SubsetOf</span><span class='op'>&lt;</span><span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N1</span>: <span class='ident'>Real</span>,
-          <span class='ident'>N2</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>N1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>R</span>:  <span class='ident'>AlgaRotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='op'>+</span> <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_superset</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;</span> {
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_parts</span>(<span class='ident'>TranslationBase</span>::<span class='ident'>identity</span>(), ::<span class='ident'>convert_ref</span>(<span class='self'>self</span>), <span class='ident'>N2</span>::<span class='ident'>one</span>())
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>is_in_subset</span>(<span class='ident'>sim</span>: <span class='kw-2'>&amp;</span><span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>sim</span>.<span class='ident'>isometry</span>.<span class='ident'>translation</span>.<span class='ident'>vector</span>.<span class='ident'>is_zero</span>() <span class='op'>&amp;&amp;</span>
-        <span class='ident'>sim</span>.<span class='ident'>scaling</span>() <span class='op'>==</span> <span class='ident'>N2</span>::<span class='ident'>one</span>()
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>from_superset_unchecked</span>(<span class='ident'>sim</span>: <span class='kw-2'>&amp;</span><span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>R</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        ::<span class='ident'>convert_ref_unchecked</span>(<span class='kw-2'>&amp;</span><span class='ident'>sim</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_superset_unchecked</span>(<span class="ident">iso</span>: <span class="kw-2">&amp;</span><span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        ::<span class="ident">convert_ref_unchecked</span>(<span class="kw-2">&amp;</span><span class="ident">iso</span>.<span class="ident">rotation</span>)
     }
 }
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='ident'>SubsetOf</span><span class='op'>&lt;</span><span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>C</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N1</span>: <span class='ident'>Real</span>,
-          <span class='ident'>N2</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>N1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>C</span>:  <span class='ident'>SuperTCategoryOf</span><span class='op'>&lt;</span><span class='ident'>TAffine</span><span class='op'>&gt;</span>,
-          <span class='ident'>D</span>:  <span class='ident'>DimNameAdd</span><span class='op'>&lt;</span><span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>U1</span>, <span class='ident'>D</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_superset</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>C</span><span class='op'>&gt;</span> {
-        <span class='ident'>TransformBase</span>::<span class='ident'>from_matrix_unchecked</span>(<span class='self'>self</span>.<span class='ident'>to_homogeneous</span>().<span class='ident'>to_superset</span>())
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
+          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+          <span class="ident">R</span>:  <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span> {
+        <span class="ident">Similarity</span>::<span class="ident">from_parts</span>(<span class="ident">Translation</span>::<span class="ident">identity</span>(), ::<span class="ident">convert_ref</span>(<span class="self">self</span>), <span class="ident">N2</span>::<span class="ident">one</span>())
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>is_in_subset</span>(<span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>C</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='op'>&lt;</span><span class='self'>Self</span> <span class='kw'>as</span> <span class='ident'>SubsetOf</span><span class='op'>&lt;</span>_<span class='op'>&gt;&gt;</span>::<span class='ident'>is_in_subset</span>(<span class='ident'>t</span>.<span class='ident'>matrix</span>())
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_in_subset</span>(<span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">sim</span>.<span class="ident">isometry</span>.<span class="ident">translation</span>.<span class="ident">vector</span>.<span class="ident">is_zero</span>() <span class="op">&amp;&amp;</span>
+        <span class="ident">sim</span>.<span class="ident">scaling</span>() <span class="op">==</span> <span class="ident">N2</span>::<span class="ident">one</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>from_superset_unchecked</span>(<span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>TransformBase</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>C</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>from_superset_unchecked</span>(<span class='ident'>t</span>.<span class='ident'>matrix</span>())
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_superset_unchecked</span>(<span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        ::<span class="ident">convert_ref_unchecked</span>(<span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>)
     }
 }
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>SubsetOf</span><span class='op'>&lt;</span><span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N1</span>: <span class='ident'>Real</span>,
-          <span class='ident'>N2</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>N1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>D</span>:  <span class='ident'>DimNameAdd</span><span class='op'>&lt;</span><span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N1</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span> <span class='op'>+</span>
-                     <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>U1</span>, <span class='ident'>D</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_superset</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>to_homogeneous</span>().<span class='ident'>to_superset</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
+          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+          <span class="ident">C</span>:  <span class="ident">SuperTCategoryOf</span><span class="op">&lt;</span><span class="ident">TAffine</span><span class="op">&gt;</span>,
+          <span class="ident">D</span>:  <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span> <span class="op">+</span>
+              <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">D</span><span class="op">&gt;</span>, <span class="comment">// needed by .is_special_orthogonal()</span>
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span> { <span class="comment">// needed by .is_special_orthogonal()</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+        <span class="ident">Transform</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>().<span class="ident">to_superset</span>())
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>is_in_subset</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='kw'>let</span> <span class='ident'>rot</span>    <span class='op'>=</span> <span class='ident'>m</span>.<span class='ident'>fixed_slice</span>::<span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>(<span class='number'>0</span>, <span class='number'>0</span>);
-        <span class='kw'>let</span> <span class='ident'>bottom</span> <span class='op'>=</span> <span class='ident'>m</span>.<span class='ident'>fixed_slice</span>::<span class='op'>&lt;</span><span class='ident'>U1</span>, <span class='ident'>D</span><span class='op'>&gt;</span>(<span class='ident'>D</span>::<span class='ident'>dim</span>(), <span class='number'>0</span>);
-
-        <span class='comment'>// Scalar types agree.</span>
-        <span class='ident'>m</span>.<span class='ident'>iter</span>().<span class='ident'>all</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='ident'>SupersetOf</span>::<span class='op'>&lt;</span><span class='ident'>N1</span><span class='op'>&gt;</span>::<span class='ident'>is_in_subset</span>(<span class='ident'>e</span>)) <span class='op'>&amp;&amp;</span>
-        <span class='comment'>// The block part is a rotation.</span>
-        <span class='ident'>rot</span>.<span class='ident'>is_special_orthogonal</span>(<span class='ident'>N2</span>::<span class='ident'>default_epsilon</span>() <span class='op'>*</span> ::<span class='ident'>convert</span>(<span class='number'>100.0</span>)) <span class='op'>&amp;&amp;</span>
-        <span class='comment'>// The bottom row is (0, 0, ..., 1)</span>
-        <span class='ident'>bottom</span>.<span class='ident'>iter</span>().<span class='ident'>all</span>(<span class='op'>|</span><span class='ident'>e</span><span class='op'>|</span> <span class='ident'>e</span>.<span class='ident'>is_zero</span>()) <span class='op'>&amp;&amp;</span>
-        <span class='ident'>m</span>[(<span class='ident'>D</span>::<span class='ident'>dim</span>(), <span class='ident'>D</span>::<span class='ident'>dim</span>())] <span class='op'>==</span> <span class='ident'>N2</span>::<span class='ident'>one</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_in_subset</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span>_<span class="op">&gt;&gt;</span>::<span class="ident">is_in_subset</span>(<span class="ident">t</span>.<span class="ident">matrix</span>())
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>from_superset_unchecked</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N2</span>, <span class='ident'>DimNameSum</span><span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='kw'>let</span> <span class='ident'>r</span> <span class='op'>=</span> <span class='ident'>m</span>.<span class='ident'>fixed_slice</span>::<span class='op'>&lt;</span><span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>(<span class='number'>0</span>, <span class='number'>0</span>);
-        <span class='self'>Self</span>::<span class='ident'>from_matrix_unchecked</span>(::<span class='ident'>convert_unchecked</span>(<span class='ident'>r</span>.<span class='ident'>into_owned</span>()))
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_superset_unchecked</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">from_superset_unchecked</span>(<span class="ident">t</span>.<span class="ident">matrix</span>())
+    }
+}
+
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
+          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+          <span class="ident">D</span>:  <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span> <span class="op">+</span>
+              <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">D</span><span class="op">&gt;</span>, <span class="comment">// needed by .is_special_orthogonal()</span>
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span> { <span class="comment">// needed by .is_special_orthogonal()</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">to_homogeneous</span>().<span class="ident">to_superset</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_in_subset</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">let</span> <span class="ident">rot</span>    <span class="op">=</span> <span class="ident">m</span>.<span class="ident">fixed_slice</span>::<span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">0</span>);
+        <span class="kw">let</span> <span class="ident">bottom</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">fixed_slice</span>::<span class="op">&lt;</span><span class="ident">U1</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">D</span>::<span class="ident">dim</span>(), <span class="number">0</span>);
+
+        <span class="comment">// Scalar types agree.</span>
+        <span class="ident">m</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">SupersetOf</span>::<span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>::<span class="ident">is_in_subset</span>(<span class="ident">e</span>)) <span class="op">&amp;&amp;</span>
+        <span class="comment">// The block part is a rotation.</span>
+        <span class="ident">rot</span>.<span class="ident">is_special_orthogonal</span>(<span class="ident">N2</span>::<span class="ident">default_epsilon</span>() <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">100.0</span>)) <span class="op">&amp;&amp;</span>
+        <span class="comment">// The bottom row is (0, 0, ..., 1)</span>
+        <span class="ident">bottom</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">is_zero</span>()) <span class="op">&amp;&amp;</span>
+        <span class="ident">m</span>[(<span class="ident">D</span>::<span class="ident">dim</span>(), <span class="ident">D</span>::<span class="ident">dim</span>())] <span class="op">==</span> <span class="ident">N2</span>::<span class="ident">one</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_superset_unchecked</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">fixed_slice</span>::<span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">0</span>);
+        <span class="self">Self</span>::<span class="ident">from_matrix_unchecked</span>(::<span class="ident">convert_unchecked</span>(<span class="ident">r</span>.<span class="ident">into_owned</span>()))
     }
 }
 </pre>
@@ -492,7 +508,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

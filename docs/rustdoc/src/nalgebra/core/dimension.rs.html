@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -403,366 +403,460 @@
 <span id="358">358</span>
 <span id="359">359</span>
 <span id="360">360</span>
-</pre><pre class='rust '>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+</pre><pre class="rust ">
+<span class="attribute">#<span class="op">!</span>[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
 
-<span class='doccomment'>//! Traits and tags for identifying the dimension of all algebraic entities.</span>
+<span class="doccomment">//! Traits and tags for identifying the dimension of all algebraic entities.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Debug</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>any</span>::<span class='ident'>Any</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Add</span>, <span class='ident'>Sub</span>, <span class='ident'>Mul</span>, <span class='ident'>Div</span>};
-<span class='kw'>use</span> <span class='ident'>typenum</span>::{<span class='self'>self</span>, <span class='ident'>Unsigned</span>, <span class='ident'>UInt</span>, <span class='ident'>B1</span>, <span class='ident'>Bit</span>, <span class='ident'>UTerm</span>, <span class='ident'>Sum</span>, <span class='ident'>Prod</span>, <span class='ident'>Diff</span>, <span class='ident'>Quot</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">any</span>::{<span class="ident">TypeId</span>, <span class="ident">Any</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Add</span>, <span class="ident">Sub</span>, <span class="ident">Mul</span>, <span class="ident">Div</span>};
+<span class="kw">use</span> <span class="ident">typenum</span>::{<span class="self">self</span>, <span class="ident">Unsigned</span>, <span class="ident">UInt</span>, <span class="ident">B1</span>, <span class="ident">Bit</span>, <span class="ident">UTerm</span>, <span class="ident">Sum</span>, <span class="ident">Prod</span>, <span class="ident">Diff</span>, <span class="ident">Quot</span>,
+              <span class="ident">Min</span>, <span class="ident">Minimum</span>, <span class="ident">Max</span>, <span class="ident">Maximum</span>};
 
-<span class='doccomment'>/// Dim of dynamically-sized algebraic entities.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Debug</span>)]</span>
-<span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;serde-serialize&quot;</span>, <span class='ident'>derive</span>(<span class='ident'>Serialize</span>, <span class='ident'>Deserialize</span>))]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Dynamic</span> {
-    <span class='ident'>value</span>: <span class='ident'>usize</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Serializer</span>, <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>};
+
+<span class="doccomment">/// Dim of dynamically-sized algebraic entities.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dynamic</span> {
+    <span class="ident">value</span>: <span class="ident">usize</span>
 }
 
-<span class='kw'>impl</span> <span class='ident'>Dynamic</span> {
-    <span class='doccomment'>/// A dynamic size equal to `value`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>value</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>Dynamic</span> {
-        <span class='ident'>Dynamic</span> {
-            <span class='ident'>value</span>: <span class='ident'>value</span>
+<span class="kw">impl</span> <span class="ident">Dynamic</span> {
+    <span class="doccomment">/// A dynamic size equal to `value`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Dynamic</span> {
+        <span class="ident">Dynamic</span> {
+            <span class="ident">value</span>: <span class="ident">value</span>
         }
     }
 }
 
-<span class='doccomment'>/// Trait implemented by `Dynamic`.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>IsDynamic</span> { }
-<span class='doccomment'>/// Trait implemented by `Dynamic` and type-level integers different from `U1`.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>IsNotStaticOne</span> { }
-
-<span class='kw'>impl</span> <span class='ident'>IsDynamic</span> <span class='kw'>for</span> <span class='ident'>Dynamic</span> { }
-<span class='kw'>impl</span> <span class='ident'>IsNotStaticOne</span> <span class='kw'>for</span> <span class='ident'>Dynamic</span> { }
-
-<span class='doccomment'>/// Trait implemented by any type that can be used as a dimension. This includes type-level</span>
-<span class='doccomment'>/// integers and `Dynamic` (for dimensions not known at compile-time).</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Dim</span>: <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span> {
-    <span class='doccomment'>/// Gets the compile-time value of `Self`. Returns `None` if it is not known, i.e., if `Self =</span>
-    <span class='doccomment'>/// Dynamic`.</span>
-    <span class='kw'>fn</span> <span class='ident'>try_to_usize</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span>;
-
-    <span class='doccomment'>/// Gets the run-time value of `self`. For type-level integers, this is the same as</span>
-    <span class='doccomment'>/// `Self::try_to_usize().unwrap()`.</span>
-    <span class='kw'>fn</span> <span class='ident'>value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span>;
-
-    <span class='doccomment'>/// Builds an instance of `Self` from a run-time value. Panics if `Self` is a type-level</span>
-    <span class='doccomment'>/// integer and `dim != Self::try_to_usize().unwrap()`.</span>
-    <span class='kw'>fn</span> <span class='ident'>from_usize</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>;
-}
-
-<span class='kw'>impl</span> <span class='ident'>Dim</span> <span class='kw'>for</span> <span class='ident'>Dynamic</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>try_to_usize</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>None</span>
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from_usize</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='ident'>Dynamic</span>::<span class='ident'>new</span>(<span class='ident'>dim</span>)
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='self'>self</span>.<span class='ident'>value</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
+<span class="kw">impl</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
+    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="prelude-val">Ok</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">S</span>: <span class="ident">Serializer</span>
+    {
+        <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
     }
 }
 
-<span class='comment'>/*
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
+    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>
+    {
+        <span class="ident">usize</span>::<span class="ident">deserialize</span>(<span class="ident">deserializer</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Dynamic</span> { <span class="ident">value</span>: <span class="ident">x</span> })
+    }
+}
+
+<span class="doccomment">/// Trait implemented by `Dynamic`.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsDynamic</span> { }
+<span class="doccomment">/// Trait implemented by `Dynamic` and type-level integers different from `U1`.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsNotStaticOne</span> { }
+
+<span class="kw">impl</span> <span class="ident">IsDynamic</span> <span class="kw">for</span> <span class="ident">Dynamic</span> { }
+<span class="kw">impl</span> <span class="ident">IsNotStaticOne</span> <span class="kw">for</span> <span class="ident">Dynamic</span> { }
+
+<span class="doccomment">/// Trait implemented by any type that can be used as a dimension. This includes type-level</span>
+<span class="doccomment">/// integers and `Dynamic` (for dimensions not known at compile-time).</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Dim</span>: <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span> {
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">is</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span>() <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">TypeId</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="ident">TypeId</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>()
+    }
+
+    <span class="doccomment">/// Gets the compile-time value of `Self`. Returns `None` if it is not known, i.e., if `Self =</span>
+    <span class="doccomment">/// Dynamic`.</span>
+    <span class="kw">fn</span> <span class="ident">try_to_usize</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Gets the run-time value of `self`. For type-level integers, this is the same as</span>
+    <span class="doccomment">/// `Self::try_to_usize().unwrap()`.</span>
+    <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span>;
+
+    <span class="doccomment">/// Builds an instance of `Self` from a run-time value. Panics if `Self` is a type-level</span>
+    <span class="doccomment">/// integer and `dim != Self::try_to_usize().unwrap()`.</span>
+    <span class="kw">fn</span> <span class="ident">from_usize</span>(<span class="ident">dim</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span>;
+}
+
+<span class="kw">impl</span> <span class="ident">Dim</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">try_to_usize</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="prelude-val">None</span>
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from_usize</span>(<span class="ident">dim</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">dim</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">value</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span>;
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Dynamic</span> {
+        <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">value</span> <span class="op">+</span> <span class="ident">rhs</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Sub</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span>;
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Dynamic</span> {
+        <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">value</span> <span class="op">-</span> <span class="ident">rhs</span>)
+    }
+}
+
+<span class="comment">/*
  *
  * Operations.
  *
  */</span>
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>dim_ops</span>(
-    ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimOp</span>:    <span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimNameOp</span>: <span class='ident'>ident</span>,
-       <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>:       <span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>: <span class='ident'>ident</span>,
-       <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimResOp</span>: <span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimNameResOp</span>: <span class='ident'>ident</span>,
-       <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ResOp</span>: <span class='ident'>ident</span>);<span class='op'>*</span> $(;)<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {$(
-        <span class='kw'>pub</span> <span class='kw'>type</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimResOp</span><span class='op'>&lt;</span><span class='ident'>D1</span>, <span class='ident'>D2</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='op'>&lt;</span><span class='ident'>D1</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimOp</span><span class='op'>&lt;</span><span class='ident'>D2</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Output</span>;
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">dim_ops</span>(
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimOp</span>:    <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimNameOp</span>: <span class="ident">ident</span>,
+       <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>:       <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op_path</span>: <span class="ident">path</span>,
+       <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimResOp</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimNameResOp</span>: <span class="ident">ident</span>,
+       <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ResOp</span>: <span class="ident">ident</span>);<span class="op">*</span> $(;)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+        <span class="kw">pub</span> <span class="kw">type</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimResOp</span><span class="op">&lt;</span><span class="ident">D1</span>, <span class="ident">D2</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">D1</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimOp</span><span class="op">&lt;</span><span class="ident">D2</span><span class="op">&gt;&gt;</span>::<span class="ident">Output</span>;
 
-        <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimOp</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span>: <span class='ident'>Dim</span> {
-            <span class='kw'>type</span> <span class='ident'>Output</span>: <span class='ident'>Dim</span>;
+        <span class="kw">pub</span> <span class="kw">trait</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimOp</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span>: <span class="ident">Dim</span> {
+            <span class="kw">type</span> <span class="ident">Output</span>: <span class="ident">Dim</span>;
 
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='self'>self</span>, <span class='ident'>other</span>: <span class='ident'>D</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Output</span>;
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>;
         }
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D1</span>: <span class='ident'>DimName</span>, <span class='ident'>D2</span>: <span class='ident'>DimName</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimOp</span><span class='op'>&lt;</span><span class='ident'>D2</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>D1</span>
-            <span class='kw'>where</span> <span class='ident'>D1</span>::<span class='ident'>Value</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span><span class='op'>&lt;</span><span class='ident'>D2</span>::<span class='ident'>Value</span><span class='op'>&gt;</span>,
-                  <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ResOp</span><span class='op'>&lt;</span><span class='ident'>D1</span>::<span class='ident'>Value</span>, <span class='ident'>D2</span>::<span class='ident'>Value</span><span class='op'>&gt;</span>: <span class='ident'>NamedDim</span> {
-            <span class='kw'>type</span> <span class='ident'>Output</span> <span class='op'>=</span> <span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ResOp</span><span class='op'>&lt;</span><span class='ident'>D1</span>::<span class='ident'>Value</span>, <span class='ident'>D2</span>::<span class='ident'>Value</span><span class='op'>&gt;</span> <span class='kw'>as</span> <span class='ident'>NamedDim</span><span class='op'>&gt;</span>::<span class='ident'>Name</span>;
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D1</span>: <span class="ident">DimName</span>, <span class="ident">D2</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimOp</span><span class="op">&lt;</span><span class="ident">D2</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">D1</span>
+            <span class="kw">where</span> <span class="ident">D1</span>::<span class="ident">Value</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span><span class="op">&lt;</span><span class="ident">D2</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+                  <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ResOp</span><span class="op">&lt;</span><span class="ident">D1</span>::<span class="ident">Value</span>, <span class="ident">D2</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">NamedDim</span> {
+            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ResOp</span><span class="op">&lt;</span><span class="ident">D1</span>::<span class="ident">Value</span>, <span class="ident">D2</span>::<span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">NamedDim</span><span class="op">&gt;</span>::<span class="ident">Name</span>;
 
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='self'>self</span>, _: <span class='ident'>D2</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Output</span> {
-                <span class='self'>Self</span>::<span class='ident'>Output</span>::<span class='ident'>name</span>()
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="self">self</span>, _: <span class="ident">D2</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+                <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">name</span>()
             }
         }
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimOp</span><span class='op'>&lt;</span><span class='ident'>D</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Dynamic</span> {
-            <span class='kw'>type</span> <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>Dynamic</span>;
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimOp</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
+            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span>;
 
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='self'>self</span>, <span class='ident'>other</span>: <span class='ident'>D</span>) <span class='op'>-&gt;</span> <span class='ident'>Dynamic</span> {
-                <span class='ident'>Dynamic</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>value</span>.<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='ident'>other</span>.<span class='ident'>value</span>()))
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="ident">Dynamic</span> {
+                <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">op_path</span>(<span class="self">self</span>.<span class="ident">value</span>, <span class="ident">other</span>.<span class="ident">value</span>()))
             }
         }
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>DimName</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimOp</span><span class='op'>&lt;</span><span class='ident'>Dynamic</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>D</span> {
-            <span class='kw'>type</span> <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>Dynamic</span>;
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimOp</span><span class="op">&lt;</span><span class="ident">Dynamic</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">D</span> {
+            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span>;
 
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='self'>self</span>, <span class='ident'>other</span>: <span class='ident'>Dynamic</span>) <span class='op'>-&gt;</span> <span class='ident'>Dynamic</span> {
-                <span class='ident'>Dynamic</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>value</span>().<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='ident'>other</span>.<span class='ident'>value</span>))
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Dynamic</span>) <span class="op">-&gt;</span> <span class="ident">Dynamic</span> {
+                <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">op_path</span>(<span class="self">self</span>.<span class="ident">value</span>(), <span class="ident">other</span>.<span class="ident">value</span>))
             }
         }
 
-        <span class='kw'>pub</span> <span class='kw'>type</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimNameResOp</span><span class='op'>&lt;</span><span class='ident'>D1</span>, <span class='ident'>D2</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='op'>&lt;</span><span class='ident'>D1</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimNameOp</span><span class='op'>&lt;</span><span class='ident'>D2</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Output</span>;
+        <span class="kw">pub</span> <span class="kw">type</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimNameResOp</span><span class="op">&lt;</span><span class="ident">D1</span>, <span class="ident">D2</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">D1</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimNameOp</span><span class="op">&lt;</span><span class="ident">D2</span><span class="op">&gt;&gt;</span>::<span class="ident">Output</span>;
 
-        <span class='kw'>pub</span> <span class='kw'>trait</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimNameOp</span><span class='op'>&lt;</span><span class='ident'>D</span>: <span class='ident'>DimName</span><span class='op'>&gt;</span>: <span class='ident'>DimName</span> {
-            <span class='kw'>type</span> <span class='ident'>Output</span>: <span class='ident'>DimName</span>;
+        <span class="kw">pub</span> <span class="kw">trait</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimNameOp</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span>: <span class="ident">DimName</span> {
+            <span class="kw">type</span> <span class="ident">Output</span>: <span class="ident">DimName</span>;
 
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='self'>self</span>, <span class='ident'>other</span>: <span class='ident'>D</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Output</span>;
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>;
         }
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>D1</span>: <span class='ident'>DimName</span>, <span class='ident'>D2</span>: <span class='ident'>DimName</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimNameOp</span><span class='op'>&lt;</span><span class='ident'>D2</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>D1</span>
-            <span class='kw'>where</span> <span class='ident'>D1</span>::<span class='ident'>Value</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span><span class='op'>&lt;</span><span class='ident'>D2</span>::<span class='ident'>Value</span><span class='op'>&gt;</span>,
-                  <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ResOp</span><span class='op'>&lt;</span><span class='ident'>D1</span>::<span class='ident'>Value</span>, <span class='ident'>D2</span>::<span class='ident'>Value</span><span class='op'>&gt;</span>: <span class='ident'>NamedDim</span> {
-            <span class='kw'>type</span> <span class='ident'>Output</span> <span class='op'>=</span> <span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ResOp</span><span class='op'>&lt;</span><span class='ident'>D1</span>::<span class='ident'>Value</span>, <span class='ident'>D2</span>::<span class='ident'>Value</span><span class='op'>&gt;</span> <span class='kw'>as</span> <span class='ident'>NamedDim</span><span class='op'>&gt;</span>::<span class='ident'>Name</span>;
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D1</span>: <span class="ident">DimName</span>, <span class="ident">D2</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimNameOp</span><span class="op">&lt;</span><span class="ident">D2</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">D1</span>
+            <span class="kw">where</span> <span class="ident">D1</span>::<span class="ident">Value</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span><span class="op">&lt;</span><span class="ident">D2</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+                  <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ResOp</span><span class="op">&lt;</span><span class="ident">D1</span>::<span class="ident">Value</span>, <span class="ident">D2</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">NamedDim</span> {
+            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ResOp</span><span class="op">&lt;</span><span class="ident">D1</span>::<span class="ident">Value</span>, <span class="ident">D2</span>::<span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">NamedDim</span><span class="op">&gt;</span>::<span class="ident">Name</span>;
 
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='self'>self</span>, _: <span class='ident'>D2</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Output</span> {
-                <span class='self'>Self</span>::<span class='ident'>Output</span>::<span class='ident'>name</span>()
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="self">self</span>, _: <span class="ident">D2</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+                <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">name</span>()
             }
         }
-   )<span class='kw-2'>*</span>}
+   )<span class="kw-2">*</span>}
 );
 
-<span class='macro'>dim_ops</span><span class='macro'>!</span>(
-    <span class='ident'>DimAdd</span>, <span class='ident'>DimNameAdd</span>, <span class='ident'>Add</span>, <span class='ident'>add</span>, <span class='ident'>DimSum</span>,  <span class='ident'>DimNameSum</span>,  <span class='ident'>Sum</span>;
-    <span class='ident'>DimMul</span>, <span class='ident'>DimNameMul</span>, <span class='ident'>Mul</span>, <span class='ident'>mul</span>, <span class='ident'>DimProd</span>, <span class='ident'>DimNameProd</span>, <span class='ident'>Prod</span>;
-    <span class='ident'>DimSub</span>, <span class='ident'>DimNameSub</span>, <span class='ident'>Sub</span>, <span class='ident'>sub</span>, <span class='ident'>DimDiff</span>, <span class='ident'>DimNameDiff</span>, <span class='ident'>Diff</span>;
-    <span class='ident'>DimDiv</span>, <span class='ident'>DimNameDiv</span>, <span class='ident'>Div</span>, <span class='ident'>div</span>, <span class='ident'>DimQuot</span>, <span class='ident'>DimNameQuot</span>, <span class='ident'>Quot</span>;
-);
-
-
-<span class='doccomment'>/// Trait implemented exclusively by type-level integers.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>DimName</span>: <span class='ident'>Dim</span> {
-    <span class='kw'>type</span> <span class='ident'>Value</span>: <span class='ident'>NamedDim</span><span class='op'>&lt;</span><span class='ident'>Name</span> <span class='op'>=</span> <span class='self'>Self</span><span class='op'>&gt;</span>;
-
-    <span class='doccomment'>/// The name of this dimension, i.e., the singleton `Self`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>name</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span>;
-
-    <span class='comment'>// FIXME: this is not a very idiomatic name.</span>
-    <span class='doccomment'>/// The value of this dimension.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>dim</span>() <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='self'>Self</span>::<span class='ident'>Value</span>::<span class='ident'>to_usize</span>()
-    }
-}
-
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>NamedDim</span>: <span class='ident'>Sized</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Unsigned</span> {
-    <span class='kw'>type</span> <span class='ident'>Name</span>: <span class='ident'>DimName</span><span class='op'>&lt;</span><span class='ident'>Value</span> <span class='op'>=</span> <span class='self'>Self</span><span class='op'>&gt;</span>;
-}
-
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;serde-serialize&quot;</span>, <span class='ident'>derive</span>(<span class='ident'>Serialize</span>, <span class='ident'>Deserialize</span>))]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>U1</span>;
-
-<span class='kw'>impl</span> <span class='ident'>Dim</span> <span class='kw'>for</span> <span class='ident'>U1</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>try_to_usize</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Some</span>(<span class='number'>1</span>)
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from_usize</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>dim</span> <span class='op'>==</span> <span class='number'>1</span>, <span class='string'>&quot;Mismatched dimension.&quot;</span>);
-        <span class='ident'>U1</span>
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='number'>1</span>
-    }
-}
-
-<span class='kw'>impl</span> <span class='ident'>DimName</span> <span class='kw'>for</span> <span class='ident'>U1</span> {
-    <span class='kw'>type</span> <span class='ident'>Value</span> <span class='op'>=</span> <span class='ident'>typenum</span>::<span class='ident'>U1</span>;
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>name</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='ident'>U1</span>
-    }
-}
-
-<span class='kw'>impl</span> <span class='ident'>NamedDim</span> <span class='kw'>for</span> <span class='ident'>typenum</span>::<span class='ident'>U1</span>{
-    <span class='kw'>type</span> <span class='ident'>Name</span> <span class='op'>=</span> <span class='ident'>U1</span>;
-}
-
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>named_dimension</span>(
-    ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span>: <span class='ident'>ident</span>),<span class='op'>*</span> $(,)<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {$(
-        <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-        <span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;serde-serialize&quot;</span>, <span class='ident'>derive</span>(<span class='ident'>Serialize</span>, <span class='ident'>Deserialize</span>))]</span>
-        <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span>;
-
-        <span class='kw'>impl</span> <span class='ident'>Dim</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span> {
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='ident'>try_to_usize</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span> {
-                <span class='prelude-val'>Some</span>(<span class='ident'>typenum</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span>::<span class='ident'>to_usize</span>())
-            }
-
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='ident'>from_usize</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-                <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>dim</span> <span class='op'>==</span> <span class='ident'>typenum</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span>::<span class='ident'>to_usize</span>(), <span class='string'>&quot;Mismatched dimension.&quot;</span>);
-                <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span>
-            }
-
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='ident'>value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-                <span class='ident'>typenum</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span>::<span class='ident'>to_usize</span>()
-            }
-        }
-
-        <span class='kw'>impl</span> <span class='ident'>DimName</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span> {
-            <span class='kw'>type</span> <span class='ident'>Value</span> <span class='op'>=</span> <span class='ident'>typenum</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span>;
-
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='ident'>name</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-                <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span>
-            }
-        }
-
-        <span class='kw'>impl</span> <span class='ident'>NamedDim</span> <span class='kw'>for</span> <span class='ident'>typenum</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span> {
-            <span class='kw'>type</span> <span class='ident'>Name</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span>;
-        }
-
-        <span class='kw'>impl</span> <span class='ident'>IsNotStaticOne</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>D</span> { }
-    )<span class='kw-2'>*</span>}
+<span class="macro">dim_ops</span><span class="macro">!</span>(
+    <span class="ident">DimAdd</span>, <span class="ident">DimNameAdd</span>, <span class="ident">Add</span>, <span class="ident">add</span>, <span class="ident">Add</span>::<span class="ident">add</span>, <span class="ident">DimSum</span>,     <span class="ident">DimNameSum</span>,     <span class="ident">Sum</span>;
+    <span class="ident">DimMul</span>, <span class="ident">DimNameMul</span>, <span class="ident">Mul</span>, <span class="ident">mul</span>, <span class="ident">Mul</span>::<span class="ident">mul</span>, <span class="ident">DimProd</span>,    <span class="ident">DimNameProd</span>,    <span class="ident">Prod</span>;
+    <span class="ident">DimSub</span>, <span class="ident">DimNameSub</span>, <span class="ident">Sub</span>, <span class="ident">sub</span>, <span class="ident">Sub</span>::<span class="ident">sub</span>, <span class="ident">DimDiff</span>,    <span class="ident">DimNameDiff</span>,    <span class="ident">Diff</span>;
+    <span class="ident">DimDiv</span>, <span class="ident">DimNameDiv</span>, <span class="ident">Div</span>, <span class="ident">div</span>, <span class="ident">Div</span>::<span class="ident">div</span>, <span class="ident">DimQuot</span>,    <span class="ident">DimNameQuot</span>,    <span class="ident">Quot</span>;
+    <span class="ident">DimMin</span>, <span class="ident">DimNameMin</span>, <span class="ident">Min</span>, <span class="ident">min</span>, <span class="ident">cmp</span>::<span class="ident">min</span>, <span class="ident">DimMinimum</span>, <span class="ident">DimNameNimimum</span>, <span class="ident">Minimum</span>;
+    <span class="ident">DimMax</span>, <span class="ident">DimNameMax</span>, <span class="ident">Max</span>, <span class="ident">max</span>, <span class="ident">cmp</span>::<span class="ident">max</span>, <span class="ident">DimMaximum</span>, <span class="ident">DimNameMaximum</span>, <span class="ident">Maximum</span>;
 );
 
 
-<span class='comment'>// We give explicit names to all Unsigned in [0, 128[</span>
-<span class='macro'>named_dimension</span><span class='macro'>!</span>(
-    <span class='ident'>U0</span>, <span class='comment'>/*U1,*/</span> <span class='ident'>U2</span>, <span class='ident'>U3</span>, <span class='ident'>U4</span>, <span class='ident'>U5</span>, <span class='ident'>U6</span>, <span class='ident'>U7</span>, <span class='ident'>U8</span>, <span class='ident'>U9</span>,
-    <span class='ident'>U10</span>, <span class='ident'>U11</span>, <span class='ident'>U12</span>, <span class='ident'>U13</span>, <span class='ident'>U14</span>, <span class='ident'>U15</span>, <span class='ident'>U16</span>, <span class='ident'>U17</span>, <span class='ident'>U18</span>, <span class='ident'>U19</span>,
-    <span class='ident'>U20</span>, <span class='ident'>U21</span>, <span class='ident'>U22</span>, <span class='ident'>U23</span>, <span class='ident'>U24</span>, <span class='ident'>U25</span>, <span class='ident'>U26</span>, <span class='ident'>U27</span>, <span class='ident'>U28</span>, <span class='ident'>U29</span>,
-    <span class='ident'>U30</span>, <span class='ident'>U31</span>, <span class='ident'>U32</span>, <span class='ident'>U33</span>, <span class='ident'>U34</span>, <span class='ident'>U35</span>, <span class='ident'>U36</span>, <span class='ident'>U37</span>, <span class='ident'>U38</span>, <span class='ident'>U39</span>,
-    <span class='ident'>U40</span>, <span class='ident'>U41</span>, <span class='ident'>U42</span>, <span class='ident'>U43</span>, <span class='ident'>U44</span>, <span class='ident'>U45</span>, <span class='ident'>U46</span>, <span class='ident'>U47</span>, <span class='ident'>U48</span>, <span class='ident'>U49</span>,
-    <span class='ident'>U50</span>, <span class='ident'>U51</span>, <span class='ident'>U52</span>, <span class='ident'>U53</span>, <span class='ident'>U54</span>, <span class='ident'>U55</span>, <span class='ident'>U56</span>, <span class='ident'>U57</span>, <span class='ident'>U58</span>, <span class='ident'>U59</span>,
-    <span class='ident'>U60</span>, <span class='ident'>U61</span>, <span class='ident'>U62</span>, <span class='ident'>U63</span>, <span class='ident'>U64</span>, <span class='ident'>U65</span>, <span class='ident'>U66</span>, <span class='ident'>U67</span>, <span class='ident'>U68</span>, <span class='ident'>U69</span>,
-    <span class='ident'>U70</span>, <span class='ident'>U71</span>, <span class='ident'>U72</span>, <span class='ident'>U73</span>, <span class='ident'>U74</span>, <span class='ident'>U75</span>, <span class='ident'>U76</span>, <span class='ident'>U77</span>, <span class='ident'>U78</span>, <span class='ident'>U79</span>,
-    <span class='ident'>U80</span>, <span class='ident'>U81</span>, <span class='ident'>U82</span>, <span class='ident'>U83</span>, <span class='ident'>U84</span>, <span class='ident'>U85</span>, <span class='ident'>U86</span>, <span class='ident'>U87</span>, <span class='ident'>U88</span>, <span class='ident'>U89</span>,
-    <span class='ident'>U90</span>, <span class='ident'>U91</span>, <span class='ident'>U92</span>, <span class='ident'>U93</span>, <span class='ident'>U94</span>, <span class='ident'>U95</span>, <span class='ident'>U96</span>, <span class='ident'>U97</span>, <span class='ident'>U98</span>, <span class='ident'>U99</span>,
-    <span class='ident'>U100</span>, <span class='ident'>U101</span>, <span class='ident'>U102</span>, <span class='ident'>U103</span>, <span class='ident'>U104</span>, <span class='ident'>U105</span>, <span class='ident'>U106</span>, <span class='ident'>U107</span>, <span class='ident'>U108</span>, <span class='ident'>U109</span>,
-    <span class='ident'>U110</span>, <span class='ident'>U111</span>, <span class='ident'>U112</span>, <span class='ident'>U113</span>, <span class='ident'>U114</span>, <span class='ident'>U115</span>, <span class='ident'>U116</span>, <span class='ident'>U117</span>, <span class='ident'>U118</span>, <span class='ident'>U119</span>,
-    <span class='ident'>U120</span>, <span class='ident'>U121</span>, <span class='ident'>U122</span>, <span class='ident'>U123</span>, <span class='ident'>U124</span>, <span class='ident'>U125</span>, <span class='ident'>U126</span>, <span class='ident'>U127</span>
+<span class="doccomment">/// Trait implemented exclusively by type-level integers.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DimName</span>: <span class="ident">Dim</span> {
+    <span class="kw">type</span> <span class="ident">Value</span>: <span class="ident">NamedDim</span><span class="op">&lt;</span><span class="ident">Name</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// The name of this dimension, i.e., the singleton `Self`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-&gt;</span> <span class="self">Self</span>;
+
+    <span class="comment">// FIXME: this is not a very idiomatic name.</span>
+    <span class="doccomment">/// The value of this dimension.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">dim</span>() <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="self">Self</span>::<span class="ident">Value</span>::<span class="ident">to_usize</span>()
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">NamedDim</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Unsigned</span> {
+    <span class="kw">type</span> <span class="ident">Name</span>: <span class="ident">DimName</span><span class="op">&lt;</span><span class="ident">Value</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>;
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">U1</span>;
+
+<span class="kw">impl</span> <span class="ident">Dim</span> <span class="kw">for</span> <span class="ident">U1</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">try_to_usize</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="number">1</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from_usize</span>(<span class="ident">dim</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dim</span> <span class="op">==</span> <span class="number">1</span>, <span class="string">&quot;Mismatched dimension.&quot;</span>);
+        <span class="ident">U1</span>
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="number">1</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">DimName</span> <span class="kw">for</span> <span class="ident">U1</span> {
+    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">typenum</span>::<span class="ident">U1</span>;
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">U1</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">NamedDim</span> <span class="kw">for</span> <span class="ident">typenum</span>::<span class="ident">U1</span>{
+    <span class="kw">type</span> <span class="ident">Name</span> <span class="op">=</span> <span class="ident">U1</span>;
+}
+
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">named_dimension</span>(
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span>: <span class="ident">ident</span>),<span class="op">*</span> $(,)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
+        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span>;
+
+        <span class="kw">impl</span> <span class="ident">Dim</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span> {
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="ident">try_to_usize</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">typenum</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span>::<span class="ident">to_usize</span>())
+            }
+
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="ident">from_usize</span>(<span class="ident">dim</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dim</span> <span class="op">==</span> <span class="ident">typenum</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span>::<span class="ident">to_usize</span>(), <span class="string">&quot;Mismatched dimension.&quot;</span>);
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span>
+            }
+
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+                <span class="ident">typenum</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span>::<span class="ident">to_usize</span>()
+            }
+        }
+
+        <span class="kw">impl</span> <span class="ident">DimName</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span> {
+            <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">typenum</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span>;
+
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span>
+            }
+        }
+
+        <span class="kw">impl</span> <span class="ident">NamedDim</span> <span class="kw">for</span> <span class="ident">typenum</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span> {
+            <span class="kw">type</span> <span class="ident">Name</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span>;
+        }
+
+        <span class="kw">impl</span> <span class="ident">IsNotStaticOne</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">D</span> { }
+    )<span class="kw-2">*</span>}
 );
 
-<span class='comment'>// For values greater than U1023, just use the typenum binary representation directly.</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>B</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>C</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>D</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>E</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>F</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>G</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span><span class='op'>&gt;</span>
-<span class='ident'>NamedDim</span>
-<span class='kw'>for</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UTerm</span>, <span class='ident'>B1</span><span class='op'>&gt;</span>, <span class='ident'>A</span><span class='op'>&gt;</span>, <span class='ident'>B</span><span class='op'>&gt;</span>, <span class='ident'>C</span><span class='op'>&gt;</span>, <span class='ident'>D</span><span class='op'>&gt;</span>, <span class='ident'>E</span><span class='op'>&gt;</span>, <span class='ident'>F</span><span class='op'>&gt;</span>, <span class='ident'>G</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Name</span> <span class='op'>=</span> <span class='self'>Self</span>;
+
+<span class="comment">// We give explicit names to all Unsigned in [0, 128[</span>
+<span class="macro">named_dimension</span><span class="macro">!</span>(
+    <span class="ident">U0</span>, <span class="comment">/*U1,*/</span> <span class="ident">U2</span>, <span class="ident">U3</span>, <span class="ident">U4</span>, <span class="ident">U5</span>, <span class="ident">U6</span>, <span class="ident">U7</span>, <span class="ident">U8</span>, <span class="ident">U9</span>,
+    <span class="ident">U10</span>, <span class="ident">U11</span>, <span class="ident">U12</span>, <span class="ident">U13</span>, <span class="ident">U14</span>, <span class="ident">U15</span>, <span class="ident">U16</span>, <span class="ident">U17</span>, <span class="ident">U18</span>, <span class="ident">U19</span>,
+    <span class="ident">U20</span>, <span class="ident">U21</span>, <span class="ident">U22</span>, <span class="ident">U23</span>, <span class="ident">U24</span>, <span class="ident">U25</span>, <span class="ident">U26</span>, <span class="ident">U27</span>, <span class="ident">U28</span>, <span class="ident">U29</span>,
+    <span class="ident">U30</span>, <span class="ident">U31</span>, <span class="ident">U32</span>, <span class="ident">U33</span>, <span class="ident">U34</span>, <span class="ident">U35</span>, <span class="ident">U36</span>, <span class="ident">U37</span>, <span class="ident">U38</span>, <span class="ident">U39</span>,
+    <span class="ident">U40</span>, <span class="ident">U41</span>, <span class="ident">U42</span>, <span class="ident">U43</span>, <span class="ident">U44</span>, <span class="ident">U45</span>, <span class="ident">U46</span>, <span class="ident">U47</span>, <span class="ident">U48</span>, <span class="ident">U49</span>,
+    <span class="ident">U50</span>, <span class="ident">U51</span>, <span class="ident">U52</span>, <span class="ident">U53</span>, <span class="ident">U54</span>, <span class="ident">U55</span>, <span class="ident">U56</span>, <span class="ident">U57</span>, <span class="ident">U58</span>, <span class="ident">U59</span>,
+    <span class="ident">U60</span>, <span class="ident">U61</span>, <span class="ident">U62</span>, <span class="ident">U63</span>, <span class="ident">U64</span>, <span class="ident">U65</span>, <span class="ident">U66</span>, <span class="ident">U67</span>, <span class="ident">U68</span>, <span class="ident">U69</span>,
+    <span class="ident">U70</span>, <span class="ident">U71</span>, <span class="ident">U72</span>, <span class="ident">U73</span>, <span class="ident">U74</span>, <span class="ident">U75</span>, <span class="ident">U76</span>, <span class="ident">U77</span>, <span class="ident">U78</span>, <span class="ident">U79</span>,
+    <span class="ident">U80</span>, <span class="ident">U81</span>, <span class="ident">U82</span>, <span class="ident">U83</span>, <span class="ident">U84</span>, <span class="ident">U85</span>, <span class="ident">U86</span>, <span class="ident">U87</span>, <span class="ident">U88</span>, <span class="ident">U89</span>,
+    <span class="ident">U90</span>, <span class="ident">U91</span>, <span class="ident">U92</span>, <span class="ident">U93</span>, <span class="ident">U94</span>, <span class="ident">U95</span>, <span class="ident">U96</span>, <span class="ident">U97</span>, <span class="ident">U98</span>, <span class="ident">U99</span>,
+    <span class="ident">U100</span>, <span class="ident">U101</span>, <span class="ident">U102</span>, <span class="ident">U103</span>, <span class="ident">U104</span>, <span class="ident">U105</span>, <span class="ident">U106</span>, <span class="ident">U107</span>, <span class="ident">U108</span>, <span class="ident">U109</span>,
+    <span class="ident">U110</span>, <span class="ident">U111</span>, <span class="ident">U112</span>, <span class="ident">U113</span>, <span class="ident">U114</span>, <span class="ident">U115</span>, <span class="ident">U116</span>, <span class="ident">U117</span>, <span class="ident">U118</span>, <span class="ident">U119</span>,
+    <span class="ident">U120</span>, <span class="ident">U121</span>, <span class="ident">U122</span>, <span class="ident">U123</span>, <span class="ident">U124</span>, <span class="ident">U125</span>, <span class="ident">U126</span>, <span class="ident">U127</span>
+);
+
+<span class="comment">// For values greater than U1023, just use the typenum binary representation directly.</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
+<span class="ident">NamedDim</span>
+<span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Name</span> <span class="op">=</span> <span class="self">Self</span>;
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>B</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>C</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>D</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>E</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>F</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>G</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span><span class='op'>&gt;</span>
-<span class='ident'>Dim</span>
-<span class='kw'>for</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UTerm</span>, <span class='ident'>B1</span><span class='op'>&gt;</span>, <span class='ident'>A</span><span class='op'>&gt;</span>, <span class='ident'>B</span><span class='op'>&gt;</span>, <span class='ident'>C</span><span class='op'>&gt;</span>, <span class='ident'>D</span><span class='op'>&gt;</span>, <span class='ident'>E</span><span class='op'>&gt;</span>, <span class='ident'>F</span><span class='op'>&gt;</span>, <span class='ident'>G</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>try_to_usize</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Some</span>(<span class='self'>Self</span>::<span class='ident'>to_usize</span>())
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
+<span class="ident">Dim</span>
+<span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">try_to_usize</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="self">Self</span>::<span class="ident">to_usize</span>())
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from_usize</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>dim</span> <span class='op'>==</span> <span class='self'>Self</span>::<span class='ident'>to_usize</span>(), <span class='string'>&quot;Mismatched dimension.&quot;</span>);
-        <span class='self'>Self</span>::<span class='ident'>new</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from_usize</span>(<span class="ident">dim</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dim</span> <span class="op">==</span> <span class="self">Self</span>::<span class="ident">to_usize</span>(), <span class="string">&quot;Mismatched dimension.&quot;</span>);
+        <span class="self">Self</span>::<span class="ident">new</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='self'>Self</span>::<span class='ident'>to_usize</span>()
-    }
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>B</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>C</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>D</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>E</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>F</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>G</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span><span class='op'>&gt;</span>
-<span class='ident'>DimName</span>
-<span class='kw'>for</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UTerm</span>, <span class='ident'>B1</span><span class='op'>&gt;</span>, <span class='ident'>A</span><span class='op'>&gt;</span>, <span class='ident'>B</span><span class='op'>&gt;</span>, <span class='ident'>C</span><span class='op'>&gt;</span>, <span class='ident'>D</span><span class='op'>&gt;</span>, <span class='ident'>E</span><span class='op'>&gt;</span>, <span class='ident'>F</span><span class='op'>&gt;</span>, <span class='ident'>G</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Value</span> <span class='op'>=</span> <span class='self'>Self</span>;
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>name</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>new</span>()
-    }
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>A</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>B</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>C</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>D</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>E</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>F</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-     <span class='ident'>G</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span><span class='op'>&gt;</span>
-<span class='ident'>IsNotStaticOne</span>
-<span class='kw'>for</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>UTerm</span>, <span class='ident'>B1</span><span class='op'>&gt;</span>, <span class='ident'>A</span><span class='op'>&gt;</span>, <span class='ident'>B</span><span class='op'>&gt;</span>, <span class='ident'>C</span><span class='op'>&gt;</span>, <span class='ident'>D</span><span class='op'>&gt;</span>, <span class='ident'>E</span><span class='op'>&gt;</span>, <span class='ident'>F</span><span class='op'>&gt;</span>, <span class='ident'>G</span><span class='op'>&gt;</span> {
-}
-
-
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>U</span>: <span class='ident'>Unsigned</span> <span class='op'>+</span> <span class='ident'>DimName</span>, <span class='ident'>B</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span><span class='op'>&gt;</span> <span class='ident'>NamedDim</span> <span class='kw'>for</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>U</span>, <span class='ident'>B</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Name</span> <span class='op'>=</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>U</span>, <span class='ident'>B</span><span class='op'>&gt;</span>;
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>U</span>: <span class='ident'>Unsigned</span> <span class='op'>+</span> <span class='ident'>DimName</span>, <span class='ident'>B</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span><span class='op'>&gt;</span> <span class='ident'>Dim</span> <span class='kw'>for</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>U</span>, <span class='ident'>B</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>try_to_usize</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Some</span>(<span class='self'>Self</span>::<span class='ident'>to_usize</span>())
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from_usize</span>(<span class='ident'>dim</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>dim</span> <span class='op'>==</span> <span class='self'>Self</span>::<span class='ident'>to_usize</span>(), <span class='string'>&quot;Mismatched dimension.&quot;</span>);
-        <span class='self'>Self</span>::<span class='ident'>new</span>()
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='self'>Self</span>::<span class='ident'>to_usize</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="self">Self</span>::<span class="ident">to_usize</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>U</span>: <span class='ident'>Unsigned</span> <span class='op'>+</span> <span class='ident'>DimName</span>, <span class='ident'>B</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span><span class='op'>&gt;</span> <span class='ident'>DimName</span> <span class='kw'>for</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>U</span>, <span class='ident'>B</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Value</span> <span class='op'>=</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>U</span>, <span class='ident'>B</span><span class='op'>&gt;</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
+<span class="ident">DimName</span>
+<span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>name</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>new</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>U</span>: <span class='ident'>Unsigned</span> <span class='op'>+</span> <span class='ident'>DimName</span>, <span class='ident'>B</span>: <span class='ident'>Bit</span> <span class='op'>+</span> <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Debug</span> <span class='op'>+</span> <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialEq</span> <span class='op'>+</span> <span class='ident'>Send</span><span class='op'>&gt;</span> <span class='ident'>IsNotStaticOne</span> <span class='kw'>for</span> <span class='ident'>UInt</span><span class='op'>&lt;</span><span class='ident'>U</span>, <span class='ident'>B</span><span class='op'>&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+     <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
+<span class="ident">IsNotStaticOne</span>
+<span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
+}
+
+
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">Unsigned</span> <span class="op">+</span> <span class="ident">DimName</span>, <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">NamedDim</span> <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Name</span> <span class="op">=</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span>;
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">Unsigned</span> <span class="op">+</span> <span class="ident">DimName</span>, <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">Dim</span> <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">try_to_usize</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="self">Self</span>::<span class="ident">to_usize</span>())
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from_usize</span>(<span class="ident">dim</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">dim</span> <span class="op">==</span> <span class="self">Self</span>::<span class="ident">to_usize</span>(), <span class="string">&quot;Mismatched dimension.&quot;</span>);
+        <span class="self">Self</span>::<span class="ident">new</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="self">Self</span>::<span class="ident">to_usize</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">Unsigned</span> <span class="op">+</span> <span class="ident">DimName</span>, <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">DimName</span> <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span>;
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">name</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">Unsigned</span> <span class="op">+</span> <span class="ident">DimName</span>, <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">IsNotStaticOne</span> <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span> {
 }
 </pre>
 </section>
@@ -822,7 +916,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

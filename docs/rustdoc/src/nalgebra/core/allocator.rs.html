@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -128,99 +128,91 @@
 <span id="83">83</span>
 <span id="84">84</span>
 <span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
-<span id="89">89</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! Abstract definition of a matrix data storage allocator.</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Abstract definition of a matrix data storage allocator.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>any</span>::<span class='ident'>Any</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">any</span>::<span class="ident">Any</span>;
 
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>Scalar</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>constraint</span>::{<span class='ident'>SameNumberOfRows</span>, <span class='ident'>SameNumberOfColumns</span>, <span class='ident'>ShapeConstraint</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>Dim</span>, <span class='ident'>U1</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::{<span class='ident'>Storage</span>, <span class='ident'>OwnedStorage</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Scalar</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">SameNumberOfRows</span>, <span class="ident">SameNumberOfColumns</span>, <span class="ident">ShapeConstraint</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">U1</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::<span class="ident">ContiguousStorageMut</span>;
 
-<span class='doccomment'>/// A matrix allocator of a memory buffer that may contain `R::to_usize() * C::to_usize()`</span>
-<span class='doccomment'>/// elements of type `N`.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// An allocator is said to be:</span>
-<span class='doccomment'>///   − static:  if `R` and `C` both implement `DimName`.</span>
-<span class='doccomment'>///   − dynamic: if either one (or both) of `R` or `C` is equal to `Dynamic`.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Every allocator must be both static and dynamic. Though not all implementations may share the</span>
-<span class='doccomment'>/// same `Buffer` type.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>R</span>: <span class='ident'>Dim</span>, <span class='ident'>C</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span>: <span class='ident'>Any</span> <span class='op'>+</span> <span class='ident'>Sized</span> {
-    <span class='doccomment'>/// The type of buffer this allocator can instanciate.</span>
-    <span class='kw'>type</span> <span class='ident'>Buffer</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='self'>Self</span><span class='op'>&gt;</span>;
+<span class="doccomment">/// A matrix allocator of a memory buffer that may contain `R::to_usize() * C::to_usize()`</span>
+<span class="doccomment">/// elements of type `N`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// An allocator is said to be:</span>
+<span class="doccomment">///   − static:  if `R` and `C` both implement `DimName`.</span>
+<span class="doccomment">///   − dynamic: if either one (or both) of `R` or `C` is equal to `Dynamic`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Every allocator must be both static and dynamic. Though not all implementations may share the</span>
+<span class="doccomment">/// same `Buffer` type.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span> <span class="op">=</span> <span class="ident">U1</span><span class="op">&gt;</span>: <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Sized</span> {
+    <span class="doccomment">/// The type of buffer this allocator can instanciate.</span>
+    <span class="kw">type</span> <span class="ident">Buffer</span>: <span class="ident">ContiguousStorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Clone</span>;
 
-    <span class='doccomment'>/// Allocates a buffer with the given number of rows and columns without initializing its content.</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>allocate_uninitialized</span>(<span class='ident'>nrows</span>: <span class='ident'>R</span>, <span class='ident'>ncols</span>: <span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Buffer</span>;
+    <span class="doccomment">/// Allocates a buffer with the given number of rows and columns without initializing its content.</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">allocate_uninitialized</span>(<span class="ident">nrows</span>: <span class="ident">R</span>, <span class="ident">ncols</span>: <span class="ident">C</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Buffer</span>;
 
-    <span class='doccomment'>/// Allocates a buffer initialized with the content of the given iterator.</span>
-    <span class='kw'>fn</span> <span class='ident'>allocate_from_iterator</span><span class='op'>&lt;</span><span class='ident'>I</span>: <span class='ident'>IntoIterator</span><span class='op'>&lt;</span><span class='ident'>Item</span> <span class='op'>=</span> <span class='ident'>N</span><span class='op'>&gt;&gt;</span>(<span class='ident'>nrows</span>: <span class='ident'>R</span>, <span class='ident'>ncols</span>: <span class='ident'>C</span>, <span class='ident'>iter</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Buffer</span>;
+    <span class="doccomment">/// Allocates a buffer initialized with the content of the given iterator.</span>
+    <span class="kw">fn</span> <span class="ident">allocate_from_iterator</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">N</span><span class="op">&gt;&gt;</span>(<span class="ident">nrows</span>: <span class="ident">R</span>, <span class="ident">ncols</span>: <span class="ident">C</span>, <span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Buffer</span>;
 }
 
-<span class='doccomment'>/// A matrix data allocator dedicated to the given owned matrix storage.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>R</span>: <span class='ident'>Dim</span>, <span class='ident'>C</span>: <span class='ident'>Dim</span>, <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='self'>Self</span><span class='op'>&gt;&gt;</span>:
-    <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>Buffer</span> <span class='op'>=</span> <span class='ident'>S</span><span class='op'>&gt;</span> {
+<span class="doccomment">/// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×</span>
+<span class="doccomment">/// CFrom) elements to a smaller or larger size (RTo, CTo).</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">RFrom</span>: <span class="ident">Dim</span>, <span class="ident">CFrom</span>: <span class="ident">Dim</span>, <span class="ident">RTo</span>: <span class="ident">Dim</span>, <span class="ident">CTo</span>: <span class="ident">Dim</span><span class="op">&gt;</span>:
+    <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RFrom</span>, <span class="ident">CFrom</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RTo</span>, <span class="ident">CTo</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Reallocates a buffer of shape `(RTo, CTo)`, possibly reusing a previously allocated buffer</span>
+    <span class="doccomment">/// `buf`. Data stored by `buf` are linearly copied to the output:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * The copy is performed as if both were just arrays (without a matrix structure).</span>
+    <span class="doccomment">/// * If `buf` is larger than the output size, then extra elements of `buf` are truncated.</span>
+    <span class="doccomment">/// * If `buf` is smaller than the output size, then extra elements of the output are left</span>
+    <span class="doccomment">/// uninitialized.</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">reallocate_copy</span>(<span class="ident">nrows</span>: <span class="ident">RTo</span>, <span class="ident">ncols</span>: <span class="ident">CTo</span>,
+                              <span class="ident">buf</span>: <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RFrom</span>, <span class="ident">CFrom</span><span class="op">&gt;&gt;</span>::<span class="ident">Buffer</span>)
+                              <span class="op">-&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RTo</span>, <span class="ident">CTo</span><span class="op">&gt;&gt;</span>::<span class="ident">Buffer</span>;
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>T</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>T</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>R</span>: <span class='ident'>Dim</span>, <span class='ident'>C</span>: <span class='ident'>Dim</span>,
-          <span class='ident'>T</span>: <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>Buffer</span> <span class='op'>=</span> <span class='ident'>S</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
+<span class="doccomment">/// The number of rows of the result of a componentwise operation on two matrices.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SameShapeR</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ShapeConstraint</span> <span class="kw">as</span> <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;&gt;</span>::<span class="ident">Representative</span>;
+
+<span class="doccomment">/// The number of columns of the result of a componentwise operation on two matrices.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SameShapeC</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ShapeConstraint</span> <span class="kw">as</span> <span class="ident">SameNumberOfColumns</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;&gt;</span>::<span class="ident">Representative</span>;
+
+<span class="comment">// FIXME: Bad name.</span>
+<span class="doccomment">/// Restricts the given number of rows and columns to be respectively the same.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">SameShapeAllocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>:
+        <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span><span class="op">&gt;</span> <span class="op">+</span>
+        <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">SameShapeR</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span>, <span class="ident">SameShapeC</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;&gt;</span>
+    <span class="kw">where</span> <span class="ident">R1</span>: <span class="ident">Dim</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C1</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>,
+          <span class="ident">N</span>: <span class="ident">Scalar</span>,
+          <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SameNumberOfColumns</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
 }
 
-<span class='doccomment'>/// The number of rows of the result of a componentwise operation on two matrices.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>SameShapeR</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='op'>&lt;</span><span class='ident'>ShapeConstraint</span> <span class='kw'>as</span> <span class='ident'>SameNumberOfRows</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Representative</span>;
-
-<span class='doccomment'>/// The number of columns of the result of a componentwise operation on two matrices.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>SameShapeC</span><span class='op'>&lt;</span><span class='ident'>C1</span>, <span class='ident'>C2</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='op'>&lt;</span><span class='ident'>ShapeConstraint</span> <span class='kw'>as</span> <span class='ident'>SameNumberOfColumns</span><span class='op'>&lt;</span><span class='ident'>C1</span>, <span class='ident'>C2</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Representative</span>;
-
-<span class='comment'>// FIXME: Bad name.</span>
-<span class='doccomment'>/// Restricts the given number of rows and columns to be respectively the same. Can only be used</span>
-<span class='doccomment'>/// when `Self = SA::Alloc`.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>SameShapeAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span>, <span class='ident'>R2</span>, <span class='ident'>C2</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>:
-        <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span><span class='op'>&gt;</span> <span class='op'>+</span>
-        <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SameShapeR</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span>, <span class='ident'>SameShapeC</span><span class='op'>&lt;</span><span class='ident'>C1</span>, <span class='ident'>C2</span><span class='op'>&gt;&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>R1</span>: <span class='ident'>Dim</span>, <span class='ident'>R2</span>: <span class='ident'>Dim</span>, <span class='ident'>C1</span>: <span class='ident'>Dim</span>, <span class='ident'>C2</span>: <span class='ident'>Dim</span>,
-          <span class='ident'>N</span>: <span class='ident'>Scalar</span>,
-          <span class='ident'>SA</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='self'>Self</span><span class='op'>&gt;</span>,
-          <span class='ident'>ShapeConstraint</span>: <span class='ident'>SameNumberOfRows</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>SameNumberOfColumns</span><span class='op'>&lt;</span><span class='ident'>C1</span>, <span class='ident'>C2</span><span class='op'>&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">R2</span>, <span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="ident">SameShapeAllocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DefaultAllocator</span>
+    <span class="kw">where</span> <span class="ident">R1</span>: <span class="ident">Dim</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C1</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>,
+          <span class="ident">N</span>: <span class="ident">Scalar</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">SameShapeR</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span>, <span class="ident">SameShapeC</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;&gt;</span>,
+          <span class="ident">ShapeConstraint</span>:  <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SameNumberOfColumns</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>R2</span>, <span class='ident'>C1</span>, <span class='ident'>C2</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='ident'>SameShapeAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span>, <span class='ident'>R2</span>, <span class='ident'>C2</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span>
-    <span class='kw'>where</span> <span class='ident'>R1</span>: <span class='ident'>Dim</span>, <span class='ident'>R2</span>: <span class='ident'>Dim</span>, <span class='ident'>C1</span>: <span class='ident'>Dim</span>, <span class='ident'>C2</span>: <span class='ident'>Dim</span>,
-          <span class='ident'>N</span>: <span class='ident'>Scalar</span>,
-          <span class='ident'>SA</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>:
-            <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span><span class='op'>&gt;</span> <span class='op'>+</span>
-            <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SameShapeR</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span>, <span class='ident'>SameShapeC</span><span class='op'>&lt;</span><span class='ident'>C1</span>, <span class='ident'>C2</span><span class='op'>&gt;&gt;</span>,
-          <span class='ident'>ShapeConstraint</span>: <span class='ident'>SameNumberOfRows</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>SameNumberOfColumns</span><span class='op'>&lt;</span><span class='ident'>C1</span>, <span class='ident'>C2</span><span class='op'>&gt;</span> {
+<span class="comment">// XXX: Bad name.</span>
+<span class="doccomment">/// Restricts the given number of rows to be equal.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">SameShapeVectorAllocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span>:
+        <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span><span class="op">&gt;</span> <span class="op">+</span>
+        <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">SameShapeR</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
+        <span class="ident">SameShapeAllocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">U1</span>, <span class="ident">R2</span>, <span class="ident">U1</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">R1</span>: <span class="ident">Dim</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>,
+          <span class="ident">N</span>: <span class="ident">Scalar</span>,
+          <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span> {
 }
 
-<span class='comment'>// XXX: Bad name.</span>
-<span class='doccomment'>/// Restricts the given number of rows to be equal. Can only be used when `Self = SA::Alloc`.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>SameShapeColumnVectorAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>R2</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>:
-        <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> <span class='op'>+</span>
-        <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SameShapeR</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> <span class='op'>+</span>
-        <span class='ident'>SameShapeAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>U1</span>, <span class='ident'>R2</span>, <span class='ident'>U1</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>R1</span>: <span class='ident'>Dim</span>, <span class='ident'>R2</span>: <span class='ident'>Dim</span>,
-          <span class='ident'>N</span>: <span class='ident'>Scalar</span>,
-          <span class='ident'>SA</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='self'>Self</span><span class='op'>&gt;</span>,
-          <span class='ident'>ShapeConstraint</span>: <span class='ident'>SameNumberOfRows</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span> {
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>R2</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='ident'>SameShapeColumnVectorAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>R2</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span>
-    <span class='kw'>where</span> <span class='ident'>R1</span>: <span class='ident'>Dim</span>, <span class='ident'>R2</span>: <span class='ident'>Dim</span>,
-          <span class='ident'>N</span>: <span class='ident'>Scalar</span>,
-          <span class='ident'>SA</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>:
-            <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> <span class='op'>+</span>
-            <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SameShapeR</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-          <span class='ident'>ShapeConstraint</span>: <span class='ident'>SameNumberOfRows</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span> <span class="ident">SameShapeVectorAllocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DefaultAllocator</span>
+    <span class="kw">where</span> <span class="ident">R1</span>: <span class="ident">Dim</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>,
+          <span class="ident">N</span>: <span class="ident">Scalar</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">U1</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">SameShapeR</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;&gt;</span>,
+          <span class="ident">ShapeConstraint</span>:  <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span> {
 }
 </pre>
 </section>
@@ -280,7 +272,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

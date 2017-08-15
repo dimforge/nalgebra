@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -338,300 +338,322 @@
 <span id="293">293</span>
 <span id="294">294</span>
 <span id="295">295</span>
-</pre><pre class='rust '>
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;arbitrary&quot;</span>)]</span>
-<span class='kw'>use</span> <span class='ident'>quickcheck</span>::{<span class='ident'>Arbitrary</span>, <span class='ident'>Gen</span>};
-<span class='kw'>use</span> <span class='ident'>rand</span>::{<span class='ident'>Rand</span>, <span class='ident'>Rng</span>};
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+</pre><pre class="rust ">
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;arbitrary&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">quickcheck</span>::{<span class="ident">Arbitrary</span>, <span class="ident">Gen</span>};
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rand</span>, <span class="ident">Rng</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">serde</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::<span class='ident'>Real</span>;
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
 
-<span class='kw'>use</span> <span class='ident'>core</span>::{<span class='ident'>Scalar</span>, <span class='ident'>SquareMatrix</span>, <span class='ident'>OwnedSquareMatrix</span>, <span class='ident'>ColumnVector</span>, <span class='ident'>OwnedColumnVector</span>, <span class='ident'>MatrixArray</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>U1</span>, <span class='ident'>U3</span>, <span class='ident'>U4</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::{<span class='ident'>OwnedStorage</span>, <span class='ident'>Storage</span>, <span class='ident'>StorageMut</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::<span class='ident'>OwnedAllocator</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>helper</span>;
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Matrix4</span>, <span class="ident">Vector</span>, <span class="ident">Vector3</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::<span class="ident">U3</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::<span class="ident">Storage</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">helper</span>;
 
-<span class='kw'>use</span> <span class='ident'>geometry</span>::{<span class='ident'>PointBase</span>, <span class='ident'>OwnedPoint</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::<span class="ident">Point3</span>;
 
-<span class='doccomment'>/// A 3D orthographic projection stored as an homogeneous 4x4 matrix.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span> <span class='comment'>// FIXME: Hash</span>
-<span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;serde-serialize&quot;</span>, <span class='ident'>derive</span>(<span class='ident'>Serialize</span>, <span class='ident'>Deserialize</span>))]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>OrthographicBase</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>S</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span><span class='op'>&gt;&gt;</span> {
-    <span class='ident'>matrix</span>: <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
+<span class="doccomment">/// A 3D orthographic projection stored as an homogeneous 4x4 matrix.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> {
+    <span class="ident">matrix</span>: <span class="ident">Matrix4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
 }
 
-<span class='doccomment'>/// A 3D orthographic projection stored as a static homogeneous 4x4 matrix.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Orthographic3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>OrthographicBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>MatrixArray</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span><span class='op'>&gt;&gt;</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> { }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Eq</span> <span class='kw'>for</span> <span class='ident'>OrthographicBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Eq</span>,
-          <span class='ident'>S</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span><span class='op'>&gt;</span> { }
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>S</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span><span class='op'>&gt;&gt;</span> <span class='ident'>PartialEq</span> <span class='kw'>for</span> <span class='ident'>OrthographicBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>eq</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>right</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>matrix</span> <span class='op'>==</span> <span class='ident'>right</span>.<span class='ident'>matrix</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Orthographic3</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">matrix</span>.<span class="ident">clone</span>())
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>OrthographicBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new orthographic projection matrix.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>left</span>: <span class='ident'>N</span>, <span class='ident'>right</span>: <span class='ident'>N</span>, <span class='ident'>bottom</span>: <span class='ident'>N</span>, <span class='ident'>top</span>: <span class='ident'>N</span>, <span class='ident'>znear</span>: <span class='ident'>N</span>, <span class='ident'>zfar</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>left</span> <span class='op'>&lt;</span> <span class='ident'>right</span>, <span class='string'>&quot;The left corner must be farther than the right corner.&quot;</span>);
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>bottom</span> <span class='op'>&lt;</span> <span class='ident'>top</span>, <span class='string'>&quot;The top corner must be higher than the bottom corner.&quot;</span>);
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>znear</span> <span class='op'>&lt;</span> <span class='ident'>zfar</span>, <span class='string'>&quot;The far plane must be farther than the near plane.&quot;</span>);
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">matrix</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
+    }
+}
 
-        <span class='kw'>let</span> <span class='ident'>matrix</span> <span class='op'>=</span> <span class='ident'>SquareMatrix</span>::<span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>S</span><span class='op'>&gt;</span>::<span class='ident'>identity</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='self'>Self</span>::<span class='ident'>from_matrix_unchecked</span>(<span class='ident'>matrix</span>);
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">matrix</span> <span class="op">==</span> <span class="ident">right</span>.<span class="ident">matrix</span>
+    }
+}
 
-        <span class='ident'>res</span>.<span class='ident'>set_left_and_right</span>(<span class='ident'>left</span>, <span class='ident'>right</span>);
-        <span class='ident'>res</span>.<span class='ident'>set_bottom_and_top</span>(<span class='ident'>bottom</span>, <span class='ident'>top</span>);
-        <span class='ident'>res</span>.<span class='ident'>set_znear_and_zfar</span>(<span class='ident'>znear</span>, <span class='ident'>zfar</span>);
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">serde</span>::<span class="ident">Serialize</span><span class="op">&gt;</span> <span class="ident">serde</span>::<span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="prelude-val">Ok</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">S</span>: <span class="ident">serde</span>::<span class="ident">Serializer</span> {
+            <span class="self">self</span>.<span class="ident">matrix</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
+        }
+}
 
-        <span class='ident'>res</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">Des</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">Des</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Des</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">Des</span>: <span class="ident">serde</span>::<span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">matrix</span> <span class="op">=</span> <span class="ident">Matrix4</span>::<span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>::<span class="ident">deserialize</span>(<span class="ident">deserializer</span>)<span class="question-mark">?</span>;
+
+            <span class="prelude-val">Ok</span>(<span class="ident">Orthographic3</span>::<span class="ident">from_matrix_unchecked</span>(<span class="ident">matrix</span>))
+        }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new orthographic projection matrix.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">left</span>: <span class="ident">N</span>, <span class="ident">right</span>: <span class="ident">N</span>, <span class="ident">bottom</span>: <span class="ident">N</span>, <span class="ident">top</span>: <span class="ident">N</span>, <span class="ident">znear</span>: <span class="ident">N</span>, <span class="ident">zfar</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">left</span> <span class="op">&lt;</span> <span class="ident">right</span>, <span class="string">&quot;The left corner must be farther than the right corner.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">bottom</span> <span class="op">&lt;</span> <span class="ident">top</span>, <span class="string">&quot;The top corner must be higher than the bottom corner.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">znear</span> <span class="op">&lt;</span> <span class="ident">zfar</span>, <span class="string">&quot;The far plane must be farther than the near plane.&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">matrix</span> <span class="op">=</span> <span class="ident">Matrix4</span>::<span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>::<span class="ident">identity</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_matrix_unchecked</span>(<span class="ident">matrix</span>);
+
+        <span class="ident">res</span>.<span class="ident">set_left_and_right</span>(<span class="ident">left</span>, <span class="ident">right</span>);
+        <span class="ident">res</span>.<span class="ident">set_bottom_and_top</span>(<span class="ident">bottom</span>, <span class="ident">top</span>);
+        <span class="ident">res</span>.<span class="ident">set_znear_and_zfar</span>(<span class="ident">znear</span>, <span class="ident">zfar</span>);
+
+        <span class="ident">res</span>
     }
 
-    <span class='doccomment'>/// Wraps the given matrix to interpret it as a 3D orthographic matrix.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// It is not checked whether or not the given matrix actually represents an orthographic</span>
-    <span class='doccomment'>/// projection.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_matrix_unchecked</span>(<span class='ident'>matrix</span>: <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>S</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='ident'>OrthographicBase</span> {
-            <span class='ident'>matrix</span>: <span class='ident'>matrix</span>
+    <span class="doccomment">/// Wraps the given matrix to interpret it as a 3D orthographic matrix.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It is not checked whether or not the given matrix actually represents an orthographic</span>
+    <span class="doccomment">/// projection.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_matrix_unchecked</span>(<span class="ident">matrix</span>: <span class="ident">Matrix4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Orthographic3</span> {
+            <span class="ident">matrix</span>: <span class="ident">matrix</span>
         }
     }
 
-    <span class='doccomment'>/// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_fov</span>(<span class='ident'>aspect</span>: <span class='ident'>N</span>, <span class='ident'>vfov</span>: <span class='ident'>N</span>, <span class='ident'>znear</span>: <span class='ident'>N</span>, <span class='ident'>zfar</span>: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>znear</span> <span class='op'>&lt;</span> <span class='ident'>zfar</span>, <span class='string'>&quot;The far plane must be farther than the near plane.&quot;</span>);
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='macro'>relative_eq</span><span class='macro'>!</span>(<span class='ident'>aspect</span>, <span class='ident'>N</span>::<span class='ident'>zero</span>()), <span class='string'>&quot;The apsect ratio must not be zero.&quot;</span>);
+    <span class="doccomment">/// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_fov</span>(<span class="ident">aspect</span>: <span class="ident">N</span>, <span class="ident">vfov</span>: <span class="ident">N</span>, <span class="ident">znear</span>: <span class="ident">N</span>, <span class="ident">zfar</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">znear</span> <span class="op">&lt;</span> <span class="ident">zfar</span>, <span class="string">&quot;The far plane must be farther than the near plane.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="macro">relative_eq</span><span class="macro">!</span>(<span class="ident">aspect</span>, <span class="ident">N</span>::<span class="ident">zero</span>()), <span class="string">&quot;The apsect ratio must not be zero.&quot;</span>);
 
-        <span class='kw'>let</span> <span class='ident'>half</span>: <span class='ident'>N</span> <span class='op'>=</span> ::<span class='ident'>convert</span>(<span class='number'>0.5</span>);
-        <span class='kw'>let</span> <span class='ident'>width</span>  <span class='op'>=</span> <span class='ident'>zfar</span> <span class='op'>*</span> (<span class='ident'>vfov</span> <span class='op'>*</span> <span class='ident'>half</span>).<span class='ident'>tan</span>();
-        <span class='kw'>let</span> <span class='ident'>height</span> <span class='op'>=</span> <span class='ident'>width</span> <span class='op'>/</span> <span class='ident'>aspect</span>;
+        <span class="kw">let</span> <span class="ident">half</span>: <span class="ident">N</span> <span class="op">=</span> ::<span class="ident">convert</span>(<span class="number">0.5</span>);
+        <span class="kw">let</span> <span class="ident">width</span>  <span class="op">=</span> <span class="ident">zfar</span> <span class="op">*</span> (<span class="ident">vfov</span> <span class="op">*</span> <span class="ident">half</span>).<span class="ident">tan</span>();
+        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">width</span> <span class="op">/</span> <span class="ident">aspect</span>;
 
-        <span class='self'>Self</span>::<span class='ident'>new</span>(<span class='op'>-</span><span class='ident'>width</span> <span class='op'>*</span> <span class='ident'>half</span>, <span class='ident'>width</span> <span class='op'>*</span> <span class='ident'>half</span>, <span class='op'>-</span><span class='ident'>height</span> <span class='op'>*</span> <span class='ident'>half</span>, <span class='ident'>height</span> <span class='op'>*</span> <span class='ident'>half</span>, <span class='ident'>znear</span>, <span class='ident'>zfar</span>)
-    }
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Real</span>, <span class='ident'>S</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span><span class='op'>&gt;&gt;</span> <span class='ident'>OrthographicBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// A reference to the underlying homogeneous transformation matrix.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>as_matrix</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>matrix</span>
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="op">-</span><span class="ident">width</span> <span class="op">*</span> <span class="ident">half</span>, <span class="ident">width</span> <span class="op">*</span> <span class="ident">half</span>, <span class="op">-</span><span class="ident">height</span> <span class="op">*</span> <span class="ident">half</span>, <span class="ident">height</span> <span class="op">*</span> <span class="ident">half</span>, <span class="ident">znear</span>, <span class="ident">zfar</span>)
     }
 
-    <span class='doccomment'>/// Retrieves the underlying homogeneous matrix.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unwrap</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>SquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>matrix</span>
+    <span class="doccomment">/// Retrieves the inverse of the underlying homogeneous matrix.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Matrix4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_homogeneous</span>();
+
+        <span class="kw">let</span> <span class="ident">inv_m11</span> <span class="op">=</span> <span class="ident">N</span>::<span class="ident">one</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">0</span>)];
+        <span class="kw">let</span> <span class="ident">inv_m22</span> <span class="op">=</span> <span class="ident">N</span>::<span class="ident">one</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">1</span>)];
+        <span class="kw">let</span> <span class="ident">inv_m33</span> <span class="op">=</span> <span class="ident">N</span>::<span class="ident">one</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">2</span>)];
+
+        <span class="ident">res</span>[(<span class="number">0</span>, <span class="number">0</span>)] <span class="op">=</span> <span class="ident">inv_m11</span>;
+        <span class="ident">res</span>[(<span class="number">1</span>, <span class="number">1</span>)] <span class="op">=</span> <span class="ident">inv_m22</span>;
+        <span class="ident">res</span>[(<span class="number">2</span>, <span class="number">2</span>)] <span class="op">=</span> <span class="ident">inv_m33</span>;
+
+        <span class="ident">res</span>[(<span class="number">0</span>, <span class="number">3</span>)] <span class="op">=</span> <span class="op">-</span><span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">3</span>)] <span class="op">*</span> <span class="ident">inv_m11</span>; 
+        <span class="ident">res</span>[(<span class="number">1</span>, <span class="number">3</span>)] <span class="op">=</span> <span class="op">-</span><span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">3</span>)] <span class="op">*</span> <span class="ident">inv_m22</span>; 
+        <span class="ident">res</span>[(<span class="number">2</span>, <span class="number">3</span>)] <span class="op">=</span> <span class="op">-</span><span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">3</span>)] <span class="op">*</span> <span class="ident">inv_m33</span>; 
+
+        <span class="ident">res</span>
     }
 
-    <span class='doccomment'>/// Retrieves the inverse of the underlying homogeneous matrix.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>OwnedSquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>S</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>to_homogeneous</span>();
-
-        <span class='kw'>let</span> <span class='ident'>inv_m11</span> <span class='op'>=</span> <span class='ident'>N</span>::<span class='ident'>one</span>() <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>0</span>)];
-        <span class='kw'>let</span> <span class='ident'>inv_m22</span> <span class='op'>=</span> <span class='ident'>N</span>::<span class='ident'>one</span>() <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>1</span>)];
-        <span class='kw'>let</span> <span class='ident'>inv_m33</span> <span class='op'>=</span> <span class='ident'>N</span>::<span class='ident'>one</span>() <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>2</span>)];
-
-        <span class='ident'>res</span>[(<span class='number'>0</span>, <span class='number'>0</span>)] <span class='op'>=</span> <span class='ident'>inv_m11</span>;
-        <span class='ident'>res</span>[(<span class='number'>1</span>, <span class='number'>1</span>)] <span class='op'>=</span> <span class='ident'>inv_m22</span>;
-        <span class='ident'>res</span>[(<span class='number'>2</span>, <span class='number'>2</span>)] <span class='op'>=</span> <span class='ident'>inv_m33</span>;
-
-        <span class='ident'>res</span>[(<span class='number'>0</span>, <span class='number'>3</span>)] <span class='op'>=</span> <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>3</span>)] <span class='op'>*</span> <span class='ident'>inv_m11</span>; 
-        <span class='ident'>res</span>[(<span class='number'>1</span>, <span class='number'>3</span>)] <span class='op'>=</span> <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>3</span>)] <span class='op'>*</span> <span class='ident'>inv_m22</span>; 
-        <span class='ident'>res</span>[(<span class='number'>2</span>, <span class='number'>3</span>)] <span class='op'>=</span> <span class='op'>-</span><span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>3</span>)] <span class='op'>*</span> <span class='ident'>inv_m33</span>; 
-
-        <span class='ident'>res</span>
+    <span class="doccomment">/// Computes the corresponding homogeneous matrix.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_homogeneous</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Matrix4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">matrix</span>.<span class="ident">clone_owned</span>()
     }
 
-    <span class='doccomment'>/// Computes the corresponding homogeneous matrix.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_homogeneous</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>OwnedSquareMatrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>S</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>matrix</span>.<span class='ident'>clone_owned</span>()
+    <span class="doccomment">/// A reference to the underlying homogeneous transformation matrix.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_matrix</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Matrix4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">matrix</span>
     }
 
-    <span class='doccomment'>/// The smallest x-coordinate of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>left</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        (<span class='op'>-</span><span class='ident'>N</span>::<span class='ident'>one</span>() <span class='op'>-</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>3</span>)]) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>0</span>)]
+    <span class="doccomment">/// Retrieves the underlying homogeneous matrix.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unwrap</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Matrix4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">matrix</span>
     }
 
-    <span class='doccomment'>/// The largest x-coordinate of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>right</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        (<span class='ident'>N</span>::<span class='ident'>one</span>() <span class='op'>-</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>3</span>)]) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>0</span>)]
+    <span class="doccomment">/// The smallest x-coordinate of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        (<span class="op">-</span><span class="ident">N</span>::<span class="ident">one</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">3</span>)]) <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">0</span>)]
     }
 
-    <span class='doccomment'>/// The smallest y-coordinate of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>bottom</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        (<span class='op'>-</span><span class='ident'>N</span>::<span class='ident'>one</span>() <span class='op'>-</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>3</span>)]) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>1</span>)]
+    <span class="doccomment">/// The largest x-coordinate of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">right</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        (<span class="ident">N</span>::<span class="ident">one</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">3</span>)]) <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">0</span>)]
     }
 
-    <span class='doccomment'>/// The largest y-coordinate of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>top</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        (<span class='ident'>N</span>::<span class='ident'>one</span>() <span class='op'>-</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>3</span>)]) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>1</span>)]
+    <span class="doccomment">/// The smallest y-coordinate of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bottom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        (<span class="op">-</span><span class="ident">N</span>::<span class="ident">one</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">3</span>)]) <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">1</span>)]
     }
 
-    <span class='doccomment'>/// The near plane offset of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>znear</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        (<span class='ident'>N</span>::<span class='ident'>one</span>() <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>3</span>)]) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>2</span>)]
+    <span class="doccomment">/// The largest y-coordinate of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">top</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        (<span class="ident">N</span>::<span class="ident">one</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">3</span>)]) <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">1</span>)]
     }
 
-    <span class='doccomment'>/// The far plane offset of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>zfar</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>N</span> {
-        (<span class='op'>-</span><span class='ident'>N</span>::<span class='ident'>one</span>() <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>3</span>)]) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>2</span>)]
+    <span class="doccomment">/// The near plane offset of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">znear</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        (<span class="ident">N</span>::<span class="ident">one</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">3</span>)]) <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">2</span>)]
     }
 
-    <span class='comment'>// FIXME: when we get specialization, specialize the Mul impl instead.</span>
-    <span class='doccomment'>/// Projects a point. Faster than matrix multiplication.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>project_point</span><span class='op'>&lt;</span><span class='ident'>SB</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>p</span>: <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>OwnedPoint</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>SB</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> {
+    <span class="doccomment">/// The far plane offset of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zfar</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
+        (<span class="op">-</span><span class="ident">N</span>::<span class="ident">one</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">3</span>)]) <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">2</span>)]
+    }
 
-        <span class='ident'>OwnedPoint</span>::<span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>::<span class='ident'>new</span>(
-            <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>0</span>)] <span class='op'>*</span> <span class='ident'>p</span>[<span class='number'>0</span>] <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>3</span>)],
-            <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>1</span>)] <span class='op'>*</span> <span class='ident'>p</span>[<span class='number'>1</span>] <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>3</span>)],
-            <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>2</span>)] <span class='op'>*</span> <span class='ident'>p</span>[<span class='number'>2</span>] <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>3</span>)]
+    <span class="comment">// FIXME: when we get specialization, specialize the Mul impl instead.</span>
+    <span class="doccomment">/// Projects a point. Faster than matrix multiplication.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">project_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+        <span class="ident">Point3</span>::<span class="ident">new</span>(
+            <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">0</span>)] <span class="op">*</span> <span class="ident">p</span>[<span class="number">0</span>] <span class="op">+</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">3</span>)],
+            <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">1</span>)] <span class="op">*</span> <span class="ident">p</span>[<span class="number">1</span>] <span class="op">+</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">3</span>)],
+            <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">2</span>)] <span class="op">*</span> <span class="ident">p</span>[<span class="number">2</span>] <span class="op">+</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">3</span>)]
         )
     }
 
-    <span class='doccomment'>/// Un-projects a point. Faster than multiplication by the underlying matrix inverse.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>unproject_point</span><span class='op'>&lt;</span><span class='ident'>SB</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>p</span>: <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>OwnedPoint</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>SB</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> {
+    <span class="doccomment">/// Un-projects a point. Faster than multiplication by the underlying matrix inverse.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unproject_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Point3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
 
-        <span class='ident'>OwnedPoint</span>::<span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>::<span class='ident'>new</span>(
-            (<span class='ident'>p</span>[<span class='number'>0</span>] <span class='op'>-</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>3</span>)]) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>0</span>)],
-            (<span class='ident'>p</span>[<span class='number'>1</span>] <span class='op'>-</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>3</span>)]) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>1</span>)],
-            (<span class='ident'>p</span>[<span class='number'>2</span>] <span class='op'>-</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>3</span>)]) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>2</span>)]
+        <span class="ident">Point3</span>::<span class="ident">new</span>(
+            (<span class="ident">p</span>[<span class="number">0</span>] <span class="op">-</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">3</span>)]) <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">0</span>)],
+            (<span class="ident">p</span>[<span class="number">1</span>] <span class="op">-</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">3</span>)]) <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">1</span>)],
+            (<span class="ident">p</span>[<span class="number">2</span>] <span class="op">-</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">3</span>)]) <span class="op">/</span> <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">2</span>)]
         )
     }
 
-    <span class='comment'>// FIXME: when we get specialization, specialize the Mul impl instead.</span>
-    <span class='doccomment'>/// Projects a vector. Faster than matrix multiplication.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>project_vector</span><span class='op'>&lt;</span><span class='ident'>SB</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>p</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>OwnedColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>SB</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span><span class='op'>&gt;</span> {
+    <span class="comment">// FIXME: when we get specialization, specialize the Mul impl instead.</span>
+    <span class="doccomment">/// Projects a vector. Faster than matrix multiplication.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">project_vector</span><span class="op">&lt;</span><span class="ident">SB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="ident">SB</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">SB</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span><span class="op">&gt;</span> {
 
-        <span class='ident'>OwnedColumnVector</span>::<span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>::<span class='ident'>new</span>(
-            <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>0</span>)] <span class='op'>*</span> <span class='ident'>p</span>[<span class='number'>0</span>],
-            <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>1</span>)] <span class='op'>*</span> <span class='ident'>p</span>[<span class='number'>1</span>],
-            <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>2</span>)] <span class='op'>*</span> <span class='ident'>p</span>[<span class='number'>2</span>]
+        <span class="ident">Vector3</span>::<span class="ident">new</span>(
+            <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">0</span>)] <span class="op">*</span> <span class="ident">p</span>[<span class="number">0</span>],
+            <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">1</span>)] <span class="op">*</span> <span class="ident">p</span>[<span class="number">1</span>],
+            <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">2</span>)] <span class="op">*</span> <span class="ident">p</span>[<span class="number">2</span>]
         )
     }
-}
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Real</span>, <span class='ident'>S</span>: <span class='ident'>StorageMut</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span><span class='op'>&gt;&gt;</span> <span class='ident'>OrthographicBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Sets the smallest x-coordinate of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_left</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>left</span>: <span class='ident'>N</span>) {
-        <span class='kw'>let</span> <span class='ident'>right</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>right</span>();
-        <span class='self'>self</span>.<span class='ident'>set_left_and_right</span>(<span class='ident'>left</span>, <span class='ident'>right</span>);
+    <span class="doccomment">/// Sets the smallest x-coordinate of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_left</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">N</span>) {
+        <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">right</span>();
+        <span class="self">self</span>.<span class="ident">set_left_and_right</span>(<span class="ident">left</span>, <span class="ident">right</span>);
     }
 
-    <span class='doccomment'>/// Sets the largest x-coordinate of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_right</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>right</span>: <span class='ident'>N</span>) {
-        <span class='kw'>let</span> <span class='ident'>left</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>left</span>();
-        <span class='self'>self</span>.<span class='ident'>set_left_and_right</span>(<span class='ident'>left</span>, <span class='ident'>right</span>);
+    <span class="doccomment">/// Sets the largest x-coordinate of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_right</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">right</span>: <span class="ident">N</span>) {
+        <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left</span>();
+        <span class="self">self</span>.<span class="ident">set_left_and_right</span>(<span class="ident">left</span>, <span class="ident">right</span>);
     }
 
-    <span class='doccomment'>/// Sets the smallest y-coordinate of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_bottom</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>bottom</span>: <span class='ident'>N</span>) {
-        <span class='kw'>let</span> <span class='ident'>top</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>top</span>();
-        <span class='self'>self</span>.<span class='ident'>set_bottom_and_top</span>(<span class='ident'>bottom</span>, <span class='ident'>top</span>);
+    <span class="doccomment">/// Sets the smallest y-coordinate of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_bottom</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bottom</span>: <span class="ident">N</span>) {
+        <span class="kw">let</span> <span class="ident">top</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top</span>();
+        <span class="self">self</span>.<span class="ident">set_bottom_and_top</span>(<span class="ident">bottom</span>, <span class="ident">top</span>);
     }
 
-    <span class='doccomment'>/// Sets the largest y-coordinate of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_top</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>top</span>: <span class='ident'>N</span>) {
-        <span class='kw'>let</span> <span class='ident'>bottom</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>bottom</span>();
-        <span class='self'>self</span>.<span class='ident'>set_bottom_and_top</span>(<span class='ident'>bottom</span>, <span class='ident'>top</span>);
+    <span class="doccomment">/// Sets the largest y-coordinate of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_top</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">top</span>: <span class="ident">N</span>) {
+        <span class="kw">let</span> <span class="ident">bottom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bottom</span>();
+        <span class="self">self</span>.<span class="ident">set_bottom_and_top</span>(<span class="ident">bottom</span>, <span class="ident">top</span>);
     }
 
-    <span class='doccomment'>/// Sets the near plane offset of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_znear</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>znear</span>: <span class='ident'>N</span>) {
-        <span class='kw'>let</span> <span class='ident'>zfar</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>zfar</span>();
-        <span class='self'>self</span>.<span class='ident'>set_znear_and_zfar</span>(<span class='ident'>znear</span>, <span class='ident'>zfar</span>);
+    <span class="doccomment">/// Sets the near plane offset of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_znear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">znear</span>: <span class="ident">N</span>) {
+        <span class="kw">let</span> <span class="ident">zfar</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">zfar</span>();
+        <span class="self">self</span>.<span class="ident">set_znear_and_zfar</span>(<span class="ident">znear</span>, <span class="ident">zfar</span>);
     }
 
-    <span class='doccomment'>/// Sets the far plane offset of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_zfar</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>zfar</span>: <span class='ident'>N</span>) {
-        <span class='kw'>let</span> <span class='ident'>znear</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>znear</span>();
-        <span class='self'>self</span>.<span class='ident'>set_znear_and_zfar</span>(<span class='ident'>znear</span>, <span class='ident'>zfar</span>);
+    <span class="doccomment">/// Sets the far plane offset of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_zfar</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">zfar</span>: <span class="ident">N</span>) {
+        <span class="kw">let</span> <span class="ident">znear</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">znear</span>();
+        <span class="self">self</span>.<span class="ident">set_znear_and_zfar</span>(<span class="ident">znear</span>, <span class="ident">zfar</span>);
     }
 
-    <span class='doccomment'>/// Sets the view cuboid coordinates along the `x` axis.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_left_and_right</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>left</span>: <span class='ident'>N</span>, <span class='ident'>right</span>: <span class='ident'>N</span>) {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>left</span> <span class='op'>&lt;</span> <span class='ident'>right</span>, <span class='string'>&quot;The left corner must be farther than the right corner.&quot;</span>);
-        <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>0</span>)] <span class='op'>=</span> ::<span class='ident'>convert</span>::<span class='op'>&lt;</span>_, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='number'>2.0</span>) <span class='op'>/</span> (<span class='ident'>right</span> <span class='op'>-</span> <span class='ident'>left</span>);
-        <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>0</span>, <span class='number'>3</span>)] <span class='op'>=</span> <span class='op'>-</span>(<span class='ident'>right</span> <span class='op'>+</span> <span class='ident'>left</span>) <span class='op'>/</span> (<span class='ident'>right</span> <span class='op'>-</span> <span class='ident'>left</span>);
+    <span class="doccomment">/// Sets the view cuboid coordinates along the `x` axis.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_left_and_right</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">N</span>, <span class="ident">right</span>: <span class="ident">N</span>) {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">left</span> <span class="op">&lt;</span> <span class="ident">right</span>, <span class="string">&quot;The left corner must be farther than the right corner.&quot;</span>);
+        <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">0</span>)] <span class="op">=</span> ::<span class="ident">convert</span>::<span class="op">&lt;</span>_, <span class="ident">N</span><span class="op">&gt;</span>(<span class="number">2.0</span>) <span class="op">/</span> (<span class="ident">right</span> <span class="op">-</span> <span class="ident">left</span>);
+        <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">0</span>, <span class="number">3</span>)] <span class="op">=</span> <span class="op">-</span>(<span class="ident">right</span> <span class="op">+</span> <span class="ident">left</span>) <span class="op">/</span> (<span class="ident">right</span> <span class="op">-</span> <span class="ident">left</span>);
     }
 
-    <span class='doccomment'>/// Sets the view cuboid coordinates along the `y` axis.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_bottom_and_top</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>bottom</span>: <span class='ident'>N</span>, <span class='ident'>top</span>: <span class='ident'>N</span>) {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>bottom</span> <span class='op'>&lt;</span> <span class='ident'>top</span>, <span class='string'>&quot;The top corner must be higher than the bottom corner.&quot;</span>);
-        <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>1</span>)] <span class='op'>=</span> ::<span class='ident'>convert</span>::<span class='op'>&lt;</span>_, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='number'>2.0</span>) <span class='op'>/</span> (<span class='ident'>top</span> <span class='op'>-</span> <span class='ident'>bottom</span>);
-        <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>1</span>, <span class='number'>3</span>)] <span class='op'>=</span> <span class='op'>-</span>(<span class='ident'>top</span> <span class='op'>+</span> <span class='ident'>bottom</span>) <span class='op'>/</span> (<span class='ident'>top</span> <span class='op'>-</span> <span class='ident'>bottom</span>);
+    <span class="doccomment">/// Sets the view cuboid coordinates along the `y` axis.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_bottom_and_top</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bottom</span>: <span class="ident">N</span>, <span class="ident">top</span>: <span class="ident">N</span>) {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">bottom</span> <span class="op">&lt;</span> <span class="ident">top</span>, <span class="string">&quot;The top corner must be higher than the bottom corner.&quot;</span>);
+        <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">1</span>)] <span class="op">=</span> ::<span class="ident">convert</span>::<span class="op">&lt;</span>_, <span class="ident">N</span><span class="op">&gt;</span>(<span class="number">2.0</span>) <span class="op">/</span> (<span class="ident">top</span> <span class="op">-</span> <span class="ident">bottom</span>);
+        <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">1</span>, <span class="number">3</span>)] <span class="op">=</span> <span class="op">-</span>(<span class="ident">top</span> <span class="op">+</span> <span class="ident">bottom</span>) <span class="op">/</span> (<span class="ident">top</span> <span class="op">-</span> <span class="ident">bottom</span>);
     }
 
-    <span class='doccomment'>/// Sets the near and far plane offsets of the view cuboid.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_znear_and_zfar</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>znear</span>: <span class='ident'>N</span>, <span class='ident'>zfar</span>: <span class='ident'>N</span>) {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='macro'>relative_eq</span><span class='macro'>!</span>(<span class='ident'>zfar</span> <span class='op'>-</span> <span class='ident'>znear</span>, <span class='ident'>N</span>::<span class='ident'>zero</span>()), <span class='string'>&quot;The near-plane and far-plane must not be superimposed.&quot;</span>);
-        <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>2</span>)] <span class='op'>=</span> <span class='op'>-</span>::<span class='ident'>convert</span>::<span class='op'>&lt;</span>_, <span class='ident'>N</span><span class='op'>&gt;</span>(<span class='number'>2.0</span>) <span class='op'>/</span> (<span class='ident'>zfar</span> <span class='op'>-</span> <span class='ident'>znear</span>);
-        <span class='self'>self</span>.<span class='ident'>matrix</span>[(<span class='number'>2</span>, <span class='number'>3</span>)] <span class='op'>=</span> <span class='op'>-</span>(<span class='ident'>zfar</span> <span class='op'>+</span> <span class='ident'>znear</span>) <span class='op'>/</span> (<span class='ident'>zfar</span> <span class='op'>-</span> <span class='ident'>znear</span>);
+    <span class="doccomment">/// Sets the near and far plane offsets of the view cuboid.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_znear_and_zfar</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">znear</span>: <span class="ident">N</span>, <span class="ident">zfar</span>: <span class="ident">N</span>) {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="macro">relative_eq</span><span class="macro">!</span>(<span class="ident">zfar</span> <span class="op">-</span> <span class="ident">znear</span>, <span class="ident">N</span>::<span class="ident">zero</span>()), <span class="string">&quot;The near-plane and far-plane must not be superimposed.&quot;</span>);
+        <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">2</span>)] <span class="op">=</span> <span class="op">-</span>::<span class="ident">convert</span>::<span class="op">&lt;</span>_, <span class="ident">N</span><span class="op">&gt;</span>(<span class="number">2.0</span>) <span class="op">/</span> (<span class="ident">zfar</span> <span class="op">-</span> <span class="ident">znear</span>);
+        <span class="self">self</span>.<span class="ident">matrix</span>[(<span class="number">2</span>, <span class="number">3</span>)] <span class="op">=</span> <span class="op">-</span>(<span class="ident">zfar</span> <span class="op">+</span> <span class="ident">znear</span>) <span class="op">/</span> (<span class="ident">zfar</span> <span class="op">-</span> <span class="ident">znear</span>);
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>OrthographicBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>Rand</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='kw'>let</span> <span class='ident'>left</span>   <span class='op'>=</span> <span class='ident'>Rand</span>::<span class='ident'>rand</span>(<span class='ident'>r</span>);
-        <span class='kw'>let</span> <span class='ident'>right</span>  <span class='op'>=</span> <span class='ident'>helper</span>::<span class='ident'>reject_rand</span>(<span class='ident'>r</span>, <span class='op'>|</span><span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span><span class='op'>|</span> <span class='kw-2'>*</span><span class='ident'>x</span> <span class='op'>&gt;</span> <span class='ident'>left</span>);
-        <span class='kw'>let</span> <span class='ident'>bottom</span> <span class='op'>=</span> <span class='ident'>Rand</span>::<span class='ident'>rand</span>(<span class='ident'>r</span>);
-        <span class='kw'>let</span> <span class='ident'>top</span>    <span class='op'>=</span> <span class='ident'>helper</span>::<span class='ident'>reject_rand</span>(<span class='ident'>r</span>, <span class='op'>|</span><span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span><span class='op'>|</span> <span class='kw-2'>*</span><span class='ident'>x</span> <span class='op'>&gt;</span> <span class='ident'>bottom</span>);
-        <span class='kw'>let</span> <span class='ident'>znear</span>  <span class='op'>=</span> <span class='ident'>Rand</span>::<span class='ident'>rand</span>(<span class='ident'>r</span>);
-        <span class='kw'>let</span> <span class='ident'>zfar</span>   <span class='op'>=</span> <span class='ident'>helper</span>::<span class='ident'>reject_rand</span>(<span class='ident'>r</span>, <span class='op'>|</span><span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span><span class='op'>|</span> <span class='kw-2'>*</span><span class='ident'>x</span> <span class='op'>&gt;</span> <span class='ident'>znear</span>);
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">Rand</span><span class="op">&gt;</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">left</span>   <span class="op">=</span> <span class="ident">Rand</span>::<span class="ident">rand</span>(<span class="ident">r</span>);
+        <span class="kw">let</span> <span class="ident">right</span>  <span class="op">=</span> <span class="ident">helper</span>::<span class="ident">reject_rand</span>(<span class="ident">r</span>, <span class="op">|</span><span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">N</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">&gt;</span> <span class="ident">left</span>);
+        <span class="kw">let</span> <span class="ident">bottom</span> <span class="op">=</span> <span class="ident">Rand</span>::<span class="ident">rand</span>(<span class="ident">r</span>);
+        <span class="kw">let</span> <span class="ident">top</span>    <span class="op">=</span> <span class="ident">helper</span>::<span class="ident">reject_rand</span>(<span class="ident">r</span>, <span class="op">|</span><span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">N</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">&gt;</span> <span class="ident">bottom</span>);
+        <span class="kw">let</span> <span class="ident">znear</span>  <span class="op">=</span> <span class="ident">Rand</span>::<span class="ident">rand</span>(<span class="ident">r</span>);
+        <span class="kw">let</span> <span class="ident">zfar</span>   <span class="op">=</span> <span class="ident">helper</span>::<span class="ident">reject_rand</span>(<span class="ident">r</span>, <span class="op">|</span><span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">N</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">&gt;</span> <span class="ident">znear</span>);
 
-        <span class='self'>Self</span>::<span class='ident'>new</span>(<span class='ident'>left</span>, <span class='ident'>right</span>, <span class='ident'>bottom</span>, <span class='ident'>top</span>, <span class='ident'>znear</span>, <span class='ident'>zfar</span>)
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">left</span>, <span class="ident">right</span>, <span class="ident">bottom</span>, <span class="ident">top</span>, <span class="ident">znear</span>, <span class="ident">zfar</span>)
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;arbitrary&quot;</span>)]</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Arbitrary</span> <span class='kw'>for</span> <span class='ident'>OrthographicBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span> <span class='op'>+</span> <span class='ident'>Arbitrary</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Send</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U4</span>, <span class='ident'>U4</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>arbitrary</span><span class='op'>&lt;</span><span class='ident'>G</span>: <span class='ident'>Gen</span><span class='op'>&gt;</span>(<span class='ident'>g</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>G</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='kw'>let</span> <span class='ident'>left</span>   <span class='op'>=</span> <span class='ident'>Arbitrary</span>::<span class='ident'>arbitrary</span>(<span class='ident'>g</span>);
-        <span class='kw'>let</span> <span class='ident'>right</span>  <span class='op'>=</span> <span class='ident'>helper</span>::<span class='ident'>reject</span>(<span class='ident'>g</span>, <span class='op'>|</span><span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span><span class='op'>|</span> <span class='kw-2'>*</span><span class='ident'>x</span> <span class='op'>&gt;</span> <span class='ident'>left</span>);
-        <span class='kw'>let</span> <span class='ident'>bottom</span> <span class='op'>=</span> <span class='ident'>Arbitrary</span>::<span class='ident'>arbitrary</span>(<span class='ident'>g</span>);
-        <span class='kw'>let</span> <span class='ident'>top</span>    <span class='op'>=</span> <span class='ident'>helper</span>::<span class='ident'>reject</span>(<span class='ident'>g</span>, <span class='op'>|</span><span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span><span class='op'>|</span> <span class='kw-2'>*</span><span class='ident'>x</span> <span class='op'>&gt;</span> <span class='ident'>bottom</span>);
-        <span class='kw'>let</span> <span class='ident'>znear</span>  <span class='op'>=</span> <span class='ident'>Arbitrary</span>::<span class='ident'>arbitrary</span>(<span class='ident'>g</span>);
-        <span class='kw'>let</span> <span class='ident'>zfar</span>   <span class='op'>=</span> <span class='ident'>helper</span>::<span class='ident'>reject</span>(<span class='ident'>g</span>, <span class='op'>|</span><span class='ident'>x</span>: <span class='kw-2'>&amp;</span><span class='ident'>N</span><span class='op'>|</span> <span class='kw-2'>*</span><span class='ident'>x</span> <span class='op'>&gt;</span> <span class='ident'>znear</span>);
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;arbitrary&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">Arbitrary</span><span class="op">&gt;</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">Orthographic3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">Matrix4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>: <span class="ident">Send</span> {
+    <span class="kw">fn</span> <span class="ident">arbitrary</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">Gen</span><span class="op">&gt;</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">G</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">left</span>   <span class="op">=</span> <span class="ident">Arbitrary</span>::<span class="ident">arbitrary</span>(<span class="ident">g</span>);
+        <span class="kw">let</span> <span class="ident">right</span>  <span class="op">=</span> <span class="ident">helper</span>::<span class="ident">reject</span>(<span class="ident">g</span>, <span class="op">|</span><span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">N</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">&gt;</span> <span class="ident">left</span>);
+        <span class="kw">let</span> <span class="ident">bottom</span> <span class="op">=</span> <span class="ident">Arbitrary</span>::<span class="ident">arbitrary</span>(<span class="ident">g</span>);
+        <span class="kw">let</span> <span class="ident">top</span>    <span class="op">=</span> <span class="ident">helper</span>::<span class="ident">reject</span>(<span class="ident">g</span>, <span class="op">|</span><span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">N</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">&gt;</span> <span class="ident">bottom</span>);
+        <span class="kw">let</span> <span class="ident">znear</span>  <span class="op">=</span> <span class="ident">Arbitrary</span>::<span class="ident">arbitrary</span>(<span class="ident">g</span>);
+        <span class="kw">let</span> <span class="ident">zfar</span>   <span class="op">=</span> <span class="ident">helper</span>::<span class="ident">reject</span>(<span class="ident">g</span>, <span class="op">|</span><span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">N</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">&gt;</span> <span class="ident">znear</span>);
 
-        <span class='self'>Self</span>::<span class='ident'>new</span>(<span class='ident'>left</span>, <span class='ident'>right</span>, <span class='ident'>bottom</span>, <span class='ident'>top</span>, <span class='ident'>znear</span>, <span class='ident'>zfar</span>)
+        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">left</span>, <span class="ident">right</span>, <span class="ident">bottom</span>, <span class="ident">top</span>, <span class="ident">znear</span>, <span class="ident">zfar</span>)
     }
 }
 </pre>
@@ -692,7 +714,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

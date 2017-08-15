@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc type">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'Matrix4', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Type Definition Matrix4</p><div class="block items"><ul><li><a href="#methods">Methods</a></li></ul></div><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'Matrix4', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,14 +43,52 @@
         </form>
     </nav>
 
-    <section id='main' class="content type">
-<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a>::<wbr><a class='type' href=''>Matrix4</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a>::<wbr><a class="type" href=''>Matrix4</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/nalgebra/core/alias.rs.html#29' title='goto source code'>[src]</a></span></h1>
-<pre class='rust typedef'>type Matrix4&lt;N&gt; = <a class='type' href='../../nalgebra/core/type.MatrixN.html' title='nalgebra::core::MatrixN'>MatrixN</a>&lt;N, <a class='struct' href='../../nalgebra/core/dimension/struct.U4.html' title='nalgebra::core::dimension::U4'>U4</a>&gt;;</pre><div class='docblock'><p>A stack-allocated, column-major, 4x4 square matrix.</p>
-</div></section>
+               </span><a class='srclink' href='../../src/nalgebra/core/alias.rs.html#33' title='goto source code'>[src]</a></span></h1>
+<pre class='rust typedef'>type Matrix4&lt;N&gt; = <a class="type" href="../../nalgebra/core/type.MatrixN.html" title="type nalgebra::core::MatrixN">MatrixN</a>&lt;N, <a class="struct" href="../../nalgebra/core/dimension/struct.U4.html" title="struct nalgebra::core::dimension::U4">U4</a>&gt;;</pre><div class='docblock'><p>A stack-allocated, column-major, 4x4 square matrix.</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="../../nalgebra/trait.Real.html" title="trait nalgebra::Real">Real</a>&gt; <a class="type" href="../../nalgebra/core/type.Matrix4.html" title="type nalgebra::core::Matrix4">Matrix4</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#66-138' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new_rotation' class="method"><span id='new_rotation.v' class='invisible'><code>fn <a href='#method.new_rotation' class='fnname'>new_rotation</a>(axisangle: <a class="type" href="../../nalgebra/core/type.Vector3.html" title="type nalgebra::core::Vector3">Vector3</a>&lt;N&gt;) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#71-73' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).</p>
+
+<p>Returns the identity matrix if the given argument is zero.</p>
+</div><h4 id='method.new_rotation_wrt_point' class="method"><span id='new_rotation_wrt_point.v' class='invisible'><code>fn <a href='#method.new_rotation_wrt_point' class='fnname'>new_rotation_wrt_point</a>(axisangle: <a class="type" href="../../nalgebra/core/type.Vector3.html" title="type nalgebra::core::Vector3">Vector3</a>&lt;N&gt;, pt: <a class="type" href="../../nalgebra/geometry/type.Point3.html" title="type nalgebra::geometry::Point3">Point3</a>&lt;N&gt;) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#79-82' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).</p>
+
+<p>Returns the identity matrix if the given argument is zero.</p>
+</div><h4 id='method.from_scaled_axis' class="method"><span id='from_scaled_axis.v' class='invisible'><code>fn <a href='#method.from_scaled_axis' class='fnname'>from_scaled_axis</a>(axisangle: <a class="type" href="../../nalgebra/core/type.Vector3.html" title="type nalgebra::core::Vector3">Vector3</a>&lt;N&gt;) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#89-91' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).</p>
+
+<p>Returns the identity matrix if the given argument is zero.
+This is identical to <code>Self::new_rotation</code>.</p>
+</div><h4 id='method.from_euler_angles' class="method"><span id='from_euler_angles.v' class='invisible'><code>fn <a href='#method.from_euler_angles' class='fnname'>from_euler_angles</a>(roll: N, pitch: N, yaw: N) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#96-98' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new rotation from Euler angles.</p>
+
+<p>The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.</p>
+</div><h4 id='method.from_axis_angle' class="method"><span id='from_axis_angle.v' class='invisible'><code>fn <a href='#method.from_axis_angle' class='fnname'>from_axis_angle</a>(axis: &amp;<a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;<a class="type" href="../../nalgebra/core/type.Vector3.html" title="type nalgebra::core::Vector3">Vector3</a>&lt;N&gt;&gt;, angle: N) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#101-103' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a 3D homogeneous rotation matrix from an axis and a rotation angle.</p>
+</div><h4 id='method.new_orthographic' class="method"><span id='new_orthographic.v' class='invisible'><code>fn <a href='#method.new_orthographic' class='fnname'>new_orthographic</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;left: N, <br>&nbsp;&nbsp;&nbsp;&nbsp;right: N, <br>&nbsp;&nbsp;&nbsp;&nbsp;bottom: N, <br>&nbsp;&nbsp;&nbsp;&nbsp;top: N, <br>&nbsp;&nbsp;&nbsp;&nbsp;znear: N, <br>&nbsp;&nbsp;&nbsp;&nbsp;zfar: N<br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#107-109' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new homogeneous matrix for an orthographic projection.</p>
+</div><h4 id='method.new_perspective' class="method"><span id='new_perspective.v' class='invisible'><code>fn <a href='#method.new_perspective' class='fnname'>new_perspective</a>(aspect: N, fovy: N, znear: N, zfar: N) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#113-115' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new homogeneous matrix for a perspective projection.</p>
+</div><h4 id='method.new_observer_frame' class="method"><span id='new_observer_frame.v' class='invisible'><code>fn <a href='#method.new_observer_frame' class='fnname'>new_observer_frame</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;eye: &amp;<a class="type" href="../../nalgebra/geometry/type.Point3.html" title="type nalgebra::geometry::Point3">Point3</a>&lt;N&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;target: &amp;<a class="type" href="../../nalgebra/geometry/type.Point3.html" title="type nalgebra::geometry::Point3">Point3</a>&lt;N&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;up: &amp;<a class="type" href="../../nalgebra/core/type.Vector3.html" title="type nalgebra::core::Vector3">Vector3</a>&lt;N&gt;<br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#123-125' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates an isometry that corresponds to the local frame of an observer standing at the
+point <code>eye</code> and looking toward <code>target</code>.</p>
+
+<p>It maps the view direction <code>target - eye</code> to the positive <code>z</code> axis and the origin to the
+<code>eye</code>.</p>
+</div><h4 id='method.look_at_rh' class="method"><span id='look_at_rh.v' class='invisible'><code>fn <a href='#method.look_at_rh' class='fnname'>look_at_rh</a>(eye: &amp;<a class="type" href="../../nalgebra/geometry/type.Point3.html" title="type nalgebra::geometry::Point3">Point3</a>&lt;N&gt;, target: &amp;<a class="type" href="../../nalgebra/geometry/type.Point3.html" title="type nalgebra::geometry::Point3">Point3</a>&lt;N&gt;, up: &amp;<a class="type" href="../../nalgebra/core/type.Vector3.html" title="type nalgebra::core::Vector3">Vector3</a>&lt;N&gt;) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#129-131' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a right-handed look-at view matrix.</p>
+</div><h4 id='method.look_at_lh' class="method"><span id='look_at_lh.v' class='invisible'><code>fn <a href='#method.look_at_lh' class='fnname'>look_at_lh</a>(eye: &amp;<a class="type" href="../../nalgebra/geometry/type.Point3.html" title="type nalgebra::geometry::Point3">Point3</a>&lt;N&gt;, target: &amp;<a class="type" href="../../nalgebra/geometry/type.Point3.html" title="type nalgebra::geometry::Point3">Point3</a>&lt;N&gt;, up: &amp;<a class="type" href="../../nalgebra/core/type.Vector3.html" title="type nalgebra::core::Vector3">Vector3</a>&lt;N&gt;) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/cg.rs.html#135-137' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a left-handed look-at view matrix.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>
@@ -107,7 +145,6 @@
         window.rootPath = "../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 

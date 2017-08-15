@@ -48,6 +48,3 @@ $('a').click(function(e) {
 $("li.disabled a").click(function() {
     event.preventDefault();
 });
-
-
-

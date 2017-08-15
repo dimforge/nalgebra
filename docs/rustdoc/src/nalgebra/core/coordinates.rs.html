@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -279,249 +279,243 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-</pre><pre class='rust '>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>missing_docs</span>)]</span>
+</pre><pre class="rust ">
+<span class="attribute">#<span class="op">!</span>[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
 
-<span class='doccomment'>//! Structures to which matrices and vector can be auto-dereferenced (through `Deref`) to access</span>
-<span class='doccomment'>//! components using their names. For example, if `v` is a 3D vector, one can write `v.z` instead</span>
-<span class='doccomment'>//! of `v[2]`.</span>
+<span class="doccomment">//! Structures to which matrices and vector can be auto-dereferenced (through `Deref`) to access</span>
+<span class="doccomment">//! components using their names. For example, if `v` is a 3D vector, one can write `v.z` instead</span>
+<span class="doccomment">//! of `v[2]`.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Deref</span>, <span class='ident'>DerefMut</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
 
-<span class='kw'>use</span> <span class='ident'>core</span>::{<span class='ident'>Scalar</span>, <span class='ident'>Matrix</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>U1</span>, <span class='ident'>U2</span>, <span class='ident'>U3</span>, <span class='ident'>U4</span>, <span class='ident'>U5</span>, <span class='ident'>U6</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::<span class='ident'>OwnedStorage</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::<span class='ident'>OwnedAllocator</span>;
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Scalar</span>, <span class="ident">Matrix</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">U1</span>, <span class="ident">U2</span>, <span class="ident">U3</span>, <span class="ident">U4</span>, <span class="ident">U5</span>, <span class="ident">U6</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">ContiguousStorage</span>, <span class="ident">ContiguousStorageMut</span>};
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Give coordinates to owned Vector{1 .. 6} and Matrix{1 .. 6}
  *
  */</span>
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>coords_impl</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>T</span>: <span class='ident'>ident</span>; $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>comps</span>: <span class='ident'>ident</span>),<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {
-        <span class='doccomment'>/// Data structure used to provide access to matrix and vector coordinates with the dot</span>
-        <span class='doccomment'>/// notation, e.g., `v.x` is the same as `v[0]` for a vector.</span>
-        <span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-        <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Clone</span>, <span class='ident'>Hash</span>, <span class='ident'>Debug</span>, <span class='ident'>Copy</span>)]</span>
-        <span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;serde-serialize&quot;</span>, <span class='ident'>derive</span>(<span class='ident'>Serialize</span>, <span class='ident'>Deserialize</span>))]</span>
-        <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>T</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span><span class='op'>&gt;</span> {
-            $(<span class='kw'>pub</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>comps</span>: <span class='ident'>N</span>),<span class='op'>*</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">coords_impl</span>(
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>: <span class="ident">ident</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">comps</span>: <span class="ident">ident</span>),<span class="kw-2">*</span>) <span class="op">=&gt;</span> {
+        <span class="doccomment">/// Data structure used to provide access to matrix and vector coordinates with the dot</span>
+        <span class="doccomment">/// notation, e.g., `v.x` is the same as `v[0]` for a vector.</span>
+        <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">Debug</span>, <span class="ident">Copy</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
+        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span><span class="op">&gt;</span> {
+            $(<span class="kw">pub</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">comps</span>: <span class="ident">N</span>),<span class="op">*</span>
         }
     }
 );
 
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>deref_impl</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C</span>: <span class='ident'>ty</span>; <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Target</span>: <span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>Matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-            <span class='kw'>where</span> <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C</span><span class='op'>&gt;</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-            <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Target</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span>;
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">deref_impl</span>(
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C</span>: <span class="ident">ty</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Target</span>: <span class="ident">ident</span>) <span class="op">=&gt;</span> {
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C</span>, <span class="ident">S</span><span class="op">&gt;</span>
+            <span class="kw">where</span> <span class="ident">S</span>: <span class="ident">ContiguousStorage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C</span><span class="op">&gt;</span> {
+            <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Target</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>;
 
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>Target</span> {
-                <span class='kw'>unsafe</span> { <span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='self'>self</span>) }
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Target</span> {
+                <span class="kw">unsafe</span> { <span class="ident">mem</span>::<span class="ident">transmute</span>(<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">ptr</span>()) }
             }
         }
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>DerefMut</span> <span class='kw'>for</span> <span class='ident'>Matrix</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-            <span class='kw'>where</span> <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C</span><span class='op'>&gt;</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='ident'>deref_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>Self</span>::<span class='ident'>Target</span> {
-                <span class='kw'>unsafe</span> { <span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='self'>self</span>) }
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C</span>, <span class="ident">S</span><span class="op">&gt;</span>
+            <span class="kw">where</span> <span class="ident">S</span>: <span class="ident">ContiguousStorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">R</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C</span><span class="op">&gt;</span> {
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">Target</span> {
+                <span class="kw">unsafe</span> { <span class="ident">mem</span>::<span class="ident">transmute</span>(<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">ptr_mut</span>()) }
             }
         }
     }
 );
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Vector coordinates.
  *
  */</span>
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>X</span>; <span class='ident'>x</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>XY</span>; <span class='ident'>x</span>, <span class='ident'>y</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>XYZ</span>; <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>XYZW</span>; <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>XYZWA</span>; <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>XYZWAB</span>; <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>, <span class='ident'>w</span>, <span class='ident'>a</span>, <span class='ident'>b</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>IJKW</span>; <span class='ident'>i</span>, <span class='ident'>j</span>, <span class='ident'>k</span>, <span class='ident'>w</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">X</span>; <span class="ident">x</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">XY</span>; <span class="ident">x</span>, <span class="ident">y</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">XYZ</span>; <span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">XYZW</span>; <span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>, <span class="ident">w</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">XYZWA</span>; <span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>, <span class="ident">w</span>, <span class="ident">a</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">XYZWAB</span>; <span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>, <span class="ident">w</span>, <span class="ident">a</span>, <span class="ident">b</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">IJKW</span>; <span class="ident">i</span>, <span class="ident">j</span>, <span class="ident">k</span>, <span class="ident">w</span>);
 
-<span class='comment'>/*
+<span class="comment">/*
  * Rectangular matrices with 2 rows.
  */</span>
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M2x2</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M2x3</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M2x4</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M2x5</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M2x6</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>,
-                   <span class='ident'>m16</span>, <span class='ident'>m26</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M2x2</span>; <span class="ident">m11</span>, <span class="ident">m21</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M2x3</span>; <span class="ident">m11</span>, <span class="ident">m21</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M2x4</span>; <span class="ident">m11</span>, <span class="ident">m21</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M2x5</span>; <span class="ident">m11</span>, <span class="ident">m21</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M2x6</span>; <span class="ident">m11</span>, <span class="ident">m21</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>,
+                   <span class="ident">m16</span>, <span class="ident">m26</span>);
 
-<span class='comment'>/*
+<span class="comment">/*
  * Rectangular matrices with 3 rows.
  */</span>
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M3x2</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M3x3</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M3x4</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M3x5</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>, <span class='ident'>m35</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M3x6</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>, <span class='ident'>m35</span>,
-                   <span class='ident'>m16</span>, <span class='ident'>m26</span>, <span class='ident'>m36</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M3x2</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M3x3</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M3x4</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M3x5</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>, <span class="ident">m35</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M3x6</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>, <span class="ident">m35</span>,
+                   <span class="ident">m16</span>, <span class="ident">m26</span>, <span class="ident">m36</span>);
 
-<span class='comment'>/*
+<span class="comment">/*
  * Rectangular matrices with 4 rows.
  */</span>
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M4x2</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M4x3</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M4x4</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>, <span class='ident'>m44</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M4x5</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>, <span class='ident'>m44</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>, <span class='ident'>m35</span>, <span class='ident'>m45</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M4x6</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>, <span class='ident'>m44</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>, <span class='ident'>m35</span>, <span class='ident'>m45</span>,
-                   <span class='ident'>m16</span>, <span class='ident'>m26</span>, <span class='ident'>m36</span>, <span class='ident'>m46</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M4x2</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M4x3</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M4x4</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>, <span class="ident">m44</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M4x5</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>, <span class="ident">m44</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>, <span class="ident">m35</span>, <span class="ident">m45</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M4x6</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>, <span class="ident">m44</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>, <span class="ident">m35</span>, <span class="ident">m45</span>,
+                   <span class="ident">m16</span>, <span class="ident">m26</span>, <span class="ident">m36</span>, <span class="ident">m46</span>);
 
-<span class='comment'>/*
+<span class="comment">/*
  * Rectangular matrices with 5 rows.
  */</span>
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M5x2</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M5x3</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>, <span class='ident'>m53</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M5x4</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>, <span class='ident'>m53</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>, <span class='ident'>m44</span>, <span class='ident'>m54</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M5x5</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>, <span class='ident'>m53</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>, <span class='ident'>m44</span>, <span class='ident'>m54</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>, <span class='ident'>m35</span>, <span class='ident'>m45</span>, <span class='ident'>m55</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M5x6</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>, <span class='ident'>m53</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>, <span class='ident'>m44</span>, <span class='ident'>m54</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>, <span class='ident'>m35</span>, <span class='ident'>m45</span>, <span class='ident'>m55</span>,
-                   <span class='ident'>m16</span>, <span class='ident'>m26</span>, <span class='ident'>m36</span>, <span class='ident'>m46</span>, <span class='ident'>m56</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M5x2</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M5x3</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>, <span class="ident">m53</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M5x4</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>, <span class="ident">m53</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>, <span class="ident">m44</span>, <span class="ident">m54</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M5x5</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>, <span class="ident">m53</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>, <span class="ident">m44</span>, <span class="ident">m54</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>, <span class="ident">m35</span>, <span class="ident">m45</span>, <span class="ident">m55</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M5x6</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>, <span class="ident">m53</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>, <span class="ident">m44</span>, <span class="ident">m54</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>, <span class="ident">m35</span>, <span class="ident">m45</span>, <span class="ident">m55</span>,
+                   <span class="ident">m16</span>, <span class="ident">m26</span>, <span class="ident">m36</span>, <span class="ident">m46</span>, <span class="ident">m56</span>);
 
-<span class='comment'>/*
+<span class="comment">/*
  * Rectangular matrices with 6 rows.
  */</span>
 
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M6x2</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>, <span class='ident'>m61</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>, <span class='ident'>m62</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M6x3</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>, <span class='ident'>m61</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>, <span class='ident'>m62</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>, <span class='ident'>m53</span>, <span class='ident'>m63</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M6x4</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>, <span class='ident'>m61</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>, <span class='ident'>m62</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>, <span class='ident'>m53</span>, <span class='ident'>m63</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>, <span class='ident'>m44</span>, <span class='ident'>m54</span>, <span class='ident'>m64</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M6x5</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>, <span class='ident'>m61</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>, <span class='ident'>m62</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>, <span class='ident'>m53</span>, <span class='ident'>m63</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>, <span class='ident'>m44</span>, <span class='ident'>m54</span>, <span class='ident'>m64</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>, <span class='ident'>m35</span>, <span class='ident'>m45</span>, <span class='ident'>m55</span>, <span class='ident'>m65</span>);
-<span class='macro'>coords_impl</span><span class='macro'>!</span>(<span class='ident'>M6x6</span>; <span class='ident'>m11</span>, <span class='ident'>m21</span>, <span class='ident'>m31</span>, <span class='ident'>m41</span>, <span class='ident'>m51</span>, <span class='ident'>m61</span>,
-                   <span class='ident'>m12</span>, <span class='ident'>m22</span>, <span class='ident'>m32</span>, <span class='ident'>m42</span>, <span class='ident'>m52</span>, <span class='ident'>m62</span>,
-                   <span class='ident'>m13</span>, <span class='ident'>m23</span>, <span class='ident'>m33</span>, <span class='ident'>m43</span>, <span class='ident'>m53</span>, <span class='ident'>m63</span>,
-                   <span class='ident'>m14</span>, <span class='ident'>m24</span>, <span class='ident'>m34</span>, <span class='ident'>m44</span>, <span class='ident'>m54</span>, <span class='ident'>m64</span>,
-                   <span class='ident'>m15</span>, <span class='ident'>m25</span>, <span class='ident'>m35</span>, <span class='ident'>m45</span>, <span class='ident'>m55</span>, <span class='ident'>m65</span>,
-                   <span class='ident'>m16</span>, <span class='ident'>m26</span>, <span class='ident'>m36</span>, <span class='ident'>m46</span>, <span class='ident'>m56</span>, <span class='ident'>m66</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M6x2</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>, <span class="ident">m61</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>, <span class="ident">m62</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M6x3</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>, <span class="ident">m61</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>, <span class="ident">m62</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>, <span class="ident">m53</span>, <span class="ident">m63</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M6x4</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>, <span class="ident">m61</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>, <span class="ident">m62</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>, <span class="ident">m53</span>, <span class="ident">m63</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>, <span class="ident">m44</span>, <span class="ident">m54</span>, <span class="ident">m64</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M6x5</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>, <span class="ident">m61</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>, <span class="ident">m62</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>, <span class="ident">m53</span>, <span class="ident">m63</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>, <span class="ident">m44</span>, <span class="ident">m54</span>, <span class="ident">m64</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>, <span class="ident">m35</span>, <span class="ident">m45</span>, <span class="ident">m55</span>, <span class="ident">m65</span>);
+<span class="macro">coords_impl</span><span class="macro">!</span>(<span class="ident">M6x6</span>; <span class="ident">m11</span>, <span class="ident">m21</span>, <span class="ident">m31</span>, <span class="ident">m41</span>, <span class="ident">m51</span>, <span class="ident">m61</span>,
+                   <span class="ident">m12</span>, <span class="ident">m22</span>, <span class="ident">m32</span>, <span class="ident">m42</span>, <span class="ident">m52</span>, <span class="ident">m62</span>,
+                   <span class="ident">m13</span>, <span class="ident">m23</span>, <span class="ident">m33</span>, <span class="ident">m43</span>, <span class="ident">m53</span>, <span class="ident">m63</span>,
+                   <span class="ident">m14</span>, <span class="ident">m24</span>, <span class="ident">m34</span>, <span class="ident">m44</span>, <span class="ident">m54</span>, <span class="ident">m64</span>,
+                   <span class="ident">m15</span>, <span class="ident">m25</span>, <span class="ident">m35</span>, <span class="ident">m45</span>, <span class="ident">m55</span>, <span class="ident">m65</span>,
+                   <span class="ident">m16</span>, <span class="ident">m26</span>, <span class="ident">m36</span>, <span class="ident">m46</span>, <span class="ident">m56</span>, <span class="ident">m66</span>);
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Attach coordinates to matrices.
  *
  */</span>
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U1</span>, <span class='ident'>U1</span>; <span class='ident'>X</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U2</span>, <span class='ident'>U1</span>; <span class='ident'>XY</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U3</span>, <span class='ident'>U1</span>; <span class='ident'>XYZ</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U4</span>, <span class='ident'>U1</span>; <span class='ident'>XYZW</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U5</span>, <span class='ident'>U1</span>; <span class='ident'>XYZWA</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U6</span>, <span class='ident'>U1</span>; <span class='ident'>XYZWAB</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U1</span>, <span class="ident">U1</span>; <span class="ident">X</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U2</span>, <span class="ident">U1</span>; <span class="ident">XY</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U3</span>, <span class="ident">U1</span>; <span class="ident">XYZ</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U4</span>, <span class="ident">U1</span>; <span class="ident">XYZW</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U5</span>, <span class="ident">U1</span>; <span class="ident">XYZWA</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U6</span>, <span class="ident">U1</span>; <span class="ident">XYZWAB</span>);
 
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U1</span>, <span class='ident'>U2</span>; <span class='ident'>XY</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U1</span>, <span class='ident'>U3</span>; <span class='ident'>XYZ</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U1</span>, <span class='ident'>U4</span>; <span class='ident'>XYZW</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U1</span>, <span class='ident'>U5</span>; <span class='ident'>XYZWA</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U1</span>, <span class='ident'>U6</span>; <span class='ident'>XYZWAB</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U1</span>, <span class="ident">U2</span>; <span class="ident">XY</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U1</span>, <span class="ident">U3</span>; <span class="ident">XYZ</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U1</span>, <span class="ident">U4</span>; <span class="ident">XYZW</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U1</span>, <span class="ident">U5</span>; <span class="ident">XYZWA</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U1</span>, <span class="ident">U6</span>; <span class="ident">XYZWAB</span>);
 
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U2</span>, <span class='ident'>U2</span>; <span class='ident'>M2x2</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U2</span>, <span class='ident'>U3</span>; <span class='ident'>M2x3</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U2</span>, <span class='ident'>U4</span>; <span class='ident'>M2x4</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U2</span>, <span class='ident'>U5</span>; <span class='ident'>M2x5</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U2</span>, <span class='ident'>U6</span>; <span class='ident'>M2x6</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U2</span>, <span class="ident">U2</span>; <span class="ident">M2x2</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U2</span>, <span class="ident">U3</span>; <span class="ident">M2x3</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U2</span>, <span class="ident">U4</span>; <span class="ident">M2x4</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U2</span>, <span class="ident">U5</span>; <span class="ident">M2x5</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U2</span>, <span class="ident">U6</span>; <span class="ident">M2x6</span>);
 
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U3</span>, <span class='ident'>U2</span>; <span class='ident'>M3x2</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U3</span>, <span class='ident'>U3</span>; <span class='ident'>M3x3</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U3</span>, <span class='ident'>U4</span>; <span class='ident'>M3x4</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U3</span>, <span class='ident'>U5</span>; <span class='ident'>M3x5</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U3</span>, <span class='ident'>U6</span>; <span class='ident'>M3x6</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U3</span>, <span class="ident">U2</span>; <span class="ident">M3x2</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U3</span>, <span class="ident">U3</span>; <span class="ident">M3x3</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U3</span>, <span class="ident">U4</span>; <span class="ident">M3x4</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U3</span>, <span class="ident">U5</span>; <span class="ident">M3x5</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U3</span>, <span class="ident">U6</span>; <span class="ident">M3x6</span>);
 
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U4</span>, <span class='ident'>U2</span>; <span class='ident'>M4x2</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U4</span>, <span class='ident'>U3</span>; <span class='ident'>M4x3</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U4</span>, <span class='ident'>U4</span>; <span class='ident'>M4x4</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U4</span>, <span class='ident'>U5</span>; <span class='ident'>M4x5</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U4</span>, <span class='ident'>U6</span>; <span class='ident'>M4x6</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U4</span>, <span class="ident">U2</span>; <span class="ident">M4x2</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U4</span>, <span class="ident">U3</span>; <span class="ident">M4x3</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U4</span>, <span class="ident">U4</span>; <span class="ident">M4x4</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U4</span>, <span class="ident">U5</span>; <span class="ident">M4x5</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U4</span>, <span class="ident">U6</span>; <span class="ident">M4x6</span>);
 
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U5</span>, <span class='ident'>U2</span>; <span class='ident'>M5x2</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U5</span>, <span class='ident'>U3</span>; <span class='ident'>M5x3</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U5</span>, <span class='ident'>U4</span>; <span class='ident'>M5x4</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U5</span>, <span class='ident'>U5</span>; <span class='ident'>M5x5</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U5</span>, <span class='ident'>U6</span>; <span class='ident'>M5x6</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U5</span>, <span class="ident">U2</span>; <span class="ident">M5x2</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U5</span>, <span class="ident">U3</span>; <span class="ident">M5x3</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U5</span>, <span class="ident">U4</span>; <span class="ident">M5x4</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U5</span>, <span class="ident">U5</span>; <span class="ident">M5x5</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U5</span>, <span class="ident">U6</span>; <span class="ident">M5x6</span>);
 
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U6</span>, <span class='ident'>U2</span>; <span class='ident'>M6x2</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U6</span>, <span class='ident'>U3</span>; <span class='ident'>M6x3</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U6</span>, <span class='ident'>U4</span>; <span class='ident'>M6x4</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U6</span>, <span class='ident'>U5</span>; <span class='ident'>M6x5</span>);
-<span class='macro'>deref_impl</span><span class='macro'>!</span>(<span class='ident'>U6</span>, <span class='ident'>U6</span>; <span class='ident'>M6x6</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U6</span>, <span class="ident">U2</span>; <span class="ident">M6x2</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U6</span>, <span class="ident">U3</span>; <span class="ident">M6x3</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U6</span>, <span class="ident">U4</span>; <span class="ident">M6x4</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U6</span>, <span class="ident">U5</span>; <span class="ident">M6x5</span>);
+<span class="macro">deref_impl</span><span class="macro">!</span>(<span class="ident">U6</span>, <span class="ident">U6</span>; <span class="ident">M6x6</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -580,7 +574,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

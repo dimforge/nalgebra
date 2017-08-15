@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -529,8 +529,16 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
-</pre><pre class='rust '>
-<span class='doccomment'>/*!
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+</pre><pre class="rust ">
+<span class="doccomment">/*!
 # nalgebra
 
 **nalgebra** is a linear algebra library written for Rust targeting:
@@ -547,7 +555,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-nalgebra = &quot;0.11&quot;
+nalgebra = &quot;0.13&quot;
 ```
 
 
@@ -582,7 +590,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Matrices and vectors with compile-time sizes are statically allocated while dynamic ones are
   allocated on the heap.
 * Convenient aliases for low-dimensional matrices and vectors: `Vector1` to `Vector6` and
-  `Matrix1x1` to `Matrix6x6` (including rectangular matrices like `Matrix2x5`.
+  `Matrix1x1` to `Matrix6x6`, including rectangular matrices like `Matrix2x5`.
 * Points sizes known at compile time, and convenience aliases: `Point1` to `Point6`.
 * Translation (seen as a transformation that composes by multiplication): `Translation2`,
   `Translation3`.
@@ -598,7 +606,8 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * General transformations that does not have to be invertible, stored as an homogeneous matrix:
   `Transform2`, `Transform3`.
 * 3D projections for computer graphics: `Perspective3`, `Orthographic3`.
-* Linear algebra and data analysis operators: QR decomposition, eigen-decomposition.
+* Matrix factorizations: `Cholesky`, `QR`, `LU`, `FullPivLU`, `SVD`, `RealSchur`, `Hessenberg`, `SymmetricEigen`.
+* Insertion and removal of rows of columns of a matrix.
 * Implements traits from the [alga](https://crates.io/crates/alga) crate for
   generic programming.
 */</span>
@@ -607,414 +616,421 @@ an optimized set of tools for computer graphics and physics. Those features incl
 
 
 
-<span class='comment'>// #![feature(plugin)]</span>
-<span class='comment'>//</span>
-<span class='comment'>// #![plugin(clippy)]</span>
+<span class="comment">// #![feature(plugin)]</span>
+<span class="comment">//</span>
+<span class="comment">// #![plugin(clippy)]</span>
 
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>deny</span>(<span class='ident'>non_camel_case_types</span>)]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>deny</span>(<span class='ident'>unused_parens</span>)]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>deny</span>(<span class='ident'>non_upper_case_globals</span>)]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>deny</span>(<span class='ident'>unused_qualifications</span>)]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>deny</span>(<span class='ident'>unused_results</span>)]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>warn</span>(<span class='ident'>missing_docs</span>)]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>doc</span>(<span class='ident'>html_root_url</span> <span class='op'>=</span> <span class='string'>&quot;http://nalgebra.org/doc&quot;</span>)]</span>
+<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">non_camel_case_types</span>)]</span>
+<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">unused_parens</span>)]</span>
+<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">non_upper_case_globals</span>)]</span>
+<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">unused_qualifications</span>)]</span>
+<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">unused_results</span>)]</span>
+<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="attribute">#<span class="op">!</span>[<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;http://nalgebra.org/rustdoc&quot;</span>)]</span>
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;arbitrary&quot;</span>)]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>quickcheck</span>;
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;serde&quot;</span>)]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>serde</span>;
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;serde&quot;</span>)]</span>
-<span class='attribute'>#[<span class='ident'>macro_use</span>]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>serde_derive</span>;
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>num_traits</span> <span class='kw'>as</span> <span class='ident'>num</span>;
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>num_complex</span>;
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>rand</span>;
-<span class='attribute'>#[<span class='ident'>macro_use</span>]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>approx</span>;
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>typenum</span>;
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>generic_array</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;arbitrary&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">quickcheck</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde_derive</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">num_traits</span> <span class="kw">as</span> <span class="ident">num</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">num_complex</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">rand</span>;
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">approx</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">typenum</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">generic_array</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">matrixmultiply</span>;
 
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>alga</span>;
-
-
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>core</span>;
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>geometry</span>;
-<span class='kw'>mod</span> <span class='ident'>traits</span>;
-
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>core</span>::<span class='kw-2'>*</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>geometry</span>::<span class='kw-2'>*</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>traits</span>::<span class='kw-2'>*</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alga</span>;
 
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cmp</span>::{<span class='self'>self</span>, <span class='ident'>PartialOrd</span>, <span class='ident'>Ordering</span>};
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">core</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">linalg</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">geometry</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;debug&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">debug</span>;
 
-<span class='kw'>use</span> <span class='ident'>num</span>::<span class='ident'>Signed</span>;
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::{<span class='ident'>Identity</span>, <span class='ident'>SupersetOf</span>, <span class='ident'>MeetSemilattice</span>, <span class='ident'>JoinSemilattice</span>, <span class='ident'>Lattice</span>, <span class='ident'>Inverse</span>,
-                    <span class='ident'>Multiplicative</span>, <span class='ident'>Additive</span>, <span class='ident'>AdditiveGroup</span>};
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>linear</span>::<span class='ident'>SquareMatrix</span> <span class='kw'>as</span> <span class='ident'>AlgaSquareMatrix</span>;
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>linear</span>::{<span class='ident'>InnerSpace</span>, <span class='ident'>NormedSpace</span>, <span class='ident'>FiniteDimVectorSpace</span>, <span class='ident'>EuclideanSpace</span>};
-
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::<span class='ident'>Id</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">linalg</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">geometry</span>::<span class="kw-2">*</span>;
 
 
-<span class='comment'>/*
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::{<span class="self">self</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ordering</span>};
+
+<span class="kw">use</span> <span class="ident">num</span>::<span class="ident">Signed</span>;
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Identity</span>, <span class="ident">SupersetOf</span>, <span class="ident">MeetSemilattice</span>, <span class="ident">JoinSemilattice</span>, <span class="ident">Lattice</span>, <span class="ident">Inverse</span>,
+                    <span class="ident">Multiplicative</span>, <span class="ident">Additive</span>, <span class="ident">AdditiveGroup</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::<span class="ident">SquareMatrix</span> <span class="kw">as</span> <span class="ident">AlgaSquareMatrix</span>;
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::{<span class="ident">InnerSpace</span>, <span class="ident">NormedSpace</span>, <span class="ident">FiniteDimVectorSpace</span>, <span class="ident">EuclideanSpace</span>};
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Real</span>, <span class="ident">Id</span>};
+
+
+<span class="comment">/*
  *
  * Multiplicative identity.
  *
  */</span>
-<span class='doccomment'>/// Gets the ubiquitous multiplicative identity element.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Same as `Id::new()`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>id</span>() <span class='op'>-&gt;</span> <span class='ident'>Id</span> {
-    <span class='ident'>Id</span>::<span class='ident'>new</span>()
+<span class="doccomment">/// Gets the ubiquitous multiplicative identity element.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Same as `Id::new()`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>() <span class="op">-&gt;</span> <span class="ident">Id</span> {
+    <span class="ident">Id</span>::<span class="ident">new</span>()
 }
 
-<span class='doccomment'>/// Gets the multiplicative identity element.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>one</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Identity</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>T</span>::<span class='ident'>identity</span>()
+<span class="doccomment">/// Gets the multiplicative identity element.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">one</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Identity</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;&gt;</span>() <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="ident">T</span>::<span class="ident">identity</span>()
 }
 
-<span class='doccomment'>/// Gets the additive identity element.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>zero</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Identity</span><span class='op'>&lt;</span><span class='ident'>Additive</span><span class='op'>&gt;&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>T</span>::<span class='ident'>identity</span>()
+<span class="doccomment">/// Gets the additive identity element.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Identity</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;&gt;</span>() <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="ident">T</span>::<span class="ident">identity</span>()
 }
 
-<span class='doccomment'>/// Gets the origin of the given point.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>origin</span><span class='op'>&lt;</span><span class='ident'>P</span>: <span class='ident'>EuclideanSpace</span><span class='op'>&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>P</span> {
-    <span class='ident'>P</span>::<span class='ident'>origin</span>()
+<span class="doccomment">/// Gets the origin of the given point.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">origin</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">EuclideanSpace</span><span class="op">&gt;</span>() <span class="op">-&gt;</span> <span class="ident">P</span> {
+    <span class="ident">P</span>::<span class="ident">origin</span>()
 }
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Dimension
  *
  */</span>
-<span class='doccomment'>/// The dimension of the given algebraic entity seen as a vector space.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>dimension</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>FiniteDimVectorSpace</span><span class='op'>&gt;</span>() <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-    <span class='ident'>V</span>::<span class='ident'>dimension</span>()
+<span class="doccomment">/// The dimension of the given algebraic entity seen as a vector space.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dimension</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">FiniteDimVectorSpace</span><span class="op">&gt;</span>() <span class="op">-&gt;</span> <span class="ident">usize</span> {
+    <span class="ident">V</span>::<span class="ident">dimension</span>()
 }
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Ordering
  *
  */</span>
-<span class='comment'>// XXX: this is very naive and could probably be optimized for specific types.</span>
-<span class='comment'>// XXX: also, we might just want to use divisions, but assuming `val` is usually not far from `min`</span>
-<span class='comment'>// or `max`, would it still be more efficient?</span>
-<span class='doccomment'>/// Wraps `val` into the range `[min, max]` using modular arithmetics.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// The range must not be empty.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>wrap</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw-2'>mut</span> <span class='ident'>val</span>: <span class='ident'>T</span>, <span class='ident'>min</span>: <span class='ident'>T</span>, <span class='ident'>max</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span>
-    <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>PartialOrd</span> <span class='op'>+</span> <span class='ident'>AdditiveGroup</span> {
+<span class="comment">// XXX: this is very naive and could probably be optimized for specific types.</span>
+<span class="comment">// XXX: also, we might just want to use divisions, but assuming `val` is usually not far from `min`</span>
+<span class="comment">// or `max`, would it still be more efficient?</span>
+<span class="doccomment">/// Wraps `val` into the range `[min, max]` using modular arithmetics.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The range must not be empty.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">val</span>: <span class="ident">T</span>, <span class="ident">min</span>: <span class="ident">T</span>, <span class="ident">max</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">T</span>
+    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">AdditiveGroup</span> {
 
-    <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>min</span> <span class='op'>&lt;</span> <span class='ident'>max</span>, <span class='string'>&quot;Invalid wrapping bounds.&quot;</span>);
-    <span class='kw'>let</span> <span class='ident'>width</span> <span class='op'>=</span> <span class='ident'>max</span> <span class='op'>-</span> <span class='ident'>min</span>;
+    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">min</span> <span class="op">&lt;</span> <span class="ident">max</span>, <span class="string">&quot;Invalid wrapping bounds.&quot;</span>);
+    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">max</span> <span class="op">-</span> <span class="ident">min</span>;
 
-    <span class='kw'>if</span> <span class='ident'>val</span> <span class='op'>&lt;</span> <span class='ident'>min</span> {
-        <span class='ident'>val</span> <span class='op'>+=</span> <span class='ident'>width</span>;
+    <span class="kw">if</span> <span class="ident">val</span> <span class="op">&lt;</span> <span class="ident">min</span> {
+        <span class="ident">val</span> <span class="op">+=</span> <span class="ident">width</span>;
 
-        <span class='kw'>while</span> <span class='ident'>val</span> <span class='op'>&lt;</span> <span class='ident'>min</span> {
-            <span class='ident'>val</span> <span class='op'>+=</span> <span class='ident'>width</span>
+        <span class="kw">while</span> <span class="ident">val</span> <span class="op">&lt;</span> <span class="ident">min</span> {
+            <span class="ident">val</span> <span class="op">+=</span> <span class="ident">width</span>
         }
 
-        <span class='ident'>val</span>
+        <span class="ident">val</span>
     }
-    <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>val</span> <span class='op'>&gt;</span> <span class='ident'>max</span> {
-        <span class='ident'>val</span> <span class='op'>-=</span> <span class='ident'>width</span>;
+    <span class="kw">else</span> <span class="kw">if</span> <span class="ident">val</span> <span class="op">&gt;</span> <span class="ident">max</span> {
+        <span class="ident">val</span> <span class="op">-=</span> <span class="ident">width</span>;
 
-        <span class='kw'>while</span> <span class='ident'>val</span> <span class='op'>&gt;</span> <span class='ident'>max</span> {
-            <span class='ident'>val</span> <span class='op'>-=</span> <span class='ident'>width</span>
+        <span class="kw">while</span> <span class="ident">val</span> <span class="op">&gt;</span> <span class="ident">max</span> {
+            <span class="ident">val</span> <span class="op">-=</span> <span class="ident">width</span>
         }
 
-        <span class='ident'>val</span>
+        <span class="ident">val</span>
     }
-    <span class='kw'>else</span> {
-        <span class='ident'>val</span>
+    <span class="kw">else</span> {
+        <span class="ident">val</span>
     }
 }
 
-<span class='doccomment'>/// Returns a reference to the input value clamped to the interval `[min, max]`.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// In particular:</span>
-<span class='doccomment'>///     * If `min &lt; val &lt; max`, this returns `val`.</span>
-<span class='doccomment'>///     * If `val &lt;= min`, this retuns `min`.</span>
-<span class='doccomment'>///     * If `val &gt;= max`, this retuns `max`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>clamp</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>val</span>: <span class='ident'>T</span>, <span class='ident'>min</span>: <span class='ident'>T</span>, <span class='ident'>max</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='kw'>if</span> <span class='ident'>val</span> <span class='op'>&gt;</span> <span class='ident'>min</span> {
-        <span class='kw'>if</span> <span class='ident'>val</span> <span class='op'>&lt;</span> <span class='ident'>max</span> {
-            <span class='ident'>val</span>
+<span class="doccomment">/// Returns a reference to the input value clamped to the interval `[min, max]`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// In particular:</span>
+<span class="doccomment">///     * If `min &lt; val &lt; max`, this returns `val`.</span>
+<span class="doccomment">///     * If `val &lt;= min`, this retuns `min`.</span>
+<span class="doccomment">///     * If `val &gt;= max`, this retuns `max`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clamp</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">val</span>: <span class="ident">T</span>, <span class="ident">min</span>: <span class="ident">T</span>, <span class="ident">max</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="kw">if</span> <span class="ident">val</span> <span class="op">&gt;</span> <span class="ident">min</span> {
+        <span class="kw">if</span> <span class="ident">val</span> <span class="op">&lt;</span> <span class="ident">max</span> {
+            <span class="ident">val</span>
         }
-        <span class='kw'>else</span> {
-            <span class='ident'>max</span>
-        }
-    }
-    <span class='kw'>else</span> {
-        <span class='ident'>min</span>
-    }
-}
-
-<span class='doccomment'>/// Same as `cmp::max`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>max</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Ord</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>cmp</span>::<span class='ident'>max</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// Same as `cmp::min`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>min</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Ord</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>cmp</span>::<span class='ident'>min</span>(<span class='ident'>a</span>, <span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// The absolute value of `a`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>abs</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Signed</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>a</span>.<span class='ident'>abs</span>()
-}
-
-<span class='doccomment'>/// Returns the infimum of `a` and `b`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inf</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>MeetSemilattice</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>a</span>.<span class='ident'>meet</span>(<span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// Returns the supremum of `a` and `b`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sup</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>JoinSemilattice</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-    <span class='ident'>a</span>.<span class='ident'>join</span>(<span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// Returns simultaneously the infimum and supremum of `a` and `b`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inf_sup</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>Lattice</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> (<span class='ident'>T</span>, <span class='ident'>T</span>) {
-    <span class='ident'>a</span>.<span class='ident'>meet_join</span>(<span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// Compare `a` and `b` using a partial ordering relation.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_cmp</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Ordering</span><span class='op'>&gt;</span> {
-    <span class='ident'>a</span>.<span class='ident'>partial_cmp</span>(<span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt; b`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_lt</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    <span class='ident'>a</span>.<span class='ident'>lt</span>(<span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &lt;= b`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_le</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    <span class='ident'>a</span>.<span class='ident'>le</span>(<span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt; b`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_gt</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    <span class='ident'>a</span>.<span class='ident'>gt</span>(<span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// Returns `true` iff `a` and `b` are comparable and `a &gt;= b`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_ge</span><span class='op'>&lt;</span><span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    <span class='ident'>a</span>.<span class='ident'>ge</span>(<span class='ident'>b</span>)
-}
-
-<span class='doccomment'>/// Return the minimum of `a` and `b` if they are comparable.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_min</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>ord</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>partial_cmp</span>(<span class='ident'>b</span>) {
-        <span class='kw'>match</span> <span class='ident'>ord</span> {
-            <span class='ident'>Ordering</span>::<span class='ident'>Greater</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>b</span>),
-            _                 <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>),
+        <span class="kw">else</span> {
+            <span class="ident">max</span>
         }
     }
-    <span class='kw'>else</span> {
-        <span class='prelude-val'>None</span>
+    <span class="kw">else</span> {
+        <span class="ident">min</span>
     }
 }
 
-<span class='doccomment'>/// Return the maximum of `a` and `b` if they are comparable.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_max</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>ord</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>partial_cmp</span>(<span class='ident'>b</span>) {
-        <span class='kw'>match</span> <span class='ident'>ord</span> {
-            <span class='ident'>Ordering</span>::<span class='ident'>Less</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>b</span>),
-            _              <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>),
+<span class="doccomment">/// Same as `cmp::max`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="ident">T</span>, <span class="ident">b</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="ident">cmp</span>::<span class="ident">max</span>(<span class="ident">a</span>, <span class="ident">b</span>)
+}
+
+<span class="doccomment">/// Same as `cmp::min`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="ident">T</span>, <span class="ident">b</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">a</span>, <span class="ident">b</span>)
+}
+
+<span class="doccomment">/// The absolute value of `a`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abs</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Signed</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="ident">a</span>.<span class="ident">abs</span>()
+}
+
+<span class="doccomment">/// Returns the infimum of `a` and `b`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inf</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">MeetSemilattice</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="ident">a</span>.<span class="ident">meet</span>(<span class="ident">b</span>)
+}
+
+<span class="doccomment">/// Returns the supremum of `a` and `b`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sup</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">JoinSemilattice</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
+    <span class="ident">a</span>.<span class="ident">join</span>(<span class="ident">b</span>)
+}
+
+<span class="doccomment">/// Returns simultaneously the infimum and supremum of `a` and `b`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inf_sup</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Lattice</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> (<span class="ident">T</span>, <span class="ident">T</span>) {
+    <span class="ident">a</span>.<span class="ident">meet_join</span>(<span class="ident">b</span>)
+}
+
+<span class="doccomment">/// Compare `a` and `b` using a partial ordering relation.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partial_cmp</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
+    <span class="ident">a</span>.<span class="ident">partial_cmp</span>(<span class="ident">b</span>)
+}
+
+<span class="doccomment">/// Returns `true` iff `a` and `b` are comparable and `a &lt; b`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partial_lt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">a</span>.<span class="ident">lt</span>(<span class="ident">b</span>)
+}
+
+<span class="doccomment">/// Returns `true` iff `a` and `b` are comparable and `a &lt;= b`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partial_le</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">a</span>.<span class="ident">le</span>(<span class="ident">b</span>)
+}
+
+<span class="doccomment">/// Returns `true` iff `a` and `b` are comparable and `a &gt; b`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partial_gt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">a</span>.<span class="ident">gt</span>(<span class="ident">b</span>)
+}
+
+<span class="doccomment">/// Returns `true` iff `a` and `b` are comparable and `a &gt;= b`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partial_ge</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">a</span>.<span class="ident">ge</span>(<span class="ident">b</span>)
+}
+
+<span class="doccomment">/// Return the minimum of `a` and `b` if they are comparable.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partial_min</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ord</span>) <span class="op">=</span> <span class="ident">a</span>.<span class="ident">partial_cmp</span>(<span class="ident">b</span>) {
+        <span class="kw">match</span> <span class="ident">ord</span> {
+            <span class="ident">Ordering</span>::<span class="ident">Greater</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
+            _                 <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>),
         }
     }
-    <span class='kw'>else</span> {
-        <span class='prelude-val'>None</span>
+    <span class="kw">else</span> {
+        <span class="prelude-val">None</span>
     }
 }
 
-<span class='doccomment'>/// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to</span>
-<span class='doccomment'>/// `min` or `max`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_clamp</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>value</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>min</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>max</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='kw'>if</span> <span class='kw'>let</span> (<span class='prelude-val'>Some</span>(<span class='ident'>cmp_min</span>), <span class='prelude-val'>Some</span>(<span class='ident'>cmp_max</span>)) <span class='op'>=</span> (<span class='ident'>value</span>.<span class='ident'>partial_cmp</span>(<span class='ident'>min</span>), <span class='ident'>value</span>.<span class='ident'>partial_cmp</span>(<span class='ident'>max</span>)) {
-        <span class='kw'>if</span> <span class='ident'>cmp_min</span> <span class='op'>==</span> <span class='ident'>Ordering</span>::<span class='ident'>Less</span> {
-            <span class='prelude-val'>Some</span>(<span class='ident'>min</span>)
-        }
-        <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>cmp_max</span> <span class='op'>==</span> <span class='ident'>Ordering</span>::<span class='ident'>Greater</span> {
-            <span class='prelude-val'>Some</span>(<span class='ident'>max</span>)
-        }
-        <span class='kw'>else</span> {
-            <span class='prelude-val'>Some</span>(<span class='ident'>value</span>)
+<span class="doccomment">/// Return the maximum of `a` and `b` if they are comparable.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partial_max</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ord</span>) <span class="op">=</span> <span class="ident">a</span>.<span class="ident">partial_cmp</span>(<span class="ident">b</span>) {
+        <span class="kw">match</span> <span class="ident">ord</span> {
+            <span class="ident">Ordering</span>::<span class="ident">Less</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
+            _              <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>),
         }
     }
-    <span class='kw'>else</span> {
-        <span class='prelude-val'>None</span>
+    <span class="kw">else</span> {
+        <span class="prelude-val">None</span>
     }
 }
 
-<span class='doccomment'>/// Sorts two values in increasing order using a partial ordering.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>partial_sort2</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>PartialOrd</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>, <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>T</span>)<span class='op'>&gt;</span> {
-    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>ord</span>) <span class='op'>=</span> <span class='ident'>a</span>.<span class='ident'>partial_cmp</span>(<span class='ident'>b</span>) {
-        <span class='kw'>match</span> <span class='ident'>ord</span> {
-            <span class='ident'>Ordering</span>::<span class='ident'>Less</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>((<span class='ident'>a</span>, <span class='ident'>b</span>)),
-            _              <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>((<span class='ident'>b</span>, <span class='ident'>a</span>)),
+<span class="doccomment">/// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to</span>
+<span class="doccomment">/// `min` or `max`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partial_clamp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>, <span class="ident">min</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>, <span class="ident">max</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">cmp_min</span>), <span class="prelude-val">Some</span>(<span class="ident">cmp_max</span>)) <span class="op">=</span> (<span class="ident">value</span>.<span class="ident">partial_cmp</span>(<span class="ident">min</span>), <span class="ident">value</span>.<span class="ident">partial_cmp</span>(<span class="ident">max</span>)) {
+        <span class="kw">if</span> <span class="ident">cmp_min</span> <span class="op">==</span> <span class="ident">Ordering</span>::<span class="ident">Less</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">min</span>)
+        }
+        <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cmp_max</span> <span class="op">==</span> <span class="ident">Ordering</span>::<span class="ident">Greater</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">max</span>)
+        }
+        <span class="kw">else</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">value</span>)
         }
     }
-    <span class='kw'>else</span> {
-        <span class='prelude-val'>None</span>
+    <span class="kw">else</span> {
+        <span class="prelude-val">None</span>
     }
 }
 
-<span class='comment'>/*
+<span class="doccomment">/// Sorts two values in increasing order using a partial ordering.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partial_sort2</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">PartialOrd</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>)<span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ord</span>) <span class="op">=</span> <span class="ident">a</span>.<span class="ident">partial_cmp</span>(<span class="ident">b</span>) {
+        <span class="kw">match</span> <span class="ident">ord</span> {
+            <span class="ident">Ordering</span>::<span class="ident">Less</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">a</span>, <span class="ident">b</span>)),
+            _              <span class="op">=&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">b</span>, <span class="ident">a</span>)),
+        }
+    }
+    <span class="kw">else</span> {
+        <span class="prelude-val">None</span>
+    }
+}
+
+<span class="comment">/*
  * Inverse
  */</span>
 
-<span class='doccomment'>/// Tries to gets an inverted copy of a square matrix.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>try_inverse</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>AlgaSquareMatrix</span><span class='op'>&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>M</span><span class='op'>&gt;</span> {
-    <span class='ident'>m</span>.<span class='ident'>try_inverse</span>()
+<span class="doccomment">/// Tries to gets an inverted copy of a square matrix.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_inverse</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">AlgaSquareMatrix</span><span class="op">&gt;</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">M</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
+    <span class="ident">m</span>.<span class="ident">try_inverse</span>()
 }
 
-<span class='doccomment'>/// Computes the multiplicative inverse of an (always invertible) algebraic entity.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>inverse</span><span class='op'>&lt;</span><span class='ident'>M</span>: <span class='ident'>Inverse</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;&gt;</span>(<span class='ident'>m</span>: <span class='kw-2'>&amp;</span><span class='ident'>M</span>) <span class='op'>-&gt;</span> <span class='ident'>M</span> {
-    <span class='ident'>m</span>.<span class='ident'>inverse</span>()
+<span class="doccomment">/// Computes the multiplicative inverse of an (always invertible) algebraic entity.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inverse</span><span class="op">&lt;</span><span class="ident">M</span>: <span class="ident">Inverse</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;&gt;</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">M</span>) <span class="op">-&gt;</span> <span class="ident">M</span> {
+    <span class="ident">m</span>.<span class="ident">inverse</span>()
 }
 
-<span class='comment'>/*
+<span class="comment">/*
  * Inner vector space
  */</span>
 
-<span class='doccomment'>/// Computes the dot product of two vectors.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>dot</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>FiniteDimVectorSpace</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>::<span class='ident'>Field</span> {
-    <span class='ident'>a</span>.<span class='ident'>dot</span>(<span class='ident'>b</span>)
+<span class="doccomment">/// Computes the dot product of two vectors.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dot</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">FiniteDimVectorSpace</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">V</span>::<span class="ident">Field</span> {
+    <span class="ident">a</span>.<span class="ident">dot</span>(<span class="ident">b</span>)
 }
 
-<span class='doccomment'>/// Computes the smallest angle between two vectors.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>angle</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>InnerSpace</span><span class='op'>&gt;</span>(<span class='ident'>a</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>::<span class='ident'>Real</span> {
-    <span class='ident'>a</span>.<span class='ident'>angle</span>(<span class='ident'>b</span>)
+<span class="doccomment">/// Computes the smallest angle between two vectors.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">angle</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">InnerSpace</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">V</span>::<span class="ident">Real</span> {
+    <span class="ident">a</span>.<span class="ident">angle</span>(<span class="ident">b</span>)
 }
 
-<span class='comment'>/*
+<span class="comment">/*
  * Normed space
  */</span>
 
-<span class='doccomment'>/// Computes the L2 (euclidean) norm of a vector.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>norm</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>NormedSpace</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>::<span class='ident'>Field</span> {
-    <span class='ident'>v</span>.<span class='ident'>norm</span>()
+<span class="doccomment">/// Computes the L2 (euclidean) norm of a vector.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">norm</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">NormedSpace</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">V</span>::<span class="ident">Field</span> {
+    <span class="ident">v</span>.<span class="ident">norm</span>()
 }
 
-<span class='doccomment'>/// Computes the squared L2 (euclidean) norm of the vector `v`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>norm_squared</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>NormedSpace</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span>::<span class='ident'>Field</span> {
-    <span class='ident'>v</span>.<span class='ident'>norm_squared</span>()
+<span class="doccomment">/// Computes the squared L2 (euclidean) norm of the vector `v`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">norm_squared</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">NormedSpace</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">V</span>::<span class="ident">Field</span> {
+    <span class="ident">v</span>.<span class="ident">norm_squared</span>()
 }
 
-<span class='doccomment'>/// Computes the normalized version of the vector `v`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>normalize</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>NormedSpace</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>) <span class='op'>-&gt;</span> <span class='ident'>V</span> {
-    <span class='ident'>v</span>.<span class='ident'>normalize</span>()
+<span class="doccomment">/// Computes the normalized version of the vector `v`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normalize</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">NormedSpace</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">V</span> {
+    <span class="ident">v</span>.<span class="ident">normalize</span>()
 }
 
-<span class='doccomment'>/// Computes the normalized version of the vector `v` or returns `None` if its norm is smaller than `min_norm`.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>try_normalize</span><span class='op'>&lt;</span><span class='ident'>V</span>: <span class='ident'>NormedSpace</span><span class='op'>&gt;</span>(<span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>V</span>, <span class='ident'>min_norm</span>: <span class='ident'>V</span>::<span class='ident'>Field</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>V</span><span class='op'>&gt;</span> {
-    <span class='ident'>v</span>.<span class='ident'>try_normalize</span>(<span class='ident'>min_norm</span>)
+<span class="doccomment">/// Computes the normalized version of the vector `v` or returns `None` if its norm is smaller than `min_norm`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_normalize</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">NormedSpace</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>, <span class="ident">min_norm</span>: <span class="ident">V</span>::<span class="ident">Field</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> {
+    <span class="ident">v</span>.<span class="ident">try_normalize</span>(<span class="ident">min_norm</span>)
 }
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Point operations.
  *
  */</span>
-<span class='doccomment'>/// The center of two points.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>center</span><span class='op'>&lt;</span><span class='ident'>P</span>: <span class='ident'>EuclideanSpace</span><span class='op'>&gt;</span>(<span class='ident'>p1</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>, <span class='ident'>p2</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>P</span> {
-    <span class='ident'>P</span>::<span class='ident'>from_coordinates</span>((<span class='ident'>p1</span>.<span class='ident'>coordinates</span>() <span class='op'>+</span> <span class='ident'>p2</span>.<span class='ident'>coordinates</span>()) <span class='op'>*</span> <span class='ident'>convert</span>(<span class='number'>0.5</span>))
+<span class="doccomment">/// The center of two points.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">EuclideanSpace</span><span class="op">&gt;</span>(<span class="ident">p1</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>, <span class="ident">p2</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>) <span class="op">-&gt;</span> <span class="ident">P</span> {
+    <span class="ident">P</span>::<span class="ident">from_coordinates</span>((<span class="ident">p1</span>.<span class="ident">coordinates</span>() <span class="op">+</span> <span class="ident">p2</span>.<span class="ident">coordinates</span>()) <span class="op">*</span> <span class="ident">convert</span>(<span class="number">0.5</span>))
 }
 
-<span class='doccomment'>/// The distance between two points.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>distance</span><span class='op'>&lt;</span><span class='ident'>P</span>: <span class='ident'>EuclideanSpace</span><span class='op'>&gt;</span>(<span class='ident'>p1</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>, <span class='ident'>p2</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>P</span>::<span class='ident'>Real</span> {
-    (<span class='ident'>p2</span>.<span class='ident'>coordinates</span>() <span class='op'>-</span> <span class='ident'>p1</span>.<span class='ident'>coordinates</span>()).<span class='ident'>norm</span>()
+<span class="doccomment">/// The distance between two points.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distance</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">EuclideanSpace</span><span class="op">&gt;</span>(<span class="ident">p1</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>, <span class="ident">p2</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>) <span class="op">-&gt;</span> <span class="ident">P</span>::<span class="ident">Real</span> {
+    (<span class="ident">p2</span>.<span class="ident">coordinates</span>() <span class="op">-</span> <span class="ident">p1</span>.<span class="ident">coordinates</span>()).<span class="ident">norm</span>()
 }
 
-<span class='doccomment'>/// The squared distance between two points.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>distance_squared</span><span class='op'>&lt;</span><span class='ident'>P</span>: <span class='ident'>EuclideanSpace</span><span class='op'>&gt;</span>(<span class='ident'>p1</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>, <span class='ident'>p2</span>: <span class='kw-2'>&amp;</span><span class='ident'>P</span>) <span class='op'>-&gt;</span> <span class='ident'>P</span>::<span class='ident'>Real</span> {
-    (<span class='ident'>p2</span>.<span class='ident'>coordinates</span>() <span class='op'>-</span> <span class='ident'>p1</span>.<span class='ident'>coordinates</span>()).<span class='ident'>norm_squared</span>()
+<span class="doccomment">/// The squared distance between two points.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distance_squared</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">EuclideanSpace</span><span class="op">&gt;</span>(<span class="ident">p1</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>, <span class="ident">p2</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>) <span class="op">-&gt;</span> <span class="ident">P</span>::<span class="ident">Real</span> {
+    (<span class="ident">p2</span>.<span class="ident">coordinates</span>() <span class="op">-</span> <span class="ident">p1</span>.<span class="ident">coordinates</span>()).<span class="ident">norm_squared</span>()
 }
 
-<span class='comment'>/*
+<span class="comment">/*
  * Cast
  */</span>
-<span class='doccomment'>/// Converts an object from one type to an equivalent or more general one.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>convert</span><span class='op'>&lt;</span><span class='ident'>From</span>, <span class='ident'>To</span>: <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>From</span><span class='op'>&gt;&gt;</span>(<span class='ident'>t</span>: <span class='ident'>From</span>) <span class='op'>-&gt;</span> <span class='ident'>To</span> {
-    <span class='ident'>To</span>::<span class='ident'>from_subset</span>(<span class='kw-2'>&amp;</span><span class='ident'>t</span>)
+<span class="doccomment">/// Converts an object from one type to an equivalent or more general one.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See also `::try_convert` for conversion to more specific types.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert</span><span class="op">&lt;</span><span class="ident">From</span>, <span class="ident">To</span>: <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">From</span><span class="op">&gt;&gt;</span>(<span class="ident">t</span>: <span class="ident">From</span>) <span class="op">-&gt;</span> <span class="ident">To</span> {
+    <span class="ident">To</span>::<span class="ident">from_subset</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>)
 }
 
-<span class='doccomment'>/// Attempts to convert an object to a more specific one.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>try_convert</span><span class='op'>&lt;</span><span class='ident'>From</span>: <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>To</span><span class='op'>&gt;</span>, <span class='ident'>To</span><span class='op'>&gt;</span>(<span class='ident'>t</span>: <span class='ident'>From</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>To</span><span class='op'>&gt;</span> {
-    <span class='ident'>t</span>.<span class='ident'>to_subset</span>()
+<span class="doccomment">/// Attempts to convert an object to a more specific one.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See also `::convert` for conversion to more general types.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_convert</span><span class="op">&lt;</span><span class="ident">From</span>: <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">To</span><span class="op">&gt;</span>, <span class="ident">To</span><span class="op">&gt;</span>(<span class="ident">t</span>: <span class="ident">From</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">To</span><span class="op">&gt;</span> {
+    <span class="ident">t</span>.<span class="ident">to_subset</span>()
 }
 
-<span class='doccomment'>/// Indicates if `::try_convert` will succeed without actually performing the conversion.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_convertible</span><span class='op'>&lt;</span><span class='ident'>From</span>: <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>To</span><span class='op'>&gt;</span>, <span class='ident'>To</span><span class='op'>&gt;</span>(<span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>From</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-    <span class='ident'>t</span>.<span class='ident'>is_in_subset</span>()
+<span class="doccomment">/// Indicates if `::try_convert` will succeed without actually performing the conversion.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_convertible</span><span class="op">&lt;</span><span class="ident">From</span>: <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">To</span><span class="op">&gt;</span>, <span class="ident">To</span><span class="op">&gt;</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">From</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">t</span>.<span class="ident">is_in_subset</span>()
 }
 
-<span class='doccomment'>/// Use with care! Same as `try_convert` but without any property checks.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>convert_unchecked</span><span class='op'>&lt;</span><span class='ident'>From</span>: <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>To</span><span class='op'>&gt;</span>, <span class='ident'>To</span><span class='op'>&gt;</span>(<span class='ident'>t</span>: <span class='ident'>From</span>) <span class='op'>-&gt;</span> <span class='ident'>To</span> {
-    <span class='ident'>t</span>.<span class='ident'>to_subset_unchecked</span>()
+<span class="doccomment">/// Use with care! Same as `try_convert` but without any property checks.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">convert_unchecked</span><span class="op">&lt;</span><span class="ident">From</span>: <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">To</span><span class="op">&gt;</span>, <span class="ident">To</span><span class="op">&gt;</span>(<span class="ident">t</span>: <span class="ident">From</span>) <span class="op">-&gt;</span> <span class="ident">To</span> {
+    <span class="ident">t</span>.<span class="ident">to_subset_unchecked</span>()
 }
 
-<span class='doccomment'>/// Converts an object from one type to an equivalent or more general one.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>convert_ref</span><span class='op'>&lt;</span><span class='ident'>From</span>, <span class='ident'>To</span>: <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>From</span><span class='op'>&gt;&gt;</span>(<span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>From</span>) <span class='op'>-&gt;</span> <span class='ident'>To</span> {
-    <span class='ident'>To</span>::<span class='ident'>from_subset</span>(<span class='ident'>t</span>)
+<span class="doccomment">/// Converts an object from one type to an equivalent or more general one.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_ref</span><span class="op">&lt;</span><span class="ident">From</span>, <span class="ident">To</span>: <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">From</span><span class="op">&gt;&gt;</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">From</span>) <span class="op">-&gt;</span> <span class="ident">To</span> {
+    <span class="ident">To</span>::<span class="ident">from_subset</span>(<span class="ident">t</span>)
 }
 
-<span class='doccomment'>/// Attempts to convert an object to a more specific one.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>try_convert_ref</span><span class='op'>&lt;</span><span class='ident'>From</span>: <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>To</span><span class='op'>&gt;</span>, <span class='ident'>To</span><span class='op'>&gt;</span>(<span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>From</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>To</span><span class='op'>&gt;</span> {
-    <span class='ident'>t</span>.<span class='ident'>to_subset</span>()
+<span class="doccomment">/// Attempts to convert an object to a more specific one.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_convert_ref</span><span class="op">&lt;</span><span class="ident">From</span>: <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">To</span><span class="op">&gt;</span>, <span class="ident">To</span><span class="op">&gt;</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">From</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">To</span><span class="op">&gt;</span> {
+    <span class="ident">t</span>.<span class="ident">to_subset</span>()
 }
 
-<span class='doccomment'>/// Use with care! Same as `try_convert` but without any property checks.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>convert_ref_unchecked</span><span class='op'>&lt;</span><span class='ident'>From</span>: <span class='ident'>SupersetOf</span><span class='op'>&lt;</span><span class='ident'>To</span><span class='op'>&gt;</span>, <span class='ident'>To</span><span class='op'>&gt;</span>(<span class='ident'>t</span>: <span class='kw-2'>&amp;</span><span class='ident'>From</span>) <span class='op'>-&gt;</span> <span class='ident'>To</span> {
-    <span class='ident'>t</span>.<span class='ident'>to_subset_unchecked</span>()
+<span class="doccomment">/// Use with care! Same as `try_convert` but without any property checks.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">convert_ref_unchecked</span><span class="op">&lt;</span><span class="ident">From</span>: <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">To</span><span class="op">&gt;</span>, <span class="ident">To</span><span class="op">&gt;</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">From</span>) <span class="op">-&gt;</span> <span class="ident">To</span> {
+    <span class="ident">t</span>.<span class="ident">to_subset_unchecked</span>()
 }
 </pre>
 </section>
@@ -1074,7 +1090,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
         window.rootPath = "../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 

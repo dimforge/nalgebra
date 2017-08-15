@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc type">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a></p><script>window.sidebarCurrent = {name: 'DimDiff', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Type Definition DimDiff</p><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a></p><script>window.sidebarCurrent = {name: 'DimDiff', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,13 +43,13 @@
         </form>
     </nav>
 
-    <section id='main' class="content type">
-<h1 class='fqn'><span class='in-band'>Type Definition <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a>::<wbr><a class='type' href=''>DimDiff</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Type Definition <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a>::<wbr><a class="type" href=''>DimDiff</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/nalgebra/core/dimension.rs.html#79' title='goto source code'>[src]</a></span></h1>
-<pre class='rust typedef'>type DimDiff&lt;D1, D2&gt; = D1::<a class='trait' href='../../../nalgebra/core/dimension/trait.DimSub.html' title='nalgebra::core::dimension::DimSub'>Output</a>;</pre></section>
+               </span><a class='srclink' href='../../../src/nalgebra/core/dimension.rs.html#124' title='goto source code'>[src]</a></span></h1>
+<pre class='rust typedef'>type DimDiff&lt;D1, D2&gt; = &lt;D1 as <a class="trait" href="../../../nalgebra/core/dimension/trait.DimSub.html" title="trait nalgebra::core::dimension::DimSub">DimSub</a>&lt;D2&gt;&gt;::<a class="type" href="../../../nalgebra/core/dimension/trait.DimSub.html#associatedtype.Output" title="type nalgebra::core::dimension::DimSub::Output">Output</a>;</pre></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>
@@ -106,7 +106,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

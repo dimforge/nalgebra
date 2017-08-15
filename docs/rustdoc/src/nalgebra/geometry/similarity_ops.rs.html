@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -545,34 +545,23 @@
 <span id="500">500</span>
 <span id="501">501</span>
 <span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Mul</span>, <span class='ident'>MulAssign</span>, <span class='ident'>Div</span>, <span class='ident'>DivAssign</span>};
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Mul</span>, <span class="ident">MulAssign</span>, <span class="ident">Div</span>, <span class="ident">DivAssign</span>};
 
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::<span class='ident'>Real</span>;
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>linear</span>::<span class='ident'>Rotation</span>;
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::<span class="ident">Rotation</span> <span class="kw">as</span> <span class="ident">AlgaRotation</span>;
 
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>ColumnVector</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>DimName</span>, <span class='ident'>U1</span>, <span class='ident'>U3</span>, <span class='ident'>U4</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::<span class='ident'>OwnedStorage</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::<span class='ident'>OwnedAllocator</span>;
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">VectorN</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">U1</span>, <span class="ident">U3</span>, <span class="ident">U4</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-<span class='kw'>use</span> <span class='ident'>geometry</span>::{<span class='ident'>PointBase</span>, <span class='ident'>RotationBase</span>, <span class='ident'>SimilarityBase</span>, <span class='ident'>TranslationBase</span>, <span class='ident'>UnitQuaternionBase</span>, <span class='ident'>IsometryBase</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Rotation</span>, <span class="ident">Similarity</span>, <span class="ident">Translation</span>, <span class="ident">UnitQuaternion</span>, <span class="ident">Isometry</span>};
 
-<span class='comment'>// FIXME: there are several cloning of rotations that we could probably get rid of (but we didn&#39;t</span>
-<span class='comment'>// yet because that would require to add a bound like `where for&lt;&#39;a, &#39;b&gt; &amp;&#39;a R: Mul&lt;&amp;&#39;b R, Output = R&gt;`</span>
-<span class='comment'>// which is quite ugly.</span>
+<span class="comment">// FIXME: there are several cloning of rotations that we could probably get rid of (but we didn&#39;t</span>
+<span class="comment">// yet because that would require to add a bound like `where for&lt;&#39;a, &#39;b&gt; &amp;&#39;a R: Mul&lt;&amp;&#39;b R, Output = R&gt;`</span>
+<span class="comment">// which is quite ugly.</span>
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * In this file, we provide:
  * =========================
@@ -580,493 +569,484 @@
  *
  * (Operators)
  *
- * SimilarityBase × SimilarityBase
- * SimilarityBase × R
- * SimilarityBase × IsometryBase
+ * Similarity × Similarity
+ * Similarity × R
+ * Similarity × Isometry
  *
- * IsometryBase × SimilarityBase
- * IsometryBase ÷ SimilarityBase
- *
- *
- * SimilarityBase ÷ SimilarityBase
- * SimilarityBase ÷ R
- * SimilarityBase ÷ IsometryBase
- *
- * SimilarityBase × PointBase
- * SimilarityBase × ColumnVector
+ * Isometry × Similarity
+ * Isometry ÷ Similarity
  *
  *
- * SimilarityBase  × TranslationBase
- * TranslationBase × SimilarityBase
+ * Similarity ÷ Similarity
+ * Similarity ÷ R
+ * Similarity ÷ Isometry
  *
- * NOTE: The following are provided explicitly because we can&#39;t have R × SimilarityBase.
- * RotationBase   × SimilarityBase&lt;RotationBase&gt;
- * UnitQuaternion × SimilarityBase&lt;UnitQuaternion&gt;
+ * Similarity × Point
+ * Similarity × Vector
  *
- * RotationBase   ÷ SimilarityBase&lt;RotationBase&gt;
- * UnitQuaternion ÷ SimilarityBase&lt;UnitQuaternion&gt;
+ *
+ * Similarity  × Translation
+ * Translation × Similarity
+ *
+ * NOTE: The following are provided explicitly because we can&#39;t have R × Similarity.
+ * Rotation   × Similarity&lt;Rotation&gt;
+ * UnitQuaternion × Similarity&lt;UnitQuaternion&gt;
+ *
+ * Rotation   ÷ Similarity&lt;Rotation&gt;
+ * UnitQuaternion ÷ Similarity&lt;UnitQuaternion&gt;
  *
  * (Assignment Operators)
  *
- * SimilarityBase ×= TranslationBase
+ * Similarity ×= Translation
  *
- * SimilarityBase ×= SimilarityBase
- * SimilarityBase ×= IsometryBase
- * SimilarityBase ×= R
+ * Similarity ×= Similarity
+ * Similarity ×= Isometry
+ * Similarity ×= R
  *
- * SimilarityBase ÷= SimilarityBase
- * SimilarityBase ÷= IsometryBase
- * SimilarityBase ÷= R
+ * Similarity ÷= Similarity
+ * Similarity ÷= Isometry
+ * Similarity ÷= R
  *
  */</span>
 
 
-<span class='comment'>// XXX: code duplication: those macros are the same as for the isometry.</span>
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>similarity_binop_impl</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>: <span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>: <span class='ident'>ident</span>;
-     <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>: <span class='ident'>ty</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>: <span class='ident'>ty</span>;
-     <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action</span>: <span class='ident'>expr</span>; $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lives</span>: <span class='ident'>tt</span>),<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {
-        <span class='kw'>impl</span><span class='op'>&lt;</span>$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lives</span> ,)<span class='op'>*</span> <span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>
-            <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-                  <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-                  <span class='ident'>R</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;&gt;</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-            <span class='kw'>type</span> <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
+<span class="comment">// XXX: code duplication: those macros are the same as for the isometry.</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">similarity_binop_impl</span>(
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>: <span class="ident">ident</span>;
+     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>: <span class="ident">ty</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>: <span class="ident">ty</span>;
+     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action</span>: <span class="ident">expr</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lives</span>: <span class="ident">tt</span>),<span class="kw-2">*</span>) <span class="op">=&gt;</span> {
+        <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lives</span> ,)<span class="op">*</span> <span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>
+            <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+                  <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
 
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Output</span> {
-                <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action</span>
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action</span>
             }
         }
     }
 );
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>similarity_binop_impl_all</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>: <span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>: <span class='ident'>ident</span>;
-     <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>: <span class='ident'>ty</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>: <span class='ident'>ty</span>;
-     [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val_val</span>: <span class='ident'>expr</span>;
-     [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref_val</span>: <span class='ident'>expr</span>;
-     [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val_ref</span>: <span class='ident'>expr</span>;
-     [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref_ref</span>: <span class='ident'>expr</span>;) <span class='op'>=&gt;</span> {
-        <span class='macro'>similarity_binop_impl</span><span class='macro'>!</span>(
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val_val</span>; );
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">similarity_binop_impl_all</span>(
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>: <span class="ident">ident</span>;
+     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>: <span class="ident">ty</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>: <span class="ident">ty</span>;
+     [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val_val</span>: <span class="ident">expr</span>;
+     [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref_val</span>: <span class="ident">expr</span>;
+     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val_ref</span>: <span class="ident">expr</span>;
+     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref_ref</span>: <span class="ident">expr</span>;) <span class="op">=&gt;</span> {
+        <span class="macro">similarity_binop_impl</span><span class="macro">!</span>(
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val_val</span>; );
 
-        <span class='macro'>similarity_binop_impl</span><span class='macro'>!</span>(
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref_val</span>; <span class='lifetime'>&#39;a</span>);
+        <span class="macro">similarity_binop_impl</span><span class="macro">!</span>(
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref_val</span>; <span class="lifetime">&#39;a</span>);
 
-        <span class='macro'>similarity_binop_impl</span><span class='macro'>!</span>(
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val_ref</span>; <span class='lifetime'>&#39;b</span>);
+        <span class="macro">similarity_binop_impl</span><span class="macro">!</span>(
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val_ref</span>; <span class="lifetime">&#39;b</span>);
 
-        <span class='macro'>similarity_binop_impl</span><span class='macro'>!</span>(
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref_ref</span>; <span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;b</span>);
+        <span class="macro">similarity_binop_impl</span><span class="macro">!</span>(
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref_ref</span>; <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>);
     }
 );
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>similarity_binop_assign_impl_all</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>OpAssign</span>: <span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op_assign</span>: <span class='ident'>ident</span>;
-     <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>: <span class='ident'>ty</span>;
-     [<span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val</span>: <span class='ident'>expr</span>;
-     [<span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref</span>: <span class='ident'>expr</span>;) <span class='op'>=&gt;</span> {
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>OpAssign</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>
-            <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-                  <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-                  <span class='ident'>R</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;&gt;</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op_assign</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>) {
-                <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">similarity_binop_assign_impl_all</span>(
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">OpAssign</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op_assign</span>: <span class="ident">ident</span>;
+     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>: <span class="ident">ty</span>;
+     [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val</span>: <span class="ident">expr</span>;
+     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref</span>: <span class="ident">expr</span>;) <span class="op">=&gt;</span> {
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">OpAssign</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>
+            <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+                  <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>) {
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val</span>
             }
         }
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;b</span>, <span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>OpAssign</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>
-            <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-                  <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>,
-                  <span class='ident'>R</span>: <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;&gt;</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op_assign</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>) {
-                <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref</span>
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">OpAssign</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>
+            <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+                  <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>) {
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref</span>
             }
         }
     }
 );
 
-<span class='comment'>// SimilarityBase × SimilarityBase</span>
-<span class='comment'>// SimilarityBase ÷ SimilarityBase</span>
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>;
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span>  <span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>;
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span>  <span class='ident'>rhs</span>;
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>res</span> <span class='op'>=</span> <span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>.<span class='ident'>isometry</span>;
-        <span class='ident'>res</span>.<span class='ident'>prepend_scaling_mut</span>(<span class='ident'>rhs</span>.<span class='ident'>scaling</span>());
-        <span class='ident'>res</span>
+<span class="comment">// Similarity × Similarity</span>
+<span class="comment">// Similarity ÷ Similarity</span>
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>;
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span>  <span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>;
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span>  <span class="ident">rhs</span>;
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">isometry</span>;
+        <span class="ident">res</span>.<span class="ident">prepend_scaling_mut</span>(<span class="ident">rhs</span>.<span class="ident">scaling</span>());
+        <span class="ident">res</span>
     };
 );
 
 
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Div</span>, <span class='ident'>div</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Div</span>, <span class="ident">div</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
 
 
-<span class='comment'>// SimilarityBase ×= TranslationBase</span>
-<span class='macro'>similarity_binop_assign_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>MulAssign</span>, <span class='ident'>mul_assign</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>*=</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>;
-    [<span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>shift</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='ident'>rhs</span>.<span class='ident'>vector</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>translation</span>.<span class='ident'>vector</span> <span class='op'>+=</span> <span class='ident'>shift</span>;
+<span class="comment">// Similarity ×= Translation</span>
+<span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
+    <span class="ident">MulAssign</span>, <span class="ident">mul_assign</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>;
+    [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">vector</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span>.<span class="ident">vector</span> <span class="op">+=</span> <span class="ident">shift</span>;
     };
 );
 
 
-<span class='comment'>// SimilarityBase ×= SimilarityBase</span>
-<span class='comment'>// SimilarityBase ÷= SimilarityBase</span>
-<span class='macro'>similarity_binop_assign_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>MulAssign</span>, <span class='ident'>mul_assign</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>*=</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>;
-    [<span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>*=</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>.<span class='ident'>isometry</span>;
-        <span class='self'>self</span>.<span class='ident'>prepend_scaling_mut</span>(<span class='ident'>rhs</span>.<span class='ident'>scaling</span>());
+<span class="comment">// Similarity ×= Similarity</span>
+<span class="comment">// Similarity ÷= Similarity</span>
+<span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
+    <span class="ident">MulAssign</span>, <span class="ident">mul_assign</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>;
+    [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">isometry</span>;
+        <span class="self">self</span>.<span class="ident">prepend_scaling_mut</span>(<span class="ident">rhs</span>.<span class="ident">scaling</span>());
     };
 );
 
 
-<span class='macro'>similarity_binop_assign_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>DivAssign</span>, <span class='ident'>div_assign</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>/=</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>;
-    <span class='comment'>// FIXME: don&#39;t invert explicitly.</span>
-    [<span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>*=</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
+<span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
+    <span class="ident">DivAssign</span>, <span class="ident">div_assign</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">/=</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>;
+    <span class="comment">// FIXME: don&#39;t invert explicitly.</span>
+    [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
 
 
-<span class='comment'>// SimilarityBase ×= IsometryBase</span>
-<span class='comment'>// SimilarityBase ÷= IsometryBase</span>
-<span class='macro'>similarity_binop_assign_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>MulAssign</span>, <span class='ident'>mul_assign</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>*=</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>;
-    [<span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>shift</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='ident'>rhs</span>.<span class='ident'>translation</span>.<span class='ident'>vector</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>translation</span>.<span class='ident'>vector</span> <span class='op'>+=</span> <span class='ident'>shift</span>;
-        <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span> <span class='op'>*=</span> <span class='ident'>rhs</span>.<span class='ident'>rotation</span>.<span class='ident'>clone</span>();
+<span class="comment">// Similarity ×= Isometry</span>
+<span class="comment">// Similarity ÷= Isometry</span>
+<span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
+    <span class="ident">MulAssign</span>, <span class="ident">mul_assign</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>;
+    [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">translation</span>.<span class="ident">vector</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span>.<span class="ident">vector</span> <span class="op">+=</span> <span class="ident">shift</span>;
+        <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">rotation</span>.<span class="ident">clone</span>();
     };
 );
 
 
-<span class='macro'>similarity_binop_assign_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>DivAssign</span>, <span class='ident'>div_assign</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>/=</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>;
-    <span class='comment'>// FIXME: don&#39;t invert explicitly.</span>
-    [<span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>*=</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
+<span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
+    <span class="ident">DivAssign</span>, <span class="ident">div_assign</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">/=</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>;
+    <span class="comment">// FIXME: don&#39;t invert explicitly.</span>
+    [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
 
 
-<span class='comment'>// SimilarityBase ×= R</span>
-<span class='comment'>// SimilarityBase ÷= R</span>
-<span class='macro'>similarity_binop_assign_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>MulAssign</span>, <span class='ident'>mul_assign</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>R</span>;
-    [<span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span> <span class='op'>*=</span> <span class='ident'>rhs</span>;
-    [<span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span> <span class='op'>*=</span> <span class='ident'>rhs</span>.<span class='ident'>clone</span>();
+<span class="comment">// Similarity ×= R</span>
+<span class="comment">// Similarity ÷= R</span>
+<span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
+    <span class="ident">MulAssign</span>, <span class="ident">mul_assign</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">R</span>;
+    [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span> <span class="op">*=</span> <span class="ident">rhs</span>;
+    [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">clone</span>();
 );
 
 
-<span class='macro'>similarity_binop_assign_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>DivAssign</span>, <span class='ident'>div_assign</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>R</span>;
-    <span class='comment'>// FIXME: don&#39;t invert explicitly?</span>
-    [<span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>*=</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='kw-2'>*</span><span class='self'>self</span> <span class='op'>*=</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
+<span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
+    <span class="ident">DivAssign</span>, <span class="ident">div_assign</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">R</span>;
+    <span class="comment">// FIXME: don&#39;t invert explicitly?</span>
+    [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
 
 
-<span class='comment'>// SimilarityBase × R</span>
-<span class='comment'>// SimilarityBase ÷ R</span>
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>R</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span>.<span class='ident'>isometry</span> <span class='op'>*</span> <span class='ident'>rhs</span>, <span class='ident'>scaling</span>)
+<span class="comment">// Similarity × R</span>
+<span class="comment">// Similarity ÷ R</span>
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">R</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span>.<span class="ident">isometry</span> <span class="op">*</span> <span class="ident">rhs</span>, <span class="ident">scaling</span>)
     };
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>isometry</span> <span class='op'>*</span> <span class='ident'>rhs</span>, <span class='self'>self</span>.<span class='ident'>scaling</span>());
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span>.<span class='ident'>isometry</span> <span class='op'>*</span> <span class='ident'>rhs</span>, <span class='ident'>scaling</span>)
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span> <span class="op">*</span> <span class="ident">rhs</span>, <span class="self">self</span>.<span class="ident">scaling</span>());
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span>.<span class="ident">isometry</span> <span class="op">*</span> <span class="ident">rhs</span>, <span class="ident">scaling</span>)
     };
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>isometry</span> <span class='op'>*</span> <span class='ident'>rhs</span>, <span class='self'>self</span>.<span class='ident'>scaling</span>());
-);
-
-
-
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Div</span>, <span class='ident'>div</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>R</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span>.<span class='ident'>isometry</span> <span class='op'>/</span> <span class='ident'>rhs</span>, <span class='ident'>scaling</span>)
-    };
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>isometry</span> <span class='op'>/</span> <span class='ident'>rhs</span>, <span class='self'>self</span>.<span class='ident'>scaling</span>());
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span>.<span class='ident'>isometry</span> <span class='op'>/</span> <span class='ident'>rhs</span>, <span class='ident'>scaling</span>)
-    };
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>isometry</span> <span class='op'>/</span> <span class='ident'>rhs</span>, <span class='self'>self</span>.<span class='ident'>scaling</span>());
-);
-
-<span class='comment'>// SimilarityBase × IsometryBase</span>
-<span class='comment'>// SimilarityBase ÷ IsometryBase</span>
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>;
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>;
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>;
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>shift</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='ident'>rhs</span>.<span class='ident'>translation</span>.<span class='ident'>vector</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_parts</span>(
-            <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>translation</span>.<span class='ident'>vector</span> <span class='op'>+</span> <span class='ident'>shift</span>),
-            <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>clone</span>() <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>rotation</span>.<span class='ident'>clone</span>(),
-            <span class='self'>self</span>.<span class='ident'>scaling</span>())
-    };
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span> <span class="op">*</span> <span class="ident">rhs</span>, <span class="self">self</span>.<span class="ident">scaling</span>());
 );
 
 
 
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Div</span>, <span class='ident'>div</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Div</span>, <span class="ident">div</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">R</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span>.<span class="ident">isometry</span> <span class="op">/</span> <span class="ident">rhs</span>, <span class="ident">scaling</span>)
+    };
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span> <span class="op">/</span> <span class="ident">rhs</span>, <span class="self">self</span>.<span class="ident">scaling</span>());
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span>.<span class="ident">isometry</span> <span class="op">/</span> <span class="ident">rhs</span>, <span class="ident">scaling</span>)
+    };
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span> <span class="op">/</span> <span class="ident">rhs</span>, <span class="self">self</span>.<span class="ident">scaling</span>());
 );
 
-<span class='comment'>// IsometryBase × SimilarityBase</span>
-<span class='comment'>// IsometryBase ÷ SimilarityBase</span>
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    <span class='self'>self</span>: <span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='ident'>rhs</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>isometry</span>, <span class='ident'>scaling</span>)
-    };
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='ident'>rhs</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>isometry</span>, <span class='ident'>scaling</span>)
-    };
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='ident'>rhs</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>.<span class='ident'>isometry</span>, <span class='ident'>scaling</span>)
-    };
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='ident'>rhs</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>rhs</span>.<span class='ident'>isometry</span>, <span class='ident'>scaling</span>)
-    };
-);
-
-
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Div</span>, <span class='ident'>div</span>;
-    <span class='self'>self</span>: <span class='ident'>IsometryBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>rhs</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>.<span class='ident'>inverse</span>();
-);
-
-
-<span class='comment'>// SimilarityBase × PointBase</span>
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>translation</span> <span class='op'>*</span> (<span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_point</span>(<span class='kw-2'>&amp;</span><span class='ident'>right</span>) <span class='op'>*</span> <span class='ident'>scaling</span>)
-    };
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>translation</span> <span class='op'>*</span> (<span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_point</span>(<span class='kw-2'>&amp;</span><span class='ident'>right</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>());
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>translation</span> <span class='op'>*</span> (<span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_point</span>(<span class='ident'>right</span>) <span class='op'>*</span> <span class='ident'>scaling</span>)
-    };
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>translation</span> <span class='op'>*</span> (<span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_point</span>(<span class='ident'>right</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>());
-);
-
-
-<span class='comment'>// SimilarityBase × Vector</span>
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='ident'>right</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='ident'>right</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_vector</span>(<span class='ident'>right</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_vector</span>(<span class='ident'>right</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-);
-
-
-<span class='comment'>// SimilarityBase × TranslationBase</span>
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    <span class='self'>self</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>;
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>;
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>;
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>shift</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>vector</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_parts</span>(
-            <span class='ident'>TranslationBase</span>::<span class='ident'>from_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>translation</span>.<span class='ident'>vector</span> <span class='op'>+</span> <span class='ident'>shift</span>),
-            <span class='self'>self</span>.<span class='ident'>isometry</span>.<span class='ident'>rotation</span>.<span class='ident'>clone</span>(),
-            <span class='self'>self</span>.<span class='ident'>scaling</span>())
+<span class="comment">// Similarity × Isometry</span>
+<span class="comment">// Similarity ÷ Isometry</span>
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>;
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>;
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>;
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">translation</span>.<span class="ident">vector</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_parts</span>(
+            <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span>.<span class="ident">vector</span> <span class="op">+</span> <span class="ident">shift</span>),
+            <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">clone</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">rotation</span>.<span class="ident">clone</span>(),
+            <span class="self">self</span>.<span class="ident">scaling</span>())
     };
 );
 
 
-<span class='comment'>// TranslationBase × SimilarityBase</span>
-<span class='macro'>similarity_binop_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    <span class='self'>self</span>: <span class='ident'>TranslationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span>, <span class='ident'>R</span><span class='op'>&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='ident'>right</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>isometry</span>, <span class='ident'>scaling</span>)
+
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Div</span>, <span class="ident">div</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+);
+
+<span class="comment">// Isometry × Similarity</span>
+<span class="comment">// Isometry ÷ Similarity</span>
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    <span class="self">self</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">isometry</span>, <span class="ident">scaling</span>)
     };
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>scaling</span> <span class='op'>=</span> <span class='ident'>right</span>.<span class='ident'>scaling</span>();
-        <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>isometry</span>, <span class='ident'>scaling</span>)
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">isometry</span>, <span class="ident">scaling</span>)
     };
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>isometry</span>, <span class='ident'>right</span>.<span class='ident'>scaling</span>());
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>isometry</span>, <span class='ident'>right</span>.<span class='ident'>scaling</span>());
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">isometry</span>, <span class="ident">scaling</span>)
+    };
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">isometry</span>, <span class="ident">scaling</span>)
+    };
 );
 
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>similarity_from_composition_impl</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>: <span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>: <span class='ident'>ident</span>;
-     (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R1</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C1</span>: <span class='ident'>ty</span>),(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R2</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C2</span>: <span class='ident'>ty</span>) $(<span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Dims</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimsBound</span>: <span class='ident'>ident</span>),<span class='kw-2'>*</span>;
-     <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>: <span class='ident'>ty</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>: <span class='ident'>ty</span>;
-     <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action</span>: <span class='ident'>expr</span>; $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lives</span>: <span class='ident'>tt</span>),<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {
-        <span class='kw'>impl</span><span class='op'>&lt;</span>$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lives</span> ,)<span class='op'>*</span> <span class='ident'>N</span> $(, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Dims</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimsBound</span>)<span class='kw-2'>*</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>
-            <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-                  <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R1</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C1</span><span class='op'>&gt;</span>,
-                  <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R2</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C2</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-                  <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R1</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C1</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-                  <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R2</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C2</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-            <span class='kw'>type</span> <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Div</span>, <span class="ident">div</span>;
+    <span class="self">self</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
+);
 
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span>::<span class='ident'>Output</span> {
-                <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action</span>
+
+<span class="comment">// Similarity × Point</span>
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_point</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>) <span class="op">*</span> <span class="ident">scaling</span>)
+    };
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_point</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>());
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_point</span>(<span class="ident">right</span>) <span class="op">*</span> <span class="ident">scaling</span>)
+    };
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_point</span>(<span class="ident">right</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>());
+);
+
+
+<span class="comment">// Similarity × Vector</span>
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="ident">right</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="ident">right</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+);
+
+
+<span class="comment">// Similarity × Translation</span>
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>;
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>;
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>;
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">vector</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_parts</span>(
+            <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span>.<span class="ident">vector</span> <span class="op">+</span> <span class="ident">shift</span>),
+            <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">clone</span>(),
+            <span class="self">self</span>.<span class="ident">scaling</span>())
+    };
+);
+
+
+<span class="comment">// Translation × Similarity</span>
+<span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="ident">right</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">scaling</span>)
+    };
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> {
+        <span class="kw">let</span> <span class="ident">scaling</span> <span class="op">=</span> <span class="ident">right</span>.<span class="ident">scaling</span>();
+        <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">scaling</span>)
+    };
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">right</span>.<span class="ident">scaling</span>());
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">right</span>.<span class="ident">scaling</span>());
+);
+
+
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">similarity_from_composition_impl</span>(
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>: <span class="ident">ident</span>;
+     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R1</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C1</span>: <span class="ident">ty</span>),(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R2</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C2</span>: <span class="ident">ty</span>) $(<span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Dims</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimsBound</span>: <span class="ident">ident</span>),<span class="kw-2">*</span>;
+     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>: <span class="ident">ty</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>: <span class="ident">ty</span>;
+     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action</span>: <span class="ident">expr</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lives</span>: <span class="ident">tt</span>),<span class="kw-2">*</span>) <span class="op">=&gt;</span> {
+        <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lives</span> ,)<span class="op">*</span> <span class="ident">N</span>: <span class="ident">Real</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Dims</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimsBound</span>)<span class="kw-2">*</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>
+            <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">R1</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C1</span><span class="op">&gt;</span> <span class="op">+</span>
+                                    <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">R2</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C2</span><span class="op">&gt;</span> {
+            <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
+
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action</span>
             }
         }
     }
 );
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>similarity_from_composition_impl_all</span>(
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>: <span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>: <span class='ident'>ident</span>;
-     (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R1</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C1</span>: <span class='ident'>ty</span>),(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R2</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C2</span>: <span class='ident'>ty</span>) $(<span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Dims</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimsBound</span>: <span class='ident'>ident</span>),<span class='kw-2'>*</span>;
-     <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>: <span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='ident'>ident</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>: <span class='ident'>ty</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>: <span class='ident'>ty</span>;
-     [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val_val</span>: <span class='ident'>expr</span>;
-     [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref_val</span>: <span class='ident'>expr</span>;
-     [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val_ref</span>: <span class='ident'>expr</span>;
-     [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref_ref</span>: <span class='ident'>expr</span>;) <span class='op'>=&gt;</span> {
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">similarity_from_composition_impl_all</span>(
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>: <span class="ident">ident</span>;
+     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R1</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C1</span>: <span class="ident">ty</span>),(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R2</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C2</span>: <span class="ident">ty</span>) $(<span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Dims</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimsBound</span>: <span class="ident">ident</span>),<span class="kw-2">*</span>;
+     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>: <span class="ident">ty</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>: <span class="ident">ty</span>;
+     [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val_val</span>: <span class="ident">expr</span>;
+     [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref_val</span>: <span class="ident">expr</span>;
+     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val_ref</span>: <span class="ident">expr</span>;
+     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref_ref</span>: <span class="ident">expr</span>;) <span class="op">=&gt;</span> {
 
-        <span class='macro'>similarity_from_composition_impl</span><span class='macro'>!</span>(
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>;
-            (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R1</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C1</span>),(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R2</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C2</span>) $(<span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Dims</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimsBound</span>),<span class='kw-2'>*</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val_val</span>; );
+        <span class="macro">similarity_from_composition_impl</span><span class="macro">!</span>(
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>;
+            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R1</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C1</span>),(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R2</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C2</span>) $(<span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Dims</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimsBound</span>),<span class="kw-2">*</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val_val</span>; );
 
-        <span class='macro'>similarity_from_composition_impl</span><span class='macro'>!</span>(
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>;
-            (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R1</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C1</span>),(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R2</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C2</span>) $(<span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Dims</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimsBound</span>),<span class='kw-2'>*</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref_val</span>; <span class='lifetime'>&#39;a</span>);
+        <span class="macro">similarity_from_composition_impl</span><span class="macro">!</span>(
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>;
+            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R1</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C1</span>),(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R2</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C2</span>) $(<span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Dims</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimsBound</span>),<span class="kw-2">*</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref_val</span>; <span class="lifetime">&#39;a</span>);
 
-        <span class='macro'>similarity_from_composition_impl</span><span class='macro'>!</span>(
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>;
-            (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R1</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C1</span>),(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R2</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C2</span>) $(<span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Dims</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimsBound</span>),<span class='kw-2'>*</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_val_ref</span>; <span class='lifetime'>&#39;b</span>);
+        <span class="macro">similarity_from_composition_impl</span><span class="macro">!</span>(
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>;
+            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R1</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C1</span>),(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R2</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C2</span>) $(<span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Dims</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimsBound</span>),<span class="kw-2">*</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_val_ref</span>; <span class="lifetime">&#39;b</span>);
 
-        <span class='macro'>similarity_from_composition_impl</span><span class='macro'>!</span>(
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Op</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>op</span>;
-            (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R1</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C1</span>),(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>R2</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>C2</span>) $(<span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Dims</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>DimsBound</span>),<span class='kw-2'>*</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>lhs</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Lhs</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rhs</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Rhs</span>, <span class='ident'>Output</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Output</span>;
-            <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>action_ref_ref</span>; <span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;b</span>);
+        <span class="macro">similarity_from_composition_impl</span><span class="macro">!</span>(
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>;
+            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R1</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C1</span>),(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">R2</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">C2</span>) $(<span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Dims</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">DimsBound</span>),<span class="kw-2">*</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Lhs</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Rhs</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Output</span>;
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">action_ref_ref</span>; <span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>);
     }
 );
 
 
-<span class='comment'>// RotationBase × SimilarityBase</span>
-<span class='macro'>similarity_from_composition_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    (<span class='ident'>D</span>, <span class='ident'>D</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>,
-    <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>;
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span>  <span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>;
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span>  <span class='ident'>right</span>;
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>isometry</span>, <span class='ident'>right</span>.<span class='ident'>scaling</span>());
+<span class="comment">// Rotation × Similarity</span>
+<span class="macro">similarity_from_composition_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    (<span class="ident">D</span>, <span class="ident">D</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>;
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span>  <span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>;
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span>  <span class="ident">right</span>;
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">right</span>.<span class="ident">scaling</span>());
 );
 
 
-<span class='comment'>// RotationBase ÷ SimilarityBase</span>
-<span class='macro'>similarity_from_composition_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Div</span>, <span class='ident'>div</span>;
-    (<span class='ident'>D</span>, <span class='ident'>D</span>), (<span class='ident'>D</span>, <span class='ident'>U1</span>) <span class='kw'>for</span> <span class='ident'>D</span>: <span class='ident'>DimName</span>;
-    <span class='self'>self</span>: <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>,
-    <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span>, <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>;
-    <span class='comment'>// FIXME: don&#39;t call iverse explicitly?</span>
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>inverse</span>();
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>inverse</span>();
+<span class="comment">// Rotation ÷ Similarity</span>
+<span class="macro">similarity_from_composition_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Div</span>, <span class="ident">div</span>;
+    (<span class="ident">D</span>, <span class="ident">D</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
+    <span class="self">self</span>: <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>;
+    <span class="comment">// FIXME: don&#39;t call iverse explicitly?</span>
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">inverse</span>();
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">inverse</span>();
 );
 
 
-<span class='comment'>// UnitQuaternion × SimilarityBase</span>
-<span class='macro'>similarity_from_composition_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Mul</span>, <span class='ident'>mul</span>;
-    (<span class='ident'>U4</span>, <span class='ident'>U1</span>), (<span class='ident'>U3</span>, <span class='ident'>U1</span>);
-    <span class='self'>self</span>: <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>, <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>,
-    <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>, <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>;
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>;
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span>  <span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>;
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='kw-2'>&amp;</span><span class='self'>self</span> <span class='op'>*</span>  <span class='ident'>right</span>;
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='ident'>SimilarityBase</span>::<span class='ident'>from_isometry</span>(<span class='self'>self</span> <span class='op'>*</span> <span class='kw-2'>&amp;</span><span class='ident'>right</span>.<span class='ident'>isometry</span>, <span class='ident'>right</span>.<span class='ident'>scaling</span>());
+<span class="comment">// UnitQuaternion × Similarity</span>
+<span class="macro">similarity_from_composition_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Mul</span>, <span class="ident">mul</span>;
+    (<span class="ident">U4</span>, <span class="ident">U1</span>), (<span class="ident">U3</span>, <span class="ident">U1</span>);
+    <span class="self">self</span>: <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>;
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>;
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span>  <span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>;
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span>  <span class="ident">right</span>;
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">right</span>.<span class="ident">scaling</span>());
 );
 
 
-<span class='comment'>// UnitQuaternion ÷ SimilarityBase</span>
-<span class='macro'>similarity_from_composition_impl_all</span><span class='macro'>!</span>(
-    <span class='ident'>Div</span>, <span class='ident'>div</span>;
-    (<span class='ident'>U4</span>, <span class='ident'>U1</span>), (<span class='ident'>U3</span>, <span class='ident'>U1</span>);
-    <span class='self'>self</span>: <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>, <span class='ident'>right</span>: <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>, <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>,
-    <span class='ident'>Output</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>SB</span>, <span class='ident'>UnitQuaternionBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SA</span><span class='op'>&gt;&gt;</span>;
-    <span class='comment'>// FIXME: don&#39;t call inverse explicitly?</span>
-    [<span class='ident'>val</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='ident'>val</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>inverse</span>();
-    [<span class='ident'>val</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>inverse</span>();
-    [<span class='kw-2'>ref</span> <span class='kw-2'>ref</span>] <span class='op'>=&gt;</span> <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>right</span>.<span class='ident'>inverse</span>();
+<span class="comment">// UnitQuaternion ÷ Similarity</span>
+<span class="macro">similarity_from_composition_impl_all</span><span class="macro">!</span>(
+    <span class="ident">Div</span>, <span class="ident">div</span>;
+    (<span class="ident">U4</span>, <span class="ident">U1</span>), (<span class="ident">U3</span>, <span class="ident">U1</span>);
+    <span class="self">self</span>: <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>;
+    <span class="comment">// FIXME: don&#39;t call inverse explicitly?</span>
+    [<span class="ident">val</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="ident">val</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">inverse</span>();
+    [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">inverse</span>();
+    [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">inverse</span>();
 );
 </pre>
 </section>
@@ -1126,7 +1106,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

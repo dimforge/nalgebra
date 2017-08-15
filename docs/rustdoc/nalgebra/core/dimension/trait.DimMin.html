@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `DimMin` trait in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, DimMin">
+
+    <title>nalgebra::core::dimension::DimMin - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc trait">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        <p class='location'>Trait DimMin</p><div class="block items"><ul><li><a href="#associated-types">Associated Types</a></li><li><a href="#required-methods">Required Methods</a></li><li><a href="#implementors">Implementors</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a></p><script>window.sidebarCurrent = {name: 'DimMin', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a>::<wbr><a class="trait" href=''>DimMin</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/nalgebra/core/dimension.rs.html#126-130' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait DimMin&lt;D:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt;: <a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a> {
+    type <a href='#associatedtype.Output' class="type">Output</a>: <a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>;
+    fn <a href='#tymethod.min' class='fnname'>min</a>(self, other: D) -&gt; Self::<a class="type" href="../../../nalgebra/core/dimension/trait.DimMin.html#associatedtype.Output" title="type nalgebra::core::dimension::DimMin::Output">Output</a>;
+}</pre>
+            <h2 id='associated-types' class='small-section-header'>
+              Associated Types<a href='#associated-types' class='anchor'></a>
+            </h2>
+            <div class='methods'>
+        <h3 id='associatedtype.Output' class='method'><span id='Output.t' class='invisible'><code>type <a href='#associatedtype.Output' class="type">Output</a>: <a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a></code></span></h3></div>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
+            <div class='methods'>
+        <h3 id='tymethod.min' class='method'><span id='min.v' class='invisible'><code>fn <a href='#tymethod.min' class='fnname'>min</a>(self, other: D) -&gt; Self::<a class="type" href="../../../nalgebra/core/dimension/trait.DimMin.html#associatedtype.Output" title="type nalgebra::core::dimension::DimMin::Output">Output</a></code></span></h3></div>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;D1:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>, D2:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; DimMin&lt;D2&gt; for D1 <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;D1::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Min&lt;D2::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;Minimum&lt;D1::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>, D2::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;: <a class="trait" href="../../../nalgebra/core/dimension/trait.NamedDim.html" title="trait nalgebra::core::dimension::NamedDim">NamedDim</a>,&nbsp;</span><span class="where fmt-newline">  type <a href='#associatedtype.Output' class="type">Output</a> = &lt;Minimum&lt;D1::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>, D2::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt; as <a class="trait" href="../../../nalgebra/core/dimension/trait.NamedDim.html" title="trait nalgebra::core::dimension::NamedDim">NamedDim</a>&gt;::<a class="type" href="../../../nalgebra/core/dimension/trait.NamedDim.html#associatedtype.Name" title="type nalgebra::core::dimension::NamedDim::Name">Name</a>;</span></code></li>
+<li><code>impl&lt;D:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt; DimMin&lt;D&gt; for <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a><span class="where fmt-newline">  type <a href='#associatedtype.Output' class="type">Output</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>;</span></code></li>
+<li><code>impl&lt;D:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; DimMin&lt;<a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt; for D<span class="where fmt-newline">  type <a href='#associatedtype.Output' class="type">Output</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>;</span></code></li>
+</ul><script type="text/javascript" async
+                         src="../../../implementors/nalgebra/core/dimension/trait.DimMin.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>

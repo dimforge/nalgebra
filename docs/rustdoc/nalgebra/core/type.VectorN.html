@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc type">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'VectorN', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Type Definition VectorN</p><div class="block items"><ul><li><a href="#methods">Methods</a></li></ul></div><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'VectorN', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,14 +43,43 @@
         </form>
     </nav>
 
-    <section id='main' class="content type">
-<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a>::<wbr><a class='type' href=''>VectorN</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a>::<wbr><a class="type" href=''>VectorN</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/nalgebra/core/alias.rs.html#118' title='goto source code'>[src]</a></span></h1>
-<pre class='rust typedef'>type VectorN&lt;N, D&gt; = <a class='type' href='../../nalgebra/core/type.MatrixNM.html' title='nalgebra::core::MatrixNM'>MatrixNM</a>&lt;N, D, <a class='struct' href='../../nalgebra/core/dimension/struct.U1.html' title='nalgebra::core::dimension::U1'>U1</a>&gt;;</pre><div class='docblock'><p>A statically sized D-dimensional column vector.</p>
-</div></section>
+               </span><a class='srclink' href='../../src/nalgebra/core/alias.rs.html#122' title='goto source code'>[src]</a></span></h1>
+<pre class='rust typedef'>type VectorN&lt;N, D&gt; = <a class="type" href="../../nalgebra/core/type.MatrixMN.html" title="type nalgebra::core::MatrixMN">MatrixMN</a>&lt;N, D, <a class="struct" href="../../nalgebra/core/dimension/struct.U1.html" title="struct nalgebra::core::dimension::U1">U1</a>&gt;;</pre><div class='docblock'><p>A statically sized D-dimensional column vector.</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 class='impl'><span class='in-band'><code>impl&lt;N, R:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; <a class="type" href="../../nalgebra/core/type.VectorN.html" title="type nalgebra::core::VectorN">VectorN</a>&lt;N, R&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;N: <a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a> + <a class="trait" href="https://rust-num.github.io/num/num_traits/identities/trait.Zero.html" title="trait num_traits::identities::Zero">Zero</a> + <a class="trait" href="https://rust-num.github.io/num/num_traits/identities/trait.One.html" title="trait num_traits::identities::One">One</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, R&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#582-686' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.x' class="method"><span id='x.v' class='invisible'><code>fn <a href='#method.x' class='fnname'>x</a>() -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U0, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#587-593' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The column vector with a 1 as its first component, and zero elsewhere.</p>
+</div><h4 id='method.y' class="method"><span id='y.v' class='invisible'><code>fn <a href='#method.y' class='fnname'>y</a>() -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U1, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#597-603' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The column vector with a 1 as its second component, and zero elsewhere.</p>
+</div><h4 id='method.z' class="method"><span id='z.v' class='invisible'><code>fn <a href='#method.z' class='fnname'>z</a>() -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U2, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#607-613' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The column vector with a 1 as its third component, and zero elsewhere.</p>
+</div><h4 id='method.w' class="method"><span id='w.v' class='invisible'><code>fn <a href='#method.w' class='fnname'>w</a>() -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U3, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#617-623' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The column vector with a 1 as its fourth component, and zero elsewhere.</p>
+</div><h4 id='method.a' class="method"><span id='a.v' class='invisible'><code>fn <a href='#method.a' class='fnname'>a</a>() -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U4, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#627-633' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The column vector with a 1 as its fifth component, and zero elsewhere.</p>
+</div><h4 id='method.b' class="method"><span id='b.v' class='invisible'><code>fn <a href='#method.b' class='fnname'>b</a>() -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U5, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#637-643' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The column vector with a 1 as its sixth component, and zero elsewhere.</p>
+</div><h4 id='method.x_axis' class="method"><span id='x_axis.v' class='invisible'><code>fn <a href='#method.x_axis' class='fnname'>x_axis</a>() -&gt; <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;Self&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U0, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#647-650' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The unit column vector with a 1 as its first component, and zero elsewhere.</p>
+</div><h4 id='method.y_axis' class="method"><span id='y_axis.v' class='invisible'><code>fn <a href='#method.y_axis' class='fnname'>y_axis</a>() -&gt; <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;Self&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U1, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#654-657' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The unit column vector with a 1 as its second component, and zero elsewhere.</p>
+</div><h4 id='method.z_axis' class="method"><span id='z_axis.v' class='invisible'><code>fn <a href='#method.z_axis' class='fnname'>z_axis</a>() -&gt; <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;Self&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U2, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#661-664' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The unit column vector with a 1 as its third component, and zero elsewhere.</p>
+</div><h4 id='method.w_axis' class="method"><span id='w_axis.v' class='invisible'><code>fn <a href='#method.w_axis' class='fnname'>w_axis</a>() -&gt; <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;Self&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U3, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#668-671' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The unit column vector with a 1 as its fourth component, and zero elsewhere.</p>
+</div><h4 id='method.a_axis' class="method"><span id='a_axis.v' class='invisible'><code>fn <a href='#method.a_axis' class='fnname'>a_axis</a>() -&gt; <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;Self&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U4, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#675-678' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The unit column vector with a 1 as its fifth component, and zero elsewhere.</p>
+</div><h4 id='method.b_axis' class="method"><span id='b_axis.v' class='invisible'><code>fn <a href='#method.b_axis' class='fnname'>b_axis</a>() -&gt; <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;Self&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: Cmp&lt;U5, Output = Greater&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction.rs.html#682-685' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The unit column vector with a 1 as its sixth component, and zero elsewhere.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     </div></div><section class="footer"></section>
@@ -107,7 +136,6 @@
         window.rootPath = "../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 

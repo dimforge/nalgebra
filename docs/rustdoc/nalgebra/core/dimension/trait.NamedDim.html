@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc trait">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a></p><script>window.sidebarCurrent = {name: 'NamedDim', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait NamedDim</p><div class="block items"><ul><li><a href="#associated-types">Associated Types</a></li><li><a href="#implementors">Implementors</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a></p><script>window.sidebarCurrent = {name: 'NamedDim', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,150 +43,154 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a>::<wbr><a class='trait' href=''>NamedDim</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>dimension</a>::<wbr><a class="trait" href=''>NamedDim</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/nalgebra/core/dimension.rs.html#161-163' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait NamedDim: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + Unsigned {
-    type <a href='#associatedtype.Name' class='type'>Name</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>&lt;Value=Self&gt;;
+               </span><a class='srclink' href='../../../src/nalgebra/core/dimension.rs.html#208-210' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait NamedDim: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + Unsigned {
+    type <a href='#associatedtype.Name' class="type">Name</a>: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&lt;Value = Self&gt;;
 }</pre>
-            <h2 id='associated-types'>Associated Types</h2>
+            <h2 id='associated-types' class='small-section-header'>
+              Associated Types<a href='#associated-types' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='associatedtype.Name' class='method'><span id='Name.t' class='invisible'><code>type <a href='#associatedtype.Name' class='type'>Name</a>: <a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>&lt;Value=Self&gt;</code></span></h3></div>
-        <h2 id='implementors'>Implementors</h2>
+        <h3 id='associatedtype.Name' class='method'><span id='Name.t' class='invisible'><code>type <a href='#associatedtype.Name' class="type">Name</a>: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&lt;Value = Self&gt;</code></span></h3></div>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl NamedDim for U1</code></li>
-<li><code>impl NamedDim for U0</code></li>
-<li><code>impl NamedDim for U2</code></li>
-<li><code>impl NamedDim for U3</code></li>
-<li><code>impl NamedDim for U4</code></li>
-<li><code>impl NamedDim for U5</code></li>
-<li><code>impl NamedDim for U6</code></li>
-<li><code>impl NamedDim for U7</code></li>
-<li><code>impl NamedDim for U8</code></li>
-<li><code>impl NamedDim for U9</code></li>
-<li><code>impl NamedDim for U10</code></li>
-<li><code>impl NamedDim for U11</code></li>
-<li><code>impl NamedDim for U12</code></li>
-<li><code>impl NamedDim for U13</code></li>
-<li><code>impl NamedDim for U14</code></li>
-<li><code>impl NamedDim for U15</code></li>
-<li><code>impl NamedDim for U16</code></li>
-<li><code>impl NamedDim for U17</code></li>
-<li><code>impl NamedDim for U18</code></li>
-<li><code>impl NamedDim for U19</code></li>
-<li><code>impl NamedDim for U20</code></li>
-<li><code>impl NamedDim for U21</code></li>
-<li><code>impl NamedDim for U22</code></li>
-<li><code>impl NamedDim for U23</code></li>
-<li><code>impl NamedDim for U24</code></li>
-<li><code>impl NamedDim for U25</code></li>
-<li><code>impl NamedDim for U26</code></li>
-<li><code>impl NamedDim for U27</code></li>
-<li><code>impl NamedDim for U28</code></li>
-<li><code>impl NamedDim for U29</code></li>
-<li><code>impl NamedDim for U30</code></li>
-<li><code>impl NamedDim for U31</code></li>
-<li><code>impl NamedDim for U32</code></li>
-<li><code>impl NamedDim for U33</code></li>
-<li><code>impl NamedDim for U34</code></li>
-<li><code>impl NamedDim for U35</code></li>
-<li><code>impl NamedDim for U36</code></li>
-<li><code>impl NamedDim for U37</code></li>
-<li><code>impl NamedDim for U38</code></li>
-<li><code>impl NamedDim for U39</code></li>
-<li><code>impl NamedDim for U40</code></li>
-<li><code>impl NamedDim for U41</code></li>
-<li><code>impl NamedDim for U42</code></li>
-<li><code>impl NamedDim for U43</code></li>
-<li><code>impl NamedDim for U44</code></li>
-<li><code>impl NamedDim for U45</code></li>
-<li><code>impl NamedDim for U46</code></li>
-<li><code>impl NamedDim for U47</code></li>
-<li><code>impl NamedDim for U48</code></li>
-<li><code>impl NamedDim for U49</code></li>
-<li><code>impl NamedDim for U50</code></li>
-<li><code>impl NamedDim for U51</code></li>
-<li><code>impl NamedDim for U52</code></li>
-<li><code>impl NamedDim for U53</code></li>
-<li><code>impl NamedDim for U54</code></li>
-<li><code>impl NamedDim for U55</code></li>
-<li><code>impl NamedDim for U56</code></li>
-<li><code>impl NamedDim for U57</code></li>
-<li><code>impl NamedDim for U58</code></li>
-<li><code>impl NamedDim for U59</code></li>
-<li><code>impl NamedDim for U60</code></li>
-<li><code>impl NamedDim for U61</code></li>
-<li><code>impl NamedDim for U62</code></li>
-<li><code>impl NamedDim for U63</code></li>
-<li><code>impl NamedDim for U64</code></li>
-<li><code>impl NamedDim for U65</code></li>
-<li><code>impl NamedDim for U66</code></li>
-<li><code>impl NamedDim for U67</code></li>
-<li><code>impl NamedDim for U68</code></li>
-<li><code>impl NamedDim for U69</code></li>
-<li><code>impl NamedDim for U70</code></li>
-<li><code>impl NamedDim for U71</code></li>
-<li><code>impl NamedDim for U72</code></li>
-<li><code>impl NamedDim for U73</code></li>
-<li><code>impl NamedDim for U74</code></li>
-<li><code>impl NamedDim for U75</code></li>
-<li><code>impl NamedDim for U76</code></li>
-<li><code>impl NamedDim for U77</code></li>
-<li><code>impl NamedDim for U78</code></li>
-<li><code>impl NamedDim for U79</code></li>
-<li><code>impl NamedDim for U80</code></li>
-<li><code>impl NamedDim for U81</code></li>
-<li><code>impl NamedDim for U82</code></li>
-<li><code>impl NamedDim for U83</code></li>
-<li><code>impl NamedDim for U84</code></li>
-<li><code>impl NamedDim for U85</code></li>
-<li><code>impl NamedDim for U86</code></li>
-<li><code>impl NamedDim for U87</code></li>
-<li><code>impl NamedDim for U88</code></li>
-<li><code>impl NamedDim for U89</code></li>
-<li><code>impl NamedDim for U90</code></li>
-<li><code>impl NamedDim for U91</code></li>
-<li><code>impl NamedDim for U92</code></li>
-<li><code>impl NamedDim for U93</code></li>
-<li><code>impl NamedDim for U94</code></li>
-<li><code>impl NamedDim for U95</code></li>
-<li><code>impl NamedDim for U96</code></li>
-<li><code>impl NamedDim for U97</code></li>
-<li><code>impl NamedDim for U98</code></li>
-<li><code>impl NamedDim for U99</code></li>
-<li><code>impl NamedDim for U100</code></li>
-<li><code>impl NamedDim for U101</code></li>
-<li><code>impl NamedDim for U102</code></li>
-<li><code>impl NamedDim for U103</code></li>
-<li><code>impl NamedDim for U104</code></li>
-<li><code>impl NamedDim for U105</code></li>
-<li><code>impl NamedDim for U106</code></li>
-<li><code>impl NamedDim for U107</code></li>
-<li><code>impl NamedDim for U108</code></li>
-<li><code>impl NamedDim for U109</code></li>
-<li><code>impl NamedDim for U110</code></li>
-<li><code>impl NamedDim for U111</code></li>
-<li><code>impl NamedDim for U112</code></li>
-<li><code>impl NamedDim for U113</code></li>
-<li><code>impl NamedDim for U114</code></li>
-<li><code>impl NamedDim for U115</code></li>
-<li><code>impl NamedDim for U116</code></li>
-<li><code>impl NamedDim for U117</code></li>
-<li><code>impl NamedDim for U118</code></li>
-<li><code>impl NamedDim for U119</code></li>
-<li><code>impl NamedDim for U120</code></li>
-<li><code>impl NamedDim for U121</code></li>
-<li><code>impl NamedDim for U122</code></li>
-<li><code>impl NamedDim for U123</code></li>
-<li><code>impl NamedDim for U124</code></li>
-<li><code>impl NamedDim for U125</code></li>
-<li><code>impl NamedDim for U126</code></li>
-<li><code>impl NamedDim for U127</code></li>
-<li><code>impl&lt;A:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, B:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, C:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, D:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, E:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, F:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>, G:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>&gt; NamedDim for UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UTerm, B1&gt;, A&gt;, B&gt;, C&gt;, D&gt;, E&gt;, F&gt;, G&gt;</code></li>
-<li><code>impl&lt;U:&nbsp;Unsigned + <a class='trait' href='../../../nalgebra/core/dimension/trait.DimName.html' title='nalgebra::core::dimension::DimName'>DimName</a>, B:&nbsp;Bit + <a class='trait' href='https://doc.rust-lang.org/nightly/core/any/trait.Any.html' title='core::any::Any'>Any</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a>&gt; NamedDim for UInt&lt;U, B&gt;</code></li>
+    <li><code>impl NamedDim for U1<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U1.html" title="struct nalgebra::core::dimension::U1">U1</a>;</span></code></li>
+<li><code>impl NamedDim for U0<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U0.html" title="struct nalgebra::core::dimension::U0">U0</a>;</span></code></li>
+<li><code>impl NamedDim for U2<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U2.html" title="struct nalgebra::core::dimension::U2">U2</a>;</span></code></li>
+<li><code>impl NamedDim for U3<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U3.html" title="struct nalgebra::core::dimension::U3">U3</a>;</span></code></li>
+<li><code>impl NamedDim for U4<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U4.html" title="struct nalgebra::core::dimension::U4">U4</a>;</span></code></li>
+<li><code>impl NamedDim for U5<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U5.html" title="struct nalgebra::core::dimension::U5">U5</a>;</span></code></li>
+<li><code>impl NamedDim for U6<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U6.html" title="struct nalgebra::core::dimension::U6">U6</a>;</span></code></li>
+<li><code>impl NamedDim for U7<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U7.html" title="struct nalgebra::core::dimension::U7">U7</a>;</span></code></li>
+<li><code>impl NamedDim for U8<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U8.html" title="struct nalgebra::core::dimension::U8">U8</a>;</span></code></li>
+<li><code>impl NamedDim for U9<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U9.html" title="struct nalgebra::core::dimension::U9">U9</a>;</span></code></li>
+<li><code>impl NamedDim for U10<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U10.html" title="struct nalgebra::core::dimension::U10">U10</a>;</span></code></li>
+<li><code>impl NamedDim for U11<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U11.html" title="struct nalgebra::core::dimension::U11">U11</a>;</span></code></li>
+<li><code>impl NamedDim for U12<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U12.html" title="struct nalgebra::core::dimension::U12">U12</a>;</span></code></li>
+<li><code>impl NamedDim for U13<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U13.html" title="struct nalgebra::core::dimension::U13">U13</a>;</span></code></li>
+<li><code>impl NamedDim for U14<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U14.html" title="struct nalgebra::core::dimension::U14">U14</a>;</span></code></li>
+<li><code>impl NamedDim for U15<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U15.html" title="struct nalgebra::core::dimension::U15">U15</a>;</span></code></li>
+<li><code>impl NamedDim for U16<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U16.html" title="struct nalgebra::core::dimension::U16">U16</a>;</span></code></li>
+<li><code>impl NamedDim for U17<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U17.html" title="struct nalgebra::core::dimension::U17">U17</a>;</span></code></li>
+<li><code>impl NamedDim for U18<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U18.html" title="struct nalgebra::core::dimension::U18">U18</a>;</span></code></li>
+<li><code>impl NamedDim for U19<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U19.html" title="struct nalgebra::core::dimension::U19">U19</a>;</span></code></li>
+<li><code>impl NamedDim for U20<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U20.html" title="struct nalgebra::core::dimension::U20">U20</a>;</span></code></li>
+<li><code>impl NamedDim for U21<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U21.html" title="struct nalgebra::core::dimension::U21">U21</a>;</span></code></li>
+<li><code>impl NamedDim for U22<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U22.html" title="struct nalgebra::core::dimension::U22">U22</a>;</span></code></li>
+<li><code>impl NamedDim for U23<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U23.html" title="struct nalgebra::core::dimension::U23">U23</a>;</span></code></li>
+<li><code>impl NamedDim for U24<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U24.html" title="struct nalgebra::core::dimension::U24">U24</a>;</span></code></li>
+<li><code>impl NamedDim for U25<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U25.html" title="struct nalgebra::core::dimension::U25">U25</a>;</span></code></li>
+<li><code>impl NamedDim for U26<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U26.html" title="struct nalgebra::core::dimension::U26">U26</a>;</span></code></li>
+<li><code>impl NamedDim for U27<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U27.html" title="struct nalgebra::core::dimension::U27">U27</a>;</span></code></li>
+<li><code>impl NamedDim for U28<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U28.html" title="struct nalgebra::core::dimension::U28">U28</a>;</span></code></li>
+<li><code>impl NamedDim for U29<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U29.html" title="struct nalgebra::core::dimension::U29">U29</a>;</span></code></li>
+<li><code>impl NamedDim for U30<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U30.html" title="struct nalgebra::core::dimension::U30">U30</a>;</span></code></li>
+<li><code>impl NamedDim for U31<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U31.html" title="struct nalgebra::core::dimension::U31">U31</a>;</span></code></li>
+<li><code>impl NamedDim for U32<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U32.html" title="struct nalgebra::core::dimension::U32">U32</a>;</span></code></li>
+<li><code>impl NamedDim for U33<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U33.html" title="struct nalgebra::core::dimension::U33">U33</a>;</span></code></li>
+<li><code>impl NamedDim for U34<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U34.html" title="struct nalgebra::core::dimension::U34">U34</a>;</span></code></li>
+<li><code>impl NamedDim for U35<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U35.html" title="struct nalgebra::core::dimension::U35">U35</a>;</span></code></li>
+<li><code>impl NamedDim for U36<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U36.html" title="struct nalgebra::core::dimension::U36">U36</a>;</span></code></li>
+<li><code>impl NamedDim for U37<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U37.html" title="struct nalgebra::core::dimension::U37">U37</a>;</span></code></li>
+<li><code>impl NamedDim for U38<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U38.html" title="struct nalgebra::core::dimension::U38">U38</a>;</span></code></li>
+<li><code>impl NamedDim for U39<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U39.html" title="struct nalgebra::core::dimension::U39">U39</a>;</span></code></li>
+<li><code>impl NamedDim for U40<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U40.html" title="struct nalgebra::core::dimension::U40">U40</a>;</span></code></li>
+<li><code>impl NamedDim for U41<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U41.html" title="struct nalgebra::core::dimension::U41">U41</a>;</span></code></li>
+<li><code>impl NamedDim for U42<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U42.html" title="struct nalgebra::core::dimension::U42">U42</a>;</span></code></li>
+<li><code>impl NamedDim for U43<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U43.html" title="struct nalgebra::core::dimension::U43">U43</a>;</span></code></li>
+<li><code>impl NamedDim for U44<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U44.html" title="struct nalgebra::core::dimension::U44">U44</a>;</span></code></li>
+<li><code>impl NamedDim for U45<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U45.html" title="struct nalgebra::core::dimension::U45">U45</a>;</span></code></li>
+<li><code>impl NamedDim for U46<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U46.html" title="struct nalgebra::core::dimension::U46">U46</a>;</span></code></li>
+<li><code>impl NamedDim for U47<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U47.html" title="struct nalgebra::core::dimension::U47">U47</a>;</span></code></li>
+<li><code>impl NamedDim for U48<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U48.html" title="struct nalgebra::core::dimension::U48">U48</a>;</span></code></li>
+<li><code>impl NamedDim for U49<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U49.html" title="struct nalgebra::core::dimension::U49">U49</a>;</span></code></li>
+<li><code>impl NamedDim for U50<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U50.html" title="struct nalgebra::core::dimension::U50">U50</a>;</span></code></li>
+<li><code>impl NamedDim for U51<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U51.html" title="struct nalgebra::core::dimension::U51">U51</a>;</span></code></li>
+<li><code>impl NamedDim for U52<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U52.html" title="struct nalgebra::core::dimension::U52">U52</a>;</span></code></li>
+<li><code>impl NamedDim for U53<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U53.html" title="struct nalgebra::core::dimension::U53">U53</a>;</span></code></li>
+<li><code>impl NamedDim for U54<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U54.html" title="struct nalgebra::core::dimension::U54">U54</a>;</span></code></li>
+<li><code>impl NamedDim for U55<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U55.html" title="struct nalgebra::core::dimension::U55">U55</a>;</span></code></li>
+<li><code>impl NamedDim for U56<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U56.html" title="struct nalgebra::core::dimension::U56">U56</a>;</span></code></li>
+<li><code>impl NamedDim for U57<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U57.html" title="struct nalgebra::core::dimension::U57">U57</a>;</span></code></li>
+<li><code>impl NamedDim for U58<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U58.html" title="struct nalgebra::core::dimension::U58">U58</a>;</span></code></li>
+<li><code>impl NamedDim for U59<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U59.html" title="struct nalgebra::core::dimension::U59">U59</a>;</span></code></li>
+<li><code>impl NamedDim for U60<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U60.html" title="struct nalgebra::core::dimension::U60">U60</a>;</span></code></li>
+<li><code>impl NamedDim for U61<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U61.html" title="struct nalgebra::core::dimension::U61">U61</a>;</span></code></li>
+<li><code>impl NamedDim for U62<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U62.html" title="struct nalgebra::core::dimension::U62">U62</a>;</span></code></li>
+<li><code>impl NamedDim for U63<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U63.html" title="struct nalgebra::core::dimension::U63">U63</a>;</span></code></li>
+<li><code>impl NamedDim for U64<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U64.html" title="struct nalgebra::core::dimension::U64">U64</a>;</span></code></li>
+<li><code>impl NamedDim for U65<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U65.html" title="struct nalgebra::core::dimension::U65">U65</a>;</span></code></li>
+<li><code>impl NamedDim for U66<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U66.html" title="struct nalgebra::core::dimension::U66">U66</a>;</span></code></li>
+<li><code>impl NamedDim for U67<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U67.html" title="struct nalgebra::core::dimension::U67">U67</a>;</span></code></li>
+<li><code>impl NamedDim for U68<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U68.html" title="struct nalgebra::core::dimension::U68">U68</a>;</span></code></li>
+<li><code>impl NamedDim for U69<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U69.html" title="struct nalgebra::core::dimension::U69">U69</a>;</span></code></li>
+<li><code>impl NamedDim for U70<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U70.html" title="struct nalgebra::core::dimension::U70">U70</a>;</span></code></li>
+<li><code>impl NamedDim for U71<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U71.html" title="struct nalgebra::core::dimension::U71">U71</a>;</span></code></li>
+<li><code>impl NamedDim for U72<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U72.html" title="struct nalgebra::core::dimension::U72">U72</a>;</span></code></li>
+<li><code>impl NamedDim for U73<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U73.html" title="struct nalgebra::core::dimension::U73">U73</a>;</span></code></li>
+<li><code>impl NamedDim for U74<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U74.html" title="struct nalgebra::core::dimension::U74">U74</a>;</span></code></li>
+<li><code>impl NamedDim for U75<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U75.html" title="struct nalgebra::core::dimension::U75">U75</a>;</span></code></li>
+<li><code>impl NamedDim for U76<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U76.html" title="struct nalgebra::core::dimension::U76">U76</a>;</span></code></li>
+<li><code>impl NamedDim for U77<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U77.html" title="struct nalgebra::core::dimension::U77">U77</a>;</span></code></li>
+<li><code>impl NamedDim for U78<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U78.html" title="struct nalgebra::core::dimension::U78">U78</a>;</span></code></li>
+<li><code>impl NamedDim for U79<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U79.html" title="struct nalgebra::core::dimension::U79">U79</a>;</span></code></li>
+<li><code>impl NamedDim for U80<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U80.html" title="struct nalgebra::core::dimension::U80">U80</a>;</span></code></li>
+<li><code>impl NamedDim for U81<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U81.html" title="struct nalgebra::core::dimension::U81">U81</a>;</span></code></li>
+<li><code>impl NamedDim for U82<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U82.html" title="struct nalgebra::core::dimension::U82">U82</a>;</span></code></li>
+<li><code>impl NamedDim for U83<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U83.html" title="struct nalgebra::core::dimension::U83">U83</a>;</span></code></li>
+<li><code>impl NamedDim for U84<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U84.html" title="struct nalgebra::core::dimension::U84">U84</a>;</span></code></li>
+<li><code>impl NamedDim for U85<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U85.html" title="struct nalgebra::core::dimension::U85">U85</a>;</span></code></li>
+<li><code>impl NamedDim for U86<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U86.html" title="struct nalgebra::core::dimension::U86">U86</a>;</span></code></li>
+<li><code>impl NamedDim for U87<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U87.html" title="struct nalgebra::core::dimension::U87">U87</a>;</span></code></li>
+<li><code>impl NamedDim for U88<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U88.html" title="struct nalgebra::core::dimension::U88">U88</a>;</span></code></li>
+<li><code>impl NamedDim for U89<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U89.html" title="struct nalgebra::core::dimension::U89">U89</a>;</span></code></li>
+<li><code>impl NamedDim for U90<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U90.html" title="struct nalgebra::core::dimension::U90">U90</a>;</span></code></li>
+<li><code>impl NamedDim for U91<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U91.html" title="struct nalgebra::core::dimension::U91">U91</a>;</span></code></li>
+<li><code>impl NamedDim for U92<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U92.html" title="struct nalgebra::core::dimension::U92">U92</a>;</span></code></li>
+<li><code>impl NamedDim for U93<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U93.html" title="struct nalgebra::core::dimension::U93">U93</a>;</span></code></li>
+<li><code>impl NamedDim for U94<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U94.html" title="struct nalgebra::core::dimension::U94">U94</a>;</span></code></li>
+<li><code>impl NamedDim for U95<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U95.html" title="struct nalgebra::core::dimension::U95">U95</a>;</span></code></li>
+<li><code>impl NamedDim for U96<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U96.html" title="struct nalgebra::core::dimension::U96">U96</a>;</span></code></li>
+<li><code>impl NamedDim for U97<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U97.html" title="struct nalgebra::core::dimension::U97">U97</a>;</span></code></li>
+<li><code>impl NamedDim for U98<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U98.html" title="struct nalgebra::core::dimension::U98">U98</a>;</span></code></li>
+<li><code>impl NamedDim for U99<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U99.html" title="struct nalgebra::core::dimension::U99">U99</a>;</span></code></li>
+<li><code>impl NamedDim for U100<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U100.html" title="struct nalgebra::core::dimension::U100">U100</a>;</span></code></li>
+<li><code>impl NamedDim for U101<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U101.html" title="struct nalgebra::core::dimension::U101">U101</a>;</span></code></li>
+<li><code>impl NamedDim for U102<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U102.html" title="struct nalgebra::core::dimension::U102">U102</a>;</span></code></li>
+<li><code>impl NamedDim for U103<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U103.html" title="struct nalgebra::core::dimension::U103">U103</a>;</span></code></li>
+<li><code>impl NamedDim for U104<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U104.html" title="struct nalgebra::core::dimension::U104">U104</a>;</span></code></li>
+<li><code>impl NamedDim for U105<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U105.html" title="struct nalgebra::core::dimension::U105">U105</a>;</span></code></li>
+<li><code>impl NamedDim for U106<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U106.html" title="struct nalgebra::core::dimension::U106">U106</a>;</span></code></li>
+<li><code>impl NamedDim for U107<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U107.html" title="struct nalgebra::core::dimension::U107">U107</a>;</span></code></li>
+<li><code>impl NamedDim for U108<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U108.html" title="struct nalgebra::core::dimension::U108">U108</a>;</span></code></li>
+<li><code>impl NamedDim for U109<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U109.html" title="struct nalgebra::core::dimension::U109">U109</a>;</span></code></li>
+<li><code>impl NamedDim for U110<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U110.html" title="struct nalgebra::core::dimension::U110">U110</a>;</span></code></li>
+<li><code>impl NamedDim for U111<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U111.html" title="struct nalgebra::core::dimension::U111">U111</a>;</span></code></li>
+<li><code>impl NamedDim for U112<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U112.html" title="struct nalgebra::core::dimension::U112">U112</a>;</span></code></li>
+<li><code>impl NamedDim for U113<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U113.html" title="struct nalgebra::core::dimension::U113">U113</a>;</span></code></li>
+<li><code>impl NamedDim for U114<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U114.html" title="struct nalgebra::core::dimension::U114">U114</a>;</span></code></li>
+<li><code>impl NamedDim for U115<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U115.html" title="struct nalgebra::core::dimension::U115">U115</a>;</span></code></li>
+<li><code>impl NamedDim for U116<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U116.html" title="struct nalgebra::core::dimension::U116">U116</a>;</span></code></li>
+<li><code>impl NamedDim for U117<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U117.html" title="struct nalgebra::core::dimension::U117">U117</a>;</span></code></li>
+<li><code>impl NamedDim for U118<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U118.html" title="struct nalgebra::core::dimension::U118">U118</a>;</span></code></li>
+<li><code>impl NamedDim for U119<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U119.html" title="struct nalgebra::core::dimension::U119">U119</a>;</span></code></li>
+<li><code>impl NamedDim for U120<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U120.html" title="struct nalgebra::core::dimension::U120">U120</a>;</span></code></li>
+<li><code>impl NamedDim for U121<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U121.html" title="struct nalgebra::core::dimension::U121">U121</a>;</span></code></li>
+<li><code>impl NamedDim for U122<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U122.html" title="struct nalgebra::core::dimension::U122">U122</a>;</span></code></li>
+<li><code>impl NamedDim for U123<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U123.html" title="struct nalgebra::core::dimension::U123">U123</a>;</span></code></li>
+<li><code>impl NamedDim for U124<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U124.html" title="struct nalgebra::core::dimension::U124">U124</a>;</span></code></li>
+<li><code>impl NamedDim for U125<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U125.html" title="struct nalgebra::core::dimension::U125">U125</a>;</span></code></li>
+<li><code>impl NamedDim for U126<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U126.html" title="struct nalgebra::core::dimension::U126">U126</a>;</span></code></li>
+<li><code>impl NamedDim for U127<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = <a class="struct" href="../../../nalgebra/core/dimension/struct.U127.html" title="struct nalgebra::core::dimension::U127">U127</a>;</span></code></li>
+<li><code>impl&lt;A:&nbsp;Bit + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>, B:&nbsp;Bit + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>, C:&nbsp;Bit + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>, D:&nbsp;Bit + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>, E:&nbsp;Bit + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>, F:&nbsp;Bit + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>, G:&nbsp;Bit + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>&gt; NamedDim for UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UInt&lt;UTerm, B1&gt;, A&gt;, B&gt;, C&gt;, D&gt;, E&gt;, F&gt;, G&gt;<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = Self;</span></code></li>
+<li><code>impl&lt;U:&nbsp;Unsigned + <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>, B:&nbsp;Bit + <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>&gt; NamedDim for UInt&lt;U, B&gt;<span class="where fmt-newline">  type <a href='#associatedtype.Name' class="type">Name</a> = UInt&lt;U, B&gt;;</span></code></li>
 </ul><script type="text/javascript" async
                          src="../../../implementors/nalgebra/core/dimension/trait.NamedDim.js">
                  </script></section>
@@ -246,7 +250,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

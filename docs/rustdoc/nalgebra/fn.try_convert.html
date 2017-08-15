@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc fn">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,13 +43,15 @@
         </form>
     </nav>
 
-    <section id='main' class="content fn">
-<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>nalgebra</a>::<wbr><a class='fn' href=''>try_convert</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>nalgebra</a>::<wbr><a class="fn" href=''>try_convert</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../src/nalgebra/lib.rs.html#454-456' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn try_convert&lt;From:&nbsp;SupersetOf&lt;To&gt;, To&gt;(t: From) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;To&gt;</pre><div class='docblock'><p>Attempts to convert an object to a more specific one.</p>
+               </span><a class='srclink' href='../src/nalgebra/lib.rs.html#462-464' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn try_convert&lt;From:&nbsp;SupersetOf&lt;To&gt;, To&gt;(t: From) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;To&gt;</pre><div class='docblock'><p>Attempts to convert an object to a more specific one.</p>
+
+<p>See also <code>::convert</code> for conversion to more general types.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 
@@ -107,7 +109,6 @@
         window.rootPath = "../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     <script defer src="../search-index.js"></script>
 

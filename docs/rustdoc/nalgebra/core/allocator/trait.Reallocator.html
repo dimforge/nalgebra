@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Reallocator` trait in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Reallocator">
+
+    <title>nalgebra::core::allocator::Reallocator - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc trait">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        
+        <p class='location'>Trait Reallocator</p><div class="block items"><ul><li><a href="#required-methods">Required Methods</a></li><li><a href="#implementors">Implementors</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>allocator</a></p><script>window.sidebarCurrent = {name: 'Reallocator', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>allocator</a>::<wbr><a class="trait" href=''>Reallocator</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/nalgebra/core/allocator.rs.html#32-44' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait Reallocator&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, RFrom:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, CFrom:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, RTo:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, CTo:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt;: <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, RFrom, CFrom&gt; + <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, RTo, CTo&gt; {
+    unsafe fn <a href='#tymethod.reallocate_copy' class='fnname'>reallocate_copy</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nrows: RTo, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ncols: CTo, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buf: Self::<a class="type" href="../../../nalgebra/core/allocator/trait.Allocator.html#associatedtype.Buffer" title="type nalgebra::core::allocator::Allocator::Buffer">Buffer</a><br>&nbsp;&nbsp;&nbsp;&nbsp;) -&gt; Self::<a class="type" href="../../../nalgebra/core/allocator/trait.Allocator.html#associatedtype.Buffer" title="type nalgebra::core::allocator::Allocator::Buffer">Buffer</a>;
+}</pre><div class='docblock'><p>A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
+CFrom) elements to a smaller or larger size (RTo, CTo).</p>
+</div>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
+            <div class='methods'>
+        <h3 id='tymethod.reallocate_copy' class='method'><span id='reallocate_copy.v' class='invisible'><code>unsafe fn <a href='#tymethod.reallocate_copy' class='fnname'>reallocate_copy</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;nrows: RTo, <br>&nbsp;&nbsp;&nbsp;&nbsp;ncols: CTo, <br>&nbsp;&nbsp;&nbsp;&nbsp;buf: Self::<a class="type" href="../../../nalgebra/core/allocator/trait.Allocator.html#associatedtype.Buffer" title="type nalgebra::core::allocator::Allocator::Buffer">Buffer</a><br>) -&gt; Self::<a class="type" href="../../../nalgebra/core/allocator/trait.Allocator.html#associatedtype.Buffer" title="type nalgebra::core::allocator::Allocator::Buffer">Buffer</a></code></span></h3><div class='docblock'><p>Reallocates a buffer of shape <code>(RTo, CTo)</code>, possibly reusing a previously allocated buffer
+<code>buf</code>. Data stored by <code>buf</code> are linearly copied to the output:</p>
+
+<ul>
+<li>The copy is performed as if both were just arrays (without a matrix structure).</li>
+<li>If <code>buf</code> is larger than the output size, then extra elements of <code>buf</code> are truncated.</li>
+<li>If <code>buf</code> is smaller than the output size, then extra elements of the output are left
+uninitialized.</li>
+</ul>
+</div></div>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, RFrom, CFrom, RTo, CTo&gt; Reallocator&lt;N, RFrom, CFrom, RTo, CTo&gt; for <a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;RFrom: <a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;CFrom: <a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;RTo: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;CTo: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;Self: <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, RFrom, CFrom&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;RTo::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Mul.html" title="trait core::ops::arith::Mul">Mul</a>&lt;CTo::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;Prod&lt;RTo::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>, CTo::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;: ArrayLength&lt;N&gt;,&nbsp;</span></code></li>
+<li><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, RFrom, CFrom, CTo&gt; Reallocator&lt;N, RFrom, CFrom, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, CTo&gt; for <a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;RFrom: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;CFrom: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;CTo: <a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;RFrom::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Mul.html" title="trait core::ops::arith::Mul">Mul</a>&lt;CFrom::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;Prod&lt;RFrom::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>, CFrom::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;: ArrayLength&lt;N&gt;,&nbsp;</span></code></li>
+<li><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, RFrom, CFrom, RTo&gt; Reallocator&lt;N, RFrom, CFrom, RTo, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt; for <a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;RFrom: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;CFrom: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;RTo: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;RFrom::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Mul.html" title="trait core::ops::arith::Mul">Mul</a>&lt;CFrom::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;Prod&lt;RFrom::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>, CFrom::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;: ArrayLength&lt;N&gt;,&nbsp;</span></code></li>
+<li><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, CFrom:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, CTo:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt; Reallocator&lt;N, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, CFrom, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, CTo&gt; for <a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a></code></li>
+<li><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, CFrom:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, RTo:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; Reallocator&lt;N, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, CFrom, RTo, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt; for <a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a></code></li>
+<li><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, RFrom:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>, CTo:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt; Reallocator&lt;N, RFrom, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, CTo&gt; for <a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a></code></li>
+<li><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, RFrom:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>, RTo:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; Reallocator&lt;N, RFrom, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, RTo, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt; for <a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a></code></li>
+</ul><script type="text/javascript" async
+                         src="../../../implementors/nalgebra/core/allocator/trait.Reallocator.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+
+
+  <script>var base_url = "../" + window.rootPath;</script>
+  <script src="/js/highlight.pack.js"></script>
+  <script src="/js/bootstrap-3.0.3.min.js"></script>
+  <script src="/js/base.js"></script>
+
+</body>
+</html>

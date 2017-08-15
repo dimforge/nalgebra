@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -317,260 +317,206 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::{<span class='ident'>AbstractMagma</span>, <span class='ident'>AbstractGroup</span>, <span class='ident'>AbstractLoop</span>, <span class='ident'>AbstractMonoid</span>, <span class='ident'>AbstractQuasigroup</span>,
-                    <span class='ident'>AbstractSemigroup</span>, <span class='ident'>Real</span>, <span class='ident'>Inverse</span>, <span class='ident'>Multiplicative</span>, <span class='ident'>Identity</span>, <span class='ident'>Id</span>};
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>linear</span>::{<span class='ident'>Transformation</span>, <span class='ident'>Similarity</span>, <span class='ident'>AffineTransformation</span>, <span class='ident'>Isometry</span>, <span class='ident'>DirectIsometry</span>,
-                   <span class='ident'>OrthogonalTransformation</span>, <span class='ident'>ProjectiveTransformation</span>, <span class='ident'>Rotation</span>};
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">AbstractMagma</span>, <span class="ident">AbstractGroup</span>, <span class="ident">AbstractLoop</span>, <span class="ident">AbstractMonoid</span>, <span class="ident">AbstractQuasigroup</span>,
+                    <span class="ident">AbstractSemigroup</span>, <span class="ident">Real</span>, <span class="ident">Inverse</span>, <span class="ident">Multiplicative</span>, <span class="ident">Identity</span>, <span class="ident">Id</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::{<span class="self">self</span>, <span class="ident">Transformation</span>, <span class="ident">Similarity</span>, <span class="ident">AffineTransformation</span>, <span class="ident">Isometry</span>,
+                   <span class="ident">DirectIsometry</span>, <span class="ident">OrthogonalTransformation</span>, <span class="ident">ProjectiveTransformation</span>};
 
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>ColumnVector</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>DimName</span>, <span class='ident'>U1</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::<span class='ident'>OwnedStorage</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::<span class='ident'>OwnedAllocator</span>;
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">VectorN</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::<span class="ident">DimName</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-<span class='kw'>use</span> <span class='ident'>geometry</span>::{<span class='ident'>RotationBase</span>, <span class='ident'>PointBase</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Rotation</span>, <span class="ident">Point</span>};
 
 
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Algebraic structures.
  *
  */</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Identity</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>identity</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>identity</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">Identity</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">identity</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>Inverse</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>transpose</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">Inverse</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">transpose</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>transpose_mut</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">transpose_mut</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>AbstractMagma</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>operate</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rhs</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>rhs</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">AbstractMagma</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">operate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>
     }
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_multiplicative_structures</span>(
-    ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>marker</span>: <span class='ident'>ident</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>operator</span>: <span class='ident'>ident</span><span class='op'>&gt;</span>),<span class='op'>*</span> $(,)<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {$(
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>marker</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>operator</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-            <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Real</span>,
-                  <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-                  <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span> { }
-    )<span class='kw-2'>*</span>}
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_multiplicative_structures</span>(
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">marker</span>: <span class="ident">ident</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">operator</span>: <span class="ident">ident</span><span class="op">&gt;</span>),<span class="op">*</span> $(,)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">marker</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">operator</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+            <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> { }
+    )<span class="kw-2">*</span>}
 );
 
-<span class='macro'>impl_multiplicative_structures</span><span class='macro'>!</span>(
-    <span class='ident'>AbstractSemigroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractMonoid</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractQuasigroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractLoop</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>,
-    <span class='ident'>AbstractGroup</span><span class='op'>&lt;</span><span class='ident'>Multiplicative</span><span class='op'>&gt;</span>
+<span class="macro">impl_multiplicative_structures</span><span class="macro">!</span>(
+    <span class="ident">AbstractSemigroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractMonoid</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractQuasigroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractLoop</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>,
+    <span class="ident">AbstractGroup</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span>
 );
 
-<span class='comment'>/*
+<span class="comment">/*
  *
  * Transformation groups.
  *
  */</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>Transformation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>transform_point</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>pt</span>: <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>pt</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">Transformation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">transform_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">pt</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>transform_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>v</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">transform_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">v</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>ProjectiveTransformation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse_transform_point</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>pt</span>: <span class='kw-2'>&amp;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='ident'>PointBase</span>::<span class='ident'>from_coordinates</span>(<span class='self'>self</span>.<span class='ident'>inverse_transform_vector</span>(<span class='kw-2'>&amp;</span><span class='ident'>pt</span>.<span class='ident'>coords</span>))
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">ProjectiveTransformation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse_transform_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="ident">Point</span>::<span class="ident">from_coordinates</span>(<span class="self">self</span>.<span class="ident">inverse_transform_vector</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>.<span class="ident">coords</span>))
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>inverse_transform_vector</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>v</span>: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>matrix</span>().<span class='ident'>tr_mul</span>(<span class='ident'>v</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">inverse_transform_vector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">matrix</span>().<span class="ident">tr_mul</span>(<span class="ident">v</span>)
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>AffineTransformation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Rotation</span>          <span class='op'>=</span> <span class='self'>Self</span>;
-    <span class='kw'>type</span> <span class='ident'>NonUniformScaling</span> <span class='op'>=</span> <span class='ident'>Id</span>;
-    <span class='kw'>type</span> <span class='ident'>Translation</span>       <span class='op'>=</span> <span class='ident'>Id</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">AffineTransformation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Rotation</span>          <span class="op">=</span> <span class="self">Self</span>;
+    <span class="kw">type</span> <span class="ident">NonUniformScaling</span> <span class="op">=</span> <span class="ident">Id</span>;
+    <span class="kw">type</span> <span class="ident">Translation</span>       <span class="op">=</span> <span class="ident">Id</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>decompose</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> (<span class='ident'>Id</span>, <span class='self'>Self</span>, <span class='ident'>Id</span>, <span class='self'>Self</span>) {
-        (<span class='ident'>Id</span>::<span class='ident'>new</span>(), <span class='self'>self</span>.<span class='ident'>clone</span>(), <span class='ident'>Id</span>::<span class='ident'>new</span>(), <span class='self'>Self</span>::<span class='ident'>identity</span>())
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">decompose</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">Id</span>, <span class="self">Self</span>, <span class="ident">Id</span>, <span class="self">Self</span>) {
+        (<span class="ident">Id</span>::<span class="ident">new</span>(), <span class="self">self</span>.<span class="ident">clone</span>(), <span class="ident">Id</span>::<span class="ident">new</span>(), <span class="self">Self</span>::<span class="ident">identity</span>())
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>Translation</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">append_translation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Translation</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>Translation</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">prepend_translation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Translation</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>Rotation</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='ident'>r</span> <span class='op'>*</span> <span class='self'>self</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">append_rotation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Rotation</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">r</span> <span class="op">*</span> <span class="self">self</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>r</span>: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>Rotation</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span> <span class='op'>*</span> <span class='ident'>r</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">prepend_rotation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Rotation</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span> <span class="op">*</span> <span class="ident">r</span>
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>append_scaling</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>NonUniformScaling</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">append_scaling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">NonUniformScaling</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>prepend_scaling</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='kw-2'>&amp;</span><span class='self'>Self</span>::<span class='ident'>NonUniformScaling</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">prepend_scaling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">NonUniformScaling</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 }
 
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>Similarity</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='kw'>type</span> <span class='ident'>Scaling</span>  <span class='op'>=</span> <span class='ident'>Id</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Scaling</span>  <span class="op">=</span> <span class="ident">Id</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>translation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Id</span> {
-        <span class='ident'>Id</span>::<span class='ident'>new</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">translation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Id</span> {
+        <span class="ident">Id</span>::<span class="ident">new</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rotation</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>self</span>.<span class='ident'>clone</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rotation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>scaling</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Id</span> {
-        <span class='ident'>Id</span>::<span class='ident'>new</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">scaling</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Id</span> {
+        <span class="ident">Id</span>::<span class="ident">new</span>()
     }
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>marker_impl</span>(
-    ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Trait</span>: <span class='ident'>ident</span>),<span class='kw-2'>*</span>) <span class='op'>=&gt;</span> {$(
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>Trait</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-        <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>Real</span>,
-              <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-              <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-              <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-              <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> { }
-    )<span class='kw-2'>*</span>}
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">marker_impl</span>(
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span>: <span class="ident">ident</span>),<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                                <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> { }
+    )<span class="kw-2">*</span>}
 );
 
-<span class='macro'>marker_impl</span><span class='macro'>!</span>(<span class='ident'>Isometry</span>, <span class='ident'>DirectIsometry</span>, <span class='ident'>OrthogonalTransformation</span>);
+<span class="macro">marker_impl</span><span class="macro">!</span>(<span class="ident">Isometry</span>, <span class="ident">DirectIsometry</span>, <span class="ident">OrthogonalTransformation</span>);
 
 
-<span class='doccomment'>/// Subgroups of the n-dimensional rotation group `SO(n)`.</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>SA</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>PointBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>:  <span class='ident'>Real</span>,
-          <span class='ident'>SA</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>Alloc</span> <span class='op'>=</span> <span class='ident'>SA</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>,
-          <span class='ident'>SA</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>SA</span><span class='op'>&gt;</span>,
-          <span class='ident'>SB</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span>, <span class='ident'>SB</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>powf</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, _: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span> {
-        <span class='comment'>// XXX: Add the general case.</span>
-        <span class='comment'>// XXX: Use specialization for 2D and 3D.</span>
-        <span class='macro'>unimplemented</span><span class='macro'>!</span>()
+<span class="doccomment">/// Subgroups of the n-dimensional rotation group `SO(n)`.</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">linear</span>::<span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
+                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">powf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, _: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="comment">// XXX: Add the general case.</span>
+        <span class="comment">// XXX: Use specialization for 2D and 3D.</span>
+        <span class="macro">unimplemented</span><span class="macro">!</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rotation_between</span>(_: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span> {
-        <span class='comment'>// XXX: Add the general case.</span>
-        <span class='comment'>// XXX: Use specialization for 2D and 3D.</span>
-        <span class='macro'>unimplemented</span><span class='macro'>!</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rotation_between</span>(_: <span class="kw-2">&amp;</span><span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, _: <span class="kw-2">&amp;</span><span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="comment">// XXX: Add the general case.</span>
+        <span class="comment">// XXX: Use specialization for 2D and 3D.</span>
+        <span class="macro">unimplemented</span><span class="macro">!</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>scaled_rotation_between</span>(_: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>ColumnVector</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>SB</span><span class='op'>&gt;</span>, _: <span class='ident'>N</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='self'>Self</span><span class='op'>&gt;</span> {
-        <span class='comment'>// XXX: Add the general case.</span>
-        <span class='comment'>// XXX: Use specialization for 2D and 3D.</span>
-        <span class='macro'>unimplemented</span><span class='macro'>!</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">scaled_rotation_between</span>(_: <span class="kw-2">&amp;</span><span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, _: <span class="kw-2">&amp;</span><span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, _: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="comment">// XXX: Add the general case.</span>
+        <span class="comment">// XXX: Use specialization for 2D and 3D.</span>
+        <span class="macro">unimplemented</span><span class="macro">!</span>()
     }
 }
 
-<span class='comment'>/*
-impl&lt;N: Real&gt; Matrix for RotationBase&lt;N&gt; {
+<span class="comment">/*
+impl&lt;N: Real&gt; Matrix for Rotation&lt;N&gt; {
     type Field     = N;
     type Row       = Matrix&lt;N&gt;;
     type Column    = Matrix&lt;N&gt;;
@@ -608,11 +554,11 @@ impl&lt;N: Real&gt; Matrix for RotationBase&lt;N&gt; {
 
     #[inline]
     fn transpose(&amp;self) -&gt; Self::Transpose {
-        RotationBase::from_matrix_unchecked(self.submatrix.transpose())
+        Rotation::from_matrix_unchecked(self.submatrix.transpose())
     }
 }
 
-impl&lt;N: Real&gt; SquareMatrix for RotationBase&lt;N&gt; {
+impl&lt;N: Real&gt; SquareMatrix for Rotation&lt;N&gt; {
     type Vector = Matrix&lt;N&gt;;
 
     #[inline]
@@ -642,7 +588,7 @@ impl&lt;N: Real&gt; SquareMatrix for RotationBase&lt;N&gt; {
     }
 }
 
-impl&lt;N: Real&gt; InversibleSquareMatrix for RotationBase&lt;N&gt; { }
+impl&lt;N: Real&gt; InversibleSquareMatrix for Rotation&lt;N&gt; { }
 */</span>
 
 
@@ -704,7 +650,6 @@ impl&lt;N: Real&gt; InversibleSquareMatrix for RotationBase&lt;N&gt; { }
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

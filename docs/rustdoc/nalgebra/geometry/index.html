@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc mod">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'geometry', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module geometry</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'><a href='../index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'geometry', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,127 +43,134 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>nalgebra</a>::<wbr><a class='mod' href=''>geometry</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>nalgebra</a>::<wbr><a class="mod" href=''>geometry</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/nalgebra/geometry/mod.rs.html#1-91' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../../src/nalgebra/geometry/mod.rs.html#1-93' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>[Reexported at the root of this crate.] Data structures for points and usual transformations
 (rotations, isometries, etc.)</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.IsometryBase.html'
-                                  title='nalgebra::geometry::IsometryBase'>IsometryBase</a></td>
+                           <td><a class="struct" href="struct.Isometry.html"
+                                  title='struct nalgebra::geometry::Isometry'>Isometry</a></td>
                            <td class='docblock-short'>
                                 <p>A direct isometry, i.e., a rotation followed by a translation.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.OrthographicBase.html'
-                                  title='nalgebra::geometry::OrthographicBase'>OrthographicBase</a></td>
+                           <td><a class="struct" href="struct.Orthographic3.html"
+                                  title='struct nalgebra::geometry::Orthographic3'>Orthographic3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3D orthographic projection stored as an homogeneous 4x4 matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.PerspectiveBase.html'
-                                  title='nalgebra::geometry::PerspectiveBase'>PerspectiveBase</a></td>
+                           <td><a class="struct" href="struct.Perspective3.html"
+                                  title='struct nalgebra::geometry::Perspective3'>Perspective3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3D perspective projection stored as an homogeneous 4x4 matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.PointBase.html'
-                                  title='nalgebra::geometry::PointBase'>PointBase</a></td>
+                           <td><a class="struct" href="struct.Point.html"
+                                  title='struct nalgebra::geometry::Point'>Point</a></td>
                            <td class='docblock-short'>
                                 <p>A point in a n-dimensional euclidean space.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.QuaternionBase.html'
-                                  title='nalgebra::geometry::QuaternionBase'>QuaternionBase</a></td>
+                           <td><a class="struct" href="struct.Quaternion.html"
+                                  title='struct nalgebra::geometry::Quaternion'>Quaternion</a></td>
                            <td class='docblock-short'>
-                                <p>A quaternion. See the type alias <code>UnitQuaternionBase = Unit&lt;QuaternionBase&gt;</code> for a quaternion
+                                <p>A quaternion. See the type alias <code>UnitQuaternion = Unit&lt;Quaternion&gt;</code> for a quaternion
 that may be used as a rotation.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.RotationBase.html'
-                                  title='nalgebra::geometry::RotationBase'>RotationBase</a></td>
+                           <td><a class="struct" href="struct.Reflection.html"
+                                  title='struct nalgebra::geometry::Reflection'>Reflection</a></td>
+                           <td class='docblock-short'>
+                                <p>A reflection wrt. a plane.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Rotation.html"
+                                  title='struct nalgebra::geometry::Rotation'>Rotation</a></td>
                            <td class='docblock-short'>
                                 <p>A rotation matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.SimilarityBase.html'
-                                  title='nalgebra::geometry::SimilarityBase'>SimilarityBase</a></td>
+                           <td><a class="struct" href="struct.Similarity.html"
+                                  title='struct nalgebra::geometry::Similarity'>Similarity</a></td>
                            <td class='docblock-short'>
                                 <p>A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.TransformBase.html'
-                                  title='nalgebra::geometry::TransformBase'>TransformBase</a></td>
+                           <td><a class="struct" href="struct.Transform.html"
+                                  title='struct nalgebra::geometry::Transform'>Transform</a></td>
                            <td class='docblock-short'>
                                 <p>A transformation matrix in homogeneous coordinates.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.TranslationBase.html'
-                                  title='nalgebra::geometry::TranslationBase'>TranslationBase</a></td>
+                           <td><a class="struct" href="struct.Translation.html"
+                                  title='struct nalgebra::geometry::Translation'>Translation</a></td>
                            <td class='docblock-short'>
                                 <p>A translation.</p>
                            </td>
                        </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='enum' href='enum.TAffine.html'
-                                  title='nalgebra::geometry::TAffine'>TAffine</a></td>
+                           <td><a class="enum" href="enum.TAffine.html"
+                                  title='enum nalgebra::geometry::TAffine'>TAffine</a></td>
                            <td class='docblock-short'>
                                 <p>Tag representing an affine <code>Transform</code>. Its bottom-row is equal to <code>(0, 0 ... 0, 1)</code>.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='enum' href='enum.TGeneral.html'
-                                  title='nalgebra::geometry::TGeneral'>TGeneral</a></td>
+                           <td><a class="enum" href="enum.TGeneral.html"
+                                  title='enum nalgebra::geometry::TGeneral'>TGeneral</a></td>
                            <td class='docblock-short'>
                                 <p>Tag representing the most general (not necessarily inversible) <code>Transform</code> type.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='enum' href='enum.TProjective.html'
-                                  title='nalgebra::geometry::TProjective'>TProjective</a></td>
+                           <td><a class="enum" href="enum.TProjective.html"
+                                  title='enum nalgebra::geometry::TProjective'>TProjective</a></td>
                            <td class='docblock-short'>
                                 <p>Tag representing the most general inversible <code>Transform</code> type.</p>
                            </td>
                        </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.SubTCategoryOf.html'
-                                  title='nalgebra::geometry::SubTCategoryOf'>SubTCategoryOf</a></td>
+                           <td><a class="trait" href="trait.SubTCategoryOf.html"
+                                  title='trait nalgebra::geometry::SubTCategoryOf'>SubTCategoryOf</a></td>
                            <td class='docblock-short'>
                                 <p>Indicates that <code>Self</code> is a more specific <code>Transform</code> category than <code>Other</code>.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.SuperTCategoryOf.html'
-                                  title='nalgebra::geometry::SuperTCategoryOf'>SuperTCategoryOf</a></td>
+                           <td><a class="trait" href="trait.SuperTCategoryOf.html"
+                                  title='trait nalgebra::geometry::SuperTCategoryOf'>SuperTCategoryOf</a></td>
                            <td class='docblock-short'>
                                 <p>Indicates that <code>Self</code> is a more general <code>Transform</code> category than <code>Other</code>.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.TCategory.html'
-                                  title='nalgebra::geometry::TCategory'>TCategory</a></td>
+                           <td><a class="trait" href="trait.TCategory.html"
+                                  title='trait nalgebra::geometry::TCategory'>TCategory</a></td>
                            <td class='docblock-short'>
                                 <p>Trait implemented by phantom types identifying the projective transformation type.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.TCategoryMul.html'
-                                  title='nalgebra::geometry::TCategoryMul'>TCategoryMul</a></td>
+                           <td><a class="trait" href="trait.TCategoryMul.html"
+                                  title='trait nalgebra::geometry::TCategoryMul'>TCategoryMul</a></td>
                            <td class='docblock-short'>
                                 <p>Traits that gives the <code>Transform</code> category that is compatible with the result of the
 multiplication of transformations with categories <code>Self</code> and <code>Other</code>.</p>
@@ -171,339 +178,183 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                        </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Affine.html'
-                                  title='nalgebra::geometry::Affine'>Affine</a></td>
-                           <td class='docblock-short'>
-                                <p>A <code>D</code>-dimensional affine transformation. Stored as an homogeneous <code>(D + 1) × (D + 1)</code> matrix.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Affine2.html'
-                                  title='nalgebra::geometry::Affine2'>Affine2</a></td>
+                           <td><a class="type" href="type.Affine2.html"
+                                  title='type nalgebra::geometry::Affine2'>Affine2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2D affine transformation. Stored as an homogeneous 3x3 matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Affine3.html'
-                                  title='nalgebra::geometry::Affine3'>Affine3</a></td>
+                           <td><a class="type" href="type.Affine3.html"
+                                  title='type nalgebra::geometry::Affine3'>Affine3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3D affine transformation. Stored as an homogeneous 4x4 matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Isometry.html'
-                                  title='nalgebra::geometry::Isometry'>Isometry</a></td>
-                           <td class='docblock-short'>
-                                <p>A D-dimensional isometry.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Isometry2.html'
-                                  title='nalgebra::geometry::Isometry2'>Isometry2</a></td>
+                           <td><a class="type" href="type.Isometry2.html"
+                                  title='type nalgebra::geometry::Isometry2'>Isometry2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional isometry using a unit complex number for its rotational part.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Isometry3.html'
-                                  title='nalgebra::geometry::Isometry3'>Isometry3</a></td>
+                           <td><a class="type" href="type.Isometry3.html"
+                                  title='type nalgebra::geometry::Isometry3'>Isometry3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional isometry using a unit quaternion for its rotational part.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.IsometryMatrix2.html'
-                                  title='nalgebra::geometry::IsometryMatrix2'>IsometryMatrix2</a></td>
+                           <td><a class="type" href="type.IsometryMatrix2.html"
+                                  title='type nalgebra::geometry::IsometryMatrix2'>IsometryMatrix2</a></td>
                            <td class='docblock-short'>
-                                <p>A 2-dimensional isometry using a rotation matrix for its rotation part.</p>
+                                <p>A 2-dimensional isometry using a rotation matrix for its rotational part.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.IsometryMatrix3.html'
-                                  title='nalgebra::geometry::IsometryMatrix3'>IsometryMatrix3</a></td>
+                           <td><a class="type" href="type.IsometryMatrix3.html"
+                                  title='type nalgebra::geometry::IsometryMatrix3'>IsometryMatrix3</a></td>
                            <td class='docblock-short'>
-                                <p>A 3-dimensional isometry using a rotation matrix for its rotation part.</p>
+                                <p>A 3-dimensional isometry using a rotation matrix for its rotational part.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Orthographic3.html'
-                                  title='nalgebra::geometry::Orthographic3'>Orthographic3</a></td>
-                           <td class='docblock-short'>
-                                <p>A 3D orthographic projection stored as a static homogeneous 4x4 matrix.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.OwnedIsometryBase.html'
-                                  title='nalgebra::geometry::OwnedIsometryBase'>OwnedIsometryBase</a></td>
-                           <td class='docblock-short'>
-                                <p>An isometry that uses a data storage deduced from the allocator <code>A</code>.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.OwnedPoint.html'
-                                  title='nalgebra::geometry::OwnedPoint'>OwnedPoint</a></td>
-                           <td class='docblock-short'>
-                                <p>A point with an owned storage.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.OwnedQuaternionBase.html'
-                                  title='nalgebra::geometry::OwnedQuaternionBase'>OwnedQuaternionBase</a></td>
-                           <td class='docblock-short'>
-                                <p>A quaternion with an owned storage allocated by <code>A</code>.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.OwnedRotation.html'
-                                  title='nalgebra::geometry::OwnedRotation'>OwnedRotation</a></td>
-                           <td class='docblock-short'>
-                                <p>A rotation matrix with an owned storage.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.OwnedSimilarityBase.html'
-                                  title='nalgebra::geometry::OwnedSimilarityBase'>OwnedSimilarityBase</a></td>
-                           <td class='docblock-short'>
-                                <p>A similarity that uses a data storage deduced from the allocator <code>A</code>.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.OwnedTransform.html'
-                                  title='nalgebra::geometry::OwnedTransform'>OwnedTransform</a></td>
-                           <td class='docblock-short'>
-                                <p>A transformation matrix that owns its data.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.OwnedTranslation.html'
-                                  title='nalgebra::geometry::OwnedTranslation'>OwnedTranslation</a></td>
-                           <td class='docblock-short'>
-                                <p>A translation with an owned vector storage.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.OwnedUnitQuaternionBase.html'
-                                  title='nalgebra::geometry::OwnedUnitQuaternionBase'>OwnedUnitQuaternionBase</a></td>
-                           <td class='docblock-short'>
-                                <p>A unit quaternion with an owned storage allocated by <code>A</code>.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Perspective3.html'
-                                  title='nalgebra::geometry::Perspective3'>Perspective3</a></td>
-                           <td class='docblock-short'>
-                                <p>A 3D perspective projection stored as a static homogeneous 4x4 matrix.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Point.html'
-                                  title='nalgebra::geometry::Point'>Point</a></td>
-                           <td class='docblock-short'>
-                                <p>A statically sized D-dimensional column point.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Point1.html'
-                                  title='nalgebra::geometry::Point1'>Point1</a></td>
+                           <td><a class="type" href="type.Point1.html"
+                                  title='type nalgebra::geometry::Point1'>Point1</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 1-dimensional column point.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Point2.html'
-                                  title='nalgebra::geometry::Point2'>Point2</a></td>
+                           <td><a class="type" href="type.Point2.html"
+                                  title='type nalgebra::geometry::Point2'>Point2</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 2-dimensional column point.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Point3.html'
-                                  title='nalgebra::geometry::Point3'>Point3</a></td>
+                           <td><a class="type" href="type.Point3.html"
+                                  title='type nalgebra::geometry::Point3'>Point3</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 3-dimensional column point.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Point4.html'
-                                  title='nalgebra::geometry::Point4'>Point4</a></td>
+                           <td><a class="type" href="type.Point4.html"
+                                  title='type nalgebra::geometry::Point4'>Point4</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 4-dimensional column point.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Point5.html'
-                                  title='nalgebra::geometry::Point5'>Point5</a></td>
+                           <td><a class="type" href="type.Point5.html"
+                                  title='type nalgebra::geometry::Point5'>Point5</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 5-dimensional column point.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Point6.html'
-                                  title='nalgebra::geometry::Point6'>Point6</a></td>
+                           <td><a class="type" href="type.Point6.html"
+                                  title='type nalgebra::geometry::Point6'>Point6</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 6-dimensional column point.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.PointMul.html'
-                                  title='nalgebra::geometry::PointMul'>PointMul</a></td>
-                           <td class='docblock-short'>
-                                <p>The type of the result of the multiplication of a point by a matrix.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.PointSum.html'
-                                  title='nalgebra::geometry::PointSum'>PointSum</a></td>
-                           <td class='docblock-short'>
-                                <p>The type of the result of the sum of a point with a vector.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Projective.html'
-                                  title='nalgebra::geometry::Projective'>Projective</a></td>
-                           <td class='docblock-short'>
-                                <p>An inversible <code>D</code>-dimensional general transformation. Stored as an homogeneous
-<code>(D + 1) × (D + 1)</code> matrix.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Projective2.html'
-                                  title='nalgebra::geometry::Projective2'>Projective2</a></td>
+                           <td><a class="type" href="type.Projective2.html"
+                                  title='type nalgebra::geometry::Projective2'>Projective2</a></td>
                            <td class='docblock-short'>
                                 <p>An inversible 2D general transformation. Stored as an homogeneous 3x3 matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Projective3.html'
-                                  title='nalgebra::geometry::Projective3'>Projective3</a></td>
+                           <td><a class="type" href="type.Projective3.html"
+                                  title='type nalgebra::geometry::Projective3'>Projective3</a></td>
                            <td class='docblock-short'>
                                 <p>An inversible 3D general transformation. Stored as an homogeneous 4x4 matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Quaternion.html'
-                                  title='nalgebra::geometry::Quaternion'>Quaternion</a></td>
-                           <td class='docblock-short'>
-                                <p>A statically-allocated quaternion.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Rotation.html'
-                                  title='nalgebra::geometry::Rotation'>Rotation</a></td>
-                           <td class='docblock-short'>
-                                <p>A D-dimensional rotation matrix.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Rotation2.html'
-                                  title='nalgebra::geometry::Rotation2'>Rotation2</a></td>
+                           <td><a class="type" href="type.Rotation2.html"
+                                  title='type nalgebra::geometry::Rotation2'>Rotation2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional rotation matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Rotation3.html'
-                                  title='nalgebra::geometry::Rotation3'>Rotation3</a></td>
+                           <td><a class="type" href="type.Rotation3.html"
+                                  title='type nalgebra::geometry::Rotation3'>Rotation3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional rotation matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Similarity.html'
-                                  title='nalgebra::geometry::Similarity'>Similarity</a></td>
-                           <td class='docblock-short'>
-                                <p>A D-dimensional similarity.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Similarity2.html'
-                                  title='nalgebra::geometry::Similarity2'>Similarity2</a></td>
+                           <td><a class="type" href="type.Similarity2.html"
+                                  title='type nalgebra::geometry::Similarity2'>Similarity2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional similarity.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Similarity3.html'
-                                  title='nalgebra::geometry::Similarity3'>Similarity3</a></td>
+                           <td><a class="type" href="type.Similarity3.html"
+                                  title='type nalgebra::geometry::Similarity3'>Similarity3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional similarity.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.SimilarityMatrix2.html'
-                                  title='nalgebra::geometry::SimilarityMatrix2'>SimilarityMatrix2</a></td>
+                           <td><a class="type" href="type.SimilarityMatrix2.html"
+                                  title='type nalgebra::geometry::SimilarityMatrix2'>SimilarityMatrix2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional similarity using a rotation matrix for its rotation part.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.SimilarityMatrix3.html'
-                                  title='nalgebra::geometry::SimilarityMatrix3'>SimilarityMatrix3</a></td>
+                           <td><a class="type" href="type.SimilarityMatrix3.html"
+                                  title='type nalgebra::geometry::SimilarityMatrix3'>SimilarityMatrix3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional similarity using a rotation matrix for its rotation part.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Transform.html'
-                                  title='nalgebra::geometry::Transform'>Transform</a></td>
-                           <td class='docblock-short'>
-                                <p>A <code>D</code>-dimensional general transformation that may not be inversible. Stored as an homogeneous
-<code>(D + 1) × (D + 1)</code> matrix.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Transform2.html'
-                                  title='nalgebra::geometry::Transform2'>Transform2</a></td>
+                           <td><a class="type" href="type.Transform2.html"
+                                  title='type nalgebra::geometry::Transform2'>Transform2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2D general transformation that may not be inversible. Stored as an homogeneous 3x3 matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Transform3.html'
-                                  title='nalgebra::geometry::Transform3'>Transform3</a></td>
+                           <td><a class="type" href="type.Transform3.html"
+                                  title='type nalgebra::geometry::Transform3'>Transform3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3D general transformation that may not be inversible. Stored as an homogeneous 4x4 matrix.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Translation.html'
-                                  title='nalgebra::geometry::Translation'>Translation</a></td>
-                           <td class='docblock-short'>
-                                <p>A D-dimensional translation.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.Translation2.html'
-                                  title='nalgebra::geometry::Translation2'>Translation2</a></td>
+                           <td><a class="type" href="type.Translation2.html"
+                                  title='type nalgebra::geometry::Translation2'>Translation2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional translation.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.Translation3.html'
-                                  title='nalgebra::geometry::Translation3'>Translation3</a></td>
+                           <td><a class="type" href="type.Translation3.html"
+                                  title='type nalgebra::geometry::Translation3'>Translation3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional translation.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.UnitComplex.html'
-                                  title='nalgebra::geometry::UnitComplex'>UnitComplex</a></td>
+                           <td><a class="type" href="type.UnitComplex.html"
+                                  title='type nalgebra::geometry::UnitComplex'>UnitComplex</a></td>
                            <td class='docblock-short'>
                                 <p>A complex number with a norm equal to 1.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.UnitQuaternion.html'
-                                  title='nalgebra::geometry::UnitQuaternion'>UnitQuaternion</a></td>
-                           <td class='docblock-short'>
-                                <p>A statically-allocated unit quaternion.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='type' href='type.UnitQuaternionBase.html'
-                                  title='nalgebra::geometry::UnitQuaternionBase'>UnitQuaternionBase</a></td>
+                           <td><a class="type" href="type.UnitQuaternion.html"
+                                  title='type nalgebra::geometry::UnitQuaternion'>UnitQuaternion</a></td>
                            <td class='docblock-short'>
                                 <p>A unit quaternions. May be used to represent a rotation.</p>
                            </td>
@@ -564,7 +415,6 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
         window.rootPath = "../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 

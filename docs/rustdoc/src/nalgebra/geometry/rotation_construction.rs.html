@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -71,39 +71,33 @@
 <span id="26">26</span>
 <span id="27">27</span>
 <span id="28">28</span>
-<span id="29">29</span>
-<span id="30">30</span>
-<span id="31">31</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>num</span>::{<span class='ident'>Zero</span>, <span class='ident'>One</span>};
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">Zero</span>, <span class="ident">One</span>};
 
-<span class='kw'>use</span> <span class='ident'>alga</span>::<span class='ident'>general</span>::{<span class='ident'>ClosedAdd</span>, <span class='ident'>ClosedMul</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">ClosedAdd</span>, <span class="ident">ClosedMul</span>};
 
-<span class='kw'>use</span> <span class='ident'>core</span>::{<span class='ident'>SquareMatrix</span>, <span class='ident'>Scalar</span>};
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::<span class='ident'>DimName</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>storage</span>::<span class='ident'>OwnedStorage</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>allocator</span>::<span class='ident'>OwnedAllocator</span>;
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">MatrixN</span>, <span class="ident">Scalar</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::<span class="ident">DimName</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-<span class='kw'>use</span> <span class='ident'>geometry</span>::<span class='ident'>RotationBase</span>;
+<span class="kw">use</span> <span class="ident">geometry</span>::<span class="ident">Rotation</span>;
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Zero</span> <span class='op'>+</span> <span class='ident'>One</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Creates a new square identity rotation of the given `dimension`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>identity</span>() <span class='op'>-&gt;</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-        <span class='self'>Self</span>::<span class='ident'>from_matrix_unchecked</span>(<span class='ident'>SquareMatrix</span>::<span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>::<span class='ident'>identity</span>())
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new square identity rotation of the given `dimension`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+        <span class="self">Self</span>::<span class="ident">from_matrix_unchecked</span>(<span class="ident">MatrixN</span>::<span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>::<span class="ident">identity</span>())
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>: <span class='ident'>DimName</span>, <span class='ident'>S</span><span class='op'>&gt;</span> <span class='ident'>One</span> <span class='kw'>for</span> <span class='ident'>RotationBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span>
-    <span class='kw'>where</span> <span class='ident'>N</span>: <span class='ident'>Scalar</span> <span class='op'>+</span> <span class='ident'>Zero</span> <span class='op'>+</span> <span class='ident'>One</span> <span class='op'>+</span> <span class='ident'>ClosedAdd</span> <span class='op'>+</span> <span class='ident'>ClosedMul</span>,
-          <span class='ident'>S</span>: <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span><span class='op'>&gt;</span>,
-          <span class='ident'>S</span>::<span class='ident'>Alloc</span>: <span class='ident'>OwnedAllocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>D</span>, <span class='ident'>S</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>one</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
-        <span class='self'>Self</span>::<span class='ident'>identity</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">One</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedMul</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">one</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">identity</span>()
     }
 }
 </pre>
@@ -164,7 +158,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

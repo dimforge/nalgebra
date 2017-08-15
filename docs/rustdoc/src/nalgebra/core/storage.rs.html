@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -227,191 +227,191 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! Abstract definition of a matrix data storage.</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Abstract definition of a matrix data storage.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>any</span>::<span class='ident'>Any</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>Scalar</span>;
-<span class='kw'>use</span> <span class='ident'>dimension</span>::<span class='ident'>Dim</span>;
-<span class='kw'>use</span> <span class='ident'>allocator</span>::{<span class='ident'>Allocator</span>, <span class='ident'>SameShapeR</span>, <span class='ident'>SameShapeC</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">Scalar</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">default_allocator</span>::<span class="ident">DefaultAllocator</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">U1</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::{<span class="ident">Allocator</span>, <span class="ident">SameShapeR</span>, <span class="ident">SameShapeC</span>};
 
-<span class='comment'>/*
- * Aliases for sum storage.
+<span class="comment">/*
+ * Aliases for allocation results.
  */</span>
-<span class='doccomment'>/// The data storage for the sum of two matrices with dimensions `(R1, C1)` and `(R2, C2)`.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>SumStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span>, <span class='ident'>R2</span>, <span class='ident'>C2</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='op'>=</span>
-    <span class='op'>&lt;&lt;</span><span class='ident'>SA</span> <span class='kw'>as</span> <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Alloc</span> <span class='kw'>as</span> <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>SameShapeR</span><span class='op'>&lt;</span><span class='ident'>R1</span>, <span class='ident'>R2</span><span class='op'>&gt;</span>, <span class='ident'>SameShapeC</span><span class='op'>&lt;</span><span class='ident'>C1</span>, <span class='ident'>C2</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>::<span class='ident'>Buffer</span>;
+<span class="doccomment">/// The data storage for the sum of two matrices with dimensions `(R1, C1)` and `(R2, C2)`.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SameShapeStorage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">DefaultAllocator</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">SameShapeR</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span>, <span class="ident">SameShapeC</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>::<span class="ident">Buffer</span>;
 
-<span class='comment'>/*
- * Aliases for multiplication storage.
- */</span>
-<span class='doccomment'>/// The data storage for the multiplication of two matrices with dimensions `(R1, C1)` on the left</span>
-<span class='doccomment'>/// hand side, and with `C2` columns on the right hand side.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>MulStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span>, <span class='ident'>C2</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='op'>=</span>
-    <span class='op'>&lt;&lt;</span><span class='ident'>SA</span> <span class='kw'>as</span> <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Alloc</span> <span class='kw'>as</span> <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C2</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Buffer</span>;
+<span class="comment">// FIXME: better name than Owned ?</span>
+<span class="doccomment">/// The owned data storage that can be allocated from `S`.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span> <span class="op">=</span> <span class="ident">U1</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">DefaultAllocator</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>::<span class="ident">Buffer</span>;
 
-<span class='doccomment'>/// The data storage for the multiplication of two matrices with dimensions `(R1, C1)` on the left</span>
-<span class='doccomment'>/// hand side, and with `C2` columns on the right hand side. The first matrix is implicitly</span>
-<span class='doccomment'>/// transposed.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>TrMulStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span>, <span class='ident'>C2</span>, <span class='ident'>SA</span><span class='op'>&gt;</span> <span class='op'>=</span>
-    <span class='op'>&lt;&lt;</span><span class='ident'>SA</span> <span class='kw'>as</span> <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R1</span>, <span class='ident'>C1</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Alloc</span> <span class='kw'>as</span> <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>C1</span>, <span class='ident'>C2</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Buffer</span>;
+<span class="doccomment">/// The row-stride of the owned data storage for a buffer of dimension `(R, C)`.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">RStride</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span> <span class="op">=</span> <span class="ident">U1</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;&lt;</span><span class="ident">DefaultAllocator</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>::<span class="ident">Buffer</span> <span class="kw">as</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>::<span class="ident">RStride</span>;
 
-<span class='comment'>/*
- * Alias for allocation result.
- */</span>
-<span class='doccomment'>/// The owned data storage that can be allocated from `S`.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Owned</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>A</span><span class='op'>&gt;</span> <span class='op'>=</span>
-    <span class='op'>&lt;</span><span class='ident'>A</span> <span class='kw'>as</span> <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span><span class='op'>&gt;&gt;</span>::<span class='ident'>Buffer</span>;
+<span class="doccomment">/// The column-stride of the owned data storage for a buffer of dimension `(R, C)`.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">CStride</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span> <span class="op">=</span> <span class="ident">U1</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;&lt;</span><span class="ident">DefaultAllocator</span> <span class="kw">as</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>::<span class="ident">Buffer</span> <span class="kw">as</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>::<span class="ident">CStride</span>;
 
 
-<span class='doccomment'>/// The trait shared by all matrix data storage.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// FIXME: doc</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Note that `Self` must always have a number of elements compatible with the matrix length (given</span>
-<span class='doccomment'>/// by `R` and `C` if they are known at compile-time). For example, implementors of this trait</span>
-<span class='doccomment'>/// should **not** allow the user to modify the size of the underlying buffer with safe methods</span>
-<span class='doccomment'>/// (for example the `MatrixVec::data_mut` method is unsafe because the user could change the</span>
-<span class='doccomment'>/// vector&#39;s size so that it no longer contains enough elements: this will lead to UB.</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>trait</span> <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>R</span>: <span class='ident'>Dim</span>, <span class='ident'>C</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span>: <span class='ident'>Sized</span> {
-    <span class='doccomment'>/// The static stride of this storage&#39;s rows.</span>
-    <span class='kw'>type</span> <span class='ident'>RStride</span>: <span class='ident'>Dim</span>;
+<span class="doccomment">/// The trait shared by all matrix data storage.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// FIXME: doc</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that `Self` must always have a number of elements compatible with the matrix length (given</span>
+<span class="doccomment">/// by `R` and `C` if they are known at compile-time). For example, implementors of this trait</span>
+<span class="doccomment">/// should **not** allow the user to modify the size of the underlying buffer with safe methods</span>
+<span class="doccomment">/// (for example the `MatrixVec::data_mut` method is unsafe because the user could change the</span>
+<span class="doccomment">/// vector&#39;s size so that it no longer contains enough elements: this will lead to UB.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span> <span class="op">=</span> <span class="ident">U1</span><span class="op">&gt;</span>: <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Sized</span> {
+    <span class="doccomment">/// The static stride of this storage&#39;s rows.</span>
+    <span class="kw">type</span> <span class="ident">RStride</span>: <span class="ident">Dim</span>;
 
-    <span class='doccomment'>/// The static stride of this storage&#39;s columns.</span>
-    <span class='kw'>type</span> <span class='ident'>CStride</span>: <span class='ident'>Dim</span>;
+    <span class="doccomment">/// The static stride of this storage&#39;s columns.</span>
+    <span class="kw">type</span> <span class="ident">CStride</span>: <span class="ident">Dim</span>;
 
-    <span class='doccomment'>/// The allocator for this family of storage.</span>
-    <span class='kw'>type</span> <span class='ident'>Alloc</span>: <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span><span class='op'>&gt;</span>;
+    <span class="doccomment">/// The matrix data pointer.</span>
+    <span class="kw">fn</span> <span class="ident">ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">N</span>;
 
-    <span class='doccomment'>/// Builds a matrix data storage that does not contain any reference.</span>
-    <span class='kw'>fn</span> <span class='ident'>into_owned</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Owned</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='self'>Self</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>;
+    <span class="doccomment">/// The dimension of the matrix at run-time. Arr length of zero indicates the additive identity</span>
+    <span class="doccomment">/// element of any dimension. Must be equal to `Self::dimension()` if it is not `None`.</span>
+    <span class="kw">fn</span> <span class="ident">shape</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">R</span>, <span class="ident">C</span>);
 
-    <span class='doccomment'>/// Clones this data storage into one that does not contain any reference.</span>
-    <span class='kw'>fn</span> <span class='ident'>clone_owned</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Owned</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='self'>Self</span>::<span class='ident'>Alloc</span><span class='op'>&gt;</span>;
+    <span class="doccomment">/// The spacing between concecutive row elements and consecutive column elements.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example this returns `(1, 5)` for a row-major matrix with 5 columns.</span>
+    <span class="kw">fn</span> <span class="ident">strides</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="self">Self</span>::<span class="ident">RStride</span>, <span class="self">Self</span>::<span class="ident">CStride</span>);
 
-    <span class='doccomment'>/// The matrix data pointer.</span>
-    <span class='kw'>fn</span> <span class='ident'>ptr</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>*</span><span class='kw'>const</span> <span class='ident'>N</span>;
+    <span class="doccomment">/// Compute the index corresponding to the irow-th row and icol-th column of this matrix. The</span>
+    <span class="doccomment">/// index must be such that the following holds:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```.ignore</span>
+    <span class="doccomment">/// let lindex = self.linear_index(irow, icol);</span>
+    <span class="doccomment">/// assert!(*self.get_unchecked(irow, icol) == *self.get_unchecked_linear(lindex)</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">linear_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">irow</span>: <span class="ident">usize</span>, <span class="ident">icol</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">let</span> (<span class="ident">rstride</span>, <span class="ident">cstride</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">strides</span>();
 
-    <span class='doccomment'>/// The dimension of the matrix at run-time. Arr length of zero indicates the additive identity</span>
-    <span class='doccomment'>/// element of any dimension. Must be equal to `Self::dimension()` if it is not `None`.</span>
-    <span class='kw'>fn</span> <span class='ident'>shape</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> (<span class='ident'>R</span>, <span class='ident'>C</span>);
-
-    <span class='doccomment'>/// The spacing between concecutive row elements and consecutive column elements.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// For example this returns `(1, 5)` for a row-major matrix with 5 columns.</span>
-    <span class='kw'>fn</span> <span class='ident'>strides</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> (<span class='self'>Self</span>::<span class='ident'>RStride</span>, <span class='self'>Self</span>::<span class='ident'>CStride</span>);
-
-    <span class='doccomment'>/// Compute the index corresponding to the irow-th row and icol-th column of this matrix. The</span>
-    <span class='doccomment'>/// index must be such that the following holds:</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```.ignore</span>
-    <span class='doccomment'>/// let lindex = self.linear_index(irow, icol);</span>
-    <span class='doccomment'>/// assert!(*self.get_unchecked(irow, icol) == *self.get_unchecked_linear(lindex)</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>linear_index</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>irow</span>: <span class='ident'>usize</span>, <span class='ident'>icol</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='kw'>let</span> (<span class='ident'>rstride</span>, <span class='ident'>cstride</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>strides</span>();
-
-        <span class='ident'>irow</span> <span class='op'>*</span> <span class='ident'>rstride</span>.<span class='ident'>value</span>() <span class='op'>+</span> <span class='ident'>icol</span> <span class='op'>*</span> <span class='ident'>cstride</span>.<span class='ident'>value</span>()
+        <span class="ident">irow</span> <span class="op">*</span> <span class="ident">rstride</span>.<span class="ident">value</span>() <span class="op">+</span> <span class="ident">icol</span> <span class="op">*</span> <span class="ident">cstride</span>.<span class="ident">value</span>()
     }
 
-    <span class='doccomment'>/// Gets the address of the i-th matrix component without performing bound-checking.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_address_unchecked_linear</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>*</span><span class='kw'>const</span> <span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>ptr</span>().<span class='ident'>offset</span>(<span class='ident'>i</span> <span class='kw'>as</span> <span class='ident'>isize</span>)
+    <span class="doccomment">/// Gets the address of the i-th matrix component without performing bound-checking.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_address_unchecked_linear</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">ptr</span>().<span class="ident">offset</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">isize</span>)
     }
 
-    <span class='doccomment'>/// Gets the address of the i-th matrix component without performing bound-checking.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_address_unchecked</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>irow</span>: <span class='ident'>usize</span>, <span class='ident'>icol</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>*</span><span class='kw'>const</span> <span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>get_address_unchecked_linear</span>(<span class='self'>self</span>.<span class='ident'>linear_index</span>(<span class='ident'>irow</span>, <span class='ident'>icol</span>))
+    <span class="doccomment">/// Gets the address of the i-th matrix component without performing bound-checking.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_address_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">irow</span>: <span class="ident">usize</span>, <span class="ident">icol</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">get_address_unchecked_linear</span>(<span class="self">self</span>.<span class="ident">linear_index</span>(<span class="ident">irow</span>, <span class="ident">icol</span>))
     }
 
-    <span class='doccomment'>/// Retrieves a reference to the i-th element without bound-checking.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_unchecked_linear</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>N</span> {
-        <span class='kw-2'>&amp;</span><span class='kw-2'>*</span><span class='self'>self</span>.<span class='ident'>get_address_unchecked_linear</span>(<span class='ident'>i</span>)
+    <span class="doccomment">/// Retrieves a reference to the i-th element without bound-checking.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked_linear</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">N</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_address_unchecked_linear</span>(<span class="ident">i</span>)
     }
 
-    <span class='doccomment'>/// Retrieves a reference to the i-th element without bound-checking.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_unchecked</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>irow</span>: <span class='ident'>usize</span>, <span class='ident'>icol</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>get_unchecked_linear</span>(<span class='self'>self</span>.<span class='ident'>linear_index</span>(<span class='ident'>irow</span>, <span class='ident'>icol</span>))
+    <span class="doccomment">/// Retrieves a reference to the i-th element without bound-checking.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">irow</span>: <span class="ident">usize</span>, <span class="ident">icol</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">get_unchecked_linear</span>(<span class="self">self</span>.<span class="ident">linear_index</span>(<span class="ident">irow</span>, <span class="ident">icol</span>))
     }
+
+    <span class="doccomment">/// Indicates whether this data buffer stores its elements contiguously.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_contiguous</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>;
+
+    <span class="doccomment">/// Retrieves the data buffer as a contiguous slice.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The matrix components may not be stored in a contiguous way, depending on the strides.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">as_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">N</span>];
+
+    <span class="doccomment">/// Builds a matrix data storage that does not contain any reference.</span>
+    <span class="kw">fn</span> <span class="ident">into_owned</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Clones this data storage to one that does not contain any reference.</span>
+    <span class="kw">fn</span> <span class="ident">clone_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>;
 }
 
 
-<span class='doccomment'>/// Trait implemented by matrix data storage that can provide a mutable access to its elements.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Note that a mutable access does not mean that the matrix owns its data. For example, a mutable</span>
-<span class='doccomment'>/// matrix slice can provide mutable access to its elements even if it does not own its data (it</span>
-<span class='doccomment'>/// contains only an internal reference to them).</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>trait</span> <span class='ident'>StorageMut</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>R</span>: <span class='ident'>Dim</span>, <span class='ident'>C</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span>: <span class='ident'>Storage</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The matrix mutable data pointer.</span>
-    <span class='kw'>fn</span> <span class='ident'>ptr_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>*</span><span class='kw-2'>mut</span> <span class='ident'>N</span>;
+<span class="doccomment">/// Trait implemented by matrix data storage that can provide a mutable access to its elements.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that a mutable access does not mean that the matrix owns its data. For example, a mutable</span>
+<span class="doccomment">/// matrix slice can provide mutable access to its elements even if it does not own its data (it</span>
+<span class="doccomment">/// contains only an internal reference to them).</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span> <span class="op">=</span> <span class="ident">U1</span><span class="op">&gt;</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The matrix mutable data pointer.</span>
+    <span class="kw">fn</span> <span class="ident">ptr_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">N</span>;
 
-    <span class='doccomment'>/// Gets the mutable address of the i-th matrix component without performing bound-checking.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_address_unchecked_linear_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>*</span><span class='kw-2'>mut</span> <span class='ident'>N</span> {
-        <span class='self'>self</span>.<span class='ident'>ptr_mut</span>().<span class='ident'>offset</span>(<span class='ident'>i</span> <span class='kw'>as</span> <span class='ident'>isize</span>)
+    <span class="doccomment">/// Gets the mutable address of the i-th matrix component without performing bound-checking.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_address_unchecked_linear_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">N</span> {
+        <span class="self">self</span>.<span class="ident">ptr_mut</span>().<span class="ident">offset</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">isize</span>)
     }
 
-    <span class='doccomment'>/// Gets the mutable address of the i-th matrix component without performing bound-checking.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_address_unchecked_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>irow</span>: <span class='ident'>usize</span>, <span class='ident'>icol</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>*</span><span class='kw-2'>mut</span> <span class='ident'>N</span> {
-        <span class='kw'>let</span> <span class='ident'>lid</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>linear_index</span>(<span class='ident'>irow</span>, <span class='ident'>icol</span>);
-        <span class='self'>self</span>.<span class='ident'>get_address_unchecked_linear_mut</span>(<span class='ident'>lid</span>)
+    <span class="doccomment">/// Gets the mutable address of the i-th matrix component without performing bound-checking.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_address_unchecked_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">irow</span>: <span class="ident">usize</span>, <span class="ident">icol</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">N</span> {
+        <span class="kw">let</span> <span class="ident">lid</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">linear_index</span>(<span class="ident">irow</span>, <span class="ident">icol</span>);
+        <span class="self">self</span>.<span class="ident">get_address_unchecked_linear_mut</span>(<span class="ident">lid</span>)
     }
 
-    <span class='doccomment'>/// Retrieves a mutable reference to the i-th element without bound-checking.</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_unchecked_linear_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>i</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>N</span> {
-        <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='kw-2'>*</span><span class='self'>self</span>.<span class='ident'>get_address_unchecked_linear_mut</span>(<span class='ident'>i</span>)
+    <span class="doccomment">/// Retrieves a mutable reference to the i-th element without bound-checking.</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked_linear_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">N</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_address_unchecked_linear_mut</span>(<span class="ident">i</span>)
     }
 
-    <span class='doccomment'>/// Retrieves a mutable reference to the element at `(irow, icol)` without bound-checking.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_unchecked_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>irow</span>: <span class='ident'>usize</span>, <span class='ident'>icol</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>N</span> {
-        <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='kw-2'>*</span><span class='self'>self</span>.<span class='ident'>get_address_unchecked_mut</span>(<span class='ident'>irow</span>, <span class='ident'>icol</span>)
+    <span class="doccomment">/// Retrieves a mutable reference to the element at `(irow, icol)` without bound-checking.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_unchecked_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">irow</span>: <span class="ident">usize</span>, <span class="ident">icol</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">N</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_address_unchecked_mut</span>(<span class="ident">irow</span>, <span class="ident">icol</span>)
     }
 
-    <span class='doccomment'>/// Swaps two elements using their linear index without bound-checking.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>swap_unchecked_linear</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>i1</span>: <span class='ident'>usize</span>, <span class='ident'>i2</span>: <span class='ident'>usize</span>) {
-        <span class='kw'>let</span> <span class='ident'>a</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>get_address_unchecked_linear_mut</span>(<span class='ident'>i1</span>);
-        <span class='kw'>let</span> <span class='ident'>b</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>get_address_unchecked_linear_mut</span>(<span class='ident'>i2</span>);
+    <span class="doccomment">/// Swaps two elements using their linear index without bound-checking.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">swap_unchecked_linear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">usize</span>, <span class="ident">i2</span>: <span class="ident">usize</span>) {
+        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_address_unchecked_linear_mut</span>(<span class="ident">i1</span>);
+        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_address_unchecked_linear_mut</span>(<span class="ident">i2</span>);
 
-        <span class='ident'>mem</span>::<span class='ident'>swap</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='kw-2'>*</span><span class='ident'>a</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='kw-2'>*</span><span class='ident'>b</span>);
+        <span class="ident">mem</span>::<span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">a</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">b</span>);
     }
 
-    <span class='doccomment'>/// Swaps two elements without bound-checking.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>swap_unchecked</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>row_col1</span>: (<span class='ident'>usize</span>, <span class='ident'>usize</span>), <span class='ident'>row_col2</span>: (<span class='ident'>usize</span>, <span class='ident'>usize</span>)) {
-        <span class='kw'>let</span> <span class='ident'>lid1</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>linear_index</span>(<span class='ident'>row_col1</span>.<span class='number'>0</span>, <span class='ident'>row_col1</span>.<span class='number'>1</span>);
-        <span class='kw'>let</span> <span class='ident'>lid2</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>linear_index</span>(<span class='ident'>row_col2</span>.<span class='number'>0</span>, <span class='ident'>row_col2</span>.<span class='number'>1</span>);
+    <span class="doccomment">/// Swaps two elements without bound-checking.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">swap_unchecked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">row_col1</span>: (<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">row_col2</span>: (<span class="ident">usize</span>, <span class="ident">usize</span>)) {
+        <span class="kw">let</span> <span class="ident">lid1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">linear_index</span>(<span class="ident">row_col1</span>.<span class="number">0</span>, <span class="ident">row_col1</span>.<span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">lid2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">linear_index</span>(<span class="ident">row_col2</span>.<span class="number">0</span>, <span class="ident">row_col2</span>.<span class="number">1</span>);
 
-        <span class='self'>self</span>.<span class='ident'>swap_unchecked_linear</span>(<span class='ident'>lid1</span>, <span class='ident'>lid2</span>)
+        <span class="self">self</span>.<span class="ident">swap_unchecked_linear</span>(<span class="ident">lid1</span>, <span class="ident">lid2</span>)
     }
+
+    <span class="doccomment">/// Retrieves the mutable data buffer as a contiguous slice.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Matrix components may not be contiguous, depending on its strides.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">as_mut_slice</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">N</span>];
 }
 
-<span class='doccomment'>/// A matrix storage that does not contain any reference and that is stored contiguously in memory.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value</span>
-<span class='doccomment'>/// `.get_unchecked_linear` succeeds. This trait is unsafe because failing to comply to this may</span>
-<span class='doccomment'>/// cause Undefined Behaviors.</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>trait</span> <span class='ident'>OwnedStorage</span><span class='op'>&lt;</span><span class='ident'>N</span>: <span class='ident'>Scalar</span>, <span class='ident'>R</span>: <span class='ident'>Dim</span>, <span class='ident'>C</span>: <span class='ident'>Dim</span><span class='op'>&gt;</span>: <span class='ident'>StorageMut</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Clone</span> <span class='op'>+</span> <span class='ident'>Any</span>
-    <span class='kw'>where</span> <span class='self'>Self</span>::<span class='ident'>Alloc</span>: <span class='ident'>Allocator</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>R</span>, <span class='ident'>C</span>, <span class='ident'>Buffer</span> <span class='op'>=</span> <span class='self'>Self</span><span class='op'>&gt;</span> {
-    <span class='comment'>// NOTE: We could auto-impl those two methods but we don&#39;t to make sure the user is aware that</span>
-    <span class='comment'>// data must be contiguous.</span>
-    <span class='doccomment'>/// Converts this data storage to a slice.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>as_slice</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span>[<span class='ident'>N</span>];
+<span class="doccomment">/// A matrix storage that is stored contiguously in memory.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value</span>
+<span class="doccomment">/// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because</span>
+<span class="doccomment">/// failing to comply to this may cause Undefined Behaviors.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">ContiguousStorage</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span> <span class="op">=</span> <span class="ident">U1</span><span class="op">&gt;</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> { }
 
-    <span class='doccomment'>/// Converts this data storage to a mutable slice.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>as_mut_slice</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> [<span class='ident'>N</span>];
-}
+<span class="doccomment">/// A mutable matrix storage that is stored contiguously in memory.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value</span>
+<span class="doccomment">/// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because</span>
+<span class="doccomment">/// failing to comply to this may cause Undefined Behaviors.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">ContiguousStorageMut</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span> <span class="op">=</span> <span class="ident">U1</span><span class="op">&gt;</span>: <span class="ident">ContiguousStorage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> { }
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -470,7 +470,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

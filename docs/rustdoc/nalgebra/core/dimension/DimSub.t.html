@@ -3,7 +3,7 @@
 <head><link rel="shortcut icon" href="/img/favicon.ico">
     <meta http-equiv="refresh" content="0;URL=trait.DimSub.html">
 </head>
-<body>
+<body>   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <p>Redirecting to <a href="trait.DimSub.html">trait.DimSub.html</a>...</p>
     <script>location.replace("trait.DimSub.html" + location.search + location.hash);</script>
 

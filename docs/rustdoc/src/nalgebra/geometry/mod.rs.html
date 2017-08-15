@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -134,98 +134,102 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! [Reexported at the root of this crate.] Data structures for points and usual transformations</span>
-<span class='doccomment'>//! (rotations, isometries, etc.)</span>
+<span id="92">92</span>
+<span id="93">93</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! [Reexported at the root of this crate.] Data structures for points and usual transformations</span>
+<span class="doccomment">//! (rotations, isometries, etc.)</span>
 
-<span class='kw'>mod</span> <span class='ident'>op_macros</span>;
+<span class="kw">mod</span> <span class="ident">op_macros</span>;
 
-<span class='kw'>mod</span> <span class='ident'>point</span>;
-<span class='kw'>mod</span> <span class='ident'>point_construction</span>;
-<span class='kw'>mod</span> <span class='ident'>point_alias</span>;
-<span class='kw'>mod</span> <span class='ident'>point_ops</span>;
-<span class='kw'>mod</span> <span class='ident'>point_alga</span>;
-<span class='kw'>mod</span> <span class='ident'>point_conversion</span>;
-<span class='kw'>mod</span> <span class='ident'>point_coordinates</span>;
+<span class="kw">mod</span> <span class="ident">point</span>;
+<span class="kw">mod</span> <span class="ident">point_construction</span>;
+<span class="kw">mod</span> <span class="ident">point_alias</span>;
+<span class="kw">mod</span> <span class="ident">point_ops</span>;
+<span class="kw">mod</span> <span class="ident">point_alga</span>;
+<span class="kw">mod</span> <span class="ident">point_conversion</span>;
+<span class="kw">mod</span> <span class="ident">point_coordinates</span>;
 
-<span class='kw'>mod</span> <span class='ident'>rotation</span>;
-<span class='kw'>mod</span> <span class='ident'>rotation_construction</span>;
-<span class='kw'>mod</span> <span class='ident'>rotation_ops</span>;
-<span class='kw'>mod</span> <span class='ident'>rotation_alga</span>; <span class='comment'>// FIXME: implement RotationBase methods.</span>
-<span class='kw'>mod</span> <span class='ident'>rotation_conversion</span>;
-<span class='kw'>mod</span> <span class='ident'>rotation_alias</span>;
-<span class='kw'>mod</span> <span class='ident'>rotation_specialization</span>;
+<span class="kw">mod</span> <span class="ident">rotation</span>;
+<span class="kw">mod</span> <span class="ident">rotation_construction</span>;
+<span class="kw">mod</span> <span class="ident">rotation_ops</span>;
+<span class="kw">mod</span> <span class="ident">rotation_alga</span>; <span class="comment">// FIXME: implement Rotation methods.</span>
+<span class="kw">mod</span> <span class="ident">rotation_conversion</span>;
+<span class="kw">mod</span> <span class="ident">rotation_alias</span>;
+<span class="kw">mod</span> <span class="ident">rotation_specialization</span>;
 
-<span class='kw'>mod</span> <span class='ident'>quaternion</span>;
-<span class='kw'>mod</span> <span class='ident'>quaternion_construction</span>;
-<span class='kw'>mod</span> <span class='ident'>quaternion_ops</span>;
-<span class='kw'>mod</span> <span class='ident'>quaternion_alga</span>;
-<span class='kw'>mod</span> <span class='ident'>quaternion_alias</span>;
-<span class='kw'>mod</span> <span class='ident'>quaternion_coordinates</span>;
-<span class='kw'>mod</span> <span class='ident'>quaternion_conversion</span>;
+<span class="kw">mod</span> <span class="ident">quaternion</span>;
+<span class="kw">mod</span> <span class="ident">quaternion_construction</span>;
+<span class="kw">mod</span> <span class="ident">quaternion_ops</span>;
+<span class="kw">mod</span> <span class="ident">quaternion_alga</span>;
+<span class="kw">mod</span> <span class="ident">quaternion_conversion</span>;
+<span class="kw">mod</span> <span class="ident">quaternion_coordinates</span>;
 
-<span class='kw'>mod</span> <span class='ident'>unit_complex</span>;
-<span class='kw'>mod</span> <span class='ident'>unit_complex_construction</span>;
-<span class='kw'>mod</span> <span class='ident'>unit_complex_ops</span>;
-<span class='kw'>mod</span> <span class='ident'>unit_complex_alga</span>;
-<span class='kw'>mod</span> <span class='ident'>unit_complex_conversion</span>;
+<span class="kw">mod</span> <span class="ident">unit_complex</span>;
+<span class="kw">mod</span> <span class="ident">unit_complex_construction</span>;
+<span class="kw">mod</span> <span class="ident">unit_complex_ops</span>;
+<span class="kw">mod</span> <span class="ident">unit_complex_alga</span>;
+<span class="kw">mod</span> <span class="ident">unit_complex_conversion</span>;
 
-<span class='kw'>mod</span> <span class='ident'>translation</span>;
-<span class='kw'>mod</span> <span class='ident'>translation_construction</span>;
-<span class='kw'>mod</span> <span class='ident'>translation_ops</span>;
-<span class='kw'>mod</span> <span class='ident'>translation_alga</span>;
-<span class='kw'>mod</span> <span class='ident'>translation_conversion</span>;
-<span class='kw'>mod</span> <span class='ident'>translation_alias</span>;
+<span class="kw">mod</span> <span class="ident">translation</span>;
+<span class="kw">mod</span> <span class="ident">translation_construction</span>;
+<span class="kw">mod</span> <span class="ident">translation_ops</span>;
+<span class="kw">mod</span> <span class="ident">translation_alga</span>;
+<span class="kw">mod</span> <span class="ident">translation_conversion</span>;
+<span class="kw">mod</span> <span class="ident">translation_alias</span>;
 
-<span class='kw'>mod</span> <span class='ident'>isometry</span>;
-<span class='kw'>mod</span> <span class='ident'>isometry_construction</span>;
-<span class='kw'>mod</span> <span class='ident'>isometry_ops</span>;
-<span class='kw'>mod</span> <span class='ident'>isometry_alga</span>;
-<span class='kw'>mod</span> <span class='ident'>isometry_conversion</span>;
-<span class='kw'>mod</span> <span class='ident'>isometry_alias</span>;
+<span class="kw">mod</span> <span class="ident">isometry</span>;
+<span class="kw">mod</span> <span class="ident">isometry_construction</span>;
+<span class="kw">mod</span> <span class="ident">isometry_ops</span>;
+<span class="kw">mod</span> <span class="ident">isometry_alga</span>;
+<span class="kw">mod</span> <span class="ident">isometry_conversion</span>;
+<span class="kw">mod</span> <span class="ident">isometry_alias</span>;
 
-<span class='kw'>mod</span> <span class='ident'>similarity</span>;
-<span class='kw'>mod</span> <span class='ident'>similarity_construction</span>;
-<span class='kw'>mod</span> <span class='ident'>similarity_ops</span>;
-<span class='kw'>mod</span> <span class='ident'>similarity_alga</span>;
-<span class='kw'>mod</span> <span class='ident'>similarity_conversion</span>;
-<span class='kw'>mod</span> <span class='ident'>similarity_alias</span>;
+<span class="kw">mod</span> <span class="ident">similarity</span>;
+<span class="kw">mod</span> <span class="ident">similarity_construction</span>;
+<span class="kw">mod</span> <span class="ident">similarity_ops</span>;
+<span class="kw">mod</span> <span class="ident">similarity_alga</span>;
+<span class="kw">mod</span> <span class="ident">similarity_conversion</span>;
+<span class="kw">mod</span> <span class="ident">similarity_alias</span>;
 
-<span class='kw'>mod</span> <span class='ident'>transform</span>;
-<span class='kw'>mod</span> <span class='ident'>transform_construction</span>;
-<span class='kw'>mod</span> <span class='ident'>transform_ops</span>;
-<span class='kw'>mod</span> <span class='ident'>transform_alga</span>;
-<span class='kw'>mod</span> <span class='ident'>transform_conversion</span>;
-<span class='kw'>mod</span> <span class='ident'>transform_alias</span>;
+<span class="kw">mod</span> <span class="ident">transform</span>;
+<span class="kw">mod</span> <span class="ident">transform_construction</span>;
+<span class="kw">mod</span> <span class="ident">transform_ops</span>;
+<span class="kw">mod</span> <span class="ident">transform_alga</span>;
+<span class="kw">mod</span> <span class="ident">transform_conversion</span>;
+<span class="kw">mod</span> <span class="ident">transform_alias</span>;
 
-<span class='kw'>mod</span> <span class='ident'>orthographic</span>;
-<span class='kw'>mod</span> <span class='ident'>perspective</span>;
+<span class="kw">mod</span> <span class="ident">reflection</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>point</span>::<span class='kw-2'>*</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>point_alias</span>::<span class='kw-2'>*</span>;
+<span class="kw">mod</span> <span class="ident">orthographic</span>;
+<span class="kw">mod</span> <span class="ident">perspective</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>rotation</span>::<span class='kw-2'>*</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>rotation_alias</span>::<span class='kw-2'>*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">point</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">point_alias</span>::<span class="kw-2">*</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>quaternion</span>::<span class='kw-2'>*</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>quaternion_alias</span>::<span class='kw-2'>*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">rotation</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">rotation_alias</span>::<span class="kw-2">*</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>unit_complex</span>::<span class='kw-2'>*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">quaternion</span>::<span class="kw-2">*</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>translation</span>::<span class='kw-2'>*</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>translation_alias</span>::<span class='kw-2'>*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">unit_complex</span>::<span class="kw-2">*</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>isometry</span>::<span class='kw-2'>*</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>isometry_alias</span>::<span class='kw-2'>*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">translation</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">translation_alias</span>::<span class="kw-2">*</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>similarity</span>::<span class='kw-2'>*</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>similarity_alias</span>::<span class='kw-2'>*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">isometry</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">isometry_alias</span>::<span class="kw-2">*</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>transform</span>::<span class='kw-2'>*</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>transform_alias</span>::<span class='kw-2'>*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">similarity</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">similarity_alias</span>::<span class="kw-2">*</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>orthographic</span>::{<span class='ident'>OrthographicBase</span>, <span class='ident'>Orthographic3</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>perspective</span>::{<span class='ident'>PerspectiveBase</span>, <span class='ident'>Perspective3</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">transform</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">transform_alias</span>::<span class="kw-2">*</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">reflection</span>::<span class="kw-2">*</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">orthographic</span>::<span class="ident">Orthographic3</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">perspective</span>::<span class="ident">Perspective3</span>;
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -284,7 +288,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

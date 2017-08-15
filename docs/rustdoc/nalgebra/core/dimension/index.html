@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc mod">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a></p><script>window.sidebarCurrent = {name: 'dimension', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module dimension</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a></p><script>window.sidebarCurrent = {name: 'dimension', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     </div><div class="col-md-9"><nav class="sub">
@@ -43,1064 +43,1120 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a class='mod' href=''>dimension</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a class="mod" href=''>dimension</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/nalgebra/core/dimension.rs.html#1-360' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../../../src/nalgebra/core/dimension.rs.html#1-407' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Traits and tags for identifying the dimension of all algebraic entities.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.Dynamic.html'
-                                  title='nalgebra::core::dimension::Dynamic'>Dynamic</a></td>
+                           <td><a class="struct" href="struct.Dynamic.html"
+                                  title='struct nalgebra::core::dimension::Dynamic'>Dynamic</a></td>
                            <td class='docblock-short'>
                                 <p>Dim of dynamically-sized algebraic entities.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U0.html'
-                                  title='nalgebra::core::dimension::U0'>U0</a></td>
+                           <td><a class="struct" href="struct.U0.html"
+                                  title='struct nalgebra::core::dimension::U0'>U0</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U1.html'
-                                  title='nalgebra::core::dimension::U1'>U1</a></td>
+                           <td><a class="struct" href="struct.U1.html"
+                                  title='struct nalgebra::core::dimension::U1'>U1</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U10.html'
-                                  title='nalgebra::core::dimension::U10'>U10</a></td>
+                           <td><a class="struct" href="struct.U2.html"
+                                  title='struct nalgebra::core::dimension::U2'>U2</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U100.html'
-                                  title='nalgebra::core::dimension::U100'>U100</a></td>
+                           <td><a class="struct" href="struct.U3.html"
+                                  title='struct nalgebra::core::dimension::U3'>U3</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U101.html'
-                                  title='nalgebra::core::dimension::U101'>U101</a></td>
+                           <td><a class="struct" href="struct.U4.html"
+                                  title='struct nalgebra::core::dimension::U4'>U4</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U102.html'
-                                  title='nalgebra::core::dimension::U102'>U102</a></td>
+                           <td><a class="struct" href="struct.U5.html"
+                                  title='struct nalgebra::core::dimension::U5'>U5</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U103.html'
-                                  title='nalgebra::core::dimension::U103'>U103</a></td>
+                           <td><a class="struct" href="struct.U6.html"
+                                  title='struct nalgebra::core::dimension::U6'>U6</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U104.html'
-                                  title='nalgebra::core::dimension::U104'>U104</a></td>
+                           <td><a class="struct" href="struct.U7.html"
+                                  title='struct nalgebra::core::dimension::U7'>U7</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U105.html'
-                                  title='nalgebra::core::dimension::U105'>U105</a></td>
+                           <td><a class="struct" href="struct.U8.html"
+                                  title='struct nalgebra::core::dimension::U8'>U8</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U106.html'
-                                  title='nalgebra::core::dimension::U106'>U106</a></td>
+                           <td><a class="struct" href="struct.U9.html"
+                                  title='struct nalgebra::core::dimension::U9'>U9</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U107.html'
-                                  title='nalgebra::core::dimension::U107'>U107</a></td>
+                           <td><a class="struct" href="struct.U10.html"
+                                  title='struct nalgebra::core::dimension::U10'>U10</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U108.html'
-                                  title='nalgebra::core::dimension::U108'>U108</a></td>
+                           <td><a class="struct" href="struct.U11.html"
+                                  title='struct nalgebra::core::dimension::U11'>U11</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U109.html'
-                                  title='nalgebra::core::dimension::U109'>U109</a></td>
+                           <td><a class="struct" href="struct.U12.html"
+                                  title='struct nalgebra::core::dimension::U12'>U12</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U11.html'
-                                  title='nalgebra::core::dimension::U11'>U11</a></td>
+                           <td><a class="struct" href="struct.U13.html"
+                                  title='struct nalgebra::core::dimension::U13'>U13</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U110.html'
-                                  title='nalgebra::core::dimension::U110'>U110</a></td>
+                           <td><a class="struct" href="struct.U14.html"
+                                  title='struct nalgebra::core::dimension::U14'>U14</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U111.html'
-                                  title='nalgebra::core::dimension::U111'>U111</a></td>
+                           <td><a class="struct" href="struct.U15.html"
+                                  title='struct nalgebra::core::dimension::U15'>U15</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U112.html'
-                                  title='nalgebra::core::dimension::U112'>U112</a></td>
+                           <td><a class="struct" href="struct.U16.html"
+                                  title='struct nalgebra::core::dimension::U16'>U16</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U113.html'
-                                  title='nalgebra::core::dimension::U113'>U113</a></td>
+                           <td><a class="struct" href="struct.U17.html"
+                                  title='struct nalgebra::core::dimension::U17'>U17</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U114.html'
-                                  title='nalgebra::core::dimension::U114'>U114</a></td>
+                           <td><a class="struct" href="struct.U18.html"
+                                  title='struct nalgebra::core::dimension::U18'>U18</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U115.html'
-                                  title='nalgebra::core::dimension::U115'>U115</a></td>
+                           <td><a class="struct" href="struct.U19.html"
+                                  title='struct nalgebra::core::dimension::U19'>U19</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U116.html'
-                                  title='nalgebra::core::dimension::U116'>U116</a></td>
+                           <td><a class="struct" href="struct.U20.html"
+                                  title='struct nalgebra::core::dimension::U20'>U20</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U117.html'
-                                  title='nalgebra::core::dimension::U117'>U117</a></td>
+                           <td><a class="struct" href="struct.U21.html"
+                                  title='struct nalgebra::core::dimension::U21'>U21</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U118.html'
-                                  title='nalgebra::core::dimension::U118'>U118</a></td>
+                           <td><a class="struct" href="struct.U22.html"
+                                  title='struct nalgebra::core::dimension::U22'>U22</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U119.html'
-                                  title='nalgebra::core::dimension::U119'>U119</a></td>
+                           <td><a class="struct" href="struct.U23.html"
+                                  title='struct nalgebra::core::dimension::U23'>U23</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U12.html'
-                                  title='nalgebra::core::dimension::U12'>U12</a></td>
+                           <td><a class="struct" href="struct.U24.html"
+                                  title='struct nalgebra::core::dimension::U24'>U24</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U120.html'
-                                  title='nalgebra::core::dimension::U120'>U120</a></td>
+                           <td><a class="struct" href="struct.U25.html"
+                                  title='struct nalgebra::core::dimension::U25'>U25</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U121.html'
-                                  title='nalgebra::core::dimension::U121'>U121</a></td>
+                           <td><a class="struct" href="struct.U26.html"
+                                  title='struct nalgebra::core::dimension::U26'>U26</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U122.html'
-                                  title='nalgebra::core::dimension::U122'>U122</a></td>
+                           <td><a class="struct" href="struct.U27.html"
+                                  title='struct nalgebra::core::dimension::U27'>U27</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U123.html'
-                                  title='nalgebra::core::dimension::U123'>U123</a></td>
+                           <td><a class="struct" href="struct.U28.html"
+                                  title='struct nalgebra::core::dimension::U28'>U28</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U124.html'
-                                  title='nalgebra::core::dimension::U124'>U124</a></td>
+                           <td><a class="struct" href="struct.U29.html"
+                                  title='struct nalgebra::core::dimension::U29'>U29</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U125.html'
-                                  title='nalgebra::core::dimension::U125'>U125</a></td>
+                           <td><a class="struct" href="struct.U30.html"
+                                  title='struct nalgebra::core::dimension::U30'>U30</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U126.html'
-                                  title='nalgebra::core::dimension::U126'>U126</a></td>
+                           <td><a class="struct" href="struct.U31.html"
+                                  title='struct nalgebra::core::dimension::U31'>U31</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U127.html'
-                                  title='nalgebra::core::dimension::U127'>U127</a></td>
+                           <td><a class="struct" href="struct.U32.html"
+                                  title='struct nalgebra::core::dimension::U32'>U32</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U13.html'
-                                  title='nalgebra::core::dimension::U13'>U13</a></td>
+                           <td><a class="struct" href="struct.U33.html"
+                                  title='struct nalgebra::core::dimension::U33'>U33</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U14.html'
-                                  title='nalgebra::core::dimension::U14'>U14</a></td>
+                           <td><a class="struct" href="struct.U34.html"
+                                  title='struct nalgebra::core::dimension::U34'>U34</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U15.html'
-                                  title='nalgebra::core::dimension::U15'>U15</a></td>
+                           <td><a class="struct" href="struct.U35.html"
+                                  title='struct nalgebra::core::dimension::U35'>U35</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U16.html'
-                                  title='nalgebra::core::dimension::U16'>U16</a></td>
+                           <td><a class="struct" href="struct.U36.html"
+                                  title='struct nalgebra::core::dimension::U36'>U36</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U17.html'
-                                  title='nalgebra::core::dimension::U17'>U17</a></td>
+                           <td><a class="struct" href="struct.U37.html"
+                                  title='struct nalgebra::core::dimension::U37'>U37</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U18.html'
-                                  title='nalgebra::core::dimension::U18'>U18</a></td>
+                           <td><a class="struct" href="struct.U38.html"
+                                  title='struct nalgebra::core::dimension::U38'>U38</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U19.html'
-                                  title='nalgebra::core::dimension::U19'>U19</a></td>
+                           <td><a class="struct" href="struct.U39.html"
+                                  title='struct nalgebra::core::dimension::U39'>U39</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U2.html'
-                                  title='nalgebra::core::dimension::U2'>U2</a></td>
+                           <td><a class="struct" href="struct.U40.html"
+                                  title='struct nalgebra::core::dimension::U40'>U40</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U20.html'
-                                  title='nalgebra::core::dimension::U20'>U20</a></td>
+                           <td><a class="struct" href="struct.U41.html"
+                                  title='struct nalgebra::core::dimension::U41'>U41</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U21.html'
-                                  title='nalgebra::core::dimension::U21'>U21</a></td>
+                           <td><a class="struct" href="struct.U42.html"
+                                  title='struct nalgebra::core::dimension::U42'>U42</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U22.html'
-                                  title='nalgebra::core::dimension::U22'>U22</a></td>
+                           <td><a class="struct" href="struct.U43.html"
+                                  title='struct nalgebra::core::dimension::U43'>U43</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U23.html'
-                                  title='nalgebra::core::dimension::U23'>U23</a></td>
+                           <td><a class="struct" href="struct.U44.html"
+                                  title='struct nalgebra::core::dimension::U44'>U44</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U24.html'
-                                  title='nalgebra::core::dimension::U24'>U24</a></td>
+                           <td><a class="struct" href="struct.U45.html"
+                                  title='struct nalgebra::core::dimension::U45'>U45</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U25.html'
-                                  title='nalgebra::core::dimension::U25'>U25</a></td>
+                           <td><a class="struct" href="struct.U46.html"
+                                  title='struct nalgebra::core::dimension::U46'>U46</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U26.html'
-                                  title='nalgebra::core::dimension::U26'>U26</a></td>
+                           <td><a class="struct" href="struct.U47.html"
+                                  title='struct nalgebra::core::dimension::U47'>U47</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U27.html'
-                                  title='nalgebra::core::dimension::U27'>U27</a></td>
+                           <td><a class="struct" href="struct.U48.html"
+                                  title='struct nalgebra::core::dimension::U48'>U48</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U28.html'
-                                  title='nalgebra::core::dimension::U28'>U28</a></td>
+                           <td><a class="struct" href="struct.U49.html"
+                                  title='struct nalgebra::core::dimension::U49'>U49</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U29.html'
-                                  title='nalgebra::core::dimension::U29'>U29</a></td>
+                           <td><a class="struct" href="struct.U50.html"
+                                  title='struct nalgebra::core::dimension::U50'>U50</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U3.html'
-                                  title='nalgebra::core::dimension::U3'>U3</a></td>
+                           <td><a class="struct" href="struct.U51.html"
+                                  title='struct nalgebra::core::dimension::U51'>U51</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U30.html'
-                                  title='nalgebra::core::dimension::U30'>U30</a></td>
+                           <td><a class="struct" href="struct.U52.html"
+                                  title='struct nalgebra::core::dimension::U52'>U52</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U31.html'
-                                  title='nalgebra::core::dimension::U31'>U31</a></td>
+                           <td><a class="struct" href="struct.U53.html"
+                                  title='struct nalgebra::core::dimension::U53'>U53</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U32.html'
-                                  title='nalgebra::core::dimension::U32'>U32</a></td>
+                           <td><a class="struct" href="struct.U54.html"
+                                  title='struct nalgebra::core::dimension::U54'>U54</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U33.html'
-                                  title='nalgebra::core::dimension::U33'>U33</a></td>
+                           <td><a class="struct" href="struct.U55.html"
+                                  title='struct nalgebra::core::dimension::U55'>U55</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U34.html'
-                                  title='nalgebra::core::dimension::U34'>U34</a></td>
+                           <td><a class="struct" href="struct.U56.html"
+                                  title='struct nalgebra::core::dimension::U56'>U56</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U35.html'
-                                  title='nalgebra::core::dimension::U35'>U35</a></td>
+                           <td><a class="struct" href="struct.U57.html"
+                                  title='struct nalgebra::core::dimension::U57'>U57</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U36.html'
-                                  title='nalgebra::core::dimension::U36'>U36</a></td>
+                           <td><a class="struct" href="struct.U58.html"
+                                  title='struct nalgebra::core::dimension::U58'>U58</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U37.html'
-                                  title='nalgebra::core::dimension::U37'>U37</a></td>
+                           <td><a class="struct" href="struct.U59.html"
+                                  title='struct nalgebra::core::dimension::U59'>U59</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U38.html'
-                                  title='nalgebra::core::dimension::U38'>U38</a></td>
+                           <td><a class="struct" href="struct.U60.html"
+                                  title='struct nalgebra::core::dimension::U60'>U60</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U39.html'
-                                  title='nalgebra::core::dimension::U39'>U39</a></td>
+                           <td><a class="struct" href="struct.U61.html"
+                                  title='struct nalgebra::core::dimension::U61'>U61</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U4.html'
-                                  title='nalgebra::core::dimension::U4'>U4</a></td>
+                           <td><a class="struct" href="struct.U62.html"
+                                  title='struct nalgebra::core::dimension::U62'>U62</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U40.html'
-                                  title='nalgebra::core::dimension::U40'>U40</a></td>
+                           <td><a class="struct" href="struct.U63.html"
+                                  title='struct nalgebra::core::dimension::U63'>U63</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U41.html'
-                                  title='nalgebra::core::dimension::U41'>U41</a></td>
+                           <td><a class="struct" href="struct.U64.html"
+                                  title='struct nalgebra::core::dimension::U64'>U64</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U42.html'
-                                  title='nalgebra::core::dimension::U42'>U42</a></td>
+                           <td><a class="struct" href="struct.U65.html"
+                                  title='struct nalgebra::core::dimension::U65'>U65</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U43.html'
-                                  title='nalgebra::core::dimension::U43'>U43</a></td>
+                           <td><a class="struct" href="struct.U66.html"
+                                  title='struct nalgebra::core::dimension::U66'>U66</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U44.html'
-                                  title='nalgebra::core::dimension::U44'>U44</a></td>
+                           <td><a class="struct" href="struct.U67.html"
+                                  title='struct nalgebra::core::dimension::U67'>U67</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U45.html'
-                                  title='nalgebra::core::dimension::U45'>U45</a></td>
+                           <td><a class="struct" href="struct.U68.html"
+                                  title='struct nalgebra::core::dimension::U68'>U68</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U46.html'
-                                  title='nalgebra::core::dimension::U46'>U46</a></td>
+                           <td><a class="struct" href="struct.U69.html"
+                                  title='struct nalgebra::core::dimension::U69'>U69</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U47.html'
-                                  title='nalgebra::core::dimension::U47'>U47</a></td>
+                           <td><a class="struct" href="struct.U70.html"
+                                  title='struct nalgebra::core::dimension::U70'>U70</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U48.html'
-                                  title='nalgebra::core::dimension::U48'>U48</a></td>
+                           <td><a class="struct" href="struct.U71.html"
+                                  title='struct nalgebra::core::dimension::U71'>U71</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U49.html'
-                                  title='nalgebra::core::dimension::U49'>U49</a></td>
+                           <td><a class="struct" href="struct.U72.html"
+                                  title='struct nalgebra::core::dimension::U72'>U72</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U5.html'
-                                  title='nalgebra::core::dimension::U5'>U5</a></td>
+                           <td><a class="struct" href="struct.U73.html"
+                                  title='struct nalgebra::core::dimension::U73'>U73</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U50.html'
-                                  title='nalgebra::core::dimension::U50'>U50</a></td>
+                           <td><a class="struct" href="struct.U74.html"
+                                  title='struct nalgebra::core::dimension::U74'>U74</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U51.html'
-                                  title='nalgebra::core::dimension::U51'>U51</a></td>
+                           <td><a class="struct" href="struct.U75.html"
+                                  title='struct nalgebra::core::dimension::U75'>U75</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U52.html'
-                                  title='nalgebra::core::dimension::U52'>U52</a></td>
+                           <td><a class="struct" href="struct.U76.html"
+                                  title='struct nalgebra::core::dimension::U76'>U76</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U53.html'
-                                  title='nalgebra::core::dimension::U53'>U53</a></td>
+                           <td><a class="struct" href="struct.U77.html"
+                                  title='struct nalgebra::core::dimension::U77'>U77</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U54.html'
-                                  title='nalgebra::core::dimension::U54'>U54</a></td>
+                           <td><a class="struct" href="struct.U78.html"
+                                  title='struct nalgebra::core::dimension::U78'>U78</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U55.html'
-                                  title='nalgebra::core::dimension::U55'>U55</a></td>
+                           <td><a class="struct" href="struct.U79.html"
+                                  title='struct nalgebra::core::dimension::U79'>U79</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U56.html'
-                                  title='nalgebra::core::dimension::U56'>U56</a></td>
+                           <td><a class="struct" href="struct.U80.html"
+                                  title='struct nalgebra::core::dimension::U80'>U80</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U57.html'
-                                  title='nalgebra::core::dimension::U57'>U57</a></td>
+                           <td><a class="struct" href="struct.U81.html"
+                                  title='struct nalgebra::core::dimension::U81'>U81</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U58.html'
-                                  title='nalgebra::core::dimension::U58'>U58</a></td>
+                           <td><a class="struct" href="struct.U82.html"
+                                  title='struct nalgebra::core::dimension::U82'>U82</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U59.html'
-                                  title='nalgebra::core::dimension::U59'>U59</a></td>
+                           <td><a class="struct" href="struct.U83.html"
+                                  title='struct nalgebra::core::dimension::U83'>U83</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U6.html'
-                                  title='nalgebra::core::dimension::U6'>U6</a></td>
+                           <td><a class="struct" href="struct.U84.html"
+                                  title='struct nalgebra::core::dimension::U84'>U84</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U60.html'
-                                  title='nalgebra::core::dimension::U60'>U60</a></td>
+                           <td><a class="struct" href="struct.U85.html"
+                                  title='struct nalgebra::core::dimension::U85'>U85</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U61.html'
-                                  title='nalgebra::core::dimension::U61'>U61</a></td>
+                           <td><a class="struct" href="struct.U86.html"
+                                  title='struct nalgebra::core::dimension::U86'>U86</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U62.html'
-                                  title='nalgebra::core::dimension::U62'>U62</a></td>
+                           <td><a class="struct" href="struct.U87.html"
+                                  title='struct nalgebra::core::dimension::U87'>U87</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U63.html'
-                                  title='nalgebra::core::dimension::U63'>U63</a></td>
+                           <td><a class="struct" href="struct.U88.html"
+                                  title='struct nalgebra::core::dimension::U88'>U88</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U64.html'
-                                  title='nalgebra::core::dimension::U64'>U64</a></td>
+                           <td><a class="struct" href="struct.U89.html"
+                                  title='struct nalgebra::core::dimension::U89'>U89</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U65.html'
-                                  title='nalgebra::core::dimension::U65'>U65</a></td>
+                           <td><a class="struct" href="struct.U90.html"
+                                  title='struct nalgebra::core::dimension::U90'>U90</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U66.html'
-                                  title='nalgebra::core::dimension::U66'>U66</a></td>
+                           <td><a class="struct" href="struct.U91.html"
+                                  title='struct nalgebra::core::dimension::U91'>U91</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U67.html'
-                                  title='nalgebra::core::dimension::U67'>U67</a></td>
+                           <td><a class="struct" href="struct.U92.html"
+                                  title='struct nalgebra::core::dimension::U92'>U92</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U68.html'
-                                  title='nalgebra::core::dimension::U68'>U68</a></td>
+                           <td><a class="struct" href="struct.U93.html"
+                                  title='struct nalgebra::core::dimension::U93'>U93</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U69.html'
-                                  title='nalgebra::core::dimension::U69'>U69</a></td>
+                           <td><a class="struct" href="struct.U94.html"
+                                  title='struct nalgebra::core::dimension::U94'>U94</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U7.html'
-                                  title='nalgebra::core::dimension::U7'>U7</a></td>
+                           <td><a class="struct" href="struct.U95.html"
+                                  title='struct nalgebra::core::dimension::U95'>U95</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U70.html'
-                                  title='nalgebra::core::dimension::U70'>U70</a></td>
+                           <td><a class="struct" href="struct.U96.html"
+                                  title='struct nalgebra::core::dimension::U96'>U96</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U71.html'
-                                  title='nalgebra::core::dimension::U71'>U71</a></td>
+                           <td><a class="struct" href="struct.U97.html"
+                                  title='struct nalgebra::core::dimension::U97'>U97</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U72.html'
-                                  title='nalgebra::core::dimension::U72'>U72</a></td>
+                           <td><a class="struct" href="struct.U98.html"
+                                  title='struct nalgebra::core::dimension::U98'>U98</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U73.html'
-                                  title='nalgebra::core::dimension::U73'>U73</a></td>
+                           <td><a class="struct" href="struct.U99.html"
+                                  title='struct nalgebra::core::dimension::U99'>U99</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U74.html'
-                                  title='nalgebra::core::dimension::U74'>U74</a></td>
+                           <td><a class="struct" href="struct.U100.html"
+                                  title='struct nalgebra::core::dimension::U100'>U100</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U75.html'
-                                  title='nalgebra::core::dimension::U75'>U75</a></td>
+                           <td><a class="struct" href="struct.U101.html"
+                                  title='struct nalgebra::core::dimension::U101'>U101</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U76.html'
-                                  title='nalgebra::core::dimension::U76'>U76</a></td>
+                           <td><a class="struct" href="struct.U102.html"
+                                  title='struct nalgebra::core::dimension::U102'>U102</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U77.html'
-                                  title='nalgebra::core::dimension::U77'>U77</a></td>
+                           <td><a class="struct" href="struct.U103.html"
+                                  title='struct nalgebra::core::dimension::U103'>U103</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U78.html'
-                                  title='nalgebra::core::dimension::U78'>U78</a></td>
+                           <td><a class="struct" href="struct.U104.html"
+                                  title='struct nalgebra::core::dimension::U104'>U104</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U79.html'
-                                  title='nalgebra::core::dimension::U79'>U79</a></td>
+                           <td><a class="struct" href="struct.U105.html"
+                                  title='struct nalgebra::core::dimension::U105'>U105</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U8.html'
-                                  title='nalgebra::core::dimension::U8'>U8</a></td>
+                           <td><a class="struct" href="struct.U106.html"
+                                  title='struct nalgebra::core::dimension::U106'>U106</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U80.html'
-                                  title='nalgebra::core::dimension::U80'>U80</a></td>
+                           <td><a class="struct" href="struct.U107.html"
+                                  title='struct nalgebra::core::dimension::U107'>U107</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U81.html'
-                                  title='nalgebra::core::dimension::U81'>U81</a></td>
+                           <td><a class="struct" href="struct.U108.html"
+                                  title='struct nalgebra::core::dimension::U108'>U108</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U82.html'
-                                  title='nalgebra::core::dimension::U82'>U82</a></td>
+                           <td><a class="struct" href="struct.U109.html"
+                                  title='struct nalgebra::core::dimension::U109'>U109</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U83.html'
-                                  title='nalgebra::core::dimension::U83'>U83</a></td>
+                           <td><a class="struct" href="struct.U110.html"
+                                  title='struct nalgebra::core::dimension::U110'>U110</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U84.html'
-                                  title='nalgebra::core::dimension::U84'>U84</a></td>
+                           <td><a class="struct" href="struct.U111.html"
+                                  title='struct nalgebra::core::dimension::U111'>U111</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U85.html'
-                                  title='nalgebra::core::dimension::U85'>U85</a></td>
+                           <td><a class="struct" href="struct.U112.html"
+                                  title='struct nalgebra::core::dimension::U112'>U112</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U86.html'
-                                  title='nalgebra::core::dimension::U86'>U86</a></td>
+                           <td><a class="struct" href="struct.U113.html"
+                                  title='struct nalgebra::core::dimension::U113'>U113</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U87.html'
-                                  title='nalgebra::core::dimension::U87'>U87</a></td>
+                           <td><a class="struct" href="struct.U114.html"
+                                  title='struct nalgebra::core::dimension::U114'>U114</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U88.html'
-                                  title='nalgebra::core::dimension::U88'>U88</a></td>
+                           <td><a class="struct" href="struct.U115.html"
+                                  title='struct nalgebra::core::dimension::U115'>U115</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U89.html'
-                                  title='nalgebra::core::dimension::U89'>U89</a></td>
+                           <td><a class="struct" href="struct.U116.html"
+                                  title='struct nalgebra::core::dimension::U116'>U116</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U9.html'
-                                  title='nalgebra::core::dimension::U9'>U9</a></td>
+                           <td><a class="struct" href="struct.U117.html"
+                                  title='struct nalgebra::core::dimension::U117'>U117</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U90.html'
-                                  title='nalgebra::core::dimension::U90'>U90</a></td>
+                           <td><a class="struct" href="struct.U118.html"
+                                  title='struct nalgebra::core::dimension::U118'>U118</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U91.html'
-                                  title='nalgebra::core::dimension::U91'>U91</a></td>
+                           <td><a class="struct" href="struct.U119.html"
+                                  title='struct nalgebra::core::dimension::U119'>U119</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U92.html'
-                                  title='nalgebra::core::dimension::U92'>U92</a></td>
+                           <td><a class="struct" href="struct.U120.html"
+                                  title='struct nalgebra::core::dimension::U120'>U120</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U93.html'
-                                  title='nalgebra::core::dimension::U93'>U93</a></td>
+                           <td><a class="struct" href="struct.U121.html"
+                                  title='struct nalgebra::core::dimension::U121'>U121</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U94.html'
-                                  title='nalgebra::core::dimension::U94'>U94</a></td>
+                           <td><a class="struct" href="struct.U122.html"
+                                  title='struct nalgebra::core::dimension::U122'>U122</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U95.html'
-                                  title='nalgebra::core::dimension::U95'>U95</a></td>
+                           <td><a class="struct" href="struct.U123.html"
+                                  title='struct nalgebra::core::dimension::U123'>U123</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U96.html'
-                                  title='nalgebra::core::dimension::U96'>U96</a></td>
+                           <td><a class="struct" href="struct.U124.html"
+                                  title='struct nalgebra::core::dimension::U124'>U124</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U97.html'
-                                  title='nalgebra::core::dimension::U97'>U97</a></td>
+                           <td><a class="struct" href="struct.U125.html"
+                                  title='struct nalgebra::core::dimension::U125'>U125</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U98.html'
-                                  title='nalgebra::core::dimension::U98'>U98</a></td>
+                           <td><a class="struct" href="struct.U126.html"
+                                  title='struct nalgebra::core::dimension::U126'>U126</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.U99.html'
-                                  title='nalgebra::core::dimension::U99'>U99</a></td>
+                           <td><a class="struct" href="struct.U127.html"
+                                  title='struct nalgebra::core::dimension::U127'>U127</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.Dim.html'
-                                  title='nalgebra::core::dimension::Dim'>Dim</a></td>
+                           <td><a class="trait" href="trait.Dim.html"
+                                  title='trait nalgebra::core::dimension::Dim'>Dim</a></td>
                            <td class='docblock-short'>
                                 <p>Trait implemented by any type that can be used as a dimension. This includes type-level
 integers and <code>Dynamic</code> (for dimensions not known at compile-time).</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.DimAdd.html'
-                                  title='nalgebra::core::dimension::DimAdd'>DimAdd</a></td>
+                           <td><a class="trait" href="trait.DimAdd.html"
+                                  title='trait nalgebra::core::dimension::DimAdd'>DimAdd</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.DimDiv.html'
-                                  title='nalgebra::core::dimension::DimDiv'>DimDiv</a></td>
+                           <td><a class="trait" href="trait.DimDiv.html"
+                                  title='trait nalgebra::core::dimension::DimDiv'>DimDiv</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.DimMul.html'
-                                  title='nalgebra::core::dimension::DimMul'>DimMul</a></td>
+                           <td><a class="trait" href="trait.DimMax.html"
+                                  title='trait nalgebra::core::dimension::DimMax'>DimMax</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.DimName.html'
-                                  title='nalgebra::core::dimension::DimName'>DimName</a></td>
+                           <td><a class="trait" href="trait.DimMin.html"
+                                  title='trait nalgebra::core::dimension::DimMin'>DimMin</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.DimMul.html"
+                                  title='trait nalgebra::core::dimension::DimMul'>DimMul</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.DimName.html"
+                                  title='trait nalgebra::core::dimension::DimName'>DimName</a></td>
                            <td class='docblock-short'>
                                 <p>Trait implemented exclusively by type-level integers.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.DimNameAdd.html'
-                                  title='nalgebra::core::dimension::DimNameAdd'>DimNameAdd</a></td>
+                           <td><a class="trait" href="trait.DimNameAdd.html"
+                                  title='trait nalgebra::core::dimension::DimNameAdd'>DimNameAdd</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.DimNameDiv.html'
-                                  title='nalgebra::core::dimension::DimNameDiv'>DimNameDiv</a></td>
+                           <td><a class="trait" href="trait.DimNameDiv.html"
+                                  title='trait nalgebra::core::dimension::DimNameDiv'>DimNameDiv</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.DimNameMul.html'
-                                  title='nalgebra::core::dimension::DimNameMul'>DimNameMul</a></td>
+                           <td><a class="trait" href="trait.DimNameMax.html"
+                                  title='trait nalgebra::core::dimension::DimNameMax'>DimNameMax</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.DimNameSub.html'
-                                  title='nalgebra::core::dimension::DimNameSub'>DimNameSub</a></td>
+                           <td><a class="trait" href="trait.DimNameMin.html"
+                                  title='trait nalgebra::core::dimension::DimNameMin'>DimNameMin</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.DimSub.html'
-                                  title='nalgebra::core::dimension::DimSub'>DimSub</a></td>
+                           <td><a class="trait" href="trait.DimNameMul.html"
+                                  title='trait nalgebra::core::dimension::DimNameMul'>DimNameMul</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.IsDynamic.html'
-                                  title='nalgebra::core::dimension::IsDynamic'>IsDynamic</a></td>
+                           <td><a class="trait" href="trait.DimNameSub.html"
+                                  title='trait nalgebra::core::dimension::DimNameSub'>DimNameSub</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.DimSub.html"
+                                  title='trait nalgebra::core::dimension::DimSub'>DimSub</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.IsDynamic.html"
+                                  title='trait nalgebra::core::dimension::IsDynamic'>IsDynamic</a></td>
                            <td class='docblock-short'>
                                 <p>Trait implemented by <code>Dynamic</code>.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.IsNotStaticOne.html'
-                                  title='nalgebra::core::dimension::IsNotStaticOne'>IsNotStaticOne</a></td>
+                           <td><a class="trait" href="trait.IsNotStaticOne.html"
+                                  title='trait nalgebra::core::dimension::IsNotStaticOne'>IsNotStaticOne</a></td>
                            <td class='docblock-short'>
                                 <p>Trait implemented by <code>Dynamic</code> and type-level integers different from <code>U1</code>.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.NamedDim.html'
-                                  title='nalgebra::core::dimension::NamedDim'>NamedDim</a></td>
+                           <td><a class="trait" href="trait.NamedDim.html"
+                                  title='trait nalgebra::core::dimension::NamedDim'>NamedDim</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.DimDiff.html'
-                                  title='nalgebra::core::dimension::DimDiff'>DimDiff</a></td>
+                           <td><a class="type" href="type.DimDiff.html"
+                                  title='type nalgebra::core::dimension::DimDiff'>DimDiff</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.DimNameDiff.html'
-                                  title='nalgebra::core::dimension::DimNameDiff'>DimNameDiff</a></td>
+                           <td><a class="type" href="type.DimMaximum.html"
+                                  title='type nalgebra::core::dimension::DimMaximum'>DimMaximum</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.DimNameProd.html'
-                                  title='nalgebra::core::dimension::DimNameProd'>DimNameProd</a></td>
+                           <td><a class="type" href="type.DimMinimum.html"
+                                  title='type nalgebra::core::dimension::DimMinimum'>DimMinimum</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.DimNameQuot.html'
-                                  title='nalgebra::core::dimension::DimNameQuot'>DimNameQuot</a></td>
+                           <td><a class="type" href="type.DimNameDiff.html"
+                                  title='type nalgebra::core::dimension::DimNameDiff'>DimNameDiff</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.DimNameSum.html'
-                                  title='nalgebra::core::dimension::DimNameSum'>DimNameSum</a></td>
+                           <td><a class="type" href="type.DimNameMaximum.html"
+                                  title='type nalgebra::core::dimension::DimNameMaximum'>DimNameMaximum</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.DimProd.html'
-                                  title='nalgebra::core::dimension::DimProd'>DimProd</a></td>
+                           <td><a class="type" href="type.DimNameNimimum.html"
+                                  title='type nalgebra::core::dimension::DimNameNimimum'>DimNameNimimum</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.DimQuot.html'
-                                  title='nalgebra::core::dimension::DimQuot'>DimQuot</a></td>
+                           <td><a class="type" href="type.DimNameProd.html"
+                                  title='type nalgebra::core::dimension::DimNameProd'>DimNameProd</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.DimSum.html'
-                                  title='nalgebra::core::dimension::DimSum'>DimSum</a></td>
+                           <td><a class="type" href="type.DimNameQuot.html"
+                                  title='type nalgebra::core::dimension::DimNameQuot'>DimNameQuot</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="type" href="type.DimNameSum.html"
+                                  title='type nalgebra::core::dimension::DimNameSum'>DimNameSum</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="type" href="type.DimProd.html"
+                                  title='type nalgebra::core::dimension::DimProd'>DimProd</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="type" href="type.DimQuot.html"
+                                  title='type nalgebra::core::dimension::DimQuot'>DimQuot</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="type" href="type.DimSum.html"
+                                  title='type nalgebra::core::dimension::DimSum'>DimSum</a></td>
                            <td class='docblock-short'>
                                 
                            </td>
@@ -1161,7 +1217,6 @@ integers and <code>Dynamic</code> (for dimensions not known at compile-time).</p
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 

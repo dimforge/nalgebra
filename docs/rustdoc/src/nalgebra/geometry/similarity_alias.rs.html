@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -43,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -58,30 +58,22 @@
 <span id="13">13</span>
 <span id="14">14</span>
 <span id="15">15</span>
-<span id="16">16</span>
-<span id="17">17</span>
-<span id="18">18</span>
-<span id="19">19</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>MatrixArray</span>;
-<span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>dimension</span>::{<span class='ident'>U1</span>, <span class='ident'>U2</span>, <span class='ident'>U3</span>};
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">U2</span>, <span class="ident">U3</span>};
 
-<span class='kw'>use</span> <span class='ident'>geometry</span>::{<span class='ident'>Rotation</span>, <span class='ident'>SimilarityBase</span>, <span class='ident'>UnitQuaternion</span>, <span class='ident'>UnitComplex</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Similarity</span>, <span class="ident">UnitQuaternion</span>, <span class="ident">UnitComplex</span>, <span class="ident">Rotation2</span>, <span class="ident">Rotation3</span>};
 
-<span class='doccomment'>/// A D-dimensional similarity.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Similarity</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>MatrixArray</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>Rotation</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>D</span><span class='op'>&gt;&gt;</span>;
+<span class="doccomment">/// A 2-dimensional similarity.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Similarity2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>;
 
-<span class='doccomment'>/// A 2-dimensional similarity.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Similarity2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>MatrixArray</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>UnitComplex</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>;
+<span class="doccomment">/// A 3-dimensional similarity.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Similarity3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>;
 
-<span class='doccomment'>/// A 3-dimensional similarity.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>Similarity3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>SimilarityBase</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>MatrixArray</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span>, <span class='ident'>U1</span><span class='op'>&gt;</span>, <span class='ident'>UnitQuaternion</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;&gt;</span>;
+<span class="doccomment">/// A 2-dimensional similarity using a rotation matrix for its rotation part.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SimilarityMatrix2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">Rotation2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>;
 
-<span class='doccomment'>/// A 2-dimensional similarity using a rotation matrix for its rotation part.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>SimilarityMatrix2</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Similarity</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U2</span><span class='op'>&gt;</span>;
-
-<span class='doccomment'>/// A 3-dimensional similarity using a rotation matrix for its rotation part.</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>SimilarityMatrix3</span><span class='op'>&lt;</span><span class='ident'>N</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Similarity</span><span class='op'>&lt;</span><span class='ident'>N</span>, <span class='ident'>U3</span><span class='op'>&gt;</span>;
+<span class="doccomment">/// A 3-dimensional similarity using a rotation matrix for its rotation part.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SimilarityMatrix3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="ident">Rotation3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>;
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -140,7 +132,6 @@
         window.rootPath = "../../../";
         window.currentCrate = "nalgebra";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
