@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 The **nalgebra-lapack** crate has been updated. This now includes a broad range
 matrix decompositions using LAPACK bindings.
 
+This adds support for serialization using the
+[abomonation](https://crates.io/crates/abomonation) crate.
+
 ### Breaking semantic change
   * The implementation of slicing with steps now matches the documentation.
     Before, step identified the number to add to pass from one column/row index
