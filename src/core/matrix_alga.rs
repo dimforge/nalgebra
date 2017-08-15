@@ -215,7 +215,7 @@ impl<N: Real, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
         match Self::dimension() {
             1 => {
                 if vs.len() == 0 {
-                    f(&Self::canonical_basis_element(0));
+                    let _ = f(&Self::canonical_basis_element(0));
                 }
             },
             2 => {
@@ -227,7 +227,7 @@ impl<N: Real, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
                     let v = &vs[0];
                     let res = Self::from_column_slice(&[-v[1], v[0]]);
 
-                    f(&res.normalize());
+                    let _ = f(&res.normalize());
                 }
 
                 // Otherwise, nothing.
@@ -252,11 +252,11 @@ impl<N: Real, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
                     let _ = a.normalize_mut();
 
                     if f(&a.cross(v)) {
-                        f(&a);
+                        let _ = f(&a);
                     }
                 }
                 else if vs.len() == 2 {
-                    f(&vs[0].cross(&vs[1]).normalize());
+                    let _ = f(&vs[0].cross(&vs[1]).normalize());
                 }
             },
             _ => {

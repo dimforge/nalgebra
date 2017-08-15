@@ -73,7 +73,7 @@ pub fn try_invert_to<N: Real, D: Dim, S>(mut matrix: MatrixN<N, D>,
         }
     }
 
-    matrix.solve_lower_triangular_with_diag_mut(out, N::one());
+    let _ = matrix.solve_lower_triangular_with_diag_mut(out, N::one());
     matrix.solve_upper_triangular_mut(out)
 }
 
@@ -216,7 +216,7 @@ impl<N: Real, D: DimMin<D, Output = D>> LU<N, D, D>
         assert!(self.lu.is_square(), "LU solve: unable to solve a non-square system.");
 
         self.p.permute_rows(b);
-        self.lu.solve_lower_triangular_with_diag_mut(b, N::one());
+        let _ = self.lu.solve_lower_triangular_with_diag_mut(b, N::one());
         self.lu.solve_upper_triangular_mut(b)
     }
 

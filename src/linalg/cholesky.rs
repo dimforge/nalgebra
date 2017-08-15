@@ -104,8 +104,8 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
     pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>)
         where S2: StorageMut<N, R2, C2>,
               ShapeConstraint: SameNumberOfRows<R2, D> {
-        self.chol.solve_lower_triangular_mut(b);
-        self.chol.tr_solve_lower_triangular_mut(b);
+        let _ = self.chol.solve_lower_triangular_mut(b);
+        let _ = self.chol.tr_solve_lower_triangular_mut(b);
     }
 
     /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and
