@@ -24,7 +24,7 @@ script:
     - cargo build --verbose --features arbitrary
     - cargo build --verbose --features serde-serialize
     - cargo build --verbose --features abomonation-serialize
-    - cargo test --verbose --features "arbitrary serde-serialize abomonation-serialize"
+    - cargo test --verbose --features "debug arbitrary serde-serialize abomonation-serialize"
     - cd nalgebra-lapack; cargo test --verbose
 
 env:
