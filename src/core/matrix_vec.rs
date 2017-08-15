@@ -6,6 +6,9 @@ use core::storage::{Storage, StorageMut, Owned, ContiguousStorage, ContiguousSto
 use core::allocator::Allocator;
 use core::default_allocator::DefaultAllocator;
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 /*
  *
  * Storage.
@@ -210,6 +213,21 @@ unsafe impl<N: Scalar, R: DimName> StorageMut<N, R, Dynamic> for MatrixVec<N, R,
     #[inline]
     fn as_mut_slice(&mut self) -> &mut [N] {
         &mut self.data[..]
+    }
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N: Abomonation, R: Dim, C: Dim> Abomonation for MatrixVec<N, R, C> {
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.data.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.data.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.data.exhume(bytes)
     }
 }
 

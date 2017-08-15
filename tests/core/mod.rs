@@ -4,3 +4,4 @@ mod matrix;
 mod matrix_slice;
 mod blas;
 mod serde;
+mod abomonation;

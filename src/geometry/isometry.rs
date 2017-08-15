@@ -6,6 +6,9 @@ use approx::ApproxEq;
 #[cfg(feature = "serde-serialize")]
 use serde;
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use alga::general::{Real, SubsetOf};
 use alga::linear::Rotation;
 
@@ -42,6 +45,30 @@ pub struct Isometry<N: Real, D: DimName, R>
     _noconstruct: PhantomData<N>
 }
 
+#[cfg(feature = "abomonation-serialize")]
+impl<N, D, R> Abomonation for Isometry<N, D, R>
+    where N: Real,
+          D: DimName,
+          R: Abomonation,
+          Translation<N, D>: Abomonation,
+          DefaultAllocator: Allocator<N, D>
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.rotation.entomb(writer);
+        self.translation.entomb(writer);
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.rotation.embalm();
+        self.translation.embalm();
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.rotation.exhume(bytes)
+            .and_then(|bytes| self.translation.exhume(bytes))
+    }
+}
+
 impl<N: Real + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash for Isometry<N, D, R>
     where DefaultAllocator: Allocator<N, D>,
           Owned<N, D>: hash::Hash {
@@ -66,6 +93,7 @@ impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Isometry<N
 
 impl<N: Real, D: DimName, R: Rotation<Point<N, D>>> Isometry<N, D, R>
     where DefaultAllocator: Allocator<N, D> {
+
     /// Creates a new isometry from its rotational and translational parts.
     #[inline]
     pub fn from_parts(translation: Translation<N, D>, rotation: R) -> Isometry<N, D, R> {

@@ -13,6 +13,9 @@ use std::mem;
 #[cfg(feature = "serde-serialize")]
 use std::marker::PhantomData;
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use typenum::Prod;
 use generic_array::{ArrayLength, GenericArray};
 
@@ -317,5 +320,38 @@ where N: Scalar + Deserialize<'a>,
         else {
             Err(V::Error::invalid_length(curr, &self))
         }
+    }
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N, R, C> Abomonation for MatrixArray<N, R, C>
+    where R: DimName,
+          C: DimName,
+          R::Value: Mul<C::Value>,
+          Prod<R::Value, C::Value>: ArrayLength<N>,
+          N: Abomonation
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        for element in self.data.as_slice() {
+            element.entomb(writer);
+        }
+    }
+
+    unsafe fn embalm(&mut self) {
+        for element in self.data.as_mut_slice() {
+            element.embalm();
+        }
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, mut bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        for element in self.data.as_mut_slice() {
+            let temp = bytes;
+            bytes = if let Some(remainder) = element.exhume(temp) {
+                remainder
+            } else {
+                return None;
+            }
+        }
+        Some(bytes)
     }
 }

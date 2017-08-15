@@ -60,7 +60,7 @@ quickcheck!(
 
     /*
      *
-     * Quaterion * Vector == RotationBase * Vector
+     * Quaterion * Vector == Rotation * Vector
      *
      */
     fn unit_complex_mul_vector(c: UnitComplex<f64>, v: Vector2<f64>, p: Point2<f64>) -> bool {

@@ -18,6 +18,7 @@ path = "src/lib.rs"
 [features]
 arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
+abomonation-serialize = [ "abomonation" ]
 debug = [ ]
 
 [dependencies]
@@ -31,6 +32,7 @@ alga           = "0.5"
 matrixmultiply = "0.1"
 serde          = { version = "1.0", optional = true }
 serde_derive   = { version = "1.0", optional = true }
+abomonation     = { version = "0.4", optional = true }
 
 [dependencies.quickcheck]
 optional = true

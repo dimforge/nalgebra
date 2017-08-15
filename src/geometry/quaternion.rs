@@ -8,6 +8,9 @@ use serde;
 #[cfg(feature = "serde-serialize")]
 use core::storage::Owned;
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use alga::general::Real;
 
 use core::{Unit, Vector3, Vector4, MatrixSlice, MatrixSliceMut, SquareMatrix, MatrixN};
@@ -25,8 +28,24 @@ pub struct Quaternion<N: Real> {
     pub coords: Vector4<N>
 }
 
-impl<N: Real + Eq> Eq for Quaternion<N> {
+#[cfg(feature = "abomonation-serialize")]
+impl<N: Real> Abomonation for Quaternion<N>
+    where Vector4<N>: Abomonation
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.coords.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.coords.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.coords.exhume(bytes)
+    }
 }
+
+impl<N: Real + Eq> Eq for Quaternion<N> { }
 
 impl<N: Real> PartialEq for Quaternion<N> {
     fn eq(&self, rhs: &Self) -> bool {

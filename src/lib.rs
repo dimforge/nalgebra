@@ -90,11 +90,16 @@ an optimized set of tools for computer graphics and physics. Those features incl
 
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;
+
 #[cfg(feature = "serde")]
 extern crate serde;
 #[cfg(feature = "serde")]
 #[macro_use]
 extern crate serde_derive;
+
+#[cfg(feature = "abomonation")]
+extern crate abomonation;
+
 extern crate num_traits as num;
 extern crate num_complex;
 extern crate rand;

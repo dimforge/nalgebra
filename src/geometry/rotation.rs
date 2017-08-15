@@ -9,6 +9,9 @@ use serde;
 #[cfg(feature = "serde-serialize")]
 use core::storage::Owned;
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use alga::general::Real;
 
 use core::{DefaultAllocator, Scalar, MatrixN};
@@ -42,6 +45,26 @@ impl<N: Scalar, D: DimName> Clone for Rotation<N, D>
     #[inline]
     fn clone(&self) -> Self {
         Rotation::from_matrix_unchecked(self.matrix.clone())
+    }
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N, D> Abomonation for Rotation<N, D>
+    where N: Scalar,
+          D: DimName,
+          MatrixN<N, D>: Abomonation,
+          DefaultAllocator: Allocator<N, D, D>
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.matrix.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.matrix.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.matrix.exhume(bytes)
     }
 }
 

@@ -7,6 +7,9 @@ use approx::ApproxEq;
 #[cfg(feature = "serde-serialize")]
 use serde;
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use core::{DefaultAllocator, Scalar, VectorN};
 use core::iter::{MatrixIter, MatrixIterMut};
 use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
@@ -64,6 +67,27 @@ where DefaultAllocator: Allocator<N, D>,
 
             Ok(Point::from_coordinates(coords))
         }
+}
+
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N, D> Abomonation for Point<N, D>
+    where N: Scalar,
+          D: DimName,
+          VectorN<N, D>: Abomonation,
+          DefaultAllocator: Allocator<N, D>
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.coords.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.coords.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.coords.exhume(bytes)
+    }
 }
 
 impl<N: Scalar, D: DimName> Point<N, D>

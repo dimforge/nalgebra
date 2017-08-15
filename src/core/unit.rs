@@ -5,6 +5,9 @@ use approx::ApproxEq;
 #[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use alga::general::SubsetOf;
 use alga::linear::NormedSpace;
 
@@ -33,6 +36,21 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
         where D: Deserializer<'de>
     {
         T::deserialize(deserializer).map(|x| Unit { value: x })
+    }
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<T: Abomonation> Abomonation for Unit<T> {
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.value.entomb(writer);
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.value.embalm();
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.value.exhume(bytes)
     }
 }
 

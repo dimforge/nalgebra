@@ -11,6 +11,9 @@ use approx::ApproxEq;
 #[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use alga::general::{Ring, Real};
 
 use core::{Scalar, DefaultAllocator, Unit, VectorN, MatrixMN};
@@ -96,6 +99,21 @@ impl<'de, N, R, C, S> Deserialize<'de> for Matrix<N, R, C, S>
         where D: Deserializer<'de>
     {
         S::deserialize(deserializer).map(|x| Matrix { data: x, _phantoms: PhantomData })
+    }
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N: Scalar, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<N, R, C, S> {
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.data.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.data.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.data.exhume(bytes)
     }
 }
 

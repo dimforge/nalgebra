@@ -5,6 +5,9 @@ use approx::ApproxEq;
 #[cfg(feature = "serde-serialize")]
 use serde;
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use alga::general::{Real, SubsetOf};
 use alga::linear::Rotation;
 
@@ -13,6 +16,7 @@ use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
 use core::storage::Owned;
 use core::allocator::Allocator;
 use geometry::{Point, Translation, Isometry};
+
 
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
@@ -36,6 +40,24 @@ pub struct Similarity<N: Real, D: DimName, R>
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<N, D, R>,
     scaling:      N
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N: Real, D: DimName, R> Abomonation for Similarity<N, D, R>
+    where Isometry<N, D, R>: Abomonation,
+          DefaultAllocator: Allocator<N, D>
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.isometry.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.isometry.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.isometry.exhume(bytes)
+    }
 }
 
 impl<N: Real + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash for Similarity<N, D, R>

@@ -6,6 +6,9 @@ use approx::ApproxEq;
 #[cfg(feature = "serde-serialize")]
 use serde;
 
+#[cfg(feature = "abomonation-serialize")]
+use abomonation::Abomonation;
+
 use alga::general::{Real, ClosedNeg};
 
 use core::{DefaultAllocator, Scalar, MatrixN, VectorN};
@@ -41,6 +44,26 @@ impl<N: Scalar, D: DimName> Clone for Translation<N, D>
     #[inline]
     fn clone(&self) -> Self {
         Translation::from_vector(self.vector.clone())
+    }
+}
+
+#[cfg(feature = "abomonation-serialize")]
+impl<N, D> Abomonation for Translation<N, D>
+    where N: Scalar,
+          D: DimName,
+          VectorN<N, D>: Abomonation,
+          DefaultAllocator: Allocator<N, D>
+{
+    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+        self.vector.entomb(writer)
+    }
+
+    unsafe fn embalm(&mut self) {
+        self.vector.embalm()
+    }
+
+    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
+        self.vector.exhume(bytes)
     }
 }
 
