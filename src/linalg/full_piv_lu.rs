@@ -175,8 +175,8 @@ impl<N: Real, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
 
         if self.is_invertible() {
             self.p.permute_rows(b);
-            self.lu.solve_lower_triangular_with_diag_mut(b, N::one());
-            self.lu.solve_upper_triangular_mut(b);
+            let _ = self.lu.solve_lower_triangular_with_diag_mut(b, N::one());
+            let _ = self.lu.solve_upper_triangular_mut(b);
             self.q.inv_permute_rows(b);
 
             true

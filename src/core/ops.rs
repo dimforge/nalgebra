@@ -144,7 +144,7 @@ macro_rules! componentwise_binop_impl(
                 if self.data.is_contiguous() && rhs.data.is_contiguous() && out.data.is_contiguous() {
                     let arr1 = self.data.as_slice();
                     let arr2 = rhs.data.as_slice();
-                    let mut out = out.data.as_mut_slice();
+                    let out  = out.data.as_mut_slice();
                     for i in 0 .. arr1.len() {
                         unsafe {
                             *out.get_unchecked_mut(i) = arr1.get_unchecked(i).$method(*arr2.get_unchecked(i));
@@ -175,7 +175,7 @@ macro_rules! componentwise_binop_impl(
                 // This is the most common case and should be deduced at compile-time.
                 // FIXME: use specialization instead?
                 if self.data.is_contiguous() && rhs.data.is_contiguous() {
-                    let mut arr1 = self.data.as_mut_slice();
+                    let arr1 = self.data.as_mut_slice();
                     let arr2 = rhs.data.as_slice();
                     for i in 0 .. arr2.len() {
                         unsafe {
@@ -206,7 +206,7 @@ macro_rules! componentwise_binop_impl(
                 // FIXME: use specialization instead?
                 if self.data.is_contiguous() && rhs.data.is_contiguous() {
                     let arr1 = self.data.as_slice();
-                    let mut arr2 = rhs.data.as_mut_slice();
+                    let arr2 = rhs.data.as_mut_slice();
                     for i in 0 .. arr1.len() {
                         unsafe {
                             let res = arr1.get_unchecked(i).$method(*arr2.get_unchecked(i));
@@ -218,7 +218,7 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. self.ncols() {
                         for i in 0 .. self.nrows() {
                             unsafe {
-                                let mut r = rhs.get_unchecked_mut(i, j);
+                                let r = rhs.get_unchecked_mut(i, j);
                                 *r = self.get_unchecked(i, j).$method(*r)
                             }
                         }

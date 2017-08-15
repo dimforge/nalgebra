@@ -1,4 +1,5 @@
 #![feature(test)]
+#![allow(unused_macros)]
 
 extern crate test;
 extern crate rand;

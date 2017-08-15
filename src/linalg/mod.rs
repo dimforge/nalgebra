@@ -1,4 +1,4 @@
-//! Factorization of real matrices.
+//! [Reexported at the root of this crate.] Factorization of real matrices.
 
 mod solve;
 mod determinant;
