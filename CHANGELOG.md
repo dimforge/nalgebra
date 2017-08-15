@@ -19,7 +19,7 @@ matrix decompositions using LAPACK bindings.
     example, a step of, say, 3 on previous versions should now bet set to 2.
 
 ### Modified
-  * The trait `Axpy` takes one additional parameter for the type of `x`.
+  * The trait `Axpy` has been replaced by a metod `.axpy`.
   * The alias `MatrixNM` is now deprecated. Use `MatrixMN` instead (we
     reordered M and N to be in alphabetical order).
   * In-place componentwise multiplication and division
@@ -51,6 +51,16 @@ matrix decompositions using LAPACK bindings.
     product) of two matrices.
   * `.apply(f)` replaces each component of a matrix with the results of the
     closure `f` called on each of them.
+
+Pure Rust implementation of some Blas operations:
+
+  * `.iamax()` retuns the index of the maximum value of a vector.
+  * `.axpy(...)` computes `self = a * x + b * self`.
+  * `.gemv(...)` computes `self = alpha * a * x + beta * self` with a matrix and vector `a` and `x`.
+  * `.ger(...)` computes `self = alpha * x^t * y + beta * self` where `x` and `y` are vectors.
+  * `.gemm(...)` computes `self = alpha * a * b + beta * self` where `a` and `b` are matrices.
+  * `.gemv_symm(...)` is the same as `.gemv` except that `self` is assumed symmetric.
+  * `.ger_symm(...)` is the same as `.ger` except that `self` is assumed symmetric.
 
 New slicing methods:
   * `.rows_range(...)` that retrieves a reference to a range of rows.
