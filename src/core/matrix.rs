@@ -426,22 +426,6 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         }
     }
 
-    /// Fills the selected row of this matrix with the content of the given vector.
-    #[inline]
-    pub fn set_row<C2: Dim, S2>(&mut self, i: usize, row: &RowVector<N, C2, S2>)
-        where S2: Storage<N, U1, C2>,
-              ShapeConstraint: SameNumberOfColumns<C, C2> {
-        self.row_mut(i).copy_from(row);
-    }
-
-    /// Fills the selected column of this matrix with the content of the given vector.
-    #[inline]
-    pub fn set_column<R2: Dim, S2>(&mut self, i: usize, column: &Vector<N, R2, S2>)
-        where S2: Storage<N, R2, U1>,
-              ShapeConstraint: SameNumberOfRows<R, R2> {
-        self.column_mut(i).copy_from(column);
-    }
-
     /// Replaces each component of `self` by the result of a closure `f` applied on it.
     #[inline]
     pub fn apply<F: FnMut(N) -> N>(&mut self, mut f: F)

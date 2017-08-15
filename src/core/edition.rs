@@ -2,9 +2,9 @@ use num::{Zero, One};
 use std::cmp;
 use std::ptr;
 
-use core::{DefaultAllocator, Scalar, Matrix, DMatrix, MatrixMN, Vector};
+use core::{DefaultAllocator, Scalar, Matrix, DMatrix, MatrixMN, Vector, RowVector};
 use core::dimension::{Dim, DimName, DimSub, DimDiff, DimAdd, DimSum, DimMin, DimMinimum, U1, Dynamic};
-use core::constraint::{ShapeConstraint, DimEq};
+use core::constraint::{ShapeConstraint, DimEq, SameNumberOfColumns, SameNumberOfRows};
 use core::allocator::{Allocator, Reallocator};
 use core::storage::{Storage, StorageMut};
 
@@ -89,6 +89,22 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         for i in 0 .. min_nrows_ncols {
             unsafe { *self.get_unchecked_mut(i, i) = *diag.vget_unchecked(i) }
         }
+    }
+
+    /// Fills the selected row of this matrix with the content of the given vector.
+    #[inline]
+    pub fn set_row<C2: Dim, S2>(&mut self, i: usize, row: &RowVector<N, C2, S2>)
+        where S2: Storage<N, U1, C2>,
+              ShapeConstraint: SameNumberOfColumns<C, C2> {
+        self.row_mut(i).copy_from(row);
+    }
+
+    /// Fills the selected column of this matrix with the content of the given vector.
+    #[inline]
+    pub fn set_column<R2: Dim, S2>(&mut self, i: usize, column: &Vector<N, R2, S2>)
+        where S2: Storage<N, R2, U1>,
+              ShapeConstraint: SameNumberOfRows<R, R2> {
+        self.column_mut(i).copy_from(column);
     }
 
     /// Sets all the elements of the lower-triangular part of this matrix to `val`.
