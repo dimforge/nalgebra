@@ -1,15 +1,12 @@
-use approx::ApproxEq;
-
 use alga::general::{AbstractMagma, AbstractGroup, AbstractLoop, AbstractMonoid, AbstractQuasigroup,
-                    AbstractSemigroup, Field, Real, Inverse, Multiplicative, Identity};
+                    AbstractSemigroup, Real, Inverse, Multiplicative, Identity};
 use alga::linear::{Transformation, ProjectiveTransformation};
 
-use core::{Scalar, ColumnVector};
+use core::{DefaultAllocator, VectorN};
 use core::dimension::{DimNameSum, DimNameAdd, U1};
-use core::storage::OwnedStorage;
-use core::allocator::{Allocator, OwnedAllocator};
+use core::allocator::Allocator;
 
-use geometry::{PointBase, TransformBase, TCategory, SubTCategoryOf, TProjective};
+use geometry::{Point, Transform, TCategory, SubTCategoryOf, TProjective};
 
 
 /*
@@ -17,22 +14,18 @@ use geometry::{PointBase, TransformBase, TCategory, SubTCategoryOf, TProjective}
  * Algebraic structures.
  *
  */
-impl<N, D: DimNameAdd<U1>, S, C> Identity<Multiplicative> for TransformBase<N, D, S, C>
-    where N: Scalar + Field,
-          S: OwnedStorage<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          C: TCategory,
-          S::Alloc: OwnedAllocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>, S> {
+impl<N: Real, D: DimNameAdd<U1>, C> Identity<Multiplicative> for Transform<N, D, C>
+    where C: TCategory,
+          DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N, D: DimNameAdd<U1>, S, C> Inverse<Multiplicative> for TransformBase<N, D, S, C>
-    where N: Scalar + Field + ApproxEq,
-          S: OwnedStorage<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          C: SubTCategoryOf<TProjective>,
-          S::Alloc: OwnedAllocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>, S> {
+impl<N: Real, D: DimNameAdd<U1>, C> Inverse<Multiplicative> for Transform<N, D, C>
+    where C: SubTCategoryOf<TProjective>,
+          DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
     #[inline]
     fn inverse(&self) -> Self {
         self.clone().inverse()
@@ -44,11 +37,9 @@ impl<N, D: DimNameAdd<U1>, S, C> Inverse<Multiplicative> for TransformBase<N, D,
     }
 }
 
-impl<N, D: DimNameAdd<U1>, S, C> AbstractMagma<Multiplicative> for TransformBase<N, D, S, C>
-    where N: Scalar + Field,
-          S: OwnedStorage<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          C: TCategory,
-          S::Alloc: OwnedAllocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>, S> {
+impl<N: Real, D: DimNameAdd<U1>, C> AbstractMagma<Multiplicative> for Transform<N, D, C>
+    where C: TCategory,
+          DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
@@ -57,21 +48,17 @@ impl<N, D: DimNameAdd<U1>, S, C> AbstractMagma<Multiplicative> for TransformBase
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N, D: DimNameAdd<U1>, S, C> $marker<$operator> for TransformBase<N, D, S, C>
-            where N: Scalar + Field,
-                  S: OwnedStorage<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-                  C: TCategory,
-                  S::Alloc: OwnedAllocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>, S> { }
+        impl<N: Real, D: DimNameAdd<U1>, C> $marker<$operator> for Transform<N, D, C>
+            where C: TCategory,
+                  DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> { }
     )*}
 );
 
 macro_rules! impl_inversible_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N, D: DimNameAdd<U1>, S, C> $marker<$operator> for TransformBase<N, D, S, C>
-            where N: Scalar + Field + ApproxEq,
-                  S: OwnedStorage<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-                  C: SubTCategoryOf<TProjective>,
-                  S::Alloc: OwnedAllocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>, S> { }
+        impl<N: Real, D: DimNameAdd<U1>, C> $marker<$operator> for Transform<N, D, C>
+            where C: SubTCategoryOf<TProjective>,
+                  DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> { }
     )*}
 );
 
@@ -91,64 +78,54 @@ impl_inversible_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N, D: DimNameAdd<U1>, SA, SB, C> Transformation<PointBase<N, D, SB>> for TransformBase<N, D, SA, C>
+impl<N, D: DimNameAdd<U1>, C> Transformation<Point<N, D>> for Transform<N, D, C>
     where N:  Real,
-          SA: OwnedStorage<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          SB: OwnedStorage<N, D, U1, Alloc = SA::Alloc>,
           C:  TCategory,
-          SA::Alloc: OwnedAllocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>, SA> +
-                     Allocator<N, D, D>  +
-                     Allocator<N, D, U1> +
-                     Allocator<N, U1, D>,
-          SB::Alloc: OwnedAllocator<N, D, U1, SB> {
+          DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> +
+                            Allocator<N, DimNameSum<D, U1>> +
+                            Allocator<N, D, D> +
+                            Allocator<N, D> {
     #[inline]
-    fn transform_point(&self, pt: &PointBase<N, D, SB>) -> PointBase<N, D, SB> {
+    fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self * pt
     }
 
     #[inline]
-    fn transform_vector(&self, v: &ColumnVector<N, D, SB>) -> ColumnVector<N, D, SB> {
+    fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self * v
     }
 }
 
-impl<N, D: DimNameAdd<U1>, SA, SB, C> ProjectiveTransformation<PointBase<N, D, SB>> for TransformBase<N, D, SA, C>
+impl<N, D: DimNameAdd<U1>, C> ProjectiveTransformation<Point<N, D>> for Transform<N, D, C>
     where N:  Real,
-          SA: OwnedStorage<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          SB: OwnedStorage<N, D, U1, Alloc = SA::Alloc>,
           C:  SubTCategoryOf<TProjective>,
-          SA::Alloc: OwnedAllocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>, SA> +
-                     Allocator<N, D, D>  +
-                     Allocator<N, D, U1> +
-                     Allocator<N, U1, D>,
-          SB::Alloc: OwnedAllocator<N, D, U1, SB> {
+          DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> +
+                            Allocator<N, DimNameSum<D, U1>> +
+                            Allocator<N, D, D> +
+                            Allocator<N, D> {
     #[inline]
-    fn inverse_transform_point(&self, pt: &PointBase<N, D, SB>) -> PointBase<N, D, SB> {
+    fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self.inverse() * pt
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &ColumnVector<N, D, SB>) -> ColumnVector<N, D, SB> {
+    fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self.inverse() * v
     }
 }
 
 // FIXME: we need to implement an SVD for this.
 //
-// impl<N, D: DimNameAdd<U1>, SA, SB, C> AffineTransformation<PointBase<N, D, SB>> for TransformBase<N, D, SA, C>
+// impl<N, D: DimNameAdd<U1>, C> AffineTransformation<Point<N, D>> for Transform<N, D, C>
 //     where N:  Real,
-//           SA: OwnedStorage<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-//           SB: OwnedStorage<N, D, U1, Alloc = SA::Alloc>,
 //           C: SubTCategoryOf<TAffine>,
-//           SA::Alloc: OwnedAllocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>, SA> +
-//                      Allocator<N, D, D>  +
-//                      Allocator<N, D, U1> +
-//                      Allocator<N, U1, D>,
-//           SB::Alloc: OwnedAllocator<N, D, U1, SB> {
-//     type PreRotation       = OwnedRotation<N, D, SA::Alloc>;
-//     type NonUniformScaling = OwnedColumnVector<N, D, SA::Alloc>;
-//     type PostRotation      = OwnedRotation<N, D, SA::Alloc>;
-//     type Translation       = OwnedTranslation<N, D, SA::Alloc>;
+//           DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> +
+//                             Allocator<N, D, D> +
+//                             Allocator<N, D> {
+//     type PreRotation       = Rotation<N, D>;
+//     type NonUniformScaling = VectorN<N, D>;
+//     type PostRotation      = Rotation<N, D>;
+//     type Translation       = Translation<N, D>;
 // 
 //     #[inline]
 //     fn decompose(&self) -> (Self::Translation, Self::PostRotation, Self::NonUniformScaling, Self::PreRotation) {

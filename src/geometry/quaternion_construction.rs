@@ -1,42 +1,38 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
+#[cfg(feature = "arbitrary")]
+use core::storage::Owned;
+#[cfg(feature = "arbitrary")]
+use core::dimension::U4;
 
 use rand::{Rand, Rng};
 use num::{Zero, One};
 
 use alga::general::Real;
 
-use core::{Unit, ColumnVector, Vector3};
-use core::storage::{Storage, OwnedStorage};
-use core::allocator::{Allocator, OwnedAllocator};
-use core::dimension::{U1, U3, U4};
+use core::{Unit, Vector, Vector4, Vector3};
+use core::storage::Storage;
+use core::dimension::U3;
 
-use geometry::{QuaternionBase, UnitQuaternionBase, RotationBase, OwnedRotation};
+use geometry::{Quaternion, UnitQuaternion, Rotation};
 
-impl<N, S> QuaternionBase<N, S>
-    where N: Real,
-          S: Storage<N, U4, U1> {
+impl<N: Real> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]
-    pub fn from_vector(vector: ColumnVector<N, U4, S>) -> Self {
-        QuaternionBase {
+    pub fn from_vector(vector: Vector4<N>) -> Self {
+        Quaternion {
             coords: vector
         }
     }
-}
 
-impl<N, S> QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
     /// Creates a new quaternion from its individual components. Note that the arguments order does
     /// **not** follow the storage order.
     ///
     /// The storage order is `[ x, y, z, w ]`.
     #[inline]
     pub fn new(w: N, x: N, y: N, z: N) -> Self {
-        let v = ColumnVector::<N, U4, S>::new(x, y, z, w);
+        let v = Vector4::<N>::new(x, y, z, w);
         Self::from_vector(v)
     }
 
@@ -46,8 +42,8 @@ impl<N, S> QuaternionBase<N, S>
     /// The storage order is [ vector, scalar ].
     #[inline]
     // FIXME: take a reference to `vector`?
-    pub fn from_parts<SB>(scalar: N, vector: ColumnVector<N, U3, SB>) -> Self
-        where SB: Storage<N, U3, U1> {
+    pub fn from_parts<SB>(scalar: N, vector: Vector<N, U3, SB>) -> Self
+        where SB: Storage<N, U3> {
 
         Self::new(scalar, vector[0], vector[1], vector[2])
     }
@@ -56,9 +52,9 @@ impl<N, S> QuaternionBase<N, S>
     ///
     /// Note that `axis` is assumed to be a unit vector.
     // FIXME: take a reference to `axis`?
-    pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<ColumnVector<N, U3, SB>>) -> Self
-        where SB: Storage<N, U3, U1> {
-        let rot = UnitQuaternionBase::<N, S>::from_axis_angle(&axis, theta * ::convert(2.0f64));
+    pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
+        where SB: Storage<N, U3> {
+        let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * ::convert(2.0f64));
 
         rot.unwrap() * scale
     }
@@ -70,20 +66,14 @@ impl<N, S> QuaternionBase<N, S>
     }
 }
 
-impl<N, S> One for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> One for Quaternion<N> {
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N, S> Zero for QuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> Zero for Quaternion<N> {
     #[inline]
     fn zero() -> Self {
         Self::new(N::zero(), N::zero(), N::zero(), N::zero())
@@ -95,46 +85,38 @@ impl<N, S> Zero for QuaternionBase<N, S>
     }
 }
 
-impl<N, S> Rand for QuaternionBase<N, S>
-    where N: Real + Rand,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real + Rand> Rand for Quaternion<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Self {
-        QuaternionBase::new(rng.gen(), rng.gen(), rng.gen(), rng.gen())
+        Quaternion::new(rng.gen(), rng.gen(), rng.gen(), rng.gen())
     }
 }
 
 #[cfg(feature="arbitrary")]
-impl<N, S> Arbitrary for QuaternionBase<N, S>
-    where N: Real + Arbitrary,
-          S: OwnedStorage<N, U4, U1> + Send,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real + Arbitrary> Arbitrary for Quaternion<N>
+    where Owned<N, U4>: Send {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        QuaternionBase::new(N::arbitrary(g), N::arbitrary(g),
+        Quaternion::new(N::arbitrary(g), N::arbitrary(g),
                             N::arbitrary(g), N::arbitrary(g))
     }
 }
 
-impl<N, S> UnitQuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> UnitQuaternion<N> {
     /// The quaternion multiplicative identity.
     #[inline]
     pub fn identity() -> Self {
-        Self::new_unchecked(QuaternionBase::identity())
+        Self::new_unchecked(Quaternion::identity())
     }
 
     /// Creates a new quaternion from a unit vector (the rotation axis) and an angle
     /// (the rotation angle).
     #[inline]
-    pub fn from_axis_angle<SB>(axis: &Unit<ColumnVector<N, U3, SB>>, angle: N) -> Self
-        where SB: Storage<N, U3, U1> {
+    pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
+        where SB: Storage<N, U3> {
         let (sang, cang) = (angle / ::convert(2.0f64)).sin_cos();
 
-        let q = QuaternionBase::from_parts(cang, axis.as_ref() * sang);
+        let q = Quaternion::from_parts(cang, axis.as_ref() * sang);
         Self::new_unchecked(q)
     }
 
@@ -142,7 +124,7 @@ impl<N, S> UnitQuaternionBase<N, S>
     ///
     /// The input quaternion will be normalized.
     #[inline]
-    pub fn from_quaternion(q: QuaternionBase<N, S>) -> Self {
+    pub fn from_quaternion(q: Quaternion<N>) -> Self {
         Self::new_normalize(q)
     }
 
@@ -155,7 +137,7 @@ impl<N, S> UnitQuaternionBase<N, S>
         let (sp, cp) = (pitch * ::convert(0.5f64)).sin_cos();
         let (sy, cy) = (yaw   * ::convert(0.5f64)).sin_cos();
 
-        let q = QuaternionBase::new(
+        let q = Quaternion::new(
                     cr * cp * cy + sr * sp * sy,
                     sr * cp * cy - cr * sp * sy,
                     cr * sp * cy + sr * cp * sy,
@@ -166,10 +148,7 @@ impl<N, S> UnitQuaternionBase<N, S>
 
     /// Builds an unit quaternion from a rotation matrix.
     #[inline]
-    pub fn from_rotation_matrix<SB>(rotmat: &RotationBase<N, U3, SB>) -> Self
-        where SB: Storage<N, U3, U3>,
-              SB::Alloc: Allocator<N, U3, U1> {
-
+    pub fn from_rotation_matrix(rotmat: &Rotation<N, U3>) -> Self {
         // Robust matrix to quaternion transformation.
         // See http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion
         let tr = rotmat[(0, 0)] + rotmat[(1, 1)] + rotmat[(2, 2)];
@@ -179,28 +158,28 @@ impl<N, S> UnitQuaternionBase<N, S>
 
         if tr > N::zero() {
           let denom = (tr + N::one()).sqrt() * ::convert(2.0);
-          res = QuaternionBase::new(_0_25 * denom,
+          res = Quaternion::new(_0_25 * denom,
                                     (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
                                     (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
                                     (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom);
         }
         else if rotmat[(0, 0)] > rotmat[(1, 1)] && rotmat[(0, 0)] > rotmat[(2, 2)] {
           let denom = (N::one() + rotmat[(0, 0)] - rotmat[(1, 1)] - rotmat[(2, 2)]).sqrt() * ::convert(2.0);
-          res = QuaternionBase::new((rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
+          res = Quaternion::new((rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
                                     _0_25 * denom,
                                     (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
                                     (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom);
         }
         else if rotmat[(1, 1)] > rotmat[(2, 2)] {
           let denom = (N::one() + rotmat[(1, 1)] - rotmat[(0, 0)] - rotmat[(2, 2)]).sqrt() * ::convert(2.0);
-          res = QuaternionBase::new((rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
+          res = Quaternion::new((rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
                                     (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
                                     _0_25 * denom,
                                     (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom);
         }
         else {
           let denom = (N::one() + rotmat[(2, 2)] - rotmat[(0, 0)] - rotmat[(1, 1)]).sqrt() * ::convert(2.0);
-          res = QuaternionBase::new((rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
+          res = Quaternion::new((rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
                                     (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
                                     (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
                                     _0_25 * denom);
@@ -212,19 +191,22 @@ impl<N, S> UnitQuaternionBase<N, S>
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
     /// direction.
     #[inline]
-    pub fn rotation_between<SB, SC>(a: &ColumnVector<N, U3, SB>, b: &ColumnVector<N, U3, SC>) -> Option<Self>
-        where SB: Storage<N, U3, U1>,
-              SC: Storage<N, U3, U1> {
+    pub fn rotation_between<SB, SC>(a: &Vector<N, U3, SB>, b: &Vector<N, U3, SC>) -> Option<Self>
+        where SB: Storage<N, U3>,
+              SC: Storage<N, U3> {
         Self::scaled_rotation_between(a, b, N::one())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
     #[inline]
-    pub fn scaled_rotation_between<SB, SC>(a: &ColumnVector<N, U3, SB>, b: &ColumnVector<N, U3, SC>, s: N) -> Option<Self>
-        where SB: Storage<N, U3, U1>,
-              SC: Storage<N, U3, U1> {
-        // FIXME: code duplication with RotationBase.
+    pub fn scaled_rotation_between<SB, SC>(a: &Vector<N, U3, SB>,
+                                           b: &Vector<N, U3, SC>,
+                                           s: N)
+                                           -> Option<Self>
+        where SB: Storage<N, U3>,
+              SC: Storage<N, U3> {
+        // FIXME: code duplication with Rotation.
         if let (Some(na), Some(nb)) = (a.try_normalize(N::zero()), b.try_normalize(N::zero())) {
             let c = na.cross(&nb);
 
@@ -257,12 +239,10 @@ impl<N, S> UnitQuaternionBase<N, S>
     ///   collinear
     ///   to `dir`. Non-collinearity is not checked.
     #[inline]
-    pub fn new_observer_frame<SB, SC>(dir: &ColumnVector<N, U3, SB>, up: &ColumnVector<N, U3, SC>) -> Self
-    where SB: Storage<N, U3, U1>,
-          SC: Storage<N, U3, U1>,
-          S::Alloc: Allocator<N, U3, U3> +
-                    Allocator<N, U3, U1> {
-        Self::from_rotation_matrix(&OwnedRotation::<N, U3, S::Alloc>::new_observer_frame(dir, up))
+    pub fn new_observer_frame<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    where SB: Storage<N, U3>,
+          SC: Storage<N, U3> {
+        Self::from_rotation_matrix(&Rotation::<N, U3>::new_observer_frame(dir, up))
     }
 
 
@@ -277,11 +257,9 @@ impl<N, S> UnitQuaternionBase<N, S>
     ///   * up - A vector approximately aligned with required the vertical axis. The only
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
-    pub fn look_at_rh<SB, SC>(dir: &ColumnVector<N, U3, SB>, up: &ColumnVector<N, U3, SC>) -> Self
-    where SB: Storage<N, U3, U1>,
-          SC: Storage<N, U3, U1>,
-          S::Alloc: Allocator<N, U3, U3> +
-                    Allocator<N, U3, U1> {
+    pub fn look_at_rh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    where SB: Storage<N, U3>,
+          SC: Storage<N, U3> {
         Self::new_observer_frame(&-dir, up).inverse()
     }
 
@@ -296,28 +274,20 @@ impl<N, S> UnitQuaternionBase<N, S>
     ///   * up - A vector approximately aligned with required the vertical axis. The only
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
-    pub fn look_at_lh<SB, SC>(dir: &ColumnVector<N, U3, SB>, up: &ColumnVector<N, U3, SC>) -> Self
-    where SB: Storage<N, U3, U1>,
-          SC: Storage<N, U3, U1>,
-          S::Alloc: Allocator<N, U3, U3> +
-                    Allocator<N, U3, U1> {
+    pub fn look_at_lh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    where SB: Storage<N, U3>,
+          SC: Storage<N, U3> {
             Self::new_observer_frame(dir, up).inverse()
     }
-}
 
-impl<N, S> UnitQuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> +
-                    Allocator<N, U3, U1> {
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
     ///
     /// If `axisangle` is zero, this returns the indentity rotation.
     #[inline]
-    pub fn new<SB>(axisangle: ColumnVector<N, U3, SB>) -> Self
-        where SB: Storage<N, U3, U1> {
+    pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
+        where SB: Storage<N, U3> {
         let two: N = ::convert(2.0f64);
-        let q = QuaternionBase::<N, S>::from_parts(N::zero(), axisangle / two).exp();
+        let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp();
         Self::new_unchecked(q)
     }
 
@@ -326,44 +296,35 @@ impl<N, S> UnitQuaternionBase<N, S>
     /// If `axisangle` is zero, this returns the indentity rotation.
     /// Same as `Self::new(axisangle)`.
     #[inline]
-    pub fn from_scaled_axis<SB>(axisangle: ColumnVector<N, U3, SB>) -> Self
-        where SB: Storage<N, U3, U1> {
+    pub fn from_scaled_axis<SB>(axisangle: Vector<N, U3, SB>) -> Self
+        where SB: Storage<N, U3> {
         Self::new(axisangle)
     }
 }
 
-impl<N, S> One for UnitQuaternionBase<N, S>
-    where N: Real,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> {
+impl<N: Real> One for UnitQuaternion<N> {
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N, S> Rand for UnitQuaternionBase<N, S>
-    where N: Real + Rand,
-          S: OwnedStorage<N, U4, U1>,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> +
-                    Allocator<N, U3, U1> {
+impl<N: Real + Rand> Rand for UnitQuaternion<N> {
     #[inline]
     fn rand<R: Rng>(rng: &mut R) -> Self {
         let axisangle = Vector3::rand(rng);
-        UnitQuaternionBase::from_scaled_axis(axisangle)
+        UnitQuaternion::from_scaled_axis(axisangle)
     }
 }
 
 #[cfg(feature="arbitrary")]
-impl<N, S> Arbitrary for UnitQuaternionBase<N, S>
-    where N: Real + Arbitrary,
-          S: OwnedStorage<N, U4, U1> + Send,
-          S::Alloc: OwnedAllocator<N, U4, U1, S> +
-                    Allocator<N, U3, U1> {
+impl<N: Real + Arbitrary> Arbitrary for UnitQuaternion<N>
+    where Owned<N, U4>: Send,
+          Owned<N, U3>: Send {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let axisangle = Vector3::arbitrary(g);
-        UnitQuaternionBase::from_scaled_axis(axisangle)
+        UnitQuaternion::from_scaled_axis(axisangle)
 
     }
 }

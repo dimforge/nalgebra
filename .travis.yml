@@ -11,6 +11,12 @@ matrix:
   allow_failures:
     - rust: nightly
     - rust: beta
+addons:
+  apt:
+    packages:
+      - gfortran
+      - libblas3gf
+      - liblapack3gf
 script:
     - rustc --version
     - cargo --version
@@ -19,3 +25,8 @@ script:
     - cargo build --verbose --features serde-serialize
     - cargo build --verbose --features abomonation-serialize
     - cargo test --verbose --features "arbitrary serde-serialize abomonation-serialize"
+    - cd nalgebra-lapack; cargo test --verbose
+
+env:
+  matrix:
+    - CARGO_FEATURE_SYSTEM_NETLIB=1 CARGO_FEATURE_EXCLUDE_LAPACKE=1 CARGO_FEATURE_EXCLUDE_CBLAS=1

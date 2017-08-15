@@ -1,37 +1,51 @@
 use std::fmt;
+use std::hash;
 use approx::ApproxEq;
 
-use alga::general::{ClosedMul, Real, SubsetOf};
-use alga::linear::Rotation;
-
-use core::{Scalar, OwnedSquareMatrix};
-use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
-use core::storage::{Storage, OwnedStorage};
-use core::allocator::{Allocator, OwnedAllocator};
-use geometry::{PointBase, TranslationBase, IsometryBase};
+#[cfg(feature = "serde-serialize")]
+use serde;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
+use alga::general::{Real, SubsetOf};
+use alga::linear::Rotation;
 
-/// A similarity that uses a data storage deduced from the allocator `A`.
-pub type OwnedSimilarityBase<N, D, A, R> =
-    SimilarityBase<N, D, <A as Allocator<N, D, U1>>::Buffer, R>;
+use core::{DefaultAllocator, MatrixN};
+use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
+use core::storage::Owned;
+use core::allocator::Allocator;
+use geometry::{Point, Translation, Isometry};
+
+
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-pub struct SimilarityBase<N: Scalar, D: DimName, S, R> {
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(
+        serialize = "N: serde::Serialize,
+                     R: serde::Serialize,
+                     DefaultAllocator: Allocator<N, D>,
+                     Owned<N, D>: serde::Serialize")))]
+#[cfg_attr(feature = "serde-serialize",
+    serde(bound(
+        deserialize = "N: serde::Deserialize<'de>,
+                       R: serde::Deserialize<'de>,
+                       DefaultAllocator: Allocator<N, D>,
+                       Owned<N, D>: serde::Deserialize<'de>")))]
+pub struct Similarity<N: Real, D: DimName, R>
+    where DefaultAllocator: Allocator<N, D> {
     /// The part of this similarity that does not include the scaling factor.
-    pub isometry: IsometryBase<N, D, S, R>,
+    pub isometry: Isometry<N, D, R>,
     scaling:      N
 }
 
-
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Scalar, D: DimName, S, R> Abomonation for SimilarityBase<N, D, S, R>
-    where IsometryBase<N, D, S, R>: Abomonation
+impl<N: Scalar, D: DimName, R> Abomonation for SimilarityBase<N, D, R>
+    where IsometryBase<N, D, R>: Abomonation,
+          DefaultAllocator: Allocator<N, D>
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {
         self.isometry.entomb(writer)
@@ -46,23 +60,43 @@ impl<N: Scalar, D: DimName, S, R> Abomonation for SimilarityBase<N, D, S, R>
     }
 }
 
-impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash for Similarity<N, D, R>
+    where DefaultAllocator: Allocator<N, D>,
+          Owned<N, D>: hash::Hash {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.isometry.hash(state);
+        self.scaling.hash(state);
+    }
+}
+
+impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Similarity<N, D, R>
+    where DefaultAllocator: Allocator<N, D>,
+          Owned<N, D>: Copy {
+}
+
+impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Similarity<N, D, R>
+    where DefaultAllocator: Allocator<N, D> {
+    #[inline]
+    fn clone(&self) -> Self {
+        Similarity::from_isometry(self.isometry.clone(), self.scaling)
+    }
+}
+
+impl<N: Real, D: DimName, R> Similarity<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
-    pub fn from_parts(translation: TranslationBase<N, D, S>, rotation: R, scaling: N) -> SimilarityBase<N, D, S, R> {
-        SimilarityBase::from_isometry(IsometryBase::from_parts(translation, rotation), scaling)
+    pub fn from_parts(translation: Translation<N, D>, rotation: R, scaling: N) -> Similarity<N, D, R> {
+        Similarity::from_isometry(Isometry::from_parts(translation, rotation), scaling)
     }
 
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
-    pub fn from_isometry(isometry: IsometryBase<N, D, S, R>, scaling: N) -> SimilarityBase<N, D, S, R> {
+    pub fn from_isometry(isometry: Isometry<N, D, R>, scaling: N) -> Similarity<N, D, R> {
         assert!(!relative_eq!(scaling, N::zero()), "The scaling factor must not be zero.");
 
-        SimilarityBase {
+        Similarity {
             isometry: isometry,
             scaling:  scaling
         }
@@ -70,13 +104,13 @@ impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
 
     /// Creates a new similarity that applies only a scaling factor.
     #[inline]
-    pub fn from_scaling(scaling: N) -> SimilarityBase<N, D, S, R> {
-        Self::from_isometry(IsometryBase::identity(), scaling)
+    pub fn from_scaling(scaling: N) -> Similarity<N, D, R> {
+        Self::from_isometry(Isometry::identity(), scaling)
     }
 
     /// Inverts `self`.
     #[inline]
-    pub fn inverse(&self) -> SimilarityBase<N, D, S, R> {
+    pub fn inverse(&self) -> Similarity<N, D, R> {
         let mut res = self.clone();
         res.inverse_mut();
         res
@@ -98,6 +132,12 @@ impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
         self.scaling = scaling;
     }
 
+    /// The scaling factor of this similarity transformation.
+    #[inline]
+    pub fn scaling(&self) -> N {
+        self.scaling
+    }
+
     /// The similarity transformation that applies a scaling factor `scaling` before `self`.
     #[inline]
     pub fn prepend_scaling(&self, scaling: N) -> Self {
@@ -112,7 +152,7 @@ impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
         assert!(!relative_eq!(scaling, N::zero()), "The similarity scaling factor must not be zero.");
 
         Self::from_parts(
-            TranslationBase::from_vector(&self.isometry.translation.vector * scaling),
+            Translation::from_vector(&self.isometry.translation.vector * scaling),
             self.isometry.rotation.clone(),
             self.scaling * scaling)
     }
@@ -136,7 +176,7 @@ impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
 
     /// Appends to `self` the given translation in-place.
     #[inline]
-    pub fn append_translation_mut(&mut self, t: &TranslationBase<N, D, S>) {
+    pub fn append_translation_mut(&mut self, t: &Translation<N, D>) {
         self.isometry.append_translation_mut(t)
     }
 
@@ -149,7 +189,7 @@ impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
     /// Appends in-place to `self` a rotation centered at the point `p`, i.e., the rotation that
     /// lets `p` invariant.
     #[inline]
-    pub fn append_rotation_wrt_point_mut(&mut self, r: &R, p: &PointBase<N, D, S>) {
+    pub fn append_rotation_wrt_point_mut(&mut self, r: &R, p: &Point<N, D>) {
         self.isometry.append_rotation_wrt_point_mut(r, p)
     }
 
@@ -166,16 +206,14 @@ impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
 // and makes it harde to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the private scaling factor).
-impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
-    where N: Scalar + ClosedMul,
-          S: Storage<N, D, U1> {
+impl<N: Real, D: DimName, R> Similarity<N, D, R>
+    where DefaultAllocator: Allocator<N, D> {
     /// Converts this similarity into its equivalent homogeneous transformation matrix.
     #[inline]
-    pub fn to_homogeneous(&self) -> OwnedSquareMatrix<N, DimNameSum<D, U1>, S::Alloc>
+    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
         where D: DimNameAdd<U1>,
-              R: SubsetOf<OwnedSquareMatrix<N, DimNameSum<D, U1>, S::Alloc>>,
-              S::Alloc: Allocator<N, D, D> +
-                        Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+              R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,
+              DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
         let mut res = self.isometry.to_homogeneous();
 
         for e in res.fixed_slice_mut::<D, D>(0, 0).iter_mut() {
@@ -184,38 +222,26 @@ impl<N, D: DimName, S, R> SimilarityBase<N, D, S, R>
 
         res
     }
-
-    /// The scaling factor of this similarity transformation.
-    #[inline]
-    pub fn scaling(&self) -> N {
-        self.scaling
-    }
 }
 
 
-impl<N, D: DimName, S, R> Eq for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>> + Eq,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Eq for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>> + Eq,
+          DefaultAllocator: Allocator<N, D> {
 }
 
-impl<N, D: DimName, S, R> PartialEq for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>> + PartialEq,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> PartialEq for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>> + PartialEq,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn eq(&self, right: &SimilarityBase<N, D, S, R>) -> bool {
+    fn eq(&self, right: &Similarity<N, D, R>) -> bool {
         self.isometry == right.isometry && self.scaling == right.scaling
     }
 }
 
-impl<N, D: DimName, S, R> ApproxEq for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>> + ApproxEq<Epsilon = N::Epsilon>,
-          S::Alloc: OwnedAllocator<N, D, U1, S>,
+impl<N: Real, D: DimName, R> ApproxEq for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>> + ApproxEq<Epsilon = N::Epsilon>,
+          DefaultAllocator: Allocator<N, D>,
           N::Epsilon: Copy {
     type Epsilon = N::Epsilon;
 
@@ -252,46 +278,16 @@ impl<N, D: DimName, S, R> ApproxEq for SimilarityBase<N, D, S, R>
  * Display
  *
  */
-impl<N, D: DimName, S, R> fmt::Display for SimilarityBase<N, D, S, R>
+impl<N, D: DimName, R> fmt::Display for Similarity<N, D, R>
     where N: Real + fmt::Display,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>> + fmt::Display,
-          S::Alloc: OwnedAllocator<N, D, U1, S> + Allocator<usize, D, U1> {
+          R: Rotation<Point<N, D>> + fmt::Display,
+          DefaultAllocator: Allocator<N, D> + Allocator<usize, D> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "SimilarityBase {{"));
+        try!(writeln!(f, "Similarity {{"));
         try!(write!(f, "{:.*}", precision, self.isometry));
         try!(write!(f, "Scaling: {:.*}", precision, self.scaling));
         writeln!(f, "}}")
     }
 }
-
-/*
-//         /*
-//          *
-//          * ToHomogeneous
-//          *
-//          */
-//         impl<N: Real> ToHomogeneous<$homogeneous<N>> for $t<N> {
-//             #[inline]
-//             fn to_homogeneous(&self) -> $homogeneous<N> {
-//                 self.vector.to_homogeneous()
-//             }
-//         }
-
-
-//         /*
-//          *
-//          * Absolute
-//          *
-//          */
-//         impl<N: Absolute> Absolute for $t<N> {
-//             type AbsoluteValue = $submatrix<N::AbsoluteValue>;
-//
-//             #[inline]
-//             fn abs(m: &$t<N>) -> $submatrix<N::AbsoluteValue> {
-//                 Absolute::abs(&m.submatrix)
-//             }
-//         }
-*/

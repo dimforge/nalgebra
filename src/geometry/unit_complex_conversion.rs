@@ -4,22 +4,20 @@ use num_complex::Complex;
 use alga::general::{SubsetOf, SupersetOf, Real};
 use alga::linear::Rotation as AlgaRotation;
 
-use core::SquareMatrix;
-use core::dimension::{U1, U2, U3};
-use core::storage::OwnedStorage;
-use core::allocator::{Allocator, OwnedAllocator};
-use geometry::{PointBase, UnitComplex, RotationBase, OwnedRotation, IsometryBase,
-               SimilarityBase, TransformBase, SuperTCategoryOf, TAffine, TranslationBase};
+use core::Matrix3;
+use core::dimension::U2;
+use geometry::{UnitComplex, Isometry, Similarity, Transform, SuperTCategoryOf, TAffine, Translation,
+               Point2, Rotation2};
 
 /*
  * This file provides the following conversions:
  * =============================================
  *
  * UnitComplex -> UnitComplex
- * UnitComplex -> RotationBase<U1>
- * UnitComplex -> IsometryBase<U2>
- * UnitComplex -> SimilarityBase<U2>
- * UnitComplex -> TransformBase<U2>
+ * UnitComplex -> Rotation<U1>
+ * UnitComplex -> Isometry<U2>
+ * UnitComplex -> Similarity<U2>
+ * UnitComplex -> Transform<U2>
  * UnitComplex -> Matrix<U3> (homogeneous)
  *
  * NOTE:
@@ -45,129 +43,106 @@ impl<N1, N2> SubsetOf<UnitComplex<N2>> for UnitComplex<N1>
     }
 }
 
-impl<N1, N2, S> SubsetOf<RotationBase<N2, U2, S>> for UnitComplex<N1>
+impl<N1, N2> SubsetOf<Rotation2<N2>> for UnitComplex<N1>
     where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          S: OwnedStorage<N2, U2, U2>,
-          S::Alloc: OwnedAllocator<N2, U2, U2, S> +
-                    Allocator<N2, U3, U1> +
-                    Allocator<N2, U2, U1> +
-                    Allocator<N1, U2, U2> {
+          N2: Real + SupersetOf<N1> {
     #[inline]
-    fn to_superset(&self) -> RotationBase<N2, U2, S> {
+    fn to_superset(&self) -> Rotation2<N2> {
         let q: UnitComplex<N2> = self.to_superset();
         q.to_rotation_matrix().to_superset()
     }
 
     #[inline]
-    fn is_in_subset(rot: &RotationBase<N2, U2, S>) -> bool {
-        ::is_convertible::<_, OwnedRotation<N1, U2, S::Alloc>>(rot)
+    fn is_in_subset(rot: &Rotation2<N2>) -> bool {
+        ::is_convertible::<_, Rotation2<N1>>(rot)
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(rot: &RotationBase<N2, U2, S>) -> Self {
+    unsafe fn from_superset_unchecked(rot: &Rotation2<N2>) -> Self {
         let q = UnitComplex::<N2>::from_rotation_matrix(rot);
         ::convert_unchecked(q)
     }
 }
 
 
-impl<N1, N2, S, R> SubsetOf<IsometryBase<N2, U2, S, R>> for UnitComplex<N1>
+impl<N1, N2, R> SubsetOf<Isometry<N2, U2, R>> for UnitComplex<N1>
     where N1: Real,
           N2: Real + SupersetOf<N1>,
-          S: OwnedStorage<N2, U2, U1>,
-          R: AlgaRotation<PointBase<N2, U2, S>> + SupersetOf<UnitComplex<N1>>,
-          S::Alloc: OwnedAllocator<N2, U2, U1, S> {
+          R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>> {
     #[inline]
-    fn to_superset(&self) -> IsometryBase<N2, U2, S, R> {
-        IsometryBase::from_parts(TranslationBase::identity(), ::convert_ref(self))
+    fn to_superset(&self) -> Isometry<N2, U2, R> {
+        Isometry::from_parts(Translation::identity(), ::convert_ref(self))
     }
 
     #[inline]
-    fn is_in_subset(iso: &IsometryBase<N2, U2, S, R>) -> bool {
+    fn is_in_subset(iso: &Isometry<N2, U2, R>) -> bool {
         iso.translation.vector.is_zero()
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(iso: &IsometryBase<N2, U2, S, R>) -> Self {
+    unsafe fn from_superset_unchecked(iso: &Isometry<N2, U2, R>) -> Self {
         ::convert_ref_unchecked(&iso.rotation)
     }
 }
 
 
-impl<N1, N2, S, R> SubsetOf<SimilarityBase<N2, U2, S, R>> for UnitComplex<N1>
+impl<N1, N2, R> SubsetOf<Similarity<N2, U2, R>> for UnitComplex<N1>
     where N1: Real,
           N2: Real + SupersetOf<N1>,
-          S: OwnedStorage<N2, U2, U1>,
-          R: AlgaRotation<PointBase<N2, U2, S>> + SupersetOf<UnitComplex<N1>>,
-          S::Alloc: OwnedAllocator<N2, U2, U1, S> {
+          R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>> {
     #[inline]
-    fn to_superset(&self) -> SimilarityBase<N2, U2, S, R> {
-        SimilarityBase::from_isometry(::convert_ref(self), N2::one())
+    fn to_superset(&self) -> Similarity<N2, U2, R> {
+        Similarity::from_isometry(::convert_ref(self), N2::one())
     }
 
     #[inline]
-    fn is_in_subset(sim: &SimilarityBase<N2, U2, S, R>) -> bool {
+    fn is_in_subset(sim: &Similarity<N2, U2, R>) -> bool {
         sim.isometry.translation.vector.is_zero() &&
         sim.scaling() == N2::one()
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(sim: &SimilarityBase<N2, U2, S, R>) -> Self {
+    unsafe fn from_superset_unchecked(sim: &Similarity<N2, U2, R>) -> Self {
         ::convert_ref_unchecked(&sim.isometry)
     }
 }
 
 
-impl<N1, N2, S, C> SubsetOf<TransformBase<N2, U2, S, C>> for UnitComplex<N1>
+impl<N1, N2, C> SubsetOf<Transform<N2, U2, C>> for UnitComplex<N1>
     where N1: Real,
           N2: Real + SupersetOf<N1>,
-          S: OwnedStorage<N2, U3, U3>,
-          C: SuperTCategoryOf<TAffine>,
-          S::Alloc: OwnedAllocator<N2, U3, U3, S> +
-                    Allocator<N2, U2, U2>         +
-                    Allocator<N2, U1, U2>         +
-                    Allocator<N1, U2, U2>         +
-                    Allocator<N1, U3, U3> {
+          C: SuperTCategoryOf<TAffine> {
     #[inline]
-    fn to_superset(&self) -> TransformBase<N2, U2, S, C> {
-        TransformBase::from_matrix_unchecked(self.to_homogeneous().to_superset())
+    fn to_superset(&self) -> Transform<N2, U2, C> {
+        Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
     }
 
     #[inline]
-    fn is_in_subset(t: &TransformBase<N2, U2, S, C>) -> bool {
+    fn is_in_subset(t: &Transform<N2, U2, C>) -> bool {
         <Self as SubsetOf<_>>::is_in_subset(t.matrix())
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &TransformBase<N2, U2, S, C>) -> Self {
+    unsafe fn from_superset_unchecked(t: &Transform<N2, U2, C>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
 
 
-impl<N1, N2, S> SubsetOf<SquareMatrix<N2, U3, S>> for UnitComplex<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          S: OwnedStorage<N2, U3, U3>,
-          S::Alloc: OwnedAllocator<N2, U3, U3, S> +
-                    Allocator<N2, U2, U2>         +
-                    Allocator<N2, U1, U2>         +
-                    Allocator<N1, U2, U2>         +
-                    Allocator<N1, U3, U3> {
+impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix3<N2>> for UnitComplex<N1> {
     #[inline]
-    fn to_superset(&self) -> SquareMatrix<N2, U3, S> {
+    fn to_superset(&self) -> Matrix3<N2> {
         self.to_homogeneous().to_superset()
     }
 
     #[inline]
-    fn is_in_subset(m: &SquareMatrix<N2, U3, S>) -> bool {
-        ::is_convertible::<_, OwnedRotation<N1, U2, S::Alloc>>(m)
+    fn is_in_subset(m: &Matrix3<N2>) -> bool {
+        ::is_convertible::<_, Rotation2<N1>>(m)
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &SquareMatrix<N2, U3, S>) -> Self {
-        let rot: OwnedRotation<N1, U2, S::Alloc> = ::convert_ref_unchecked(m);
+    unsafe fn from_superset_unchecked(m: &Matrix3<N2>) -> Self {
+        let rot: Rotation2<N1> = ::convert_ref_unchecked(m);
         Self::from_rotation_matrix(&rot)
     }
 }

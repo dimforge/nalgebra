@@ -1,11 +1,10 @@
 extern crate alga;
 extern crate nalgebra as na;
 
-use alga::general::Real;
 use alga::linear::FiniteDimInnerSpace;
-use na::{Unit, ColumnVector, OwnedColumnVector, Vector2, Vector3};
-use na::storage::Storage;
-use na::dimension::{DimName, U1};
+use na::{Real, DefaultAllocator, Unit, VectorN, Vector2, Vector3};
+use na::allocator::Allocator;
+use na::dimension::Dim;
 
 /// Reflects a vector wrt. the hyperplane with normal `plane_normal`.
 fn reflect_wrt_hyperplane_with_algebraic_genericity<V>(plane_normal: &Unit<V>, vector: &V) -> V
@@ -16,12 +15,12 @@ fn reflect_wrt_hyperplane_with_algebraic_genericity<V>(plane_normal: &Unit<V>, v
 
 
 /// Reflects a vector wrt. the hyperplane with normal `plane_normal`.
-fn reflect_wrt_hyperplane_with_structural_genericity<N, D, S>(plane_normal: &Unit<ColumnVector<N, D, S>>,
-                                                               vector:       &ColumnVector<N, D, S>)
-                                                               -> OwnedColumnVector<N, D, S::Alloc>
+fn reflect_wrt_hyperplane_with_dimensional_genericity<N: Real, D: Dim>(plane_normal: &Unit<VectorN<N, D>>,
+                                                                       vector:       &VectorN<N, D>)
+                                                                       -> VectorN<N, D>
     where N: Real,
-          D: DimName,
-          S: Storage<N, D, U1> {
+          D: Dim,
+          DefaultAllocator: Allocator<N, D> {
     let n = plane_normal.as_ref(); // Get the underlying V.
     vector - n * (n.dot(vector) * na::convert(2.0))
 }
@@ -57,8 +56,8 @@ fn main() {
     assert_eq!(reflect_wrt_hyperplane_with_algebraic_genericity(&plane2, &v2).y, -2.0);
     assert_eq!(reflect_wrt_hyperplane_with_algebraic_genericity(&plane3, &v3).y, -2.0);
 
-    assert_eq!(reflect_wrt_hyperplane_with_structural_genericity(&plane2, &v2).y, -2.0);
-    assert_eq!(reflect_wrt_hyperplane_with_structural_genericity(&plane3, &v3).y, -2.0);
+    assert_eq!(reflect_wrt_hyperplane_with_dimensional_genericity(&plane2, &v2).y, -2.0);
+    assert_eq!(reflect_wrt_hyperplane_with_dimensional_genericity(&plane3, &v3).y, -2.0);
 
     // Call each specific implementation depending on the dimension.
     assert_eq!(reflect_wrt_hyperplane2(&plane2, &v2).y, -2.0);

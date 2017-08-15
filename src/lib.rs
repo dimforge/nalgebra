@@ -15,7 +15,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-nalgebra = "0.12"
+nalgebra = "0.13"
 ```
 
 
@@ -50,7 +50,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Matrices and vectors with compile-time sizes are statically allocated while dynamic ones are
   allocated on the heap.
 * Convenient aliases for low-dimensional matrices and vectors: `Vector1` to `Vector6` and
-  `Matrix1x1` to `Matrix6x6` (including rectangular matrices like `Matrix2x5`.
+  `Matrix1x1` to `Matrix6x6`, including rectangular matrices like `Matrix2x5`.
 * Points sizes known at compile time, and convenience aliases: `Point1` to `Point6`.
 * Translation (seen as a transformation that composes by multiplication): `Translation2`,
   `Translation3`.
@@ -66,7 +66,8 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * General transformations that does not have to be invertible, stored as an homogeneous matrix:
   `Transform2`, `Transform3`.
 * 3D projections for computer graphics: `Perspective3`, `Orthographic3`.
-* Linear algebra and data analysis operators: QR decomposition, eigen-decomposition.
+* Matrix factorizations: `Cholesky`, `QR`, `LU`, `FullPivLU`, `SVD`, `RealSchur`, `Hessenberg`, `SymmetricEigen`.
+* Insertion and removal of rows of columns of a matrix.
 * Implements traits from the [alga](https://crates.io/crates/alga) crate for
   generic programming.
 */
@@ -84,7 +85,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
-#![warn(missing_docs)]
+#![deny(missing_docs)]
 #![doc(html_root_url = "http://nalgebra.org/rustdoc")]
 
 #[cfg(feature = "arbitrary")]
@@ -106,17 +107,20 @@ extern crate rand;
 extern crate approx;
 extern crate typenum;
 extern crate generic_array;
+extern crate matrixmultiply;
 
 extern crate alga;
 
 
 pub mod core;
+pub mod linalg;
 pub mod geometry;
-mod traits;
+#[cfg(feature = "debug")]
+pub mod debug;
 
 pub use core::*;
+pub use linalg::*;
 pub use geometry::*;
-pub use traits::*;
 
 
 use std::cmp::{self, PartialOrd, Ordering};
@@ -127,7 +131,7 @@ use alga::general::{Identity, SupersetOf, MeetSemilattice, JoinSemilattice, Latt
 use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{InnerSpace, NormedSpace, FiniteDimVectorSpace, EuclideanSpace};
 
-pub use alga::general::Id;
+pub use alga::general::{Real, Id};
 
 
 /*

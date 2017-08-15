@@ -24,3 +24,13 @@
 <b>Linear algebra library</b>
 <i>for the Rust programming language.</i>
 </p>
+
+-----
+
+<p align = "center">
+  <i>Click this button if you which to donate to support the development of</i> <b>nalgebra</b>:
+</p>
+
+<p align = "center">
+    <a href="https://www.patreon.com/bePatron?u=7111380" ><img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" /></a>
+</p>

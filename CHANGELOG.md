@@ -4,20 +4,117 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.13.0] - WIP
+
+## [0.13.0]
+
+The **nalgebra-lapack** crate has been updated. This now includes a broad range
+matrix decompositions using LAPACK bindings.
+
+### Breaking semantic change
+  * The implementation of slicing with steps now matches the documentation.
+    Before, step identified the number to add to pass from one column/row index
+    to the next one. This made 0 step invalid. Now (and on the documentation so
+    far), the step is the number of ignored row/columns between each
+    row/column. Thus, a step of 0 means that no row/column is ignored.  For
+    example, a step of, say, 3 on previous versions should now bet set to 2.
+
+### Modified
+  * The trait `Axpy` has been replaced by a metod `.axpy`.
+  * The alias `MatrixNM` is now deprecated. Use `MatrixMN` instead (we
+    reordered M and N to be in alphabetical order).
+  * In-place componentwise multiplication and division
+    `.component_mul_mut(...)` and `.component_div_mut(...)` have bee deprecated
+    for a future renaming. Use `.component_mul_assign(...)` and
+    `.component_div_assign(...)` instead.
+
 ### Added
+  * `alga::general::Real` is now re-exported by nalgebra.
+    elements.)
+  * `::zeros(...)` that creates a matrix filled with zeroes.
+  * `::from_partial_diagonal(...)` that creates a matrix from diagonal elements.
+    The matrix can be rectangular. If not enough elements are provided, the rest
+    of the diagonal is set to 0.
+  * `.conjugate_transpose()` computes the transposed conjugate of a
+    complex matrix.
+  * `.conjugate_transpose_to(...)` computes the transposed conjugate of a
+    complex matrix. The result written into a user-provided matrix.
+  * `.transpose_to(...)` is the same as `.transpose()` but stores the result in
+    the provided matrix.
+  * `.conjugate_transpose_to(...)` is the same as `.conjugate_transpose()` but
+    stores the result in the provided matrix.
+  * Implements `IntoIterator` for `&Matrix`, `&mut Matrix` and `Matrix`.
+  * `.mul_to(...)` multiplies two matrices and stores the result to the given buffer.
+  * `.tr_mul_to(...)` left-multiplies `self.transpose()` to another matrix and stores the result to the given buffer.
+  * `.add_scalar(...)` that adds a scalar to each component of a matrix.
+  * `.add_scalar_mut(...)` that adds in-place a scalar to each component of a matrix.
   * `.kronecker(a, b)` computes the kronecker product (i.e. matrix tensor
     product) of two matrices.
-  * `.set_row(i, row)` sets the i-th row of the matrix.
-  * `.set_column(j, column)` sets the i-th column of the matrix.
+  * `.apply(f)` replaces each component of a matrix with the results of the
+    closure `f` called on each of them.
 
+Pure Rust implementation of some Blas operations:
+
+  * `.iamax()` retuns the index of the maximum value of a vector.
+  * `.axpy(...)` computes `self = a * x + b * self`.
+  * `.gemv(...)` computes `self = alpha * a * x + beta * self` with a matrix and vector `a` and `x`.
+  * `.ger(...)` computes `self = alpha * x^t * y + beta * self` where `x` and `y` are vectors.
+  * `.gemm(...)` computes `self = alpha * a * b + beta * self` where `a` and `b` are matrices.
+  * `.gemv_symm(...)` is the same as `.gemv` except that `self` is assumed symmetric.
+  * `.ger_symm(...)` is the same as `.ger` except that `self` is assumed symmetric.
+
+New slicing methods:
+  * `.rows_range(...)` that retrieves a reference to a range of rows.
+  * `.rows_range_mut(...)` that retrieves a mutable reference to a range of rows.
+  * `.columns_range(...)` that retrieves a reference to a range of columns.
+  * `.columns_range_mut(...)` that retrieves a mutable reference to a range of columns.
+
+Matrix decompositions implemented in pure Rust:
+  * Cholesky, SVD, LU, QR, Hessenberg, Schur, Symmetric eigendecompositions,
+    Bidiagonal, Symmetric tridiagonal
+  * Computation of householder reflectors and givens rotations.
+
+Matrix edition:
+  * `.upper_triangle()` extracts the upper triangle of a matrix, including the diagonal.
+  * `.lower_triangle()` extracts the lower triangle of a matrix, including the diagonal.
+  * `.fill(...)` fills the matrix with a single value.
+  * `.fill_with_identity(...)` fills the matrix with the identity.
+  * `.fill_diagonal(...)` fills the matrix diagonal with a single value.
+  * `.fill_row(...)` fills a selected matrix row with a single value.
+  * `.fill_column(...)` fills a selected matrix column with a single value.
+  * `.set_diagonal(...)` sets the matrix diagonal.
+  * `.set_row(...)` sets a selected row.
+  * `.set_column(...)` sets a selected column.
+  * `.fill_lower_triangle(...)` fills some sub-diagonals bellow the main diagonal with a value.
+  * `.fill_upper_triangle(...)` fills some sub-diagonals above the main diagonal with a value.
+  * `.swap_rows(...)` swaps two rows.
+  * `.swap_columns(...)` swaps two columns.
+
+Column removal:
+  * `.remove_column(...)` removes one column.
+  * `.remove_fixed_columns<D>(...)` removes `D` columns.
+  * `.remove_columns(...)` removes a number of columns known at run-time.
+
+Row removal:
+  * `.remove_row(...)` removes one row.
+  * `.remove_fixed_rows<D>(...)` removes `D` rows.
+  * `.remove_rows(...)` removes a number of rows known at run-time.
+
+Column insertion:
+  * `.insert_column(...)` adds one column at the given position.
+  * `.insert_fixed_columns<D>(...)` adds `D` columns at the given position.
+  * `.insert_columns(...)` adds at the given position a number of columns known at run-time.
+
+Row insertion:
+  * `.insert_row(...)` adds one row at the given position.
+  * `.insert_fixed_rows<D>(...)` adds `D` rows at the given position.
+  * `.insert_rows(...)` adds at the given position a number of rows known at run-time.
 
 ## [0.12.0]
 The main change of this release is the update of the dependency serde to 1.0.
 
 ### Added
- * `.trace()` that computes the trace of a matrix (i.e., the sum of its
-   diagonal elements.)
+ * `.trace()` that computes the trace of a matrix (the sum of its diagonal
+   elements.)
 
 ## [0.11.0]
 The [website](http://nalgebra.org) has been fully rewritten and gives a good

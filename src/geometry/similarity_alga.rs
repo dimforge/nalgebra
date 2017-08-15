@@ -1,13 +1,13 @@
 use alga::general::{AbstractMagma, AbstractGroup, AbstractLoop, AbstractMonoid, AbstractQuasigroup,
                     AbstractSemigroup, Real, Inverse, Multiplicative, Identity};
-use alga::linear::{Transformation, AffineTransformation, Rotation, Similarity, ProjectiveTransformation};
+use alga::linear::{Transformation, AffineTransformation, Rotation, ProjectiveTransformation};
+use alga::linear::Similarity as AlgaSimilarity;
 
-use core::ColumnVector;
-use core::dimension::{DimName, U1};
-use core::storage::OwnedStorage;
-use core::allocator::OwnedAllocator;
+use core::{DefaultAllocator, VectorN};
+use core::dimension::DimName;
+use core::allocator::Allocator;
 
-use geometry::{SimilarityBase, TranslationBase, PointBase};
+use geometry::{Similarity, Translation, Point};
 
 
 /*
@@ -15,22 +15,18 @@ use geometry::{SimilarityBase, TranslationBase, PointBase};
  * Algebraic structures.
  *
  */
-impl<N, D: DimName, S, R> Identity<Multiplicative> for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Identity<Multiplicative> for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N, D: DimName, S, R> Inverse<Multiplicative> for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Inverse<Multiplicative> for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn inverse(&self) -> Self {
         self.inverse()
@@ -42,11 +38,9 @@ impl<N, D: DimName, S, R> Inverse<Multiplicative> for SimilarityBase<N, D, S, R>
     }
 }
 
-impl<N, D: DimName, S, R> AbstractMagma<Multiplicative> for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> AbstractMagma<Multiplicative> for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
@@ -55,11 +49,9 @@ impl<N, D: DimName, S, R> AbstractMagma<Multiplicative> for SimilarityBase<N, D,
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N, D: DimName, S, R> $marker<$operator> for SimilarityBase<N, D, S, R>
-            where N: Real,
-                  S: OwnedStorage<N, D, U1>,
-                  R: Rotation<PointBase<N, D, S>>,
-                  S::Alloc: OwnedAllocator<N, D, U1, S> { }
+        impl<N: Real, D: DimName, R> $marker<$operator> for Similarity<N, D, R>
+            where R: Rotation<Point<N, D>>,
+                  DefaultAllocator: Allocator<N, D> { }
     )*}
 );
 
@@ -76,49 +68,43 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N, D: DimName, S, R> Transformation<PointBase<N, D, S>> for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> Transformation<Point<N, D>> for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn transform_point(&self, pt: &PointBase<N, D, S>) -> PointBase<N, D, S> {
+    fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self * pt
     }
 
     #[inline]
-    fn transform_vector(&self, v: &ColumnVector<N, D, S>) -> ColumnVector<N, D, S> {
+    fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self * v
     }
 }
 
-impl<N, D: DimName, S, R> ProjectiveTransformation<PointBase<N, D, S>> for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> ProjectiveTransformation<Point<N, D>> for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn inverse_transform_point(&self, pt: &PointBase<N, D, S>) -> PointBase<N, D, S> {
+    fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self.isometry.inverse_transform_point(pt) / self.scaling()
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &ColumnVector<N, D, S>) -> ColumnVector<N, D, S> {
+    fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self.isometry.inverse_transform_vector(v) / self.scaling()
     }
 }
 
-impl<N, D: DimName, S, R> AffineTransformation<PointBase<N, D, S>> for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> AffineTransformation<Point<N, D>> for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     type NonUniformScaling = N;
     type Rotation          = R;
-    type Translation       = TranslationBase<N, D, S>;
+    type Translation       = Translation<N, D>;
 
     #[inline]
-    fn decompose(&self) -> (TranslationBase<N, D, S>, R, N, R) {
+    fn decompose(&self) -> (Translation<N, D>, R, N, R) {
         (self.isometry.translation.clone(), self.isometry.rotation.clone(), self.scaling(), R::identity())
     }
 
@@ -134,7 +120,7 @@ impl<N, D: DimName, S, R> AffineTransformation<PointBase<N, D, S>> for Similarit
 
     #[inline]
     fn append_rotation(&self, r: &Self::Rotation) -> Self {
-        SimilarityBase::from_isometry(self.isometry.append_rotation(r), self.scaling())
+        Similarity::from_isometry(self.isometry.append_rotation(r), self.scaling())
     }
 
     #[inline]
@@ -153,22 +139,20 @@ impl<N, D: DimName, S, R> AffineTransformation<PointBase<N, D, S>> for Similarit
     }
 
     #[inline]
-    fn append_rotation_wrt_point(&self, r: &Self::Rotation, p: &PointBase<N, D, S>) -> Option<Self> {
+    fn append_rotation_wrt_point(&self, r: &Self::Rotation, p: &Point<N, D>) -> Option<Self> {
         let mut res = self.clone();
         res.append_rotation_wrt_point_mut(r, p);
         Some(res)
     }
 }
 
-impl<N, D: DimName, S, R> Similarity<PointBase<N, D, S>> for SimilarityBase<N, D, S, R>
-    where N: Real,
-          S: OwnedStorage<N, D, U1>,
-          R: Rotation<PointBase<N, D, S>>,
-          S::Alloc: OwnedAllocator<N, D, U1, S> {
+impl<N: Real, D: DimName, R> AlgaSimilarity<Point<N, D>> for Similarity<N, D, R>
+    where R: Rotation<Point<N, D>>,
+          DefaultAllocator: Allocator<N, D> {
     type Scaling = N;
 
     #[inline]
-    fn translation(&self) -> TranslationBase<N, D, S> {
+    fn translation(&self) -> Translation<N, D> {
         self.isometry.translation()
     }
 

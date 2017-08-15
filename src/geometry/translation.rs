@@ -1,63 +1,58 @@
 use num::{Zero, One};
+use std::hash;
 use std::fmt;
 use approx::ApproxEq;
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
 use alga::general::{Real, ClosedNeg};
 
-use core::{Scalar, ColumnVector, OwnedSquareMatrix};
+use core::{DefaultAllocator, Scalar, MatrixN, VectorN};
 use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
-use core::storage::{Storage, StorageMut, Owned};
+use core::storage::Owned;
 use core::allocator::Allocator;
-
-/// A translation with an owned vector storage.
-pub type OwnedTranslation<N, D, S> = TranslationBase<N, D, Owned<N, D, U1, <S as Storage<N, D, U1>>::Alloc>>;
 
 /// A translation.
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy)]
-pub struct TranslationBase<N: Scalar, D: DimName, S/*: Storage<N, D, U1>*/> {
+#[derive(Debug)]
+pub struct Translation<N: Scalar, D: DimName>
+    where DefaultAllocator: Allocator<N, D> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
-    pub vector: ColumnVector<N, D, S>
+    pub vector: VectorN<N, D>
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<N, D, S> Serialize for TranslationBase<N, D, S>
-    where N: Scalar,
-          D: DimName,
-          ColumnVector<N, D, S>: Serialize,
-{
-    fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-        where T: Serializer
-    {
-        self.vector.serialize(serializer)
+impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D>,
+          Owned<N, D>: hash::Hash {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.vector.hash(state)
     }
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<'de, N, D, S> Deserialize<'de> for TranslationBase<N, D, S>
-    where N: Scalar,
-          D: DimName,
-          ColumnVector<N, D, S>: Deserialize<'de>,
-{
-    fn deserialize<T>(deserializer: T) -> Result<Self, T::Error>
-        where T: Deserializer<'de>
-    {
-        ColumnVector::deserialize(deserializer).map(|x| TranslationBase { vector: x })
+impl<N: Scalar, D: DimName> Copy for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D>,
+          Owned<N, D>: Copy { }
+
+impl<N: Scalar, D: DimName> Clone for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D>,
+          Owned<N, D>: Clone {
+    #[inline]
+    fn clone(&self) -> Self {
+        Translation::from_vector(self.vector.clone())
     }
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, D, S> Abomonation for TranslationBase<N, D, S>
+impl<N, D> Abomonation for TranslationBase<N, D>
     where N: Scalar,
           D: DimName,
-          ColumnVector<N, D, S>: Abomonation
+          VectorN<N, D>: Abomonation,
+          DefaultAllocator: Allocator<N, D>
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {
         self.vector.entomb(writer)
@@ -72,65 +67,81 @@ impl<N, D, S> Abomonation for TranslationBase<N, D, S>
     }
 }
 
-impl<N, D: DimName, S> TranslationBase<N, D, S>
-    where N: Scalar,
-          S: Storage<N, D, U1> {
+#[cfg(feature = "serde-serialize")]
+impl<N: Scalar, D: DimName> serde::Serialize for Translation<N, D>
+where DefaultAllocator: Allocator<N, D>,
+      Owned<N, D>: serde::Serialize {
+
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: serde::Serializer {
+            self.vector.serialize(serializer)
+        }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'a, N: Scalar, D: DimName> serde::Deserialize<'a> for Translation<N, D>
+where DefaultAllocator: Allocator<N, D>,
+      Owned<N, D>: serde::Deserialize<'a> {
+
+    fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
+        where Des: serde::Deserializer<'a> {
+            let matrix = VectorN::<N, D>::deserialize(deserializer)?;
+
+            Ok(Translation::from_vector(matrix))
+        }
+}
+
+impl<N: Scalar, D: DimName> Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     /// Creates a new translation from the given vector.
     #[inline]
-    pub fn from_vector(vector: ColumnVector<N, D, S>) -> TranslationBase<N, D, S> {
-        TranslationBase {
+    pub fn from_vector(vector: VectorN<N, D>) -> Translation<N, D> {
+        Translation {
             vector: vector
         }
     }
 
     /// Inverts `self`.
     #[inline]
-    pub fn inverse(&self) -> OwnedTranslation<N, D, S>
+    pub fn inverse(&self) -> Translation<N, D>
         where N: ClosedNeg {
-        TranslationBase::from_vector(-&self.vector)
+        Translation::from_vector(-&self.vector)
     }
 
     /// Converts this translation into its equivalent homogeneous transformation matrix.
     #[inline]
-    pub fn to_homogeneous(&self) -> OwnedSquareMatrix<N, DimNameSum<D, U1>, S::Alloc>
+    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
         where N: Zero + One,
               D: DimNameAdd<U1>,
-              S::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
-        let mut res = OwnedSquareMatrix::<N, _, S::Alloc>::identity();
+              DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+        let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
         res.fixed_slice_mut::<D, U1>(0, D::dim()).copy_from(&self.vector);
 
         res
     }
-}
 
-
-impl<N, D: DimName, S> TranslationBase<N, D, S>
-    where N: Scalar + ClosedNeg,
-          S: StorageMut<N, D, U1> {
     /// Inverts `self` in-place.
     #[inline]
-    pub fn inverse_mut(&mut self) {
+    pub fn inverse_mut(&mut self)
+        where N: ClosedNeg {
         self.vector.neg_mut()
     }
 }
 
-impl<N, D: DimName, S> Eq for TranslationBase<N, D, S>
-    where N: Scalar + Eq,
-          S: Storage<N, D, U1> {
+impl<N: Scalar + Eq, D: DimName> Eq for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
 }
 
-impl<N, D: DimName, S> PartialEq for TranslationBase<N, D, S>
-    where N: Scalar + PartialEq,
-          S: Storage<N, D, U1> {
+impl<N: Scalar + PartialEq, D: DimName> PartialEq for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> {
     #[inline]
-    fn eq(&self, right: &TranslationBase<N, D, S>) -> bool {
+    fn eq(&self, right: &Translation<N, D>) -> bool {
         self.vector == right.vector
     }
 }
 
-impl<N, D: DimName, S> ApproxEq for TranslationBase<N, D, S>
-    where N: Scalar + ApproxEq,
-          S: Storage<N, D, U1>,
+impl<N: Scalar + ApproxEq, D: DimName> ApproxEq for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D>,
           N::Epsilon: Copy {
     type Epsilon = N::Epsilon;
 
@@ -165,31 +176,14 @@ impl<N, D: DimName, S> ApproxEq for TranslationBase<N, D, S>
  * Display
  *
  */
-impl<N, D: DimName, S> fmt::Display for TranslationBase<N, D, S>
-    where N: Real + fmt::Display,
-          S: Storage<N, D, U1>,
-          S::Alloc: Allocator<usize, D, U1> {
+impl<N: Real + fmt::Display, D: DimName> fmt::Display for Translation<N, D>
+    where DefaultAllocator: Allocator<N, D> +
+                            Allocator<usize, D> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "TranslationBase {{"));
+        try!(writeln!(f, "Translation {{"));
         try!(write!(f, "{:.*}", precision, self.vector));
         writeln!(f, "}}")
     }
 }
-
-
-//          //         /*
-//          //          *
-//          //          * Absolute
-//          //          *
-//          //          */
-//          //         impl<N: Absolute> Absolute for $t<N> {
-//          //             type AbsoluteValue = $submatrix<N::AbsoluteValue>;
-//          //
-//          //             #[inline]
-//          //             fn abs(m: &$t<N>) -> $submatrix<N::AbsoluteValue> {
-//          //                 Absolute::abs(&m.submatrix)
-//          //             }
-//          //         }
-//          */

@@ -1,146 +1,133 @@
 use alga::general::{SubsetOf, SupersetOf, Real};
 use alga::linear::Rotation;
 
-use core::{Scalar, ColumnVector, SquareMatrix};
+use core::{DefaultAllocator, Scalar, VectorN, MatrixN};
 use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::storage::OwnedStorage;
-use core::allocator::{Allocator, OwnedAllocator};
+use core::allocator::Allocator;
 
-use geometry::{PointBase, TranslationBase, IsometryBase, SimilarityBase, TransformBase, SuperTCategoryOf, TAffine};
+use geometry::{Point, Translation, Isometry, Similarity, Transform, SuperTCategoryOf, TAffine};
 
 /*
  * This file provides the following conversions:
  * =============================================
  *
- * TranslationBase -> TranslationBase
- * TranslationBase -> IsometryBase
- * TranslationBase -> SimilarityBase
- * TranslationBase -> TransformBase
- * TranslationBase -> Matrix (homogeneous)
+ * Translation -> Translation
+ * Translation -> Isometry
+ * Translation -> Similarity
+ * Translation -> Transform
+ * Translation -> Matrix (homogeneous)
  */
 
-impl<N1, N2, D: DimName, SA, SB> SubsetOf<TranslationBase<N2, D, SB>> for TranslationBase<N1, D, SA>
+impl<N1, N2, D: DimName> SubsetOf<Translation<N2, D>> for Translation<N1, D>
     where N1: Scalar,
           N2: Scalar + SupersetOf<N1>,
-          SA: OwnedStorage<N1, D, U1>,
-          SB: OwnedStorage<N2, D, U1>,
-          SA::Alloc: OwnedAllocator<N1, D, U1, SA>,
-          SB::Alloc: OwnedAllocator<N2, D, U1, SB> {
+          DefaultAllocator: Allocator<N1, D> +
+                            Allocator<N2, D> {
     #[inline]
-    fn to_superset(&self) -> TranslationBase<N2, D, SB> {
-        TranslationBase::from_vector(self.vector.to_superset())
+    fn to_superset(&self) -> Translation<N2, D> {
+        Translation::from_vector(self.vector.to_superset())
     }
 
     #[inline]
-    fn is_in_subset(rot: &TranslationBase<N2, D, SB>) -> bool {
-        ::is_convertible::<_, ColumnVector<N1, D, SA>>(&rot.vector)
+    fn is_in_subset(rot: &Translation<N2, D>) -> bool {
+        ::is_convertible::<_, VectorN<N1, D>>(&rot.vector)
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(rot: &TranslationBase<N2, D, SB>) -> Self {
-        TranslationBase::from_vector(rot.vector.to_subset_unchecked())
+    unsafe fn from_superset_unchecked(rot: &Translation<N2, D>) -> Self {
+        Translation::from_vector(rot.vector.to_subset_unchecked())
     }
 }
 
 
-impl<N1, N2, D: DimName, SA, SB, R> SubsetOf<IsometryBase<N2, D, SB, R>> for TranslationBase<N1, D, SA>
+impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Translation<N1, D>
     where N1: Real,
           N2: Real + SupersetOf<N1>,
-          SA: OwnedStorage<N1, D, U1>,
-          SB: OwnedStorage<N2, D, U1>,
-          R:  Rotation<PointBase<N2, D, SB>>,
-          SA::Alloc: OwnedAllocator<N1, D, U1, SA>,
-          SB::Alloc: OwnedAllocator<N2, D, U1, SB> {
+          R:  Rotation<Point<N2, D>>,
+          DefaultAllocator: Allocator<N1, D> +
+                            Allocator<N2, D> {
     #[inline]
-    fn to_superset(&self) -> IsometryBase<N2, D, SB, R> {
-        IsometryBase::from_parts(self.to_superset(), R::identity())
+    fn to_superset(&self) -> Isometry<N2, D, R> {
+        Isometry::from_parts(self.to_superset(), R::identity())
     }
 
     #[inline]
-    fn is_in_subset(iso: &IsometryBase<N2, D, SB, R>) -> bool {
+    fn is_in_subset(iso: &Isometry<N2, D, R>) -> bool {
         iso.rotation == R::identity()
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(iso: &IsometryBase<N2, D, SB, R>) -> Self {
+    unsafe fn from_superset_unchecked(iso: &Isometry<N2, D, R>) -> Self {
         Self::from_superset_unchecked(&iso.translation)
     }
 }
 
 
-impl<N1, N2, D: DimName, SA, SB, R> SubsetOf<SimilarityBase<N2, D, SB, R>> for TranslationBase<N1, D, SA>
+impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Translation<N1, D>
     where N1: Real,
           N2: Real + SupersetOf<N1>,
-          SA: OwnedStorage<N1, D, U1>,
-          SB: OwnedStorage<N2, D, U1>,
-          R:  Rotation<PointBase<N2, D, SB>>,
-          SA::Alloc: OwnedAllocator<N1, D, U1, SA>,
-          SB::Alloc: OwnedAllocator<N2, D, U1, SB> {
+          R:  Rotation<Point<N2, D>>,
+          DefaultAllocator: Allocator<N1, D> +
+                            Allocator<N2, D> {
     #[inline]
-    fn to_superset(&self) -> SimilarityBase<N2, D, SB, R> {
-        SimilarityBase::from_parts(self.to_superset(), R::identity(), N2::one())
+    fn to_superset(&self) -> Similarity<N2, D, R> {
+        Similarity::from_parts(self.to_superset(), R::identity(), N2::one())
     }
 
     #[inline]
-    fn is_in_subset(sim: &SimilarityBase<N2, D, SB, R>) -> bool {
+    fn is_in_subset(sim: &Similarity<N2, D, R>) -> bool {
         sim.isometry.rotation == R::identity() &&
         sim.scaling() == N2::one()
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(sim: &SimilarityBase<N2, D, SB, R>) -> Self {
+    unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R>) -> Self {
         Self::from_superset_unchecked(&sim.isometry.translation)
     }
 }
 
 
-impl<N1, N2, D, SA, SB, C> SubsetOf<TransformBase<N2, D, SB, C>> for TranslationBase<N1, D, SA>
+impl<N1, N2, D, C> SubsetOf<Transform<N2, D, C>> for Translation<N1, D>
     where N1: Real,
           N2: Real + SupersetOf<N1>,
-          SA: OwnedStorage<N1, D, U1>,
-          SB: OwnedStorage<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
           C:  SuperTCategoryOf<TAffine>,
           D:  DimNameAdd<U1>,
-          SA::Alloc: OwnedAllocator<N1, D, U1, SA> +
-                     Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          SB::Alloc: OwnedAllocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>, SB> +
-                     Allocator<N2, D, U1> +
-                     Allocator<N2, DimNameSum<D, U1>, D> {
+          DefaultAllocator: Allocator<N1, D> +
+                            Allocator<N2, D> +
+                            Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
+                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> {
     #[inline]
-    fn to_superset(&self) -> TransformBase<N2, D, SB, C> {
-        TransformBase::from_matrix_unchecked(self.to_homogeneous().to_superset())
+    fn to_superset(&self) -> Transform<N2, D, C> {
+        Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
     }
 
     #[inline]
-    fn is_in_subset(t: &TransformBase<N2, D, SB, C>) -> bool {
+    fn is_in_subset(t: &Transform<N2, D, C>) -> bool {
         <Self as SubsetOf<_>>::is_in_subset(t.matrix())
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &TransformBase<N2, D, SB, C>) -> Self {
+    unsafe fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
 
 
-impl<N1, N2, D, SA, SB> SubsetOf<SquareMatrix<N2, DimNameSum<D, U1>, SB>> for TranslationBase<N1, D, SA>
+impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Translation<N1, D>
     where N1: Real,
           N2: Real + SupersetOf<N1>,
-          SA: OwnedStorage<N1, D, U1>,
-          SB: OwnedStorage<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
           D:  DimNameAdd<U1>,
-          SA::Alloc: OwnedAllocator<N1, D, U1, SA> +
-                     Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          SB::Alloc: OwnedAllocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>, SB> +
-                     Allocator<N2, D, U1> +
-                     Allocator<N2, DimNameSum<D, U1>, D> {
+          DefaultAllocator: Allocator<N1, D> +
+                            Allocator<N2, D> +
+                            Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
+                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> {
     #[inline]
-    fn to_superset(&self) -> SquareMatrix<N2, DimNameSum<D, U1>, SB> {
+    fn to_superset(&self) -> MatrixN<N2, DimNameSum<D, U1>> {
         self.to_homogeneous().to_superset()
     }
 
     #[inline]
-    fn is_in_subset(m: &SquareMatrix<N2, DimNameSum<D, U1>, SB>) -> bool {
+    fn is_in_subset(m: &MatrixN<N2, DimNameSum<D, U1>>) -> bool {
         let id = m.fixed_slice::<DimNameSum<D, U1>, D>(0, 0);
 
         // Scalar types agree.
@@ -152,7 +139,7 @@ impl<N1, N2, D, SA, SB> SubsetOf<SquareMatrix<N2, DimNameSum<D, U1>, SB>> for Tr
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &SquareMatrix<N2, DimNameSum<D, U1>, SB>) -> Self {
+    unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim());
         Self::from_vector(::convert_unchecked(t.into_owned()))
     }
