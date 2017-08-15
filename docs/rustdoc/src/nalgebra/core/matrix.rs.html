@@ -1043,6 +1043,24 @@
 <span id="998"> 998</span>
 <span id="999"> 999</span>
 <span id="1000">1000</span>
+<span id="1001">1001</span>
+<span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">num</span>::<span class="ident">Zero</span>;
 <span class="kw">use</span> <span class="ident">num_complex</span>::<span class="ident">Complex</span>;
@@ -1056,6 +1074,9 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Serializer</span>, <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">abomonation</span>::<span class="ident">Abomonation</span>;
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Ring</span>, <span class="ident">Real</span>};
 
@@ -1142,6 +1163,21 @@
         <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>
     {
         <span class="ident">S</span>::<span class="ident">deserialize</span>(<span class="ident">deserializer</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Matrix</span> { <span class="ident">data</span>: <span class="ident">x</span>, <span class="ident">_phantoms</span>: <span class="ident">PhantomData</span> })
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">Abomonation</span><span class="op">&gt;</span> <span class="ident">Abomonation</span> <span class="kw">for</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">entomb</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
+        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">entomb</span>(<span class="ident">writer</span>)
+    }
+
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">embalm</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">embalm</span>()
+    }
+
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">exhume</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">exhume</span>(<span class="ident">bytes</span>)
     }
 }
 

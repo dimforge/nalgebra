@@ -364,6 +364,42 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>, <span class="ident">Mul</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
@@ -379,6 +415,9 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">abomonation</span>::<span class="ident">Abomonation</span>;
 
 <span class="kw">use</span> <span class="ident">typenum</span>::<span class="ident">Prod</span>;
 <span class="kw">use</span> <span class="ident">generic_array</span>::{<span class="ident">ArrayLength</span>, <span class="ident">GenericArray</span>};
@@ -684,6 +723,39 @@
         <span class="kw">else</span> {
             <span class="prelude-val">Err</span>(<span class="ident">V</span>::<span class="ident">Error</span>::<span class="ident">invalid_length</span>(<span class="ident">curr</span>, <span class="kw-2">&amp;</span><span class="self">self</span>))
         }
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Abomonation</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">DimName</span>,
+          <span class="ident">C</span>: <span class="ident">DimName</span>,
+          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+          <span class="ident">N</span>: <span class="ident">Abomonation</span>
+{
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">entomb</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
+        <span class="kw">for</span> <span class="ident">element</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">as_slice</span>() {
+            <span class="ident">element</span>.<span class="ident">entomb</span>(<span class="ident">writer</span>);
+        }
+    }
+
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">embalm</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">for</span> <span class="ident">element</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">as_mut_slice</span>() {
+            <span class="ident">element</span>.<span class="ident">embalm</span>();
+        }
+    }
+
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">exhume</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">element</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">as_mut_slice</span>() {
+            <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">bytes</span>;
+            <span class="ident">bytes</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">remainder</span>) <span class="op">=</span> <span class="ident">element</span>.<span class="ident">exhume</span>(<span class="ident">temp</span>) {
+                <span class="ident">remainder</span>
+            } <span class="kw">else</span> {
+                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            }
+        }
+        <span class="prelude-val">Some</span>(<span class="ident">bytes</span>)
     }
 }
 </pre>

@@ -314,6 +314,28 @@
 <span id="269">269</span>
 <span id="270">270</span>
 <span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>;
@@ -321,6 +343,9 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">abomonation</span>::<span class="ident">Abomonation</span>;
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Real</span>, <span class="ident">SubsetOf</span>};
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::<span class="ident">Rotation</span>;
@@ -330,6 +355,7 @@
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::<span class="ident">Owned</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 <span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Translation</span>, <span class="ident">Isometry</span>};
+
 
 
 <span class="doccomment">/// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.</span>
@@ -353,6 +379,24 @@
     <span class="doccomment">/// The part of this similarity that does not include the scaling factor.</span>
     <span class="kw">pub</span> <span class="ident">isometry</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>,
     <span class="ident">scaling</span>:      <span class="ident">N</span>
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">Abomonation</span> <span class="kw">for</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>: <span class="ident">Abomonation</span>,
+          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+{
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">entomb</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
+        <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">entomb</span>(<span class="ident">writer</span>)
+    }
+
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">embalm</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">embalm</span>()
+    }
+
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">exhume</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">exhume</span>(<span class="ident">bytes</span>)
+    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">hash</span>::<span class="ident">Hash</span>, <span class="ident">D</span>: <span class="ident">DimName</span> <span class="op">+</span> <span class="ident">hash</span>::<span class="ident">Hash</span>, <span class="ident">R</span>: <span class="ident">hash</span>::<span class="ident">Hash</span><span class="op">&gt;</span> <span class="ident">hash</span>::<span class="ident">Hash</span> <span class="kw">for</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>

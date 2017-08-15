@@ -259,7 +259,7 @@ to enable `Accelerate` instead:
 
 ```yaml
 [dependencies.nalgebra_lapack]
-version = "0.11"
+version = "0.5"
 default-features = false
 features = [ "Accelerate" ]
 ```
