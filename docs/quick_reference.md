@@ -7,6 +7,7 @@ and type parameters.
 
 * [Matrices and vectors](#matrices-and-vectors)
     * [Construction](#construction), [Common methods](#common-methods), [Slicing](#slicing), [Resizing](#resizing)
+    * [Blas operations](#blas-operations)
     * [Decompositions](#decompositions)
     * [Computer graphics](#computer-graphics)
 * [Geometry](#geometry)
@@ -241,8 +242,28 @@ the output. Inserted rows/columns are filled by a user-provided value.
 
 <br/>
 
-`.resize(nrows, ncols, val)` <span style="float:right;">Resizes the output matrix to `nrows` rows and `ncols` columns, keeping original component values.</span><br />
-`.fixed_resize<R, C>(val)`   <span style="float:right;">Resizes the output matrix to `R` rows and `C` columns, keeping original component values.</span><br />
+`.resize(nrows, ncols, val)` <span style="float:right;">Resizes the output matrix to `nrows` rows and `ncols` columns.</span><br />
+`.fixed_resize<R, C>(val)`   <span style="float:right;">Resizes the output matrix to `R` rows and `C` columns.</span><br />
+
+Resizing methods keep the original component values, i.e., `self[(i, j)] ==
+output[(i, j)]`. Additional rows and columns are filled with `val`.
+
+-----
+
+#### Blas operations
+**nalgebra** implements some Blas operations in pure Rust. In the following,
+the variables $\mathbf{v}$ and $\mathbf{V}$ designs the `self` argument.
+
+`.iamax()`                 <span style="float:right;">Returns the index of the vector component with the greatest absolute value.</span><br />
+`.iamax_full()`            <span style="float:right;">Returns the index of the matrix component with the greatest absolute value.</span><br />
+`.dot(x)`                  <span style="float:right;">Computes the scalar product $\left<\mathbf{v}, \mathbf{x}\right>$.</span><br />
+`.axpy(alpha, x, beta)`    <span style="float:right;">Computes $\mathbf{v} = \alpha \mathbf{x} + \beta \mathbf{v}$.</span><br />
+`.gemv(alpha, A, x, beta)` <span style="float:right;">Computes $V = \alpha A \mathbf{x} + \beta V$ with a matrix and vector $a$ and $\mathbf{x}$.</span><br />
+`.ger(alpha, x, y, beta)`  <span style="float:right;">Computes $V = \alpha \mathbf{x}^t \mathbf{y} + \beta V$ where $\mathbf{x}$ and $\mathbf{y}$ are vectors.</span><br />
+`.gemm(alpha, A, B, beta)` <span style="float:right;">Computes $V = \alpha A B + \beta V$ where $A$ and $B$ are matrices.</span><br />
+`.gemv_symm(...)`          <span style="float:right;">Is the same as `.gemv` except that `self` is assumed symmetric.</span><br />
+`.ger_symm(...)`           <span style="float:right;">Is the same as `.ger` except that `self` is assumed symmetric.</span><br />
+
 
 -----
 
