@@ -112,3 +112,4 @@ those images under the CC 3.0 BY license:
 * <u>camera.svg</u>: made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver).
 * <u>rotation.svg</u>: made by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver).
 * <u>genericity.svg</u>: made by [Freepik](http://www.freepik.com).
+* <u>decomposition.svg</u>: made by [Vaadin](http://www.flaticon.com/authors/vaadin).

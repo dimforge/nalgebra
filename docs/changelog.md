@@ -4,6 +4,61 @@ This lists the change brought by all major releases. The corresponding source
 code may be found based on tags on
 [github](https://github.com/sebcrozet/nalgebra/releases).
 
+
+### Version 0.13.0
+
+#### Added
+* `.trace()` that computes the trace of a matrix (the sum of its diagonal
+  elements.)
+* `::zeros(...)` that creates a matrix filled with zeroes.
+* `::from_partial_diagonal(...)` that creates a matrix from diagonal elements.
+  The matrix can be rectangular. If not enough elements are provided, the rest
+  of the diagonal is set to 0.
+* `.conjugate_transpose()` computes the transposed conjugate of a
+  complex matrix.
+* `.conjugate_transpose_to(...)` computes the transposed conjugate of a
+  complex matrix. The result written into a user-provided matrix.
+* `.transpose_to(...)` is the same as `.transpose()` but stores the result in
+  the provided matrix.
+* `.conjugate_transpose_to(...)` is the same as `.conjugate_transpose()` but
+  stores the result in the provided matrix.
+* Implements `IntoIterator` for `&Matrix`, `&mut Matrix` and `Matrix`.
+* `.upper_triangle()` extracts the upper triangle of a matrix, including the diagonal.
+* `.lower_triangle()` extracts the lower triangle of a matrix, including the diagonal.
+* `.fill(...)` fills the matrix with a single value.
+* `.fill_diagonal(...)` fills the matrix diagonal with a single value.
+* `.fill_lower_triangle(...)` fills some sub-diagonals bellow the main diagonal with a value.
+* `.fill_upper_triangle(...)` fills some sub-diagonals above the main diagonal with a value.
+* `.swap_rows(...)` swaps two rows.
+* `.swap_columns(...)` swaps two columns.
+
+Column/row removal:
+
+* `.remove_column(...)` removes one column.
+* `.remove_row(...)` removes one row.
+* `.remove_fixed_columns<D>(...)` removes `D` columns.
+* `.remove_fixed_rows<D>(...)` removes `D` rows.
+* `.remove_columns(...)` removes a number of columns known at run-time.
+* `.remove_rows(...)` removes a number of rows known at run-time.
+
+Column/row insertion:
+
+* `.insert_column(...)` adds one column at the given position.
+* `.insert_row(...)` adds one row at the given position.
+* `.insert_fixed_columns<D>(...)` adds `D` columns at the given position.
+* `.insert_fixed_rows<D>(...)` adds `D` rows at the given position.
+* `.insert_columns(...)` adds at the given position a number of columns known at run-time.
+* `.insert_rows(...)` adds at the given position a number of rows known at run-time.
+
+-----
+
+### Version 0.12.0
+The main change of this release is the update of the dependency serde to 1.0.
+
+#### Added
+* `.trace()` that computes the trace of a matrix (the sum of its diagonal
+  elements.)
+
 -----
 
 ### Version 0.11.0

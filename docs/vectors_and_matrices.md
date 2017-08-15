@@ -433,3 +433,54 @@ a dynamically-sized matrice.
 <center>
 ![slice.clone_owned()](img/slice_clone_owned.svg)
 </center>
+
+## Matrix resizing
+The number of rows or columns of a matrix can be modified by adding or removing
+some of them. Similarly to [slicing](#matrix-slicing), two variants exist:
+
+
+* **"Fixed resizing"** where the number of rows or columns to be removed or
+  inserted are known at compile-time. This allows the compiler to output a
+  statically-sized matrix when the input is also statically-sized.
+
+Method                               | Description
+-------------------------------------|-------------
+`.remove_row(i)`                     | Removes the i-th row.
+`.remove_column(i)`                  | Removes the i-th column.
+`.remove_fixed_rows::<D>(i)`         | Removes `D` consecutive rows, starting with the i-th.
+`.remove_fixed_columns::<D>(i)`      | Removes `D` consecutive columns, starting with the i-th.
+`.insert_row(i, val)`                | Adds one row filled with `val` at the i-th row position.
+`.insert_column(i, val)`             | Adds one column filled with `val` at the i-th row position.
+`.insert_fixed_rows::<D>(i, val)`    | Adds `D` consecutive rows filled with `val` starting at the i-th row position.
+`.insert_fixed_columns::<D>(i, val)` | Adds `D` consecutive columns filled with `val` starting at the i-th column position.
+`.fixed_resize::<R2, C2>(val)`       | Resizes the matrix so that it contains `R2` rows and `C2` columns. Components are copied such that `result[(i, j)] == input[(i, j)]`. If the result matrix has more rows or more columns, then the extra components are initialized to `val`.
+
+----
+
+* **"Dynamic resizing"**  where the number of rows or columns to be removed or
+  inserted are not known at compile-time. The result matrix will always be
+  dynamically-sized (the affected dimension-related type parameter of
+  `Matrix<...>` is set to `Dynamic`).
+
+Method                       | Description
+---------------------------- |-------------
+`.remove_rows(i, n)`         | Removes `n` rows, starting with the i-th.
+`.remove_columns(i, n)`      | Removes `n` columns, starting with the i-th.
+`.insert_rows(i, n, val)`    | Inserts `n` rows filled with `val` starting at the i-th row position.
+`.insert_columns(i, n, val)` | Inserts `n` columns filled with `val` starting at the i-th row position.
+`.resize(new_nrows, new_ncols, val)` | Resizes the matrix so that it contains `new_nrows` rows and `new_ncols` columns. Components are copied such that `result[(i, j)] == input[(i, j)]`. If the result matrix has more rows or more columns, then the extra components are initialized to `val`.
+
+The implicit `self` argument of those methods is always consumed in order to
+re-use the input data storage to construct the output. Fixed resizing should be
+preferred whenever the number of rows/columns to be inserted or removed is
+known at compile-time.
+
+It is strongly recommended to use fixed resizing whenever possible, especially
+when the matrix being resize has a size known at compiletime (and is thus
+statically allocated). Indeed, dynamic resizing will produce heap-allocated
+results because the size of the output matrix cannot be deduced at
+compile-time.
+
+<center>
+![Fixed resizing](img/resizing.svg)
+</center>

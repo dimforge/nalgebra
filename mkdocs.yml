@@ -5,6 +5,7 @@ pages:
     - 'Getting started': getting_started.md
     - 'Quick reference': quick_reference.md
     - 'Vectors and matrices': vectors_and_matrices.md
+    - 'Decompositions and Lapack': decompositions_and_lapack.md
     - 'Points and transformations': points_and_transformations.md
     - 'Projections': projections.md
     - 'Computer graphics recipes': cg_recipes.md

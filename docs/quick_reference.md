@@ -6,7 +6,7 @@ documentation](../rustdoc_nalgebra) for details about the functions arguments
 and type parameters.
 
 * [Matrices and vectors](#matrices-and-vectors)
-    * [Construction](#construction), [Common methods](#common-methods), [Slicing](#slicing)
+    * [Construction](#construction), [Common methods](#common-methods), [Slicing](#slicing), [Resizing](#resizing)
     * [Decompositions](#decompositions)
     * [Computer graphics](#computer-graphics)
 * [Geometry](#geometry)
@@ -65,18 +65,25 @@ dimensions 1 to 6 for vectors and 1x1 to 6x6 for matrices.
 
 <br/>
 
-`::new_uninitialized(...)`     <span style="float:right;">_[unsafe]_ Matrix with uninitialized components.</span><br/>
-`::new_random(...)`            <span style="float:right;">Matrix filled with random values.</span><br/>
-`::identity(...)`              <span style="float:right;">The identity matrix.</span><br/>
-`::from_element(...)`          <span style="float:right;">Matrix filled with the given element.</span><br/>
-`::from_iterator(...)`         <span style="float:right;">Matrix filled with the content of the given iterator.</span><br/>
-`::from_row_slice(...)`        <span style="float:right;">Matrix filled with the content of the components given in **row-major** order.</span><br/>
-`::from_column_slice(...)`     <span style="float:right;">Matrix filled with the content of the components given in **column-major** order.</span><br/>
-`::from_fn(...)`               <span style="float:right;">Matrix filled with the result of a closure called for each entry.</span><br/>
-`::from_diagonal(...)`         <span style="float:right;">Diagonal matrix with the given diagonal vector.</span><br/>
-`::from_diagonal_element(...)` <span style="float:right;">Diagonal matrix with the diagonal filled with one value.</span><br/>
-`::from_rows(...)`             <span style="float:right;">Matrix formed by the concatenation of the given rows.</span><br/>
-`::from_columns(...)`          <span style="float:right;">Matrix formed by the concatenation of the given columns.</span><br/>
+In the following, ellipsis `...` are either no arguments, one `usize` argument
+(the number of rows or the number of columns), or two `usize` arguments (the
+number of rows and columns), depending on the number of dimensions unknown at
+compile-time of the matrix being created.
+
+`::new_uninitialized(...)`       <span style="float:right;">_[unsafe]_ Matrix with uninitialized components.</span><br/>
+`::new_random(...)`              <span style="float:right;">Matrix filled with random values.</span><br/>
+`::identity(...)`                <span style="float:right;">The identity matrix.</span><br/>
+`::zeros(...)`                   <span style="float:right;">Matrix filled with zeros.</span><br/>
+`::from_element(..., value)`     <span style="float:right;">Matrix filled with the given value.</span><br/>
+`::from_iterator(..., iterator)` <span style="float:right;">Matrix filled with the content of the given iterator.</span><br/>
+`::from_row_slice(..., array)`   <span style="float:right;">Matrix filled with the content of `array` given in **row-major** order.</span><br/>
+`::from_column_slice(..., array)`         <span style="float:right;">Matrix filled with the content of `array` given in **column-major** order.</span><br/>
+`::from_fn(..., closure)`                 <span style="float:right;">Matrix filled with the result of a closure called for each entry.</span><br/>
+`::from_diagonal(..., vector)`            <span style="float:right;">Diagonal square matrix with the given diagonal vector.</span><br/>
+`::from_diagonal_element(..., value)`     <span style="float:right;">Diagonal square matrix with the diagonal filled with one value.</span><br/>
+`::from_partial_diagonal(..., &[values])` <span style="float:right;">Rectangular matrix with diagonal filled with the given values.</span><br/>
+`::from_rows(..., &[vectors])`            <span style="float:right;">Matrix formed by the concatenation of the given rows.</span><br/>
+`::from_columns(..., &[vectors])`         <span style="float:right;">Matrix formed by the concatenation of the given columns.</span><br/>
 
 <br/>
 
@@ -84,7 +91,7 @@ dimensions 1 to 6 for vectors and 1x1 to 6x6 for matrices.
 `One::one()`           <span style="float:right;">The identity matrix.</span><br/>
 `Bounded::min_value()` <span style="float:right;">Matrix filled with the min value of the scalar type.</span><br/>
 `Bounded::max_value()` <span style="float:right;">Matrix filled with the max value of the scalar type.</span><br/>
-`Rand::rand(...)`      <span style="float:right;">Matrix filled with random values.</span><br/>
+`Rand::rand(rng)`      <span style="float:right;">Matrix filled with random values.</span><br/>
 
 ----
 
@@ -100,33 +107,48 @@ dimensions 1 to 6 for vectors and 1x1 to 6x6 for matrices.
 
 `.iter()`                  <span style="float:right;">An iterator through the matrix components in column-major order.</span><br/>
 `.iter_mut()`              <span style="float:right;">A mutable iterator through the matrix components in column-major order.</span><br/>
-`.get_unchecked(i, j)`     <span style="float:right;">_[unsafe]_ The matrix component at row `i` and column `j`. No bound-checking.</span><br/>
-`.get_unchecked_mut(i, j)` <span style="float:right;">_[unsafe]_ The mutable matrix component at row `i` and column `j`. No bound-checking.</span><br/>
-`.swap_unchecked(i, j)`    <span style="float:right;">_[unsafe]_ Swaps two components. No bound-checking.</span><br/>
+`.get_unchecked(i, j)`     <span style="float:right;">_[unsafe]_ Component at row `i` and column `j`. No bound checking.</span><br/>
+`.get_unchecked_mut(i, j)` <span style="float:right;">_[unsafe]_ Mutable component at row `i` and column `j`. No bound checking.</span><br/>
+`.swap_unchecked(i, j)`    <span style="float:right;">_[unsafe]_ Swaps two components. No bound checking.</span><br/>
 `.as_slice()`              <span style="float:right;">Reference to the internal column-major array of component.</span><br/>
 `.as_mut_slice()`          <span style="float:right;">Mutable reference to the internal column-major array of component.</span><br/>
 
 <br/>
 
-`.copy_from(m)`   <span style="float:right;">Copies the content of another matrix with the same shape.</span><br/>
-`.fill(e)`        <span style="float:right;">Sets all components to `e`.</span><br/>
-`.map(f)`         <span style="float:right;">Applies `f` to each component and stores the results on a new matrix.</span><br/>
-`.zip_map(m2, f)` <span style="float:right;">Applies `f` to the pair of component from `self` and `m2` and stores the results on a new matrix.</span><br/>
+`.upper_triangle()`         <span style="float:right;">Extracts the upper triangle, including the diagonal.</span><br/>
+`.lower_triangle()`         <span style="float:right;">Extracts the lower triangle, including the diagonal.</span><br/>
+`.swap_rows(id_row1, id_row2)`    <span style="float:right;">Swaps two rows.</span><br/>
+`.swap_columns(id_col1, id_col2)` <span style="float:right;">Swaps two columns.</span><br/>
 
 <br/>
 
-`.relative_eq(...)`       <span style="float:right;">Componentwise approximate matrix equality.</span><br />
-`.component_mul(rhs)`     <span style="float:right;">Componentwise multiplication (aka. Hadamard product).</span><br />
-`.component_mul_mut(rhs)` <span style="float:right;">In-place componentwise multiplication (aka. Hadamard product).</span><br />
-`.component_div(rhs)`     <span style="float:right;">Componentwise division.</span><br />
-`.component_div_mut(rhs)` <span style="float:right;">In-place componentwise division.</span><br />
+`.copy_from(matrix)`          <span style="float:right;">Copies the content of another matrix with the same shape.</span><br/>
+`.fill(value)`                <span style="float:right;">Sets all components to `value`.</span><br/>
+`.fill_diagonal(value)`       <span style="float:right;">Fills the matrix diagonal with a single value.</span><br/>
+`.fill_lower_triangle(value)` <span style="float:right;">Fills some sub-diagonals bellow the main diagonal with a value.</span><br/>
+`.fill_upper_triangle(value)` <span style="float:right;">Fills some sub-diagonals above the main diagonal with a value.</span><br/>
+`.map(f)`                     <span style="float:right;">Applies `f` to each component and stores the results on a new matrix.</span><br/>
+`.apply(f)`                   <span style="float:right;">Applies in-place `f` to each component of the matrix.</span><br/>
+`.zip_map(m2, f)`             <span style="float:right;">Applies `f` to pairs of components from `self` and `m2` into a new matrix.</span><br/>
 
 <br/>
 
-`.tranpose()`        <span style="float:right;">Matrix transposition.</span><br />
-`.tranpose_mut()`    <span style="float:right;">In-place matrix transposition.</span><br />
-`.try_inverse()`     <span style="float:right;">Matrix inverse. Returns `None` if it fails.</span><br />
-`.try_inverse_mut()` <span style="float:right;">In-place matrix inverse. Returns `false` if it fails.</span><br />
+`.relative_eq(abolutes_eps, relative_eps)` <span style="float:right;">Componentwise approximate matrix equality.</span><br />
+`.component_mul(rhs)`                      <span style="float:right;">Componentwise multiplication (aka. Hadamard product).</span><br />
+`.component_mul_mut(rhs)`                  <span style="float:right;">In-place componentwise multiplication (aka. Hadamard product).</span><br />
+`.component_div(rhs)`                      <span style="float:right;">Componentwise division.</span><br />
+`.component_div_mut(rhs)`                  <span style="float:right;">In-place componentwise division.</span><br />
+
+<br/>
+
+`.transpose()`                   <span style="float:right;">Matrix transposition.</span><br />
+`.transpose_mut()`               <span style="float:right;">In-place matrix transposition.</span><br />
+`.transpose_to(output)`          <span style="float:right;">Transposes a matrix to the given output.</span><br />
+`.conjugate_transpose()`         <span style="float:right;">Complex matrix transposed conjugate.</span><br />
+`.conjugate_transpose_mut()`     <span style="float:right;">In-place complex matrix transposed conjugate.</span><br />
+`.conjugate_transpose_to(outut)` <span style="float:right;">Conjugate-transposes a complex matrix to the given output matrix.</span><br />
+`.try_inverse()`                 <span style="float:right;">Matrix inverse. Returns `None` if it fails.</span><br />
+`.try_inverse_mut()`             <span style="float:right;">In-place matrix inverse. Returns `false` if it fails.</span><br />
 
 <br/>
 
@@ -143,11 +165,12 @@ dimensions 1 to 6 for vectors and 1x1 to 6x6 for matrices.
 
 <br/>
 
-`.dot(rhs)`    <span style="float:right;">Vector dot product.</span><br />
-`.tr_dot(rhs)` <span style="float:right;">Vector dot product between `self.transpose()` and `rhs`.</span><br />
-`.perp(rhs)`   <span style="float:right;">2D cross product, i.e., determinant of the matrix formed by two 2D column vectors.</span><br />
-`.cross(rhs)`  <span style="float:right;">3D cross product.</span><br />
-`.angle(rhs)`  <span style="float:right;">Smallest angle between two vectors.</span><br />
+`.dot(rhs)`       <span style="float:right;">Vector dot product.</span><br />
+`.tr_dot(rhs)`    <span style="float:right;">Vector dot product between `self.transpose()` and `rhs`.</span><br />
+`.perp(rhs)`      <span style="float:right;">2D cross product, i.e., determinant of the matrix formed by two 2D column vectors.</span><br />
+`.cross(rhs)`      <span style="float:right;">3D cross product.</span><br />
+`.kronecker(rhs)`  <span style="float:right;">Matrix tensor (kronecker) product.</span><br />
+`.angle(rhs)`      <span style="float:right;">Smallest angle between two vectors.</span><br />
 
 <br/>
 
@@ -162,38 +185,107 @@ dimensions 1 to 6 for vectors and 1x1 to 6x6 for matrices.
 #### Slicing
 Slice are references to sub-matrices. They do not own their data and cannot be
 converted to arrays as their data buffer may not be contiguous in memory.
+Mutable slices are obtained using the same methods suffixed by `_mut`, e.g.,
+`.row_mut(i)`.
 
 
-`.row(...)`                       <span style="float:right;">A matrix row.</span><br />
-`.rows(...)`                      <span style="float:right;">Several consecutive rows.</span><br />
-`.rows_with_step(...)`            <span style="float:right;">Several non-consecutive rows.</span><br />
-`.fixed_rows::<D>(...)`           <span style="float:right;">A compile-time number of consecutive rows.</span><br />
-`.fixed_rows_with_step::<D>(...)` <span style="float:right;">A compile-time number of non-consecutive rows.</span><br />
-
-<br/>
-
-`.column(...)`                       <span style="float:right;">A matrix column.</span><br />
-`.columns(...)`                      <span style="float:right;">Several consecutive columns.</span><br />
-`.columns_with_step(...)`            <span style="float:right;">Several non-consecutive columns.</span><br />
-`.fixed_columns::<D>(...)`           <span style="float:right;">A compile-time number of consecutive columns.</span><br />
-`.fixed_columns_with_step::<D>(...)` <span style="float:right;">A compile-time number of non-consecutive columns.</span><br />
+`.row(i)`                             <span style="float:right;">A matrix row.</span><br />
+`.rows(i, nrows)`                     <span style="float:right;">Several consecutive rows.</span><br />
+`.rows_with_step(i, nrows, step)`     <span style="float:right;">Several non-consecutive rows.</span><br />
+`.fixed_rows::<D>(i)`                 <span style="float:right;">A compile-time number of consecutive rows.</span><br />
+`.fixed_rows_with_step::<D>(i, step)` <span style="float:right;">A compile-time number of non-consecutive rows.</span><br />
 
 <br/>
 
-`.slice(...)`                          <span style="float:right;">Consecutive rows and columns.</span><br />
-`.slice_with_steps(...)`               <span style="float:right;">Non consecutive rows and columns.</span><br />
-`.fixed_slice::<R, C>(...)`            <span style="float:right;">Compile-time number of consecutive rows and columns.</span><br />
-`.fixed_slice_with_steps::<R, C>(...)` <span style="float:right;">Compile-time number of non consecutive rows and columns.</span><br />
+`.column(j)`                             <span style="float:right;">A matrix column.</span><br />
+`.columns(j, ncols)`                     <span style="float:right;">Several consecutive columns.</span><br />
+`.columns_with_step(j, ncols, step)`     <span style="float:right;">Several non-consecutive columns.</span><br />
+`.fixed_columns::<D>(j)`                 <span style="float:right;">A compile-time number of consecutive columns.</span><br />
+`.fixed_columns_with_step::<D>(j, step)` <span style="float:right;">A compile-time number of non-consecutive columns.</span><br />
+
+<br/>
+
+`.slice((i, j), (nrows, ncols))`                           <span style="float:right;">Consecutive rows and columns.</span><br />
+`.slice_with_steps((i, j), (nrows, ncols), (rstep, cstep)` <span style="float:right;">Non consecutive rows and columns.</span><br />
+`.fixed_slice::<R, C>((i, j))`                             <span style="float:right;">Compile-time number of consecutive rows and columns.</span><br />
+`.fixed_slice_with_steps::<R, C>((i, j), (rstep, cstep))`  <span style="float:right;">Compile-time number of non consecutive rows and columns.</span><br />
+
+-----
+
+#### Resizing
+The dimension of a matrix can be modified by inserting or removing rows or
+columns and by changing its dimensions. The input is always consumed to produce
+the output. Inserted rows/columns are filled by a user-provided value.
+
+`.remove_row(i)`             <span style="float:right;">Removes one row.</span><br />
+`.remove_rows(i, nrows)`     <span style="float:right;">Removes several consecutive rows.</span><br />
+`.remove_fixed_rows::<D>(i)` <span style="float:right;">Removes a compile-time number of consecutive rows.</span><br />
+
+<br/>
+
+`.remove_column(j)`             <span style="float:right;">Removes one column.</span><br />
+`.remove_columns(j, ncols)`     <span style="float:right;">Removes several consecutive columns.</span><br />
+`.remove_fixed_columns::<D>(j)` <span style="float:right;">Removes a compile-time number of consecutive columns.</span><br />
+
+<br/>
+
+`.insert_row(i, val)`             <span style="float:right;">Adds one row filled with `val`.</span><br />
+`.insert_rows(i, nrows, val)`     <span style="float:right;">Adds several consecutive rows filled with `val`.</span><br />
+`.insert_fixed_rows::<D>(i, val)` <span style="float:right;">Adds a compile-time number of consecutive rows filled with `val`.</span><br />
+
+<br/>
+
+`.insert_column(j, val)`             <span style="float:right;">Adds one column.</span><br />
+`.insert_columns(j, ncols, val)`     <span style="float:right;">Adds several consecutive columns.</span><br />
+`.insert_fixed_columns::<D>(j, val)` <span style="float:right;">Adds a compile-time number of consecutive columns.</span><br />
+
+<br/>
+
+`.resize(nrows, ncols, val)` <span style="float:right;">Resizes the output matrix to `nrows` rows and `ncols` columns, keeping original component values.</span><br />
+`.fixed_resize<R, C>(val)`   <span style="float:right;">Resizes the output matrix to `R` rows and `C` columns, keeping original component values.</span><br />
 
 -----
 
 #### Decompositions
+All matrix decompositions are implemented in Rust and operate on Real matrices
+only. Refer to [Lapack integration](#nalgebra-lapack) for lapack-based decompositions.
 
-`.qr()`                 <span style="float:right;">QR decomposition.</span><br />
-`.eig(...)`             <span style="float:right;">Eigenvalue and eigenvectors computation.</span><br />
-`.cholesky()`           <span style="float:right;">Cholesky factorization.</span><br />
-`.cholesky_unchecked()` <span style="float:right;">Cholesky factorization without checking the matrix symmetry.</span><br />
-`.hessenberg()`         <span style="float:right;">Hessenberg form computation.</span><br />
+`.bidiagonalize()`            <span style="float:right;">Bidiagonalization of a general matrix.</span><br />
+`.symmetric_tridiagonalize()` <span style="float:right;">Tridiagonalization of a general matrix.</span><br />
+`.cholesky()`                 <span style="float:right;">Cholesky factorization of a Symmetric-Definite-Positive square matrix.</span><br />
+`.qr()`                       <span style="float:right;">QR decomposition.</span><br />
+`.lu()`                       <span style="float:right;">LU decomposition with partial (row) pivoting.</span><br />
+`.full_piv_lu()`              <span style="float:right;">LU decomposition with full pivoting.</span><br />
+`.hessenberg()`               <span style="float:right;">Hessenberg form computation for a square matrix.</span><br />
+`.real_schur()`               <span style="float:right;">Real Schur decomposition of a square matrix.</span><br />
+`.symmetric_eigen()`          <span style="float:right;">Eigenvalue and eigenvectors computation of a symmetric matrix.</span><br />
+`.svd()`                      <span style="float:right;">Singular Value Decomposition.</span><br />
+
+Iterative methods may take extra parameters to control their convergence: an
+error tolenence `eps` (set to machine epsilon by default) and maximum number of
+iteration (set to infinite by default):
+
+`.try_real_schur(eps, max_niter)`      <span style="float:right;">Real Schur decomposition of a square matrix.</span><br />
+`.try_symmetric_eigen(eps, max_niter)` <span style="float:right;">Eigenvalue and eigenvectors computation of a symmetric matrix.</span><br />
+`.try_svd(eps, max_niter)`             <span style="float:right;">Singular Value Decomposition.</span><br />
+
+------
+
+#### Lapack integration 
+Lapack-based decompositions are available using the **nalgebra-lapack** crate.
+Refer the the [dedicated
+section](decompositions_and_lapack/#lapack-integration) for details regarding
+its use and the choice of backend (OpenBLAS, netlib, or Accelerate) The
+following factorization are implemented:
+
+`Cholesky::new(matrix)`       <span style="float:right;">Cholesky factorization of a Symmetric-Definite-Positive matrix.</span><br />
+`QR::new(matrix)`             <span style="float:right;">QR decomposition.</span><br />
+`LU::new(matrix)`             <span style="float:right;">LU decomposition with partial (row) pivoting.</span><br />
+`Hessenberg::new(matrix)`     <span style="float:right;">Hessenberg form computation.</span><br />
+`RealSchur::new(matrix)`      <span style="float:right;">Real Schur decomposition of a square matrix.</span><br />
+`Eigen::new(matrix, compute_left, compute_right)` <span style="float:right;">Eigendecomposition of a symmetric matrix.</span><br />
+`SymmetricEigen::new(matrix)`                     <span style="float:right;">Eigendecomposition of a symmetric matrix.</span><br />
+`SVD::new(matrix)`                                <span style="float:right;">Singular Value Decomposition.</span><br />
 
 ------
 
@@ -204,34 +296,35 @@ transformations. Homogeneous matrix coordinates are expected to be multiplied
 by homogeneous vectors (the vector goes on the right-hand-side of the
 operator).
 
-`::new_scaling(...)`            <span style="float:right;">An uniform scaling matrix.</span><br />
-`::new_nonuniform_scaling(...)` <span style="float:right;">A nonuniform scaling matrix.</span><br />
-`::new_translation(...)`        <span style="float:right;">A translation matrix.</span><br />
-`::new_rotation(...)`           <span style="float:right;">A rotation matrix from an axis multiplied by an angle.</span><br />
-`::new_rotation_wrt_point(...)` <span style="float:right;">An isometry matrix that lets the given point invariant.</span><br />
-`::from_scaled_axis(...)`       <span style="float:right;">A rotation matrix from an axis multiplied by an angle.</span><br />
-`::from_euler_angles(...)`      <span style="float:right;">A rotation matrix from euler angles (roll → pitch → yaw).</span><br />
-`::from_axis_angle(...)`        <span style="float:right;">A rotation matrix from an axis and an angle.</span><br />
-`::new_orthographic(...)`       <span style="float:right;">An orthographic projection matrix.</span><br />
-`::new_perspective(...)`        <span style="float:right;">A perspective projection matrix.</span><br />
-`::new_observer_frame(...)`     <span style="float:right;">The local coordinate system of a player looking toward a given point.</span><br />
-`::look_at_rh(...)`             <span style="float:right;">A right-handed look-at matrix.</span><br />
-`::look_at_lh(...)`             <span style="float:right;">A left-handed look-at matrix.</span><br />
+`::new_scaling(factor)`                     <span style="float:right;">An uniform scaling matrix.</span><br />
+`::new_nonuniform_scaling(vector)`          <span style="float:right;">A nonuniform scaling matrix.</span><br />
+`::new_translation(vector)`                 <span style="float:right;">A translation matrix.</span><br />
+`::new_rotation(angle)`                     <span style="float:right;">A 2D rotation matrix from an angle.</span><br />
+`::new_rotation(axisangle)`                 <span style="float:right;">A 3D rotation matrix from an axis multiplied by an angle.</span><br />
+`::new_rotation_wrt_point(axiangle, point)` <span style="float:right;">An 3D isometry matrix that lets the given point invariant.</span><br />
+`::from_scaled_axis(axisangle)`             <span style="float:right;">A 3D rotation matrix from an axis multiplied by an angle.</span><br />
+`::from_euler_angles(roll, pitch, yaw)`     <span style="float:right;">A 3D rotation matrix from euler angles (roll → pitch → yaw).</span><br />
+`::from_axis_angle(axis, angle)`            <span style="float:right;">A 3D rotation matrix from an axis and an angle.</span><br />
+`::new_orthographic(left, right, top, bottom, znear, zfar)` <span style="float:right;">A 3D orthographic projection matrix.</span><br />
+`::new_perspective(aspect, fovy, znear, zfar)` <span style="float:right;">A 3D perspective projection matrix.</span><br />
+`::new_observer_frame(eye, target, up)` <span style="float:right;">3D local coordinate system of a player looking toward `target`.</span><br />
+`::look_at_rh(eye, target, up)`         <span style="float:right;">A 3D right-handed look-at matrix.</span><br />
+`::look_at_lh(eye, target, up)`         <span style="float:right;">A 3D left-handed look-at matrix.</span><br />
 
 <br/>
 
-`.append_scaling(...)`                 <span style="float:right;">Applies an uniform scaling after `self`.</span><br />
-`.append_scaling_mut(...)`             <span style="float:right;">Applies in-place an uniform scaling after `self`.</span><br />
-`.prepend_scaling(...)`                <span style="float:right;">Applies an uniform scaling before`self`.</span><br />
-`.prepend_scaling_mut(...)`            <span style="float:right;">Applies in-place an uniform scaling before `self`.</span><br />
-`.append_nonuniform_scaling(...)`      <span style="float:right;">Applies a non-uniform scaling after `self`.</span><br />
-`.append_nonuniform_scaling_mut(...)`  <span style="float:right;">Applies in-place a non-uniform scaling after `self`.</span><br />
-`.prepend_nonuniform_scaling(...)`     <span style="float:right;">Applies a non-uniform scaling before`self`.</span><br />
-`.prepend_nonuniform_scaling_mut(...)` <span style="float:right;">Applies in-place a non-uniform scaling before `self`.</span><br />
-`.append_translation(...)`             <span style="float:right;">Applies a translation after `self`.</span><br />
-`.append_translation_mut(...)`         <span style="float:right;">Applies in-place a translation after `self`.</span><br />
-`.prepend_translation(...)`            <span style="float:right;">Applies a translation before `self`.</span><br />
-`.prepend_translation_mut(...)`        <span style="float:right;">Applies in-place a translation before `self`.</span><br />
+`.append_scaling(factor)`                 <span style="float:right;">Applies an uniform scaling after `self`.</span><br />
+`.append_scaling_mut(factor)`             <span style="float:right;">Applies in-place an uniform scaling after `self`.</span><br />
+`.prepend_scaling(factor)`                <span style="float:right;">Applies an uniform scaling before`self`.</span><br />
+`.prepend_scaling_mut(factor)`            <span style="float:right;">Applies in-place an uniform scaling before `self`.</span><br />
+`.append_nonuniform_scaling(vector)`      <span style="float:right;">Applies a non-uniform scaling after `self`.</span><br />
+`.append_nonuniform_scaling_mut(vector)`  <span style="float:right;">Applies in-place a non-uniform scaling after `self`.</span><br />
+`.prepend_nonuniform_scaling(vector)`     <span style="float:right;">Applies a non-uniform scaling before`self`.</span><br />
+`.prepend_nonuniform_scaling_mut(vector)` <span style="float:right;">Applies in-place a non-uniform scaling before `self`.</span><br />
+`.append_translation(vector)`             <span style="float:right;">Applies a translation after `self`.</span><br />
+`.append_translation_mut(vector)`         <span style="float:right;">Applies in-place a translation after `self`.</span><br />
+`.prepend_translation(vector)`            <span style="float:right;">Applies a translation before `self`.</span><br />
+`.prepend_translation_mut(vector)`        <span style="float:right;">Applies in-place a translation before `self`.</span><br />
 
 -----
 
@@ -270,8 +363,8 @@ Projections follow the behavior expected by Computer Graphics community, i.e.,
 they are invertible transformation from a convex shape to a unit cube centered
 at the origin.
 
-`Perspective3<...>`    <span style="float:right;">3D perspective projection matrix using homogeneous coordinates.</span><br/>
-`Orthographic3<...>`    <span style="float:right;">3D orthographic projection matrix using homogeneous coordinates.</span><br/>
+`Perspective3<N>`  <span style="float:right;">3D perspective projection matrix using homogeneous coordinates.</span><br/>
+`Orthographic3<N>` <span style="float:right;">3D orthographic projection matrix using homogeneous coordinates.</span><br/>
 
 -----
 
@@ -280,17 +373,16 @@ Base types are generic wrt. the dimension and/or the data storage type. They
 should not be used directly, prefer type aliases shown in the previous section
 instead.
 
-`PointBase<...>`                 <span style="float:right;">A location in space.</span><br/>
-`QuaternionBase<...>`            <span style="float:right;">A general quaternion.</span><br/>
-`RotationBase<...>`              <span style="float:right;">A rotation matrix.</span><br/>
-`TranslationBase<...>`           <span style="float:right;">A translation vector.</span><br/>
-`IsometryBase<...>`              <span style="float:right;">An isometry containing an abstract rotation type.</span><br/>
-`SimilarityBase<...>`            <span style="float:right;">A similarity containing an abstract rotation type.</span><br/>
-`TransformBase<..., Affine>`     <span style="float:right;">An affine transformation stored as an homogeneous matrix.</span><br/>
-`TransformBase<..., Projective>` <span style="float:right;">An invertible transformation stored as an homogeneous matrix.</span><br/>
-`TransformBase<..., General>`    <span style="float:right;">A general transformation stored as an homogeneous matrix.</span><br/>
-`PerspectiveBase<...>`           <span style="float:right;">A perspective projection matrix.</span><br/>
-`OrthographicBase<...>`          <span style="float:right;">An orthographic projection matrix.</span><br/>
+`Point<N>`                      <span style="float:right;">A location in space.</span><br/>
+`Rotation<N, Dim>`              <span style="float:right;">A rotation matrix.</span><br/>
+`Translation<N, Dim>`           <span style="float:right;">A translation vector.</span><br/>
+`Isometry<N, Dim, Rotation>`    <span style="float:right;">An isometry containing an abstract rotation type.</span><br/>
+`Similarity<N, Dim, Rotation>`  <span style="float:right;">A similarity containing an abstract rotation type.</span><br/>
+`Transform<N, Dim, Affine>`     <span style="float:right;">An affine transformation stored as an homogeneous matrix.</span><br/>
+`Transform<N, Dim, Projective>` <span style="float:right;">An invertible transformation stored as an homogeneous matrix.</span><br/>
+`Transform<N, Dim, General>`    <span style="float:right;">A general transformation stored as an homogeneous matrix.</span><br/>
+`Perspective<N>`                <span style="float:right;">A 3D perspective projection matrix.</span><br/>
+`Orthographic<N>`               <span style="float:right;">A 3D orthographic projection matrix.</span><br/>
 
 -----
 
@@ -298,17 +390,18 @@ instead.
 
 * Data storages provide access to a matrix shape and its components.
 * The last type parameter of the generic `Matrix<...>` type is the data storage.
-* Allocators provide a way to allocate a data storage type that depends
-  on whether the matrix shape is statically known.
-* Transformation types require a data storage that implements `OwnedStorage<...>`.
+* Allocators provide a way to allocate a data storage type that depends on
+  whether the matrix shape is statically known. The `Allocator` trait should
+  not be implemented manually by the user. Only one implementor exists:
+  `DefaultAllocator`.
 
 
 #### Traits
-`Storage<...>`        <span style="float:right;">Structures that give access to a buffer of data.</span><br/>
-`StorageMut<...>`     <span style="float:right;">Structures that give access to a mutable buffer of data.</span><br/>
-`OwnedStorage<...>`   <span style="float:right;">Structures that uniquely own their mutable and contiguous data buffer.</span><br/>
-`Allocator<...>`      <span style="float:right;">Structures that can allocate a data buffer.</span><br/>
-`OwnedAllocator<...>` <span style="float:right;">An allocator for a specific owned data storage.</span><br/>
+`Storage<...>`              <span style="float:right;">Implemented by buffers that may store matrix elements non-contiguously.</span><br/>
+`StorageMut<...>`           <span style="float:right;">Implemented by mutable buffers that may store matrix elements non-contiguously.</span><br/>
+`ContiguousStorage<...>`    <span style="float:right;">Implemented by buffers storing matrix components contiguously.</span><br/>
+`ContiguousStorageMut<...>` <span style="float:right;">Implemented by mutable buffers storing matrix components contiguously.</span><br/>
+
 
 -----
 
@@ -317,4 +410,4 @@ instead.
 `MatrixVec<...>`        <span style="float:right;">A heap-allocated owned data storage.</span><br/>
 `MatrixSlice<...>`      <span style="float:right;">A non-mutable reference to a piece of another data storage.</span><br/>
 `MatrixSliceMut<...>`   <span style="float:right;">A mutable reference to a piece of another data storage.</span><br/>
-`DefaultAllocator<...>` <span style="float:right;">Allocates a `MatrixArray` for compile-time-sized matrices, and a `MatrixVec` otherwise.</span><br/>
+`DefaultAllocator<...>` <span style="float:right;">Allocates `MatrixArray` for statically sized matrices, and `MatrixVec` otherwise.</span><br/>

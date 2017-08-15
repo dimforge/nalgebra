@@ -22,7 +22,7 @@ class3='<div id="hide_medium" class="col-md-3">'
 class9='<div class="col-md-9">'
 end_div='</div>'
 footer='<section class="footer"></section>'
-body='<body class="rustdoc">'
+body='<body[^>]*>'
 head='<head>'
 favicon='<link rel="shortcut icon" href="/img/favicon.ico">'
 
@@ -53,7 +53,7 @@ do
   </script>'
 
   escaped_nav=`echo $nav | sed ':a;N;$!ba;s/\n/ /g'`
-  sed -i "s%${body}%${body}${escaped_nav}%g" $file
+  sed -i "s%${body}%\0${escaped_nav}%g" $file
   fileend='
   <script>var base_url = "../" + window.rootPath;</script>
   <script src="/js/highlight.pack.js"></script>

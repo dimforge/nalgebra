@@ -30,6 +30,7 @@
       </a>
       </td>
   </tr>
+
   <tr>
       <td>[![](../img/lego.svg)](../vectors_and_matrices)</td>
       <td style="vertical-align:middle">
@@ -45,6 +46,23 @@
       </a>
       </td>
   </tr>
+
+  <tr>
+      <td>[![](../img/decomposition.svg)](../lapack)</td>
+      <td style="vertical-align:middle">
+      <a href="../decompositions_and_lapack" id="no_highlight">
+      <div>
+      <big>**Decompositions, linear solvers, and Lapack**</big>
+      <span class="home_dummy_link">&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i></span>
+      <br>
+      Compute decompositions, eigenvalues, and solutions to linear systems.
+      Benefit from efficient implementations calling Lapack bindings from the
+      **nalgebra-lapack** crate.
+      </div>
+      </a>
+      </td>
+  </tr>
+
   <tr>
       <td>[![](../img/rotation.svg)](../points_and_transformations)</td>
       <td style="vertical-align:middle">
