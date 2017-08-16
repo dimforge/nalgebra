@@ -74,13 +74,21 @@ licence](https://github.com/sebcrozet/nalgebra/blob/master/LICENSE)).
 
 # Contributors
 
-The list of constributors can be found [there](https://github.com/sebcrozet/nalgebra/graphs/contributors).
+The list of constributors can be found [there](https://github.com/sebcrozet/nalgebra/graphs/contributors). Here are additional contributors, including Patrons:
+
+* Kyle Gretchev
+* Jeb Brooks
+* camille viot
+* Kasper Møller Andersen
+* Mark Stacey
 
 
 If your name should be on this list but isn't because your constribution is not
 code-related please send an [email](mailto:developer@crozet.re) or open an
 issue on [GitHub](https://github.com/sebcrozet/ncollide/issues). You will be
 listed above this paragraph.
+
+**Thanks** to all of you for your support!
 
 # Image credits
 Some images were downloaded from [flaticon](http://www.flaticon.com). Some have
