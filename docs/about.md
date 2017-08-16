@@ -76,11 +76,12 @@ licence](https://github.com/sebcrozet/nalgebra/blob/master/LICENSE)).
 
 The list of constributors can be found [there](https://github.com/sebcrozet/nalgebra/graphs/contributors). Here are additional contributors, including Patrons:
 
-* Kyle Gretchev
-* Jeb Brooks
 * Camille Viot
+* Jeb Brooks
 * Kasper Møller Andersen
+* Kyle Gretchev
 * Mark Stacey
+* Wesley Wiser
 
 
 If your name should be on this list but isn't because your constribution is not
