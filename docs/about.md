@@ -78,7 +78,7 @@ The list of constributors can be found [there](https://github.com/sebcrozet/nalg
 
 * Kyle Gretchev
 * Jeb Brooks
-* camille viot
+* Camille Viot
 * Kasper Møller Andersen
 * Mark Stacey
 
