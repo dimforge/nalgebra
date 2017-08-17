@@ -81,6 +81,8 @@ The list of constributors can be found [there](https://github.com/sebcrozet/nalg
 * Kasper Møller Andersen
 * Kyle Gretchev
 * Mark Stacey
+* Olivier Saut
+* Sanghyeon Seo
 * Wesley Wiser
 
 
