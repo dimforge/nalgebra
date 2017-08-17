@@ -13,14 +13,14 @@ are not supported yet):
 
 Decomposition            | Factors                   | Rust methods
 -------------------------|---------------------------|--------------
-QR                       | $Q ~ R$                   | `.qr(matrix)`
-LU with partial pivoting | $P^{-1} ~ L ~ U$          | `.lu(matrix)`
-LU with full pivoting    | $P^{-1} ~ L ~ U ~ Q^{-1}$ | `.full_piv_lu(matrix)`
-Hessenberg               | $P ~ H ~ P^*$             | `.hessenberg(matrix)`
-Cholesky                 | $L ~ L^*$                 | `.cholesky(matrix)`
-Real Schur decomposition | $Q ~ U ~ Q^*$             | `.real_schur(matrix)` or `.try_real_schur(matrix, eps, max_iter)`
-Symmetric eigendecomposition | $U ~ \Lambda ~ U^*$   | `.symmetric_eigen(matrix)` or `.try_symmetric_eigen(matrix, eps, max_iter)`
-SVD                      | $U ~ \Sigma ~ V^*$        | `.svd(matrix, compute_u, compute_v)` or `.try_svd(matrix, compute_u, compute_v, eps, max_iter)`
+QR                       | $Q ~ R$                   | `.qr()`
+LU with partial pivoting | $P^{-1} ~ L ~ U$          | `.lu()`
+LU with full pivoting    | $P^{-1} ~ L ~ U ~ Q^{-1}$ | `.full_piv_lu()`
+Hessenberg               | $P ~ H ~ P^*$             | `.hessenberg()`
+Cholesky                 | $L ~ L^*$                 | `.cholesky()`
+Real Schur decomposition | $Q ~ U ~ Q^*$             | `.real_schur()` or `.try_real_schur(eps, max_iter)`
+Symmetric eigendecomposition | $U ~ \Lambda ~ U^*$   | `.symmetric_eigen()` or `.try_symmetric_eigen(eps, max_iter)`
+SVD                      | $U ~ \Sigma ~ V^*$        | `.svd(compute_u, compute_v)` or `.try_svd(compute_u, compute_v, eps, max_iter)`
 
 All those methods return a dedicated data structure representing the
 corresponding decomposition. Those structures themselves often offer
