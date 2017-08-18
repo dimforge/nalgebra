@@ -76,6 +76,7 @@ licence](https://github.com/sebcrozet/nalgebra/blob/master/LICENSE)).
 
 The list of constributors can be found [there](https://github.com/sebcrozet/nalgebra/graphs/contributors). Here are additional contributors, including Patrons:
 
+* Anselm Eickhoff
 * Camille Viot
 * Jeb Brooks
 * Kasper Møller Andersen
