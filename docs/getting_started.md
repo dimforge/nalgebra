@@ -6,7 +6,7 @@ adding a new dependency to your `Cargo.toml` file.
 
 ```toml
 [dependencies]
-nalgebra = "0.12.0"
+nalgebra = "0.13.0"
 ```
 
 Until **nalgebra** reaches 1.0, it is strongly recommended to always use its
@@ -38,7 +38,7 @@ version = "0.0.0"
 authors = [ "You" ]
 
 [dependencies]
-nalgebra = "0.12.0"
+nalgebra = "0.13.0"
 
 [[bin]]
 name = "example"
