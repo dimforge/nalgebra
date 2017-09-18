@@ -5,6 +5,7 @@ extern crate quickcheck;
 extern crate approx;
 extern crate num_traits as num;
 extern crate serde_json;
+#[cfg(feature = "abomonation-serialize")]
 extern crate abomonation;
 extern crate rand;
 extern crate alga;

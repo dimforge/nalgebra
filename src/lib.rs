@@ -97,7 +97,7 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-#[cfg(feature = "abomonation")]
+#[cfg(feature = "abomonation-serialize")]
 extern crate abomonation;
 
 extern crate num_traits as num;
