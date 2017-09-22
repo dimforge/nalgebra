@@ -352,7 +352,7 @@ using the method `.to_homogeneous()`. This will return a `Matrix2` or a
 let iso = Isometry3::new(na::zero(), Vector3::new(1.0f32, 0.0, 1.0));
 
 // Compute the homogeneous coordinates first.
-let iso_matrix  = iso.to_homegeneous();
+let iso_matrix  = iso.to_homogeneous();
 let iso_array   = iso_matrix.as_slice();
 let iso_pointer = iso_array.as_ptr();
 
