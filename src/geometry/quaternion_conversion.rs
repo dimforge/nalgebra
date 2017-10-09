@@ -3,10 +3,11 @@ use num::Zero;
 use alga::general::{SubsetOf, SupersetOf, Real};
 use alga::linear::Rotation as AlgaRotation;
 
+#[cfg(feature = "mint")]
+use mint;
+
 use core::{Vector4, Matrix4};
 use core::dimension::U3;
-#[cfg(feature = "mint")]
-use core::storage::Storage;
 use geometry::{Quaternion, UnitQuaternion, Rotation, Isometry, Similarity,
                Transform, SuperTCategoryOf, TAffine, Translation,
                Rotation3, Point3};
@@ -173,19 +174,14 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaterni
 }
 
 #[cfg(feature = "mint")]
-impl<N, S> From<mint::Quaternion<N>> for QuaternionBase<N, S>
-where
-    N: Real,
-    S: OwnedStorage<N, U4, U1>,
-    S::Alloc: OwnedAllocator<N, U4, U1, S> {
-
+impl<N: Real> From<mint::Quaternion<N>> for Quaternion<N> {
     fn from(q: mint::Quaternion<N>) -> Self {
-        QuaternionBase::new(q.s, q.v.x, q.v.y, q.v.z)
+        Quaternion::new(q.s, q.v.x, q.v.y, q.v.z)
     }
 }
 
 #[cfg(feature = "mint")]
-impl<N: Real, S: Storage<N, U4, U1>> Into<mint::Quaternion<N>> for QuaternionBase<N, S> {
+impl<N: Real> Into<mint::Quaternion<N>> for Quaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
@@ -199,7 +195,7 @@ impl<N: Real, S: Storage<N, U4, U1>> Into<mint::Quaternion<N>> for QuaternionBas
 }
 
 #[cfg(feature = "mint")]
-impl<N: Real, S: Storage<N, U4, U1>> Into<mint::Quaternion<N>> for UnitQuaternionBase<N, S> {
+impl<N: Real> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
