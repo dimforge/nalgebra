@@ -222,10 +222,9 @@ impl_from_into_asref_2D!(
 #[cfg(feature = "mint")]
 macro_rules! impl_from_into_mint_1D(
     ($($NRows: ident => $VT:ident [$SZ: expr]);* $(;)*) => {$(
-        impl<N, S> From<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
+        impl<N> From<mint::$VT<N>> for MatrixMN<N, $NRows, U1>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, U1>,
-              S::Alloc: OwnedAllocator<N, $NRows, U1, S> {
+              DefaultAllocator: Allocator<N, $NRows, U1> {
             #[inline]
             fn from(v: mint::$VT<N>) -> Self {
                 unsafe {
@@ -239,8 +238,7 @@ macro_rules! impl_from_into_mint_1D(
 
         impl<N, S> Into<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, U1>,
-              S::Alloc: OwnedAllocator<N, $NRows, U1, S> {
+              S: ContiguousStorage<N, $NRows, U1> {
             #[inline]
             fn into(self) -> mint::$VT<N> {
                 unsafe {
@@ -254,8 +252,7 @@ macro_rules! impl_from_into_mint_1D(
 
         impl<N, S> AsRef<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, U1>,
-              S::Alloc: OwnedAllocator<N, $NRows, U1, S> {
+              S: ContiguousStorage<N, $NRows, U1> {
             #[inline]
             fn as_ref(&self) -> &mint::$VT<N> {
                 unsafe {
@@ -266,8 +263,7 @@ macro_rules! impl_from_into_mint_1D(
 
         impl<N, S> AsMut<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, U1>,
-              S::Alloc: OwnedAllocator<N, $NRows, U1, S> {
+              S: ContiguousStorageMut<N, $NRows, U1> {
             #[inline]
             fn as_mut(&mut self) -> &mut mint::$VT<N> {
                 unsafe {
@@ -289,10 +285,9 @@ impl_from_into_mint_1D!(
 #[cfg(feature = "mint")]
 macro_rules! impl_from_into_mint_2D(
     ($(($NRows: ty, $NCols: ty) => $MV:ident{ $($component:ident),* }[$SZRows: expr]);* $(;)*) => {$(
-        impl<N, S> From<mint::$MV<N>> for Matrix<N, $NRows, $NCols, S>
+        impl<N> From<mint::$MV<N>> for MatrixMN<N, $NRows, $NCols>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+              DefaultAllocator: Allocator<N, $NRows, $NCols> {
             #[inline]
             fn from(m: mint::$MV<N>) -> Self {
                 unsafe {
@@ -308,10 +303,9 @@ macro_rules! impl_from_into_mint_2D(
             }
         }
 
-        impl<N, S> Into<mint::$MV<N>> for Matrix<N, $NRows, $NCols, S>
+        impl<N> Into<mint::$MV<N>> for MatrixMN<N, $NRows, $NCols>
         where N: Scalar,
-              S: OwnedStorage<N, $NRows, $NCols>,
-              S::Alloc: OwnedAllocator<N, $NRows, $NCols, S> {
+              DefaultAllocator: Allocator<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> mint::$MV<N> {
                 unsafe {

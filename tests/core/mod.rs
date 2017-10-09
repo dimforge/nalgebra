@@ -7,4 +7,4 @@ mod serde;
 #[cfg(feature = "abomonation-serialize")]
 mod abomonation;
 #[cfg(feature = "mint")]
-extern crate mint;
+mod mint;
