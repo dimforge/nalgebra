@@ -4,6 +4,12 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.14.0] − WIP
+### Added
+  * The `mint` feature that can be enabled in order to allow conversions from
+    and to types of the [mint](https://crates.io/crates/mint) crate.
+
+
 
 ## [0.13.0]
 
