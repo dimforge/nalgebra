@@ -88,6 +88,7 @@ The list of constributors can be found [there](https://github.com/sebcrozet/nalg
 * Olivier Saut
 * Sanghyeon Seo
 * Wesley Wiser
+* Zane
 
 
 If your name should be on this list but isn't because your constribution is not
