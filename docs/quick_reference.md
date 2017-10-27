@@ -126,7 +126,7 @@ compile-time of the matrix being created.
 `.copy_from(matrix)`          <span style="float:right;">Copies the content of another matrix with the same shape.</span><br/>
 `.fill(value)`                <span style="float:right;">Sets all components to `value`.</span><br/>
 `.fill_diagonal(value)`       <span style="float:right;">Fills the matrix diagonal with a single value.</span><br/>
-`.fill_lower_triangle(value)` <span style="float:right;">Fills some sub-diagonals bellow the main diagonal with a value.</span><br/>
+`.fill_lower_triangle(value)` <span style="float:right;">Fills some sub-diagonals below the main diagonal with a value.</span><br/>
 `.fill_upper_triangle(value)` <span style="float:right;">Fills some sub-diagonals above the main diagonal with a value.</span><br/>
 `.map(f)`                     <span style="float:right;">Applies `f` to each component and stores the results on a new matrix.</span><br/>
 `.apply(f)`                   <span style="float:right;">Applies in-place `f` to each component of the matrix.</span><br/>
