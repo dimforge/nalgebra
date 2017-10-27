@@ -131,7 +131,7 @@ Method                   | Effect
 ## Hessenberg decomposition
 The hessenberg decomposition of a square matrix $M$ is composed of an orthogonal
 matrix $Q$ and an upper-Hessenberg matrix $H$ such that $M = QHQ^*$. The matrix
-$H$ being upper-Hessenberg means that all components bellow its first
+$H$ being upper-Hessenberg means that all components below its first
 subdiagonal are zero. See also [the wikipedia
 article](https://en.wikipedia.org/wiki/Hessenberg_matrix) for further details.
 
@@ -212,7 +212,7 @@ that `v_t` represents the transpose of the matrix $V$.
 Method                 | Effect
 -----------------------|-----------
 `.recompose()`         | Reconstructs the matrix from its decomposition. Useful if some singular values or singular vectors have been manually modified.
-`.pseudo_inverse(eps)` | Computes the pseudo-inverse of the decomposed matrix. All singular values bellow `eps` will be interpreted as equal to zero.
+`.pseudo_inverse(eps)` | Computes the pseudo-inverse of the decomposed matrix. All singular values below `eps` will be interpreted as equal to zero.
 `.rank(eps)`           | Computes the rank of the decomposed matrix, i.e., the number of singular values strictly greater than `eps`.
 `.solve(b, eps)`       | Solves the linear system $Ax = b$ where $A$ is the decomposed square matrix and $x$ the unkonwn. All singular value smaller or equal to `eps` are interpreted as zero.
 

@@ -109,7 +109,7 @@ let m = Matrix3x4::new(11, 12, 13, 14,
 ```
 
 Depending on the values of the `R` and `C` type parameters for the matrix
-shape, the matrix construction methods listed bellow may have different
+shape, the matrix construction methods listed below may have different
 signatures. In particular, each constructor takes one `usize` parameter for
 each matrix dimension that is set to `Dynamic`. Specifically:
 
