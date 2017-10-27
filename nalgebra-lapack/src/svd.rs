@@ -163,7 +163,7 @@ macro_rules! svd_impl(
 
             /// Computes the pseudo-inverse of the decomposed matrix.
             ///
-            /// All singular value bellow epsilon will be set to zero instead of being inverted.
+            /// All singular value below epsilon will be set to zero instead of being inverted.
             #[inline]
             pub fn pseudo_inverse(&self, epsilon: $t) -> MatrixMN<$t, C, R> {
                 let nrows           = self.u.data.shape().0;
