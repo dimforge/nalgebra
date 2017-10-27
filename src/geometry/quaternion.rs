@@ -410,7 +410,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// * `self`: the first quaternion to interpolate from.
     /// * `other`: the second quaternion to interpolate toward.
     /// * `t`: the interpolation parameter. Should be between 0 and 1.
-    /// * `epsilon`: the value bellow which the sinus of the angle separating both quaternion
+    /// * `epsilon`: the value below which the sinus of the angle separating both quaternion
     /// must be to return `None`.
     #[inline]
     pub fn try_slerp(&self, other: &UnitQuaternion<N>, t: N, epsilon: N) -> Option<UnitQuaternion<N>> {

@@ -253,9 +253,9 @@ impl<N: Real, R: DimMin<C>, C: Dim> SVD<N, R, C>
         let denom = (m11 + m22).hypot(m12) + (m11 - m22).hypot(m12);
 
         // NOTE: v1 is the singular value that is the closest to m22.
-        // This prevents cancellation issues when constructing the vector `csv` bellow. If we chose
-        // otherwise, we would have v1 ~= m11 when m12 is small. This would cause catastrofic
-        // cancellation on `v1 * v1 - m11 * m11` bellow.
+        // This prevents cancellation issues when constructing the vector `csv` below. If we chose
+        // otherwise, we would have v1 ~= m11 when m12 is small. This would cause catastrophic
+        // cancellation on `v1 * v1 - m11 * m11` below.
         let v1 = two * m11 * m22 / denom;
         let v2 = half * denom;
 
@@ -543,7 +543,7 @@ impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 
     /// Computes the rank of this matrix.
     ///
-    /// All singular values bellow `eps` are considered equal to 0.
+    /// All singular values below `eps` are considered equal to 0.
     pub fn rank(&self, eps: N) -> usize {
         let svd = SVD::new(self.clone_owned(), false, false);
         svd.rank(eps)
@@ -551,7 +551,7 @@ impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 
     /// Computes the pseudo-inverse of this matrix.
     ///
-    /// All singular values bellow `eps` are considered equal to 0.
+    /// All singular values below `eps` are considered equal to 0.
     pub fn pseudo_inverse(self, eps: N) -> MatrixMN<N, C, R>
         where DefaultAllocator: Allocator<N, C, R> {
 

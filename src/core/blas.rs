@@ -70,7 +70,7 @@ impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 
 
         // So we do some special cases for common fixed-size vectors of dimension lower than 8
-        // because the `for` loop bellow won't be very efficient on those.
+        // because the `for` loop below won't be very efficient on those.
         if (R::is::<U2>() || R2::is::<U2>()) &&
            (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
