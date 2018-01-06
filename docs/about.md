@@ -78,15 +78,20 @@ The list of constributors can be found [there](https://github.com/sebcrozet/nalg
 
 * 8zu
 * Anselm Eickhoff
+* Alexander Atman
 * Camille Viot
 * Jac
+* Jan Nockemann
 * Jeb Brooks
 * J. Ryan Stinnett
 * Kasper Møller Andersen
 * Kyle Gretchev
+* Kjetil Kjeka
 * Mark Stacey
 * Olivier Saut
+* Rick Richardson
 * Sanghyeon Seo
+* Trym Nilsen
 * Wesley Wiser
 * Zane
 
