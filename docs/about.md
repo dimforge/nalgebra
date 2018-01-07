@@ -81,8 +81,11 @@ The list of constributors can be found [there](https://github.com/sebcrozet/nalg
 * Alexander Atman
 * Camille Viot
 * Jac
+* Jack Wrenn
 * Jan Nockemann
+* Jason Knight
 * Jeb Brooks
+* Jeff Parsons
 * J. Ryan Stinnett
 * Kasper Møller Andersen
 * Kyle Gretchev
@@ -92,6 +95,7 @@ The list of constributors can be found [there](https://github.com/sebcrozet/nalg
 * Rick Richardson
 * Sanghyeon Seo
 * Trym Nilsen
+* Ty Overby
 * Wesley Wiser
 * Zane
 
