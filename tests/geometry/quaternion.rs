@@ -26,6 +26,12 @@ quickcheck!(
         relative_eq!(yaw * pitch * roll, rpy, epsilon = 1.0e-7)
     }
 
+    fn to_euler_angles(r: f64, p: f64, y: f64) -> bool {
+        let rpy = UnitQuaternion::from_euler_angles(r, p, y);
+        let (roll, pitch, yaw) = rpy.to_euler_angles();
+        relative_eq!(UnitQuaternion::from_euler_angles(roll, pitch, yaw), rpy, epsilon = 1.0e-7)
+    }
+
 
     /*
      *

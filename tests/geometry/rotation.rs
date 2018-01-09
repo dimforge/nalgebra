@@ -37,6 +37,21 @@ quickcheck!(
         yaw * pitch * roll == rpy
     }
 
+    fn to_euler_angles(r: f64, p: f64, y: f64) -> bool {
+        let rpy = Rotation3::from_euler_angles(r, p, y);
+        let (roll, pitch, yaw) = rpy.to_euler_angles();
+        relative_eq!(Rotation3::from_euler_angles(roll, pitch, yaw), rpy, epsilon = 1.0e-7)
+    }
+
+    fn to_euler_angles_gimble_lock(r: f64, y: f64) -> bool {
+        let pos = Rotation3::from_euler_angles(r,  f64::frac_pi_2(), y);
+        let neg = Rotation3::from_euler_angles(r, -f64::frac_pi_2(), y);
+        let (pos_r, pos_p, pos_y) = pos.to_euler_angles();
+        let (neg_r, neg_p, neg_y) = neg.to_euler_angles();
+        relative_eq!(Rotation3::from_euler_angles(pos_r, pos_p, pos_y), pos, epsilon = 1.0e-7) &&
+        relative_eq!(Rotation3::from_euler_angles(neg_r, neg_p, neg_y), neg, epsilon = 1.0e-7)
+    }
+
     /*
      *
      * Inversion is transposition.

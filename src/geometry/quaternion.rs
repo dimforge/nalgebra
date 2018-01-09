@@ -541,6 +541,14 @@ impl<N: Real> UnitQuaternion<N> {
         )
     }
 
+    /// Converts this unit quaternion into its equivalent Euler angles.
+    ///
+    /// The angles are produced in the form (roll, yaw, pitch).
+    #[inline]
+    pub fn to_euler_angles(&self) -> (N, N, N) {
+        self.to_rotation_matrix().to_euler_angles()
+    }
+
     /// Converts this unit quaternion into its equivalent homogeneous transformation matrix.
     #[inline]
     pub fn to_homogeneous(&self) -> MatrixN<N, U4> {
