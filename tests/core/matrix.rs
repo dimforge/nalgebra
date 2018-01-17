@@ -8,8 +8,8 @@ use na::{self,
          DVector, DMatrix,
          Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
          RowVector3, RowVector4, RowVector5,
-         Matrix1, Matrix2, Matrix3, Matrix4, Matrix5, Matrix6,
-         Matrix2x3, Matrix3x2, Matrix3x4, Matrix4x3, Matrix2x4, Matrix4x5, Matrix4x6,
+         Matrix2, Matrix3, Matrix4, Matrix5, Matrix6,
+         Matrix2x3, Matrix3x2, Matrix3x4, Matrix4x3, Matrix2x4, Matrix4x5,
          MatrixMN};
 use na::dimension::{U8, U15};
 
@@ -672,132 +672,136 @@ fn set_row_column() {
 }
 
 #[cfg(feature = "arbitrary")]
-quickcheck! {
-    /*
-     *
-     * Transposition.
-     *
-     */
-    fn transpose_transpose_is_self(m: Matrix2x3<f64>) -> bool {
-        m.transpose().transpose() == m
-    }
+mod transposition_tests {
+    use super::*;
+    use na::Matrix4x6;
 
-    fn transpose_mut_transpose_mut_is_self(m: Matrix3<f64>) -> bool {
-        let mut mm = m;
-        mm.transpose_mut();
-        mm.transpose_mut();
-        m == mm
-    }
-
-    fn transpose_transpose_is_id_dyn(m: DMatrix<f64>) -> bool {
-        m.transpose().transpose() == m
-    }
-
-    fn check_transpose_components_dyn(m: DMatrix<f64>) -> bool {
-        let tr = m.transpose();
-        let (nrows, ncols) = m.shape();
-
-        if nrows != tr.shape().1 || ncols != tr.shape().0 {
-            return false
+    quickcheck! {
+        fn transpose_transpose_is_self(m: Matrix2x3<f64>) -> bool {
+            m.transpose().transpose() == m
         }
 
-        for i in 0 .. nrows {
-            for j in 0 .. ncols {
-                if m[(i, j)] != tr[(j, i)] {
-                    return false
+        fn transpose_mut_transpose_mut_is_self(m: Matrix3<f64>) -> bool {
+            let mut mm = m;
+            mm.transpose_mut();
+            mm.transpose_mut();
+            m == mm
+        }
+
+        fn transpose_transpose_is_id_dyn(m: DMatrix<f64>) -> bool {
+            m.transpose().transpose() == m
+        }
+
+        fn check_transpose_components_dyn(m: DMatrix<f64>) -> bool {
+            let tr = m.transpose();
+            let (nrows, ncols) = m.shape();
+
+            if nrows != tr.shape().1 || ncols != tr.shape().0 {
+                return false
+            }
+
+            for i in 0 .. nrows {
+                for j in 0 .. ncols {
+                    if m[(i, j)] != tr[(j, i)] {
+                        return false
+                    }
                 }
+            }
+
+            true
+        }
+
+        fn tr_mul_is_transpose_then_mul(m: Matrix4x6<f64>, v: Vector4<f64>) -> bool {
+            relative_eq!(m.transpose() * v, m.tr_mul(&v), epsilon = 1.0e-7)
+        }
+    }
+}
+
+#[cfg(feature = "arbitrary")]
+mod inversion_tests {
+    use super::*;
+    use na::Matrix1;
+
+    quickcheck! {
+        fn self_mul_inv_is_id_dim1(m: Matrix1<f64>) -> bool {
+            if let Some(im) = m.try_inverse() {
+                let id = Matrix1::one();
+                relative_eq!(im * m, id, epsilon = 1.0e-7) &&
+                relative_eq!(m * im, id, epsilon = 1.0e-7)
+            }
+            else {
+                true
             }
         }
 
-        true
-    }
+        fn self_mul_inv_is_id_dim2(m: Matrix2<f64>) -> bool {
+            if let Some(im) = m.try_inverse() {
+                let id = Matrix2::one();
+                relative_eq!(im * m, id, epsilon = 1.0e-7) &&
+                relative_eq!(m * im, id, epsilon = 1.0e-7)
+            }
+            else {
+                true
+            }
+        }
 
-    fn tr_mul_is_transpose_then_mul(m: Matrix4x6<f64>, v: Vector4<f64>) -> bool {
-        relative_eq!(m.transpose() * v, m.tr_mul(&v), epsilon = 1.0e-7)
-    }
+        fn self_mul_inv_is_id_dim3(m: Matrix3<f64>) -> bool {
+            if let Some(im) = m.try_inverse() {
+                let id = Matrix3::one();
+                relative_eq!(im * m, id, epsilon = 1.0e-7) &&
+                relative_eq!(m * im, id, epsilon = 1.0e-7)
+            }
+            else {
+                true
+            }
+        }
 
-    /*
-     *
-     *
-     * Inversion.
-     *
-     *
-     */
-    fn self_mul_inv_is_id_dim1(m: Matrix1<f64>) -> bool {
-        if let Some(im) = m.try_inverse() {
-            let id = Matrix1::one();
-            relative_eq!(im * m, id, epsilon = 1.0e-7) &&
-            relative_eq!(m * im, id, epsilon = 1.0e-7)
+        fn self_mul_inv_is_id_dim4(m: Matrix4<f64>) -> bool {
+            if let Some(im) = m.try_inverse() {
+                let id = Matrix4::one();
+                relative_eq!(im * m, id, epsilon = 1.0e-7) &&
+                relative_eq!(m * im, id, epsilon = 1.0e-7)
+            }
+            else {
+                true
+            }
         }
-        else {
-            true
-        }
-    }
 
-    fn self_mul_inv_is_id_dim2(m: Matrix2<f64>) -> bool {
-        if let Some(im) = m.try_inverse() {
-            let id = Matrix2::one();
-            relative_eq!(im * m, id, epsilon = 1.0e-7) &&
-            relative_eq!(m * im, id, epsilon = 1.0e-7)
-        }
-        else {
-            true
-        }
-    }
-
-    fn self_mul_inv_is_id_dim3(m: Matrix3<f64>) -> bool {
-        if let Some(im) = m.try_inverse() {
-            let id = Matrix3::one();
-            relative_eq!(im * m, id, epsilon = 1.0e-7) &&
-            relative_eq!(m * im, id, epsilon = 1.0e-7)
-        }
-        else {
-            true
+        fn self_mul_inv_is_id_dim6(m: Matrix6<f64>) -> bool {
+            if let Some(im) = m.try_inverse() {
+                let id = Matrix6::one();
+                relative_eq!(im * m, id, epsilon = 1.0e-7) &&
+                relative_eq!(m * im, id, epsilon = 1.0e-7)
+            }
+            else {
+                true
+            }
         }
     }
+}
 
-    fn self_mul_inv_is_id_dim4(m: Matrix4<f64>) -> bool {
-        if let Some(im) = m.try_inverse() {
-            let id = Matrix4::one();
-            relative_eq!(im * m, id, epsilon = 1.0e-7) &&
-            relative_eq!(m * im, id, epsilon = 1.0e-7)
-        }
-        else {
-            true
-        }
-    }
 
-    fn self_mul_inv_is_id_dim6(m: Matrix6<f64>) -> bool {
-        if let Some(im) = m.try_inverse() {
-            let id = Matrix6::one();
-            relative_eq!(im * m, id, epsilon = 1.0e-7) &&
-            relative_eq!(m * im, id, epsilon = 1.0e-7)
-        }
-        else {
-            true
-        }
-    }
+#[cfg(feature = "arbitrary")]
+mod normalization_tests {
+    use super::*;
 
-    /*
-     *
-     * Normalization.
-     *
-     */
-    fn normalized_vec_norm_is_one(v: Vector3<f64>) -> bool {
-        if let Some(nv) = v.try_normalize(1.0e-10) {
-            relative_eq!(nv.norm(), 1.0, epsilon = 1.0e-7)
+    quickcheck! {
+        fn normalized_vec_norm_is_one(v: Vector3<f64>) -> bool {
+            if let Some(nv) = v.try_normalize(1.0e-10) {
+                relative_eq!(nv.norm(), 1.0, epsilon = 1.0e-7)
+            }
+            else {
+                true
+            }
         }
-        else {
-            true
-        }
-    }
 
-    fn normalized_vec_norm_is_one_dyn(v: DVector<f64>) -> bool {
-        if let Some(nv) = v.try_normalize(1.0e-10) {
-            relative_eq!(nv.norm(), 1.0, epsilon = 1.0e-7)
-        }
-        else {
-            true
+        fn normalized_vec_norm_is_one_dyn(v: DVector<f64>) -> bool {
+            if let Some(nv) = v.try_normalize(1.0e-10) {
+                relative_eq!(nv.norm(), 1.0, epsilon = 1.0e-7)
+            }
+            else {
+                true
+            }
         }
     }
 }
