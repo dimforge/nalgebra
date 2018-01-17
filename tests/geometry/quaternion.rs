@@ -1,3 +1,4 @@
+#![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
 use na::{Unit, UnitQuaternion, Quaternion, Vector3, Point3, Rotation3};

@@ -1,3 +1,4 @@
+#![cfg(feature = "arbitrary")]
 use num::Zero;
 use na::{Point3, Vector3, Vector4};
 

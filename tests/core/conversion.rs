@@ -1,3 +1,4 @@
+#![cfg(feature = "arbitrary")]
 use alga::linear::Transformation;
 use na::{
     self,
@@ -13,7 +14,6 @@ use na::{
     Projective3, Transform3, Rotation3, UnitQuaternion};
 
 
-#[cfg(feature = "arbitrary")]
 quickcheck!{
     fn translation_conversion(t: Translation3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
         let iso: Isometry3<f64>   = na::convert(t);

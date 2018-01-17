@@ -18,6 +18,7 @@ fn angle_3() {
     assert_eq!(a.angle(&b), 0.0);
 }
 
+#[cfg(feature = "arbitrary")]
 quickcheck!(
     /*
      *

@@ -1,3 +1,4 @@
+#![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
 use alga::linear::{Transformation, ProjectiveTransformation};
