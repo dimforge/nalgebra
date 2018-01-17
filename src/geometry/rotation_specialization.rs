@@ -177,6 +177,24 @@ impl<N: Real> Rotation3<N> {
             )
     }
 
+    /// Creates Euler angles from a rotation.
+    ///
+    /// The angles are produced in the form (roll, yaw, pitch).
+    pub fn to_euler_angles(&self) -> (N, N, N) {
+        // Implementation informed by "Computing Euler angles from a rotation matrix", by Gregory G. Slabaugh
+        //  http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.371.6578
+        if self[(2,0)].abs() != N::one() {
+            let yaw   = -self[(2,0)].asin();
+            let roll  = (self[(2,1)] / yaw.cos()).atan2(self[(2,2)] / yaw.cos());
+            let pitch = (self[(1,0)] / yaw.cos()).atan2(self[(0,0)] / yaw.cos());
+            (roll, yaw, pitch)
+        } else if self[(2,0)] == -N::one() {
+            (self[(0,1)].atan2(self[(0,2)]), N::frac_pi_2(), N::zero())
+        } else {
+            (-self[(0,1)].atan2(-self[(0,2)]), -N::frac_pi_2(), N::zero())
+        }
+    }
+
     /// Creates a rotation that corresponds to the local frame of an observer standing at the
     /// origin and looking toward `dir`.
     ///
