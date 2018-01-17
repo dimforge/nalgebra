@@ -1,8 +1,9 @@
+#![cfg(feature = "arbitrary")]
+
 use std::cmp;
 use na::{DMatrix, Matrix4, Matrix4x3, Matrix5x3, Matrix3x5,
          DVector, Vector4};
 
-#[cfg(feature = "arbitrary")]
 quickcheck! {
     fn qr(m: DMatrix<f64>) -> bool {
         let qr = m.clone().qr();

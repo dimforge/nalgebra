@@ -1,5 +1,4 @@
-use std::cmp;
-use na::{DMatrix, Matrix2, Matrix3, Matrix4};
+use na::{DMatrix, Matrix3, Matrix4};
 
 
 #[test]
@@ -15,49 +14,54 @@ fn schur_simpl_mat3() {
 }
 
 #[cfg(feature = "arbitrary")]
-quickcheck! {
-    fn schur(n: usize) -> bool {
-        let n = cmp::max(1, cmp::min(n, 10));
-        let m = DMatrix::<f64>::new_random(n, n);
+mod quickcheck_tests {
+    use std::cmp;
+    use na::{DMatrix, Matrix2, Matrix3, Matrix4};
 
-        let (vecs, vals) = m.clone().real_schur().unpack();
+    quickcheck! {
+        fn schur(n: usize) -> bool {
+            let n = cmp::max(1, cmp::min(n, 10));
+            let m = DMatrix::<f64>::new_random(n, n);
 
-        if !relative_eq!(&vecs * &vals * vecs.transpose(), m, epsilon = 1.0e-7) {
-            println!("{:.5}{:.5}", m, &vecs * &vals * vecs.transpose());
+            let (vecs, vals) = m.clone().real_schur().unpack();
+
+            if !relative_eq!(&vecs * &vals * vecs.transpose(), m, epsilon = 1.0e-7) {
+                println!("{:.5}{:.5}", m, &vecs * &vals * vecs.transpose());
+            }
+
+            relative_eq!(&vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7)
         }
 
-        relative_eq!(&vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7)
-    }
+        fn schur_static_mat2(m: Matrix2<f64>) -> bool {
+            let (vecs, vals) = m.clone().real_schur().unpack();
 
-    fn schur_static_mat2(m: Matrix2<f64>) -> bool {
-        let (vecs, vals) = m.clone().real_schur().unpack();
-
-        let ok = relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7);
-        if !ok {
-            println!("{:.5}{:.5}", vecs, vals);
-            println!("Reconstruction:{}{}", m, &vecs * &vals * vecs.transpose());
+            let ok = relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7);
+            if !ok {
+                println!("{:.5}{:.5}", vecs, vals);
+                println!("Reconstruction:{}{}", m, &vecs * &vals * vecs.transpose());
+            }
+            ok
         }
-        ok
-    }
 
-    fn schur_static_mat3(m: Matrix3<f64>) -> bool {
-        let (vecs, vals) = m.clone().real_schur().unpack();
+        fn schur_static_mat3(m: Matrix3<f64>) -> bool {
+            let (vecs, vals) = m.clone().real_schur().unpack();
 
-        let ok = relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7);
-        if !ok {
-            println!("{:.5}{:.5}", m, &vecs * &vals * vecs.transpose());
+            let ok = relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7);
+            if !ok {
+                println!("{:.5}{:.5}", m, &vecs * &vals * vecs.transpose());
+            }
+            ok
         }
-        ok
-    }
 
-    fn schur_static_mat4(m: Matrix4<f64>) -> bool {
-        let (vecs, vals) = m.clone().real_schur().unpack();
+        fn schur_static_mat4(m: Matrix4<f64>) -> bool {
+            let (vecs, vals) = m.clone().real_schur().unpack();
 
-        let ok = relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7);
-        if !ok {
-            println!("{:.5}{:.5}", m, &vecs * &vals * vecs.transpose());
+            let ok = relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7);
+            if !ok {
+                println!("{:.5}{:.5}", m, &vecs * &vals * vecs.transpose());
+            }
+            ok
         }
-        ok
     }
 }
 

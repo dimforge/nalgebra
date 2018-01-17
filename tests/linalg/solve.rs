@@ -1,3 +1,5 @@
+#![cfg(feature = "arbitrary")]
+
 use na::{Matrix4, Matrix4x5};
 
 fn unzero_diagonal(a: &mut Matrix4<f64>) {
@@ -8,7 +10,6 @@ fn unzero_diagonal(a: &mut Matrix4<f64>) {
     }
 }
 
-#[cfg(feature = "arbitrary")]
 quickcheck! {
     fn solve_lower_triangular(a: Matrix4<f64>, b: Matrix4x5<f64>) -> bool {
         let mut a = a;

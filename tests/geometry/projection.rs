@@ -1,4 +1,4 @@
-use na::{Point3, Perspective3, Orthographic3};
+use na::{Perspective3, Orthographic3};
 
 #[test]
 fn perspective_inverse() {
@@ -22,22 +22,26 @@ fn orthographic_inverse() {
 
 
 #[cfg(feature = "arbitrary")]
-quickcheck!{
-    fn perspective_project_unproject(pt: Point3<f64>) -> bool {
-        let proj = Perspective3::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
+mod quickcheck_tests {
+    use na::{Point3, Perspective3, Orthographic3};
 
-        let projected   = proj.project_point(&pt);
-        let unprojected = proj.unproject_point(&projected);
+    quickcheck!{
+        fn perspective_project_unproject(pt: Point3<f64>) -> bool {
+            let proj = Perspective3::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
 
-        relative_eq!(pt, unprojected, epsilon = 1.0e-7)
-    }
+            let projected   = proj.project_point(&pt);
+            let unprojected = proj.unproject_point(&projected);
 
-    fn orthographic_project_unproject(pt: Point3<f64>) -> bool {
-        let proj = Orthographic3::new(1.0, 2.0, -3.0, -2.5, 10.0, 900.0);
+            relative_eq!(pt, unprojected, epsilon = 1.0e-7)
+        }
 
-        let projected   = proj.project_point(&pt);
-        let unprojected = proj.unproject_point(&projected);
+        fn orthographic_project_unproject(pt: Point3<f64>) -> bool {
+            let proj = Orthographic3::new(1.0, 2.0, -3.0, -2.5, 10.0, 900.0);
 
-        relative_eq!(pt, unprojected, epsilon = 1.0e-7)
+            let projected   = proj.project_point(&pt);
+            let unprojected = proj.unproject_point(&projected);
+
+            relative_eq!(pt, unprojected, epsilon = 1.0e-7)
+        }
     }
 }

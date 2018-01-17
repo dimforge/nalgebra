@@ -1,6 +1,7 @@
+#![cfg(feature = "arbitrary")]
+
 use std::cmp;
 use na::{DMatrix, Matrix2, Matrix4};
-
 
 #[test]
 fn hessenberg_simple() {
@@ -11,8 +12,6 @@ fn hessenberg_simple() {
     assert!(relative_eq!(m, p * h * p.transpose(), epsilon = 1.0e-7))
 }
 
-
-#[cfg(feature = "arbitrary")]
 quickcheck! {
     fn hessenberg(n: usize) -> bool {
         let n = cmp::max(1, cmp::min(n, 50));

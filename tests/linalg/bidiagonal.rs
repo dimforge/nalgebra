@@ -1,7 +1,7 @@
+#![cfg(feature = "arbitrary")]
+
 use na::{DMatrix, Matrix2, Matrix4, Matrix5x3, Matrix3x5};
 
-
-#[cfg(feature = "arbitrary")]
 quickcheck! {
     fn bidiagonal(m: DMatrix<f64>) -> bool {
         if m.len() == 0  {

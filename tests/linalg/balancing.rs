@@ -1,9 +1,10 @@
+#![cfg(feature = "arbitrary")]
+
 use std::cmp;
 
 use na::{DMatrix, Matrix4};
 use na::balancing;
 
-#[cfg(feature = "arbitrary")]
 quickcheck! {
     fn balancing_parlett_reinsch(n: usize) -> bool {
         let n = cmp::min(n, 10);
