@@ -68,13 +68,21 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 /// dynamically-sized column vector should be represented as a `Matrix<N, Dynamic, U1, S>` (given
 /// some concrete types for `N` and a compatible data storage type `S`).
 #[repr(C)]
-#[derive(Hash, Debug, Clone, Copy)]
+#[derive(Hash, Clone, Copy)]
 pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
     /// The data storage that contains all the matrix components and informations about its number
     /// of rows and column (if needed).
     pub data: S,
 
     _phantoms: PhantomData<(N, R, C)>
+}
+
+impl<N: Scalar, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<N, R, C, S> {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        formatter.debug_struct("Matrix")
+            .field("data", &self.data)
+            .finish()
+    }
 }
 
 #[cfg(feature = "serde-serialize")]
