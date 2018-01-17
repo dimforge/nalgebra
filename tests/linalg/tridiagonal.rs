@@ -1,9 +1,9 @@
+#![cfg(feature = "arbitrary")]
+
 use std::cmp;
 
 use na::{DMatrix, Matrix2, Matrix4};
 
-
-#[cfg(feature = "arbitrary")]
 quickcheck! {
     fn symm_tridiagonal(n: usize) -> bool {
         let n = cmp::max(1, cmp::min(n, 50));

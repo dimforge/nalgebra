@@ -1,9 +1,8 @@
+#![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
 use na::{Unit, UnitComplex, Vector2, Point2, Rotation2};
 
-
-#[cfg(feature = "arbitrary")]
 quickcheck!(
 
     /*

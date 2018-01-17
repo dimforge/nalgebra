@@ -1,8 +1,5 @@
 use num::{Zero, One};
 use num::Float;
-use std::fmt::Display;
-
-use alga::linear::FiniteDimInnerSpace;
 
 use na::{self,
          DVector, DMatrix,
@@ -806,93 +803,100 @@ mod normalization_tests {
     }
 }
 
+#[cfg(feature = "arbitrary")]
 // FIXME: move this to alga ?
-macro_rules! finite_dim_inner_space_test(
-    ($($Vector: ident, $orthonormal_subspace: ident, $orthonormalization: ident);* $(;)*) => {$(
-        #[cfg(feature = "arbitrary")]
-        quickcheck!{
-            fn $orthonormal_subspace(vs: Vec<$Vector<f64>>) -> bool {
-                let mut given_basis = vs.clone();
-                let given_basis_dim = $Vector::orthonormalize(&mut given_basis[..]);
-                let mut ortho_basis = Vec::new();
-                $Vector::orthonormal_subspace_basis(
-                    &given_basis[.. given_basis_dim],
-                    |e| { ortho_basis.push(*e); true }
-                );
+mod finite_dim_inner_space_tests {
+    use super::*;
+    use std::fmt::Display;
+    use alga::linear::FiniteDimInnerSpace;
 
-                if !is_subspace_basis(&ortho_basis[..]) {
-                    return false;
+    macro_rules! finite_dim_inner_space_test(
+        ($($Vector: ident, $orthonormal_subspace: ident, $orthonormalization: ident);* $(;)*) => {$(
+            quickcheck!{
+                fn $orthonormal_subspace(vs: Vec<$Vector<f64>>) -> bool {
+                    let mut given_basis = vs.clone();
+                    let given_basis_dim = $Vector::orthonormalize(&mut given_basis[..]);
+                    let mut ortho_basis = Vec::new();
+                    $Vector::orthonormal_subspace_basis(
+                        &given_basis[.. given_basis_dim],
+                        |e| { ortho_basis.push(*e); true }
+                    );
+
+                    if !is_subspace_basis(&ortho_basis[..]) {
+                        return false;
+                    }
+
+                    for v in vs {
+                        for b in &ortho_basis {
+                            if !relative_eq!(v.dot(b), 0.0, epsilon = 1.0e-7) {
+                                println!("Found dot product: {} · {} = {}", v, b, v.dot(b));
+                                return false;
+                            }
+                        }
+                    }
+
+                    true
                 }
 
-                for v in vs {
-                    for b in &ortho_basis {
-                        if !relative_eq!(v.dot(b), 0.0, epsilon = 1.0e-7) {
-                            println!("Found dot product: {} · {} = {}", v, b, v.dot(b));
+                fn $orthonormalization(vs: Vec<$Vector<f64>>) -> bool {
+                    let mut basis = vs.clone();
+                    let subdim = $Vector::orthonormalize(&mut basis[..]);
+
+                    if !is_subspace_basis(&basis[.. subdim]) {
+                        return false;
+                    }
+
+                    for mut e in vs {
+                        for b in &basis[.. subdim] {
+                            e -= e.dot(b) * b
+                        }
+
+                        // Any element of `e` must be a linear combination of the basis elements.
+                        if !relative_eq!(e.norm(), 0.0, epsilon = 1.0e-7) {
+                            println!("Orthonormalization; element decomposition failure: {}", e);
+                            println!("... the non-zero norm is: {}", e.norm());
                             return false;
                         }
                     }
-                }
 
-                true
+                    true
+                }
+            }
+        )*}
+    );
+
+    finite_dim_inner_space_test!(
+        Vector1, orthonormal_subspace_basis1, orthonormalize1;
+        Vector2, orthonormal_subspace_basis2, orthonormalize2;
+        Vector3, orthonormal_subspace_basis3, orthonormalize3;
+        Vector4, orthonormal_subspace_basis4, orthonormalize4;
+        Vector5, orthonormal_subspace_basis5, orthonormalize5;
+        Vector6, orthonormal_subspace_basis6, orthonormalize6;
+    );
+
+    /*
+     *
+     * Helper functions.
+     *
+     */
+    #[cfg(feature = "arbitrary")]
+    fn is_subspace_basis<T: FiniteDimInnerSpace<Real = f64> + Display>(vs: &[T]) -> bool {
+        for i in 0 .. vs.len() {
+            // Basis elements must be normalized.
+            if !relative_eq!(vs[i].norm(), 1.0, epsilon = 1.0e-7) {
+                println!("Non-zero basis element norm: {}", vs[i].norm());
+                return false;
             }
 
-            fn $orthonormalization(vs: Vec<$Vector<f64>>) -> bool {
-                let mut basis = vs.clone();
-                let subdim = $Vector::orthonormalize(&mut basis[..]);
-
-                if !is_subspace_basis(&basis[.. subdim]) {
-                    return false;
+            for j in 0 .. i {
+                // Basis elements must be orthogonal.
+                if !relative_eq!(vs[i].dot(&vs[j]), 0.0, epsilon = 1.0e-7) {
+                    println!("Non-orthogonal basis elements: {} · {} = {}", vs[i], vs[j], vs[i].dot(&vs[j]));
+                    return false
                 }
-
-                for mut e in vs {
-                    for b in &basis[.. subdim] {
-                        e -= e.dot(b) * b
-                    }
-
-                    // Any element of `e` must be a linear combination of the basis elements.
-                    if !relative_eq!(e.norm(), 0.0, epsilon = 1.0e-7) {
-                        println!("Orthonormalization; element decomposition failure: {}", e);
-                        println!("... the non-zero norm is: {}", e.norm());
-                        return false;
-                    }
-                }
-
-                true
             }
         }
-    )*}
-);
 
-finite_dim_inner_space_test!(
-    Vector1, orthonormal_subspace_basis1, orthonormalize1;
-    Vector2, orthonormal_subspace_basis2, orthonormalize2;
-    Vector3, orthonormal_subspace_basis3, orthonormalize3;
-    Vector4, orthonormal_subspace_basis4, orthonormalize4;
-    Vector5, orthonormal_subspace_basis5, orthonormalize5;
-    Vector6, orthonormal_subspace_basis6, orthonormalize6;
-);
-
-/*
- *
- * Helper functions.
- *
- */
-fn is_subspace_basis<T: FiniteDimInnerSpace<Real = f64> + Display>(vs: &[T]) -> bool {
-    for i in 0 .. vs.len() {
-        // Basis elements must be normalized.
-        if !relative_eq!(vs[i].norm(), 1.0, epsilon = 1.0e-7) {
-            println!("Non-zero basis element norm: {}", vs[i].norm());
-            return false;
-        }
-
-        for j in 0 .. i {
-            // Basis elements must be orthogonal.
-            if !relative_eq!(vs[i].dot(&vs[j]), 0.0, epsilon = 1.0e-7) {
-                println!("Non-orthogonal basis elements: {} · {} = {}", vs[i], vs[j], vs[i].dot(&vs[j]));
-                return false
-            }
-        }
+        true
     }
-
-    true
 }
