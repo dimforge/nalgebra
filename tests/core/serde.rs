@@ -1,3 +1,5 @@
+#![cfg(feature = "serde-serialize")]
+
 use serde_json;
 use rand;
 use na::{

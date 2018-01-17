@@ -1,9 +1,10 @@
+#![cfg(feature = "arbitrary")]
+
 use std::cmp;
 use na::{DMatrix, Matrix4x3, DVector, Vector4};
 use na::dimension::U4;
 use na::debug::RandomSDP;
 
-#[cfg(feature = "arbitrary")]
 quickcheck! {
     fn cholesky(m: RandomSDP<f64>) -> bool {
         let mut m = m.unwrap();
