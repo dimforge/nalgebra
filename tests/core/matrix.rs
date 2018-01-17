@@ -7,7 +7,7 @@ use alga::linear::FiniteDimInnerSpace;
 use na::{self,
          DVector, DMatrix,
          Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
-         RowVector4, RowVector5,
+         RowVector3, RowVector4, RowVector5,
          Matrix1, Matrix2, Matrix3, Matrix4, Matrix5, Matrix6,
          Matrix2x3, Matrix3x2, Matrix3x4, Matrix4x3, Matrix2x4, Matrix4x5, Matrix4x6,
          MatrixMN};
@@ -380,6 +380,23 @@ fn simple_product() {
     assert_eq!(a * b, vec![a, b].into_iter().product());
     assert_eq!(a * b * c, vec![a, b, c].iter().product());
     assert_eq!(a * b * c, vec![a, b, c].into_iter().product());
+}
+
+#[test]
+fn cross_product_vector_and_row_vector() {
+    let v1 = Vector3::new(1.0, 2.0, 3.0);
+    let v2 = Vector3::new(1.0, 5.0, 7.0);
+    let column_cross = v1.cross(&v2);
+    assert_eq!(column_cross, Vector3::new(-1.0, -4.0, 3.0));
+
+    let v1 = RowVector3::new(1.0, 2.0, 3.0);
+    let v2 = RowVector3::new(1.0, 5.0, 7.0);
+    let row_cross = v1.cross(&v2);
+    assert_eq!(row_cross, RowVector3::new(-1.0, -4.0, 3.0));
+
+    assert_eq!(
+        Vector3::new(1.0, 1.0, 0.0).cross(&Vector3::new(-0.5, 17.0, 0.0)).transpose(),
+        RowVector3::new(1.0, 1.0, 0.0).cross(&RowVector3::new(-0.5, 17.0, 0.0)));
 }
 
 #[test]
