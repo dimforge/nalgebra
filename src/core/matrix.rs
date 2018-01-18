@@ -879,7 +879,7 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
                 *res.get_unchecked_mut(0, 0) = ay * bz - az * by;
                 *res.get_unchecked_mut(0, 1) = az * bx - ax * bz;
-                *res.get_unchecked_mut(0, 2) = az * bx - ax * bz;
+                *res.get_unchecked_mut(0, 2) = ax * by - ay * bx;
 
                 res
             }
