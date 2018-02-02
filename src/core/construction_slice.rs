@@ -1,20 +1,5 @@
-#[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
-#[cfg(feature = "arbitrary")]
-use core::storage::Owned;
-
-use std::iter;
-use num::{Zero, One, Bounded};
-use rand::{self, Rand, Rng};
-use typenum::{self, Cmp, Greater};
-
-use alga::general::{ClosedAdd, ClosedMul};
-
-use core::{DefaultAllocator, Scalar, Matrix, Vector, Unit, MatrixMN, MatrixN, VectorN,
-           MatrixSliceMN, MatrixSliceMutMN};
-use core::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
-use core::allocator::Allocator;
-use core::storage::Storage;
+use core::{Scalar, MatrixSliceMN, MatrixSliceMutMN};
+use core::dimension::{Dim, DimName, Dynamic, U1};
 use core::matrix_slice::{SliceStorage, SliceStorageMut};
 
 /*
@@ -26,9 +11,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMN<'a
     #[inline]
     pub unsafe fn new_with_strides_generic_unchecked(
         data: &'a [N], start: usize, nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
-        let data = unsafe {
-            SliceStorage::from_raw_parts(data.as_ptr().offset(start as isize), (nrows, ncols), (rstride, cstride))
-        };
+        let data = SliceStorage::from_raw_parts(data.as_ptr().offset(start as isize), (nrows, ncols), (rstride, cstride));
         Self::from_data(data)
     }
 
@@ -51,9 +34,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMutMN
     #[inline]
     pub unsafe fn new_with_strides_generic_mut_unchecked(
         data: &'a mut [N], start: usize, nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
-        let data = unsafe {
-            SliceStorageMut::from_raw_parts(data.as_mut_ptr().offset(start as isize), (nrows, ncols), (rstride, cstride))
-        };
+        let data = SliceStorageMut::from_raw_parts(data.as_mut_ptr().offset(start as isize), (nrows, ncols), (rstride, cstride));
         Self::from_data(data)
     }
 
