@@ -6,7 +6,7 @@ use num::{Zero, One, Signed};
 
 use alga::general::{ClosedMul, ClosedDiv, ClosedAdd, ClosedSub, ClosedNeg};
 
-use core::{DefaultAllocator, Scalar, Matrix, MatrixN, MatrixMN, MatrixSum, SquareMatrix};
+use core::{DefaultAllocator, Scalar, Matrix, MatrixN, MatrixMN, MatrixSum};
 use core::dimension::{Dim, DimName, DimProd, DimMul};
 use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns, AreMultipliable, DimEq};
 use core::storage::{Storage, StorageMut, ContiguousStorageMut};

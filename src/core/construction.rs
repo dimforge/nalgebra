@@ -10,12 +10,10 @@ use typenum::{self, Cmp, Greater};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use core::{DefaultAllocator, Scalar, Matrix, Vector, Unit, MatrixMN, MatrixN, VectorN,
-           MatrixSliceMN, MatrixSliceMutMN};
+use core::{DefaultAllocator, Scalar, Matrix, Vector, Unit, MatrixMN, MatrixN, VectorN};
 use core::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
 use core::allocator::Allocator;
 use core::storage::Storage;
-use core::matrix_slice::{SliceStorage, SliceStorageMut};
 
 /*
  *

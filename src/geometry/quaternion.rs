@@ -13,7 +13,7 @@ use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use core::{Unit, Vector3, Vector4, MatrixSlice, MatrixSliceMut, SquareMatrix, MatrixN, Matrix3};
+use core::{Unit, Vector3, Vector4, MatrixSlice, MatrixSliceMut, MatrixN, Matrix3};
 use core::dimension::{U1, U3, U4};
 use core::storage::{RStride, CStride};
 
