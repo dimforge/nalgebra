@@ -10,10 +10,12 @@ use typenum::{self, Cmp, Greater};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use core::{DefaultAllocator, Scalar, Matrix, Vector, Unit, MatrixMN, MatrixN, VectorN};
+use core::{DefaultAllocator, Scalar, Matrix, Vector, Unit, MatrixMN, MatrixN, VectorN,
+           MatrixSliceMN, MatrixSliceMutMN};
 use core::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
 use core::allocator::Allocator;
 use core::storage::Storage;
+use core::matrix_slice::{SliceStorage, SliceStorageMut};
 
 /*
  *
@@ -208,6 +210,44 @@ impl<N, D: Dim> MatrixN<N, D>
         }
 
         res
+    }
+}
+
+/*
+ *
+ * Slice constructors.
+ *
+ */
+impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMN<'a, N, R, C, RStride, CStride> {
+    pub fn new_slice_generic(data: &'a [N], nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
+        // NOTE: The assertion implements the following formula, but without subtractions to avoid
+        // underflow panics:
+        //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
+        assert!(data.len() + cstride.value() + rstride.value() >=
+                ncols.value() * cstride.value() + nrows.value() * rstride.value() + 1,
+                "Matrix slice: input data buffer to small.");
+
+
+        let data = unsafe {
+            SliceStorage::from_raw_parts(data.as_ptr(), (nrows, ncols), (rstride, cstride))
+        };
+        Self::from_data(data)
+    }
+}
+
+impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMutMN<'a, N, R, C, RStride, CStride> {
+    pub fn new_slice_mut_generic(data: &'a mut [N], nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
+        // NOTE: The assertion implements the following formula, but without subtractions to avoid
+        // underflow panics:
+        //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
+        assert!(data.len() + cstride.value() + rstride.value() >=
+                ncols.value() * cstride.value() + nrows.value() * rstride.value() + 1,
+                "Matrix slice: input data buffer to small.");
+
+        let data = unsafe {
+            SliceStorageMut::from_raw_parts(data.as_mut_ptr(), (nrows, ncols), (rstride, cstride))
+        };
+        Self::from_data(data)
     }
 }
 
