@@ -2,21 +2,19 @@
 use serde;
 
 use alga::general::Real;
-use core::{Unit, Matrix, MatrixN, MatrixMN, VectorN, DefaultAllocator};
-use dimension::{Dim, DimMin, DimMinimum, DimSub, DimDiff, Dynamic, U1};
+use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, Dynamic, U1};
 use storage::Storage;
 use allocator::Allocator;
-use constraint::{ShapeConstraint, DimEq};
+use constraint::{DimEq, ShapeConstraint};
 
 use linalg::householder;
 use geometry::Reflection;
 
-
 /// The bidiagonalization of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(serialize =
-        "DimMinimum<R, C>: DimSub<U1>,
+           serde(bound(serialize = "DimMinimum<R, C>: DimSub<U1>,
          DefaultAllocator: Allocator<N, R, C>             +
                            Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
@@ -24,8 +22,7 @@ use geometry::Reflection;
          VectorN<N, DimMinimum<R, C>>: serde::Serialize,
          VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Serialize")))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(deserialize =
-        "DimMinimum<R, C>: DimSub<U1>,
+           serde(bound(deserialize = "DimMinimum<R, C>: DimSub<U1>,
          DefaultAllocator: Allocator<N, R, C>             +
                            Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
@@ -34,10 +31,12 @@ use geometry::Reflection;
          VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct Bidiagonal<N: Real, R: DimMin<C>, C: Dim>
-    where DimMinimum<R, C>: DimSub<U1>,
-          DefaultAllocator: Allocator<N, R, C>             +
-                            Allocator<N, DimMinimum<R, C>> +
-                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>> {
+where
+    DimMinimum<R, C>: DimSub<U1>,
+    DefaultAllocator: Allocator<N, R, C>
+        + Allocator<N, DimMinimum<R, C>>
+        + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
+{
     // FIXME: perhaps we should pack the axises into different vectors so that axises for `v_t` are
     // contiguous. This prevents some useless copies.
     uv: MatrixMN<N, R, C>,
@@ -45,58 +44,102 @@ pub struct Bidiagonal<N: Real, R: DimMin<C>, C: Dim>
     pub diagonal: VectorN<N, DimMinimum<R, C>>,
     /// The off-diagonal elements of the decomposed matrix.
     pub off_diagonal: VectorN<N, DimDiff<DimMinimum<R, C>, U1>>,
-    upper_diagonal: bool
+    upper_diagonal: bool,
 }
 
 impl<N: Real, R: DimMin<C>, C: Dim> Copy for Bidiagonal<N, R, C>
-    where DimMinimum<R, C>: DimSub<U1>,
-          DefaultAllocator: Allocator<N, R, C>             +
-                            Allocator<N, DimMinimum<R, C>> +
-                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
-          MatrixMN<N, R, C>: Copy,
-          VectorN<N, DimMinimum<R, C>>: Copy,
-          VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Copy { }
-
+where
+    DimMinimum<R, C>: DimSub<U1>,
+    DefaultAllocator: Allocator<N, R, C>
+        + Allocator<N, DimMinimum<R, C>>
+        + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
+    MatrixMN<N, R, C>: Copy,
+    VectorN<N, DimMinimum<R, C>>: Copy,
+    VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Copy,
+{
+}
 
 impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
-    where DimMinimum<R, C>: DimSub<U1>,
-          DefaultAllocator: Allocator<N, R, C>             +
-                            Allocator<N, C>                +
-                            Allocator<N, R>                +
-                            Allocator<N, DimMinimum<R, C>> +
-                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>> {
-
+where
+    DimMinimum<R, C>: DimSub<U1>,
+    DefaultAllocator: Allocator<N, R, C>
+        + Allocator<N, C>
+        + Allocator<N, R>
+        + Allocator<N, DimMinimum<R, C>>
+        + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
+{
     /// Computes the Bidiagonal decomposition using householder reflections.
     pub fn new(mut matrix: MatrixMN<N, R, C>) -> Self {
-        let (nrows, ncols)  = matrix.data.shape();
+        let (nrows, ncols) = matrix.data.shape();
         let min_nrows_ncols = nrows.min(ncols);
         let dim = min_nrows_ncols.value();
-        assert!(dim != 0, "Cannot compute the bidiagonalization of an empty matrix.");
+        assert!(
+            dim != 0,
+            "Cannot compute the bidiagonalization of an empty matrix."
+        );
 
-        let mut diagonal     = unsafe { MatrixMN::new_uninitialized_generic(min_nrows_ncols, U1) };
-        let mut off_diagonal = unsafe { MatrixMN::new_uninitialized_generic(min_nrows_ncols.sub(U1), U1) };
-        let mut axis_packed  = unsafe { MatrixMN::new_uninitialized_generic(ncols, U1) };
-        let mut work         = unsafe { MatrixMN::new_uninitialized_generic(nrows, U1) };
+        let mut diagonal = unsafe { MatrixMN::new_uninitialized_generic(min_nrows_ncols, U1) };
+        let mut off_diagonal =
+            unsafe { MatrixMN::new_uninitialized_generic(min_nrows_ncols.sub(U1), U1) };
+        let mut axis_packed = unsafe { MatrixMN::new_uninitialized_generic(ncols, U1) };
+        let mut work = unsafe { MatrixMN::new_uninitialized_generic(nrows, U1) };
 
         let upper_diagonal = nrows.value() >= ncols.value();
         if upper_diagonal {
-            for ite in 0 .. dim - 1 {
+            for ite in 0..dim - 1 {
                 householder::clear_column_unchecked(&mut matrix, &mut diagonal[ite], ite, 0, None);
-                householder::clear_row_unchecked(&mut matrix, &mut off_diagonal[ite], &mut axis_packed, &mut work, ite, 1);
+                householder::clear_row_unchecked(
+                    &mut matrix,
+                    &mut off_diagonal[ite],
+                    &mut axis_packed,
+                    &mut work,
+                    ite,
+                    1,
+                );
             }
 
-            householder::clear_column_unchecked(&mut matrix, &mut diagonal[dim - 1], dim - 1, 0, None);
-        }
-        else {
-            for ite in 0 .. dim - 1 {
-                householder::clear_row_unchecked(&mut matrix, &mut diagonal[ite], &mut axis_packed, &mut work, ite, 0);
-                householder::clear_column_unchecked(&mut matrix, &mut off_diagonal[ite], ite, 1, None);
+            householder::clear_column_unchecked(
+                &mut matrix,
+                &mut diagonal[dim - 1],
+                dim - 1,
+                0,
+                None,
+            );
+        } else {
+            for ite in 0..dim - 1 {
+                householder::clear_row_unchecked(
+                    &mut matrix,
+                    &mut diagonal[ite],
+                    &mut axis_packed,
+                    &mut work,
+                    ite,
+                    0,
+                );
+                householder::clear_column_unchecked(
+                    &mut matrix,
+                    &mut off_diagonal[ite],
+                    ite,
+                    1,
+                    None,
+                );
             }
 
-            householder::clear_row_unchecked(&mut matrix, &mut diagonal[dim - 1], &mut axis_packed, &mut work, dim - 1, 0);
+            householder::clear_row_unchecked(
+                &mut matrix,
+                &mut diagonal[dim - 1],
+                &mut axis_packed,
+                &mut work,
+                dim - 1,
+                0,
+            );
         }
 
-        Bidiagonal { uv: matrix, diagonal: diagonal, off_diagonal: off_diagonal, upper_diagonal: upper_diagonal }
+        Bidiagonal {
+            uv: matrix,
+            diagonal: diagonal,
+            off_diagonal: off_diagonal,
+            upper_diagonal: upper_diagonal,
+        }
     }
 
     /// Indicates whether this decomposition contains an upper-diagonal matrix.
@@ -105,13 +148,11 @@ impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
         self.upper_diagonal
     }
 
-
     #[inline]
     fn axis_shift(&self) -> (usize, usize) {
         if self.upper_diagonal {
             (0, 1)
-        }
-        else {
+        } else {
             (1, 0)
         }
     }
@@ -120,15 +161,21 @@ impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
     ///
     /// The decomposed matrix `M` is equal to `U * D * V^t`.
     #[inline]
-    pub fn unpack(self) -> (MatrixMN<N, R, DimMinimum<R, C>>,
-                            MatrixN<N, DimMinimum<R, C>>,
-                            MatrixMN<N, DimMinimum<R, C>, C>)
-        where DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>> +
-                                Allocator<N, R, DimMinimum<R, C>>                +
-                                Allocator<N, DimMinimum<R, C>, C>,
-              // FIXME: the following bounds are ugly.
-              DimMinimum<R, C>: DimMin<DimMinimum<R, C>, Output = DimMinimum<R, C>>,
-              ShapeConstraint: DimEq<Dynamic, DimDiff<DimMinimum<R, C>, U1>> {
+    pub fn unpack(
+        self,
+    ) -> (
+        MatrixMN<N, R, DimMinimum<R, C>>,
+        MatrixN<N, DimMinimum<R, C>>,
+        MatrixMN<N, DimMinimum<R, C>, C>,
+    )
+    where
+        DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>
+            + Allocator<N, R, DimMinimum<R, C>>
+            + Allocator<N, DimMinimum<R, C>, C>,
+        // FIXME: the following bounds are ugly.
+        DimMinimum<R, C>: DimMin<DimMinimum<R, C>, Output = DimMinimum<R, C>>,
+        ShapeConstraint: DimEq<Dynamic, DimDiff<DimMinimum<R, C>, U1>>,
+    {
         // FIXME: optimize by calling a reallocator.
         (self.u(), self.d(), self.v_t())
     }
@@ -136,10 +183,12 @@ impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
     pub fn d(&self) -> MatrixN<N, DimMinimum<R, C>>
-        where DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>,
-              // FIXME: the following bounds are ugly.
-              DimMinimum<R, C>: DimMin<DimMinimum<R, C>, Output = DimMinimum<R, C>>,
-              ShapeConstraint: DimEq<Dynamic, DimDiff<DimMinimum<R, C>, U1>> {
+    where
+        DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>,
+        // FIXME: the following bounds are ugly.
+        DimMinimum<R, C>: DimMin<DimMinimum<R, C>, Output = DimMinimum<R, C>>,
+        ShapeConstraint: DimEq<Dynamic, DimDiff<DimMinimum<R, C>, U1>>,
+    {
         let (nrows, ncols) = self.uv.data.shape();
 
         let d = nrows.min(ncols);
@@ -147,7 +196,8 @@ impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
         res.set_diagonal(&self.diagonal);
 
         let start = self.axis_shift();
-        res.slice_mut(start, (d.value() - 1, d.value() - 1)).set_diagonal(&self.off_diagonal);
+        res.slice_mut(start, (d.value() - 1, d.value() - 1))
+            .set_diagonal(&self.off_diagonal);
         res
     }
 
@@ -155,48 +205,52 @@ impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
     // FIXME: code duplication with householder::assemble_q.
     // Except that we are returning a rectangular matrix here.
     pub fn u(&self) -> MatrixMN<N, R, DimMinimum<R, C>>
-        where DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> {
+    where
+        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>,
+    {
         let (nrows, ncols) = self.uv.data.shape();
-    
+
         let mut res = Matrix::identity_generic(nrows, nrows.min(ncols));
-        let dim     = self.diagonal.len();
-        let shift   = self.axis_shift().0;
-    
-        for i in (0 .. dim - shift).rev() {
-            let axis = self.uv.slice_range(i + shift .., i);
+        let dim = self.diagonal.len();
+        let shift = self.axis_shift().0;
+
+        for i in (0..dim - shift).rev() {
+            let axis = self.uv.slice_range(i + shift.., i);
             // FIXME: sometimes, the axis might have a zero magnitude.
             let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
-    
-            let mut res_rows = res.slice_range_mut(i + shift .., i ..);
+
+            let mut res_rows = res.slice_range_mut(i + shift.., i..);
             refl.reflect(&mut res_rows);
         }
-    
+
         res
     }
 
     /// Computes the orthogonal matrix `V` of this `U * D * V` decomposition.
     pub fn v_t(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
-        where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C> {
+    where
+        DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>,
+    {
         let (nrows, ncols) = self.uv.data.shape();
         let min_nrows_ncols = nrows.min(ncols);
-    
-        let mut res         = Matrix::identity_generic(min_nrows_ncols, ncols);
-        let mut work        = unsafe { MatrixMN::new_uninitialized_generic(min_nrows_ncols, U1) };
+
+        let mut res = Matrix::identity_generic(min_nrows_ncols, ncols);
+        let mut work = unsafe { MatrixMN::new_uninitialized_generic(min_nrows_ncols, U1) };
         let mut axis_packed = unsafe { MatrixMN::new_uninitialized_generic(ncols, U1) };
 
         let shift = self.axis_shift().1;
-    
-        for i in (0 .. min_nrows_ncols.value() - shift).rev() {
-            let axis = self.uv.slice_range(i, i + shift ..);
-            let mut axis_packed = axis_packed.rows_range_mut(i + shift ..);
+
+        for i in (0..min_nrows_ncols.value() - shift).rev() {
+            let axis = self.uv.slice_range(i, i + shift..);
+            let mut axis_packed = axis_packed.rows_range_mut(i + shift..);
             axis_packed.tr_copy_from(&axis);
             // FIXME: sometimes, the axis might have a zero magnitude.
             let refl = Reflection::new(Unit::new_unchecked(axis_packed), N::zero());
-    
-            let mut res_rows = res.slice_range_mut(i .., i + shift ..);
-            refl.reflect_rows(&mut res_rows, &mut work.rows_range_mut(i ..));
+
+            let mut res_rows = res.slice_range_mut(i.., i + shift..);
+            refl.reflect_rows(&mut res_rows, &mut work.rows_range_mut(i..));
         }
-    
+
         res
     }
 
@@ -228,75 +282,76 @@ impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
 //         self.solve_mut(&mut res);
 //         res
 //     }
-// 
+//
 //     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
 //     pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>)
 //         where S2: StorageMut<N, R2, C2>,
 //               ShapeConstraint: SameNumberOfRows<R2, D> {
-// 
+//
 //         assert_eq!(self.uv.nrows(), b.nrows(), "Bidiagonal solve matrix dimension mismatch.");
 //         assert!(self.uv.is_square(), "Bidiagonal solve: unable to solve a non-square system.");
-// 
+//
 //         self.q_tr_mul(b);
 //         self.solve_upper_triangular_mut(b);
 //     }
-// 
+//
 //     // FIXME: duplicate code from the `solve` module.
 //     fn solve_upper_triangular_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>)
 //         where S2: StorageMut<N, R2, C2>,
 //               ShapeConstraint: SameNumberOfRows<R2, D> {
-// 
+//
 //         let dim  = self.uv.nrows();
-// 
+//
 //         for k in 0 .. b.ncols() {
 //             let mut b = b.column_mut(k);
 //             for i in (0 .. dim).rev() {
 //                 let coeff;
-// 
+//
 //                 unsafe {
 //                     let diag = *self.diag.vget_unchecked(i);
 //                     coeff = *b.vget_unchecked(i) / diag;
 //                     *b.vget_unchecked_mut(i) = coeff;
 //                 }
-// 
+//
 //                 b.rows_range_mut(.. i).axpy(-coeff, &self.uv.slice_range(.. i, i), N::one());
 //             }
 //         }
 //     }
-// 
+//
 //     /// Computes the inverse of the decomposed matrix.
 //     pub fn inverse(&self) -> MatrixN<N, D> {
 //         assert!(self.uv.is_square(), "Bidiagonal inverse: unable to compute the inverse of a non-square matrix.");
-// 
+//
 //         // FIXME: is there a less naive method ?
 //         let (nrows, ncols) = self.uv.data.shape();
 //         let mut res = MatrixN::identity_generic(nrows, ncols);
 //         self.solve_mut(&mut res);
 //         res
 //     }
-// 
+//
 //     // /// Computes the determinant of the decomposed matrix.
 //     // pub fn determinant(&self) -> N {
 //     //     let dim = self.uv.nrows();
 //     //     assert!(self.uv.is_square(), "Bidiagonal determinant: unable to compute the determinant of a non-square matrix.");
-// 
+//
 //     //     let mut res = N::one();
 //     //     for i in 0 .. dim {
 //     //         res *= unsafe { *self.diag.vget_unchecked(i) };
 //     //     }
-// 
+//
 //     //     res self.q_determinant()
 //     // }
 // }
 
 impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-    where DimMinimum<R, C>: DimSub<U1>,
-          DefaultAllocator: Allocator<N, R, C>             +
-                            Allocator<N, C>                +
-                            Allocator<N, R>                +
-                            Allocator<N, DimMinimum<R, C>> +
-                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>> {
-
+where
+    DimMinimum<R, C>: DimSub<U1>,
+    DefaultAllocator: Allocator<N, R, C>
+        + Allocator<N, C>
+        + Allocator<N, R>
+        + Allocator<N, DimMinimum<R, C>>
+        + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
+{
     /// Computes the bidiagonalization using householder reflections.
     pub fn bidiagonalize(self) -> Bidiagonal<N, R, C> {
         Bidiagonal::new(self.into_owned())

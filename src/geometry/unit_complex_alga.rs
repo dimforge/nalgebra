@@ -1,7 +1,8 @@
-use alga::general::{AbstractMagma, AbstractGroup, AbstractLoop, AbstractMonoid, AbstractQuasigroup,
-                    AbstractSemigroup, Real, Inverse, Multiplicative, Identity, Id};
-use alga::linear::{Transformation, AffineTransformation, Similarity, Isometry, DirectIsometry,
-                   OrthogonalTransformation, Rotation, ProjectiveTransformation};
+use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
+                    AbstractQuasigroup, AbstractSemigroup, Id, Identity, Inverse, Multiplicative,
+                    Real};
+use alga::linear::{AffineTransformation, DirectIsometry, Isometry, OrthogonalTransformation,
+                   ProjectiveTransformation, Rotation, Similarity, Transformation};
 
 use core::{DefaultAllocator, Vector2};
 use core::allocator::Allocator;
@@ -46,7 +47,6 @@ macro_rules! impl_structures(
     )*}
 );
 
-
 impl_structures!(
     AbstractSemigroup<Multiplicative>,
     AbstractQuasigroup<Multiplicative>,
@@ -56,7 +56,9 @@ impl_structures!(
 );
 
 impl<N: Real> Transformation<Point2<N>> for UnitComplex<N>
-    where DefaultAllocator: Allocator<N, U2> {
+where
+    DefaultAllocator: Allocator<N, U2>,
+{
     #[inline]
     fn transform_point(&self, pt: &Point2<N>) -> Point2<N> {
         self * pt
@@ -69,7 +71,9 @@ impl<N: Real> Transformation<Point2<N>> for UnitComplex<N>
 }
 
 impl<N: Real> ProjectiveTransformation<Point2<N>> for UnitComplex<N>
-    where DefaultAllocator: Allocator<N, U2> {
+where
+    DefaultAllocator: Allocator<N, U2>,
+{
     #[inline]
     fn inverse_transform_point(&self, pt: &Point2<N>) -> Point2<N> {
         // FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement
@@ -84,10 +88,12 @@ impl<N: Real> ProjectiveTransformation<Point2<N>> for UnitComplex<N>
 }
 
 impl<N: Real> AffineTransformation<Point2<N>> for UnitComplex<N>
-    where DefaultAllocator: Allocator<N, U2> {
-    type Rotation          = Self;
+where
+    DefaultAllocator: Allocator<N, U2>,
+{
+    type Rotation = Self;
     type NonUniformScaling = Id;
-    type Translation       = Id;
+    type Translation = Id;
 
     #[inline]
     fn decompose(&self) -> (Id, Self, Id, Self) {
@@ -126,8 +132,10 @@ impl<N: Real> AffineTransformation<Point2<N>> for UnitComplex<N>
 }
 
 impl<N: Real> Similarity<Point2<N>> for UnitComplex<N>
-    where DefaultAllocator: Allocator<N, U2> {
-    type Scaling  = Id;
+where
+    DefaultAllocator: Allocator<N, U2>,
+{
+    type Scaling = Id;
 
     #[inline]
     fn translation(&self) -> Id {
@@ -154,10 +162,10 @@ macro_rules! marker_impl(
 
 marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
-
-
 impl<N: Real> Rotation<Point2<N>> for UnitComplex<N>
-    where DefaultAllocator: Allocator<N, U2> {
+where
+    DefaultAllocator: Allocator<N, U2>,
+{
     #[inline]
     fn powf(&self, n: N) -> Option<Self> {
         Some(self.powf(n))

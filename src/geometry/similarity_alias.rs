@@ -1,6 +1,6 @@
 use core::dimension::{U2, U3};
 
-use geometry::{Similarity, UnitQuaternion, UnitComplex, Rotation2, Rotation3};
+use geometry::{Rotation2, Rotation3, Similarity, UnitComplex, UnitQuaternion};
 
 /// A 2-dimensional similarity.
 pub type Similarity2<N> = Similarity<N, U2, UnitComplex<N>>;

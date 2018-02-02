@@ -1,17 +1,17 @@
 //! # nalgebra-lapack
-//! 
+//!
 //! Rust library for linear algebra using nalgebra and LAPACK.
-//! 
+//!
 //! ## Documentation
-//! 
+//!
 //! Documentation is available [here](https://docs.rs/nalgebra-lapack/).
-//! 
+//!
 //! ## License
-//! 
+//!
 //! MIT
-//! 
+//!
 //! ## Cargo features to select lapack provider
-//! 
+//!
 //! Like the [lapack crate](https://crates.io/crates/lapack) from which this
 //! behavior is inherited, nalgebra-lapack uses [cargo
 //! features](http://doc.crates.io/manifest.html#the-[features]-section) to select
@@ -19,43 +19,43 @@
 //! cargo are the easiest way to do this, and the best provider depends on your
 //! particular system. In some cases, the providers can be further tuned with
 //! environment variables.
-//! 
+//!
 //! Below are given examples of how to invoke `cargo build` on two different systems
 //! using two different providers. The `--no-default-features --features "provider"`
 //! arguments will be consistent for other `cargo` commands.
-//! 
+//!
 //! ### Ubuntu
-//! 
+//!
 //! As tested on Ubuntu 12.04, do this to build the lapack package against
 //! the system installation of netlib without LAPACKE (note the E) or
 //! CBLAS:
-//! 
+//!
 //! ```.ignore
 //! sudo apt-get install gfortran libblas3gf liblapack3gf
 //! export CARGO_FEATURE_SYSTEM_NETLIB=1
 //! export CARGO_FEATURE_EXCLUDE_LAPACKE=1
 //! export CARGO_FEATURE_EXCLUDE_CBLAS=1
-//! 
+//!
 //! export CARGO_FEATURES='--no-default-features --features netlib'
 //! cargo build ${CARGO_FEATURES}
 //! ```
-//! 
+//!
 //! ### Mac OS X
-//! 
+//!
 //! On Mac OS X, do this to use Apple's Accelerate framework:
-//! 
+//!
 //! ```.ignore
 //! export CARGO_FEATURES='--no-default-features --features accelerate'
 //! cargo build ${CARGO_FEATURES}
 //! ```
-//! 
+//!
 //! [version-img]: https://img.shields.io/crates/v/nalgebra-lapack.svg
 //! [version-url]: https://crates.io/crates/nalgebra-lapack
 //! [status-img]: https://travis-ci.org/strawlab/nalgebra-lapack.svg?branch=master
 //! [status-url]: https://travis-ci.org/strawlab/nalgebra-lapack
 //! [doc-img]: https://docs.rs/nalgebra-lapack/badge.svg
 //! [doc-url]: https://docs.rs/nalgebra-lapack/
-//! 
+//!
 //! ## Contributors
 //! This integration of LAPACK on nalgebra was
 //! [initiated](https://github.com/strawlab/nalgebra-lapack) by Andrew Straw. It
@@ -70,11 +70,11 @@
 #![deny(missing_docs)]
 #![doc(html_root_url = "http://nalgebra.org/rustdoc")]
 
-extern crate num_traits as num;
-extern crate num_complex;
-extern crate lapack;
 extern crate alga;
+extern crate lapack;
 extern crate nalgebra as na;
+extern crate num_complex;
+extern crate num_traits as num;
 
 mod lapack_check;
 mod svd;
@@ -90,13 +90,12 @@ use num_complex::Complex;
 
 pub use self::svd::SVD;
 pub use self::cholesky::{Cholesky, CholeskyScalar};
-pub use self::lu::{LU, LUScalar};
+pub use self::lu::{LUScalar, LU};
 pub use self::eigen::Eigen;
 pub use self::symmetric_eigen::SymmetricEigen;
 pub use self::qr::QR;
 pub use self::hessenberg::Hessenberg;
 pub use self::schur::RealSchur;
-
 
 trait ComplexHelper {
     type RealPart;

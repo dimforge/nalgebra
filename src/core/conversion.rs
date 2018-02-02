@@ -1,32 +1,31 @@
 use std::ptr;
 use std::mem;
-use std::convert::{From, Into, AsRef, AsMut};
+use std::convert::{AsMut, AsRef, From, Into};
 use alga::general::{SubsetOf, SupersetOf};
 #[cfg(feature = "mint")]
 use mint;
 
-use core::{DefaultAllocator, Scalar, Matrix, MatrixMN};
-use core::dimension::{Dim,
-    U1,  U2,  U3,  U4,
-    U5,  U6,  U7,  U8,
-    U9,  U10, U11, U12,
-    U13, U14, U15, U16
-};
+use core::{DefaultAllocator, Matrix, MatrixMN, Scalar};
+use core::dimension::{Dim, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9};
 use core::iter::{MatrixIter, MatrixIterMut};
-use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns};
+use core::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use core::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
 use core::allocator::{Allocator, SameShapeAllocator};
 
-
 // FIXME: too bad this won't work allo slice conversions.
 impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>
-    where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-          N1: Scalar,
-          N2: Scalar + SupersetOf<N1>,
-          DefaultAllocator: Allocator<N2, R2, C2> +
-                            Allocator<N1, R1, C1> +
-                            SameShapeAllocator<N1, R1, C1, R2, C2>,
-          ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
+where
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    C2: Dim,
+    N1: Scalar,
+    N2: Scalar + SupersetOf<N1>,
+    DefaultAllocator: Allocator<N2, R2, C2>
+        + Allocator<N1, R1, C1>
+        + SameShapeAllocator<N1, R1, C1, R2, C2>,
+    ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
+{
     #[inline]
     fn to_superset(&self) -> MatrixMN<N2, R2, C2> {
         let (nrows, ncols) = self.shape();
@@ -34,11 +33,9 @@ impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1,
         let ncols2 = C2::from_usize(ncols);
 
         let mut res = unsafe { MatrixMN::<N2, R2, C2>::new_uninitialized_generic(nrows2, ncols2) };
-        for i in 0 .. nrows {
-            for j in 0 .. ncols {
-                unsafe {
-                    *res.get_unchecked_mut(i, j) = N2::from_subset(self.get_unchecked(i, j))
-                }
+        for i in 0..nrows {
+            for j in 0..ncols {
+                unsafe { *res.get_unchecked_mut(i, j) = N2::from_subset(self.get_unchecked(i, j)) }
             }
         }
 
@@ -57,8 +54,8 @@ impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1,
         let ncols = C1::from_usize(ncols2);
 
         let mut res = Self::new_uninitialized_generic(nrows, ncols);
-        for i in 0 .. nrows2 {
-            for j in 0 .. ncols2 {
+        for i in 0..nrows2 {
+            for j in 0..ncols2 {
                 *res.get_unchecked_mut(i, j) = m.get_unchecked(i, j).to_subset_unchecked()
             }
         }
@@ -68,7 +65,7 @@ impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1,
 }
 
 impl<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> IntoIterator for &'a Matrix<N, R, C, S> {
-    type Item     = &'a N;
+    type Item = &'a N;
     type IntoIter = MatrixIter<'a, N, R, C, S>;
 
     #[inline]
@@ -77,8 +74,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> IntoIterator for &'a Ma
     }
 }
 
-impl<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator for &'a mut Matrix<N, R, C, S> {
-    type Item     = &'a mut N;
+impl<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator
+    for &'a mut Matrix<N, R, C, S> {
+    type Item = &'a mut N;
     type IntoIter = MatrixIterMut<'a, N, R, C, S>;
 
     #[inline]
@@ -86,7 +84,6 @@ impl<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator for &'a
         self.iter_mut()
     }
 }
-
 
 macro_rules! impl_from_into_asref_1D(
     ($(($NRows: ident, $NCols: ident) => $SZ: expr);* $(;)*) => {$(
@@ -157,8 +154,6 @@ impl_from_into_asref_1D!(
     (U13, U1) => 13; (U14, U1) => 14; (U15, U1) => 15; (U16, U1) => 16;
 );
 
-
-
 macro_rules! impl_from_into_asref_2D(
     ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
         impl<N: Scalar> From<[[N; $SZRows]; $SZCols]> for MatrixMN<N, $NRows, $NCols>
@@ -208,7 +203,6 @@ macro_rules! impl_from_into_asref_2D(
         }
     )*}
 );
-
 
 // Implement for matrices with shape 2x2 .. 6x6.
 impl_from_into_asref_2D!(

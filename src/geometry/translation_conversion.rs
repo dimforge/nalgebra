@@ -1,11 +1,11 @@
-use alga::general::{SubsetOf, SupersetOf, Real};
+use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use core::{DefaultAllocator, Scalar, VectorN, MatrixN};
+use core::{DefaultAllocator, MatrixN, Scalar, VectorN};
 use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use core::allocator::Allocator;
 
-use geometry::{Point, Translation, Isometry, Similarity, Transform, SuperTCategoryOf, TAffine};
+use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
 /*
  * This file provides the following conversions:
@@ -19,10 +19,11 @@ use geometry::{Point, Translation, Isometry, Similarity, Transform, SuperTCatego
  */
 
 impl<N1, N2, D: DimName> SubsetOf<Translation<N2, D>> for Translation<N1, D>
-    where N1: Scalar,
-          N2: Scalar + SupersetOf<N1>,
-          DefaultAllocator: Allocator<N1, D> +
-                            Allocator<N2, D> {
+where
+    N1: Scalar,
+    N2: Scalar + SupersetOf<N1>,
+    DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
+{
     #[inline]
     fn to_superset(&self) -> Translation<N2, D> {
         Translation::from_vector(self.vector.to_superset())
@@ -39,13 +40,13 @@ impl<N1, N2, D: DimName> SubsetOf<Translation<N2, D>> for Translation<N1, D>
     }
 }
 
-
 impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Translation<N1, D>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          R:  Rotation<Point<N2, D>>,
-          DefaultAllocator: Allocator<N1, D> +
-                            Allocator<N2, D> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    R: Rotation<Point<N2, D>>,
+    DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
+{
     #[inline]
     fn to_superset(&self) -> Isometry<N2, D, R> {
         Isometry::from_parts(self.to_superset(), R::identity())
@@ -62,13 +63,13 @@ impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Translation<N1, D>
     }
 }
 
-
 impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Translation<N1, D>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          R:  Rotation<Point<N2, D>>,
-          DefaultAllocator: Allocator<N1, D> +
-                            Allocator<N2, D> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    R: Rotation<Point<N2, D>>,
+    DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
+{
     #[inline]
     fn to_superset(&self) -> Similarity<N2, D, R> {
         Similarity::from_parts(self.to_superset(), R::identity(), N2::one())
@@ -76,8 +77,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Translation<N1, D
 
     #[inline]
     fn is_in_subset(sim: &Similarity<N2, D, R>) -> bool {
-        sim.isometry.rotation == R::identity() &&
-        sim.scaling() == N2::one()
+        sim.isometry.rotation == R::identity() && sim.scaling() == N2::one()
     }
 
     #[inline]
@@ -86,16 +86,17 @@ impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Translation<N1, D
     }
 }
 
-
 impl<N1, N2, D, C> SubsetOf<Transform<N2, D, C>> for Translation<N1, D>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          C:  SuperTCategoryOf<TAffine>,
-          D:  DimNameAdd<U1>,
-          DefaultAllocator: Allocator<N1, D> +
-                            Allocator<N2, D> +
-                            Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    C: SuperTCategoryOf<TAffine>,
+    D: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N1, D>
+        + Allocator<N2, D>
+        + Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
     #[inline]
     fn to_superset(&self) -> Transform<N2, D, C> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
@@ -112,15 +113,16 @@ impl<N1, N2, D, C> SubsetOf<Transform<N2, D, C>> for Translation<N1, D>
     }
 }
 
-
 impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Translation<N1, D>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          D:  DimNameAdd<U1>,
-          DefaultAllocator: Allocator<N1, D> +
-                            Allocator<N2, D> +
-                            Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    D: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N1, D>
+        + Allocator<N2, D>
+        + Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
     #[inline]
     fn to_superset(&self) -> MatrixN<N2, DimNameSum<D, U1>> {
         self.to_homogeneous().to_superset()

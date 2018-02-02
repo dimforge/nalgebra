@@ -1,7 +1,7 @@
 use test::{self, Bencher};
-use na::{Matrix4, DMatrix, Hessenberg};
+use na::{DMatrix, Hessenberg, Matrix4};
 
-#[path="../common/macros.rs"]
+#[path = "../common/macros.rs"]
 mod macros;
 
 // Without unpack.
@@ -23,13 +23,11 @@ fn hessenberg_decompose_200x200(bh: &mut Bencher) {
     bh.iter(|| test::black_box(Hessenberg::new(m.clone())))
 }
 
-
 #[bench]
 fn hessenberg_decompose_500x500(bh: &mut Bencher) {
     let m = DMatrix::<f64>::new_random(500, 500);
     bh.iter(|| test::black_box(Hessenberg::new(m.clone())))
 }
-
 
 // With unpack.
 #[bench]

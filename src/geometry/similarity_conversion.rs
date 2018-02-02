@@ -2,10 +2,10 @@ use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
 use core::{DefaultAllocator, MatrixN};
-use core::dimension::{DimName, DimNameAdd, DimNameSum, DimMin, U1};
+use core::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
 use core::allocator::Allocator;
 
-use geometry::{Point, Translation, Isometry, Similarity, Transform, SuperTCategoryOf, TAffine};
+use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
 /*
  * This file provides the following conversions:
@@ -16,55 +16,52 @@ use geometry::{Point, Translation, Isometry, Similarity, Transform, SuperTCatego
  * Similarity -> Matrix (homogeneous)
  */
 
-
 impl<N1, N2, D: DimName, R1, R2> SubsetOf<Similarity<N2, D, R2>> for Similarity<N1, D, R1>
-    where N1: Real + SubsetOf<N2>,
-          N2: Real + SupersetOf<N1>,
-          R1: Rotation<Point<N1, D>> + SubsetOf<R2>,
-          R2: Rotation<Point<N2, D>>,
-          DefaultAllocator: Allocator<N1, D> +
-                            Allocator<N2, D> {
+where
+    N1: Real + SubsetOf<N2>,
+    N2: Real + SupersetOf<N1>,
+    R1: Rotation<Point<N1, D>> + SubsetOf<R2>,
+    R2: Rotation<Point<N2, D>>,
+    DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
+{
     #[inline]
     fn to_superset(&self) -> Similarity<N2, D, R2> {
-        Similarity::from_isometry(
-            self.isometry.to_superset(),
-            self.scaling().to_superset()
-        )
+        Similarity::from_isometry(self.isometry.to_superset(), self.scaling().to_superset())
     }
 
     #[inline]
     fn is_in_subset(sim: &Similarity<N2, D, R2>) -> bool {
-        ::is_convertible::<_, Isometry<N1, D, R1>>(&sim.isometry) &&
-        ::is_convertible::<_, N1>(&sim.scaling())
+        ::is_convertible::<_, Isometry<N1, D, R1>>(&sim.isometry)
+            && ::is_convertible::<_, N1>(&sim.scaling())
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R2>) -> Self {
         Similarity::from_isometry(
             sim.isometry.to_subset_unchecked(),
-            sim.scaling().to_subset_unchecked()
+            sim.scaling().to_subset_unchecked(),
         )
     }
 }
 
-
 impl<N1, N2, D, R, C> SubsetOf<Transform<N2, D, C>> for Similarity<N1, D, R>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          C:  SuperTCategoryOf<TAffine>,
-          R: Rotation<Point<N1, D>> +
-             SubsetOf<MatrixN<N1, DimNameSum<D, U1>>> +
-             SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
-          D: DimNameAdd<U1> +
-             DimMin<D, Output = D>, // needed by .determinant()
-          DefaultAllocator: Allocator<N1, D>     +
-                            Allocator<N1, D, D>  +                                // needed by R
-                            Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> + // needed by: .to_homogeneous()
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> + // needed by R
-                            Allocator<(usize, usize), D> + // needed by .determinant()
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<N2, D, D> +
-                            Allocator<N2, D>    {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    C: SuperTCategoryOf<TAffine>,
+    R: Rotation<Point<N1, D>>
+        + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
+        + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
+    D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .determinant()
+    DefaultAllocator: Allocator<N1, D>
+        + Allocator<N1, D, D>
+        + Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<(usize, usize), D>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, D, D>
+        + Allocator<N2, D>,
+{
     #[inline]
     fn to_superset(&self) -> Transform<N2, D, C> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
@@ -81,23 +78,23 @@ impl<N1, N2, D, R, C> SubsetOf<Transform<N2, D, C>> for Similarity<N1, D, R>
     }
 }
 
-
 impl<N1, N2, D, R> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Similarity<N1, D, R>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          R: Rotation<Point<N1, D>> +
-             SubsetOf<MatrixN<N1, DimNameSum<D, U1>>> +
-             SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
-          D: DimNameAdd<U1> +
-             DimMin<D, Output = D>, // needed by .determinant()
-          DefaultAllocator: Allocator<N1, D>     +
-                            Allocator<N1, D, D>  +                                // needed by R
-                            Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> + // needed by .to_homogeneous()
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> + // needed by R
-                            Allocator<(usize, usize), D> + // needed by .determinant()
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<N2, D, D> +
-                            Allocator<N2, D>    {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    R: Rotation<Point<N1, D>>
+        + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
+        + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
+    D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .determinant()
+    DefaultAllocator: Allocator<N1, D>
+        + Allocator<N1, D, D>
+        + Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<(usize, usize), D>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, D, D>
+        + Allocator<N2, D>,
+{
     #[inline]
     fn to_superset(&self) -> MatrixN<N2, DimNameSum<D, U1>> {
         self.to_homogeneous().to_superset()
@@ -106,10 +103,16 @@ impl<N1, N2, D, R> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Similarity<N1, D
     #[inline]
     fn is_in_subset(m: &MatrixN<N2, DimNameSum<D, U1>>) -> bool {
         let mut rot = m.fixed_slice::<D, D>(0, 0).clone_owned();
-        if rot.fixed_columns_mut::<U1>(0).try_normalize_mut(N2::zero()).is_some() &&
-           rot.fixed_columns_mut::<U1>(1).try_normalize_mut(N2::zero()).is_some() &&
-           rot.fixed_columns_mut::<U1>(2).try_normalize_mut(N2::zero()).is_some() {
-
+        if rot.fixed_columns_mut::<U1>(0)
+            .try_normalize_mut(N2::zero())
+            .is_some()
+            && rot.fixed_columns_mut::<U1>(1)
+                .try_normalize_mut(N2::zero())
+                .is_some()
+            && rot.fixed_columns_mut::<U1>(2)
+                .try_normalize_mut(N2::zero())
+                .is_some()
+        {
             // FIXME: could we avoid explicit the computation of the determinant?
             // (its sign is needed to see if the scaling factor is negative).
             if rot.determinant() < N2::zero() {
@@ -124,10 +127,8 @@ impl<N1, N2, D, R> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Similarity<N1, D
             // The normalized block part is a rotation.
             // rot.is_special_orthogonal(N2::default_epsilon().sqrt()) &&
             // The bottom row is (0, 0, ..., 1)
-            bottom.iter().all(|e| e.is_zero()) &&
-            m[(D::dim(), D::dim())] == N2::one()
-        }
-        else {
+            bottom.iter().all(|e| e.is_zero()) && m[(D::dim(), D::dim())] == N2::one()
+        } else {
             false
         }
     }

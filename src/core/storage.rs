@@ -6,24 +6,26 @@ use std::mem;
 use core::Scalar;
 use core::default_allocator::DefaultAllocator;
 use core::dimension::{Dim, U1};
-use core::allocator::{Allocator, SameShapeR, SameShapeC};
+use core::allocator::{Allocator, SameShapeC, SameShapeR};
 
 /*
  * Aliases for allocation results.
  */
 /// The data storage for the sum of two matrices with dimensions `(R1, C1)` and `(R2, C2)`.
-pub type SameShapeStorage<N, R1, C1, R2, C2> = <DefaultAllocator as Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>>::Buffer;
+pub type SameShapeStorage<N, R1, C1, R2, C2> =
+    <DefaultAllocator as Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>>::Buffer;
 
 // FIXME: better name than Owned ?
 /// The owned data storage that can be allocated from `S`.
 pub type Owned<N, R, C = U1> = <DefaultAllocator as Allocator<N, R, C>>::Buffer;
 
 /// The row-stride of the owned data storage for a buffer of dimension `(R, C)`.
-pub type RStride<N, R, C = U1> = <<DefaultAllocator as Allocator<N, R, C>>::Buffer as Storage<N, R, C>>::RStride;
+pub type RStride<N, R, C = U1> =
+    <<DefaultAllocator as Allocator<N, R, C>>::Buffer as Storage<N, R, C>>::RStride;
 
 /// The column-stride of the owned data storage for a buffer of dimension `(R, C)`.
-pub type CStride<N, R, C = U1> = <<DefaultAllocator as Allocator<N, R, C>>::Buffer as Storage<N, R, C>>::CStride;
-
+pub type CStride<N, R, C = U1> =
+    <<DefaultAllocator as Allocator<N, R, C>>::Buffer as Storage<N, R, C>>::CStride;
 
 /// The trait shared by all matrix data storage.
 ///
@@ -103,13 +105,14 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
 
     /// Builds a matrix data storage that does not contain any reference.
     fn into_owned(self) -> Owned<N, R, C>
-        where DefaultAllocator: Allocator<N, R, C>;
+    where
+        DefaultAllocator: Allocator<N, R, C>;
 
     /// Clones this data storage to one that does not contain any reference.
     fn clone_owned(&self) -> Owned<N, R, C>
-        where DefaultAllocator: Allocator<N, R, C>;
+    where
+        DefaultAllocator: Allocator<N, R, C>;
 }
-
 
 /// Trait implemented by matrix data storage that can provide a mutable access to its elements.
 ///
@@ -174,11 +177,15 @@ pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> {
 /// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
-pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> { }
+pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>
+    : Storage<N, R, C> {
+}
 
 /// A mutable matrix storage that is stored contiguously in memory.
 ///
 /// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
-pub unsafe trait ContiguousStorageMut<N: Scalar, R: Dim, C: Dim = U1>: ContiguousStorage<N, R, C> + StorageMut<N, R, C> { }
+pub unsafe trait ContiguousStorageMut<N: Scalar, R: Dim, C: Dim = U1>
+    : ContiguousStorage<N, R, C> + StorageMut<N, R, C> {
+}

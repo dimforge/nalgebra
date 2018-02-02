@@ -14,4 +14,4 @@ pub trait Scalar: Copy + PartialEq + Debug + Any {
         TypeId::of::<Self>() == TypeId::of::<T>()
     }
 }
-impl<T: Copy + PartialEq + Debug + Any> Scalar for T { }
+impl<T: Copy + PartialEq + Debug + Any> Scalar for T {}

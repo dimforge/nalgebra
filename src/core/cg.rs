@@ -7,20 +7,22 @@
 
 use num::One;
 
-use core::{DefaultAllocator, Scalar, SquareMatrix, Vector, Unit,
-           VectorN, MatrixN, Vector3, Matrix3, Matrix4};
-use core::dimension::{DimName, DimNameSub, DimNameDiff, U1};
+use core::{DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector,
+           Vector3, VectorN};
+use core::dimension::{DimName, DimNameDiff, DimNameSub, U1};
 use core::storage::{Storage, StorageMut};
 use core::allocator::Allocator;
-use geometry::{Point, Isometry, Point3, Rotation2, Rotation3, Orthographic3, Perspective3, IsometryMatrix3};
+use geometry::{Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2,
+               Rotation3};
 
-use alga::general::{Real, Field};
+use alga::general::{Field, Real};
 use alga::linear::Transformation;
 
-
 impl<N, D: DimName> MatrixN<N, D>
-    where N: Scalar + Field,
-          DefaultAllocator: Allocator<N, D, D> {
+where
+    N: Scalar + Field,
+    DefaultAllocator: Allocator<N, D, D>,
+{
     /// Creates a new homogeneous matrix that applies the same scaling factor on each dimension.
     #[inline]
     pub fn new_scaling(scaling: N) -> Self {
@@ -33,10 +35,12 @@ impl<N, D: DimName> MatrixN<N, D>
     /// Creates a new homogeneous matrix that applies a distinct scaling factor for each dimension.
     #[inline]
     pub fn new_nonuniform_scaling<SB>(scaling: &Vector<N, DimNameDiff<D, U1>, SB>) -> Self
-        where D:  DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>> {
+    where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+    {
         let mut res = Self::one();
-        for i in 0 .. scaling.len() {
+        for i in 0..scaling.len() {
             res[(i, i)] = scaling[i];
         }
 
@@ -46,10 +50,13 @@ impl<N, D: DimName> MatrixN<N, D>
     /// Creates a new homogeneous matrix that applies a pure translation.
     #[inline]
     pub fn new_translation<SB>(translation: &Vector<N, DimNameDiff<D, U1>, SB>) -> Self
-        where D:  DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>> {
+    where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+    {
         let mut res = Self::one();
-        res.fixed_slice_mut::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1).copy_from(translation);
+        res.fixed_slice_mut::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1)
+            .copy_from(translation);
 
         res
     }
@@ -65,7 +72,7 @@ impl<N: Real> Matrix3<N> {
 
 impl<N: Real> Matrix4<N> {
     /// Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).
-    /// 
+    ///
     /// Returns the identity matrix if the given argument is zero.
     #[inline]
     pub fn new_rotation(axisangle: Vector3<N>) -> Self {
@@ -73,7 +80,7 @@ impl<N: Real> Matrix4<N> {
     }
 
     /// Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).
-    /// 
+    ///
     /// Returns the identity matrix if the given argument is zero.
     #[inline]
     pub fn new_rotation_wrt_point(axisangle: Vector3<N>, pt: Point3<N>) -> Self {
@@ -82,7 +89,7 @@ impl<N: Real> Matrix4<N> {
     }
 
     /// Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).
-    /// 
+    ///
     /// Returns the identity matrix if the given argument is zero.
     /// This is identical to `Self::new_rotation`.
     #[inline]
@@ -137,13 +144,14 @@ impl<N: Real> Matrix4<N> {
     }
 }
 
-
 impl<N: Scalar + Field, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
     pub fn append_scaling(&self, scaling: N) -> MatrixN<N, D>
-        where D: DimNameSub<U1>,
-              DefaultAllocator: Allocator<N, D, D> {
+    where
+        D: DimNameSub<U1>,
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         let mut res = self.clone_owned();
         res.append_scaling_mut(scaling);
         res
@@ -152,8 +160,10 @@ impl<N: Scalar + Field, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the transformation equal to an uniform scaling factor followed by `self`.
     #[inline]
     pub fn prepend_scaling(&self, scaling: N) -> MatrixN<N, D>
-        where D: DimNameSub<U1>,
-              DefaultAllocator: Allocator<N, D, D> {
+    where
+        D: DimNameSub<U1>,
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         let mut res = self.clone_owned();
         res.prepend_scaling_mut(scaling);
         res
@@ -161,10 +171,15 @@ impl<N: Scalar + Field, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
     /// Computes the transformation equal to `self` followed by a non-uniform scaling factor.
     #[inline]
-    pub fn append_nonuniform_scaling<SB>(&self, scaling: &Vector<N, DimNameDiff<D, U1>, SB>) -> MatrixN<N, D>
-        where D: DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>>,
-              DefaultAllocator: Allocator<N, D, D> {
+    pub fn append_nonuniform_scaling<SB>(
+        &self,
+        scaling: &Vector<N, DimNameDiff<D, U1>, SB>,
+    ) -> MatrixN<N, D>
+    where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         let mut res = self.clone_owned();
         res.append_nonuniform_scaling_mut(scaling);
         res
@@ -172,10 +187,15 @@ impl<N: Scalar + Field, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
     /// Computes the transformation equal to a non-uniform scaling factor followed by `self`.
     #[inline]
-    pub fn prepend_nonuniform_scaling<SB>(&self, scaling: &Vector<N, DimNameDiff<D, U1>, SB>) -> MatrixN<N, D>
-        where D: DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>>,
-              DefaultAllocator: Allocator<N, D, D> {
+    pub fn prepend_nonuniform_scaling<SB>(
+        &self,
+        scaling: &Vector<N, DimNameDiff<D, U1>, SB>,
+    ) -> MatrixN<N, D>
+    where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         let mut res = self.clone_owned();
         res.prepend_nonuniform_scaling_mut(scaling);
         res
@@ -184,9 +204,11 @@ impl<N: Scalar + Field, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the transformation equal to `self` followed by a translation.
     #[inline]
     pub fn append_translation<SB>(&self, shift: &Vector<N, DimNameDiff<D, U1>, SB>) -> MatrixN<N, D>
-        where D: DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>>,
-              DefaultAllocator: Allocator<N, D, D> {
+    where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         let mut res = self.clone_owned();
         res.append_translation_mut(shift);
         res
@@ -194,11 +216,15 @@ impl<N: Scalar + Field, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
     /// Computes the transformation equal to a translation followed by `self`.
     #[inline]
-    pub fn prepend_translation<SB>(&self, shift: &Vector<N, DimNameDiff<D, U1>, SB>) -> MatrixN<N, D>
-        where D: DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>>,
-              DefaultAllocator: Allocator<N, D, D> +
-                                Allocator<N, DimNameDiff<D, U1>> {
+    pub fn prepend_translation<SB>(
+        &self,
+        shift: &Vector<N, DimNameDiff<D, U1>, SB>,
+    ) -> MatrixN<N, D>
+    where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimNameDiff<D, U1>>,
+    {
         let mut res = self.clone_owned();
         res.prepend_translation_mut(shift);
         res
@@ -206,11 +232,12 @@ impl<N: Scalar + Field, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 }
 
 impl<N: Scalar + Field, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
-
     /// Computes in-place the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
     pub fn append_scaling_mut(&mut self, scaling: N)
-        where D: DimNameSub<U1> {
+    where
+        D: DimNameSub<U1>,
+    {
         let mut to_scale = self.fixed_rows_mut::<DimNameDiff<D, U1>>(0);
         to_scale *= scaling;
     }
@@ -218,7 +245,9 @@ impl<N: Scalar + Field, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S
     /// Computes in-place the transformation equal to an uniform scaling factor followed by `self`.
     #[inline]
     pub fn prepend_scaling_mut(&mut self, scaling: N)
-        where D: DimNameSub<U1> {
+    where
+        D: DimNameSub<U1>,
+    {
         let mut to_scale = self.fixed_columns_mut::<DimNameDiff<D, U1>>(0);
         to_scale *= scaling;
     }
@@ -226,9 +255,11 @@ impl<N: Scalar + Field, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S
     /// Computes in-place the transformation equal to `self` followed by a non-uniform scaling factor.
     #[inline]
     pub fn append_nonuniform_scaling_mut<SB>(&mut self, scaling: &Vector<N, DimNameDiff<D, U1>, SB>)
-        where D:  DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>> {
-        for i in 0 .. scaling.len() {
+    where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+    {
+        for i in 0..scaling.len() {
             let mut to_scale = self.fixed_rows_mut::<U1>(i);
             to_scale *= scaling[i];
         }
@@ -236,10 +267,14 @@ impl<N: Scalar + Field, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S
 
     /// Computes in-place the transformation equal to a non-uniform scaling factor followed by `self`.
     #[inline]
-    pub fn prepend_nonuniform_scaling_mut<SB>(&mut self, scaling: &Vector<N, DimNameDiff<D, U1>, SB>)
-        where D:  DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>> {
-        for i in 0 .. scaling.len() {
+    pub fn prepend_nonuniform_scaling_mut<SB>(
+        &mut self,
+        scaling: &Vector<N, DimNameDiff<D, U1>, SB>,
+    ) where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+    {
+        for i in 0..scaling.len() {
             let mut to_scale = self.fixed_columns_mut::<U1>(i);
             to_scale *= scaling[i];
         }
@@ -248,10 +283,12 @@ impl<N: Scalar + Field, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S
     /// Computes the transformation equal to `self` followed by a translation.
     #[inline]
     pub fn append_translation_mut<SB>(&mut self, shift: &Vector<N, DimNameDiff<D, U1>, SB>)
-        where D: DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>> {
-        for i in 0 .. D::dim() {
-            for j in 0 .. D::dim() - 1 {
+    where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+    {
+        for i in 0..D::dim() {
+            for j in 0..D::dim() - 1 {
                 self[(j, i)] += shift[j] * self[(D::dim() - 1, i)];
             }
         }
@@ -260,11 +297,15 @@ impl<N: Scalar + Field, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S
     /// Computes the transformation equal to a translation followed by `self`.
     #[inline]
     pub fn prepend_translation_mut<SB>(&mut self, shift: &Vector<N, DimNameDiff<D, U1>, SB>)
-        where D: DimNameSub<U1>,
-              SB: Storage<N, DimNameDiff<D, U1>>,
-              DefaultAllocator: Allocator<N, DimNameDiff<D, U1>> {
-        let scale = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0).tr_dot(&shift);
-        let post_translation = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0) * shift;
+    where
+        D: DimNameSub<U1>,
+        SB: Storage<N, DimNameDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, DimNameDiff<D, U1>>,
+    {
+        let scale = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0)
+            .tr_dot(&shift);
+        let post_translation =
+            self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0) * shift;
 
         self[(D::dim() - 1, D::dim() - 1)] += scale;
 
@@ -273,14 +314,18 @@ impl<N: Scalar + Field, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S
     }
 }
 
-
 impl<N: Real, D: DimNameSub<U1>> Transformation<Point<N, DimNameDiff<D, U1>>> for MatrixN<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, DimNameDiff<D, U1>> +
-                            Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>> {
+where
+    DefaultAllocator: Allocator<N, D, D>
+        + Allocator<N, DimNameDiff<D, U1>>
+        + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>,
+{
     #[inline]
-    fn transform_vector(&self, v: &VectorN<N, DimNameDiff<D, U1>>) -> VectorN<N, DimNameDiff<D, U1>> {
-        let transform  = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
+    fn transform_vector(
+        &self,
+        v: &VectorN<N, DimNameDiff<D, U1>>,
+    ) -> VectorN<N, DimNameDiff<D, U1>> {
+        let transform = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
         let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
         let n = normalizer.tr_dot(&v);
 
@@ -293,10 +338,12 @@ impl<N: Real, D: DimNameSub<U1>> Transformation<Point<N, DimNameDiff<D, U1>>> fo
 
     #[inline]
     fn transform_point(&self, pt: &Point<N, DimNameDiff<D, U1>>) -> Point<N, DimNameDiff<D, U1>> {
-        let transform   = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
+        let transform = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
         let translation = self.fixed_slice::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1);
-        let normalizer  = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
-        let n = normalizer.tr_dot(&pt.coords) + unsafe { *self.get_unchecked(D::dim() - 1, D::dim() - 1) };
+        let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
+        let n = normalizer.tr_dot(&pt.coords) + unsafe {
+            *self.get_unchecked(D::dim() - 1, D::dim() - 1)
+        };
 
         if !n.is_zero() {
             return transform * (pt / n) + translation;

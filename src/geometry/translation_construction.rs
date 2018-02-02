@@ -3,8 +3,8 @@ use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "arbitrary")]
 use core::storage::Owned;
 
-use num::{Zero, One};
-use rand::{Rng, Rand};
+use num::{One, Zero};
+use rand::{Rand, Rng};
 
 use alga::general::ClosedAdd;
 
@@ -15,8 +15,9 @@ use core::allocator::Allocator;
 use geometry::Translation;
 
 impl<N: Scalar + Zero, D: DimName> Translation<N, D>
-    where DefaultAllocator: Allocator<N, D> {
-
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Creates a new square identity rotation of the given `dimension`.
     #[inline]
     pub fn identity() -> Translation<N, D> {
@@ -25,7 +26,9 @@ impl<N: Scalar + Zero, D: DimName> Translation<N, D>
 }
 
 impl<N: Scalar + Zero + ClosedAdd, D: DimName> One for Translation<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn one() -> Self {
         Self::identity()
@@ -33,18 +36,21 @@ impl<N: Scalar + Zero + ClosedAdd, D: DimName> One for Translation<N, D>
 }
 
 impl<N: Scalar + Rand, D: DimName> Rand for Translation<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn rand<G: Rng>(rng: &mut G) -> Self {
         Self::from_vector(rng.gen())
     }
 }
 
-
 #[cfg(feature = "arbitrary")]
 impl<N: Scalar + Arbitrary, D: DimName> Arbitrary for Translation<N, D>
-    where DefaultAllocator: Allocator<N, D>,
-          Owned<N, D>: Send {
+where
+    DefaultAllocator: Allocator<N, D>,
+    Owned<N, D>: Send,
+{
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
         Self::from_vector(Arbitrary::arbitrary(rng))

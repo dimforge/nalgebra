@@ -1,5 +1,5 @@
 use test::{self, Bencher};
-use na::{DMatrix, DVector, Cholesky};
+use na::{Cholesky, DMatrix, DVector};
 
 #[bench]
 fn cholesky_100x100(bh: &mut Bencher) {

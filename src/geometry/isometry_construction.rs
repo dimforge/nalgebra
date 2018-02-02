@@ -4,7 +4,7 @@ use quickcheck::{Arbitrary, Gen};
 use core::storage::Owned;
 
 use num::One;
-use rand::{Rng, Rand};
+use rand::{Rand, Rng};
 
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
@@ -13,12 +13,13 @@ use core::{DefaultAllocator, Vector2, Vector3};
 use core::dimension::{DimName, U2, U3};
 use core::allocator::Allocator;
 
-use geometry::{Point, Translation, Rotation, Isometry, UnitQuaternion, UnitComplex,
-               Point3, Rotation2, Rotation3};
-
+use geometry::{Isometry, Point, Point3, Rotation, Rotation2, Rotation3, Translation, UnitComplex,
+               UnitQuaternion};
 
 impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> Isometry<N, D, R>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Creates a new identity isometry.
     #[inline]
     pub fn identity() -> Self {
@@ -35,7 +36,9 @@ impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> Isometry<N, D, R>
 }
 
 impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> One for Isometry<N, D, R>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Creates a new identity isometry.
     #[inline]
     fn one() -> Self {
@@ -44,8 +47,10 @@ impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> One for Isometry<N, D, R
 }
 
 impl<N: Real + Rand, D: DimName, R> Rand for Isometry<N, D, R>
-    where R: AlgaRotation<Point<N, D>> + Rand,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: AlgaRotation<Point<N, D>> + Rand,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn rand<G: Rng>(rng: &mut G) -> Self {
         Self::from_parts(rng.gen(), rng.gen())
@@ -54,10 +59,12 @@ impl<N: Real + Rand, D: DimName, R> Rand for Isometry<N, D, R>
 
 #[cfg(feature = "arbitrary")]
 impl<N, D: DimName, R> Arbitrary for Isometry<N, D, R>
-    where N: Real + Arbitrary + Send,
-          R: AlgaRotation<Point<N, D>> + Arbitrary + Send,
-          Owned<N, D>: Send,
-          DefaultAllocator: Allocator<N, D> {
+where
+    N: Real + Arbitrary + Send,
+    R: AlgaRotation<Point<N, D>> + Arbitrary + Send,
+    Owned<N, D>: Send,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
         Self::from_parts(Arbitrary::arbitrary(rng), Arbitrary::arbitrary(rng))
@@ -75,7 +82,10 @@ impl<N: Real> Isometry<N, U2, Rotation2<N>> {
     /// Creates a new isometry from a translation and a rotation angle.
     #[inline]
     pub fn new(translation: Vector2<N>, angle: N) -> Self {
-        Self::from_parts(Translation::from_vector(translation), Rotation::<N, U2>::new(angle))
+        Self::from_parts(
+            Translation::from_vector(translation),
+            Rotation::<N, U2>::new(angle),
+        )
     }
 }
 
@@ -83,7 +93,10 @@ impl<N: Real> Isometry<N, U2, UnitComplex<N>> {
     /// Creates a new isometry from a translation and a rotation angle.
     #[inline]
     pub fn new(translation: Vector2<N>, angle: N) -> Self {
-        Self::from_parts(Translation::from_vector(translation), UnitComplex::from_angle(angle))
+        Self::from_parts(
+            Translation::from_vector(translation),
+            UnitComplex::from_angle(angle),
+        )
     }
 }
 

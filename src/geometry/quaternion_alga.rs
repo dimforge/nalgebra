@@ -1,15 +1,14 @@
 use num::Zero;
 
-use alga::general::{AbstractMagma, AbstractGroup, AbstractGroupAbelian, AbstractLoop,
-                    AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, AbstractModule,
-                    Module, Real, Inverse, Multiplicative, Additive, Identity, Id};
-use alga::linear::{Transformation, AffineTransformation, Similarity, Isometry, DirectIsometry,
-                   OrthogonalTransformation, VectorSpace, FiniteDimVectorSpace, NormedSpace,
-                   Rotation, ProjectiveTransformation};
+use alga::general::{AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma,
+                    AbstractModule, AbstractMonoid, AbstractQuasigroup, AbstractSemigroup,
+                    Additive, Id, Identity, Inverse, Module, Multiplicative, Real};
+use alga::linear::{AffineTransformation, DirectIsometry, FiniteDimVectorSpace, Isometry,
+                   NormedSpace, OrthogonalTransformation, ProjectiveTransformation, Rotation,
+                   Similarity, Transformation, VectorSpace};
 
 use core::{Vector3, Vector4};
 use geometry::{Point3, Quaternion, UnitQuaternion};
-
 
 impl<N: Real> Identity<Multiplicative> for Quaternion<N> {
     #[inline]
@@ -64,7 +63,6 @@ impl_structures!(
     AbstractGroup<Additive>,
     AbstractGroupAbelian<Additive>
 );
-
 
 /*
  *
@@ -141,8 +139,7 @@ impl<N: Real> NormedSpace for Quaternion<N> {
     fn try_normalize(&self, min_norm: N) -> Option<Self> {
         if let Some(v) = self.coords.try_normalize(min_norm) {
             Some(Self::from_vector(v))
-        }
-        else {
+        } else {
             None
         }
     }
@@ -220,9 +217,9 @@ impl<N: Real> ProjectiveTransformation<Point3<N>> for UnitQuaternion<N> {
 }
 
 impl<N: Real> AffineTransformation<Point3<N>> for UnitQuaternion<N> {
-    type Rotation          = Self;
+    type Rotation = Self;
     type NonUniformScaling = Id;
-    type Translation       = Id;
+    type Translation = Id;
 
     #[inline]
     fn decompose(&self) -> (Id, Self, Id, Self) {
@@ -261,7 +258,7 @@ impl<N: Real> AffineTransformation<Point3<N>> for UnitQuaternion<N> {
 }
 
 impl<N: Real> Similarity<Point3<N>> for UnitQuaternion<N> {
-    type Scaling  = Id;
+    type Scaling = Id;
 
     #[inline]
     fn translation(&self) -> Id {
@@ -286,8 +283,6 @@ macro_rules! marker_impl(
 );
 
 marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
-
-
 
 impl<N: Real> Rotation<Point3<N>> for UnitQuaternion<N> {
     #[inline]

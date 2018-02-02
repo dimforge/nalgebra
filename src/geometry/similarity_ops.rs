@@ -1,4 +1,4 @@
-use std::ops::{Mul, MulAssign, Div, DivAssign};
+use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
@@ -7,7 +7,7 @@ use core::{DefaultAllocator, VectorN};
 use core::dimension::{DimName, U1, U3, U4};
 use core::allocator::Allocator;
 
-use geometry::{Point, Rotation, Similarity, Translation, UnitQuaternion, Isometry};
+use geometry::{Isometry, Point, Rotation, Similarity, Translation, UnitQuaternion};
 
 // FIXME: there are several cloning of rotations that we could probably get rid of (but we didn't
 // yet because that would require to add a bound like `where for<'a, 'b> &'a R: Mul<&'b R, Output = R>`
@@ -60,7 +60,6 @@ use geometry::{Point, Rotation, Similarity, Translation, UnitQuaternion, Isometr
  * Similarity ÷= R
  *
  */
-
 
 // XXX: code duplication: those macros are the same as for the isometry.
 macro_rules! similarity_binop_impl(
@@ -149,7 +148,6 @@ similarity_binop_impl_all!(
     };
 );
 
-
 similarity_binop_impl_all!(
     Div, div;
     self: Similarity<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
@@ -158,7 +156,6 @@ similarity_binop_impl_all!(
     [val ref] => self * rhs.inverse();
     [ref ref] => self * rhs.inverse();
 );
-
 
 // Similarity ×= Translation
 similarity_binop_assign_impl_all!(
@@ -170,7 +167,6 @@ similarity_binop_assign_impl_all!(
         self.isometry.translation.vector += shift;
     };
 );
-
 
 // Similarity ×= Similarity
 // Similarity ÷= Similarity
@@ -184,7 +180,6 @@ similarity_binop_assign_impl_all!(
     };
 );
 
-
 similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
     self: Similarity<N, D, R>, rhs: Similarity<N, D, R>;
@@ -192,7 +187,6 @@ similarity_binop_assign_impl_all!(
     // FIXME: don't invert explicitly.
     [ref] => *self *= rhs.inverse();
 );
-
 
 // Similarity ×= Isometry
 // Similarity ÷= Isometry
@@ -207,7 +201,6 @@ similarity_binop_assign_impl_all!(
     };
 );
 
-
 similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
     self: Similarity<N, D, R>, rhs: Isometry<N, D, R>;
@@ -215,7 +208,6 @@ similarity_binop_assign_impl_all!(
     // FIXME: don't invert explicitly.
     [ref] => *self *= rhs.inverse();
 );
-
 
 // Similarity ×= R
 // Similarity ÷= R
@@ -226,7 +218,6 @@ similarity_binop_assign_impl_all!(
     [ref] => self.isometry.rotation *= rhs.clone();
 );
 
-
 similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
     self: Similarity<N, D, R>, rhs: R;
@@ -234,7 +225,6 @@ similarity_binop_assign_impl_all!(
     [val] => *self *= rhs.inverse();
     [ref] => *self *= rhs.inverse();
 );
-
 
 // Similarity × R
 // Similarity ÷ R
@@ -252,8 +242,6 @@ similarity_binop_impl_all!(
     };
     [ref ref] => Similarity::from_isometry(&self.isometry * rhs, self.scaling());
 );
-
-
 
 similarity_binop_impl_all!(
     Div, div;
@@ -287,8 +275,6 @@ similarity_binop_impl_all!(
     };
 );
 
-
-
 similarity_binop_impl_all!(
     Div, div;
     self: Similarity<N, D, R>, rhs: Isometry<N, D, R>, Output = Similarity<N, D, R>;
@@ -321,7 +307,6 @@ similarity_binop_impl_all!(
     };
 );
 
-
 similarity_binop_impl_all!(
     Div, div;
     self: Isometry<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
@@ -330,7 +315,6 @@ similarity_binop_impl_all!(
     [val ref] => self * rhs.inverse();
     [ref ref] => self * rhs.inverse();
 );
-
 
 // Similarity × Point
 similarity_binop_impl_all!(
@@ -348,7 +332,6 @@ similarity_binop_impl_all!(
     [ref ref] => &self.isometry.translation * (self.isometry.rotation.transform_point(right) * self.scaling());
 );
 
-
 // Similarity × Vector
 similarity_binop_impl_all!(
     Mul, mul;
@@ -358,7 +341,6 @@ similarity_binop_impl_all!(
     [val ref] => self.isometry.rotation.transform_vector(right) * self.scaling();
     [ref ref] => self.isometry.rotation.transform_vector(right) * self.scaling();
 );
-
 
 // Similarity × Translation
 similarity_binop_impl_all!(
@@ -376,7 +358,6 @@ similarity_binop_impl_all!(
     };
 );
 
-
 // Translation × Similarity
 similarity_binop_impl_all!(
     Mul, mul;
@@ -392,7 +373,6 @@ similarity_binop_impl_all!(
     [val ref] => Similarity::from_isometry(self * &right.isometry, right.scaling());
     [ref ref] => Similarity::from_isometry(self * &right.isometry, right.scaling());
 );
-
 
 macro_rules! similarity_from_composition_impl(
     ($Op: ident, $op: ident;
@@ -447,7 +427,6 @@ macro_rules! similarity_from_composition_impl_all(
     }
 );
 
-
 // Rotation × Similarity
 similarity_from_composition_impl_all!(
     Mul, mul;
@@ -459,7 +438,6 @@ similarity_from_composition_impl_all!(
     [val ref] => &self *  right;
     [ref ref] => Similarity::from_isometry(self * &right.isometry, right.scaling());
 );
-
 
 // Rotation ÷ Similarity
 similarity_from_composition_impl_all!(
@@ -474,7 +452,6 @@ similarity_from_composition_impl_all!(
     [ref ref] => self * right.inverse();
 );
 
-
 // UnitQuaternion × Similarity
 similarity_from_composition_impl_all!(
     Mul, mul;
@@ -486,7 +463,6 @@ similarity_from_composition_impl_all!(
     [val ref] => &self *  right;
     [ref ref] => Similarity::from_isometry(self * &right.isometry, right.scaling());
 );
-
 
 // UnitQuaternion ÷ Similarity
 similarity_from_composition_impl_all!(

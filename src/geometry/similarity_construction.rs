@@ -4,7 +4,7 @@ use quickcheck::{Arbitrary, Gen};
 use core::storage::Owned;
 
 use num::One;
-use rand::{Rng, Rand};
+use rand::{Rand, Rng};
 
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
@@ -13,13 +13,14 @@ use core::{DefaultAllocator, Vector2, Vector3};
 use core::dimension::{DimName, U2, U3};
 use core::allocator::Allocator;
 
-use geometry::{Point, Translation, Similarity, UnitComplex, UnitQuaternion, Isometry,
-               Point3, Rotation2, Rotation3};
-
+use geometry::{Isometry, Point, Point3, Rotation2, Rotation3, Similarity, Translation,
+               UnitComplex, UnitQuaternion};
 
 impl<N: Real, D: DimName, R> Similarity<N, D, R>
-    where R: AlgaRotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: AlgaRotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Creates a new identity similarity.
     #[inline]
     pub fn identity() -> Self {
@@ -28,8 +29,10 @@ impl<N: Real, D: DimName, R> Similarity<N, D, R>
 }
 
 impl<N: Real, D: DimName, R> One for Similarity<N, D, R>
-    where R: AlgaRotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: AlgaRotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Creates a new identity similarity.
     #[inline]
     fn one() -> Self {
@@ -38,8 +41,10 @@ impl<N: Real, D: DimName, R> One for Similarity<N, D, R>
 }
 
 impl<N: Real + Rand, D: DimName, R> Rand for Similarity<N, D, R>
-    where R: AlgaRotation<Point<N, D>> + Rand,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: AlgaRotation<Point<N, D>> + Rand,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn rand<G: Rng>(rng: &mut G) -> Self {
         let mut s = rng.gen();
@@ -52,8 +57,10 @@ impl<N: Real + Rand, D: DimName, R> Rand for Similarity<N, D, R>
 }
 
 impl<N: Real, D: DimName, R> Similarity<N, D, R>
-    where R: AlgaRotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: AlgaRotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     /// The similarity that applies tha scaling factor `scaling`, followed by the rotation `r` with
     /// its axis passing through the point `p`.
     #[inline]
@@ -65,10 +72,12 @@ impl<N: Real, D: DimName, R> Similarity<N, D, R>
 
 #[cfg(feature = "arbitrary")]
 impl<N, D: DimName, R> Arbitrary for Similarity<N, D, R>
-    where N: Real + Arbitrary + Send,
-          R: AlgaRotation<Point<N, D>> + Arbitrary + Send,
-          DefaultAllocator: Allocator<N, D>,
-          Owned<N, D>: Send {
+where
+    N: Real + Arbitrary + Send,
+    R: AlgaRotation<Point<N, D>> + Arbitrary + Send,
+    DefaultAllocator: Allocator<N, D>,
+    Owned<N, D>: Send,
+{
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
         let mut s = Arbitrary::arbitrary(rng);
@@ -91,7 +100,11 @@ impl<N: Real> Similarity<N, U2, Rotation2<N>> {
     /// Creates a new similarity from a translation and a rotation angle.
     #[inline]
     pub fn new(translation: Vector2<N>, angle: N, scaling: N) -> Self {
-        Self::from_parts(Translation::from_vector(translation), Rotation2::new(angle), scaling)
+        Self::from_parts(
+            Translation::from_vector(translation),
+            Rotation2::new(angle),
+            scaling,
+        )
     }
 }
 
@@ -99,7 +112,11 @@ impl<N: Real> Similarity<N, U2, UnitComplex<N>> {
     /// Creates a new similarity from a translation and a rotation angle.
     #[inline]
     pub fn new(translation: Vector2<N>, angle: N, scaling: N) -> Self {
-        Self::from_parts(Translation::from_vector(translation), UnitComplex::new(angle), scaling)
+        Self::from_parts(
+            Translation::from_vector(translation),
+            UnitComplex::new(angle),
+            scaling,
+        )
     }
 }
 

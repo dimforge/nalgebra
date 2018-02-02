@@ -1,22 +1,23 @@
-use alga::general::{SubsetOf, Real};
+use alga::general::{Real, SubsetOf};
 
 use core::{DefaultAllocator, MatrixN};
 use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use core::allocator::Allocator;
 
-use geometry::{Transform, TCategory, SuperTCategoryOf};
-
+use geometry::{SuperTCategoryOf, TCategory, Transform};
 
 impl<N1, N2, D: DimName, C1, C2> SubsetOf<Transform<N2, D, C2>> for Transform<N1, D, C1>
-    where N1: Real + SubsetOf<N2>,
-          N2: Real,
-          C1: TCategory,
-          C2: SuperTCategoryOf<C1>,
-          D: DimNameAdd<U1>,
-          DefaultAllocator: Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          N1::Epsilon: Copy,
-          N2::Epsilon: Copy {
+where
+    N1: Real + SubsetOf<N2>,
+    N2: Real,
+    C1: TCategory,
+    C2: SuperTCategoryOf<C1>,
+    D: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    N1::Epsilon: Copy,
+    N2::Epsilon: Copy,
+{
     #[inline]
     fn to_superset(&self) -> Transform<N2, D, C2> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
@@ -33,16 +34,17 @@ impl<N1, N2, D: DimName, C1, C2> SubsetOf<Transform<N2, D, C2>> for Transform<N1
     }
 }
 
-
 impl<N1, N2, D: DimName, C> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Transform<N1, D, C>
-    where N1: Real + SubsetOf<N2>,
-          N2: Real,
-          C: TCategory,
-          D: DimNameAdd<U1>,
-          DefaultAllocator: Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          N1::Epsilon: Copy,
-          N2::Epsilon: Copy {
+where
+    N1: Real + SubsetOf<N2>,
+    N2: Real,
+    C: TCategory,
+    D: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    N1::Epsilon: Copy,
+    N2::Epsilon: Copy,
+{
     #[inline]
     fn to_superset(&self) -> MatrixN<N2, DimNameSum<D, U1>> {
         self.matrix().to_superset()

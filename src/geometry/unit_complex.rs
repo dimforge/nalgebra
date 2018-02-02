@@ -3,7 +3,7 @@ use approx::ApproxEq;
 use num_complex::Complex;
 
 use alga::general::Real;
-use core::{Unit, Vector1, Matrix2, Matrix3};
+use core::{Matrix2, Matrix3, Unit, Vector1};
 use geometry::Rotation2;
 
 /// A complex number with a norm equal to 1.
@@ -97,8 +97,7 @@ impl<N: Real> UnitComplex<N> {
         let r = self.re;
         let i = self.im;
 
-        Rotation2::from_matrix_unchecked(Matrix2::new(r, -i,
-                                                      i,  r))
+        Rotation2::from_matrix_unchecked(Matrix2::new(r, -i, i, r))
     }
 
     /// Converts this unit complex number into its equivalent homogeneous transformation matrix.
@@ -133,14 +132,19 @@ impl<N: Real> ApproxEq for UnitComplex<N> {
     }
 
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-        self.re.relative_eq(&other.re, epsilon, max_relative) &&
-        self.im.relative_eq(&other.im, epsilon, max_relative)
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
+        self.re.relative_eq(&other.re, epsilon, max_relative)
+            && self.im.relative_eq(&other.im, epsilon, max_relative)
     }
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.re.ulps_eq(&other.re, epsilon, max_ulps) &&
-        self.im.ulps_eq(&other.im, epsilon, max_ulps)
+        self.re.ulps_eq(&other.re, epsilon, max_ulps)
+            && self.im.ulps_eq(&other.im, epsilon, max_ulps)
     }
 }

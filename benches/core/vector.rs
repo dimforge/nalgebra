@@ -1,10 +1,10 @@
 use rand::{IsaacRng, Rng};
 use test::{self, Bencher};
 use typenum::U10000;
-use na::{Vector2, Vector3, Vector4, VectorN, DVector};
-use std::ops::{Add, Sub, Mul, Div};
+use na::{DVector, Vector2, Vector3, Vector4, VectorN};
+use std::ops::{Add, Div, Mul, Sub};
 
-#[path="../common/macros.rs"]
+#[path = "../common/macros.rs"]
 mod macros;
 
 bench_binop!(vec2_add_v_f32, Vector2<f32>, Vector2<f32>, add);
@@ -55,9 +55,7 @@ fn vec10000_axpy_f64(bh: &mut Bencher) {
     let b = DVector::new_random(10000);
     let n = rng.gen::<f64>();
 
-    bh.iter(|| {
-        a.axpy(n, &b, 1.0)
-    })
+    bh.iter(|| a.axpy(n, &b, 1.0))
 }
 
 #[bench]
@@ -68,9 +66,7 @@ fn vec10000_axpy_beta_f64(bh: &mut Bencher) {
     let n = rng.gen::<f64>();
     let beta = rng.gen::<f64>();
 
-    bh.iter(|| {
-        a.axpy(n, &b, beta)
-    })
+    bh.iter(|| a.axpy(n, &b, beta))
 }
 
 #[bench]
@@ -96,11 +92,8 @@ fn vec10000_axpy_f64_static(bh: &mut Bencher) {
     let n = rng.gen::<f64>();
 
     // NOTE: for some reasons, it is much faster if the arument are boxed (Box::new(VectorN...)).
-    bh.iter(|| {
-        a.axpy(n, &b, 1.0)
-    })
+    bh.iter(|| a.axpy(n, &b, 1.0))
 }
-
 
 #[bench]
 fn vec10000_axpy_f32(bh: &mut Bencher) {
@@ -109,9 +102,7 @@ fn vec10000_axpy_f32(bh: &mut Bencher) {
     let b = DVector::new_random(10000);
     let n = rng.gen::<f32>();
 
-    bh.iter(|| {
-        a.axpy(n, &b, 1.0)
-    })
+    bh.iter(|| a.axpy(n, &b, 1.0))
 }
 
 #[bench]
@@ -122,7 +113,5 @@ fn vec10000_axpy_beta_f32(bh: &mut Bencher) {
     let n = rng.gen::<f32>();
     let beta = rng.gen::<f32>();
 
-    bh.iter(|| {
-        a.axpy(n, &b, beta)
-    })
+    bh.iter(|| a.axpy(n, &b, beta))
 }

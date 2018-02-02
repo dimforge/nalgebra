@@ -1,11 +1,11 @@
 use std::marker::PhantomData;
-use std::ops::{Range, RangeFrom, RangeTo, RangeFull};
+use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
 use std::slice;
 
-use core::{Scalar, Matrix};
+use core::{Matrix, Scalar};
 use core::dimension::{Dim, DimName, Dynamic, U1};
 use core::iter::MatrixIter;
-use core::storage::{Storage, StorageMut, Owned};
+use core::storage::{Owned, Storage, StorageMut};
 use core::allocator::Allocator;
 use core::default_allocator::DefaultAllocator;
 
@@ -81,18 +81,18 @@ slice_storage_impl!("A mutable matrix data storage for mutable matrix slice. Onl
     StorageMut as &'a mut S; SliceStorageMut.get_address_unchecked_mut(*mut N as &'a mut N)
 );
 
-
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
-for SliceStorage<'a, N, R, C, RStride, CStride> { }
+    for SliceStorage<'a, N, R, C, RStride, CStride> {
+}
 
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
-for SliceStorage<'a, N, R, C, RStride, CStride> {
+    for SliceStorage<'a, N, R, C, RStride, CStride> {
     #[inline]
     fn clone(&self) -> Self {
         SliceStorage {
-            ptr:       self.ptr,
-            shape:     self.shape,
-            strides:   self.strides,
+            ptr: self.ptr,
+            shape: self.shape,
+            strides: self.strides,
             _phantoms: PhantomData,
         }
     }
@@ -183,27 +183,35 @@ unsafe impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> StorageMu
         if nrows.value() != 0 && ncols.value() != 0 {
             let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
             unsafe { slice::from_raw_parts_mut(self.ptr, sz + 1) }
-        }
-        else {
+        } else {
             unsafe { slice::from_raw_parts_mut(self.ptr, 0) }
         }
     }
 }
 
-
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
-    fn assert_slice_index(&self, start: (usize, usize), shape: (usize, usize), steps: (usize, usize)) {
+    fn assert_slice_index(
+        &self,
+        start: (usize, usize),
+        shape: (usize, usize),
+        steps: (usize, usize),
+    ) {
         let my_shape = self.shape();
         // NOTE: we don't do any subtraction to avoid underflow for zero-sized matrices.
         //
         // Terms that would have been negative are moved to the other side of the inequality
         // instead.
-        assert!(start.0 + (steps.0 + 1) * shape.0 <= my_shape.0 + steps.0, "Matrix slicing out of bounds.");
-        assert!(start.1 + (steps.1 + 1) * shape.1 <= my_shape.1 + steps.1, "Matrix slicing out of bounds.");
+        assert!(
+            start.0 + (steps.0 + 1) * shape.0 <= my_shape.0 + steps.0,
+            "Matrix slicing out of bounds."
+        );
+        assert!(
+            start.1 + (steps.1 + 1) * shape.1 <= my_shape.1 + steps.1,
+            "Matrix slicing out of bounds."
+        );
     }
 }
-
 
 macro_rules! matrix_slice_impl(
     ($me: ident: $Me: ty, $MatrixSlice: ident, $SliceStorage: ident, $Storage: ident.$get_addr: ident (), $data: expr;
@@ -618,7 +626,6 @@ matrix_slice_impl!(
      rows_range_pair,
      columns_range_pair);
 
-
 matrix_slice_impl!(
      self: &mut Self, MatrixSliceMut, SliceStorageMut, StorageMut.get_address_unchecked_mut(), &mut self.data;
      row_mut,
@@ -645,7 +652,6 @@ matrix_slice_impl!(
      generic_slice_with_steps_mut,
      rows_range_pair_mut,
      columns_range_pair_mut);
-
 
 /// A range with a size that may be known at compile-time.
 ///
@@ -762,34 +768,41 @@ impl<D: Dim> SliceRange<D> for RangeFull {
     }
 }
 
-
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Slices a sub-matrix containing the rows indexed by the range `rows` and the columns indexed
     /// by the range `cols`.
     #[inline]
-    pub fn slice_range<RowRange, ColRange>(&self, rows: RowRange, cols: ColRange)
-        -> MatrixSlice<N, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
-        where RowRange: SliceRange<R>,
-              ColRange: SliceRange<C> {
-
+    pub fn slice_range<RowRange, ColRange>(
+        &self,
+        rows: RowRange,
+        cols: ColRange,
+    ) -> MatrixSlice<N, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
+    where
+        RowRange: SliceRange<R>,
+        ColRange: SliceRange<C>,
+    {
         let (nrows, ncols) = self.data.shape();
-        self.generic_slice((rows.begin(nrows), cols.begin(ncols)),
-                           (rows.size(nrows), cols.size(ncols)))
+        self.generic_slice(
+            (rows.begin(nrows), cols.begin(ncols)),
+            (rows.size(nrows), cols.size(ncols)),
+        )
     }
 
     /// Slice containing all the rows indexed by the range `rows`.
     #[inline]
-    pub fn rows_range<RowRange: SliceRange<R>>(&self, rows: RowRange)
-        -> MatrixSlice<N, RowRange::Size, C, S::RStride, S::CStride> {
-
+    pub fn rows_range<RowRange: SliceRange<R>>(
+        &self,
+        rows: RowRange,
+    ) -> MatrixSlice<N, RowRange::Size, C, S::RStride, S::CStride> {
         self.slice_range(rows, ..)
     }
 
     /// Slice containing all the columns indexed by the range `rows`.
     #[inline]
-    pub fn columns_range<ColRange: SliceRange<C>>(&self, cols: ColRange)
-        -> MatrixSlice<N, R, ColRange::Size, S::RStride, S::CStride> {
-
+    pub fn columns_range<ColRange: SliceRange<C>>(
+        &self,
+        cols: ColRange,
+    ) -> MatrixSlice<N, R, ColRange::Size, S::RStride, S::CStride> {
         self.slice_range(.., cols)
     }
 }
@@ -797,29 +810,37 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Slices a mutable sub-matrix containing the rows indexed by the range `rows` and the columns
     /// indexed by the range `cols`.
-    pub fn slice_range_mut<RowRange, ColRange>(&mut self, rows: RowRange, cols: ColRange)
-        -> MatrixSliceMut<N, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
-        where RowRange: SliceRange<R>,
-              ColRange: SliceRange<C> {
-
+    pub fn slice_range_mut<RowRange, ColRange>(
+        &mut self,
+        rows: RowRange,
+        cols: ColRange,
+    ) -> MatrixSliceMut<N, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
+    where
+        RowRange: SliceRange<R>,
+        ColRange: SliceRange<C>,
+    {
         let (nrows, ncols) = self.data.shape();
-        self.generic_slice_mut((rows.begin(nrows), cols.begin(ncols)),
-                               (rows.size(nrows), cols.size(ncols)))
+        self.generic_slice_mut(
+            (rows.begin(nrows), cols.begin(ncols)),
+            (rows.size(nrows), cols.size(ncols)),
+        )
     }
 
     /// Slice containing all the rows indexed by the range `rows`.
     #[inline]
-    pub fn rows_range_mut<RowRange: SliceRange<R>>(&mut self, rows: RowRange)
-        -> MatrixSliceMut<N, RowRange::Size, C, S::RStride, S::CStride> {
-
+    pub fn rows_range_mut<RowRange: SliceRange<R>>(
+        &mut self,
+        rows: RowRange,
+    ) -> MatrixSliceMut<N, RowRange::Size, C, S::RStride, S::CStride> {
         self.slice_range_mut(rows, ..)
     }
 
     /// Slice containing all the columns indexed by the range `cols`.
     #[inline]
-    pub fn columns_range_mut<ColRange: SliceRange<C>>(&mut self, cols: ColRange)
-        -> MatrixSliceMut<N, R, ColRange::Size, S::RStride, S::CStride> {
-
+    pub fn columns_range_mut<ColRange: SliceRange<C>>(
+        &mut self,
+        cols: ColRange,
+    ) -> MatrixSliceMut<N, R, ColRange::Size, S::RStride, S::CStride> {
         self.slice_range_mut(.., cols)
     }
 }

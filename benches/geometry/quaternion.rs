@@ -1,16 +1,21 @@
 use rand::{IsaacRng, Rng};
 use test::{self, Bencher};
 use na::{Quaternion, UnitQuaternion, Vector3};
-use std::ops::{Add, Sub, Mul, Div};
+use std::ops::{Add, Div, Mul, Sub};
 
-#[path="../common/macros.rs"]
+#[path = "../common/macros.rs"]
 mod macros;
 
 bench_binop!(quaternion_add_q, Quaternion<f32>, Quaternion<f32>, add);
 bench_binop!(quaternion_sub_q, Quaternion<f32>, Quaternion<f32>, sub);
 bench_binop!(quaternion_mul_q, Quaternion<f32>, Quaternion<f32>, mul);
 
-bench_binop!(unit_quaternion_mul_v, UnitQuaternion<f32>, Vector3<f32>, mul);
+bench_binop!(
+    unit_quaternion_mul_v,
+    UnitQuaternion<f32>,
+    Vector3<f32>,
+    mul
+);
 
 bench_binop!(quaternion_mul_s, Quaternion<f32>, f32, mul);
 bench_binop!(quaternion_div_s, Quaternion<f32>, f32, div);

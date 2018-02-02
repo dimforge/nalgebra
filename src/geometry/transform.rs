@@ -26,8 +26,9 @@ pub trait TCategory: Any + Debug + Copy + PartialEq + Send {
     /// Checks that the given matrix is a valid homogeneous representation of an element of the
     /// category `Self`.
     fn check_homogeneous_invariants<N: Real, D: DimName>(mat: &MatrixN<N, D>) -> bool
-        where N::Epsilon: Copy,
-              DefaultAllocator: Allocator<N, D, D>;
+    where
+        N::Epsilon: Copy,
+        DefaultAllocator: Allocator<N, D, D>;
 }
 
 /// Traits that gives the `Transform` category that is compatible with the result of the
@@ -40,34 +41,41 @@ pub trait TCategoryMul<Other: TCategory>: TCategory {
 }
 
 /// Indicates that `Self` is a more general `Transform` category than `Other`.
-pub trait SuperTCategoryOf<Other: TCategory>: TCategory { }
+pub trait SuperTCategoryOf<Other: TCategory>: TCategory {}
 
 /// Indicates that `Self` is a more specific `Transform` category than `Other`.
 ///
 /// Automatically implemented based on `SuperTCategoryOf`.
-pub trait SubTCategoryOf<Other: TCategory>: TCategory { }
+pub trait SubTCategoryOf<Other: TCategory>: TCategory {}
 impl<T1, T2> SubTCategoryOf<T2> for T1
-where T1: TCategory,
-      T2: SuperTCategoryOf<T1> {
+where
+    T1: TCategory,
+    T2: SuperTCategoryOf<T1>,
+{
 }
 
 /// Tag representing the most general (not necessarily inversible) `Transform` type.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum TGeneral { }
+pub enum TGeneral {
+}
 
 /// Tag representing the most general inversible `Transform` type.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum TProjective { }
+pub enum TProjective {
+}
 
 /// Tag representing an affine `Transform`. Its bottom-row is equal to `(0, 0 ... 0, 1)`.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum TAffine { }
+pub enum TAffine {
+}
 
 impl TCategory for TGeneral {
     #[inline]
     fn check_homogeneous_invariants<N: Real, D: DimName>(_: &MatrixN<N, D>) -> bool
-        where N::Epsilon: Copy,
-              DefaultAllocator: Allocator<N, D, D> {
+    where
+        N::Epsilon: Copy,
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         true
     }
 }
@@ -75,8 +83,10 @@ impl TCategory for TGeneral {
 impl TCategory for TProjective {
     #[inline]
     fn check_homogeneous_invariants<N: Real, D: DimName>(mat: &MatrixN<N, D>) -> bool
-        where N::Epsilon: Copy,
-              DefaultAllocator: Allocator<N, D, D> {
+    where
+        N::Epsilon: Copy,
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         mat.is_invertible()
     }
 }
@@ -89,12 +99,13 @@ impl TCategory for TAffine {
 
     #[inline]
     fn check_homogeneous_invariants<N: Real, D: DimName>(mat: &MatrixN<N, D>) -> bool
-        where N::Epsilon: Copy,
-              DefaultAllocator: Allocator<N, D, D> {
+    where
+        N::Epsilon: Copy,
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         let last = D::dim() - 1;
-        mat.is_invertible()           &&
-        mat[(last, last)] == N::one() &&
-        (0 .. last).all(|i| mat[(last, i)].is_zero())
+        mat.is_invertible() && mat[(last, last)] == N::one()
+            && (0..last).all(|i| mat[(last, i)].is_zero())
     }
 }
 
@@ -131,14 +142,13 @@ macro_rules! super_tcategory_impl(
     )*}
 );
 
-impl<T: TCategory> SuperTCategoryOf<T> for T { }
+impl<T: TCategory> SuperTCategoryOf<T> for T {}
 
 super_tcategory_impl!(
     TGeneral    >= TProjective;
     TGeneral    >= TAffine;
     TProjective >= TAffine;
 );
-
 
 /// A transformation matrix in homogeneous coordinates.
 ///
@@ -147,10 +157,11 @@ super_tcategory_impl!(
 #[repr(C)]
 #[derive(Debug)]
 pub struct Transform<N: Real, D: DimNameAdd<U1>, C: TCategory>
-    where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
-
-    matrix:   MatrixN<N, DimNameSum<D, U1>>,
-    _phantom: PhantomData<C>
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
+    matrix: MatrixN<N, DimNameSum<D, U1>>,
+    _phantom: PhantomData<C>,
 }
 
 // FIXME
@@ -163,12 +174,16 @@ pub struct Transform<N: Real, D: DimNameAdd<U1>, C: TCategory>
 // }
 
 impl<N: Real, D: DimNameAdd<U1> + Copy, C: TCategory> Copy for Transform<N, D, C>
-    where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-          Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Copy {
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Copy,
+{
 }
 
 impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Clone for Transform<N, D, C>
-    where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
     #[inline]
     fn clone(&self) -> Self {
         Transform::from_matrix_unchecked(self.matrix.clone())
@@ -177,34 +192,44 @@ impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Clone for Transform<N, D, C>
 
 #[cfg(feature = "serde-serialize")]
 impl<N: Real, D: DimNameAdd<U1>, C: TCategory> serde::Serialize for Transform<N, D, C>
-where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-      Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: serde::Serialize {
-
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: serde::Serialize,
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: serde::Serializer {
-            self.matrix.serialize(serializer)
-        }
+    where
+        S: serde::Serializer,
+    {
+        self.matrix.serialize(serializer)
+    }
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Real, D: DimNameAdd<U1>, C: TCategory> serde::Deserialize<'a> for Transform<N, D, C>
-where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-      Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: serde::Deserialize<'a> {
-
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: serde::Deserialize<'a>,
+{
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-        where Des: serde::Deserializer<'a> {
-            let matrix = MatrixN::<N, DimNameSum<D, U1>>::deserialize(deserializer)?;
+    where
+        Des: serde::Deserializer<'a>,
+    {
+        let matrix = MatrixN::<N, DimNameSum<D, U1>>::deserialize(deserializer)?;
 
-            Ok(Transform::from_matrix_unchecked(matrix))
-        }
+        Ok(Transform::from_matrix_unchecked(matrix))
+    }
 }
 
-
 impl<N: Real + Eq, D: DimNameAdd<U1>, C: TCategory> Eq for Transform<N, D, C>
-    where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> { }
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
+}
 
 impl<N: Real, D: DimNameAdd<U1>, C: TCategory> PartialEq for Transform<N, D, C>
-    where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.matrix == right.matrix
@@ -212,14 +237,16 @@ impl<N: Real, D: DimNameAdd<U1>, C: TCategory> PartialEq for Transform<N, D, C>
 }
 
 impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
-    where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
     /// Creates a new transformation from the given homogeneous matrix. The transformation category
     /// of `Self` is not checked to be verified by the given matrix.
     #[inline]
     pub fn from_matrix_unchecked(matrix: MatrixN<N, DimNameSum<D, U1>>) -> Self {
         Transform {
-            matrix:   matrix,
-            _phantom: PhantomData
+            matrix: matrix,
+            _phantom: PhantomData,
         }
     }
 
@@ -274,8 +301,7 @@ impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
     pub fn try_inverse(self) -> Option<Transform<N, D, C>> {
         if let Some(m) = self.matrix.try_inverse() {
             Some(Transform::from_matrix_unchecked(m))
-        }
-        else {
+        } else {
             None
         }
     }
@@ -284,7 +310,9 @@ impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
     /// category (it may not be invertible).
     #[inline]
     pub fn inverse(self) -> Transform<N, D, C>
-        where C: SubTCategoryOf<TProjective> {
+    where
+        C: SubTCategoryOf<TProjective>,
+    {
         // FIXME: specialize for TAffine?
         Transform::from_matrix_unchecked(self.matrix.try_inverse().unwrap())
     }
@@ -300,13 +328,17 @@ impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
     /// `TGeneral` category (it may not be invertible).
     #[inline]
     pub fn inverse_mut(&mut self)
-        where C: SubTCategoryOf<TProjective> {
+    where
+        C: SubTCategoryOf<TProjective>,
+    {
         let _ = self.matrix.try_inverse_mut();
     }
 }
 
 impl<N: Real, D: DimNameAdd<U1>> Transform<N, D, TGeneral>
-    where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
     /// A mutable reference to underlying matrix. Use `.matrix_mut_unchecked` instead if this
     /// transformation category is not `TGeneral`.
     #[inline]
@@ -318,10 +350,12 @@ impl<N: Real, D: DimNameAdd<U1>> Transform<N, D, TGeneral>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ::core::Matrix4;
+    use core::Matrix4;
 
     #[test]
     fn checks_homogeneous_invariants_of_square_identity_matrix() {
-        assert!(TAffine::check_homogeneous_invariants(&Matrix4::<f32>::identity()));
+        assert!(TAffine::check_homogeneous_invariants(
+            &Matrix4::<f32>::identity()
+        ));
     }
 }

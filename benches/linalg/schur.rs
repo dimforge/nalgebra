@@ -13,7 +13,6 @@ fn schur_decompose_10x10(bh: &mut Bencher) {
     bh.iter(|| test::black_box(RealSchur::new(m.clone())))
 }
 
-
 #[bench]
 fn schur_decompose_100x100(bh: &mut Bencher) {
     let m = ::reproductible_dmatrix(100, 100);

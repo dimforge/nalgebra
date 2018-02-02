@@ -10,8 +10,7 @@ use core::{DefaultAllocator, Vector};
 use core::dimension::{U1, U2};
 use core::storage::Storage;
 use core::allocator::Allocator;
-use geometry::{UnitComplex, Rotation};
-
+use geometry::{Rotation, UnitComplex};
 
 impl<N: Real> UnitComplex<N> {
     /// The unit complex number multiplicative identity.
@@ -71,7 +70,9 @@ impl<N: Real> UnitComplex<N> {
     /// Builds the unit complex number from the corresponding 2D rotation matrix.
     #[inline]
     pub fn from_rotation_matrix(rotmat: &Rotation<N, U2>) -> Self
-        where DefaultAllocator: Allocator<N, U2, U2> {
+    where
+        DefaultAllocator: Allocator<N, U2, U2>,
+    {
         Self::new_unchecked(Complex::new(rotmat[(0, 0)], rotmat[(1, 0)]))
     }
 
@@ -79,24 +80,31 @@ impl<N: Real> UnitComplex<N> {
     /// direction.
     #[inline]
     pub fn rotation_between<SB, SC>(a: &Vector<N, U2, SB>, b: &Vector<N, U2, SC>) -> Self
-        where SB: Storage<N, U2, U1>,
-              SC: Storage<N, U2, U1> {
+    where
+        SB: Storage<N, U2, U1>,
+        SC: Storage<N, U2, U1>,
+    {
         Self::scaled_rotation_between(a, b, N::one())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
     #[inline]
-    pub fn scaled_rotation_between<SB, SC>(a: &Vector<N, U2, SB>, b: &Vector<N, U2, SC>, s: N) -> Self
-        where SB: Storage<N, U2, U1>,
-              SC: Storage<N, U2, U1> {
+    pub fn scaled_rotation_between<SB, SC>(
+        a: &Vector<N, U2, SB>,
+        b: &Vector<N, U2, SC>,
+        s: N,
+    ) -> Self
+    where
+        SB: Storage<N, U2, U1>,
+        SC: Storage<N, U2, U1>,
+    {
         if let (Some(na), Some(nb)) = (a.try_normalize(N::zero()), b.try_normalize(N::zero())) {
             let sang = na.perp(&nb);
             let cang = na.dot(&nb);
 
             Self::from_angle(sang.atan2(cang) * s)
-        }
-        else {
+        } else {
             Self::identity()
         }
     }
@@ -116,11 +124,10 @@ impl<N: Real + Rand> Rand for UnitComplex<N> {
     }
 }
 
-#[cfg(feature="arbitrary")]
+#[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for UnitComplex<N> {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         UnitComplex::from_angle(N::arbitrary(g))
-
     }
 }

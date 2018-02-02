@@ -1,4 +1,4 @@
-use alga::general::{Field, Real, MeetSemilattice, JoinSemilattice, Lattice};
+use alga::general::{Field, JoinSemilattice, Lattice, MeetSemilattice, Real};
 use alga::linear::{AffineSpace, EuclideanSpace};
 
 use core::{DefaultAllocator, Scalar, VectorN};
@@ -7,17 +7,20 @@ use core::allocator::Allocator;
 
 use geometry::Point;
 
-
 impl<N: Scalar + Field, D: DimName> AffineSpace for Point<N, D>
-    where N: Scalar + Field,
-          DefaultAllocator: Allocator<N, D> {
+where
+    N: Scalar + Field,
+    DefaultAllocator: Allocator<N, D>,
+{
     type Translation = VectorN<N, D>;
 }
 
 impl<N: Real, D: DimName> EuclideanSpace for Point<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     type Coordinates = VectorN<N, D>;
-    type Real        = N;
+    type Real = N;
 
     #[inline]
     fn origin() -> Self {
@@ -46,8 +49,10 @@ impl<N: Real, D: DimName> EuclideanSpace for Point<N, D>
  *
  */
 impl<N, D: DimName> MeetSemilattice for Point<N, D>
-    where N: Scalar + MeetSemilattice,
-          DefaultAllocator: Allocator<N, D> {
+where
+    N: Scalar + MeetSemilattice,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn meet(&self, other: &Self) -> Self {
         Point::from_coordinates(self.coords.meet(&other.coords))
@@ -55,18 +60,21 @@ impl<N, D: DimName> MeetSemilattice for Point<N, D>
 }
 
 impl<N, D: DimName> JoinSemilattice for Point<N, D>
-    where N: Scalar + JoinSemilattice,
-          DefaultAllocator: Allocator<N, D> {
+where
+    N: Scalar + JoinSemilattice,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn join(&self, other: &Self) -> Self {
         Point::from_coordinates(self.coords.join(&other.coords))
     }
 }
 
-
 impl<N, D: DimName> Lattice for Point<N, D>
-    where N: Scalar + Lattice,
-          DefaultAllocator: Allocator<N, D> {
+where
+    N: Scalar + Lattice,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn meet_join(&self, other: &Self) -> (Self, Self) {
         let (meet, join) = self.coords.meet_join(&other.coords);

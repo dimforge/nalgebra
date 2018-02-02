@@ -3,7 +3,7 @@
 use std::any::Any;
 
 use core::{DefaultAllocator, Scalar};
-use core::constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint};
+use core::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use core::dimension::{Dim, U1};
 use core::storage::ContiguousStorageMut;
 
@@ -24,13 +24,17 @@ pub trait Allocator<N: Scalar, R: Dim, C: Dim = U1>: Any + Sized {
     unsafe fn allocate_uninitialized(nrows: R, ncols: C) -> Self::Buffer;
 
     /// Allocates a buffer initialized with the content of the given iterator.
-    fn allocate_from_iterator<I: IntoIterator<Item = N>>(nrows: R, ncols: C, iter: I) -> Self::Buffer;
+    fn allocate_from_iterator<I: IntoIterator<Item = N>>(
+        nrows: R,
+        ncols: C,
+        iter: I,
+    ) -> Self::Buffer;
 }
 
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
 /// CFrom) elements to a smaller or larger size (RTo, CTo).
-pub trait Reallocator<N: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
-    Allocator<N, RFrom, CFrom> + Allocator<N, RTo, CTo> {
+pub trait Reallocator<N: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>
+    : Allocator<N, RFrom, CFrom> + Allocator<N, RTo, CTo> {
     /// Reallocates a buffer of shape `(RTo, CTo)`, possibly reusing a previously allocated buffer
     /// `buf`. Data stored by `buf` are linearly copied to the output:
     ///
@@ -38,9 +42,11 @@ pub trait Reallocator<N: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
     /// * If `buf` is larger than the output size, then extra elements of `buf` are truncated.
     /// * If `buf` is smaller than the output size, then extra elements of the output are left
     /// uninitialized.
-    unsafe fn reallocate_copy(nrows: RTo, ncols: CTo,
-                              buf: <Self as Allocator<N, RFrom, CFrom>>::Buffer)
-                              -> <Self as Allocator<N, RTo, CTo>>::Buffer;
+    unsafe fn reallocate_copy(
+        nrows: RTo,
+        ncols: CTo,
+        buf: <Self as Allocator<N, RFrom, CFrom>>::Buffer,
+    ) -> <Self as Allocator<N, RTo, CTo>>::Buffer;
 }
 
 /// The number of rows of the result of a componentwise operation on two matrices.
@@ -51,35 +57,48 @@ pub type SameShapeC<C1, C2> = <ShapeConstraint as SameNumberOfColumns<C1, C2>>::
 
 // FIXME: Bad name.
 /// Restricts the given number of rows and columns to be respectively the same.
-pub trait SameShapeAllocator<N, R1, C1, R2, C2>:
-        Allocator<N, R1, C1> +
-        Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>
-    where R1: Dim, R2: Dim, C1: Dim, C2: Dim,
-          N: Scalar,
-          ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
+pub trait SameShapeAllocator<N, R1, C1, R2, C2>
+    : Allocator<N, R1, C1> + Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>
+where
+    R1: Dim,
+    R2: Dim,
+    C1: Dim,
+    C2: Dim,
+    N: Scalar,
+    ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
+{
 }
 
 impl<N, R1, R2, C1, C2> SameShapeAllocator<N, R1, C1, R2, C2> for DefaultAllocator
-    where R1: Dim, R2: Dim, C1: Dim, C2: Dim,
-          N: Scalar,
-          DefaultAllocator: Allocator<N, R1, C1> + Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
-          ShapeConstraint:  SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
+where
+    R1: Dim,
+    R2: Dim,
+    C1: Dim,
+    C2: Dim,
+    N: Scalar,
+    DefaultAllocator: Allocator<N, R1, C1> + Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
+    ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
+{
 }
 
 // XXX: Bad name.
 /// Restricts the given number of rows to be equal.
-pub trait SameShapeVectorAllocator<N, R1, R2>:
-        Allocator<N, R1> +
-        Allocator<N, SameShapeR<R1, R2>> +
-        SameShapeAllocator<N, R1, U1, R2, U1>
-    where R1: Dim, R2: Dim,
-          N: Scalar,
-          ShapeConstraint: SameNumberOfRows<R1, R2> {
+pub trait SameShapeVectorAllocator<N, R1, R2>
+    : Allocator<N, R1> + Allocator<N, SameShapeR<R1, R2>> + SameShapeAllocator<N, R1, U1, R2, U1>
+where
+    R1: Dim,
+    R2: Dim,
+    N: Scalar,
+    ShapeConstraint: SameNumberOfRows<R1, R2>,
+{
 }
 
 impl<N, R1, R2> SameShapeVectorAllocator<N, R1, R2> for DefaultAllocator
-    where R1: Dim, R2: Dim,
-          N: Scalar,
-          DefaultAllocator: Allocator<N, R1, U1> + Allocator<N, SameShapeR<R1, R2>>,
-          ShapeConstraint:  SameNumberOfRows<R1, R2> {
+where
+    R1: Dim,
+    R2: Dim,
+    N: Scalar,
+    DefaultAllocator: Allocator<N, R1, U1> + Allocator<N, SameShapeR<R1, R2>>,
+    ShapeConstraint: SameNumberOfRows<R1, R2>,
+{
 }

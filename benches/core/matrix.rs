@@ -1,11 +1,9 @@
 use rand::{IsaacRng, Rng};
 use test::{self, Bencher};
-use na::{Vector2, Vector3, Vector4, Matrix2, Matrix3, Matrix4,
-         MatrixN, U10,
-         DMatrix, DVector};
-use std::ops::{Add, Sub, Mul, Div};
+use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, MatrixN, U10, Vector2, Vector3, Vector4};
+use std::ops::{Add, Div, Mul, Sub};
 
-#[path="../common/macros.rs"]
+#[path = "../common/macros.rs"]
 mod macros;
 
 bench_binop!(mat2_mul_m, Matrix2<f32>, Matrix2<f32>, mul);
@@ -50,7 +48,7 @@ bench_unop!(mat4_transpose, Matrix4<f32>, transpose);
 
 #[bench]
 fn mat_div_scalar(b: &mut Bencher) {
-    let a = DMatrix::from_row_slice(1000, 1000, &vec![2.0;1000000]);
+    let a = DMatrix::from_row_slice(1000, 1000, &vec![2.0; 1000000]);
     let n = 42.0;
 
     b.iter(|| {
@@ -65,7 +63,7 @@ fn mat100_add_mat100(bench: &mut Bencher) {
     let a = DMatrix::<f64>::new_random(100, 100);
     let b = DMatrix::<f64>::new_random(100, 100);
 
-    bench.iter(|| { &a + &b })
+    bench.iter(|| &a + &b)
 }
 
 #[bench]
@@ -73,7 +71,7 @@ fn mat4_mul_mat4(bench: &mut Bencher) {
     let a = DMatrix::<f64>::new_random(4, 4);
     let b = DMatrix::<f64>::new_random(4, 4);
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -81,7 +79,7 @@ fn mat5_mul_mat5(bench: &mut Bencher) {
     let a = DMatrix::<f64>::new_random(5, 5);
     let b = DMatrix::<f64>::new_random(5, 5);
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -89,7 +87,7 @@ fn mat6_mul_mat6(bench: &mut Bencher) {
     let a = DMatrix::<f64>::new_random(6, 6);
     let b = DMatrix::<f64>::new_random(6, 6);
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -97,7 +95,7 @@ fn mat7_mul_mat7(bench: &mut Bencher) {
     let a = DMatrix::<f64>::new_random(7, 7);
     let b = DMatrix::<f64>::new_random(7, 7);
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -105,7 +103,7 @@ fn mat8_mul_mat8(bench: &mut Bencher) {
     let a = DMatrix::<f64>::new_random(8, 8);
     let b = DMatrix::<f64>::new_random(8, 8);
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -113,7 +111,7 @@ fn mat9_mul_mat9(bench: &mut Bencher) {
     let a = DMatrix::<f64>::new_random(9, 9);
     let b = DMatrix::<f64>::new_random(9, 9);
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -121,7 +119,7 @@ fn mat10_mul_mat10(bench: &mut Bencher) {
     let a = DMatrix::<f64>::new_random(10, 10);
     let b = DMatrix::<f64>::new_random(10, 10);
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -129,7 +127,7 @@ fn mat10_mul_mat10_static(bench: &mut Bencher) {
     let a = MatrixN::<f64, U10>::new_random();
     let b = MatrixN::<f64, U10>::new_random();
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -137,7 +135,7 @@ fn mat100_mul_mat100(bench: &mut Bencher) {
     let a = DMatrix::<f64>::new_random(100, 100);
     let b = DMatrix::<f64>::new_random(100, 100);
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -145,7 +143,7 @@ fn mat500_mul_mat500(bench: &mut Bencher) {
     let a = DMatrix::<f64>::from_element(500, 500, 5f64);
     let b = DMatrix::<f64>::from_element(500, 500, 6f64);
 
-    bench.iter(|| { &a * &b })
+    bench.iter(|| &a * &b)
 }
 
 #[bench]
@@ -175,9 +173,7 @@ fn tr_mul_to(bench: &mut Bencher) {
     let b = DVector::<f64>::new_random(1000);
     let mut c = DVector::from_element(1000, 0.0);
 
-    bench.iter(|| {
-        a.tr_mul_to(&b, &mut c)
-    })
+    bench.iter(|| a.tr_mul_to(&b, &mut c))
 }
 
 #[bench]

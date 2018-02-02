@@ -1,15 +1,14 @@
-use alga::general::{AbstractMagma, AbstractGroup, AbstractLoop, AbstractMonoid, AbstractQuasigroup,
-                    AbstractSemigroup, Real, Inverse, Multiplicative, Identity, Id};
-use alga::linear::{self, Transformation, Similarity, AffineTransformation, Isometry,
-                   DirectIsometry, OrthogonalTransformation, ProjectiveTransformation};
+use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
+                    AbstractQuasigroup, AbstractSemigroup, Id, Identity, Inverse, Multiplicative,
+                    Real};
+use alga::linear::{self, AffineTransformation, DirectIsometry, Isometry, OrthogonalTransformation,
+                   ProjectiveTransformation, Similarity, Transformation};
 
 use core::{DefaultAllocator, VectorN};
 use core::dimension::DimName;
 use core::allocator::Allocator;
 
-use geometry::{Rotation, Point};
-
-
+use geometry::{Point, Rotation};
 
 /*
  *
@@ -17,7 +16,9 @@ use geometry::{Rotation, Point};
  *
  */
 impl<N: Real, D: DimName> Identity<Multiplicative> for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     #[inline]
     fn identity() -> Self {
         Self::identity()
@@ -25,7 +26,9 @@ impl<N: Real, D: DimName> Identity<Multiplicative> for Rotation<N, D>
 }
 
 impl<N: Real, D: DimName> Inverse<Multiplicative> for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     #[inline]
     fn inverse(&self) -> Self {
         self.transpose()
@@ -38,7 +41,9 @@ impl<N: Real, D: DimName> Inverse<Multiplicative> for Rotation<N, D>
 }
 
 impl<N: Real, D: DimName> AbstractMagma<Multiplicative> for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
@@ -66,8 +71,9 @@ impl_multiplicative_structures!(
  *
  */
 impl<N: Real, D: DimName> Transformation<Point<N, D>> for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+{
     #[inline]
     fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self * pt
@@ -80,8 +86,9 @@ impl<N: Real, D: DimName> Transformation<Point<N, D>> for Rotation<N, D>
 }
 
 impl<N: Real, D: DimName> ProjectiveTransformation<Point<N, D>> for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+{
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         Point::from_coordinates(self.inverse_transform_vector(&pt.coords))
@@ -94,11 +101,12 @@ impl<N: Real, D: DimName> ProjectiveTransformation<Point<N, D>> for Rotation<N, 
 }
 
 impl<N: Real, D: DimName> AffineTransformation<Point<N, D>> for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D> {
-    type Rotation          = Self;
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+{
+    type Rotation = Self;
     type NonUniformScaling = Id;
-    type Translation       = Id;
+    type Translation = Id;
 
     #[inline]
     fn decompose(&self) -> (Id, Self, Id, Self) {
@@ -136,11 +144,11 @@ impl<N: Real, D: DimName> AffineTransformation<Point<N, D>> for Rotation<N, D>
     }
 }
 
-
 impl<N: Real, D: DimName> Similarity<Point<N, D>> for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D> {
-    type Scaling  = Id;
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+{
+    type Scaling = Id;
 
     #[inline]
     fn translation(&self) -> Id {
@@ -168,11 +176,11 @@ macro_rules! marker_impl(
 
 marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
-
 /// Subgroups of the n-dimensional rotation group `SO(n)`.
 impl<N: Real, D: DimName> linear::Rotation<Point<N, D>> for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+{
     #[inline]
     fn powf(&self, _: N) -> Option<Self> {
         // XXX: Add the general case.
@@ -270,5 +278,3 @@ impl<N: Real> SquareMatrix for Rotation<N> {
 
 impl<N: Real> InversibleSquareMatrix for Rotation<N> { }
 */
-
-

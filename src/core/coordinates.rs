@@ -7,7 +7,7 @@
 use std::mem;
 use std::ops::{Deref, DerefMut};
 
-use core::{Scalar, Matrix};
+use core::{Matrix, Scalar};
 use core::dimension::{U1, U2, U3, U4, U5, U6};
 use core::storage::{ContiguousStorage, ContiguousStorageMut};
 
@@ -29,7 +29,6 @@ macro_rules! coords_impl(
         }
     }
 );
-
 
 macro_rules! deref_impl(
     ($R: ty, $C: ty; $Target: ident) => {

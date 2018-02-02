@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::{Vector3, Point3, Matrix3};
+use na::{Matrix3, Point3, Vector3};
 
 fn main() {
     let v = Vector3::new(1.0f32, 0.0, 1.0);

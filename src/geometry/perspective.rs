@@ -1,4 +1,4 @@
-#[cfg(feature="arbitrary")]
+#[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 use rand::{Rand, Rng};
 
@@ -8,7 +8,7 @@ use std::fmt;
 
 use alga::general::Real;
 
-use core::{Scalar, Matrix4, Vector, Vector3};
+use core::{Matrix4, Scalar, Vector, Vector3};
 use core::dimension::U3;
 use core::storage::Storage;
 use core::helper;
@@ -17,10 +17,10 @@ use geometry::Point3;
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
 pub struct Perspective3<N: Scalar> {
-    matrix: Matrix4<N>
+    matrix: Matrix4<N>,
 }
 
-impl<N: Real> Copy for Perspective3<N> { }
+impl<N: Real> Copy for Perspective3<N> {}
 
 impl<N: Real> Clone for Perspective3<N> {
     #[inline]
@@ -45,26 +45,36 @@ impl<N: Real> PartialEq for Perspective3<N> {
 #[cfg(feature = "serde-serialize")]
 impl<N: Real + serde::Serialize> serde::Serialize for Perspective3<N> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: serde::Serializer {
-            self.matrix.serialize(serializer)
-        }
+    where
+        S: serde::Serializer,
+    {
+        self.matrix.serialize(serializer)
+    }
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Real + serde::Deserialize<'a>> serde::Deserialize<'a> for Perspective3<N> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-        where Des: serde::Deserializer<'a> {
-            let matrix = Matrix4::<N>::deserialize(deserializer)?;
+    where
+        Des: serde::Deserializer<'a>,
+    {
+        let matrix = Matrix4::<N>::deserialize(deserializer)?;
 
-            Ok(Perspective3::from_matrix_unchecked(matrix))
-        }
+        Ok(Perspective3::from_matrix_unchecked(matrix))
+    }
 }
 
 impl<N: Real> Perspective3<N> {
     /// Creates a new perspective matrix from the aspect ratio, y field of view, and near/far planes.
     pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
-        assert!(!relative_eq!(zfar - znear, N::zero()), "The near-plane and far-plane must not be superimposed.");
-        assert!(!relative_eq!(aspect, N::zero()), "The apsect ratio must not be zero.");
+        assert!(
+            !relative_eq!(zfar - znear, N::zero()),
+            "The near-plane and far-plane must not be superimposed."
+        );
+        assert!(
+            !relative_eq!(aspect, N::zero()),
+            "The apsect ratio must not be zero."
+        );
 
         let matrix = Matrix4::identity();
         let mut res = Perspective3::from_matrix_unchecked(matrix);
@@ -79,16 +89,13 @@ impl<N: Real> Perspective3<N> {
         res
     }
 
-
     /// Wraps the given matrix to interpret it as a 3D perspective matrix.
     ///
     /// It is not checked whether or not the given matrix actually represents an orthographic
     /// projection.
     #[inline]
     pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> Self {
-        Perspective3 {
-            matrix: matrix
-        }
+        Perspective3 { matrix: matrix }
     }
 
     /// Retrieves the inverse of the underlying homogeneous matrix.
@@ -158,17 +165,15 @@ impl<N: Real> Perspective3<N> {
 
     // FIXME: add a method to retrieve znear and zfar simultaneously?
 
-
-
     // FIXME: when we get specialization, specialize the Mul impl instead.
     /// Projects a point. Faster than matrix multiplication.
     #[inline]
     pub fn project_point(&self, p: &Point3<N>) -> Point3<N> {
         let inverse_denom = -N::one() / p[2];
         Point3::new(
-             self.matrix[(0, 0)] * p[0] * inverse_denom,
-             self.matrix[(1, 1)] * p[1] * inverse_denom,
-            (self.matrix[(2, 2)] * p[2] + self.matrix[(2, 3)]) * inverse_denom
+            self.matrix[(0, 0)] * p[0] * inverse_denom,
+            self.matrix[(1, 1)] * p[1] * inverse_denom,
+            (self.matrix[(2, 2)] * p[2] + self.matrix[(2, 3)]) * inverse_denom,
         )
     }
 
@@ -180,7 +185,7 @@ impl<N: Real> Perspective3<N> {
         Point3::new(
             p[0] * inverse_denom / self.matrix[(0, 0)],
             p[1] * inverse_denom / self.matrix[(1, 1)],
-            -inverse_denom
+            -inverse_denom,
         )
     }
 
@@ -188,13 +193,14 @@ impl<N: Real> Perspective3<N> {
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
     pub fn project_vector<SB>(&self, p: &Vector<N, U3, SB>) -> Vector3<N>
-        where SB: Storage<N, U3> {
-
+    where
+        SB: Storage<N, U3>,
+    {
         let inverse_denom = -N::one() / p[2];
         Vector3::new(
             self.matrix[(0, 0)] * p[0] * inverse_denom,
             self.matrix[(1, 1)] * p[1] * inverse_denom,
-            self.matrix[(2, 2)]
+            self.matrix[(2, 2)],
         )
     }
 
@@ -202,14 +208,17 @@ impl<N: Real> Perspective3<N> {
     /// frustrum.
     #[inline]
     pub fn set_aspect(&mut self, aspect: N) {
-        assert!(!relative_eq!(aspect, N::zero()), "The aspect ratio must not be zero.");
+        assert!(
+            !relative_eq!(aspect, N::zero()),
+            "The aspect ratio must not be zero."
+        );
         self.matrix[(0, 0)] = self.matrix[(1, 1)] / aspect;
     }
 
     /// Updates this perspective with a new y field of view of the view frustrum.
     #[inline]
     pub fn set_fovy(&mut self, fovy: N) {
-        let old_m22  = self.matrix[(1, 1)];
+        let old_m22 = self.matrix[(1, 1)];
         self.matrix[(1, 1)] = N::one() / (fovy / ::convert(2.0)).tan();
         self.matrix[(0, 0)] = self.matrix[(0, 0)] * (self.matrix[(1, 1)] / old_m22);
     }
@@ -238,19 +247,19 @@ impl<N: Real> Perspective3<N> {
 
 impl<N: Real + Rand> Rand for Perspective3<N> {
     fn rand<R: Rng>(r: &mut R) -> Self {
-        let znear  = Rand::rand(r);
-        let zfar   = helper::reject_rand(r, |&x: &N| !(x - znear).is_zero());
+        let znear = Rand::rand(r);
+        let zfar = helper::reject_rand(r, |&x: &N| !(x - znear).is_zero());
         let aspect = helper::reject_rand(r, |&x: &N| !x.is_zero());
 
         Self::new(aspect, Rand::rand(r), znear, zfar)
     }
 }
 
-#[cfg(feature="arbitrary")]
+#[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for Perspective3<N> {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        let znear  = Arbitrary::arbitrary(g);
-        let zfar   = helper::reject(g, |&x: &N| !(x - znear).is_zero());
+        let znear = Arbitrary::arbitrary(g);
+        let zfar = helper::reject(g, |&x: &N| !(x - znear).is_zero());
         let aspect = helper::reject(g, |&x: &N| !x.is_zero());
 
         Self::new(aspect, Arbitrary::arbitrary(g), znear, zfar)

@@ -50,16 +50,17 @@
  *
  */
 
-use std::ops::{Index, IndexMut, Neg, Add, AddAssign, Mul, MulAssign, Sub, SubAssign, Div, DivAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub,
+               SubAssign};
 
 use alga::general::Real;
 
-use core::{DefaultAllocator, Vector, Vector3, Unit};
+use core::{DefaultAllocator, Unit, Vector, Vector3};
 use core::storage::Storage;
 use core::allocator::Allocator;
 use core::dimension::{U1, U3, U4};
 
-use geometry::{Quaternion, UnitQuaternion, Point3, Rotation};
+use geometry::{Point3, Quaternion, Rotation, UnitQuaternion};
 
 impl<N: Real> Index<usize> for Quaternion<N> {
     type Output = N;
@@ -96,7 +97,6 @@ macro_rules! quaternion_op_impl(
     }
 );
 
-
 // Quaternion + Quaternion
 quaternion_op_impl!(
     Add, add;
@@ -126,7 +126,6 @@ quaternion_op_impl!(
     Quaternion::from_vector(self.coords + rhs.coords);
     );
 
-
 // Quaternion - Quaternion
 quaternion_op_impl!(
     Sub, sub;
@@ -155,7 +154,6 @@ quaternion_op_impl!(
     self: Quaternion<N>, rhs: Quaternion<N>, Output = Quaternion<N>;
     Quaternion::from_vector(self.coords - rhs.coords);
     );
-
 
 // Quaternion × Quaternion
 quaternion_op_impl!(
@@ -489,8 +487,6 @@ quaternion_op_impl!(
     Unit::new_unchecked(self * rhs.unwrap());
     );
 
-
-
 macro_rules! scalar_op_impl(
     ($($Op: ident, $op: ident, $OpAssign: ident, $op_assign: ident);* $(;)*) => {$(
         impl<N: Real> $Op<N> for Quaternion<N> {
@@ -598,7 +594,6 @@ quaternion_op_impl!(
     (U4, U1), (U4, U1);
     self: Quaternion<N>, rhs: Quaternion<N>;
     self.coords += rhs.coords; );
-
 
 // Quaternion -= Quaternion
 quaternion_op_impl!(

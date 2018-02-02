@@ -1,7 +1,7 @@
 use test::{self, Bencher};
-use na::{Matrix4, DMatrix, Bidiagonal};
+use na::{Bidiagonal, DMatrix, Matrix4};
 
-#[path="../common/macros.rs"]
+#[path = "../common/macros.rs"]
 mod macros;
 
 // Without unpack.
@@ -34,7 +34,6 @@ fn bidiagonalize_500x500(bh: &mut Bencher) {
     let m = DMatrix::<f64>::new_random(500, 500);
     bh.iter(|| test::black_box(Bidiagonal::new(m.clone())))
 }
-
 
 // With unpack.
 #[bench]
@@ -72,4 +71,3 @@ fn bidiagonalize_unpack_500x500(bh: &mut Bencher) {
         let _ = bidiag.unpack();
     })
 }
-

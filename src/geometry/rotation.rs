@@ -1,4 +1,4 @@
-use num::{Zero, One};
+use num::{One, Zero};
 use std::hash;
 use std::fmt;
 use approx::ApproxEq;
@@ -14,34 +14,42 @@ use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use core::{DefaultAllocator, Scalar, MatrixN};
-use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
+use core::{DefaultAllocator, MatrixN, Scalar};
+use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use core::allocator::Allocator;
-
 
 /// A rotation matrix.
 #[repr(C)]
 #[derive(Debug)]
 pub struct Rotation<N: Scalar, D: DimName>
-    where DefaultAllocator: Allocator<N, D, D> {
-    matrix: MatrixN<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
+    matrix: MatrixN<N, D>,
 }
 
 impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D>,
-          <DefaultAllocator as Allocator<N, D, D>>::Buffer: hash::Hash {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+    <DefaultAllocator as Allocator<N, D, D>>::Buffer: hash::Hash,
+{
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state)
     }
 }
 
 impl<N: Scalar, D: DimName> Copy for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D>,
-          <DefaultAllocator as Allocator<N, D, D>>::Buffer: Copy { }
+where
+    DefaultAllocator: Allocator<N, D, D>,
+    <DefaultAllocator as Allocator<N, D, D>>::Buffer: Copy,
+{
+}
 
 impl<N: Scalar, D: DimName> Clone for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D>,
-          <DefaultAllocator as Allocator<N, D, D>>::Buffer: Clone {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+    <DefaultAllocator as Allocator<N, D, D>>::Buffer: Clone,
+{
     #[inline]
     fn clone(&self) -> Self {
         Rotation::from_matrix_unchecked(self.matrix.clone())
@@ -50,10 +58,11 @@ impl<N: Scalar, D: DimName> Clone for Rotation<N, D>
 
 #[cfg(feature = "abomonation-serialize")]
 impl<N, D> Abomonation for Rotation<N, D>
-    where N: Scalar,
-          D: DimName,
-          MatrixN<N, D>: Abomonation,
-          DefaultAllocator: Allocator<N, D, D>
+where
+    N: Scalar,
+    D: DimName,
+    MatrixN<N, D>: Abomonation,
+    DefaultAllocator: Allocator<N, D, D>,
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {
         self.matrix.entomb(writer)
@@ -70,30 +79,38 @@ impl<N, D> Abomonation for Rotation<N, D>
 
 #[cfg(feature = "serde-serialize")]
 impl<N: Scalar, D: DimName> serde::Serialize for Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D>,
-      Owned<N, D, D>: serde::Serialize {
-
+where
+    DefaultAllocator: Allocator<N, D, D>,
+    Owned<N, D, D>: serde::Serialize,
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: serde::Serializer {
-            self.matrix.serialize(serializer)
-        }
+    where
+        S: serde::Serializer,
+    {
+        self.matrix.serialize(serializer)
+    }
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Scalar, D: DimName> serde::Deserialize<'a> for Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D>,
-      Owned<N, D, D>: serde::Deserialize<'a> {
-
+where
+    DefaultAllocator: Allocator<N, D, D>,
+    Owned<N, D, D>: serde::Deserialize<'a>,
+{
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-        where Des: serde::Deserializer<'a> {
-            let matrix = MatrixN::<N, D>::deserialize(deserializer)?;
+    where
+        Des: serde::Deserializer<'a>,
+    {
+        let matrix = MatrixN::<N, D>::deserialize(deserializer)?;
 
-            Ok(Rotation::from_matrix_unchecked(matrix))
-        }
+        Ok(Rotation::from_matrix_unchecked(matrix))
+    }
 }
 
 impl<N: Scalar, D: DimName> Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     /// A reference to the underlying matrix representation of this rotation.
     #[inline]
     pub fn matrix(&self) -> &MatrixN<N, D> {
@@ -119,9 +136,11 @@ impl<N: Scalar, D: DimName> Rotation<N, D>
     /// Converts this rotation into its equivalent homogeneous transformation matrix.
     #[inline]
     pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
-        where N: Zero + One,
-              D: DimNameAdd<U1>,
-              DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+    where
+        N: Zero + One,
+        D: DimNameAdd<U1>,
+        DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    {
         let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
         res.fixed_slice_mut::<D, D>(0, 0).copy_from(&self.matrix);
 
@@ -133,11 +152,12 @@ impl<N: Scalar, D: DimName> Rotation<N, D>
     /// The matrix squareness is checked but not its orthonormality.
     #[inline]
     pub fn from_matrix_unchecked(matrix: MatrixN<N, D>) -> Rotation<N, D> {
-        assert!(matrix.is_square(), "Unable to create a rotation from a non-square matrix.");
+        assert!(
+            matrix.is_square(),
+            "Unable to create a rotation from a non-square matrix."
+        );
 
-        Rotation {
-            matrix: matrix
-        }
+        Rotation { matrix: matrix }
     }
 
     /// Transposes `self`.
@@ -166,10 +186,15 @@ impl<N: Scalar, D: DimName> Rotation<N, D>
 }
 
 impl<N: Scalar + Eq, D: DimName> Eq for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> { }
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
+}
 
 impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     #[inline]
     fn eq(&self, right: &Rotation<N, D>) -> bool {
         self.matrix == right.matrix
@@ -177,9 +202,11 @@ impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
 }
 
 impl<N, D: DimName> ApproxEq for Rotation<N, D>
-    where N: Scalar + ApproxEq,
-          DefaultAllocator: Allocator<N, D, D>,
-          N::Epsilon: Copy {
+where
+    N: Scalar + ApproxEq,
+    DefaultAllocator: Allocator<N, D, D>,
+    N::Epsilon: Copy,
+{
     type Epsilon = N::Epsilon;
 
     #[inline]
@@ -198,8 +225,14 @@ impl<N, D: DimName> ApproxEq for Rotation<N, D>
     }
 
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-        self.matrix.relative_eq(&other.matrix, epsilon, max_relative)
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
+        self.matrix
+            .relative_eq(&other.matrix, epsilon, max_relative)
     }
 
     #[inline]
@@ -214,9 +247,10 @@ impl<N, D: DimName> ApproxEq for Rotation<N, D>
  *
  */
 impl<N, D: DimName> fmt::Display for Rotation<N, D>
-    where N: Real + fmt::Display,
-          DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<usize, D, D> {
+where
+    N: Real + fmt::Display,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<usize, D, D>,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 

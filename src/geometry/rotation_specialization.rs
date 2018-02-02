@@ -8,12 +8,11 @@ use num::Zero;
 use rand::{Rand, Rng};
 use alga::general::Real;
 
-use core::{Unit, Vector, Vector1, MatrixN, VectorN, Vector3};
+use core::{MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
 use core::dimension::{U1, U2, U3};
 use core::storage::Storage;
 
-use geometry::{UnitComplex, Rotation2, Rotation3};
-
+use geometry::{Rotation2, Rotation3, UnitComplex};
 
 /*
  *
@@ -40,17 +39,25 @@ impl<N: Real> Rotation2<N> {
     /// This is the rotation `R` such that `(R * a).angle(b) == 0 && (R * a).dot(b).is_positive()`.
     #[inline]
     pub fn rotation_between<SB, SC>(a: &Vector<N, U2, SB>, b: &Vector<N, U2, SC>) -> Self
-        where SB: Storage<N, U2>,
-              SC: Storage<N, U2> {
+    where
+        SB: Storage<N, U2>,
+        SC: Storage<N, U2>,
+    {
         ::convert(UnitComplex::rotation_between(a, b).to_rotation_matrix())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
     #[inline]
-    pub fn scaled_rotation_between<SB, SC>(a: &Vector<N, U2, SB>, b: &Vector<N, U2, SC>, s: N) -> Self
-        where SB: Storage<N, U2>,
-              SC: Storage<N, U2> {
+    pub fn scaled_rotation_between<SB, SC>(
+        a: &Vector<N, U2, SB>,
+        b: &Vector<N, U2, SC>,
+        s: N,
+    ) -> Self
+    where
+        SB: Storage<N, U2>,
+        SC: Storage<N, U2>,
+    {
         ::convert(UnitComplex::scaled_rotation_between(a, b, s).to_rotation_matrix())
     }
 }
@@ -97,15 +104,16 @@ impl<N: Real + Rand> Rand for Rotation2<N> {
     }
 }
 
-#[cfg(feature="arbitrary")]
+#[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for Rotation2<N>
-where Owned<N, U2, U2>: Send {
+where
+    Owned<N, U2, U2>: Send,
+{
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         Self::new(N::arbitrary(g))
     }
 }
-
 
 /*
  *
@@ -131,33 +139,32 @@ impl<N: Real> Rotation3<N> {
 
     /// Builds a 3D rotation matrix from an axis and a rotation angle.
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
-        where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         if angle.is_zero() {
             Self::identity()
-        }
-        else {
-            let ux         = axis.as_ref()[0];
-            let uy         = axis.as_ref()[1];
-            let uz         = axis.as_ref()[2];
-            let sqx        = ux * ux;
-            let sqy        = uy * uy;
-            let sqz        = uz * uz;
+        } else {
+            let ux = axis.as_ref()[0];
+            let uy = axis.as_ref()[1];
+            let uz = axis.as_ref()[2];
+            let sqx = ux * ux;
+            let sqy = uy * uy;
+            let sqz = uz * uz;
             let (sin, cos) = angle.sin_cos();
-            let one_m_cos  = N::one() - cos;
+            let one_m_cos = N::one() - cos;
 
-            Self::from_matrix_unchecked(
-                MatrixN::<N, U3>::new(
-                    (sqx + (N::one() - sqx) * cos),
-                    (ux * uy * one_m_cos - uz * sin),
-                    (ux * uz * one_m_cos + uy * sin),
-
-                    (ux * uy * one_m_cos + uz * sin),
-                    (sqy + (N::one() - sqy) * cos),
-                    (uy * uz * one_m_cos - ux * sin),
-
-                    (ux * uz * one_m_cos - uy * sin),
-                    (uy * uz * one_m_cos + ux * sin),
-                    (sqz + (N::one() - sqz) * cos)))
+            Self::from_matrix_unchecked(MatrixN::<N, U3>::new(
+                (sqx + (N::one() - sqx) * cos),
+                (ux * uy * one_m_cos - uz * sin),
+                (ux * uz * one_m_cos + uy * sin),
+                (ux * uy * one_m_cos + uz * sin),
+                (sqy + (N::one() - sqy) * cos),
+                (uy * uz * one_m_cos - ux * sin),
+                (ux * uz * one_m_cos - uy * sin),
+                (uy * uz * one_m_cos + ux * sin),
+                (sqz + (N::one() - sqz) * cos),
+            ))
         }
     }
 
@@ -169,12 +176,17 @@ impl<N: Real> Rotation3<N> {
         let (sp, cp) = pitch.sin_cos();
         let (sy, cy) = yaw.sin_cos();
 
-        Self::from_matrix_unchecked(
-            MatrixN::<N, U3>::new(
-                cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr,
-                sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr,
-                -sp,     cp * sr,                cp * cr)
-            )
+        Self::from_matrix_unchecked(MatrixN::<N, U3>::new(
+            cy * cp,
+            cy * sp * sr - sy * cr,
+            cy * sp * cr + sy * sr,
+            sy * cp,
+            sy * sp * sr + cy * cr,
+            sy * sp * cr - cy * sr,
+            -sp,
+            cp * sr,
+            cp * cr,
+        ))
     }
 
     /// Creates Euler angles from a rotation.
@@ -207,18 +219,26 @@ impl<N: Real> Rotation3<N> {
     ///   to `dir`. Non-collinearity is not checked.
     #[inline]
     pub fn new_observer_frame<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
-    where SB: Storage<N, U3>,
-          SC: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         let zaxis = dir.normalize();
         let xaxis = up.cross(&zaxis).normalize();
         let yaxis = zaxis.cross(&xaxis).normalize();
 
         Self::from_matrix_unchecked(MatrixN::<N, U3>::new(
-                xaxis.x, yaxis.x, zaxis.x,
-                xaxis.y, yaxis.y, zaxis.y,
-                xaxis.z, yaxis.z, zaxis.z))
+            xaxis.x,
+            yaxis.x,
+            zaxis.x,
+            xaxis.y,
+            yaxis.y,
+            zaxis.y,
+            xaxis.z,
+            yaxis.z,
+            zaxis.z,
+        ))
     }
-
 
     /// Builds a right-handed look-at view matrix without translation.
     ///
@@ -232,8 +252,10 @@ impl<N: Real> Rotation3<N> {
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
     pub fn look_at_rh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
-    where SB: Storage<N, U3>,
-          SC: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         Self::new_observer_frame(&dir.neg(), up).inverse()
     }
 
@@ -249,9 +271,11 @@ impl<N: Real> Rotation3<N> {
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
     pub fn look_at_lh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
-    where SB: Storage<N, U3>,
-          SC: Storage<N, U3> {
-            Self::new_observer_frame(dir, up).inverse()
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
+        Self::new_observer_frame(dir, up).inverse()
     }
 
     /// The rotation matrix required to align `a` and `b` but with its angl.
@@ -259,24 +283,31 @@ impl<N: Real> Rotation3<N> {
     /// This is the rotation `R` such that `(R * a).angle(b) == 0 && (R * a).dot(b).is_positive()`.
     #[inline]
     pub fn rotation_between<SB, SC>(a: &Vector<N, U3, SB>, b: &Vector<N, U3, SC>) -> Option<Self>
-        where SB: Storage<N, U3>,
-              SC: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         Self::scaled_rotation_between(a, b, N::one())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
     #[inline]
-    pub fn scaled_rotation_between<SB, SC>(a: &Vector<N, U3, SB>, b: &Vector<N, U3, SC>, n: N)
-        -> Option<Self>
-        where SB: Storage<N, U3>,
-              SC: Storage<N, U3> {
+    pub fn scaled_rotation_between<SB, SC>(
+        a: &Vector<N, U3, SB>,
+        b: &Vector<N, U3, SC>,
+        n: N,
+    ) -> Option<Self>
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         // FIXME: code duplication with Rotation.
         if let (Some(na), Some(nb)) = (a.try_normalize(N::zero()), b.try_normalize(N::zero())) {
             let c = na.cross(&nb);
 
             if let Some(axis) = Unit::try_new(c, N::default_epsilon()) {
-                return Some(Self::from_axis_angle(&axis, na.dot(&nb).acos() * n))
+                return Some(Self::from_axis_angle(&axis, na.dot(&nb).acos() * n));
             }
 
             // Zero or PI.
@@ -295,7 +326,9 @@ impl<N: Real> Rotation3<N> {
     /// The rotation angle.
     #[inline]
     pub fn angle(&self) -> N {
-        ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - N::one()) / ::convert(2.0)).acos()
+        ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - N::one())
+            / ::convert(2.0))
+            .acos()
     }
 
     /// The rotation axis. Returns `None` if the rotation angle is zero or PI.
@@ -304,7 +337,8 @@ impl<N: Real> Rotation3<N> {
         let axis = VectorN::<N, U3>::new(
             self.matrix()[(2, 1)] - self.matrix()[(1, 2)],
             self.matrix()[(0, 2)] - self.matrix()[(2, 0)],
-            self.matrix()[(1, 0)] - self.matrix()[(0, 1)]);
+            self.matrix()[(1, 0)] - self.matrix()[(0, 1)],
+        );
 
         Unit::try_new(axis, N::default_epsilon())
     }
@@ -314,8 +348,7 @@ impl<N: Real> Rotation3<N> {
     pub fn scaled_axis(&self) -> Vector3<N> {
         if let Some(axis) = self.axis() {
             axis.unwrap() * self.angle()
-        }
-        else {
+        } else {
             Vector::zero()
         }
     }
@@ -340,12 +373,10 @@ impl<N: Real> Rotation3<N> {
     pub fn powf(&self, n: N) -> Rotation3<N> {
         if let Some(axis) = self.axis() {
             Self::from_axis_angle(&axis, self.angle() * n)
-        }
-        else if self.matrix()[(0, 0)] < N::zero() {
+        } else if self.matrix()[(0, 0)] < N::zero() {
             let minus_id = MatrixN::<N, U3>::from_diagonal_element(-N::one());
             Self::from_matrix_unchecked(minus_id)
-        }
-        else {
+        } else {
             Self::identity()
         }
     }
@@ -358,10 +389,12 @@ impl<N: Real + Rand> Rand for Rotation3<N> {
     }
 }
 
-#[cfg(feature="arbitrary")]
+#[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for Rotation3<N>
-where Owned<N, U3, U3>: Send,
-      Owned<N, U3>: Send {
+where
+    Owned<N, U3, U3>: Send,
+    Owned<N, U3>: Send,
+{
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         Self::new(VectorN::arbitrary(g))

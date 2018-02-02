@@ -1,18 +1,17 @@
+#[cfg(feature = "abomonation-serialize")]
+extern crate abomonation;
+extern crate alga;
+#[macro_use]
+extern crate approx;
+#[cfg(feature = "mint")]
+extern crate mint;
+extern crate nalgebra as na;
+extern crate num_traits as num;
 #[cfg(feature = "arbitrary")]
 #[macro_use]
 extern crate quickcheck;
-#[macro_use]
-extern crate approx;
-extern crate num_traits as num;
-extern crate serde_json;
-#[cfg(feature = "abomonation-serialize")]
-extern crate abomonation;
-#[cfg(feature = "mint")]
-extern crate mint;
 extern crate rand;
-extern crate alga;
-extern crate nalgebra as na;
-
+extern crate serde_json;
 
 mod core;
 // mod linalg;

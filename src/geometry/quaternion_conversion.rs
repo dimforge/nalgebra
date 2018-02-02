@@ -1,16 +1,15 @@
 use num::Zero;
 
-use alga::general::{SubsetOf, SupersetOf, Real};
+use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation as AlgaRotation;
 
 #[cfg(feature = "mint")]
 use mint;
 
-use core::{Vector4, Matrix4};
+use core::{Matrix4, Vector4};
 use core::dimension::U3;
-use geometry::{Quaternion, UnitQuaternion, Rotation, Isometry, Similarity,
-               Transform, SuperTCategoryOf, TAffine, Translation,
-               Rotation3, Point3};
+use geometry::{Isometry, Point3, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf,
+               TAffine, Transform, Translation, UnitQuaternion};
 
 /*
  * This file provides the following conversions:
@@ -32,8 +31,10 @@ use geometry::{Quaternion, UnitQuaternion, Rotation, Isometry, Similarity,
  */
 
 impl<N1, N2> SubsetOf<Quaternion<N2>> for Quaternion<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+{
     #[inline]
     fn to_superset(&self) -> Quaternion<N2> {
         Quaternion::from_vector(self.coords.to_superset())
@@ -51,8 +52,10 @@ impl<N1, N2> SubsetOf<Quaternion<N2>> for Quaternion<N1>
 }
 
 impl<N1, N2> SubsetOf<UnitQuaternion<N2>> for UnitQuaternion<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+{
     #[inline]
     fn to_superset(&self) -> UnitQuaternion<N2> {
         UnitQuaternion::new_unchecked(self.as_ref().to_superset())
@@ -70,8 +73,10 @@ impl<N1, N2> SubsetOf<UnitQuaternion<N2>> for UnitQuaternion<N1>
 }
 
 impl<N1, N2> SubsetOf<Rotation<N2, U3>> for UnitQuaternion<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+{
     #[inline]
     fn to_superset(&self) -> Rotation3<N2> {
         let q: UnitQuaternion<N2> = self.to_superset();
@@ -90,11 +95,12 @@ impl<N1, N2> SubsetOf<Rotation<N2, U3>> for UnitQuaternion<N1>
     }
 }
 
-
 impl<N1, N2, R> SubsetOf<Isometry<N2, U3, R>> for UnitQuaternion<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          R:  AlgaRotation<Point3<N2>> + SupersetOf<UnitQuaternion<N1>> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    R: AlgaRotation<Point3<N2>> + SupersetOf<UnitQuaternion<N1>>,
+{
     #[inline]
     fn to_superset(&self) -> Isometry<N2, U3, R> {
         Isometry::from_parts(Translation::identity(), ::convert_ref(self))
@@ -111,11 +117,12 @@ impl<N1, N2, R> SubsetOf<Isometry<N2, U3, R>> for UnitQuaternion<N1>
     }
 }
 
-
 impl<N1, N2, R> SubsetOf<Similarity<N2, U3, R>> for UnitQuaternion<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          R:  AlgaRotation<Point3<N2>> + SupersetOf<UnitQuaternion<N1>> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    R: AlgaRotation<Point3<N2>> + SupersetOf<UnitQuaternion<N1>>,
+{
     #[inline]
     fn to_superset(&self) -> Similarity<N2, U3, R> {
         Similarity::from_isometry(::convert_ref(self), N2::one())
@@ -123,8 +130,7 @@ impl<N1, N2, R> SubsetOf<Similarity<N2, U3, R>> for UnitQuaternion<N1>
 
     #[inline]
     fn is_in_subset(sim: &Similarity<N2, U3, R>) -> bool {
-        sim.isometry.translation.vector.is_zero() &&
-        sim.scaling() == N2::one()
+        sim.isometry.translation.vector.is_zero() && sim.scaling() == N2::one()
     }
 
     #[inline]
@@ -133,11 +139,12 @@ impl<N1, N2, R> SubsetOf<Similarity<N2, U3, R>> for UnitQuaternion<N1>
     }
 }
 
-
 impl<N1, N2, C> SubsetOf<Transform<N2, U3, C>> for UnitQuaternion<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          C:  SuperTCategoryOf<TAffine> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    C: SuperTCategoryOf<TAffine>,
+{
     #[inline]
     fn to_superset(&self) -> Transform<N2, U3, C> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
@@ -153,7 +160,6 @@ impl<N1, N2, C> SubsetOf<Transform<N2, U3, C>> for UnitQuaternion<N1>
         Self::from_superset_unchecked(t.matrix())
     }
 }
-
 
 impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaternion<N1> {
     #[inline]

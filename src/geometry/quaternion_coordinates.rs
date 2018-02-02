@@ -7,7 +7,6 @@ use core::coordinates::IJKW;
 
 use geometry::Quaternion;
 
-
 impl<N: Real> Deref for Quaternion<N> {
     type Target = IJKW<N>;
 

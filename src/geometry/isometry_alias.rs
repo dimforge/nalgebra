@@ -1,7 +1,6 @@
 use core::dimension::{U2, U3};
 
-use geometry::{Isometry, Rotation2, Rotation3, UnitQuaternion, UnitComplex};
-
+use geometry::{Isometry, Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
 /// A 2-dimensional isometry using a unit complex number for its rotational part.
 pub type Isometry2<N> = Isometry<N, U2, UnitComplex<N>>;

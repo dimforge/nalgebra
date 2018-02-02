@@ -5,8 +5,8 @@ use num_complex::Complex;
 use std::ops::MulAssign;
 
 use alga::general::Real;
-use core::{MatrixN, VectorN, DefaultAllocator, Matrix2, Vector2, SquareMatrix};
-use dimension::{Dim, DimSub, DimDiff, U1, U2};
+use core::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
+use dimension::{Dim, DimDiff, DimSub, U1, U2};
 use storage::Storage;
 use allocator::Allocator;
 
@@ -14,48 +14,50 @@ use linalg::givens;
 use linalg::SymmetricTridiagonal;
 use geometry::UnitComplex;
 
-
 /// Eigendecomposition of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(serialize =
-        "DefaultAllocator: Allocator<N, D, D> +
+           serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: serde::Serialize,
          MatrixN<N, D>: serde::Serialize")))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(deserialize =
-        "DefaultAllocator: Allocator<N, D, D> +
+           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: serde::Deserialize<'de>,
          MatrixN<N, D>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Real, D: Dim>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+{
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
 
     /// The unsorted eigenvalues of the decomposed matrix.
-    pub eigenvalues: VectorN<N, D>
+    pub eigenvalues: VectorN<N, D>,
 }
 
 impl<N: Real, D: Dim> Copy for SymmetricEigen<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D>,
-          MatrixN<N, D>: Copy,
-          VectorN<N, D>: Copy { }
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    MatrixN<N, D>: Copy,
+    VectorN<N, D>: Copy,
+{
+}
 
 impl<N: Real, D: Dim> SymmetricEigen<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+{
     /// Computes the eigendecomposition of the given symmetric matrix.
     ///
     /// Only the lower-triangular parts (including its diagonal) of `m` is read.
     pub fn new(m: MatrixN<N, D>) -> Self
-        where D: DimSub<U1>,
-              DefaultAllocator: Allocator<N, DimDiff<D, U1>> {
-
+    where
+        D: DimSub<U1>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
+    {
         Self::try_new(m, N::default_epsilon(), 0).unwrap()
     }
 
@@ -71,22 +73,30 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
     pub fn try_new(m: MatrixN<N, D>, eps: N, max_niter: usize) -> Option<Self>
-        where D: DimSub<U1>,
-              DefaultAllocator: Allocator<N, DimDiff<D, U1>> {
-        Self::do_decompose(m, true, eps, max_niter).map(|(vals, vecs)| {
-            SymmetricEigen {
-                eigenvectors: vecs.unwrap(),
-                eigenvalues:  vals
-            }
+    where
+        D: DimSub<U1>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
+    {
+        Self::do_decompose(m, true, eps, max_niter).map(|(vals, vecs)| SymmetricEigen {
+            eigenvectors: vecs.unwrap(),
+            eigenvalues: vals,
         })
     }
 
-    fn do_decompose(mut m: MatrixN<N, D>, eigenvectors: bool, eps: N, max_niter: usize)
-        -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)>
-        where D: DimSub<U1>,
-              DefaultAllocator: Allocator<N, DimDiff<D, U1>> {
-
-        assert!(m.is_square(), "Unable to compute the eigendecomposition of a non-square matrix.");
+    fn do_decompose(
+        mut m: MatrixN<N, D>,
+        eigenvectors: bool,
+        eps: N,
+        max_niter: usize,
+    ) -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)>
+    where
+        D: DimSub<U1>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
+    {
+        assert!(
+            m.is_square(),
+            "Unable to compute the eigendecomposition of a non-square matrix."
+        );
         let dim = m.nrows();
 
         let m_amax = m.amax();
@@ -98,16 +108,15 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
         let (mut q, mut diag, mut off_diag);
 
         if eigenvectors {
-           let res = SymmetricTridiagonal::new(m).unpack();
-           q        = Some(res.0);
-           diag     = res.1;
-           off_diag = res.2;
-        }
-        else {
-           let res = SymmetricTridiagonal::new(m).unpack_tridiagonal();
-           q        = None;
-           diag     = res.0;
-           off_diag = res.1;
+            let res = SymmetricTridiagonal::new(m).unpack();
+            q = Some(res.0);
+            diag = res.1;
+            off_diag = res.2;
+        } else {
+            let res = SymmetricTridiagonal::new(m).unpack_tridiagonal();
+            q = None;
+            diag = res.0;
+            off_diag = res.1;
         }
 
         if dim == 1 {
@@ -127,10 +136,10 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
 
                 let mut v = Vector2::new(
                     diag[start] - wilkinson_shift(diag[m], diag[n], off_diag[m]),
-                    off_diag[start]);
+                    off_diag[start],
+                );
 
-
-                for i in start .. n {
+                for i in start..n {
                     let j = i + 1;
 
                     if let Some((rot, norm)) = givens::cancel_y(&v) {
@@ -149,8 +158,8 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
 
                         let b = cs * ::convert(2.0) * mij;
 
-                        diag[i]     = (cc * mii + ss * mjj) - b;
-                        diag[j]     = (ss * mii + cc * mjj) + b;
+                        diag[i] = (cc * mii + ss * mjj) - b;
+                        diag[j] = (ss * mii + cc * mjj) + b;
                         off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
 
                         if i != n - 1 {
@@ -162,8 +171,7 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
                         if let Some(ref mut q) = q {
                             rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<U2>(i));
                         }
-                    }
-                    else {
+                    } else {
                         break;
                     }
                 }
@@ -171,12 +179,15 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
                 if off_diag[m].abs() <= eps * (diag[m].abs() + diag[n].abs()) {
                     end -= 1;
                 }
-            }
-            else if subdim == 2 {
-                let m = Matrix2::new(diag[start],     off_diag[start],
-                                     off_diag[start], diag[start + 1]);
+            } else if subdim == 2 {
+                let m = Matrix2::new(
+                    diag[start],
+                    off_diag[start],
+                    off_diag[start],
+                    diag[start + 1],
+                );
                 let eigvals = m.eigenvalues().unwrap();
-                let basis   = Vector2::new(eigvals.x - diag[start + 1], off_diag[start]);
+                let basis = Vector2::new(eigvals.x - diag[start + 1], off_diag[start]);
 
                 diag[start + 0] = eigvals[0];
                 diag[start + 1] = eigvals[1];
@@ -195,7 +206,7 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
             let sub = Self::delimit_subproblem(&diag, &mut off_diag, end, eps);
 
             start = sub.0;
-            end   = sub.1;
+            end = sub.1;
 
             niter += 1;
             if niter == max_niter {
@@ -208,14 +219,16 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
         Some((diag, q))
     }
 
-    fn delimit_subproblem(diag:     &VectorN<N, D>,
-                          off_diag: &mut VectorN<N, DimDiff<D, U1>>,
-                          end:      usize,
-                          eps:      N)
-                          -> (usize, usize)
-        where D: DimSub<U1>,
-              DefaultAllocator: Allocator<N, DimDiff<D, U1>> {
-
+    fn delimit_subproblem(
+        diag: &VectorN<N, D>,
+        off_diag: &mut VectorN<N, DimDiff<D, U1>>,
+        end: usize,
+        eps: N,
+    ) -> (usize, usize)
+    where
+        D: DimSub<U1>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
+    {
         let mut n = end;
 
         while n > 0 {
@@ -236,8 +249,9 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
         while new_start > 0 {
             let m = new_start - 1;
 
-            if off_diag[m].is_zero() ||
-               off_diag[m].abs() <= eps * (diag[new_start].abs() + diag[m].abs()) {
+            if off_diag[m].is_zero()
+                || off_diag[m].abs() <= eps * (diag[new_start].abs() + diag[m].abs())
+            {
                 off_diag[m] = N::zero();
                 break;
             }
@@ -253,7 +267,7 @@ impl<N: Real, D: Dim> SymmetricEigen<N, D>
     /// This is useful if some of the eigenvalues have been manually modified.
     pub fn recompose(&self) -> MatrixN<N, D> {
         let mut u_t = self.eigenvectors.clone();
-        for i in 0 .. self.eigenvalues.len() {
+        for i in 0..self.eigenvalues.len() {
             let val = self.eigenvalues[i];
             u_t.column_mut(i).mul_assign(val);
         }
@@ -274,12 +288,10 @@ pub fn wilkinson_shift<N: Real>(tmm: N, tnn: N, tmn: N) -> N {
         // We have the guarantee thet the denominator won't be zero.
         let d = (tmm - tnn) * ::convert(0.5);
         tnn - sq_tmn / (d + d.signum() * (d * d + sq_tmn).sqrt())
-    }
-    else {
+    } else {
         tnn
     }
 }
-
 
 /*
  *
@@ -287,10 +299,9 @@ pub fn wilkinson_shift<N: Real>(tmm: N, tnn: N, tmn: N) -> N {
  *
  */
 impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D>    +
-                            Allocator<N, DimDiff<D, U1>> {
-
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>,
+{
     /// Computes the eigendecomposition of this symmetric matrix.
     ///
     /// Only the lower-triangular part (including the diagonal) of `m` is read.
@@ -317,13 +328,11 @@ impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
     ///
     /// Only the lower-triangular part of the matrix is read.
     pub fn symmetric_eigenvalues(&self) -> VectorN<N, D> {
-        SymmetricEigen::do_decompose(self.clone_owned(), false, N::default_epsilon(), 0).unwrap().0
+        SymmetricEigen::do_decompose(self.clone_owned(), false, N::default_epsilon(), 0)
+            .unwrap()
+            .0
     }
 }
-
-
-
-
 
 #[cfg(test)]
 mod test {
@@ -341,7 +350,7 @@ mod test {
 
     #[test]
     fn wilkinson_shift_random() {
-        for _ in 0 .. 1000 {
+        for _ in 0..1000 {
             let m = Matrix2::new_random();
             let m = m * m.transpose();
 
@@ -354,44 +363,55 @@ mod test {
 
     #[test]
     fn wilkinson_shift_zero() {
-        let m = Matrix2::new(0.0, 0.0,
-                             0.0, 0.0);
-        assert!(relative_eq!(expected_shift(m), super::wilkinson_shift(m.m11, m.m22, m.m12)));
+        let m = Matrix2::new(0.0, 0.0, 0.0, 0.0);
+        assert!(relative_eq!(
+            expected_shift(m),
+            super::wilkinson_shift(m.m11, m.m22, m.m12)
+        ));
     }
-
 
     #[test]
     fn wilkinson_shift_zero_diagonal() {
-        let m = Matrix2::new(0.0, 42.0,
-                             42.0, 0.0);
-        assert!(relative_eq!(expected_shift(m), super::wilkinson_shift(m.m11, m.m22, m.m12)));
+        let m = Matrix2::new(0.0, 42.0, 42.0, 0.0);
+        assert!(relative_eq!(
+            expected_shift(m),
+            super::wilkinson_shift(m.m11, m.m22, m.m12)
+        ));
     }
 
     #[test]
     fn wilkinson_shift_zero_off_diagonal() {
-        let m = Matrix2::new(42.0, 0.0,
-                             0.0, 64.0);
-        assert!(relative_eq!(expected_shift(m), super::wilkinson_shift(m.m11, m.m22, m.m12)));
+        let m = Matrix2::new(42.0, 0.0, 0.0, 64.0);
+        assert!(relative_eq!(
+            expected_shift(m),
+            super::wilkinson_shift(m.m11, m.m22, m.m12)
+        ));
     }
 
     #[test]
     fn wilkinson_shift_zero_trace() {
-        let m = Matrix2::new(42.0, 20.0,
-                             20.0, -42.0);
-        assert!(relative_eq!(expected_shift(m), super::wilkinson_shift(m.m11, m.m22, m.m12)));
+        let m = Matrix2::new(42.0, 20.0, 20.0, -42.0);
+        assert!(relative_eq!(
+            expected_shift(m),
+            super::wilkinson_shift(m.m11, m.m22, m.m12)
+        ));
     }
 
     #[test]
     fn wilkinson_shift_zero_diag_diff_and_zero_off_diagonal() {
-        let m = Matrix2::new(42.0, 0.0,
-                             0.0,  42.0);
-        assert!(relative_eq!(expected_shift(m), super::wilkinson_shift(m.m11, m.m22, m.m12)));
+        let m = Matrix2::new(42.0, 0.0, 0.0, 42.0);
+        assert!(relative_eq!(
+            expected_shift(m),
+            super::wilkinson_shift(m.m11, m.m22, m.m12)
+        ));
     }
 
     #[test]
     fn wilkinson_shift_zero_det() {
-        let m = Matrix2::new(2.0, 4.0,
-                             4.0, 8.0);
-        assert!(relative_eq!(expected_shift(m), super::wilkinson_shift(m.m11, m.m22, m.m12)));
+        let m = Matrix2::new(2.0, 4.0, 4.0, 8.0);
+        assert!(relative_eq!(
+            expected_shift(m),
+            super::wilkinson_shift(m.m11, m.m22, m.m12)
+        ));
     }
 }

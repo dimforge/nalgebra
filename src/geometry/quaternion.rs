@@ -13,9 +13,9 @@ use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use core::{Unit, Vector3, Vector4, MatrixSlice, MatrixSliceMut, MatrixN, Matrix3};
+use core::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
 use core::dimension::{U1, U3, U4};
-use core::storage::{RStride, CStride};
+use core::storage::{CStride, RStride};
 
 use geometry::Rotation;
 
@@ -25,12 +25,13 @@ use geometry::Rotation;
 #[derive(Debug)]
 pub struct Quaternion<N: Real> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
-    pub coords: Vector4<N>
+    pub coords: Vector4<N>,
 }
 
 #[cfg(feature = "abomonation-serialize")]
 impl<N: Real> Abomonation for Quaternion<N>
-    where Vector4<N>: Abomonation
+where
+    Vector4<N>: Abomonation,
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {
         self.coords.entomb(writer)
@@ -45,7 +46,7 @@ impl<N: Real> Abomonation for Quaternion<N>
     }
 }
 
-impl<N: Real + Eq> Eq for Quaternion<N> { }
+impl<N: Real + Eq> Eq for Quaternion<N> {}
 
 impl<N: Real> PartialEq for Quaternion<N> {
     fn eq(&self, rhs: &Self) -> bool {
@@ -61,7 +62,7 @@ impl<N: Real + hash::Hash> hash::Hash for Quaternion<N> {
     }
 }
 
-impl<N: Real> Copy for Quaternion<N> { }
+impl<N: Real> Copy for Quaternion<N> {}
 
 impl<N: Real> Clone for Quaternion<N> {
     #[inline]
@@ -72,24 +73,30 @@ impl<N: Real> Clone for Quaternion<N> {
 
 #[cfg(feature = "serde-serialize")]
 impl<N: Real> serde::Serialize for Quaternion<N>
-where Owned<N, U4>: serde::Serialize {
-
+where
+    Owned<N, U4>: serde::Serialize,
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: serde::Serializer {
-            self.coords.serialize(serializer)
-        }
+    where
+        S: serde::Serializer,
+    {
+        self.coords.serialize(serializer)
+    }
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Real> serde::Deserialize<'a> for Quaternion<N>
-where Owned<N, U4>: serde::Deserialize<'a> {
-
+where
+    Owned<N, U4>: serde::Deserialize<'a>,
+{
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-        where Des: serde::Deserializer<'a> {
-            let coords = Vector4::<N>::deserialize(deserializer)?;
+    where
+        Des: serde::Deserializer<'a>,
+    {
+        let coords = Vector4::<N>::deserialize(deserializer)?;
 
-            Ok(Quaternion::from_vector(coords))
-        }
+        Ok(Quaternion::from_vector(coords))
+    }
 }
 
 impl<N: Real> Quaternion<N> {
@@ -116,7 +123,12 @@ impl<N: Real> Quaternion<N> {
     /// Compute the conjugate of this quaternion.
     #[inline]
     pub fn conjugate(&self) -> Quaternion<N> {
-        let v = Vector4::new(-self.coords[0], -self.coords[1], -self.coords[2], self.coords[3]);
+        let v = Vector4::new(
+            -self.coords[0],
+            -self.coords[1],
+            -self.coords[2],
+            self.coords[3],
+        );
         Quaternion::from_vector(v)
     }
 
@@ -127,8 +139,7 @@ impl<N: Real> Quaternion<N> {
 
         if res.try_inverse_mut() {
             Some(res)
-        }
-        else {
+        } else {
             None
         }
     }
@@ -179,12 +190,10 @@ impl<N: Real> Quaternion<N> {
                 let angle = q.angle() / ::convert(2.0f64);
 
                 (n, angle, Some(axis))
-            }
-            else {
+            } else {
                 (n, N::zero(), None)
             }
-        }
-        else {
+        } else {
             (N::zero(), N::zero(), None)
         }
     }
@@ -192,15 +201,14 @@ impl<N: Real> Quaternion<N> {
     /// Compute the exponential of a quaternion.
     #[inline]
     pub fn exp(&self) -> Quaternion<N> {
-        let v  = self.vector();
+        let v = self.vector();
         let nn = v.norm_squared();
 
         if relative_eq!(nn, N::zero()) {
             Quaternion::identity()
-        }
-        else {
+        } else {
             let w_exp = self.scalar().exp();
-            let n  = nn.sqrt();
+            let n = nn.sqrt();
             let nv = v * (w_exp * n.sin() / n);
 
             Quaternion::from_parts(n.cos(), nv)
@@ -214,7 +222,7 @@ impl<N: Real> Quaternion<N> {
         let v = self.vector();
         let s = self.scalar();
 
-        Quaternion::from_parts(n.ln(), v.normalize() *  (s / n).acos())
+        Quaternion::from_parts(n.ln(), v.normalize() * (s / n).acos())
     }
 
     /// Raise the quaternion to a given floating power.
@@ -231,7 +239,9 @@ impl<N: Real> Quaternion<N> {
 
     /// The mutable vector part `(i, j, k)` of this quaternion.
     #[inline]
-    pub fn vector_mut(&mut self) -> MatrixSliceMut<N, U3, U1, RStride<N, U4, U1>, CStride<N, U4, U1>> {
+    pub fn vector_mut(
+        &mut self,
+    ) -> MatrixSliceMut<N, U3, U1, RStride<N, U4, U1>, CStride<N, U4, U1>> {
         self.coords.fixed_rows_mut::<U3>(0)
     }
 
@@ -250,8 +260,7 @@ impl<N: Real> Quaternion<N> {
 
         if relative_eq!(&norm_squared, &N::zero()) {
             false
-        }
-        else {
+        } else {
             self.conjugate_mut();
             self.coords /= norm_squared;
 
@@ -285,7 +294,12 @@ impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for Quaternion<N> {
     }
 
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
         self.as_vector().relative_eq(other.as_vector(), epsilon, max_relative) ||
         // Account for the double-covering of S², i.e. q = -q
        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.relative_eq(&-*b, epsilon, max_relative))
@@ -299,16 +313,18 @@ impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for Quaternion<N> {
     }
 }
 
-
 impl<N: Real + fmt::Display> fmt::Display for Quaternion<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Quaternion {} − ({}, {}, {})", self[3], self[0], self[1], self[2])
+        write!(
+            f,
+            "Quaternion {} − ({}, {}, {})",
+            self[3], self[0], self[1], self[2]
+        )
     }
 }
 
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<N> = Unit<Quaternion<N>>;
-
 
 impl<N: Real> UnitQuaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
@@ -333,8 +349,7 @@ impl<N: Real> UnitQuaternion<N> {
         // Handle innacuracies that make break `.acos`.
         if w >= N::one() {
             N::zero()
-        }
-        else {
+        } else {
             w.acos() * ::convert(2.0f64)
         }
     }
@@ -399,7 +414,8 @@ impl<N: Real> UnitQuaternion<N> {
     pub fn slerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
         self.try_slerp(other, t, N::zero()).expect(
             "Unable to perform a spherical quaternion interpolation when they \
-             are 180 degree apart (the result is not unique).")
+             are 180 degree apart (the result is not unique).",
+        )
     }
 
     /// Computes the spherical linear interpolation between two unit quaternions or returns `None`
@@ -413,25 +429,28 @@ impl<N: Real> UnitQuaternion<N> {
     /// * `epsilon`: the value below which the sinus of the angle separating both quaternion
     /// must be to return `None`.
     #[inline]
-    pub fn try_slerp(&self, other: &UnitQuaternion<N>, t: N, epsilon: N) -> Option<UnitQuaternion<N>> {
-
+    pub fn try_slerp(
+        &self,
+        other: &UnitQuaternion<N>,
+        t: N,
+        epsilon: N,
+    ) -> Option<UnitQuaternion<N>> {
         let c_hang = self.coords.dot(&other.coords);
 
         // self == other
         if c_hang.abs() >= N::one() {
-            return Some(*self)
+            return Some(*self);
         }
 
-        let hang   = c_hang.acos();
+        let hang = c_hang.acos();
         let s_hang = (N::one() - c_hang * c_hang).sqrt();
 
         // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
         if relative_eq!(s_hang, N::zero(), epsilon = epsilon) {
             None
-        }
-        else {
+        } else {
             let ta = ((N::one() - t) * hang).sin() / s_hang;
-            let tb = (t * hang).sin() / s_hang; 
+            let tb = (t * hang).sin() / s_hang;
             let res = self.as_ref() * ta + other.as_ref() * tb;
 
             Some(UnitQuaternion::new_unchecked(res))
@@ -453,25 +472,21 @@ impl<N: Real> UnitQuaternion<N> {
     /// The rotation axis of this unit quaternion or `None` if the rotation is zero.
     #[inline]
     pub fn axis(&self) -> Option<Unit<Vector3<N>>> {
-        let v =
-            if self.quaternion().scalar() >= N::zero() {
-                self.as_ref().vector().clone_owned()
-            }
-            else {
-                -self.as_ref().vector()
-            };
+        let v = if self.quaternion().scalar() >= N::zero() {
+            self.as_ref().vector().clone_owned()
+        } else {
+            -self.as_ref().vector()
+        };
 
         Unit::try_new(v, N::zero())
     }
-
 
     /// The rotation axis of this unit quaternion multiplied by the rotation agle.
     #[inline]
     pub fn scaled_axis(&self) -> Vector3<N> {
         if let Some(axis) = self.axis() {
             axis.unwrap() * self.angle()
-        }
-        else {
+        } else {
             Vector3::zero()
         }
     }
@@ -493,8 +508,7 @@ impl<N: Real> UnitQuaternion<N> {
     pub fn ln(&self) -> Quaternion<N> {
         if let Some(v) = self.axis() {
             Quaternion::from_parts(N::zero(), v.unwrap() * self.angle())
-        }
-        else {
+        } else {
             Quaternion::zero()
         }
     }
@@ -507,8 +521,7 @@ impl<N: Real> UnitQuaternion<N> {
     pub fn powf(&self, n: N) -> UnitQuaternion<N> {
         if let Some(v) = self.axis() {
             UnitQuaternion::from_axis_angle(&v, self.angle() * n)
-        }
-        else {
+        } else {
             UnitQuaternion::identity()
         }
     }
@@ -532,13 +545,17 @@ impl<N: Real> UnitQuaternion<N> {
         let jk = j * k * ::convert(2.0f64);
         let wi = w * i * ::convert(2.0f64);
 
-        Rotation::from_matrix_unchecked(
-            Matrix3::new(
-                ww + ii - jj - kk, ij - wk,           wj + ik,
-                wk + ij,           ww - ii + jj - kk, jk - wi,
-                ik - wj,           wi + jk,           ww - ii - jj + kk
-            )
-        )
+        Rotation::from_matrix_unchecked(Matrix3::new(
+            ww + ii - jj - kk,
+            ij - wk,
+            wj + ik,
+            wk + ij,
+            ww - ii + jj - kk,
+            jk - wi,
+            ik - wj,
+            wi + jk,
+            ww - ii - jj + kk,
+        ))
     }
 
     /// Converts this unit quaternion into its equivalent Euler angles.
@@ -556,15 +573,24 @@ impl<N: Real> UnitQuaternion<N> {
     }
 }
 
-
 impl<N: Real + fmt::Display> fmt::Display for UnitQuaternion<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(axis) = self.axis() {
             let axis = axis.unwrap();
-            write!(f, "UnitQuaternion angle: {} − axis: ({}, {}, {})", self.angle(), axis[0], axis[1], axis[2])
-        }
-        else {
-            write!(f, "UnitQuaternion angle: {} − axis: (undefined)", self.angle())
+            write!(
+                f,
+                "UnitQuaternion angle: {} − axis: ({}, {}, {})",
+                self.angle(),
+                axis[0],
+                axis[1],
+                axis[2]
+            )
+        } else {
+            write!(
+                f,
+                "UnitQuaternion angle: {} − axis: (undefined)",
+                self.angle()
+            )
         }
     }
 }
@@ -588,8 +614,14 @@ impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for UnitQuaternion<N> {
     }
 
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-        self.as_ref().relative_eq(other.as_ref(), epsilon, max_relative)
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
+        self.as_ref()
+            .relative_eq(other.as_ref(), epsilon, max_relative)
     }
 
     #[inline]

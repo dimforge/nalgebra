@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::{Vector2, Isometry2, Similarity2};
+use na::{Isometry2, Similarity2, Vector2};
 
 fn main() {
     // Isometry -> Similarity conversion always succeeds.
@@ -9,10 +9,10 @@ fn main() {
 
     // Similarity -> Isometry conversion fails if the scaling factor is not 1.0.
     let sim_without_scaling = Similarity2::new(Vector2::new(1.0f32, 2.0), 3.14, 1.0);
-    let sim_with_scaling    = Similarity2::new(Vector2::new(1.0f32, 2.0), 3.14, 2.0);
+    let sim_with_scaling = Similarity2::new(Vector2::new(1.0f32, 2.0), 3.14, 2.0);
 
     let iso_success: Option<Isometry2<f32>> = na::try_convert(sim_without_scaling);
-    let iso_fail:    Option<Isometry2<f32>> = na::try_convert(sim_with_scaling);
+    let iso_fail: Option<Isometry2<f32>> = na::try_convert(sim_with_scaling);
 
     assert!(iso_success.is_some());
     assert!(iso_fail.is_none());

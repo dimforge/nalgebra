@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use core::Scalar;
 use core::dimension::{Dim, DimName, Dynamic, U1};
-use core::storage::{Storage, StorageMut, Owned, ContiguousStorage, ContiguousStorageMut};
+use core::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
 use core::allocator::Allocator;
 use core::default_allocator::DefaultAllocator;
 
@@ -19,20 +19,23 @@ use abomonation::Abomonation;
 #[derive(Eq, Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct MatrixVec<N, R: Dim, C: Dim> {
-    data:   Vec<N>,
-    nrows:  R,
-    ncols:  C
+    data: Vec<N>,
+    nrows: R,
+    ncols: C,
 }
 
 impl<N, R: Dim, C: Dim> MatrixVec<N, R, C> {
     /// Creates a new dynamic matrix data storage from the given vector and shape.
     #[inline]
     pub fn new(nrows: R, ncols: C, data: Vec<N>) -> MatrixVec<N, R, C> {
-        assert!(nrows.value() * ncols.value() == data.len(), "Data storage buffer dimension mismatch.");
+        assert!(
+            nrows.value() * ncols.value() == data.len(),
+            "Data storage buffer dimension mismatch."
+        );
         MatrixVec {
-            data:   data,
-            nrows:  nrows,
-            ncols:  ncols
+            data: data,
+            nrows: nrows,
+            ncols: ncols,
         }
     }
 
@@ -55,14 +58,13 @@ impl<N, R: Dim, C: Dim> MatrixVec<N, R, C> {
     /// If `sz` is larger than the current size, additional elements are uninitialized.
     /// If `sz` is smaller than the current size, additional elements are trucated.
     #[inline]
-    pub unsafe fn resize(mut self, sz: usize) -> Vec<N>{
+    pub unsafe fn resize(mut self, sz: usize) -> Vec<N> {
         let len = self.len();
 
         if sz < len {
             self.data.set_len(sz);
             self.data.shrink_to_fit();
-        }
-        else {
+        } else {
             self.data.reserve_exact(sz - len);
             self.data.set_len(sz);
         }
@@ -87,7 +89,9 @@ impl<N, R: Dim, C: Dim> Deref for MatrixVec<N, R, C> {
  *
  */
 unsafe impl<N: Scalar, C: Dim> Storage<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
-    where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self> {
+where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
+{
     type RStride = U1;
     type CStride = Dynamic;
 
@@ -113,13 +117,17 @@ unsafe impl<N: Scalar, C: Dim> Storage<N, Dynamic, C> for MatrixVec<N, Dynamic, 
 
     #[inline]
     fn into_owned(self) -> Owned<N, Dynamic, C>
-        where DefaultAllocator: Allocator<N, Dynamic, C> {
+    where
+        DefaultAllocator: Allocator<N, Dynamic, C>,
+    {
         self
     }
 
     #[inline]
     fn clone_owned(&self) -> Owned<N, Dynamic, C>
-        where DefaultAllocator: Allocator<N, Dynamic, C> {
+    where
+        DefaultAllocator: Allocator<N, Dynamic, C>,
+    {
         self.clone()
     }
 
@@ -129,9 +137,10 @@ unsafe impl<N: Scalar, C: Dim> Storage<N, Dynamic, C> for MatrixVec<N, Dynamic, 
     }
 }
 
-
 unsafe impl<N: Scalar, R: DimName> Storage<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
-    where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self> {
+where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
+{
     type RStride = U1;
     type CStride = R;
 
@@ -157,13 +166,17 @@ unsafe impl<N: Scalar, R: DimName> Storage<N, R, Dynamic> for MatrixVec<N, R, Dy
 
     #[inline]
     fn into_owned(self) -> Owned<N, R, Dynamic>
-        where DefaultAllocator: Allocator<N, R, Dynamic> {
+    where
+        DefaultAllocator: Allocator<N, R, Dynamic>,
+    {
         self
     }
 
     #[inline]
     fn clone_owned(&self) -> Owned<N, R, Dynamic>
-        where DefaultAllocator: Allocator<N, R, Dynamic> {
+    where
+        DefaultAllocator: Allocator<N, R, Dynamic>,
+    {
         self.clone()
     }
 
@@ -173,16 +186,15 @@ unsafe impl<N: Scalar, R: DimName> Storage<N, R, Dynamic> for MatrixVec<N, R, Dy
     }
 }
 
-
-
-
 /*
  *
  * StorageMut, ContiguousStorage.
  *
  */
 unsafe impl<N: Scalar, C: Dim> StorageMut<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
-    where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self> {
+where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
+{
     #[inline]
     fn ptr_mut(&mut self) -> *mut N {
         self.data.as_mut_ptr()
@@ -195,16 +207,21 @@ unsafe impl<N: Scalar, C: Dim> StorageMut<N, Dynamic, C> for MatrixVec<N, Dynami
 }
 
 unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
-    where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self> {
+where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
+{
 }
 
 unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
-    where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self> {
+where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
+{
 }
 
-
 unsafe impl<N: Scalar, R: DimName> StorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
-    where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self> {
+where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
+{
     #[inline]
     fn ptr_mut(&mut self) -> *mut N {
         self.data.as_mut_ptr()
@@ -232,9 +249,13 @@ impl<N: Abomonation, R: Dim, C: Dim> Abomonation for MatrixVec<N, R, C> {
 }
 
 unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
-    where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self> {
+where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
+{
 }
 
 unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
-    where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self> {
+where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
+{
 }
