@@ -155,15 +155,15 @@ impl<N: Real> Rotation3<N> {
             let one_m_cos = N::one() - cos;
 
             Self::from_matrix_unchecked(MatrixN::<N, U3>::new(
-                (sqx + (N::one() - sqx) * cos),
-                (ux * uy * one_m_cos - uz * sin),
-                (ux * uz * one_m_cos + uy * sin),
-                (ux * uy * one_m_cos + uz * sin),
-                (sqy + (N::one() - sqy) * cos),
-                (uy * uz * one_m_cos - ux * sin),
-                (ux * uz * one_m_cos - uy * sin),
-                (uy * uz * one_m_cos + ux * sin),
-                (sqz + (N::one() - sqz) * cos),
+                sqx + (N::one() - sqx) * cos,
+                ux * uy * one_m_cos - uz * sin,
+                ux * uz * one_m_cos + uy * sin,
+                ux * uy * one_m_cos + uz * sin,
+                sqy + (N::one() - sqy) * cos,
+                uy * uz * one_m_cos - ux * sin,
+                ux * uz * one_m_cos - uy * sin,
+                uy * uz * one_m_cos + ux * sin,
+                sqz + (N::one() - sqz) * cos,
             ))
         }
     }
