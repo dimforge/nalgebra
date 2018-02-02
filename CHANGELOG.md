@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     `::from_element(...)`.
   * The `.iamin()` methods that returns the index of the vector entry with
     smallest absolute value.
+  * `UnitQuaternion::scaled_rotation_between_axis` and
+    `UnitQuaternion::rotation_between_axis` that take Unit vectors instead of
+    Vector as arguments.
 
 
 

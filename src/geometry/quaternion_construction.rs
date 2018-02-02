@@ -207,24 +207,62 @@ impl<N: Real> UnitQuaternion<N> {
         where SB: Storage<N, U3>,
               SC: Storage<N, U3> {
         // FIXME: code duplication with Rotation.
-        if let (Some(na), Some(nb)) = (a.try_normalize(N::zero()), b.try_normalize(N::zero())) {
-            let c = na.cross(&nb);
+        if let (Some(na), Some(nb)) = (Unit::try_new(a.clone_owned(), N::zero()),
+                                       Unit::try_new(b.clone_owned(), N::zero())) {
+            Self::scaled_rotation_between_axis(&na, &nb, s)
+        }
+        else {
+            Some(Self::identity())
+        }
+    }
 
-            if let Some(axis) = Unit::try_new(c, N::default_epsilon()) {
-                return Some(Self::from_axis_angle(&axis, na.dot(&nb).acos() * s))
+    /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
+    /// direction.
+    #[inline]
+    pub fn rotation_between_axis<SB, SC>(a: &Unit<Vector<N, U3, SB>>, b: &Unit<Vector<N, U3, SC>>) -> Option<Self>
+        where SB: Storage<N, U3>,
+              SC: Storage<N, U3> {
+        Self::scaled_rotation_between_axis(a, b, N::one())
+    }
+
+    /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
+    /// direction, raised to the power `s`.
+    #[inline]
+    pub fn scaled_rotation_between_axis<SB, SC>(na: &Unit<Vector<N, U3, SB>>,
+                                                nb: &Unit<Vector<N, U3, SC>>,
+                                                s:  N)
+                                                -> Option<Self>
+        where SB: Storage<N, U3>,
+              SC: Storage<N, U3> {
+
+        // FIXME: code duplication with Rotation.
+        let c = na.cross(&nb);
+
+        if let Some(axis) = Unit::try_new(c, N::default_epsilon()) {
+            let cos = na.dot(&nb);
+
+            // The cosinus may be out of [-1, 1] because of innacuracies.
+            if cos <= -N::one() {
+                return None
             }
-
-            // Zero or PI.
-            if na.dot(&nb) < N::zero() {
-                // PI
-                //
-                // The rotation axis is undefined but the angle not zero. This is not a
-                // simple rotation.
-                return None;
+            else if cos >= N::one() {
+                return Some(Self::identity())
+            }
+            else {
+                return Some(Self::from_axis_angle(&axis, cos.acos() * s))
             }
         }
-
-        Some(Self::identity())
+        else if na.dot(&nb) < N::zero() {
+            // PI
+            //
+            // The rotation axis is undefined but the angle not zero. This is not a
+            // simple rotation.
+            return None;
+        }
+        else {
+            // Zero
+            Some(Self::identity())
+        }
     }
 
 
