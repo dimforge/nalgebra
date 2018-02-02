@@ -24,7 +24,7 @@ use core::matrix_slice::{SliceStorage, SliceStorageMut};
  */
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMN<'a, N, R, C, RStride, CStride> {
     #[inline]
-    pub unsafe fn new_slice_with_strides_generic_unchecked(
+    pub unsafe fn new_with_strides_generic_unchecked(
         data: &'a [N], start: usize, nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
         let data = unsafe {
             SliceStorage::from_raw_parts(data.as_ptr().offset(start as isize), (nrows, ncols), (rstride, cstride))
@@ -33,7 +33,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMN<'a
     }
 
     #[inline]
-    pub fn new_slice_with_strides_generic(data: &'a [N], nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
+    pub fn new_with_strides_generic(data: &'a [N], nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
         // NOTE: The assertion implements the following formula, but without subtractions to avoid
         // underflow panics:
         //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
@@ -42,14 +42,14 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMN<'a
                 "Matrix slice: input data buffer to small.");
 
         unsafe {
-            Self::new_slice_with_strides_generic_unchecked(data, 0, nrows, ncols, rstride, cstride)
+            Self::new_with_strides_generic_unchecked(data, 0, nrows, ncols, rstride, cstride)
         }
     }
 }
 
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMutMN<'a, N, R, C, RStride, CStride> {
     #[inline]
-    pub unsafe fn new_slice_with_strides_mut_generic_unchecked(
+    pub unsafe fn new_with_strides_generic_mut_unchecked(
         data: &'a mut [N], start: usize, nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
         let data = unsafe {
             SliceStorageMut::from_raw_parts(data.as_mut_ptr().offset(start as isize), (nrows, ncols), (rstride, cstride))
@@ -58,7 +58,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMutMN
     }
 
     #[inline]
-    pub fn new_slice_with_strides_mut_generic(data: &'a mut [N], nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
+    pub fn new_with_strides_generic_mut(data: &'a mut [N], nrows: R, ncols: C, rstride: RStride, cstride: CStride) -> Self {
         // NOTE: The assertion implements the following formula, but without subtractions to avoid
         // underflow panics:
         //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
@@ -67,32 +67,32 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSliceMutMN
                 "Matrix slice: input data buffer to small.");
 
         unsafe {
-            Self::new_slice_with_strides_mut_generic_unchecked(data, 0, nrows, ncols, rstride, cstride)
+            Self::new_with_strides_generic_mut_unchecked(data, 0, nrows, ncols, rstride, cstride)
         }
     }
 }
 
 impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
     #[inline]
-    pub unsafe fn new_slice_generic_unchecked(data: &'a [N], start: usize, nrows: R, ncols: C) -> Self {
-        Self::new_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
+    pub unsafe fn new_generic_unchecked(data: &'a [N], start: usize, nrows: R, ncols: C) -> Self {
+        Self::new_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
     }
 
     #[inline]
-    pub fn new_slice_generic(data: &'a [N], nrows: R, ncols: C) -> Self {
-        Self::new_slice_with_strides_generic(data, nrows, ncols, U1, nrows)
+    pub fn new_generic(data: &'a [N], nrows: R, ncols: C) -> Self {
+        Self::new_with_strides_generic(data, nrows, ncols, U1, nrows)
     }
 }
 
 impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
     #[inline]
-    pub unsafe fn new_slice_mut_generic_unchecked(data: &'a mut [N], start: usize, nrows: R, ncols: C) -> Self {
-        Self::new_slice_with_strides_mut_generic_unchecked(data, start, nrows, ncols, U1, nrows)
+    pub unsafe fn new_generic_mut_unchecked(data: &'a mut [N], start: usize, nrows: R, ncols: C) -> Self {
+        Self::new_with_strides_generic_mut_unchecked(data, start, nrows, ncols, U1, nrows)
     }
 
     #[inline]
-    pub fn new_slice_mut_generic(data: &'a mut [N], nrows: R, ncols: C) -> Self {
-        Self::new_slice_with_strides_mut_generic(data, nrows, ncols, U1, nrows)
+    pub fn new_generic_mut(data: &'a mut [N], nrows: R, ncols: C) -> Self {
+        Self::new_with_strides_generic_mut(data, nrows, ncols, U1, nrows)
     }
 }
 
@@ -101,24 +101,24 @@ macro_rules! impl_constructors(
         impl<'a, N: Scalar, $($DimIdent: $DimBound),*> MatrixSliceMN<'a, N, $($Dims),*> {
             #[inline]
             pub fn new(data: &'a [N], $($args: usize),*) -> Self {
-                Self::new_slice_generic(data, $($gargs),*)
+                Self::new_generic(data, $($gargs),*)
             }
 
             #[inline]
             pub unsafe fn new_unchecked(data: &'a [N], start: usize, $($args: usize),*) -> Self {
-                Self::new_slice_generic_unchecked(data, start, $($gargs),*)
+                Self::new_generic_unchecked(data, start, $($gargs),*)
             }
         }
 
         impl<'a, N: Scalar, $($DimIdent: $DimBound, )*> MatrixSliceMN<'a, N, $($Dims,)* Dynamic, Dynamic> {
             #[inline]
             pub fn new_with_strides(data: &'a [N], $($args: usize,)* rstride: usize, cstride: usize) -> Self {
-                Self::new_slice_with_strides_generic(data, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
+                Self::new_with_strides_generic(data, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
 
             #[inline]
             pub unsafe fn new_with_strides_unchecked(data: &'a [N], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
-                Self::new_slice_with_strides_generic_unchecked(data, start, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
+                Self::new_with_strides_generic_unchecked(data, start, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
         }
     }
@@ -152,25 +152,25 @@ macro_rules! impl_constructors_mut(
 
             #[inline]
             pub fn new(data: &'a mut [N], $($args: usize),*) -> Self {
-                Self::new_slice_mut_generic(data, $($gargs),*)
+                Self::new_generic_mut(data, $($gargs),*)
             }
 
             #[inline]
             pub unsafe fn new_unchecked(data: &'a mut [N], start: usize, $($args: usize),*) -> Self {
-                Self::new_slice_mut_generic_unchecked(data, start, $($gargs),*)
+                Self::new_generic_mut_unchecked(data, start, $($gargs),*)
             }
         }
 
         impl<'a, N: Scalar, $($DimIdent: $DimBound, )*> MatrixSliceMutMN<'a, N, $($Dims,)* Dynamic, Dynamic> {
             #[inline]
             pub fn new_with_strides(data: &'a mut [N], $($args: usize,)* rstride: usize, cstride: usize) -> Self {
-                Self::new_slice_with_strides_mut_generic(
+                Self::new_with_strides_generic_mut(
                     data, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
 
             #[inline]
             pub unsafe fn new_with_strides_unchecked(data: &'a mut [N], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
-                Self::new_slice_with_strides_mut_generic_unchecked(
+                Self::new_with_strides_generic_mut_unchecked(
                     data, start, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
         }
