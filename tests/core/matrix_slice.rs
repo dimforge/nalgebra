@@ -1,9 +1,15 @@
+ #![allow(non_snake_case)]
+
 use na::{U2, U3, U4};
 use na::{DMatrix,
          RowVector4,
          Vector3,
          Matrix2, Matrix3,
-         Matrix3x4, Matrix4x2, Matrix2x4, Matrix6x2, Matrix2x6};
+         Matrix2x3, Matrix3x2, Matrix3x4, Matrix4x2, Matrix2x4, Matrix6x2, Matrix2x6,
+         MatrixSlice2, MatrixSlice3, MatrixSlice2x3, MatrixSlice3x2,
+         MatrixSliceXx3, MatrixSlice2xX, DMatrixSlice,
+         MatrixSliceMut2, MatrixSliceMut3, MatrixSliceMut2x3, MatrixSliceMut3x2,
+         MatrixSliceMutXx3, MatrixSliceMut2xX, DMatrixSliceMut};
 
 #[test]
 fn nested_fixed_slices() {
@@ -188,6 +194,83 @@ fn columns_range_pair() {
                                   22.0, 23.0, 24.0,
                                   32.0, 33.0, 34.0);
     assert!(l.eq(&expected_l) && r.eq(&expected_r));
+}
+
+#[test]
+fn new_slice() {
+    let data = [ 1.0, 2.0,  3.0,  4.0,
+                 5.0, 6.0,  7.0,  8.0,
+                 9.0, 10.0, 11.0, 12.0 ];
+
+    let expected2   = Matrix2::from_column_slice(&data);
+    let expected3   = Matrix3::from_column_slice(&data);
+    let expected2x3 = Matrix2x3::from_column_slice(&data);
+    let expected3x2 = Matrix3x2::from_column_slice(&data);
+
+    {
+        let m2   = MatrixSlice2::new(&data);
+        let m3   = MatrixSlice3::new(&data);
+        let m2x3 = MatrixSlice2x3::new(&data);
+        let m3x2 = MatrixSlice3x2::new(&data);
+        let m2xX = MatrixSlice2xX::new(&data, 3);
+        let mXx3 = MatrixSliceXx3::new(&data, 2);
+        let mXxX = DMatrixSlice::new(&data, 2, 3);
+
+        assert!(m2.eq(&expected2));
+        assert!(m3.eq(&expected3));
+        assert!(m2x3.eq(&expected2x3));
+        assert!(m3x2.eq(&expected3x2));
+        assert!(m2xX.eq(&expected2x3));
+        assert!(mXx3.eq(&expected2x3));
+        assert!(mXxX.eq(&expected2x3));
+    }
+}
+
+#[test]
+fn new_slice_mut() {
+    let data = [ 1.0, 2.0,  3.0,  4.0,
+                 5.0, 6.0,  7.0,  8.0,
+                 9.0, 10.0, 11.0, 12.0 ];
+    let expected2 = [ 0.0, 0.0,  0.0,  0.0,
+                      5.0, 6.0,  7.0,  8.0,
+                      9.0, 10.0, 11.0, 12.0 ];
+    let expected3 = [ 0.0, 0.0,  0.0,  0.0,
+                      0.0, 0.0,  0.0,  0.0,
+                      0.0, 10.0, 11.0, 12.0 ];
+    let expected2x3 = [ 0.0, 0.0,  0.0,  0.0,
+                        0.0, 0.0,  7.0,  8.0,
+                        9.0, 10.0, 11.0, 12.0 ];
+    let expected3x2 = [ 0.0, 0.0,  0.0,  0.0,
+                        0.0, 0.0,  7.0,  8.0,
+                        9.0, 10.0, 11.0, 12.0 ];
+
+    let mut data_mut = data.clone();
+    MatrixSliceMut2::new(&mut data_mut).fill(0.0);
+    assert!(data_mut == expected2);
+
+    let mut data_mut = data.clone();
+    MatrixSliceMut3::new(&mut data_mut).fill(0.0);
+    assert!(data_mut == expected3);
+
+    let mut data_mut = data.clone();
+    MatrixSliceMut2x3::new(&mut data_mut).fill(0.0);
+    assert!(data_mut == expected2x3);
+
+    let mut data_mut = data.clone();
+    MatrixSliceMut3x2::new(&mut data_mut).fill(0.0);
+    assert!(data_mut == expected3x2);
+
+    let mut data_mut = data.clone();
+    MatrixSliceMut2xX::new(&mut data_mut, 3).fill(0.0);
+    assert!(data_mut == expected2x3);
+
+    let mut data_mut = data.clone();
+    MatrixSliceMutXx3::new(&mut data_mut, 2).fill(0.0);
+    assert!(data_mut == expected2x3);
+
+    let mut data_mut = data.clone();
+    DMatrixSliceMut::new(&mut data_mut, 2, 3).fill(0.0);
+    assert!(data_mut == expected2x3);
 }
 
 #[test]

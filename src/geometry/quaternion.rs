@@ -13,7 +13,7 @@ use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use core::{Unit, Vector3, Vector4, MatrixSlice, MatrixSliceMut, SquareMatrix, MatrixN};
+use core::{Unit, Vector3, Vector4, MatrixSlice, MatrixSliceMut, SquareMatrix, MatrixN, Matrix3};
 use core::dimension::{U1, U3, U4};
 use core::storage::{RStride, CStride};
 
@@ -533,7 +533,7 @@ impl<N: Real> UnitQuaternion<N> {
         let wi = w * i * ::convert(2.0f64);
 
         Rotation::from_matrix_unchecked(
-            SquareMatrix::<_, U3, _>::new(
+            Matrix3::new(
                 ww + ii - jj - kk, ij - wk,           wj + ik,
                 wk + ij,           ww - ii + jj - kk, jk - wi,
                 ik - wj,           wi + jk,           ww - ii - jj + kk
