@@ -31,6 +31,26 @@ quickcheck! {
         relative_eq!(y1, y2, epsilon = 1.0e-10)
     }
 
+    fn gemv_tr(n: usize, alpha: f64, beta: f64) -> bool {
+        let n = cmp::max(1, cmp::min(n, 50));
+        let a = DMatrix::<f64>::new_random(n, n);
+        let x = DVector::new_random(n);
+        let mut y1 = DVector::new_random(n);
+        let mut y2 = y1.clone();
+
+        y1.gemv(alpha, &a, &x, beta);
+        y2.gemv_tr(alpha, &a.transpose(), &x, beta);
+
+        if !relative_eq!(y1, y2, epsilon = 1.0e-10) {
+            return false;
+        }
+
+        y1.gemv(alpha, &a, &x, 0.0);
+        y2.gemv_tr(alpha, &a.transpose(), &x, 0.0);
+
+        relative_eq!(y1, y2, epsilon = 1.0e-10)
+    }
+
     fn ger_symm(n: usize, alpha: f64, beta: f64) -> bool {
         let n = cmp::max(1, cmp::min(n, 50));
         let a = DMatrix::<f64>::new_random(n, n);
