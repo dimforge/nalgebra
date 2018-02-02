@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
   * The `mint` feature that can be enabled in order to allow conversions from
     and to types of the [mint](https://crates.io/crates/mint) crate.
+  * The `::repeat(...)` constructor that is an alternative name to
+    `::from_element(...)`.
 
 
 
