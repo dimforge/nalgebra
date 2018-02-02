@@ -13,6 +13,7 @@ pub mod default_allocator;
 mod scalar;
 mod matrix;
 mod construction;
+mod construction_slice;
 mod properties;
 mod alias;
 mod alias_slice;

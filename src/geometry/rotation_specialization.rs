@@ -8,7 +8,7 @@ use num::Zero;
 use rand::{Rand, Rng};
 use alga::general::Real;
 
-use core::{Unit, Vector, MatrixN, VectorN, Vector3};
+use core::{Unit, Vector, Vector1, MatrixN, VectorN, Vector3};
 use core::dimension::{U1, U2, U3};
 use core::storage::Storage;
 
@@ -86,7 +86,7 @@ impl<N: Real> Rotation2<N> {
     /// The rotation angle returned as a 1-dimensional vector.
     #[inline]
     pub fn scaled_axis(&self) -> VectorN<N, U1> {
-        Vector::<_, U1, _>::new(self.angle())
+        Vector1::new(self.angle())
     }
 }
 
