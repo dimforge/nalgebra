@@ -23,6 +23,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * `UnitQuaternion::scaled_rotation_between_axis` and
     `UnitQuaternion::rotation_between_axis` that take Unit vectors instead of
     Vector as arguments.
+  * `.cross_matrix()` returns the cross-product matrix of a given vector, i.e.,
+    the matrix `M` such that for all vector `v` we have `M * v ==
+    self.cross(&v)`.
 
 
 

@@ -16,8 +16,8 @@ use abomonation::Abomonation;
 
 use alga::general::{Ring, Real};
 
-use core::{Scalar, DefaultAllocator, Unit, VectorN, MatrixMN};
-use core::dimension::{Dim, DimAdd, DimSum, U1, U2};
+use core::{Scalar, DefaultAllocator, Unit, VectorN, MatrixN, MatrixMN};
+use core::dimension::{Dim, DimAdd, DimSum, U1, U2, U3};
 use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns, DimEq};
 use core::iter::{MatrixIter, MatrixIterMut};
 use core::allocator::{Allocator, SameShapeAllocator, SameShapeR, SameShapeC};
@@ -892,6 +892,17 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 res
             }
         }
+    }
+}
+
+impl<N: Real, S: Storage<N, U3>> Vector<N, U3, S>
+    where DefaultAllocator: Allocator<N, U3> {
+    /// Computes the matrix `M` such that for all vector `v` we have `M * v == self.cross(&v)`.
+    #[inline]
+    pub fn cross_matrix(&self) -> MatrixN<N, U3> {
+        MatrixN::<N, U3>::new(N::zero(), -self[2],   self[1],
+                              self[2],    N::zero(), -self[0],
+                              -self[1],   self[0],    N::zero())
     }
 }
 
