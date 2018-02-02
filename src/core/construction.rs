@@ -38,6 +38,15 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
         Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
     }
 
+    /// Creates a matrix with all its elements set to `elem`.
+    /// 
+    /// Same as `from_element_generic`.
+    #[inline]
+    pub fn repeat_generic(nrows: R, ncols: C, elem: N) -> Self {
+        let len = nrows.value() * ncols.value();
+        Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
+    }
+
     /// Creates a matrix with all its elements set to 0.
     #[inline]
     pub fn zeros_generic(nrows: R, ncols: C) -> Self
@@ -233,6 +242,14 @@ macro_rules! impl_constructors(
             #[inline]
             pub fn from_element($($args: usize,)* elem: N) -> Self {
                 Self::from_element_generic($($gargs, )* elem)
+            }
+
+            /// Creates a matrix with all its elements set to `elem`.
+            ///
+            /// Same as `.from_element`.
+            #[inline]
+            pub fn repeat($($args: usize,)* elem: N) -> Self {
+                Self::repeat_generic($($gargs, )* elem)
             }
 
             /// Creates a matrix with all its elements set to `0`.
