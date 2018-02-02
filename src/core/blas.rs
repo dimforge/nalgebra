@@ -338,10 +338,10 @@ impl<N, D: Dim, S> Vector<N, D, S>
     /// If `beta` is zero, `self` is never read.
     #[inline]
     pub fn gemv_tr<R2: Dim, C2: Dim, D3: Dim, SB, SC>(&mut self,
-                                                   alpha: N,
-                                                   a:     &Matrix<N, R2, C2, SB>,
-                                                   x:     &Vector<N, D3, SC>,
-                                                   beta:  N)
+                                                      alpha: N,
+                                                      a:     &Matrix<N, R2, C2, SB>,
+                                                      x:     &Vector<N, D3, SC>,
+                                                      beta:  N)
         where N:  One,
               SB: Storage<N, R2, C2>,
               SC: Storage<N, D3>,
@@ -481,6 +481,35 @@ impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
            }
        }
     }
+
+    /// Computes `self = alpha * a.transpose() * b + beta * self`, where `a, b, self` are matrices.
+    /// `alpha` and `beta` are scalar.
+    ///
+    /// If `beta` is zero, `self` is never read.
+    #[inline]
+    pub fn gemm_tr<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(&mut self,
+                                                               alpha: N,
+                                                               a: &Matrix<N, R2, C2, SB>,
+                                                               b: &Matrix<N, R3, C3, SC>,
+                                                               beta: N)
+        where N:  One,
+              SB: Storage<N, R2, C2>,
+              SC: Storage<N, R3, C3>,
+              ShapeConstraint: SameNumberOfRows<R1, C2>    +
+                               SameNumberOfColumns<C1, C3> +
+                               AreMultipliable<C2, R2, R3, C3> {
+       let (nrows1, ncols1) = self.shape();
+       let (nrows2, ncols2) = a.shape();
+       let (nrows3, ncols3) = b.shape();
+
+       assert_eq!(nrows2, nrows3, "gemm: dimensions mismatch for multiplication.");
+       assert_eq!((nrows1, ncols1), (ncols2, ncols3), "gemm: dimensions mismatch for addition.");
+
+       for j1 in 0 .. ncols1 {
+           // FIXME: avoid bound checks.
+           self.column_mut(j1).gemv_tr(alpha, a, &b.column(j1), beta);
+       }
+    }
 }
 
 
@@ -520,13 +549,15 @@ impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
 impl<N, D1: Dim, S: StorageMut<N, D1, D1>> SquareMatrix<N, D1, S>
     where N: Scalar + Zero + One + ClosedAdd + ClosedMul {
 
-    /// Computes the quadratic form `self = alpha * lrs * mid * lhs.transpose() + beta * self`.
-    pub fn quadform_with_workspace<D2, S2, R3, C3, S3, D4, S4>(&mut self,
-                                                               work:  &mut Vector<N, D2, S2>,
-                                                               alpha: N,
-                                                               lhs:   &Matrix<N, R3, C3, S3>,
-                                                               mid:   &SquareMatrix<N, D4, S4>,
-                                                               beta:  N)
+    /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
+    ///
+    /// This uses the provided workspace `work` to avoid allocations for intermediate results.
+    pub fn quadform_tr_with_workspace<D2, S2, R3, C3, S3, D4, S4>(&mut self,
+                                                                  work:  &mut Vector<N, D2, S2>,
+                                                                  alpha: N,
+                                                                  lhs:   &Matrix<N, R3, C3, S3>,
+                                                                  mid:   &SquareMatrix<N, D4, S4>,
+                                                                  beta:  N)
         where D2: Dim, R3: Dim, C3: Dim, D4: Dim,
               S2: StorageMut<N, D2>,
               S3: Storage<N, R3, C3>,
@@ -544,18 +575,68 @@ impl<N, D1: Dim, S: StorageMut<N, D1, D1>> SquareMatrix<N, D1, S>
         }
     }
 
-    /// Computes the quadratic form `self = alpha * lrs * mid * lhs.transpose() + beta * self`.
-    pub fn quadform<R3, C3, S3, D4, S4>(&mut self,
-                                        alpha: N,
-                                        lhs:   &Matrix<N, R3, C3, S3>,
-                                        mid:   &SquareMatrix<N, D4, S4>,
-                                        beta:  N)
-        where R3: Dim, C3: Dim, D4: Dim,
+    /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
+    ///
+    /// This allocates a workspace vector of dimension D1 for intermediate results.
+    /// Use `.quadform_tr_with_workspace(...)` instead to avoid allocations.
+    pub fn quadform_tr<R3, C3, S3, D4, S4>(&mut self,
+                                           alpha: N,
+                                           lhs:   &Matrix<N, R3, C3, S3>,
+                                           mid:   &SquareMatrix<N, D4, S4>,
+                                           beta:  N)
+        where R3: Dim, C3: Dim, D4: Dim,   
               S3: Storage<N, R3, C3>,
               S4: Storage<N, D4, D4>,
               ShapeConstraint: DimEq<D1, D1> + DimEq<D1, R3> + DimEq<C3, D4>,
               DefaultAllocator: Allocator<N, D1> {
         let mut work = unsafe { Vector::new_uninitialized_generic(self.data.shape().0, U1) };
-        self.quadform_with_workspace(&mut work, alpha, lhs, mid, beta)
+        self.quadform_tr_with_workspace(&mut work, alpha, lhs, mid, beta)
+    }
+
+    /// Computes the quadratic form `self = alpha * rhs.transpose() * mid * rhs + beta * self`.
+    ///
+    /// This uses the provided workspace `work` to avoid allocations for intermediate results.
+    pub fn quadform_with_workspace<D2, S2, D3, S3, R4, C4, S4>(&mut self,
+                                                               work:  &mut Vector<N, D2, S2>,
+                                                               alpha: N,
+                                                               mid:   &SquareMatrix<N, D3, S3>,
+                                                               rhs:   &Matrix<N, R4, C4, S4>,
+                                                               beta:  N)
+        where D2: Dim, D3: Dim, R4: Dim, C4: Dim,
+              S2: StorageMut<N, D2>,
+              S3: Storage<N, D3, D3>,
+              S4: Storage<N, R4, C4>,
+              ShapeConstraint: DimEq<D3, R4> +
+                               DimEq<D1, C4> +
+                               DimEq<D2, D3> +
+                               AreMultipliable<C4, R4, D2, U1> {
+        work.gemv(N::one(), mid, &rhs.column(0), N::zero());
+        self.column_mut(0).gemv_tr(alpha, &rhs, work, beta);
+
+        for j in 1 .. rhs.ncols() {
+            work.gemv(N::one(), mid, &rhs.column(j), N::zero());
+            self.column_mut(j).gemv_tr(alpha, &rhs, work, beta);
+        }
+    }
+
+    /// Computes the quadratic form `self = alpha * rhs.transpose() * mid * rhs + beta * self`.
+    ///
+    /// This allocates a workspace vector of dimension D2 for intermediate results.
+    /// Use `.quadform_with_workspace(...)` instead to avoid allocations.
+    pub fn quadform<D2, S2, R3, C3, S3>(&mut self,
+                                        alpha: N,
+                                        mid:   &SquareMatrix<N, D2, S2>,
+                                        rhs:   &Matrix<N, R3, C3, S3>,
+                                        beta:  N)
+        where D2: Dim, R3: Dim, C3: Dim,
+              S2: Storage<N, D2, D2>,
+              S3: Storage<N, R3, C3>,
+              ShapeConstraint: DimEq<D2, R3> +
+                               DimEq<D1, C3> +
+                               AreMultipliable<C3, R3, D2, U1>,
+              DefaultAllocator: Allocator<N, D2> {
+
+        let mut work = unsafe { Vector::new_uninitialized_generic(mid.data.shape().0, U1) };
+        self.quadform_with_workspace(&mut work, alpha, mid, rhs, beta)
     }
 }
