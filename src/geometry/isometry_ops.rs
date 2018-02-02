@@ -3,7 +3,7 @@ use std::ops::{Mul, MulAssign, Div, DivAssign};
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
 
-use core::{DefaultAllocator, VectorN};
+use core::{DefaultAllocator, VectorN, Unit};
 use core::dimension::{DimName, U1, U3, U4};
 use core::allocator::Allocator;
 
@@ -30,6 +30,7 @@ use geometry::{Point, Rotation, Isometry, Translation, UnitQuaternion};
  *
  * Isometry × Point
  * Isometry × Vector
+ * Isometry × Unit<Vector>
  *
  *
  * Isometry    × Translation
@@ -250,6 +251,18 @@ isometry_binop_impl_all!(
     [ref val] => self.rotation.transform_vector(&right);
     [val ref] => self.rotation.transform_vector(right);
     [ref ref] => self.rotation.transform_vector(right);
+);
+
+// Isometry × Unit<Vector>
+isometry_binop_impl_all!(
+    Mul, mul;
+    // FIXME: because of `transform_vector`, we cant use a generic storage type for the rhs vector,
+    // i.e., right: Vector<N, D, S> where S: Storage<N, D>.
+    self: Isometry<N, D, R>, right: Unit<VectorN<N, D>>, Output = Unit<VectorN<N, D>>;
+    [val val] => Unit::new_unchecked(self.rotation.transform_vector(right.as_ref()));
+    [ref val] => Unit::new_unchecked(self.rotation.transform_vector(right.as_ref()));
+    [val ref] => Unit::new_unchecked(self.rotation.transform_vector(right.as_ref()));
+    [ref ref] => Unit::new_unchecked(self.rotation.transform_vector(right.as_ref()));
 );
 
 
