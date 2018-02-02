@@ -35,7 +35,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 macro_rules! component_binop_impl(
-    ($($binop: ident, $binop_mut: ident, $binop_assign: ident, $cbpy: ident, $Trait: ident . $op: ident . $op_assign: ident, $desc:expr, $desc_mut:expr);* $(;)*) => {$(
+    ($($binop: ident, $binop_mut: ident, $binop_assign: ident, $cmpy: ident, $Trait: ident . $op: ident . $op_assign: ident, $desc:expr, $desc_cmpy:expr, $desc_mut:expr);* $(;)*) => {$(
         impl<N: Scalar, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA> {
             #[doc = $desc]
             #[inline]
@@ -63,8 +63,9 @@ macro_rules! component_binop_impl(
 
         impl<N: Scalar, R1: Dim, C1: Dim, SA: StorageMut<N, R1, C1>> Matrix<N, R1, C1, SA> {
             // componentwise binop plus Y.
+            #[doc = $desc_cmpy]
             #[inline]
-            pub fn $cbpy<R2, C2, SB, R3, C3, SC>(&mut self, alpha: N, a: &Matrix<N, R2, C2, SB>, b: &Matrix<N, R3, C3, SC>, beta: N)
+            pub fn $cmpy<R2, C2, SB, R3, C3, SC>(&mut self, alpha: N, a: &Matrix<N, R2, C2, SB>, b: &Matrix<N, R3, C3, SC>, beta: N)
                 where N: $Trait + Zero + Mul<N, Output = N> + Add<N, Output = N>,
                       R2: Dim, C2: Dim,
                       R3: Dim, C3: Dim,
@@ -134,8 +135,12 @@ macro_rules! component_binop_impl(
 
 component_binop_impl!(
     component_mul, component_mul_mut, component_mul_assign, cmpy, ClosedMul.mul.mul_assign,
-    "Componentwise matrix multiplication.", "Mutable, componentwise matrix multiplication.";
+    "Componentwise matrix multiplication.",
+    "Computes componentwise `self[i] = alpha * a[i] * b[i] + beta * self[i]",
+    "Inplace componentwise matrix multiplication.";
     component_div, component_div_mut, component_div_assign, cdpy, ClosedDiv.div.div_assign,
-    "Componentwise matrix division.", "Mutable, componentwise matrix division.";
+    "Componentwise matrix division.",
+    "Computes componentwise `self[i] = alpha * a[i] / b[i] + beta * self[i]",    
+    "Inplace componentwise matrix division.";
     // FIXME: add other operators like bitshift, etc. ?
 );
