@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     and to types of the [mint](https://crates.io/crates/mint) crate.
   * The `::repeat(...)` constructor that is an alternative name to
     `::from_element(...)`.
+  * The `.iamin()` methods that returns the index of the vector entry with
+    smallest absolute value.
 
 
 
