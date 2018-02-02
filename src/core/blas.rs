@@ -31,6 +31,26 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
 
         the_i
     }
+
+    /// Computes the index of the vector component with the smallest absolute value.
+    #[inline]
+    pub fn iamin(&self) -> usize {
+        assert!(!self.is_empty(), "The input vector must not be empty.");
+
+        let mut the_max = unsafe { self.vget_unchecked(0).abs() };
+        let mut the_i   = 0;
+
+        for i in 1 .. self.nrows() {
+            let val = unsafe { self.vget_unchecked(i).abs() };
+
+            if val < the_max {
+                the_max = val;
+                the_i   = i;
+            }
+        }
+
+        the_i
+    }
 }
 
 impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
