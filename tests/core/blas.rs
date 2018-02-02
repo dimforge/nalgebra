@@ -53,22 +53,18 @@ quickcheck! {
         relative_eq!(a1.lower_triangle(), a2)
     }
 
-    fn quadform_symm(n: usize, alpha: f64, beta: f64) -> bool {
-        let n = cmp::max(1, cmp::min(n, 50));
-        let lhs         = DMatrix::<f64>::new_random(6, n);
-        let mut mid     = DMatrix::<f64>::new_random(n, n);
-        let mut res     = DMatrix::new_random(6, 6);
-        let mut scratch = Vector6::zeros();
-
-        mid.fill_upper_triangle_with_lower_triangle();
+    fn quadform(n: usize, alpha: f64, beta: f64) -> bool {
+        let n       = cmp::max(1, cmp::min(n, 50));
+        let lhs     = DMatrix::<f64>::new_random(6, n);
+        let mid     = DMatrix::<f64>::new_random(n, n);
+        let mut res = DMatrix::new_random(6, 6);
 
         let expected = &res * beta + &lhs * &mid * lhs.transpose() * alpha;
 
-        res.quadform_symm(&mut scratch, alpha, &lhs, &mid, beta);
-        res.fill_upper_triangle_with_lower_triangle();
+        res.quadform(alpha, &lhs, &mid , beta);
 
         println!("{}{}", res, expected);
 
-        relative_eq!(res.lower_triangle(), expected.lower_triangle(), epsilon = 1.0e-7)
+        relative_eq!(res, expected, epsilon = 1.0e-7)
     }
 }
