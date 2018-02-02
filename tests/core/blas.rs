@@ -75,13 +75,28 @@ quickcheck! {
 
     fn quadform(n: usize, alpha: f64, beta: f64) -> bool {
         let n       = cmp::max(1, cmp::min(n, 50));
+        let rhs     = DMatrix::<f64>::new_random(6, n);
+        let mid     = DMatrix::<f64>::new_random(6, 6);
+        let mut res = DMatrix::new_random(n, n);
+
+        let expected = &res * beta + rhs.transpose() * &mid * &rhs * alpha;
+
+        res.quadform(alpha, &mid, &rhs, beta);
+
+        println!("{}{}", res, expected);
+
+        relative_eq!(res, expected, epsilon = 1.0e-7)
+    }
+
+    fn quadform_tr(n: usize, alpha: f64, beta: f64) -> bool {
+        let n       = cmp::max(1, cmp::min(n, 50));
         let lhs     = DMatrix::<f64>::new_random(6, n);
         let mid     = DMatrix::<f64>::new_random(n, n);
         let mut res = DMatrix::new_random(6, 6);
 
         let expected = &res * beta + &lhs * &mid * lhs.transpose() * alpha;
 
-        res.quadform(alpha, &lhs, &mid , beta);
+        res.quadform_tr(alpha, &lhs, &mid , beta);
 
         println!("{}{}", res, expected);
 

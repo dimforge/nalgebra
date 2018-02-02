@@ -5,6 +5,10 @@ documented here.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.14.0] − WIP
+### Modified
+  * `quadform` has been renamed `quadform_tr`. The new `quadform` method takes
+    the matrix on the right-hand-side instead of the matrix on the
+    left-hand-side of the quadratic form.
 ### Added
   * The `mint` feature that can be enabled in order to allow conversions from
     and to types of the [mint](https://crates.io/crates/mint) crate.
@@ -12,6 +16,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     `::from_element(...)`.
   * The `.iamin()` methods that returns the index of the vector entry with
     smallest absolute value.
+  * Add blas-like operations: `cmpy, cdpy` for componentwise multiplicatons and
+    division with scalar factors:
+        - `self <- alpha * self + beta * a * b`
+        - `self <- alpha * self + beta / a * b`
   * `UnitQuaternion::scaled_rotation_between_axis` and
     `UnitQuaternion::rotation_between_axis` that take Unit vectors instead of
     Vector as arguments.
