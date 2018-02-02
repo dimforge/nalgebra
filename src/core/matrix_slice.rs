@@ -20,6 +20,25 @@ macro_rules! slice_storage_impl(
             _phantoms: PhantomData<$Ref>,
         }
 
+        impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> $T<'a, N, R, C, RStride, CStride> {
+            /// Create a new matrix slice without bound checking and from a raw pointer.
+            #[inline]
+            pub unsafe fn from_raw_parts(ptr:     $Ptr,
+                                         shape:   (R, C),
+                                         strides: (RStride, CStride))
+                                        -> Self
+                where RStride: Dim,
+                      CStride: Dim {
+
+                $T {
+                    ptr:       ptr,
+                    shape:     shape,
+                    strides:   strides,
+                    _phantoms: PhantomData
+                }
+            }
+        }
+
         // Dynamic is arbitrary. It's just to be able to call the constructors with `Slice::`
         impl<'a, N: Scalar, R: Dim, C: Dim> $T<'a, N, R, C, Dynamic, Dynamic> {
             /// Create a new matrix slice without bound checking.
@@ -48,23 +67,6 @@ macro_rules! slice_storage_impl(
                       CStride: Dim {
 
                 $T::from_raw_parts(storage.$get_addr(start.0, start.1), shape, strides)
-            }
-
-            /// Create a new matrix slice without bound checking and from a raw pointer.
-            #[inline]
-            pub unsafe fn from_raw_parts<RStride, CStride>(ptr:     $Ptr,
-                                                           shape:   (R, C),
-                                                           strides: (RStride, CStride))
-                -> $T<'a, N, R, C, RStride, CStride>
-                where RStride: Dim,
-                      CStride: Dim {
-
-                $T {
-                    ptr:       ptr,
-                    shape:     shape,
-                    strides:   strides,
-                    _phantoms: PhantomData
-                }
             }
         }
     }

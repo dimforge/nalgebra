@@ -15,6 +15,7 @@ mod matrix;
 mod construction;
 mod properties;
 mod alias;
+mod alias_slice;
 mod matrix_alga;
 mod conversion;
 mod matrix_slice;
@@ -36,6 +37,7 @@ pub use self::dimension::*;
 pub use self::default_allocator::*;
 
 pub use self::alias::*;
+pub use self::alias_slice::*;
 pub use self::matrix_slice::*;
 pub use self::matrix_array::*;
 pub use self::matrix_vec::*;
