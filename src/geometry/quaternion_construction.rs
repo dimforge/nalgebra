@@ -6,24 +6,22 @@ use core::storage::Owned;
 use core::dimension::U4;
 
 use rand::{Rand, Rng};
-use num::{Zero, One};
+use num::{One, Zero};
 
 use alga::general::Real;
 
-use core::{Unit, Vector, Vector4, Vector3};
+use core::{Unit, Vector, Vector3, Vector4};
 use core::storage::Storage;
 use core::dimension::U3;
 
-use geometry::{Quaternion, UnitQuaternion, Rotation};
+use geometry::{Quaternion, Rotation, UnitQuaternion};
 
 impl<N: Real> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]
     pub fn from_vector(vector: Vector4<N>) -> Self {
-        Quaternion {
-            coords: vector
-        }
+        Quaternion { coords: vector }
     }
 
     /// Creates a new quaternion from its individual components. Note that the arguments order does
@@ -43,8 +41,9 @@ impl<N: Real> Quaternion<N> {
     #[inline]
     // FIXME: take a reference to `vector`?
     pub fn from_parts<SB>(scalar: N, vector: Vector<N, U3, SB>) -> Self
-        where SB: Storage<N, U3> {
-
+    where
+        SB: Storage<N, U3>,
+    {
         Self::new(scalar, vector[0], vector[1], vector[2])
     }
 
@@ -53,7 +52,9 @@ impl<N: Real> Quaternion<N> {
     /// Note that `axis` is assumed to be a unit vector.
     // FIXME: take a reference to `axis`?
     pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
-        where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * ::convert(2.0f64));
 
         rot.unwrap() * scale
@@ -92,13 +93,19 @@ impl<N: Real + Rand> Rand for Quaternion<N> {
     }
 }
 
-#[cfg(feature="arbitrary")]
+#[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for Quaternion<N>
-    where Owned<N, U4>: Send {
+where
+    Owned<N, U4>: Send,
+{
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        Quaternion::new(N::arbitrary(g), N::arbitrary(g),
-                            N::arbitrary(g), N::arbitrary(g))
+        Quaternion::new(
+            N::arbitrary(g),
+            N::arbitrary(g),
+            N::arbitrary(g),
+            N::arbitrary(g),
+        )
     }
 }
 
@@ -113,7 +120,9 @@ impl<N: Real> UnitQuaternion<N> {
     /// (the rotation angle).
     #[inline]
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
-        where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let (sang, cang) = (angle / ::convert(2.0f64)).sin_cos();
 
         let q = Quaternion::from_parts(cang, axis.as_ref() * sang);
@@ -133,15 +142,16 @@ impl<N: Real> UnitQuaternion<N> {
     /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
     #[inline]
     pub fn from_euler_angles(roll: N, pitch: N, yaw: N) -> Self {
-        let (sr, cr) = (roll  * ::convert(0.5f64)).sin_cos();
+        let (sr, cr) = (roll * ::convert(0.5f64)).sin_cos();
         let (sp, cp) = (pitch * ::convert(0.5f64)).sin_cos();
-        let (sy, cy) = (yaw   * ::convert(0.5f64)).sin_cos();
+        let (sy, cy) = (yaw * ::convert(0.5f64)).sin_cos();
 
         let q = Quaternion::new(
-                    cr * cp * cy + sr * sp * sy,
-                    sr * cp * cy - cr * sp * sy,
-                    cr * sp * cy + sr * cp * sy,
-                    cr * cp * sy - sr * sp * cy);
+            cr * cp * cy + sr * sp * sy,
+            sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy,
+        );
 
         Self::new_unchecked(q)
     }
@@ -157,32 +167,40 @@ impl<N: Real> UnitQuaternion<N> {
         let _0_25: N = ::convert(0.25);
 
         if tr > N::zero() {
-          let denom = (tr + N::one()).sqrt() * ::convert(2.0);
-          res = Quaternion::new(_0_25 * denom,
-                                    (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
-                                    (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
-                                    (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom);
-        }
-        else if rotmat[(0, 0)] > rotmat[(1, 1)] && rotmat[(0, 0)] > rotmat[(2, 2)] {
-          let denom = (N::one() + rotmat[(0, 0)] - rotmat[(1, 1)] - rotmat[(2, 2)]).sqrt() * ::convert(2.0);
-          res = Quaternion::new((rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
-                                    _0_25 * denom,
-                                    (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
-                                    (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom);
-        }
-        else if rotmat[(1, 1)] > rotmat[(2, 2)] {
-          let denom = (N::one() + rotmat[(1, 1)] - rotmat[(0, 0)] - rotmat[(2, 2)]).sqrt() * ::convert(2.0);
-          res = Quaternion::new((rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
-                                    (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
-                                    _0_25 * denom,
-                                    (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom);
-        }
-        else {
-          let denom = (N::one() + rotmat[(2, 2)] - rotmat[(0, 0)] - rotmat[(1, 1)]).sqrt() * ::convert(2.0);
-          res = Quaternion::new((rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
-                                    (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
-                                    (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
-                                    _0_25 * denom);
+            let denom = (tr + N::one()).sqrt() * ::convert(2.0);
+            res = Quaternion::new(
+                _0_25 * denom,
+                (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
+                (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
+                (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
+            );
+        } else if rotmat[(0, 0)] > rotmat[(1, 1)] && rotmat[(0, 0)] > rotmat[(2, 2)] {
+            let denom = (N::one() + rotmat[(0, 0)] - rotmat[(1, 1)] - rotmat[(2, 2)]).sqrt()
+                * ::convert(2.0);
+            res = Quaternion::new(
+                (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
+                _0_25 * denom,
+                (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
+                (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
+            );
+        } else if rotmat[(1, 1)] > rotmat[(2, 2)] {
+            let denom = (N::one() + rotmat[(1, 1)] - rotmat[(0, 0)] - rotmat[(2, 2)]).sqrt()
+                * ::convert(2.0);
+            res = Quaternion::new(
+                (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
+                (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
+                _0_25 * denom,
+                (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
+            );
+        } else {
+            let denom = (N::one() + rotmat[(2, 2)] - rotmat[(0, 0)] - rotmat[(1, 1)]).sqrt()
+                * ::convert(2.0);
+            res = Quaternion::new(
+                (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
+                (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
+                (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
+                _0_25 * denom,
+            );
         }
 
         Self::new_unchecked(res)
@@ -192,26 +210,32 @@ impl<N: Real> UnitQuaternion<N> {
     /// direction.
     #[inline]
     pub fn rotation_between<SB, SC>(a: &Vector<N, U3, SB>, b: &Vector<N, U3, SC>) -> Option<Self>
-        where SB: Storage<N, U3>,
-              SC: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         Self::scaled_rotation_between(a, b, N::one())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
     #[inline]
-    pub fn scaled_rotation_between<SB, SC>(a: &Vector<N, U3, SB>,
-                                           b: &Vector<N, U3, SC>,
-                                           s: N)
-                                           -> Option<Self>
-        where SB: Storage<N, U3>,
-              SC: Storage<N, U3> {
+    pub fn scaled_rotation_between<SB, SC>(
+        a: &Vector<N, U3, SB>,
+        b: &Vector<N, U3, SC>,
+        s: N,
+    ) -> Option<Self>
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         // FIXME: code duplication with Rotation.
-        if let (Some(na), Some(nb)) = (Unit::try_new(a.clone_owned(), N::zero()),
-                                       Unit::try_new(b.clone_owned(), N::zero())) {
+        if let (Some(na), Some(nb)) = (
+            Unit::try_new(a.clone_owned(), N::zero()),
+            Unit::try_new(b.clone_owned(), N::zero()),
+        ) {
             Self::scaled_rotation_between_axis(&na, &nb, s)
-        }
-        else {
+        } else {
             Some(Self::identity())
         }
     }
@@ -219,22 +243,29 @@ impl<N: Real> UnitQuaternion<N> {
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
     /// direction.
     #[inline]
-    pub fn rotation_between_axis<SB, SC>(a: &Unit<Vector<N, U3, SB>>, b: &Unit<Vector<N, U3, SC>>) -> Option<Self>
-        where SB: Storage<N, U3>,
-              SC: Storage<N, U3> {
+    pub fn rotation_between_axis<SB, SC>(
+        a: &Unit<Vector<N, U3, SB>>,
+        b: &Unit<Vector<N, U3, SC>>,
+    ) -> Option<Self>
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         Self::scaled_rotation_between_axis(a, b, N::one())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
     #[inline]
-    pub fn scaled_rotation_between_axis<SB, SC>(na: &Unit<Vector<N, U3, SB>>,
-                                                nb: &Unit<Vector<N, U3, SC>>,
-                                                s:  N)
-                                                -> Option<Self>
-        where SB: Storage<N, U3>,
-              SC: Storage<N, U3> {
-
+    pub fn scaled_rotation_between_axis<SB, SC>(
+        na: &Unit<Vector<N, U3, SB>>,
+        nb: &Unit<Vector<N, U3, SC>>,
+        s: N,
+    ) -> Option<Self>
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         // FIXME: code duplication with Rotation.
         let c = na.cross(&nb);
 
@@ -243,28 +274,23 @@ impl<N: Real> UnitQuaternion<N> {
 
             // The cosinus may be out of [-1, 1] because of innacuracies.
             if cos <= -N::one() {
-                return None
+                return None;
+            } else if cos >= N::one() {
+                return Some(Self::identity());
+            } else {
+                return Some(Self::from_axis_angle(&axis, cos.acos() * s));
             }
-            else if cos >= N::one() {
-                return Some(Self::identity())
-            }
-            else {
-                return Some(Self::from_axis_angle(&axis, cos.acos() * s))
-            }
-        }
-        else if na.dot(&nb) < N::zero() {
+        } else if na.dot(&nb) < N::zero() {
             // PI
             //
             // The rotation axis is undefined but the angle not zero. This is not a
             // simple rotation.
             return None;
-        }
-        else {
+        } else {
             // Zero
             Some(Self::identity())
         }
     }
-
 
     /// Creates an unit quaternion that corresponds to the local frame of an observer standing at the
     /// origin and looking toward `dir`.
@@ -278,11 +304,12 @@ impl<N: Real> UnitQuaternion<N> {
     ///   to `dir`. Non-collinearity is not checked.
     #[inline]
     pub fn new_observer_frame<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
-    where SB: Storage<N, U3>,
-          SC: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         Self::from_rotation_matrix(&Rotation::<N, U3>::new_observer_frame(dir, up))
     }
-
 
     /// Builds a right-handed look-at view matrix without translation.
     ///
@@ -296,8 +323,10 @@ impl<N: Real> UnitQuaternion<N> {
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
     pub fn look_at_rh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
-    where SB: Storage<N, U3>,
-          SC: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
         Self::new_observer_frame(&-dir, up).inverse()
     }
 
@@ -313,9 +342,11 @@ impl<N: Real> UnitQuaternion<N> {
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
     pub fn look_at_lh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
-    where SB: Storage<N, U3>,
-          SC: Storage<N, U3> {
-            Self::new_observer_frame(dir, up).inverse()
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
+        Self::new_observer_frame(dir, up).inverse()
     }
 
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
@@ -323,7 +354,9 @@ impl<N: Real> UnitQuaternion<N> {
     /// If `axisangle` is zero, this returns the indentity rotation.
     #[inline]
     pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
-        where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let two: N = ::convert(2.0f64);
         let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp();
         Self::new_unchecked(q)
@@ -335,7 +368,9 @@ impl<N: Real> UnitQuaternion<N> {
     /// Same as `Self::new(axisangle)`.
     #[inline]
     pub fn from_scaled_axis<SB>(axisangle: Vector<N, U3, SB>) -> Self
-        where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         Self::new(axisangle)
     }
 }
@@ -355,14 +390,15 @@ impl<N: Real + Rand> Rand for UnitQuaternion<N> {
     }
 }
 
-#[cfg(feature="arbitrary")]
+#[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for UnitQuaternion<N>
-    where Owned<N, U4>: Send,
-          Owned<N, U3>: Send {
+where
+    Owned<N, U4>: Send,
+    Owned<N, U3>: Send,
+{
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let axisangle = Vector3::arbitrary(g);
         UnitQuaternion::from_scaled_axis(axisangle)
-
     }
 }

@@ -1,13 +1,13 @@
 use num::Zero;
 use num_complex::Complex;
 
-use alga::general::{SubsetOf, SupersetOf, Real};
+use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation as AlgaRotation;
 
 use core::Matrix3;
 use core::dimension::U2;
-use geometry::{UnitComplex, Isometry, Similarity, Transform, SuperTCategoryOf, TAffine, Translation,
-               Point2, Rotation2};
+use geometry::{Isometry, Point2, Rotation2, Similarity, SuperTCategoryOf, TAffine, Transform,
+               Translation, UnitComplex};
 
 /*
  * This file provides the following conversions:
@@ -25,8 +25,10 @@ use geometry::{UnitComplex, Isometry, Similarity, Transform, SuperTCategoryOf, T
  */
 
 impl<N1, N2> SubsetOf<UnitComplex<N2>> for UnitComplex<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+{
     #[inline]
     fn to_superset(&self) -> UnitComplex<N2> {
         UnitComplex::new_unchecked(self.as_ref().to_superset())
@@ -44,8 +46,10 @@ impl<N1, N2> SubsetOf<UnitComplex<N2>> for UnitComplex<N1>
 }
 
 impl<N1, N2> SubsetOf<Rotation2<N2>> for UnitComplex<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+{
     #[inline]
     fn to_superset(&self) -> Rotation2<N2> {
         let q: UnitComplex<N2> = self.to_superset();
@@ -64,11 +68,12 @@ impl<N1, N2> SubsetOf<Rotation2<N2>> for UnitComplex<N1>
     }
 }
 
-
 impl<N1, N2, R> SubsetOf<Isometry<N2, U2, R>> for UnitComplex<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>>,
+{
     #[inline]
     fn to_superset(&self) -> Isometry<N2, U2, R> {
         Isometry::from_parts(Translation::identity(), ::convert_ref(self))
@@ -85,11 +90,12 @@ impl<N1, N2, R> SubsetOf<Isometry<N2, U2, R>> for UnitComplex<N1>
     }
 }
 
-
 impl<N1, N2, R> SubsetOf<Similarity<N2, U2, R>> for UnitComplex<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>>,
+{
     #[inline]
     fn to_superset(&self) -> Similarity<N2, U2, R> {
         Similarity::from_isometry(::convert_ref(self), N2::one())
@@ -97,8 +103,7 @@ impl<N1, N2, R> SubsetOf<Similarity<N2, U2, R>> for UnitComplex<N1>
 
     #[inline]
     fn is_in_subset(sim: &Similarity<N2, U2, R>) -> bool {
-        sim.isometry.translation.vector.is_zero() &&
-        sim.scaling() == N2::one()
+        sim.isometry.translation.vector.is_zero() && sim.scaling() == N2::one()
     }
 
     #[inline]
@@ -107,11 +112,12 @@ impl<N1, N2, R> SubsetOf<Similarity<N2, U2, R>> for UnitComplex<N1>
     }
 }
 
-
 impl<N1, N2, C> SubsetOf<Transform<N2, U2, C>> for UnitComplex<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          C: SuperTCategoryOf<TAffine> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    C: SuperTCategoryOf<TAffine>,
+{
     #[inline]
     fn to_superset(&self) -> Transform<N2, U2, C> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
@@ -127,7 +133,6 @@ impl<N1, N2, C> SubsetOf<Transform<N2, U2, C>> for UnitComplex<N1>
         Self::from_superset_unchecked(t.matrix())
     }
 }
-
 
 impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix3<N2>> for UnitComplex<N1> {
     #[inline]

@@ -1,4 +1,4 @@
-#[cfg(feature="arbitrary")]
+#[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 use rand::{Rand, Rng};
 #[cfg(feature = "serde-serialize")]
@@ -16,10 +16,10 @@ use geometry::Point3;
 
 /// A 3D orthographic projection stored as an homogeneous 4x4 matrix.
 pub struct Orthographic3<N: Real> {
-    matrix: Matrix4<N>
+    matrix: Matrix4<N>,
 }
 
-impl<N: Real> Copy for Orthographic3<N> { }
+impl<N: Real> Copy for Orthographic3<N> {}
 
 impl<N: Real> Clone for Orthographic3<N> {
     #[inline]
@@ -44,28 +44,41 @@ impl<N: Real> PartialEq for Orthographic3<N> {
 #[cfg(feature = "serde-serialize")]
 impl<N: Real + serde::Serialize> serde::Serialize for Orthographic3<N> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: serde::Serializer {
-            self.matrix.serialize(serializer)
-        }
+    where
+        S: serde::Serializer,
+    {
+        self.matrix.serialize(serializer)
+    }
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Real + serde::Deserialize<'a>> serde::Deserialize<'a> for Orthographic3<N> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-        where Des: serde::Deserializer<'a> {
-            let matrix = Matrix4::<N>::deserialize(deserializer)?;
+    where
+        Des: serde::Deserializer<'a>,
+    {
+        let matrix = Matrix4::<N>::deserialize(deserializer)?;
 
-            Ok(Orthographic3::from_matrix_unchecked(matrix))
-        }
+        Ok(Orthographic3::from_matrix_unchecked(matrix))
+    }
 }
 
 impl<N: Real> Orthographic3<N> {
     /// Creates a new orthographic projection matrix.
     #[inline]
     pub fn new(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> Self {
-        assert!(left < right, "The left corner must be farther than the right corner.");
-        assert!(bottom < top, "The top corner must be higher than the bottom corner.");
-        assert!(znear < zfar, "The far plane must be farther than the near plane.");
+        assert!(
+            left < right,
+            "The left corner must be farther than the right corner."
+        );
+        assert!(
+            bottom < top,
+            "The top corner must be higher than the bottom corner."
+        );
+        assert!(
+            znear < zfar,
+            "The far plane must be farther than the near plane."
+        );
 
         let matrix = Matrix4::<N>::identity();
         let mut res = Self::from_matrix_unchecked(matrix);
@@ -83,22 +96,33 @@ impl<N: Real> Orthographic3<N> {
     /// projection.
     #[inline]
     pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> Self {
-        Orthographic3 {
-            matrix: matrix
-        }
+        Orthographic3 { matrix: matrix }
     }
 
     /// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.
     #[inline]
     pub fn from_fov(aspect: N, vfov: N, znear: N, zfar: N) -> Self {
-        assert!(znear < zfar, "The far plane must be farther than the near plane.");
-        assert!(!relative_eq!(aspect, N::zero()), "The apsect ratio must not be zero.");
+        assert!(
+            znear < zfar,
+            "The far plane must be farther than the near plane."
+        );
+        assert!(
+            !relative_eq!(aspect, N::zero()),
+            "The apsect ratio must not be zero."
+        );
 
         let half: N = ::convert(0.5);
-        let width  = zfar * (vfov * half).tan();
+        let width = zfar * (vfov * half).tan();
         let height = width / aspect;
 
-        Self::new(-width * half, width * half, -height * half, height * half, znear, zfar)
+        Self::new(
+            -width * half,
+            width * half,
+            -height * half,
+            height * half,
+            znear,
+            zfar,
+        )
     }
 
     /// Retrieves the inverse of the underlying homogeneous matrix.
@@ -114,9 +138,9 @@ impl<N: Real> Orthographic3<N> {
         res[(1, 1)] = inv_m22;
         res[(2, 2)] = inv_m33;
 
-        res[(0, 3)] = -self.matrix[(0, 3)] * inv_m11; 
-        res[(1, 3)] = -self.matrix[(1, 3)] * inv_m22; 
-        res[(2, 3)] = -self.matrix[(2, 3)] * inv_m33; 
+        res[(0, 3)] = -self.matrix[(0, 3)] * inv_m11;
+        res[(1, 3)] = -self.matrix[(1, 3)] * inv_m22;
+        res[(2, 3)] = -self.matrix[(2, 3)] * inv_m33;
 
         res
     }
@@ -182,18 +206,17 @@ impl<N: Real> Orthographic3<N> {
         Point3::new(
             self.matrix[(0, 0)] * p[0] + self.matrix[(0, 3)],
             self.matrix[(1, 1)] * p[1] + self.matrix[(1, 3)],
-            self.matrix[(2, 2)] * p[2] + self.matrix[(2, 3)]
+            self.matrix[(2, 2)] * p[2] + self.matrix[(2, 3)],
         )
     }
 
     /// Un-projects a point. Faster than multiplication by the underlying matrix inverse.
     #[inline]
     pub fn unproject_point(&self, p: &Point3<N>) -> Point3<N> {
-
         Point3::new(
             (p[0] - self.matrix[(0, 3)]) / self.matrix[(0, 0)],
             (p[1] - self.matrix[(1, 3)]) / self.matrix[(1, 1)],
-            (p[2] - self.matrix[(2, 3)]) / self.matrix[(2, 2)]
+            (p[2] - self.matrix[(2, 3)]) / self.matrix[(2, 2)],
         )
     }
 
@@ -201,12 +224,13 @@ impl<N: Real> Orthographic3<N> {
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
     pub fn project_vector<SB>(&self, p: &Vector<N, U3, SB>) -> Vector3<N>
-        where SB: Storage<N, U3> {
-
+    where
+        SB: Storage<N, U3>,
+    {
         Vector3::new(
             self.matrix[(0, 0)] * p[0],
             self.matrix[(1, 1)] * p[1],
-            self.matrix[(2, 2)] * p[2]
+            self.matrix[(2, 2)] * p[2],
         )
     }
 
@@ -255,7 +279,10 @@ impl<N: Real> Orthographic3<N> {
     /// Sets the view cuboid coordinates along the `x` axis.
     #[inline]
     pub fn set_left_and_right(&mut self, left: N, right: N) {
-        assert!(left < right, "The left corner must be farther than the right corner.");
+        assert!(
+            left < right,
+            "The left corner must be farther than the right corner."
+        );
         self.matrix[(0, 0)] = ::convert::<_, N>(2.0) / (right - left);
         self.matrix[(0, 3)] = -(right + left) / (right - left);
     }
@@ -263,7 +290,10 @@ impl<N: Real> Orthographic3<N> {
     /// Sets the view cuboid coordinates along the `y` axis.
     #[inline]
     pub fn set_bottom_and_top(&mut self, bottom: N, top: N) {
-        assert!(bottom < top, "The top corner must be higher than the bottom corner.");
+        assert!(
+            bottom < top,
+            "The top corner must be higher than the bottom corner."
+        );
         self.matrix[(1, 1)] = ::convert::<_, N>(2.0) / (top - bottom);
         self.matrix[(1, 3)] = -(top + bottom) / (top - bottom);
     }
@@ -271,7 +301,10 @@ impl<N: Real> Orthographic3<N> {
     /// Sets the near and far plane offsets of the view cuboid.
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
-        assert!(!relative_eq!(zfar - znear, N::zero()), "The near-plane and far-plane must not be superimposed.");
+        assert!(
+            !relative_eq!(zfar - znear, N::zero()),
+            "The near-plane and far-plane must not be superimposed."
+        );
         self.matrix[(2, 2)] = -::convert::<_, N>(2.0) / (zfar - znear);
         self.matrix[(2, 3)] = -(zfar + znear) / (zfar - znear);
     }
@@ -279,27 +312,29 @@ impl<N: Real> Orthographic3<N> {
 
 impl<N: Real + Rand> Rand for Orthographic3<N> {
     fn rand<R: Rng>(r: &mut R) -> Self {
-        let left   = Rand::rand(r);
-        let right  = helper::reject_rand(r, |x: &N| *x > left);
+        let left = Rand::rand(r);
+        let right = helper::reject_rand(r, |x: &N| *x > left);
         let bottom = Rand::rand(r);
-        let top    = helper::reject_rand(r, |x: &N| *x > bottom);
-        let znear  = Rand::rand(r);
-        let zfar   = helper::reject_rand(r, |x: &N| *x > znear);
+        let top = helper::reject_rand(r, |x: &N| *x > bottom);
+        let znear = Rand::rand(r);
+        let zfar = helper::reject_rand(r, |x: &N| *x > znear);
 
         Self::new(left, right, bottom, top, znear, zfar)
     }
 }
 
-#[cfg(feature="arbitrary")]
+#[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for Orthographic3<N>
-    where Matrix4<N>: Send {
+where
+    Matrix4<N>: Send,
+{
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        let left   = Arbitrary::arbitrary(g);
-        let right  = helper::reject(g, |x: &N| *x > left);
+        let left = Arbitrary::arbitrary(g);
+        let right = helper::reject(g, |x: &N| *x > left);
         let bottom = Arbitrary::arbitrary(g);
-        let top    = helper::reject(g, |x: &N| *x > bottom);
-        let znear  = Arbitrary::arbitrary(g);
-        let zfar   = helper::reject(g, |x: &N| *x > znear);
+        let top = helper::reject(g, |x: &N| *x > bottom);
+        let znear = Arbitrary::arbitrary(g);
+        let zfar = helper::reject(g, |x: &N| *x > znear);
 
         Self::new(left, right, bottom, top, znear, zfar)
     }

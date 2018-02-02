@@ -6,8 +6,8 @@ use num_complex::Complex;
 
 use alga::general::Real;
 
-use ::ComplexHelper;
-use na::{Scalar, DefaultAllocator, Matrix, VectorN, MatrixN};
+use ComplexHelper;
+use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
 use na::allocator::Allocator;
@@ -17,35 +17,36 @@ use lapack::fortran as interface;
 /// Eigendecomposition of a real square matrix with real eigenvalues.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(serialize =
-        "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+           serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: serde::Serialize,
          MatrixN<N, D>: serde::Serialize")))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(deserialize =
-        "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: serde::Serialize,
          MatrixN<N, D>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct RealSchur<N: Scalar, D: Dim>
-    where DefaultAllocator: Allocator<N, D> +
-                            Allocator<N, D, D> {
-
+where
+    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+{
     re: VectorN<N, D>,
     im: VectorN<N, D>,
-    t:  MatrixN<N, D>,
-    q:  MatrixN<N, D>
+    t: MatrixN<N, D>,
+    q: MatrixN<N, D>,
 }
 
 impl<N: Scalar, D: Dim> Copy for RealSchur<N, D>
-    where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-                            MatrixN<N, D>: Copy,
-                            VectorN<N, D>: Copy { }
-
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    MatrixN<N, D>: Copy,
+    VectorN<N, D>: Copy,
+{
+}
 
 impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+{
     /// Computes the eigenvalues and real Schur foorm of the matrix `m`.
     ///
     /// Panics if the method did not converge.
@@ -57,7 +58,10 @@ impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>
     ///
     /// Returns `None` if the method did not converge.
     pub fn try_new(mut m: MatrixN<N, D>) -> Option<Self> {
-        assert!(m.is_square(), "Unable to compute the eigenvalue decomposition of a non-square matrix.");
+        assert!(
+            m.is_square(),
+            "Unable to compute the eigenvalue decomposition of a non-square matrix."
+        );
 
         let (nrows, ncols) = m.data.shape();
         let n = nrows.value();
@@ -68,24 +72,53 @@ impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>
 
         let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
         let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
-        let mut q  = unsafe { Matrix::new_uninitialized_generic(nrows, ncols) };
+        let mut q = unsafe { Matrix::new_uninitialized_generic(nrows, ncols) };
         // Placeholders:
-        let mut bwork  = [ 0i32 ];
+        let mut bwork = [0i32];
         let mut unused = 0;
 
-        let lwork = N::xgees_work_size(b'V', b'N', n as i32, m.as_mut_slice(), lda, &mut unused,
-                        wr.as_mut_slice(), wi.as_mut_slice(), q.as_mut_slice(), n as i32,
-                        &mut bwork, &mut info);
+        let lwork = N::xgees_work_size(
+            b'V',
+            b'N',
+            n as i32,
+            m.as_mut_slice(),
+            lda,
+            &mut unused,
+            wr.as_mut_slice(),
+            wi.as_mut_slice(),
+            q.as_mut_slice(),
+            n as i32,
+            &mut bwork,
+            &mut info,
+        );
         lapack_check!(info);
 
         let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
 
-        N::xgees(b'V', b'N', n as i32, m.as_mut_slice(), lda, &mut unused,
-                 wr.as_mut_slice(), wi.as_mut_slice(), q.as_mut_slice(),
-                 n as i32, &mut work, lwork, &mut bwork, &mut info);
+        N::xgees(
+            b'V',
+            b'N',
+            n as i32,
+            m.as_mut_slice(),
+            lda,
+            &mut unused,
+            wr.as_mut_slice(),
+            wi.as_mut_slice(),
+            q.as_mut_slice(),
+            n as i32,
+            &mut work,
+            lwork,
+            &mut bwork,
+            &mut info,
+        );
         lapack_check!(info);
 
-        Some(RealSchur { re: wr, im: wi, t: m, q: q })
+        Some(RealSchur {
+            re: wr,
+            im: wi,
+            t: m,
+            q: q,
+        })
     }
 
     /// Retrieves the unitary matrix `Q` and the upper-quasitriangular matrix `T` such that the
@@ -100,26 +133,25 @@ impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>
     pub fn eigenvalues(&self) -> Option<VectorN<N, D>> {
         if self.im.iter().all(|e| e.is_zero()) {
             Some(self.re.clone())
-        }
-        else {
+        } else {
             None
         }
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<Complex<N>, D>
-        where DefaultAllocator: Allocator<Complex<N>, D> {
-
+    where
+        DefaultAllocator: Allocator<Complex<N>, D>,
+    {
         let mut out = unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1) };
 
-        for i in 0 .. out.len() {
+        for i in 0..out.len() {
             out[i] = Complex::new(self.re[i], self.im[i])
         }
 
         out
     }
 }
-
 
 /*
  *
@@ -129,75 +161,78 @@ impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>
 /// Trait implemented by scalars for which Lapack implements the Real Schur decomposition.
 pub trait RealSchurScalar: Scalar {
     #[allow(missing_docs)]
-    fn xgees(jobvs:  u8, 
-             sort:   u8, 
-             // select: ???
-             n:      i32, 
-             a:      &mut [Self], 
-             lda:    i32, 
-             sdim:   &mut i32, 
-             wr:     &mut [Self], 
-             wi:     &mut [Self], 
-             vs:     &mut [Self], 
-             ldvs:   i32, 
-             work:   &mut [Self], 
-             lwork:  i32, 
-             bwork:  &mut [i32], 
-             info:   &mut i32);
+    fn xgees(
+        jobvs: u8,
+        sort: u8,
+        // select: ???
+        n: i32,
+        a: &mut [Self],
+        lda: i32,
+        sdim: &mut i32,
+        wr: &mut [Self],
+        wi: &mut [Self],
+        vs: &mut [Self],
+        ldvs: i32,
+        work: &mut [Self],
+        lwork: i32,
+        bwork: &mut [i32],
+        info: &mut i32,
+    );
 
     #[allow(missing_docs)]
-    fn xgees_work_size(jobvs:  u8, 
-                       sort:   u8, 
-                       // select: ???
-                       n:      i32, 
-                       a:      &mut [Self], 
-                       lda:    i32, 
-                       sdim:   &mut i32, 
-                       wr:     &mut [Self], 
-                       wi:     &mut [Self], 
-                       vs:     &mut [Self], 
-                       ldvs:   i32, 
-                       bwork:  &mut [i32], 
-                       info:   &mut i32)
-                       -> i32;
+    fn xgees_work_size(
+        jobvs: u8,
+        sort: u8,
+        // select: ???
+        n: i32,
+        a: &mut [Self],
+        lda: i32,
+        sdim: &mut i32,
+        wr: &mut [Self],
+        wi: &mut [Self],
+        vs: &mut [Self],
+        ldvs: i32,
+        bwork: &mut [i32],
+        info: &mut i32,
+    ) -> i32;
 }
 
 macro_rules! real_eigensystem_scalar_impl (
     ($N: ty, $xgees: path) => (
         impl RealSchurScalar for $N {
             #[inline]
-            fn xgees(jobvs:  u8, 
-                     sort:   u8, 
+            fn xgees(jobvs:  u8,
+                     sort:   u8,
                      // select: ???
-                     n:      i32, 
-                     a:      &mut [$N], 
-                     lda:    i32, 
-                     sdim:   &mut i32, 
-                     wr:     &mut [$N], 
-                     wi:     &mut [$N], 
-                     vs:     &mut [$N], 
-                     ldvs:   i32, 
-                     work:   &mut [$N], 
-                     lwork:  i32, 
-                     bwork:  &mut [i32], 
+                     n:      i32,
+                     a:      &mut [$N],
+                     lda:    i32,
+                     sdim:   &mut i32,
+                     wr:     &mut [$N],
+                     wi:     &mut [$N],
+                     vs:     &mut [$N],
+                     ldvs:   i32,
+                     work:   &mut [$N],
+                     lwork:  i32,
+                     bwork:  &mut [i32],
                      info:   &mut i32) {
                 $xgees(jobvs, sort, None, n, a, lda, sdim, wr, wi, vs, ldvs, work, lwork, bwork, info);
             }
 
 
             #[inline]
-            fn xgees_work_size(jobvs:  u8, 
-                               sort:   u8, 
+            fn xgees_work_size(jobvs:  u8,
+                               sort:   u8,
                                // select: ???
-                               n:      i32, 
-                               a:      &mut [$N], 
-                               lda:    i32, 
-                               sdim:   &mut i32, 
-                               wr:     &mut [$N], 
-                               wi:     &mut [$N], 
-                               vs:     &mut [$N], 
-                               ldvs:   i32, 
-                               bwork:  &mut [i32], 
+                               n:      i32,
+                               a:      &mut [$N],
+                               lda:    i32,
+                               sdim:   &mut i32,
+                               wr:     &mut [$N],
+                               wi:     &mut [$N],
+                               vs:     &mut [$N],
+                               ldvs:   i32,
+                               bwork:  &mut [i32],
                                info:   &mut i32)
                                -> i32 {
                 let mut work = [ Zero::zero() ];

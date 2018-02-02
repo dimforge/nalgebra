@@ -1,7 +1,7 @@
 use std::cmp;
 
 use nl::Cholesky;
-use na::{DMatrix, DVector, Vector4, Matrix3, Matrix4x3, Matrix4};
+use na::{DMatrix, DVector, Matrix3, Matrix4, Matrix4x3, Vector4};
 
 quickcheck!{
     fn cholesky(m: DMatrix<f64>) -> bool {

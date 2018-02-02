@@ -1,16 +1,16 @@
-use std::ops::{Neg, Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Index, IndexMut};
-use num::{Zero, One};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub,
+               SubAssign};
+use num::{One, Zero};
 
-use alga::general::{ClosedNeg, ClosedAdd, ClosedSub, ClosedMul, ClosedDiv};
+use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
-use core::{DefaultAllocator, Scalar, Vector, Matrix, VectorSum};
+use core::{DefaultAllocator, Matrix, Scalar, Vector, VectorSum};
 use core::dimension::{Dim, DimName, U1};
-use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns, AreMultipliable};
+use core::constraint::{AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use core::storage::Storage;
-use core::allocator::{SameShapeAllocator, Allocator};
+use core::allocator::{Allocator, SameShapeAllocator};
 
 use geometry::Point;
-
 
 /*
  *
@@ -18,7 +18,9 @@ use geometry::Point;
  *
  */
 impl<N: Scalar, D: DimName> Index<usize> for Point<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     type Output = N;
 
     #[inline]
@@ -28,7 +30,9 @@ impl<N: Scalar, D: DimName> Index<usize> for Point<N, D>
 }
 
 impl<N: Scalar, D: DimName> IndexMut<usize> for Point<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut Self::Output {
         &mut self.coords[i]
@@ -41,7 +45,9 @@ impl<N: Scalar, D: DimName> IndexMut<usize> for Point<N, D>
  *
  */
 impl<N: Scalar + ClosedNeg, D: DimName> Neg for Point<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     type Output = Point<N, D>;
 
     #[inline]
@@ -51,7 +57,9 @@ impl<N: Scalar + ClosedNeg, D: DimName> Neg for Point<N, D>
 }
 
 impl<'a, N: Scalar + ClosedNeg, D: DimName> Neg for &'a Point<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     type Output = Point<N, D>;
 
     #[inline]
@@ -108,7 +116,6 @@ add_sub_impl!(Sub, sub, ClosedSub;
     self: Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from_coordinates(self.coords - right); );
 
-
 // Point + Vector
 add_sub_impl!(Add, add, ClosedAdd;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
@@ -129,7 +136,6 @@ add_sub_impl!(Add, add, ClosedAdd;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from_coordinates(self.coords + right); );
-
 
 // XXX: replace by the shared macro: add_sub_assign_impl
 macro_rules! op_assign_impl(
@@ -165,7 +171,6 @@ op_assign_impl!(
     SubAssign, sub_assign, ClosedSub;
 );
 
-
 /*
  *
  * Matrix × Point
@@ -181,8 +186,6 @@ md_impl_all!(
     [val ref] => Point::from_coordinates(self * &right.coords);
     [ref ref] => Point::from_coordinates(self * &right.coords);
 );
-
-
 
 /*
  *
@@ -249,8 +252,4 @@ macro_rules! left_scalar_mul_impl(
     )*}
 );
 
-left_scalar_mul_impl!(
-    u8, u16, u32, u64, usize,
-    i8, i16, i32, i64, isize,
-    f32, f64
-);
+left_scalar_mul_impl!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f32, f64);

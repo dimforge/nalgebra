@@ -34,7 +34,6 @@ macro_rules! md_impl(
     }
 );
 
-
 /// Macro for the implementation of multiplication and division.
 /// Implements all the argument reference combinations.
 macro_rules! md_impl_all(
@@ -82,7 +81,6 @@ macro_rules! md_impl_all(
             $action_ref_ref; 'a, 'b);
     }
 );
-
 
 /// Macro for the implementation of assignement-multiplication and assignement-division.
 macro_rules! md_assign_impl(

@@ -4,13 +4,13 @@ use quickcheck::{Arbitrary, Gen};
 use core::storage::Owned;
 
 use std::iter;
-use num::{Zero, One, Bounded};
+use num::{Bounded, One, Zero};
 use rand::{self, Rand, Rng};
 use typenum::{self, Cmp, Greater};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use core::{DefaultAllocator, Scalar, Matrix, Vector, Unit, MatrixMN, MatrixN, VectorN};
+use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
 use core::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
 use core::allocator::Allocator;
 use core::storage::Storage;
@@ -21,7 +21,9 @@ use core::storage::Storage;
  *
  */
 impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+where
+    DefaultAllocator: Allocator<N, R, C>,
+{
     /// Creates a new uninitialized matrix. If the matrix has a compile-time dimension, this panics
     /// if `nrows != R::to_usize()` or `ncols != C::to_usize()`.
     #[inline]
@@ -37,7 +39,7 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
     }
 
     /// Creates a matrix with all its elements set to `elem`.
-    /// 
+    ///
     /// Same as `from_element_generic`.
     #[inline]
     pub fn repeat_generic(nrows: R, ncols: C, elem: N) -> Self {
@@ -48,14 +50,18 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
     /// Creates a matrix with all its elements set to 0.
     #[inline]
     pub fn zeros_generic(nrows: R, ncols: C) -> Self
-        where N: Zero {
+    where
+        N: Zero,
+    {
         Self::from_element_generic(nrows, ncols, N::zero())
     }
 
     /// Creates a matrix with all its elements filled by an iterator.
     #[inline]
     pub fn from_iterator_generic<I>(nrows: R, ncols: C, iter: I) -> Self
-        where I: IntoIterator<Item = N> {
+    where
+        I: IntoIterator<Item = N>,
+    {
         Self::from_data(DefaultAllocator::allocate_from_iterator(nrows, ncols, iter))
     }
 
@@ -66,17 +72,17 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
     /// row-by-row.
     #[inline]
     pub fn from_row_slice_generic(nrows: R, ncols: C, slice: &[N]) -> Self {
-        assert!(slice.len() == nrows.value() * ncols.value(),
-                "Matrix init. error: the slice did not contain the right number of elements.");
+        assert!(
+            slice.len() == nrows.value() * ncols.value(),
+            "Matrix init. error: the slice did not contain the right number of elements."
+        );
 
-        let mut res  = unsafe { Self::new_uninitialized_generic(nrows, ncols) };
+        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols) };
         let mut iter = slice.iter();
 
-        for i in 0 .. nrows.value() {
-            for j in 0 .. ncols.value() {
-                unsafe {
-                    *res.get_unchecked_mut(i, j) = *iter.next().unwrap()
-                }
+        for i in 0..nrows.value() {
+            for j in 0..ncols.value() {
+                unsafe { *res.get_unchecked_mut(i, j) = *iter.next().unwrap() }
             }
         }
 
@@ -94,11 +100,13 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
     /// coordinates.
     #[inline]
     pub fn from_fn_generic<F>(nrows: R, ncols: C, mut f: F) -> Self
-        where F: FnMut(usize, usize) -> N {
+    where
+        F: FnMut(usize, usize) -> N,
+    {
         let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols) };
 
-        for i in 0 .. nrows.value() {
-            for j in 0 .. ncols.value() {
+        for i in 0..nrows.value() {
+            for j in 0..ncols.value() {
                 unsafe { *res.get_unchecked_mut(i, j) = f(i, j) }
             }
         }
@@ -112,7 +120,9 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
     /// to the identity matrix. All other entries are set to zero.
     #[inline]
     pub fn identity_generic(nrows: R, ncols: C) -> Self
-        where N: Zero + One {
+    where
+        N: Zero + One,
+    {
         Self::from_diagonal_element_generic(nrows, ncols, N::one())
     }
 
@@ -122,10 +132,12 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
     /// to the identity matrix. All other entries are set to zero.
     #[inline]
     pub fn from_diagonal_element_generic(nrows: R, ncols: C, elt: N) -> Self
-        where N: Zero + One {
+    where
+        N: Zero + One,
+    {
         let mut res = Self::zeros_generic(nrows, ncols);
 
-        for i in 0 .. ::min(nrows.value(), ncols.value()) {
+        for i in 0..::min(nrows.value(), ncols.value()) {
             unsafe { *res.get_unchecked_mut(i, i) = elt }
         }
 
@@ -138,9 +150,14 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
     /// Panics if `elts.len()` is larger than the minimum among `nrows` and `ncols`.
     #[inline]
     pub fn from_partial_diagonal_generic(nrows: R, ncols: C, elts: &[N]) -> Self
-        where N: Zero {
+    where
+        N: Zero,
+    {
         let mut res = Self::zeros_generic(nrows, ncols);
-        assert!(elts.len() <= ::min(nrows.value(), ncols.value()), "Too many diagonal elements provided.");
+        assert!(
+            elts.len() <= ::min(nrows.value(), ncols.value()),
+            "Too many diagonal elements provided."
+        );
 
         for (i, elt) in elts.iter().enumerate() {
             unsafe { *res.get_unchecked_mut(i, i) = *elt }
@@ -155,22 +172,29 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
     /// not have the same dimensions.
     #[inline]
     pub fn from_rows<SB>(rows: &[Matrix<N, U1, C, SB>]) -> Self
-        where SB: Storage<N, U1, C> {
-
+    where
+        SB: Storage<N, U1, C>,
+    {
         assert!(rows.len() > 0, "At least one row must be given.");
         let nrows = R::try_to_usize().unwrap_or(rows.len());
         let ncols = rows[0].len();
-        assert!(rows.len() == nrows, "Invalid number of rows provided to build this matrix.");
+        assert!(
+            rows.len() == nrows,
+            "Invalid number of rows provided to build this matrix."
+        );
 
         if C::try_to_usize().is_none() {
-            assert!(rows.iter().all(|r| r.len() == ncols),
-            "The provided rows must all have the same dimension.");
+            assert!(
+                rows.iter().all(|r| r.len() == ncols),
+                "The provided rows must all have the same dimension."
+            );
         }
 
         // FIXME: optimize that.
-        Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| rows[i][(0, j)])
+        Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
+            rows[i][(0, j)]
+        })
     }
-
 
     /// Builds a new matrix from its columns.
     ///
@@ -178,42 +202,58 @@ impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
     /// columns do not have the same dimensions.
     #[inline]
     pub fn from_columns<SB>(columns: &[Vector<N, R, SB>]) -> Self
-        where SB: Storage<N, R> {
-
+    where
+        SB: Storage<N, R>,
+    {
         assert!(columns.len() > 0, "At least one column must be given.");
         let ncols = C::try_to_usize().unwrap_or(columns.len());
         let nrows = columns[0].len();
-        assert!(columns.len() == ncols, "Invalid number of columns provided to build this matrix.");
+        assert!(
+            columns.len() == ncols,
+            "Invalid number of columns provided to build this matrix."
+        );
 
         if R::try_to_usize().is_none() {
-            assert!(columns.iter().all(|r| r.len() == nrows),
-            "The columns provided must all have the same dimension.");
+            assert!(
+                columns.iter().all(|r| r.len() == nrows),
+                "The columns provided must all have the same dimension."
+            );
         }
 
         // FIXME: optimize that.
-        Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| columns[j][i])
+        Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
+            columns[j][i]
+        })
     }
 
     /// Creates a matrix filled with random values.
     #[inline]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
-        where N: Rand {
+    where
+        N: Rand,
+    {
         Self::from_fn_generic(nrows, ncols, |_, _| rand::random())
     }
 }
 
 impl<N, D: Dim> MatrixN<N, D>
-    where N: Scalar,
-          DefaultAllocator: Allocator<N, D, D> {
+where
+    N: Scalar,
+    DefaultAllocator: Allocator<N, D, D>,
+{
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     #[inline]
     pub fn from_diagonal<SB: Storage<N, D>>(diag: &Vector<N, D, SB>) -> Self
-        where N: Zero {
+    where
+        N: Zero,
+    {
         let (dim, _) = diag.data.shape();
         let mut res = Self::zeros_generic(dim, dim);
 
-        for i in 0 .. diag.len() {
-            unsafe { *res.get_unchecked_mut(i, i) = *diag.vget_unchecked(i); }
+        for i in 0..diag.len() {
+            unsafe {
+                *res.get_unchecked_mut(i, i) = *diag.vget_unchecked(i);
+            }
         }
 
         res
@@ -334,7 +374,7 @@ macro_rules! impl_constructors(
 impl_constructors!(R, C;                         // Arguments for Matrix<N, ..., S>
                    => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
                    R::name(), C::name();         // Arguments for `_generic` constructors.
-                   );                            // Arguments for non-generic constructors.
+                   ); // Arguments for non-generic constructors.
 
 impl_constructors!(R, Dynamic;
                    => R: DimName;
@@ -357,8 +397,10 @@ impl_constructors!(Dynamic, Dynamic;
  *
  */
 impl<N, R: DimName, C: DimName> Zero for MatrixMN<N, R, C>
-    where N: Scalar + Zero + ClosedAdd,
-          DefaultAllocator: Allocator<N, R, C> {
+where
+    N: Scalar + Zero + ClosedAdd,
+    DefaultAllocator: Allocator<N, R, C>,
+{
     #[inline]
     fn zero() -> Self {
         Self::from_element(N::zero())
@@ -371,8 +413,10 @@ impl<N, R: DimName, C: DimName> Zero for MatrixMN<N, R, C>
 }
 
 impl<N, D: DimName> One for MatrixN<N, D>
-    where N: Scalar + Zero + One + ClosedMul + ClosedAdd,
-          DefaultAllocator: Allocator<N, D, D> {
+where
+    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
+    DefaultAllocator: Allocator<N, D, D>,
+{
     #[inline]
     fn one() -> Self {
         Self::identity()
@@ -380,8 +424,10 @@ impl<N, D: DimName> One for MatrixN<N, D>
 }
 
 impl<N, R: DimName, C: DimName> Bounded for MatrixMN<N, R, C>
-    where N: Scalar + Bounded,
-          DefaultAllocator: Allocator<N, R, C> {
+where
+    N: Scalar + Bounded,
+    DefaultAllocator: Allocator<N, R, C>,
+{
     #[inline]
     fn max_value() -> Self {
         Self::from_element(N::max_value())
@@ -394,32 +440,39 @@ impl<N, R: DimName, C: DimName> Bounded for MatrixMN<N, R, C>
 }
 
 impl<N: Scalar + Rand, R: Dim, C: Dim> Rand for MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+where
+    DefaultAllocator: Allocator<N, R, C>,
+{
     #[inline]
     fn rand<G: Rng>(rng: &mut G) -> Self {
         let nrows = R::try_to_usize().unwrap_or(rng.gen_range(0, 10));
         let ncols = C::try_to_usize().unwrap_or(rng.gen_range(0, 10));
 
-        Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
+        Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| {
+            rng.gen()
+        })
     }
 }
 
-
 #[cfg(feature = "arbitrary")]
 impl<N, R, C> Arbitrary for MatrixMN<N, R, C>
-    where R: Dim, C: Dim,
-          N: Scalar + Arbitrary + Send,
-          DefaultAllocator: Allocator<N, R, C>,
-          Owned<N, R, C>: Clone + Send {
+where
+    R: Dim,
+    C: Dim,
+    N: Scalar + Arbitrary + Send,
+    DefaultAllocator: Allocator<N, R, C>,
+    Owned<N, R, C>: Clone + Send,
+{
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let nrows = R::try_to_usize().unwrap_or(g.gen_range(0, 10));
         let ncols = C::try_to_usize().unwrap_or(g.gen_range(0, 10));
 
-        Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| N::arbitrary(g))
+        Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| {
+            N::arbitrary(g)
+        })
     }
 }
-
 
 /*
  *
@@ -596,14 +649,20 @@ componentwise_constructors_impl!(
  *
  */
 impl<N, R: DimName> VectorN<N, R>
-where N: Scalar + Zero + One,
-      DefaultAllocator: Allocator<N, R> {
+where
+    N: Scalar + Zero + One,
+    DefaultAllocator: Allocator<N, R>,
+{
     /// The column vector with a 1 as its first component, and zero elsewhere.
     #[inline]
     pub fn x() -> Self
-      where R::Value: Cmp<typenum::U0, Output = Greater> {
+    where
+        R::Value: Cmp<typenum::U0, Output = Greater>,
+    {
         let mut res = Self::zeros();
-        unsafe { *res.vget_unchecked_mut(0) = N::one(); }
+        unsafe {
+            *res.vget_unchecked_mut(0) = N::one();
+        }
 
         res
     }
@@ -611,9 +670,13 @@ where N: Scalar + Zero + One,
     /// The column vector with a 1 as its second component, and zero elsewhere.
     #[inline]
     pub fn y() -> Self
-      where R::Value: Cmp<typenum::U1, Output = Greater> {
+    where
+        R::Value: Cmp<typenum::U1, Output = Greater>,
+    {
         let mut res = Self::zeros();
-        unsafe { *res.vget_unchecked_mut(1) = N::one(); }
+        unsafe {
+            *res.vget_unchecked_mut(1) = N::one();
+        }
 
         res
     }
@@ -621,9 +684,13 @@ where N: Scalar + Zero + One,
     /// The column vector with a 1 as its third component, and zero elsewhere.
     #[inline]
     pub fn z() -> Self
-      where R::Value: Cmp<typenum::U2, Output = Greater> {
+    where
+        R::Value: Cmp<typenum::U2, Output = Greater>,
+    {
         let mut res = Self::zeros();
-        unsafe { *res.vget_unchecked_mut(2) = N::one(); }
+        unsafe {
+            *res.vget_unchecked_mut(2) = N::one();
+        }
 
         res
     }
@@ -631,9 +698,13 @@ where N: Scalar + Zero + One,
     /// The column vector with a 1 as its fourth component, and zero elsewhere.
     #[inline]
     pub fn w() -> Self
-      where R::Value: Cmp<typenum::U3, Output = Greater> {
+    where
+        R::Value: Cmp<typenum::U3, Output = Greater>,
+    {
         let mut res = Self::zeros();
-        unsafe { *res.vget_unchecked_mut(3) = N::one(); }
+        unsafe {
+            *res.vget_unchecked_mut(3) = N::one();
+        }
 
         res
     }
@@ -641,9 +712,13 @@ where N: Scalar + Zero + One,
     /// The column vector with a 1 as its fifth component, and zero elsewhere.
     #[inline]
     pub fn a() -> Self
-      where R::Value: Cmp<typenum::U4, Output = Greater> {
+    where
+        R::Value: Cmp<typenum::U4, Output = Greater>,
+    {
         let mut res = Self::zeros();
-        unsafe { *res.vget_unchecked_mut(4) = N::one(); }
+        unsafe {
+            *res.vget_unchecked_mut(4) = N::one();
+        }
 
         res
     }
@@ -651,9 +726,13 @@ where N: Scalar + Zero + One,
     /// The column vector with a 1 as its sixth component, and zero elsewhere.
     #[inline]
     pub fn b() -> Self
-      where R::Value: Cmp<typenum::U5, Output = Greater> {
+    where
+        R::Value: Cmp<typenum::U5, Output = Greater>,
+    {
         let mut res = Self::zeros();
-        unsafe { *res.vget_unchecked_mut(5) = N::one(); }
+        unsafe {
+            *res.vget_unchecked_mut(5) = N::one();
+        }
 
         res
     }
@@ -661,42 +740,54 @@ where N: Scalar + Zero + One,
     /// The unit column vector with a 1 as its first component, and zero elsewhere.
     #[inline]
     pub fn x_axis() -> Unit<Self>
-      where R::Value: Cmp<typenum::U0, Output = Greater> {
-          Unit::new_unchecked(Self::x())
+    where
+        R::Value: Cmp<typenum::U0, Output = Greater>,
+    {
+        Unit::new_unchecked(Self::x())
     }
 
     /// The unit column vector with a 1 as its second component, and zero elsewhere.
     #[inline]
     pub fn y_axis() -> Unit<Self>
-      where R::Value: Cmp<typenum::U1, Output = Greater> {
-          Unit::new_unchecked(Self::y())
+    where
+        R::Value: Cmp<typenum::U1, Output = Greater>,
+    {
+        Unit::new_unchecked(Self::y())
     }
 
     /// The unit column vector with a 1 as its third component, and zero elsewhere.
     #[inline]
     pub fn z_axis() -> Unit<Self>
-      where R::Value: Cmp<typenum::U2, Output = Greater> {
-          Unit::new_unchecked(Self::z())
+    where
+        R::Value: Cmp<typenum::U2, Output = Greater>,
+    {
+        Unit::new_unchecked(Self::z())
     }
 
     /// The unit column vector with a 1 as its fourth component, and zero elsewhere.
     #[inline]
     pub fn w_axis() -> Unit<Self>
-      where R::Value: Cmp<typenum::U3, Output = Greater> {
-          Unit::new_unchecked(Self::w())
+    where
+        R::Value: Cmp<typenum::U3, Output = Greater>,
+    {
+        Unit::new_unchecked(Self::w())
     }
 
     /// The unit column vector with a 1 as its fifth component, and zero elsewhere.
     #[inline]
     pub fn a_axis() -> Unit<Self>
-      where R::Value: Cmp<typenum::U4, Output = Greater> {
-          Unit::new_unchecked(Self::a())
+    where
+        R::Value: Cmp<typenum::U4, Output = Greater>,
+    {
+        Unit::new_unchecked(Self::a())
     }
 
     /// The unit column vector with a 1 as its sixth component, and zero elsewhere.
     #[inline]
     pub fn b_axis() -> Unit<Self>
-      where R::Value: Cmp<typenum::U5, Output = Greater> {
-          Unit::new_unchecked(Self::b())
+    where
+        R::Value: Cmp<typenum::U5, Output = Greater>,
+    {
+        Unit::new_unchecked(Self::b())
     }
 }

@@ -7,12 +7,11 @@ use alga::linear::Rotation as AlgaRotation;
 use mint;
 
 use core::{DefaultAllocator, MatrixN};
-use core::dimension::{DimName, DimNameSum, DimNameAdd, DimMin, U1};
+use core::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
 use core::allocator::Allocator;
 
-use geometry::{Point, Translation, Rotation, UnitQuaternion, UnitComplex, Isometry,
-               Similarity, Transform, SuperTCategoryOf, TAffine,
-               Rotation2, Rotation3};
+use geometry::{Isometry, Point, Rotation, Rotation2, Rotation3, Similarity, SuperTCategoryOf,
+               TAffine, Transform, Translation, UnitComplex, UnitQuaternion};
 
 /*
  * This file provides the following conversions:
@@ -29,12 +28,12 @@ use geometry::{Point, Translation, Rotation, UnitQuaternion, UnitComplex, Isomet
 
 */
 
-
 impl<N1, N2, D: DimName> SubsetOf<Rotation<N2, D>> for Rotation<N1, D>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          DefaultAllocator: Allocator<N1, D, D> +
-                            Allocator<N2, D, D> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D, D>,
+{
     #[inline]
     fn to_superset(&self) -> Rotation<N2, D> {
         Rotation::from_matrix_unchecked(self.matrix().to_superset())
@@ -51,10 +50,11 @@ impl<N1, N2, D: DimName> SubsetOf<Rotation<N2, D>> for Rotation<N1, D>
     }
 }
 
-
 impl<N1, N2> SubsetOf<UnitQuaternion<N2>> for Rotation3<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+{
     #[inline]
     fn to_superset(&self) -> UnitQuaternion<N2> {
         let q = UnitQuaternion::<N1>::from_rotation_matrix(self);
@@ -74,8 +74,10 @@ impl<N1, N2> SubsetOf<UnitQuaternion<N2>> for Rotation3<N1>
 }
 
 impl<N1, N2> SubsetOf<UnitComplex<N2>> for Rotation2<N1>
-    where N1: Real,
-          N2: Real + SupersetOf<N1> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+{
     #[inline]
     fn to_superset(&self) -> UnitComplex<N2> {
         let q = UnitComplex::<N1>::from_rotation_matrix(self);
@@ -94,14 +96,13 @@ impl<N1, N2> SubsetOf<UnitComplex<N2>> for Rotation2<N1>
     }
 }
 
-
-
 impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Rotation<N1, D>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          R:  AlgaRotation<Point<N2, D>> + SupersetOf<Rotation<N1, D>>,
-          DefaultAllocator: Allocator<N1, D, D> +
-                            Allocator<N2, D> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    R: AlgaRotation<Point<N2, D>> + SupersetOf<Rotation<N1, D>>,
+    DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
+{
     #[inline]
     fn to_superset(&self) -> Isometry<N2, D, R> {
         Isometry::from_parts(Translation::identity(), ::convert_ref(self))
@@ -118,13 +119,13 @@ impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Rotation<N1, D>
     }
 }
 
-
 impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Rotation<N1, D>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          R:  AlgaRotation<Point<N2, D>> + SupersetOf<Rotation<N1, D>>,
-          DefaultAllocator: Allocator<N1, D, D> +
-                            Allocator<N2, D> {
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    R: AlgaRotation<Point<N2, D>> + SupersetOf<Rotation<N1, D>>,
+    DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
+{
     #[inline]
     fn to_superset(&self) -> Similarity<N2, D, R> {
         Similarity::from_parts(Translation::identity(), ::convert_ref(self), N2::one())
@@ -132,8 +133,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Rotation<N1, D>
 
     #[inline]
     fn is_in_subset(sim: &Similarity<N2, D, R>) -> bool {
-        sim.isometry.translation.vector.is_zero() &&
-        sim.scaling() == N2::one()
+        sim.isometry.translation.vector.is_zero() && sim.scaling() == N2::one()
     }
 
     #[inline]
@@ -142,18 +142,19 @@ impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Rotation<N1, D>
     }
 }
 
-
 impl<N1, N2, D, C> SubsetOf<Transform<N2, D, C>> for Rotation<N1, D>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          C:  SuperTCategoryOf<TAffine>,
-          D:  DimNameAdd<U1> +
-              DimMin<D, Output = D>, // needed by .is_special_orthogonal()
-          DefaultAllocator: Allocator<N1, D, D> +
-                            Allocator<N2, D, D> +
-                            Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<(usize, usize), D> { // needed by .is_special_orthogonal()
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    C: SuperTCategoryOf<TAffine>,
+    D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .is_special_orthogonal()
+    DefaultAllocator: Allocator<N1, D, D>
+        + Allocator<N2, D, D>
+        + Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<(usize, usize), D>,
+{
+    // needed by .is_special_orthogonal()
     #[inline]
     fn to_superset(&self) -> Transform<N2, D, C> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
@@ -170,17 +171,18 @@ impl<N1, N2, D, C> SubsetOf<Transform<N2, D, C>> for Rotation<N1, D>
     }
 }
 
-
 impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Rotation<N1, D>
-    where N1: Real,
-          N2: Real + SupersetOf<N1>,
-          D:  DimNameAdd<U1> +
-              DimMin<D, Output = D>, // needed by .is_special_orthogonal()
-          DefaultAllocator: Allocator<N1, D, D> +
-                            Allocator<N2, D, D> +
-                            Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>> +
-                            Allocator<(usize, usize), D> { // needed by .is_special_orthogonal()
+where
+    N1: Real,
+    N2: Real + SupersetOf<N1>,
+    D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .is_special_orthogonal()
+    DefaultAllocator: Allocator<N1, D, D>
+        + Allocator<N2, D, D>
+        + Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<(usize, usize), D>,
+{
+    // needed by .is_special_orthogonal()
     #[inline]
     fn to_superset(&self) -> MatrixN<N2, DimNameSum<D, U1>> {
         self.to_homogeneous().to_superset()
@@ -188,7 +190,7 @@ impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Rotation<N1, D>
 
     #[inline]
     fn is_in_subset(m: &MatrixN<N2, DimNameSum<D, U1>>) -> bool {
-        let rot    = m.fixed_slice::<D, D>(0, 0);
+        let rot = m.fixed_slice::<D, D>(0, 0);
         let bottom = m.fixed_slice::<U1, D>(D::dim(), 0);
 
         // Scalar types agree.
@@ -196,8 +198,7 @@ impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Rotation<N1, D>
         // The block part is a rotation.
         rot.is_special_orthogonal(N2::default_epsilon() * ::convert(100.0)) &&
         // The bottom row is (0, 0, ..., 1)
-        bottom.iter().all(|e| e.is_zero()) &&
-        m[(D::dim(), D::dim())] == N2::one()
+        bottom.iter().all(|e| e.is_zero()) && m[(D::dim(), D::dim())] == N2::one()
     }
 
     #[inline]

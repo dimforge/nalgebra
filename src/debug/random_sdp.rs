@@ -10,18 +10,19 @@ use core::allocator::Allocator;
 
 use debug::RandomOrthogonal;
 
-
 /// A random, well-conditioned, symmetric definite-positive matrix.
 #[derive(Clone, Debug)]
 pub struct RandomSDP<N: Real, D: Dim = Dynamic>
-    where DefaultAllocator: Allocator<N, D, D> {
-    m: MatrixN<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
+    m: MatrixN<N, D>,
 }
 
-
 impl<N: Real, D: Dim> RandomSDP<N, D>
-    where DefaultAllocator: Allocator<N, D, D> {
-
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     /// Retrieve the generated matrix.
     pub fn unwrap(self) -> MatrixN<N, D> {
         self.m
@@ -33,7 +34,7 @@ impl<N: Real, D: Dim> RandomSDP<N, D>
         let mut m = RandomOrthogonal::new(dim, || rand()).unwrap();
         let mt = m.transpose();
 
-        for i in 0 .. dim.value() {
+        for i in 0..dim.value() {
             let mut col = m.column_mut(i);
             let eigenval = N::one() + rand().abs();
             col *= eigenval;
@@ -45,8 +46,10 @@ impl<N: Real, D: Dim> RandomSDP<N, D>
 
 #[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary + Send, D: Dim> Arbitrary for RandomSDP<N, D>
-    where DefaultAllocator: Allocator<N, D, D>,
-          Owned<N, D, D>: Clone + Send {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+    Owned<N, D, D>: Clone + Send,
+{
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let dim = D::try_to_usize().unwrap_or(g.gen_range(1, 50));
         Self::new(D::from_usize(dim), || N::arbitrary(g))

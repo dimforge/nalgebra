@@ -1,10 +1,10 @@
-use std::ops::{Mul, MulAssign, Div, DivAssign};
+use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use alga::general::{ClosedAdd, ClosedSub};
 
 use core::{DefaultAllocator, Scalar};
 use core::dimension::{DimName, U1};
-use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns};
+use core::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use core::allocator::{Allocator, SameShapeAllocator};
 
 use geometry::{Point, Translation};
@@ -52,7 +52,6 @@ add_sub_impl!(Div, div, ClosedSub;
     self: Translation<N, D>, right: Translation<N, D>, Output = Translation<N, D>;
     Translation::from_vector(self.vector - right.vector); );
 
-
 // Translation × Point
 // FIXME: we don't handle properly non-zero origins here. Do we want this to be the intended
 // behavior?
@@ -76,7 +75,6 @@ add_sub_impl!(Mul, mul, ClosedAdd;
     self: Translation<N, D>, right: Point<N, D>, Output = Point<N, D>;
     right + self.vector; );
 
-
 // Translation *= Translation
 add_sub_assign_impl!(MulAssign, mul_assign, ClosedAdd;
     (D, U1), (D, U1) for D: DimName;
@@ -87,7 +85,6 @@ add_sub_assign_impl!(MulAssign, mul_assign, ClosedAdd;
     (D, U1), (D, U1) for D: DimName;
     self: Translation<N, D>, right: Translation<N, D>;
     self.vector += right.vector; );
-
 
 add_sub_assign_impl!(DivAssign, div_assign, ClosedSub;
     (D, U1), (D, U1) for D: DimName;

@@ -73,7 +73,6 @@ fn singular_values_200x200(bh: &mut Bencher) {
     bh.iter(|| test::black_box(m.singular_values()))
 }
 
-
 #[bench]
 fn pseudo_inverse_4x4(bh: &mut Bencher) {
     let m = Matrix4::<f64>::new_random();

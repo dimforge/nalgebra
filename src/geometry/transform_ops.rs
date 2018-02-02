@@ -1,15 +1,15 @@
-use num::{Zero, One};
-use std::ops::{Index, IndexMut, Mul, MulAssign, Div, DivAssign};
+use num::{One, Zero};
+use std::ops::{Div, DivAssign, Index, IndexMut, Mul, MulAssign};
 
-use alga::general::{Real, ClosedAdd, ClosedMul, SubsetOf};
+use alga::general::{ClosedAdd, ClosedMul, Real, SubsetOf};
 
-use core::{DefaultAllocator, Scalar, VectorN, MatrixN};
+use core::{DefaultAllocator, MatrixN, Scalar, VectorN};
 use core::allocator::Allocator;
 use core::dimension::{DimName, DimNameAdd, DimNameSum, U1, U3, U4};
 
-use geometry::{Point, Transform, TCategory, TCategoryMul,
-               SubTCategoryOf, SuperTCategoryOf, TGeneral, TProjective, TAffine, Rotation,
-               UnitQuaternion, Isometry, Similarity, Translation};
+use geometry::{Isometry, Point, Rotation, Similarity, SubTCategoryOf, SuperTCategoryOf, TAffine,
+               TCategory, TCategoryMul, TGeneral, TProjective, Transform, Translation,
+               UnitQuaternion};
 
 /*
  *
@@ -79,8 +79,10 @@ use geometry::{Point, Transform, TCategory, TCategoryMul,
  *
  */
 impl<N: Real, D, C: TCategory> Index<(usize, usize)> for Transform<N, D, C>
-    where D: DimName + DimNameAdd<U1>,
-          DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+where
+    D: DimName + DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
     type Output = N;
 
     #[inline]
@@ -91,14 +93,15 @@ impl<N: Real, D, C: TCategory> Index<(usize, usize)> for Transform<N, D, C>
 
 // Only general transformations are mutably indexable.
 impl<N: Real, D> IndexMut<(usize, usize)> for Transform<N, D, TGeneral>
-    where D: DimName + DimNameAdd<U1>,
-          DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
+where
+    D: DimName + DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
     #[inline]
     fn index_mut(&mut self, ij: (usize, usize)) -> &mut N {
         self.matrix_mut().index_mut(ij)
     }
 }
-
 
 // Transform × Vector
 md_impl_all!(
@@ -123,7 +126,6 @@ md_impl_all!(
         transform * rhs
     };
 );
-
 
 // Transform × Point
 md_impl_all!(
@@ -151,7 +153,6 @@ md_impl_all!(
     };
 );
 
-
 // Transform × Transform
 md_impl_all!(
     Mul, mul where N: Real;
@@ -162,7 +163,6 @@ md_impl_all!(
     [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.matrix());
 );
-
 
 // Transform × Rotation
 md_impl_all!(
@@ -175,7 +175,6 @@ md_impl_all!(
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
-
 // Rotation × Transform
 md_impl_all!(
     Mul, mul where N: Real;
@@ -186,7 +185,6 @@ md_impl_all!(
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
-
 
 // Transform × UnitQuaternion
 md_impl_all!(
@@ -199,7 +197,6 @@ md_impl_all!(
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
-
 // UnitQuaternion × Transform
 md_impl_all!(
     Mul, mul where N: Real;
@@ -210,8 +207,6 @@ md_impl_all!(
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
-
-
 
 // Transform × Isometry
 md_impl_all!(
@@ -237,7 +232,6 @@ md_impl_all!(
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
 
-
 // Transform × Similarity
 md_impl_all!(
     Mul, mul where N: Real;
@@ -261,8 +255,6 @@ md_impl_all!(
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
-
-
 
 /*
  *
@@ -295,8 +287,6 @@ md_impl_all!(
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
 
-
-
 // Transform ÷ Transform
 md_impl_all!(
     Div, div where N: Real;
@@ -319,7 +309,6 @@ md_impl_all!(
     [ref ref] => self * rhs.inverse();
 );
 
-
 // Rotation ÷ Transform
 md_impl_all!(
     Div, div where N: Real;
@@ -330,7 +319,6 @@ md_impl_all!(
     [val ref] => self.inverse() * rhs;
     [ref ref] => self.inverse() * rhs;
 );
-
 
 // Transform ÷ UnitQuaternion
 md_impl_all!(
@@ -343,7 +331,6 @@ md_impl_all!(
     [ref ref] => self * rhs.inverse();
 );
 
-
 // UnitQuaternion ÷ Transform
 md_impl_all!(
     Div, div where N: Real;
@@ -354,8 +341,6 @@ md_impl_all!(
     [val ref] => self.inverse() * rhs;
     [ref ref] => self.inverse() * rhs;
 );
-
-
 
 //      // Transform ÷ Isometry
 //      md_impl_all!(
@@ -382,7 +367,6 @@ md_impl_all!(
 //          [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 //          [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 //      );
-
 
 //      // Transform ÷ Similarity
 //      md_impl_all!(
@@ -412,8 +396,6 @@ md_impl_all!(
 //          [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 //      );
 
-
-
 // Transform ÷ Translation
 md_impl_all!(
     Div, div where N: Real;
@@ -437,7 +419,6 @@ md_impl_all!(
     [ref ref] => self.inverse() * rhs;
 );
 
-
 // Transform ×= Transform
 md_assign_impl_all!(
     MulAssign, mul_assign where N: Real;
@@ -446,7 +427,6 @@ md_assign_impl_all!(
     [val] => *self.matrix_mut_unchecked() *= rhs.unwrap();
     [ref] => *self.matrix_mut_unchecked() *= rhs.matrix();
 );
-
 
 // Transform ×= Similarity
 md_assign_impl_all!(
@@ -457,7 +437,6 @@ md_assign_impl_all!(
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
-
 
 // Transform ×= Isometry
 md_assign_impl_all!(
@@ -486,7 +465,6 @@ md_assign_impl_all!(
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
 
-
 // Transform ×= Rotation
 md_assign_impl_all!(
     MulAssign, mul_assign where N: Real;
@@ -496,7 +474,6 @@ md_assign_impl_all!(
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
 
-
 // Transform ×= UnitQuaternion
 md_assign_impl_all!(
     MulAssign, mul_assign where N: Real;
@@ -505,7 +482,6 @@ md_assign_impl_all!(
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
-
 
 // Transform ÷= Transform
 md_assign_impl_all!(
@@ -517,7 +493,6 @@ md_assign_impl_all!(
     [ref] => *self *= rhs.clone().inverse();
 );
 
-
 //      // Transform ÷= Similarity
 //      md_assign_impl_all!(
 //          DivAssign, div_assign;
@@ -527,8 +502,8 @@ md_assign_impl_all!(
 //          [val] => *self *= rhs.inverse();
 //          [ref] => *self *= rhs.inverse();
 //      );
-//      
-//      
+//
+//
 //      // Transform ÷= Isometry
 //      md_assign_impl_all!(
 //          DivAssign, div_assign;
@@ -539,7 +514,6 @@ md_assign_impl_all!(
 //          [ref] => *self *= rhs.inverse();
 //      );
 
-
 // Transform ÷= Translation
 md_assign_impl_all!(
     DivAssign, div_assign where N: Real;
@@ -549,7 +523,6 @@ md_assign_impl_all!(
     [ref] => *self *= rhs.inverse();
 );
 
-
 // Transform ÷= Rotation
 md_assign_impl_all!(
     DivAssign, div_assign where N: Real;
@@ -558,7 +531,6 @@ md_assign_impl_all!(
     [val] => *self *= rhs.inverse();
     [ref] => *self *= rhs.inverse();
 );
-
 
 // Transform ÷= UnitQuaternion
 md_assign_impl_all!(

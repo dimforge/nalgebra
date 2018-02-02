@@ -1,13 +1,13 @@
-use std::ops::{Mul, MulAssign, Div, DivAssign};
+use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
 
-use core::{DefaultAllocator, VectorN, Unit};
+use core::{DefaultAllocator, Unit, VectorN};
 use core::dimension::{DimName, U1, U3, U4};
 use core::allocator::Allocator;
 
-use geometry::{Point, Rotation, Isometry, Translation, UnitQuaternion};
+use geometry::{Isometry, Point, Rotation, Translation, UnitQuaternion};
 
 // FIXME: there are several cloning of rotations that we could probably get rid of (but we didn't
 // yet because that would require to add a bound like `where for<'a, 'b> &'a R: Mul<&'b R, Output = R>`
@@ -59,7 +59,6 @@ use geometry::{Point, Rotation, Isometry, Translation, UnitQuaternion};
  * Isometry ÷= R
  *
  */
-
 
 macro_rules! isometry_binop_impl(
     ($Op: ident, $op: ident;
@@ -148,7 +147,6 @@ isometry_binop_impl_all!(
     };
 );
 
-
 isometry_binop_impl_all!(
     Div, div;
     self: Isometry<N, D, R>, rhs: Isometry<N, D, R>, Output = Isometry<N, D, R>;
@@ -157,7 +155,6 @@ isometry_binop_impl_all!(
     [val ref] => self * rhs.inverse();
     [ref ref] => self * rhs.inverse();
 );
-
 
 // Isometry ×= Translation
 isometry_binop_assign_impl_all!(
@@ -207,7 +204,6 @@ isometry_binop_assign_impl_all!(
     [ref] => *self *= rhs.inverse();
 );
 
-
 // Isometry × R
 // Isometry ÷ R
 isometry_binop_impl_all!(
@@ -219,7 +215,6 @@ isometry_binop_impl_all!(
     [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() * rhs.clone());
 );
 
-
 isometry_binop_impl_all!(
     Div, div;
     self: Isometry<N, D, R>, rhs: R, Output = Isometry<N, D, R>;
@@ -228,7 +223,6 @@ isometry_binop_impl_all!(
     [val ref] => Isometry::from_parts(self.translation, self.rotation / rhs.clone());
     [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() / rhs.clone());
 );
-
 
 // Isometry × Point
 isometry_binop_impl_all!(
@@ -239,7 +233,6 @@ isometry_binop_impl_all!(
     [val ref] => self.translation  * self.rotation.transform_point(right);
     [ref ref] => &self.translation * self.rotation.transform_point(right);
 );
-
 
 // Isometry × Vector
 isometry_binop_impl_all!(
@@ -265,7 +258,6 @@ isometry_binop_impl_all!(
     [ref ref] => Unit::new_unchecked(self.rotation.transform_vector(right.as_ref()));
 );
 
-
 // Isometry × Translation
 isometry_binop_impl_all!(
     Mul, mul;
@@ -289,7 +281,6 @@ isometry_binop_impl_all!(
     [ref ref] => Isometry::from_parts(self * &right.translation, right.rotation.clone());
 );
 
-
 // Translation × R
 isometry_binop_impl_all!(
     Mul, mul;
@@ -299,9 +290,6 @@ isometry_binop_impl_all!(
     [val ref] => Isometry::from_parts(self, right.clone());
     [ref ref] => Isometry::from_parts(self.clone(), right.clone());
 );
-
-
-
 
 macro_rules! isometry_from_composition_impl(
     ($Op: ident, $op: ident;
@@ -356,7 +344,6 @@ macro_rules! isometry_from_composition_impl_all(
     }
 );
 
-
 // Rotation × Translation
 isometry_from_composition_impl_all!(
     Mul, mul;
@@ -367,7 +354,6 @@ isometry_from_composition_impl_all!(
     [val ref] => Isometry::from_parts(Translation::from_vector(&self * &right.vector), self);
     [ref ref] => Isometry::from_parts(Translation::from_vector(self * &right.vector),  self.clone());
 );
-
 
 // UnitQuaternion × Translation
 isometry_from_composition_impl_all!(
@@ -409,7 +395,6 @@ isometry_from_composition_impl_all!(
     [ref ref] => self * right.inverse();
 );
 
-
 // UnitQuaternion × Isometry
 isometry_from_composition_impl_all!(
     Mul, mul;
@@ -424,7 +409,6 @@ isometry_from_composition_impl_all!(
         Isometry::from_parts(Translation::from_vector(shift), self * &right.rotation)
     };
 );
-
 
 // UnitQuaternion ÷ Isometry
 isometry_from_composition_impl_all!(

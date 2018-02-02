@@ -7,31 +7,33 @@ use core::allocator::Allocator;
 
 use linalg::LU;
 
-
 impl<N: Real, D: DimMin<D, Output = D>, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the matrix determinant.
     ///
     /// If the matrix has a dimension larger than 3, an LU decomposition is used.
     #[inline]
     pub fn determinant(&self) -> N
-        where DefaultAllocator: Allocator<N, D, D> +
-                                Allocator<(usize, usize), D> {
-
-        assert!(self.is_square(), "Unable to compute the determinant of a non-square matrix.");
+    where
+        DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>,
+    {
+        assert!(
+            self.is_square(),
+            "Unable to compute the determinant of a non-square matrix."
+        );
         let dim = self.shape().0;
 
         unsafe {
             match dim {
                 0 => N::one(),
-                1 => {
-                    *self.get_unchecked(0, 0)
-                },
+                1 => *self.get_unchecked(0, 0),
                 2 => {
-                    let m11 = *self.get_unchecked(0, 0); let m12 = *self.get_unchecked(0, 1);
-                    let m21 = *self.get_unchecked(1, 0); let m22 = *self.get_unchecked(1, 1);
+                    let m11 = *self.get_unchecked(0, 0);
+                    let m12 = *self.get_unchecked(0, 1);
+                    let m21 = *self.get_unchecked(1, 0);
+                    let m22 = *self.get_unchecked(1, 1);
 
                     m11 * m22 - m21 * m12
-                },
+                }
                 3 => {
                     let m11 = *self.get_unchecked(0, 0);
                     let m12 = *self.get_unchecked(0, 1);
@@ -50,10 +52,8 @@ impl<N: Real, D: DimMin<D, Output = D>, S: Storage<N, D, D>> SquareMatrix<N, D, 
                     let minor_m11_m22 = m21 * m32 - m31 * m22;
 
                     m11 * minor_m12_m23 - m12 * minor_m11_m23 + m13 * minor_m11_m22
-                },
-                _ => {
-                    LU::new(self.clone_owned()).determinant()
                 }
+                _ => LU::new(self.clone_owned()).determinant(),
             }
         }
     }

@@ -1,9 +1,9 @@
 use std::mem;
-use std::ops::{Neg, Deref};
+use std::ops::{Deref, Neg};
 use approx::ApproxEq;
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -11,20 +11,20 @@ use abomonation::Abomonation;
 use alga::general::SubsetOf;
 use alga::linear::NormedSpace;
 
-
 /// A wrapper that ensures the undelying algebraic entity has a unit norm.
 ///
 /// Use `.as_ref()` or `.unwrap()` to obtain the undelying value by-reference or by-move.
 #[repr(C)]
 #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Unit<T> {
-    value: T
+    value: T,
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<T: Serialize> Serialize for Unit<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer
+    where
+        S: Serializer,
     {
         self.value.serialize(serializer)
     }
@@ -33,7 +33,8 @@ impl<T: Serialize> Serialize for Unit<T> {
 #[cfg(feature = "serde-serialize")]
 impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         T::deserialize(deserializer).map(|x| Unit { value: x })
     }
@@ -84,8 +85,7 @@ impl<T: NormedSpace> Unit<T> {
     pub fn try_new_and_get(mut value: T, min_norm: T::Field) -> Option<(Self, T::Field)> {
         if let Some(n) = value.try_normalize_mut(min_norm) {
             Some((Unit { value: value }, n))
-        }
-        else {
+        } else {
             None
         }
     }
@@ -137,7 +137,9 @@ impl<T> AsRef<T> for Unit<T> {
  *
  */
 impl<T: NormedSpace> SubsetOf<T> for Unit<T>
-where T::Field: ApproxEq {
+where
+    T::Field: ApproxEq,
+{
     #[inline]
     fn to_superset(&self) -> T {
         self.clone().unwrap()
@@ -156,33 +158,32 @@ where T::Field: ApproxEq {
 
 // impl<T: ApproxEq> ApproxEq for Unit<T> {
 //     type Epsilon = T::Epsilon;
-// 
+//
 //     #[inline]
 //     fn default_epsilon() -> Self::Epsilon {
 //         T::default_epsilon()
 //     }
-// 
+//
 //     #[inline]
 //     fn default_max_relative() -> Self::Epsilon {
 //         T::default_max_relative()
 //     }
-// 
+//
 //     #[inline]
 //     fn default_max_ulps() -> u32 {
 //         T::default_max_ulps()
 //     }
-// 
+//
 //     #[inline]
 //     fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
 //         self.value.relative_eq(&other.value, epsilon, max_relative)
 //     }
-// 
+//
 //     #[inline]
 //     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
 //         self.value.ulps_eq(&other.value, epsilon, max_ulps)
 //     }
 // }
-
 
 // FIXME:re-enable this impl when spacialization is possible.
 // Currently, it is disabled so that we can have a nice output for the `UnitQuaternion` display.

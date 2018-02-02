@@ -12,33 +12,42 @@ use abomonation::Abomonation;
 
 use core::{DefaultAllocator, Scalar, VectorN};
 use core::iter::{MatrixIter, MatrixIterMut};
-use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
+use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use core::allocator::Allocator;
 
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]
 #[derive(Debug)]
 pub struct Point<N: Scalar, D: DimName>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     /// The coordinates of this point, i.e., the shift from the origin.
-    pub coords: VectorN<N, D>
+    pub coords: VectorN<N, D>,
 }
 
 impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Point<N, D>
-    where DefaultAllocator: Allocator<N, D>,
-          <DefaultAllocator as Allocator<N, D>>::Buffer: hash::Hash {
+where
+    DefaultAllocator: Allocator<N, D>,
+    <DefaultAllocator as Allocator<N, D>>::Buffer: hash::Hash,
+{
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.coords.hash(state)
     }
 }
 
 impl<N: Scalar, D: DimName> Copy for Point<N, D>
-    where DefaultAllocator: Allocator<N, D>,
-          <DefaultAllocator as Allocator<N, D>>::Buffer: Copy { }
+where
+    DefaultAllocator: Allocator<N, D>,
+    <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,
+{
+}
 
 impl<N: Scalar, D: DimName> Clone for Point<N, D>
-    where DefaultAllocator: Allocator<N, D>,
-          <DefaultAllocator as Allocator<N, D>>::Buffer: Clone {
+where
+    DefaultAllocator: Allocator<N, D>,
+    <DefaultAllocator as Allocator<N, D>>::Buffer: Clone,
+{
     #[inline]
     fn clone(&self) -> Self {
         Point::from_coordinates(self.coords.clone())
@@ -47,35 +56,41 @@ impl<N: Scalar, D: DimName> Clone for Point<N, D>
 
 #[cfg(feature = "serde-serialize")]
 impl<N: Scalar, D: DimName> serde::Serialize for Point<N, D>
-where DefaultAllocator: Allocator<N, D>,
-      <DefaultAllocator as Allocator<N, D>>::Buffer: serde::Serialize {
-
+where
+    DefaultAllocator: Allocator<N, D>,
+    <DefaultAllocator as Allocator<N, D>>::Buffer: serde::Serialize,
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: serde::Serializer {
-            self.coords.serialize(serializer)
-        }
+    where
+        S: serde::Serializer,
+    {
+        self.coords.serialize(serializer)
+    }
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Scalar, D: DimName> serde::Deserialize<'a> for Point<N, D>
-where DefaultAllocator: Allocator<N, D>,
-      <DefaultAllocator as Allocator<N, D>>::Buffer: serde::Deserialize<'a> {
-
+where
+    DefaultAllocator: Allocator<N, D>,
+    <DefaultAllocator as Allocator<N, D>>::Buffer: serde::Deserialize<'a>,
+{
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-        where Des: serde::Deserializer<'a> {
-            let coords = VectorN::<N, D>::deserialize(deserializer)?;
+    where
+        Des: serde::Deserializer<'a>,
+    {
+        let coords = VectorN::<N, D>::deserialize(deserializer)?;
 
-            Ok(Point::from_coordinates(coords))
-        }
+        Ok(Point::from_coordinates(coords))
+    }
 }
-
 
 #[cfg(feature = "abomonation-serialize")]
 impl<N, D> Abomonation for Point<N, D>
-    where N: Scalar,
-          D: DimName,
-          VectorN<N, D>: Abomonation,
-          DefaultAllocator: Allocator<N, D>
+where
+    N: Scalar,
+    D: DimName,
+    VectorN<N, D>: Abomonation,
+    DefaultAllocator: Allocator<N, D>,
 {
     unsafe fn entomb(&self, writer: &mut Vec<u8>) {
         self.coords.entomb(writer)
@@ -91,8 +106,9 @@ impl<N, D> Abomonation for Point<N, D>
 }
 
 impl<N: Scalar, D: DimName> Point<N, D>
-    where DefaultAllocator: Allocator<N, D> {
-
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Clones this point into one that owns its data.
     #[inline]
     pub fn clone(&self) -> Point<N, D> {
@@ -103,13 +119,12 @@ impl<N: Scalar, D: DimName> Point<N, D>
     /// end of it.
     #[inline]
     pub fn to_homogeneous(&self) -> VectorN<N, DimNameSum<D, U1>>
-        where N: One,
-              D: DimNameAdd<U1>,
-              DefaultAllocator: Allocator<N, DimNameSum<D, U1>> {
-
-        let mut res = unsafe {
-            VectorN::<_, DimNameSum<D, U1>>::new_uninitialized()
-        };
+    where
+        N: One,
+        D: DimNameAdd<U1>,
+        DefaultAllocator: Allocator<N, DimNameSum<D, U1>>,
+    {
+        let mut res = unsafe { VectorN::<_, DimNameSum<D, U1>>::new_uninitialized() };
         res.fixed_slice_mut::<D, U1>(0, 0).copy_from(&self.coords);
         res[(D::dim(), 0)] = N::one();
 
@@ -119,9 +134,7 @@ impl<N: Scalar, D: DimName> Point<N, D>
     /// Creates a new point with the given coordinates.
     #[inline]
     pub fn from_coordinates(coords: VectorN<N, D>) -> Point<N, D> {
-        Point {
-            coords: coords
-        }
+        Point { coords: coords }
     }
 
     /// The dimension of this point.
@@ -151,7 +164,9 @@ impl<N: Scalar, D: DimName> Point<N, D>
 
     /// Mutably iterates through this point coordinates.
     #[inline]
-    pub fn iter_mut(&mut self) -> MatrixIterMut<N, D, U1, <DefaultAllocator as Allocator<N, D>>::Buffer> {
+    pub fn iter_mut(
+        &mut self,
+    ) -> MatrixIterMut<N, D, U1, <DefaultAllocator as Allocator<N, D>>::Buffer> {
         self.coords.iter_mut()
     }
 
@@ -169,8 +184,10 @@ impl<N: Scalar, D: DimName> Point<N, D>
 }
 
 impl<N: Scalar + ApproxEq, D: DimName> ApproxEq for Point<N, D>
-    where DefaultAllocator: Allocator<N, D>,
-          N::Epsilon: Copy {
+where
+    DefaultAllocator: Allocator<N, D>,
+    N::Epsilon: Copy,
+{
     type Epsilon = N::Epsilon;
 
     #[inline]
@@ -189,8 +206,14 @@ impl<N: Scalar + ApproxEq, D: DimName> ApproxEq for Point<N, D>
     }
 
     #[inline]
-    fn relative_eq(&self, other: &Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -> bool {
-        self.coords.relative_eq(&other.coords, epsilon, max_relative)
+    fn relative_eq(
+        &self,
+        other: &Self,
+        epsilon: Self::Epsilon,
+        max_relative: Self::Epsilon,
+    ) -> bool {
+        self.coords
+            .relative_eq(&other.coords, epsilon, max_relative)
     }
 
     #[inline]
@@ -200,10 +223,15 @@ impl<N: Scalar + ApproxEq, D: DimName> ApproxEq for Point<N, D>
 }
 
 impl<N: Scalar + Eq, D: DimName> Eq for Point<N, D>
-    where DefaultAllocator: Allocator<N, D> { }
+where
+    DefaultAllocator: Allocator<N, D>,
+{
+}
 
 impl<N: Scalar, D: DimName> PartialEq for Point<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.coords == right.coords
@@ -211,7 +239,9 @@ impl<N: Scalar, D: DimName> PartialEq for Point<N, D>
 }
 
 impl<N: Scalar + PartialOrd, D: DimName> PartialOrd for Point<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.coords.partial_cmp(&other.coords)
@@ -244,7 +274,9 @@ impl<N: Scalar + PartialOrd, D: DimName> PartialOrd for Point<N, D>
  *
  */
 impl<N: Scalar + fmt::Display, D: DimName> fmt::Display for Point<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         try!(write!(f, "{{"));
 

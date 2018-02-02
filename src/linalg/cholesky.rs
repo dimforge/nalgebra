@@ -3,34 +3,39 @@ use serde;
 
 use alga::general::Real;
 
-use core::{DefaultAllocator, MatrixN, MatrixMN, Matrix, SquareMatrix};
-use constraint::{ShapeConstraint, SameNumberOfRows};
+use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
+use constraint::{SameNumberOfRows, ShapeConstraint};
 use storage::{Storage, StorageMut};
 use allocator::Allocator;
-use dimension::{Dim, Dynamic, DimSub};
+use dimension::{Dim, DimSub, Dynamic};
 
 /// The Cholesky decomposion of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(serialize =
-        "DefaultAllocator: Allocator<N, D>,
+           serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
          MatrixN<N, D>: serde::Serialize")))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(deserialize =
-        "DefaultAllocator: Allocator<N, D>,
+           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
          MatrixN<N, D>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct Cholesky<N: Real, D: Dim>
-    where DefaultAllocator: Allocator<N, D, D> {
-    chol: MatrixN<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
+    chol: MatrixN<N, D>,
 }
 
 impl<N: Real, D: Dim> Copy for Cholesky<N, D>
-    where DefaultAllocator: Allocator<N, D, D>,
-          MatrixN<N, D>: Copy { }
+where
+    DefaultAllocator: Allocator<N, D, D>,
+    MatrixN<N, D>: Copy,
+{
+}
 
 impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
-    where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     /// Attempts to compute the Cholesky decomposition of `matrix`.
     ///
     /// Returns `None` if the input matrix is not definite-positive. The intput matrix is assumed
@@ -40,13 +45,13 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
 
         let n = matrix.nrows();
 
-        for j in 0 .. n {
-            for k in 0 .. j {
+        for j in 0..n {
+            for k in 0..j {
                 let factor = unsafe { -*matrix.get_unchecked(j, k) };
 
                 let (mut col_j, col_k) = matrix.columns_range_pair_mut(j, k);
-                let mut col_j = col_j.rows_range_mut(j ..);
-                let col_k     = col_k.rows_range(j ..);
+                let mut col_j = col_j.rows_range_mut(j..);
+                let col_k = col_k.rows_range(j..);
 
                 col_j.axpy(factor, &col_k, N::one());
             }
@@ -54,12 +59,13 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
             let diag = unsafe { *matrix.get_unchecked(j, j) };
             if diag > N::zero() {
                 let denom = diag.sqrt();
-                unsafe { *matrix.get_unchecked_mut(j, j) = denom; }
+                unsafe {
+                    *matrix.get_unchecked_mut(j, j) = denom;
+                }
 
-                let mut col = matrix.slice_range_mut(j + 1 .., j);
+                let mut col = matrix.slice_range_mut(j + 1.., j);
                 col /= denom;
-            }
-            else {
+            } else {
                 return None;
             }
         }
@@ -102,8 +108,10 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
     ///
     /// The result is stored on `b`.
     pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>)
-        where S2: StorageMut<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R2, D> {
+    where
+        S2: StorageMut<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
+    {
         let _ = self.chol.solve_lower_triangular_mut(b);
         let _ = self.chol.tr_solve_lower_triangular_mut(b);
     }
@@ -111,9 +119,11 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
     /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and
     /// `x` the unknown.
     pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<N, R2, C2, S2>) -> MatrixMN<N, R2, C2>
-        where S2: StorageMut<N, R2, C2>,
-              DefaultAllocator: Allocator<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R2, D> {
+    where
+        S2: StorageMut<N, R2, C2>,
+        DefaultAllocator: Allocator<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
+    {
         let mut res = b.clone_owned();
         self.solve_mut(&mut res);
         res
@@ -130,8 +140,9 @@ impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
 }
 
 impl<N: Real, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-    where DefaultAllocator: Allocator<N, D, D> {
-
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     /// Attempts to compute the Cholesky decomposition of this matrix.
     ///
     /// Returns `None` if the input matrix is not definite-positive. The intput matrix is assumed

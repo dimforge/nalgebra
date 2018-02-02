@@ -1,14 +1,13 @@
 // Matrix properties checks.
-use num::{Zero, One};
+use num::{One, Zero};
 use approx::ApproxEq;
 
 use alga::general::{ClosedAdd, ClosedMul, Real};
 
-use core::{DefaultAllocator, Scalar, Matrix, SquareMatrix};
+use core::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
 use core::dimension::{Dim, DimMin};
 use core::storage::Storage;
 use core::allocator::Allocator;
-
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Indicates if this is a square matrix.
@@ -32,27 +31,29 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// for i from `0` to `min(R, C)`) are equal one; and that all other elements are zero.
     #[inline]
     pub fn is_identity(&self, eps: N::Epsilon) -> bool
-    where N: Zero + One + ApproxEq,
-          N::Epsilon: Copy {
+    where
+        N: Zero + One + ApproxEq,
+        N::Epsilon: Copy,
+    {
         let (nrows, ncols) = self.shape();
         let d;
 
         if nrows > ncols {
             d = ncols;
 
-            for i in d .. nrows {
-                for j in 0 .. ncols {
+            for i in d..nrows {
+                for j in 0..ncols {
                     if !relative_eq!(self[(i, j)], N::zero(), epsilon = eps) {
                         return false;
                     }
                 }
             }
-        }
-        else { // nrows <= ncols
+        } else {
+            // nrows <= ncols
             d = nrows;
 
-            for i in 0 .. nrows {
-                for j in d .. ncols {
+            for i in 0..nrows {
+                for j in d..ncols {
                     if !relative_eq!(self[(i, j)], N::zero(), epsilon = eps) {
                         return false;
                     }
@@ -61,18 +62,19 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         }
 
         // Off-diagonal elements of the sub-square matrix.
-        for i in 1 .. d {
-            for j in 0 .. i {
+        for i in 1..d {
+            for j in 0..i {
                 // FIXME: use unsafe indexing.
-                if !relative_eq!(self[(i, j)], N::zero(), epsilon = eps) ||
-                   !relative_eq!(self[(j, i)], N::zero(), epsilon = eps) {
+                if !relative_eq!(self[(i, j)], N::zero(), epsilon = eps)
+                    || !relative_eq!(self[(j, i)], N::zero(), epsilon = eps)
+                {
                     return false;
                 }
             }
         }
 
         // Diagonal elements of the sub-square matrix.
-        for i in 0 .. d {
+        for i in 0..d {
             if !relative_eq!(self[(i, i)], N::one(), epsilon = eps) {
                 return false;
             }
@@ -87,23 +89,28 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// equal to `eps`.
     #[inline]
     pub fn is_orthogonal(&self, eps: N::Epsilon) -> bool
-        where N: Zero + One + ClosedAdd + ClosedMul + ApproxEq,
-              S: Storage<N, R, C>,
-              N::Epsilon: Copy,
-              DefaultAllocator: Allocator<N, C, C> {
+    where
+        N: Zero + One + ClosedAdd + ClosedMul + ApproxEq,
+        S: Storage<N, R, C>,
+        N::Epsilon: Copy,
+        DefaultAllocator: Allocator<N, C, C>,
+    {
         (self.tr_mul(self)).is_identity(eps)
     }
 }
 
-
 impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-    where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     /// Checks that this matrix is orthogonal and has a determinant equal to 1.
     #[inline]
     pub fn is_special_orthogonal(&self, eps: N) -> bool
-        where D: DimMin<D, Output = D>,
-              DefaultAllocator: Allocator<(usize, usize), D> {
-            self.is_square() && self.is_orthogonal(eps) && self.determinant() > N::zero()
+    where
+        D: DimMin<D, Output = D>,
+        DefaultAllocator: Allocator<(usize, usize), D>,
+    {
+        self.is_square() && self.is_orthogonal(eps) && self.determinant() > N::zero()
     }
 
     /// Returns `true` if this matrix is invertible.

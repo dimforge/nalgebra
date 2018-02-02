@@ -2,7 +2,6 @@ use test::{self, Bencher};
 use na::{DMatrix, Matrix4};
 use nl::LU;
 
-
 #[bench]
 fn lu_decompose_100x100(bh: &mut Bencher) {
     let m = DMatrix::<f64>::new_random(100, 100);

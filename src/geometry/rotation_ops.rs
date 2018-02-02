@@ -16,22 +16,23 @@
  * Matrix   ×= Rotation
  */
 
+use std::ops::{Div, DivAssign, Index, Mul, MulAssign};
+use num::{One, Zero};
 
-use std::ops::{Mul, MulAssign, Div, DivAssign, Index};
-use num::{Zero, One};
+use alga::general::{ClosedAdd, ClosedMul};
 
-use alga::general::{ClosedMul, ClosedAdd};
-
-use core::{DefaultAllocator, Scalar, Matrix, MatrixMN};
+use core::{DefaultAllocator, Matrix, MatrixMN, Scalar};
 use core::dimension::{Dim, DimName, U1};
-use core::constraint::{ShapeConstraint, AreMultipliable};
+use core::constraint::{AreMultipliable, ShapeConstraint};
 use core::storage::Storage;
 use core::allocator::Allocator;
 
 use geometry::{Point, Rotation};
 
 impl<N: Scalar, D: DimName> Index<(usize, usize)> for Rotation<N, D>
-    where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     type Output = N;
 
     #[inline]
@@ -102,7 +103,6 @@ md_impl_all!(
     [ref ref] => self * right.inverse();
 );
 
-
 // Rotation × Point
 // FIXME: we don't handle properly non-zero origins here. Do we want this to be the intended
 // behavior?
@@ -118,7 +118,6 @@ md_impl_all!(
     [ref ref] => self.matrix() * right;
 );
 
-
 // Rotation ×= Rotation
 // FIXME: try not to call `inverse()` explicitly.
 
@@ -129,7 +128,6 @@ md_assign_impl_all!(
     [val] => unsafe { self.matrix_mut().mul_assign(right.unwrap()) };
     [ref] => unsafe { self.matrix_mut().mul_assign(right.matrix()) };
 );
-
 
 md_assign_impl_all!(
     DivAssign, div_assign;
@@ -152,7 +150,6 @@ md_assign_impl_all!(
     [val] => self.mul_assign(right.unwrap());
     [ref] => self.mul_assign(right.matrix());
 );
-
 
 md_assign_impl_all!(
     DivAssign, div_assign;

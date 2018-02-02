@@ -1,16 +1,17 @@
 use std::iter;
-use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Neg,
-               Index, IndexMut};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub,
+               SubAssign};
 use std::cmp::PartialOrd;
-use num::{Zero, One, Signed};
+use num::{One, Signed, Zero};
 
-use alga::general::{ClosedMul, ClosedDiv, ClosedAdd, ClosedSub, ClosedNeg};
+use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
-use core::{DefaultAllocator, Scalar, Matrix, MatrixN, MatrixMN, MatrixSum};
-use core::dimension::{Dim, DimName, DimProd, DimMul};
-use core::constraint::{ShapeConstraint, SameNumberOfRows, SameNumberOfColumns, AreMultipliable, DimEq};
-use core::storage::{Storage, StorageMut, ContiguousStorageMut};
-use core::allocator::{SameShapeAllocator, Allocator, SameShapeR, SameShapeC};
+use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar};
+use core::dimension::{Dim, DimMul, DimName, DimProd};
+use core::constraint::{AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows,
+                       ShapeConstraint};
+use core::storage::{ContiguousStorageMut, Storage, StorageMut};
+use core::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 
 /*
  *
@@ -27,16 +28,20 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Index<usize> for Matrix<N, 
     }
 }
 
-
 impl<N, R: Dim, C: Dim, S> Index<(usize, usize)> for Matrix<N, R, C, S>
-    where N: Scalar,
-          S: Storage<N, R, C> {
+where
+    N: Scalar,
+    S: Storage<N, R, C>,
+{
     type Output = N;
 
     #[inline]
     fn index(&self, ij: (usize, usize)) -> &N {
         let shape = self.shape();
-        assert!(ij.0 < shape.0 && ij.1 < shape.1, "Matrix index out of bounds.");
+        assert!(
+            ij.0 < shape.0 && ij.1 < shape.1,
+            "Matrix index out of bounds."
+        );
 
         unsafe { self.get_unchecked(ij.0, ij.1) }
     }
@@ -52,13 +57,17 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IndexMut<usize> for Matr
 }
 
 impl<N, R: Dim, C: Dim, S> IndexMut<(usize, usize)> for Matrix<N, R, C, S>
-    where N: Scalar,
-          S: StorageMut<N, R, C> {
-
+where
+    N: Scalar,
+    S: StorageMut<N, R, C>,
+{
     #[inline]
     fn index_mut(&mut self, ij: (usize, usize)) -> &mut N {
         let shape = self.shape();
-        assert!(ij.0 < shape.0 && ij.1 < shape.1, "Matrix index out of bounds.");
+        assert!(
+            ij.0 < shape.0 && ij.1 < shape.1,
+            "Matrix index out of bounds."
+        );
 
         unsafe { self.get_unchecked_mut(ij.0, ij.1) }
     }
@@ -70,9 +79,11 @@ impl<N, R: Dim, C: Dim, S> IndexMut<(usize, usize)> for Matrix<N, R, C, S>
  *
  */
 impl<N, R: Dim, C: Dim, S> Neg for Matrix<N, R, C, S>
-    where N: Scalar + ClosedNeg,
-          S: Storage<N, R, C>,
-          DefaultAllocator: Allocator<N, R, C> {
+where
+    N: Scalar + ClosedNeg,
+    S: Storage<N, R, C>,
+    DefaultAllocator: Allocator<N, R, C>,
+{
     type Output = MatrixMN<N, R, C>;
 
     #[inline]
@@ -84,9 +95,11 @@ impl<N, R: Dim, C: Dim, S> Neg for Matrix<N, R, C, S>
 }
 
 impl<'a, N, R: Dim, C: Dim, S> Neg for &'a Matrix<N, R, C, S>
-    where N: Scalar + ClosedNeg,
-          S: Storage<N, R, C>,
-          DefaultAllocator: Allocator<N, R, C> {
+where
+    N: Scalar + ClosedNeg,
+    S: Storage<N, R, C>,
+    DefaultAllocator: Allocator<N, R, C>,
+{
     type Output = MatrixMN<N, R, C>;
 
     #[inline]
@@ -96,8 +109,10 @@ impl<'a, N, R: Dim, C: Dim, S> Neg for &'a Matrix<N, R, C, S>
 }
 
 impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
-    where N: Scalar + ClosedNeg,
-          S: StorageMut<N, R, C> {
+where
+    N: Scalar + ClosedNeg,
+    S: StorageMut<N, R, C>,
+{
     /// Negates `self` in-place.
     #[inline]
     pub fn neg_mut(&mut self) {
@@ -358,8 +373,9 @@ componentwise_binop_impl!(Sub, sub, ClosedSub;
                           sub_to, sub_to_statically_unchecked);
 
 impl<N, R: DimName, C: DimName> iter::Sum for MatrixMN<N, R, C>
-    where N: Scalar + ClosedAdd + Zero,
-          DefaultAllocator: Allocator<N, R, C>
+where
+    N: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<N, R, C>,
 {
     fn sum<I: Iterator<Item = MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
         iter.fold(Matrix::zero(), |acc, x| acc + x)
@@ -367,14 +383,14 @@ impl<N, R: DimName, C: DimName> iter::Sum for MatrixMN<N, R, C>
 }
 
 impl<'a, N, R: DimName, C: DimName> iter::Sum<&'a MatrixMN<N, R, C>> for MatrixMN<N, R, C>
-    where N: Scalar + ClosedAdd + Zero,
-          DefaultAllocator: Allocator<N, R, C>
+where
+    N: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<N, R, C>,
 {
     fn sum<I: Iterator<Item = &'a MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
         iter.fold(Matrix::zero(), |acc, x| acc + x)
     }
 }
-
 
 /*
  *
@@ -477,29 +493,24 @@ macro_rules! left_scalar_mul_impl(
     )*}
 );
 
-left_scalar_mul_impl!(
-    u8, u16, u32, u64, usize,
-    i8, i16, i32, i64, isize,
-    f32, f64
-);
-
-
+left_scalar_mul_impl!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f32, f64);
 
 // Matrix × Matrix
 impl<'a, 'b, N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<N, R2, C2, SB>>
-for &'a Matrix<N, R1, C1, SA>
-    where N:  Scalar + Zero + One + ClosedAdd + ClosedMul,
-          SA: Storage<N, R1, C1>,
-          SB: Storage<N, R2, C2>,
-          DefaultAllocator: Allocator<N, R1, C2>,
-          ShapeConstraint:  AreMultipliable<R1, C1, R2, C2> {
+    for &'a Matrix<N, R1, C1, SA>
+where
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SA: Storage<N, R1, C1>,
+    SB: Storage<N, R2, C2>,
+    DefaultAllocator: Allocator<N, R1, C2>,
+    ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
+{
     type Output = MatrixMN<N, R1, C2>;
 
     #[inline]
     fn mul(self, rhs: &'b Matrix<N, R2, C2, SB>) -> Self::Output {
-        let mut res = unsafe {
-            Matrix::new_uninitialized_generic(self.data.shape().0, rhs.data.shape().1)
-        };
+        let mut res =
+            unsafe { Matrix::new_uninitialized_generic(self.data.shape().0, rhs.data.shape().1) };
 
         self.mul_to(rhs, &mut res);
         res
@@ -507,12 +518,14 @@ for &'a Matrix<N, R1, C1, SA>
 }
 
 impl<'a, N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<N, R2, C2, SB>>
-for &'a Matrix<N, R1, C1, SA>
-    where N:  Scalar + Zero + One + ClosedAdd + ClosedMul,
-          SB: Storage<N, R2, C2>,
-          SA: Storage<N, R1, C1>,
-          DefaultAllocator: Allocator<N, R1, C2>,
-          ShapeConstraint:  AreMultipliable<R1, C1, R2, C2> {
+    for &'a Matrix<N, R1, C1, SA>
+where
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<N, R2, C2>,
+    SA: Storage<N, R1, C1>,
+    DefaultAllocator: Allocator<N, R1, C2>,
+    ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
+{
     type Output = MatrixMN<N, R1, C2>;
 
     #[inline]
@@ -522,12 +535,14 @@ for &'a Matrix<N, R1, C1, SA>
 }
 
 impl<'b, N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<N, R2, C2, SB>>
-for Matrix<N, R1, C1, SA>
-    where N:  Scalar + Zero + One + ClosedAdd + ClosedMul,
-          SB: Storage<N, R2, C2>,
-          SA: Storage<N, R1, C1>,
-          DefaultAllocator: Allocator<N, R1, C2>,
-          ShapeConstraint:  AreMultipliable<R1, C1, R2, C2> {
+    for Matrix<N, R1, C1, SA>
+where
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<N, R2, C2>,
+    SA: Storage<N, R1, C1>,
+    DefaultAllocator: Allocator<N, R1, C2>,
+    ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
+{
     type Output = MatrixMN<N, R1, C2>;
 
     #[inline]
@@ -537,12 +552,14 @@ for Matrix<N, R1, C1, SA>
 }
 
 impl<N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<N, R2, C2, SB>>
-for Matrix<N, R1, C1, SA>
-    where N:  Scalar + Zero + One + ClosedAdd + ClosedMul,
-          SB: Storage<N, R2, C2>,
-          SA: Storage<N, R1, C1>,
-          DefaultAllocator: Allocator<N, R1, C2>,
-          ShapeConstraint:  AreMultipliable<R1, C1, R2, C2> {
+    for Matrix<N, R1, C1, SA>
+where
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<N, R2, C2>,
+    SA: Storage<N, R1, C1>,
+    DefaultAllocator: Allocator<N, R1, C2>,
+    ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
+{
     type Output = MatrixMN<N, R1, C2>;
 
     #[inline]
@@ -555,12 +572,16 @@ for Matrix<N, R1, C1, SA>
 //    − we can't use `a *= b` when `a` is a mutable slice.
 //    − we can't use `a *= b` when C2 is not equal to C1.
 impl<N, R1, C1, R2, SA, SB> MulAssign<Matrix<N, R2, C1, SB>> for Matrix<N, R1, C1, SA>
-    where R1: Dim, C1: Dim, R2: Dim,
-          N:  Scalar + Zero + One + ClosedAdd + ClosedMul,
-          SB: Storage<N, R2, C1>,
-          SA: ContiguousStorageMut<N, R1, C1> + Clone,
-          ShapeConstraint:  AreMultipliable<R1, C1, R2, C1>,
-          DefaultAllocator: Allocator<N, R1, C1, Buffer = SA> {
+where
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<N, R2, C1>,
+    SA: ContiguousStorageMut<N, R1, C1> + Clone,
+    ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
+    DefaultAllocator: Allocator<N, R1, C1, Buffer = SA>,
+{
     #[inline]
     fn mul_assign(&mut self, rhs: Matrix<N, R2, C1, SB>) {
         *self = &*self * rhs
@@ -568,34 +589,39 @@ impl<N, R1, C1, R2, SA, SB> MulAssign<Matrix<N, R2, C1, SB>> for Matrix<N, R1, C
 }
 
 impl<'b, N, R1, C1, R2, SA, SB> MulAssign<&'b Matrix<N, R2, C1, SB>> for Matrix<N, R1, C1, SA>
-    where R1: Dim, C1: Dim, R2: Dim,
-          N:  Scalar + Zero + One + ClosedAdd + ClosedMul,
-          SB: Storage<N, R2, C1>,
-          SA: ContiguousStorageMut<N, R1, C1> + Clone,
-          ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
-          // FIXME: this is too restrictive. See comments for the non-ref version.
-          DefaultAllocator: Allocator<N, R1, C1, Buffer = SA> {
+where
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<N, R2, C1>,
+    SA: ContiguousStorageMut<N, R1, C1> + Clone,
+    ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
+    // FIXME: this is too restrictive. See comments for the non-ref version.
+    DefaultAllocator: Allocator<N, R1, C1, Buffer = SA>,
+{
     #[inline]
     fn mul_assign(&mut self, rhs: &'b Matrix<N, R2, C1, SB>) {
         *self = &*self * rhs
     }
 }
 
-
 // Transpose-multiplication.
 impl<N, R1: Dim, C1: Dim, SA> Matrix<N, R1, C1, SA>
-    where N:  Scalar + Zero + One + ClosedAdd + ClosedMul,
-          SA: Storage<N, R1, C1> {
+where
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SA: Storage<N, R1, C1>,
+{
     /// Equivalent to `self.transpose() * rhs`.
     #[inline]
     pub fn tr_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> MatrixMN<N, C1, C2>
-        where SB: Storage<N, R2, C2>,
-              DefaultAllocator: Allocator<N, C1, C2>,
-              ShapeConstraint: SameNumberOfRows<R1, R2> {
-
-        let mut res = unsafe {
-            Matrix::new_uninitialized_generic(self.data.shape().1, rhs.data.shape().1)
-        };
+    where
+        SB: Storage<N, R2, C2>,
+        DefaultAllocator: Allocator<N, C1, C2>,
+        ShapeConstraint: SameNumberOfRows<R1, R2>,
+    {
+        let mut res =
+            unsafe { Matrix::new_uninitialized_generic(self.data.shape().1, rhs.data.shape().1) };
 
         self.tr_mul_to(rhs, &mut res);
         res
@@ -604,24 +630,30 @@ impl<N, R1: Dim, C1: Dim, SA> Matrix<N, R1, C1, SA>
     /// Equivalent to `self.transpose() * rhs` but stores the result into `out` to avoid
     /// allocations.
     #[inline]
-    pub fn tr_mul_to<R2: Dim, C2: Dim, SB,
-                     R3: Dim, C3: Dim, SC>(&self,
-                                           rhs: &Matrix<N, R2, C2, SB>,
-                                           out: &mut Matrix<N, R3, C3, SC>)
-        where SB: Storage<N, R2, C2>,
-              SC: StorageMut<N, R3, C3>,
-              ShapeConstraint: SameNumberOfRows<R1, R2> +
-                               DimEq<C1, R3> +
-                               DimEq<C2, C3> {
+    pub fn tr_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
+        &self,
+        rhs: &Matrix<N, R2, C2, SB>,
+        out: &mut Matrix<N, R3, C3, SC>,
+    ) where
+        SB: Storage<N, R2, C2>,
+        SC: StorageMut<N, R3, C3>,
+        ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
+    {
         let (nrows1, ncols1) = self.shape();
         let (nrows2, ncols2) = rhs.shape();
         let (nrows3, ncols3) = out.shape();
 
-        assert!(nrows1 == nrows2, "Matrix multiplication dimensions mismatch.");
-        assert!(nrows3 == ncols1 && ncols3 == ncols2, "Matrix multiplication output dimensions mismatch.");
+        assert!(
+            nrows1 == nrows2,
+            "Matrix multiplication dimensions mismatch."
+        );
+        assert!(
+            nrows3 == ncols1 && ncols3 == ncols2,
+            "Matrix multiplication output dimensions mismatch."
+        );
 
-        for i in 0 .. ncols1 {
-            for j in 0 .. ncols2 {
+        for i in 0..ncols1 {
+            for j in 0..ncols2 {
                 let dot = self.column(i).dot(&rhs.column(j));
                 unsafe { *out.get_unchecked_mut(i, j) = dot };
             }
@@ -630,43 +662,49 @@ impl<N, R1: Dim, C1: Dim, SA> Matrix<N, R1, C1, SA>
 
     /// Equivalent to `self * rhs` but stores the result into `out` to avoid allocations.
     #[inline]
-    pub fn mul_to<R2: Dim, C2: Dim, SB,
-                  R3: Dim, C3: Dim, SC>(&self,
-                                        rhs: &Matrix<N, R2, C2, SB>,
-                                        out: &mut Matrix<N, R3, C3, SC>)
-        where SB: Storage<N, R2, C2>,
-              SC: StorageMut<N, R3, C3>,
-              ShapeConstraint: SameNumberOfRows<R3, R1>    +
-                               SameNumberOfColumns<C3, C2> +
-                               AreMultipliable<R1, C1, R2, C2> {
+    pub fn mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
+        &self,
+        rhs: &Matrix<N, R2, C2, SB>,
+        out: &mut Matrix<N, R3, C3, SC>,
+    ) where
+        SB: Storage<N, R2, C2>,
+        SC: StorageMut<N, R3, C3>,
+        ShapeConstraint: SameNumberOfRows<R3, R1>
+            + SameNumberOfColumns<C3, C2>
+            + AreMultipliable<R1, C1, R2, C2>,
+    {
         out.gemm(N::one(), self, rhs, N::zero());
     }
 
-
     /// The kronecker product of two matrices (aka. tensor product of the corresponding linear
     /// maps).
-    pub fn kronecker<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>)
-                                           -> MatrixMN<N, DimProd<R1, R2>, DimProd<C1, C2>>
-        where N:  ClosedMul,
-              R1: DimMul<R2>,
-              C1: DimMul<C2>,
-              SB: Storage<N, R2, C2>,
-              DefaultAllocator: Allocator<N, DimProd<R1, R2>, DimProd<C1, C2>> {
+    pub fn kronecker<R2: Dim, C2: Dim, SB>(
+        &self,
+        rhs: &Matrix<N, R2, C2, SB>,
+    ) -> MatrixMN<N, DimProd<R1, R2>, DimProd<C1, C2>>
+    where
+        N: ClosedMul,
+        R1: DimMul<R2>,
+        C1: DimMul<C2>,
+        SB: Storage<N, R2, C2>,
+        DefaultAllocator: Allocator<N, DimProd<R1, R2>, DimProd<C1, C2>>,
+    {
         let (nrows1, ncols1) = self.data.shape();
         let (nrows2, ncols2) = rhs.data.shape();
 
-        let mut res = unsafe { Matrix::new_uninitialized_generic(nrows1.mul(nrows2), ncols1.mul(ncols2)) };
+        let mut res =
+            unsafe { Matrix::new_uninitialized_generic(nrows1.mul(nrows2), ncols1.mul(ncols2)) };
 
         {
             let mut data_res = res.data.ptr_mut();
 
-            for j1 in 0 .. ncols1.value() {
-                for j2 in 0 .. ncols2.value() {
-                    for i1 in 0 .. nrows1.value() {
+            for j1 in 0..ncols1.value() {
+                for j2 in 0..ncols2.value() {
+                    for i1 in 0..nrows1.value() {
                         unsafe {
                             let coeff = *self.get_unchecked(i1, j1);
 
-                            for i2 in 0 .. nrows2.value() {
+                            for i2 in 0..nrows2.value() {
                                 *data_res = coeff * *rhs.get_unchecked(i2, j2);
                                 data_res = data_res.offset(1);
                             }
@@ -684,7 +722,9 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     /// Adds a scalar to `self`.
     #[inline]
     pub fn add_scalar(&self, rhs: N) -> MatrixMN<N, R, C>
-        where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         let mut res = self.clone_owned();
         res.add_scalar_mut(rhs);
         res
@@ -693,17 +733,19 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     /// Adds a scalar to `self` in-place.
     #[inline]
     pub fn add_scalar_mut(&mut self, rhs: N)
-        where S: StorageMut<N, R, C> {
+    where
+        S: StorageMut<N, R, C>,
+    {
         for e in self.iter_mut() {
             *e += rhs
         }
     }
 }
 
-
 impl<N, D: DimName> iter::Product for MatrixN<N, D>
-    where N: Scalar + Zero + One + ClosedMul + ClosedAdd,
-          DefaultAllocator: Allocator<N, D, D>
+where
+    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
+    DefaultAllocator: Allocator<N, D, D>,
 {
     fn product<I: Iterator<Item = MatrixN<N, D>>>(iter: I) -> MatrixN<N, D> {
         iter.fold(Matrix::one(), |acc, x| acc * x)
@@ -711,8 +753,9 @@ impl<N, D: DimName> iter::Product for MatrixN<N, D>
 }
 
 impl<'a, N, D: DimName> iter::Product<&'a MatrixN<N, D>> for MatrixN<N, D>
-    where N: Scalar + Zero + One + ClosedMul + ClosedAdd,
-          DefaultAllocator: Allocator<N, D, D>
+where
+    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
+    DefaultAllocator: Allocator<N, D, D>,
 {
     fn product<I: Iterator<Item = &'a MatrixN<N, D>>>(iter: I) -> MatrixN<N, D> {
         iter.fold(Matrix::one(), |acc, x| acc * x)
@@ -740,7 +783,9 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
     #[inline]
     pub fn amin(&self) -> N {
         let mut it = self.iter();
-        let mut min = it.next().expect("amin: empty matrices not supported.").abs();
+        let mut min = it.next()
+            .expect("amin: empty matrices not supported.")
+            .abs();
 
         for e in it {
             let ae = e.abs();

@@ -1,12 +1,12 @@
-use std::ops::{Mul, MulAssign, Div, DivAssign};
+use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use alga::general::Real;
-use core::{DefaultAllocator, Unit, Vector, Vector2, Matrix};
+use core::{DefaultAllocator, Matrix, Unit, Vector, Vector2};
 use core::dimension::{Dim, U1, U2};
 use core::storage::{Storage, StorageMut};
 use core::allocator::Allocator;
-use core::constraint::{ShapeConstraint, DimEq};
-use geometry::{UnitComplex, Rotation, Isometry, Similarity, Translation, Point2};
+use core::constraint::{DimEq, ShapeConstraint};
+use geometry::{Isometry, Point2, Rotation, Similarity, Translation, UnitComplex};
 
 /*
  * This file provides:
@@ -168,7 +168,6 @@ macro_rules! complex_op_impl_all(
     }
 );
 
-
 // UnitComplex × Rotation
 complex_op_impl_all!(
     Mul, mul;
@@ -190,7 +189,6 @@ complex_op_impl_all!(
     [val ref] => &self /  rhs;
     [ref ref] =>  self * UnitComplex::from_rotation_matrix(rhs).inverse();
 );
-
 
 // Rotation × UnitComplex
 complex_op_impl_all!(
@@ -320,10 +318,11 @@ impl<'b, N: Real> DivAssign<&'b UnitComplex<N>> for UnitComplex<N> {
     }
 }
 
-
 // UnitComplex ×= Rotation
 impl<N: Real> MulAssign<Rotation<N, U2>> for UnitComplex<N>
-    where DefaultAllocator: Allocator<N, U2, U2> {
+where
+    DefaultAllocator: Allocator<N, U2, U2>,
+{
     #[inline]
     fn mul_assign(&mut self, rhs: Rotation<N, U2>) {
         *self = &*self * rhs
@@ -331,7 +330,9 @@ impl<N: Real> MulAssign<Rotation<N, U2>> for UnitComplex<N>
 }
 
 impl<'b, N: Real> MulAssign<&'b Rotation<N, U2>> for UnitComplex<N>
-    where DefaultAllocator: Allocator<N, U2, U2> {
+where
+    DefaultAllocator: Allocator<N, U2, U2>,
+{
     #[inline]
     fn mul_assign(&mut self, rhs: &'b Rotation<N, U2>) {
         *self = &*self * rhs
@@ -340,7 +341,9 @@ impl<'b, N: Real> MulAssign<&'b Rotation<N, U2>> for UnitComplex<N>
 
 // UnitComplex ÷= Rotation
 impl<N: Real> DivAssign<Rotation<N, U2>> for UnitComplex<N>
-    where DefaultAllocator: Allocator<N, U2, U2> {
+where
+    DefaultAllocator: Allocator<N, U2, U2>,
+{
     #[inline]
     fn div_assign(&mut self, rhs: Rotation<N, U2>) {
         *self = &*self / rhs
@@ -348,17 +351,20 @@ impl<N: Real> DivAssign<Rotation<N, U2>> for UnitComplex<N>
 }
 
 impl<'b, N: Real> DivAssign<&'b Rotation<N, U2>> for UnitComplex<N>
-    where DefaultAllocator: Allocator<N, U2, U2> {
+where
+    DefaultAllocator: Allocator<N, U2, U2>,
+{
     #[inline]
     fn div_assign(&mut self, rhs: &'b Rotation<N, U2>) {
         *self = &*self / rhs
     }
 }
 
-
 // Rotation ×= UnitComplex
 impl<N: Real> MulAssign<UnitComplex<N>> for Rotation<N, U2>
-    where DefaultAllocator: Allocator<N, U2, U2> {
+where
+    DefaultAllocator: Allocator<N, U2, U2>,
+{
     #[inline]
     fn mul_assign(&mut self, rhs: UnitComplex<N>) {
         self.mul_assign(rhs.to_rotation_matrix())
@@ -366,7 +372,9 @@ impl<N: Real> MulAssign<UnitComplex<N>> for Rotation<N, U2>
 }
 
 impl<'b, N: Real> MulAssign<&'b UnitComplex<N>> for Rotation<N, U2>
-    where DefaultAllocator: Allocator<N, U2, U2> {
+where
+    DefaultAllocator: Allocator<N, U2, U2>,
+{
     #[inline]
     fn mul_assign(&mut self, rhs: &'b UnitComplex<N>) {
         self.mul_assign(rhs.to_rotation_matrix())
@@ -375,7 +383,9 @@ impl<'b, N: Real> MulAssign<&'b UnitComplex<N>> for Rotation<N, U2>
 
 // Rotation ÷= UnitComplex
 impl<N: Real> DivAssign<UnitComplex<N>> for Rotation<N, U2>
-    where DefaultAllocator: Allocator<N, U2, U2> {
+where
+    DefaultAllocator: Allocator<N, U2, U2>,
+{
     #[inline]
     fn div_assign(&mut self, rhs: UnitComplex<N>) {
         self.div_assign(rhs.to_rotation_matrix())
@@ -383,7 +393,9 @@ impl<N: Real> DivAssign<UnitComplex<N>> for Rotation<N, U2>
 }
 
 impl<'b, N: Real> DivAssign<&'b UnitComplex<N>> for Rotation<N, U2>
-    where DefaultAllocator: Allocator<N, U2, U2> {
+where
+    DefaultAllocator: Allocator<N, U2, U2>,
+{
     #[inline]
     fn div_assign(&mut self, rhs: &'b UnitComplex<N>) {
         self.div_assign(rhs.to_rotation_matrix())
@@ -393,14 +405,21 @@ impl<'b, N: Real> DivAssign<&'b UnitComplex<N>> for Rotation<N, U2>
 // Matrix = UnitComplex * Matrix
 impl<N: Real> UnitComplex<N> {
     /// Performs the multiplication `rhs = self * rhs` in-place.
-    pub fn rotate<R2: Dim, C2: Dim, S2: StorageMut<N, R2, C2>>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
-        where ShapeConstraint: DimEq<R2, U2> {
-
-        assert_eq!(rhs.nrows(), 2, "Unit complex rotation: the input matrix must have exactly two rows.");
+    pub fn rotate<R2: Dim, C2: Dim, S2: StorageMut<N, R2, C2>>(
+        &self,
+        rhs: &mut Matrix<N, R2, C2, S2>,
+    ) where
+        ShapeConstraint: DimEq<R2, U2>,
+    {
+        assert_eq!(
+            rhs.nrows(),
+            2,
+            "Unit complex rotation: the input matrix must have exactly two rows."
+        );
         let i = self.as_ref().im;
         let r = self.as_ref().re;
 
-        for j in 0 .. rhs.ncols() {
+        for j in 0..rhs.ncols() {
             unsafe {
                 let a = *rhs.get_unchecked(0, j);
                 let b = *rhs.get_unchecked(1, j);
@@ -412,15 +431,22 @@ impl<N: Real> UnitComplex<N> {
     }
 
     /// Performs the multiplication `lhs = lhs * self` in-place.
-    pub fn rotate_rows<R2: Dim, C2: Dim, S2: StorageMut<N, R2, C2>>(&self, lhs: &mut Matrix<N, R2, C2, S2>)
-        where ShapeConstraint: DimEq<C2, U2> {
-
-        assert_eq!(lhs.ncols(), 2, "Unit complex rotation: the input matrix must have exactly two columns.");
+    pub fn rotate_rows<R2: Dim, C2: Dim, S2: StorageMut<N, R2, C2>>(
+        &self,
+        lhs: &mut Matrix<N, R2, C2, S2>,
+    ) where
+        ShapeConstraint: DimEq<C2, U2>,
+    {
+        assert_eq!(
+            lhs.ncols(),
+            2,
+            "Unit complex rotation: the input matrix must have exactly two columns."
+        );
         let i = self.as_ref().im;
         let r = self.as_ref().re;
 
         // FIXME: can we optimize that to iterate on one column at a time ?
-        for j in 0 .. lhs.nrows() {
+        for j in 0..lhs.nrows() {
             unsafe {
                 let a = *lhs.get_unchecked(j, 0);
                 let b = *lhs.get_unchecked(j, 1);

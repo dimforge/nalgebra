@@ -1,8 +1,8 @@
 use num::{One, Zero};
-use alga::general::{SubsetOf, SupersetOf, ClosedDiv};
+use alga::general::{ClosedDiv, SubsetOf, SupersetOf};
 
-use core::{DefaultAllocator, Scalar, Matrix, VectorN};
-use core::dimension::{DimName, DimNameSum, DimNameAdd, U1};
+use core::{DefaultAllocator, Matrix, Scalar, VectorN};
+use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use core::allocator::Allocator;
 
 use geometry::Point;
@@ -16,11 +16,12 @@ use geometry::Point;
  */
 
 impl<N1, N2, D> SubsetOf<Point<N2, D>> for Point<N1, D>
-    where D: DimName,
-          N1: Scalar,
-          N2: Scalar + SupersetOf<N1>,
-          DefaultAllocator: Allocator<N2, D> +
-                            Allocator<N1, D> {
+where
+    D: DimName,
+    N1: Scalar,
+    N2: Scalar + SupersetOf<N1>,
+    DefaultAllocator: Allocator<N2, D> + Allocator<N1, D>,
+{
     #[inline]
     fn to_superset(&self) -> Point<N2, D> {
         Point::from_coordinates(self.coords.to_superset())
@@ -39,15 +40,16 @@ impl<N1, N2, D> SubsetOf<Point<N2, D>> for Point<N1, D>
     }
 }
 
-
 impl<N1, N2, D> SubsetOf<VectorN<N2, DimNameSum<D, U1>>> for Point<N1, D>
-    where D:  DimNameAdd<U1>,
-          N1: Scalar,
-          N2: Scalar + Zero + One + ClosedDiv + SupersetOf<N1>,
-          DefaultAllocator: Allocator<N1, D>                 +
-                            Allocator<N1, DimNameSum<D, U1>> +
-                            Allocator<N2, DimNameSum<D, U1>> +
-                            Allocator<N2, D> {
+where
+    D: DimNameAdd<U1>,
+    N1: Scalar,
+    N2: Scalar + Zero + One + ClosedDiv + SupersetOf<N1>,
+    DefaultAllocator: Allocator<N1, D>
+        + Allocator<N1, DimNameSum<D, U1>>
+        + Allocator<N2, DimNameSum<D, U1>>
+        + Allocator<N2, D>,
+{
     #[inline]
     fn to_superset(&self) -> VectorN<N2, DimNameSum<D, U1>> {
         let p: Point<N2, D> = self.to_superset();
@@ -56,13 +58,12 @@ impl<N1, N2, D> SubsetOf<VectorN<N2, DimNameSum<D, U1>>> for Point<N1, D>
 
     #[inline]
     fn is_in_subset(v: &VectorN<N2, DimNameSum<D, U1>>) -> bool {
-        ::is_convertible::<_, VectorN<N1, DimNameSum<D, U1>>>(v) &&
-        !v[D::dim()].is_zero()
+        ::is_convertible::<_, VectorN<N1, DimNameSum<D, U1>>>(v) && !v[D::dim()].is_zero()
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(v: &VectorN<N2, DimNameSum<D, U1>>) -> Self {
-        let coords =  v.fixed_slice::<D, U1>(0, 0) / v[D::dim()];
+        let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()];
         Self::from_coordinates(::convert_unchecked(coords))
     }
 }

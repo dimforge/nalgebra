@@ -6,8 +6,8 @@ use std::ops::MulAssign;
 
 use alga::general::Real;
 
-use ::ComplexHelper;
-use na::{Scalar, DefaultAllocator, Matrix, VectorN, MatrixN};
+use ComplexHelper;
+use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
 use na::allocator::Allocator;
@@ -17,46 +17,50 @@ use lapack::fortran as interface;
 /// Eigendecomposition of a real square symmetric matrix with real eigenvalues.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(serialize =
-        "DefaultAllocator: Allocator<N, D, D> +
+           serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: serde::Serialize,
          MatrixN<N, D>: serde::Serialize")))]
 #[cfg_attr(feature = "serde-serialize",
-    serde(bound(deserialize =
-        "DefaultAllocator: Allocator<N, D, D> +
+           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: serde::Deserialize<'de>,
          MatrixN<N, D>: serde::Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Scalar, D: Dim>
-    where DefaultAllocator: Allocator<N, D> +
-    Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+{
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
 
     /// The unsorted eigenvalues of the decomposed matrix.
-    pub eigenvalues:  VectorN<N, D>,
+    pub eigenvalues: VectorN<N, D>,
 }
 
-
 impl<N: Scalar, D: Dim> Copy for SymmetricEigen<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D>,
-          MatrixN<N, D>: Copy,
-          VectorN<N, D>: Copy { }
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    MatrixN<N, D>: Copy,
+    VectorN<N, D>: Copy,
+{
+}
 
 impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
-    where DefaultAllocator: Allocator<N, D, D> +
-                            Allocator<N, D> {
-
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+{
     /// Computes the eigenvalues and eigenvectors of the symmetric matrix `m`.
     ///
     /// Only the lower-triangular part of `m` is read. If `eigenvectors` is `false` then, the
     /// eigenvectors are not computed explicitly. Panics if the method did not converge.
     pub fn new(m: MatrixN<N, D>) -> Self {
-        let (vals, vecs) = Self::do_decompose(m, true).expect("SymmetricEigen: convergence failure.");
-        SymmetricEigen { eigenvalues: vals, eigenvectors: vecs.unwrap() }
+        let (vals, vecs) =
+            Self::do_decompose(m, true).expect("SymmetricEigen: convergence failure.");
+        SymmetricEigen {
+            eigenvalues: vals,
+            eigenvectors: vecs.unwrap(),
+        }
     }
 
     /// Computes the eigenvalues and eigenvectors of the symmetric matrix `m`.
@@ -64,13 +68,20 @@ impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
     /// Only the lower-triangular part of `m` is read. If `eigenvectors` is `false` then, the
     /// eigenvectors are not computed explicitly. Returns `None` if the method did not converge.
     pub fn try_new(m: MatrixN<N, D>) -> Option<Self> {
-        Self::do_decompose(m, true).map(|(vals, vecs)| {
-            SymmetricEigen { eigenvalues: vals, eigenvectors: vecs.unwrap() }
+        Self::do_decompose(m, true).map(|(vals, vecs)| SymmetricEigen {
+            eigenvalues: vals,
+            eigenvectors: vecs.unwrap(),
         })
     }
 
-    fn do_decompose(mut m: MatrixN<N, D>, eigenvectors: bool) -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)> {
-        assert!(m.is_square(), "Unable to compute the eigenvalue decomposition of a non-square matrix.");
+    fn do_decompose(
+        mut m: MatrixN<N, D>,
+        eigenvectors: bool,
+    ) -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)> {
+        assert!(
+            m.is_square(),
+            "Unable to compute the eigenvalue decomposition of a non-square matrix."
+        );
 
         let jobz = if eigenvectors { b'V' } else { b'N' };
 
@@ -87,7 +98,17 @@ impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
 
         let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
 
-        N::xsyev(jobz, b'L', n as i32, m.as_mut_slice(), lda, values.as_mut_slice(), &mut work, lwork, &mut info);
+        N::xsyev(
+            jobz,
+            b'L',
+            n as i32,
+            m.as_mut_slice(),
+            lda,
+            values.as_mut_slice(),
+            &mut work,
+            lwork,
+            &mut info,
+        );
         lapack_check!(info);
 
         let vectors = if eigenvectors { Some(m) } else { None };
@@ -98,7 +119,9 @@ impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
     ///
     /// Panics if the method does not converge.
     pub fn eigenvalues(m: MatrixN<N, D>) -> VectorN<N, D> {
-        Self::do_decompose(m, false).expect("SymmetricEigen eigenvalues: convergence failure.").0
+        Self::do_decompose(m, false)
+            .expect("SymmetricEigen eigenvalues: convergence failure.")
+            .0
     }
 
     /// Computes only the eigenvalues of the input matrix.
@@ -124,7 +147,7 @@ impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
     /// This is useful if some of the eigenvalues have been manually modified.
     pub fn recompose(&self) -> MatrixN<N, D> {
         let mut u_t = self.eigenvectors.clone();
-        for i in 0 .. self.eigenvalues.len() {
+        for i in 0..self.eigenvalues.len() {
             let val = self.eigenvalues[i];
             u_t.column_mut(i).mul_assign(val);
         }
@@ -132,7 +155,6 @@ impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
         &self.eigenvectors * u_t
     }
 }
-
 
 /*
  *
@@ -143,10 +165,20 @@ impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
 /// real matrices.
 pub trait SymmetricEigenScalar: Scalar {
     #[allow(missing_docs)]
-    fn xsyev(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, w: &mut [Self], work: &mut [Self],
-             lwork: i32, info: &mut i32);
+    fn xsyev(
+        jobz: u8,
+        uplo: u8,
+        n: i32,
+        a: &mut [Self],
+        lda: i32,
+        w: &mut [Self],
+        work: &mut [Self],
+        lwork: i32,
+        info: &mut i32,
+    );
     #[allow(missing_docs)]
-    fn xsyev_work_size(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32) -> i32;
+    fn xsyev_work_size(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32)
+        -> i32;
 }
 
 macro_rules! real_eigensystem_scalar_impl (

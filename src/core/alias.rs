@@ -71,7 +71,6 @@ pub type Matrix4x6<N> = MatrixMN<N, U4, U6>;
 /// A stack-allocated, column-major, 5x6 square matrix.
 pub type Matrix5x6<N> = MatrixMN<N, U5, U6>;
 
-
 /// A stack-allocated, column-major, 2x1 square matrix.
 pub type Matrix2x1<N> = MatrixMN<N, U2, U1>;
 /// A stack-allocated, column-major, 3x1 square matrix.
@@ -107,7 +106,6 @@ pub type Matrix6x4<N> = MatrixMN<N, U6, U4>;
 /// A stack-allocated, column-major, 6x5 square matrix.
 pub type Matrix6x5<N> = MatrixMN<N, U6, U5>;
 
-
 /*
  *
  *
@@ -133,7 +131,6 @@ pub type Vector4<N> = VectorN<N, U4>;
 pub type Vector5<N> = VectorN<N, U5>;
 /// A stack-allocated, 6-dimensional column vector.
 pub type Vector6<N> = VectorN<N, U6>;
-
 
 /*
  *

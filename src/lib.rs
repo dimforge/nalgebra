@@ -72,10 +72,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
   generic programming.
 */
 
-
-
-
-
 // #![feature(plugin)]
 //
 // #![plugin(clippy)]
@@ -103,17 +99,16 @@ extern crate abomonation;
 #[cfg(feature = "mint")]
 extern crate mint;
 
-extern crate num_traits as num;
-extern crate num_complex;
-extern crate rand;
 #[macro_use]
 extern crate approx;
-extern crate typenum;
 extern crate generic_array;
 extern crate matrixmultiply;
+extern crate num_complex;
+extern crate num_traits as num;
+extern crate rand;
+extern crate typenum;
 
 extern crate alga;
-
 
 pub mod core;
 pub mod linalg;
@@ -125,17 +120,15 @@ pub use core::*;
 pub use linalg::*;
 pub use geometry::*;
 
-
-use std::cmp::{self, PartialOrd, Ordering};
+use std::cmp::{self, Ordering, PartialOrd};
 
 use num::Signed;
-use alga::general::{Identity, SupersetOf, MeetSemilattice, JoinSemilattice, Lattice, Inverse,
-                    Multiplicative, Additive, AdditiveGroup};
+use alga::general::{Additive, AdditiveGroup, Identity, Inverse, JoinSemilattice, Lattice,
+                    MeetSemilattice, Multiplicative, SupersetOf};
 use alga::linear::SquareMatrix as AlgaSquareMatrix;
-use alga::linear::{InnerSpace, NormedSpace, FiniteDimVectorSpace, EuclideanSpace};
+use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace};
 
-pub use alga::general::{Real, Id};
-
+pub use alga::general::{Id, Real};
 
 /*
  *
@@ -192,8 +185,9 @@ pub fn dimension<V: FiniteDimVectorSpace>() -> usize {
 /// The range must not be empty.
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
-    where T: Copy + PartialOrd + AdditiveGroup {
-
+where
+    T: Copy + PartialOrd + AdditiveGroup,
+{
     assert!(min < max, "Invalid wrapping bounds.");
     let width = max - min;
 
@@ -205,8 +199,7 @@ pub fn wrap<T>(mut val: T, min: T, max: T) -> T
         }
 
         val
-    }
-    else if val > max {
+    } else if val > max {
         val -= width;
 
         while val > max {
@@ -214,8 +207,7 @@ pub fn wrap<T>(mut val: T, min: T, max: T) -> T
         }
 
         val
-    }
-    else {
+    } else {
         val
     }
 }
@@ -231,12 +223,10 @@ pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {
         if val < max {
             val
-        }
-        else {
+        } else {
             max
         }
-    }
-    else {
+    } else {
         min
     }
 }
@@ -313,10 +303,9 @@ pub fn partial_min<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
     if let Some(ord) = a.partial_cmp(b) {
         match ord {
             Ordering::Greater => Some(b),
-            _                 => Some(a),
+            _ => Some(a),
         }
-    }
-    else {
+    } else {
         None
     }
 }
@@ -327,10 +316,9 @@ pub fn partial_max<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
     if let Some(ord) = a.partial_cmp(b) {
         match ord {
             Ordering::Less => Some(b),
-            _              => Some(a),
+            _ => Some(a),
         }
-    }
-    else {
+    } else {
         None
     }
 }
@@ -342,15 +330,12 @@ pub fn partial_clamp<'a, T: PartialOrd>(value: &'a T, min: &'a T, max: &'a T) ->
     if let (Some(cmp_min), Some(cmp_max)) = (value.partial_cmp(min), value.partial_cmp(max)) {
         if cmp_min == Ordering::Less {
             Some(min)
-        }
-        else if cmp_max == Ordering::Greater {
+        } else if cmp_max == Ordering::Greater {
             Some(max)
-        }
-        else {
+        } else {
             Some(value)
         }
-    }
-    else {
+    } else {
         None
     }
 }
@@ -361,10 +346,9 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
     if let Some(ord) = a.partial_cmp(b) {
         match ord {
             Ordering::Less => Some((a, b)),
-            _              => Some((b, a)),
+            _ => Some((b, a)),
         }
-    }
-    else {
+    } else {
         None
     }
 }

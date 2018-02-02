@@ -22,7 +22,7 @@ fn full_piv_lu_decompose_500x500(bh: &mut Bencher) {
 
 #[bench]
 fn full_piv_lu_solve_10x10(bh: &mut Bencher) {
-    let m  = DMatrix::<f64>::new_random(10, 10);
+    let m = DMatrix::<f64>::new_random(10, 10);
     let lu = FullPivLU::new(m.clone());
 
     bh.iter(|| {
@@ -33,7 +33,7 @@ fn full_piv_lu_solve_10x10(bh: &mut Bencher) {
 
 #[bench]
 fn full_piv_lu_solve_100x100(bh: &mut Bencher) {
-    let m  = DMatrix::<f64>::new_random(100, 100);
+    let m = DMatrix::<f64>::new_random(100, 100);
     let lu = FullPivLU::new(m.clone());
 
     bh.iter(|| {
@@ -44,7 +44,7 @@ fn full_piv_lu_solve_100x100(bh: &mut Bencher) {
 
 #[bench]
 fn full_piv_lu_solve_500x500(bh: &mut Bencher) {
-    let m  = DMatrix::<f64>::new_random(500, 500);
+    let m = DMatrix::<f64>::new_random(500, 500);
     let lu = FullPivLU::new(m.clone());
 
     bh.iter(|| {
@@ -55,60 +55,48 @@ fn full_piv_lu_solve_500x500(bh: &mut Bencher) {
 
 #[bench]
 fn full_piv_lu_inverse_10x10(bh: &mut Bencher) {
-    let m  = DMatrix::<f64>::new_random(10, 10);
+    let m = DMatrix::<f64>::new_random(10, 10);
     let lu = FullPivLU::new(m.clone());
 
-    bh.iter(|| {
-        test::black_box(lu.try_inverse())
-    })
+    bh.iter(|| test::black_box(lu.try_inverse()))
 }
 
 #[bench]
 fn full_piv_lu_inverse_100x100(bh: &mut Bencher) {
-    let m  = DMatrix::<f64>::new_random(100, 100);
+    let m = DMatrix::<f64>::new_random(100, 100);
     let lu = FullPivLU::new(m.clone());
 
-    bh.iter(|| {
-        test::black_box(lu.try_inverse())
-    })
+    bh.iter(|| test::black_box(lu.try_inverse()))
 }
 
 #[bench]
 fn full_piv_lu_inverse_500x500(bh: &mut Bencher) {
-    let m  = DMatrix::<f64>::new_random(500, 500);
+    let m = DMatrix::<f64>::new_random(500, 500);
     let lu = FullPivLU::new(m.clone());
 
-    bh.iter(|| {
-        test::black_box(lu.try_inverse())
-    })
+    bh.iter(|| test::black_box(lu.try_inverse()))
 }
 
 #[bench]
 fn full_piv_lu_determinant_10x10(bh: &mut Bencher) {
-    let m  = DMatrix::<f64>::new_random(10, 10);
+    let m = DMatrix::<f64>::new_random(10, 10);
     let lu = FullPivLU::new(m.clone());
 
-    bh.iter(|| {
-        test::black_box(lu.determinant())
-    })
+    bh.iter(|| test::black_box(lu.determinant()))
 }
 
 #[bench]
 fn full_piv_lu_determinant_100x100(bh: &mut Bencher) {
-    let m  = DMatrix::<f64>::new_random(100, 100);
+    let m = DMatrix::<f64>::new_random(100, 100);
     let lu = FullPivLU::new(m.clone());
 
-    bh.iter(|| {
-        test::black_box(lu.determinant())
-    })
+    bh.iter(|| test::black_box(lu.determinant()))
 }
 
 #[bench]
 fn full_piv_lu_determinant_500x500(bh: &mut Bencher) {
-    let m  = DMatrix::<f64>::new_random(500, 500);
+    let m = DMatrix::<f64>::new_random(500, 500);
     let lu = FullPivLU::new(m.clone());
 
-    bh.iter(|| {
-        test::black_box(lu.determinant())
-    })
+    bh.iter(|| test::black_box(lu.determinant()))
 }

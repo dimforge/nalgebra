@@ -3,35 +3,34 @@
 //! Traits and tags for identifying the dimension of all algebraic entities.
 
 use std::fmt::Debug;
-use std::any::{TypeId, Any};
+use std::any::{Any, TypeId};
 use std::cmp;
-use std::ops::{Add, Sub, Mul, Div};
-use typenum::{self, Unsigned, UInt, B1, Bit, UTerm, Sum, Prod, Diff, Quot,
-              Min, Minimum, Max, Maximum};
+use std::ops::{Add, Div, Mul, Sub};
+use typenum::{self, B1, Bit, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, UInt, UTerm,
+              Unsigned};
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Dim of dynamically-sized algebraic entities.
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub struct Dynamic {
-    value: usize
+    value: usize,
 }
 
 impl Dynamic {
     /// A dynamic size equal to `value`.
     #[inline]
     pub fn new(value: usize) -> Dynamic {
-        Dynamic {
-            value: value
-        }
+        Dynamic { value: value }
     }
 }
 
 #[cfg(feature = "serde-serialize")]
 impl Serialize for Dynamic {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer
+    where
+        S: Serializer,
     {
         self.value.serialize(serializer)
     }
@@ -40,19 +39,20 @@ impl Serialize for Dynamic {
 #[cfg(feature = "serde-serialize")]
 impl<'de> Deserialize<'de> for Dynamic {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de>
+    where
+        D: Deserializer<'de>,
     {
         usize::deserialize(deserializer).map(|x| Dynamic { value: x })
     }
 }
 
 /// Trait implemented by `Dynamic`.
-pub trait IsDynamic { }
+pub trait IsDynamic {}
 /// Trait implemented by `Dynamic` and type-level integers different from `U1`.
-pub trait IsNotStaticOne { }
+pub trait IsNotStaticOne {}
 
-impl IsDynamic for Dynamic { }
-impl IsNotStaticOne for Dynamic { }
+impl IsDynamic for Dynamic {}
+impl IsNotStaticOne for Dynamic {}
 
 /// Trait implemented by any type that can be used as a dimension. This includes type-level
 /// integers and `Dynamic` (for dimensions not known at compile-time).
@@ -188,7 +188,6 @@ dim_ops!(
     DimMax, DimNameMax, Max, max, cmp::max, DimMaximum, DimNameMaximum, Maximum;
 );
 
-
 /// Trait implemented exclusively by type-level integers.
 pub trait DimName: Dim {
     type Value: NamedDim<Name = Self>;
@@ -240,7 +239,7 @@ impl DimName for U1 {
     }
 }
 
-impl NamedDim for typenum::U1{
+impl NamedDim for typenum::U1 {
     type Name = U1;
 }
 
@@ -285,46 +284,159 @@ macro_rules! named_dimension(
     )*}
 );
 
-
 // We give explicit names to all Unsigned in [0, 128[
 named_dimension!(
-    U0, /*U1,*/ U2, U3, U4, U5, U6, U7, U8, U9,
-    U10, U11, U12, U13, U14, U15, U16, U17, U18, U19,
-    U20, U21, U22, U23, U24, U25, U26, U27, U28, U29,
-    U30, U31, U32, U33, U34, U35, U36, U37, U38, U39,
-    U40, U41, U42, U43, U44, U45, U46, U47, U48, U49,
-    U50, U51, U52, U53, U54, U55, U56, U57, U58, U59,
-    U60, U61, U62, U63, U64, U65, U66, U67, U68, U69,
-    U70, U71, U72, U73, U74, U75, U76, U77, U78, U79,
-    U80, U81, U82, U83, U84, U85, U86, U87, U88, U89,
-    U90, U91, U92, U93, U94, U95, U96, U97, U98, U99,
-    U100, U101, U102, U103, U104, U105, U106, U107, U108, U109,
-    U110, U111, U112, U113, U114, U115, U116, U117, U118, U119,
-    U120, U121, U122, U123, U124, U125, U126, U127
+    U0,
+    /*U1,*/ U2,
+    U3,
+    U4,
+    U5,
+    U6,
+    U7,
+    U8,
+    U9,
+    U10,
+    U11,
+    U12,
+    U13,
+    U14,
+    U15,
+    U16,
+    U17,
+    U18,
+    U19,
+    U20,
+    U21,
+    U22,
+    U23,
+    U24,
+    U25,
+    U26,
+    U27,
+    U28,
+    U29,
+    U30,
+    U31,
+    U32,
+    U33,
+    U34,
+    U35,
+    U36,
+    U37,
+    U38,
+    U39,
+    U40,
+    U41,
+    U42,
+    U43,
+    U44,
+    U45,
+    U46,
+    U47,
+    U48,
+    U49,
+    U50,
+    U51,
+    U52,
+    U53,
+    U54,
+    U55,
+    U56,
+    U57,
+    U58,
+    U59,
+    U60,
+    U61,
+    U62,
+    U63,
+    U64,
+    U65,
+    U66,
+    U67,
+    U68,
+    U69,
+    U70,
+    U71,
+    U72,
+    U73,
+    U74,
+    U75,
+    U76,
+    U77,
+    U78,
+    U79,
+    U80,
+    U81,
+    U82,
+    U83,
+    U84,
+    U85,
+    U86,
+    U87,
+    U88,
+    U89,
+    U90,
+    U91,
+    U92,
+    U93,
+    U94,
+    U95,
+    U96,
+    U97,
+    U98,
+    U99,
+    U100,
+    U101,
+    U102,
+    U103,
+    U104,
+    U105,
+    U106,
+    U107,
+    U108,
+    U109,
+    U110,
+    U111,
+    U112,
+    U113,
+    U114,
+    U115,
+    U116,
+    U117,
+    U118,
+    U119,
+    U120,
+    U121,
+    U122,
+    U123,
+    U124,
+    U125,
+    U126,
+    U127
 );
 
 // For values greater than U1023, just use the typenum binary representation directly.
-impl<A: Bit + Any + Debug + Copy + PartialEq + Send,
-     B: Bit + Any + Debug + Copy + PartialEq + Send,
-     C: Bit + Any + Debug + Copy + PartialEq + Send,
-     D: Bit + Any + Debug + Copy + PartialEq + Send,
-     E: Bit + Any + Debug + Copy + PartialEq + Send,
-     F: Bit + Any + Debug + Copy + PartialEq + Send,
-     G: Bit + Any + Debug + Copy + PartialEq + Send>
-NamedDim
-for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G> {
+impl<
+    A: Bit + Any + Debug + Copy + PartialEq + Send,
+    B: Bit + Any + Debug + Copy + PartialEq + Send,
+    C: Bit + Any + Debug + Copy + PartialEq + Send,
+    D: Bit + Any + Debug + Copy + PartialEq + Send,
+    E: Bit + Any + Debug + Copy + PartialEq + Send,
+    F: Bit + Any + Debug + Copy + PartialEq + Send,
+    G: Bit + Any + Debug + Copy + PartialEq + Send,
+> NamedDim for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G> {
     type Name = Self;
 }
 
-impl<A: Bit + Any + Debug + Copy + PartialEq + Send,
-     B: Bit + Any + Debug + Copy + PartialEq + Send,
-     C: Bit + Any + Debug + Copy + PartialEq + Send,
-     D: Bit + Any + Debug + Copy + PartialEq + Send,
-     E: Bit + Any + Debug + Copy + PartialEq + Send,
-     F: Bit + Any + Debug + Copy + PartialEq + Send,
-     G: Bit + Any + Debug + Copy + PartialEq + Send>
-Dim
-for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G> {
+impl<
+    A: Bit + Any + Debug + Copy + PartialEq + Send,
+    B: Bit + Any + Debug + Copy + PartialEq + Send,
+    C: Bit + Any + Debug + Copy + PartialEq + Send,
+    D: Bit + Any + Debug + Copy + PartialEq + Send,
+    E: Bit + Any + Debug + Copy + PartialEq + Send,
+    F: Bit + Any + Debug + Copy + PartialEq + Send,
+    G: Bit + Any + Debug + Copy + PartialEq + Send,
+> Dim for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G> {
     #[inline]
     fn try_to_usize() -> Option<usize> {
         Some(Self::to_usize())
@@ -342,15 +454,15 @@ for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, 
     }
 }
 
-impl<A: Bit + Any + Debug + Copy + PartialEq + Send,
-     B: Bit + Any + Debug + Copy + PartialEq + Send,
-     C: Bit + Any + Debug + Copy + PartialEq + Send,
-     D: Bit + Any + Debug + Copy + PartialEq + Send,
-     E: Bit + Any + Debug + Copy + PartialEq + Send,
-     F: Bit + Any + Debug + Copy + PartialEq + Send,
-     G: Bit + Any + Debug + Copy + PartialEq + Send>
-DimName
-for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G> {
+impl<
+    A: Bit + Any + Debug + Copy + PartialEq + Send,
+    B: Bit + Any + Debug + Copy + PartialEq + Send,
+    C: Bit + Any + Debug + Copy + PartialEq + Send,
+    D: Bit + Any + Debug + Copy + PartialEq + Send,
+    E: Bit + Any + Debug + Copy + PartialEq + Send,
+    F: Bit + Any + Debug + Copy + PartialEq + Send,
+    G: Bit + Any + Debug + Copy + PartialEq + Send,
+> DimName for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G> {
     type Value = Self;
 
     #[inline]
@@ -359,20 +471,20 @@ for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, 
     }
 }
 
-impl<A: Bit + Any + Debug + Copy + PartialEq + Send,
-     B: Bit + Any + Debug + Copy + PartialEq + Send,
-     C: Bit + Any + Debug + Copy + PartialEq + Send,
-     D: Bit + Any + Debug + Copy + PartialEq + Send,
-     E: Bit + Any + Debug + Copy + PartialEq + Send,
-     F: Bit + Any + Debug + Copy + PartialEq + Send,
-     G: Bit + Any + Debug + Copy + PartialEq + Send>
-IsNotStaticOne
-for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G> {
+impl<
+    A: Bit + Any + Debug + Copy + PartialEq + Send,
+    B: Bit + Any + Debug + Copy + PartialEq + Send,
+    C: Bit + Any + Debug + Copy + PartialEq + Send,
+    D: Bit + Any + Debug + Copy + PartialEq + Send,
+    E: Bit + Any + Debug + Copy + PartialEq + Send,
+    F: Bit + Any + Debug + Copy + PartialEq + Send,
+    G: Bit + Any + Debug + Copy + PartialEq + Send,
+> IsNotStaticOne
+    for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G> {
 }
 
-
-
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send> NamedDim for UInt<U, B> {
+impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send> NamedDim
+    for UInt<U, B> {
     type Name = UInt<U, B>;
 }
 
@@ -403,5 +515,6 @@ impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send> DimN
     }
 }
 
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send> IsNotStaticOne for UInt<U, B> {
+impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send> IsNotStaticOne
+    for UInt<U, B> {
 }

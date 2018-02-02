@@ -1,14 +1,13 @@
-use alga::general::{AbstractMagma, AbstractGroup, AbstractLoop, AbstractMonoid, AbstractQuasigroup,
-                    AbstractSemigroup, Real, Inverse, Multiplicative, Identity};
-use alga::linear::{Transformation, AffineTransformation, Rotation, ProjectiveTransformation};
+use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
+                    AbstractQuasigroup, AbstractSemigroup, Identity, Inverse, Multiplicative, Real};
+use alga::linear::{AffineTransformation, ProjectiveTransformation, Rotation, Transformation};
 use alga::linear::Similarity as AlgaSimilarity;
 
 use core::{DefaultAllocator, VectorN};
 use core::dimension::DimName;
 use core::allocator::Allocator;
 
-use geometry::{Similarity, Translation, Point};
-
+use geometry::{Point, Similarity, Translation};
 
 /*
  *
@@ -16,8 +15,10 @@ use geometry::{Similarity, Translation, Point};
  *
  */
 impl<N: Real, D: DimName, R> Identity<Multiplicative> for Similarity<N, D, R>
-    where R: Rotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: Rotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn identity() -> Self {
         Self::identity()
@@ -25,8 +26,10 @@ impl<N: Real, D: DimName, R> Identity<Multiplicative> for Similarity<N, D, R>
 }
 
 impl<N: Real, D: DimName, R> Inverse<Multiplicative> for Similarity<N, D, R>
-    where R: Rotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: Rotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn inverse(&self) -> Self {
         self.inverse()
@@ -39,8 +42,10 @@ impl<N: Real, D: DimName, R> Inverse<Multiplicative> for Similarity<N, D, R>
 }
 
 impl<N: Real, D: DimName, R> AbstractMagma<Multiplicative> for Similarity<N, D, R>
-    where R: Rotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: Rotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
@@ -69,8 +74,10 @@ impl_multiplicative_structures!(
  *
  */
 impl<N: Real, D: DimName, R> Transformation<Point<N, D>> for Similarity<N, D, R>
-    where R: Rotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: Rotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self * pt
@@ -83,8 +90,10 @@ impl<N: Real, D: DimName, R> Transformation<Point<N, D>> for Similarity<N, D, R>
 }
 
 impl<N: Real, D: DimName, R> ProjectiveTransformation<Point<N, D>> for Similarity<N, D, R>
-    where R: Rotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: Rotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self.isometry.inverse_transform_point(pt) / self.scaling()
@@ -97,15 +106,22 @@ impl<N: Real, D: DimName, R> ProjectiveTransformation<Point<N, D>> for Similarit
 }
 
 impl<N: Real, D: DimName, R> AffineTransformation<Point<N, D>> for Similarity<N, D, R>
-    where R: Rotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: Rotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     type NonUniformScaling = N;
-    type Rotation          = R;
-    type Translation       = Translation<N, D>;
+    type Rotation = R;
+    type Translation = Translation<N, D>;
 
     #[inline]
     fn decompose(&self) -> (Translation<N, D>, R, N, R) {
-        (self.isometry.translation.clone(), self.isometry.rotation.clone(), self.scaling(), R::identity())
+        (
+            self.isometry.translation.clone(),
+            self.isometry.rotation.clone(),
+            self.scaling(),
+            R::identity(),
+        )
     }
 
     #[inline]
@@ -147,8 +163,10 @@ impl<N: Real, D: DimName, R> AffineTransformation<Point<N, D>> for Similarity<N,
 }
 
 impl<N: Real, D: DimName, R> AlgaSimilarity<Point<N, D>> for Similarity<N, D, R>
-    where R: Rotation<Point<N, D>>,
-          DefaultAllocator: Allocator<N, D> {
+where
+    R: Rotation<Point<N, D>>,
+    DefaultAllocator: Allocator<N, D>,
+{
     type Scaling = N;
 
     #[inline]

@@ -1,6 +1,5 @@
 //! Construction of givens rotations.
 
-
 use alga::general::Real;
 use num_complex::Complex;
 
@@ -10,7 +9,6 @@ use core::dimension::U2;
 
 use geometry::UnitComplex;
 
-
 /// Computes the rotation `R` required such that the `y` component of `R * v` is zero.
 ///
 /// Returns `None` if no rotation is needed (i.e. if `v.y == 0`). Otherwise, this returns the norm
@@ -19,8 +17,7 @@ pub fn cancel_y<N: Real, S: Storage<N, U2>>(v: &Vector<N, U2, S>) -> Option<(Uni
     if !v[1].is_zero() {
         let c = Complex::new(v[0], -v[1]);
         Some(UnitComplex::from_complex_and_get(c))
-    }
-    else {
+    } else {
         None
     }
 }
@@ -33,8 +30,7 @@ pub fn cancel_x<N: Real, S: Storage<N, U2>>(v: &Vector<N, U2, S>) -> Option<(Uni
     if !v[0].is_zero() {
         let c = Complex::new(v[1], v[0]);
         Some(UnitComplex::from_complex_and_get(c))
-    }
-    else {
+    } else {
         None
     }
 }

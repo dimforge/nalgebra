@@ -18,4 +18,3 @@ quickcheck! {
         relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7)
     }
 }
-
