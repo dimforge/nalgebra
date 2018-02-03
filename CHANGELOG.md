@@ -4,28 +4,38 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.14.0] − WIP
+## [0.14.0]
 ### Modified
-  * `quadform` has been renamed `quadform_tr`. The new `quadform` method takes
-    the matrix on the right-hand-side instead of the matrix on the
-    left-hand-side of the quadratic form.
+  * Allow the `Isometry * Unit<Vector>` multiplication.
 ### Added
-  * The `mint` feature that can be enabled in order to allow conversions from
-    and to types of the [mint](https://crates.io/crates/mint) crate.
-  * The `::repeat(...)` constructor that is an alternative name to
-    `::from_element(...)`.
-  * The `.iamin()` methods that returns the index of the vector entry with
-    smallest absolute value.
-  * Add blas-like operations: `cmpy, cdpy` for componentwise multiplicatons and
+  * Add blas-like operations: `.quadform` and `.quadform_tr` to compute respectively
+    the quadratic forms `self = alpha * A.transpose() * B * A + beta * self` and
+    `alpha * A * B * A.transpose() + beta * self`. Here, `A, B` are matrices with
+    `B` square, and `alpha, beta` are reals.
+  * Add blas-like operations: `.gemv_tr` that behaves like `.gemv` except that the
+    provided matrix is assumed to be transposed.
+  * Add blas-like operations: `cmpy, cdpy` for component-wise multiplications and
     division with scalar factors:
         - `self <- alpha * self + beta * a * b`
         - `self <- alpha * self + beta / a * b`
+  * `.cross_matrix()` returns the cross-product matrix of a given 3D vector, i.e.,
+    the matrix `M` such that for all vector `v` we have
+    `M * v == self.cross(&v)`.
+  * `.iamin()` that returns the index of the vector entry with
+    smallest absolute value.
+  * The `mint` feature that can be enabled in order to allow conversions from
+    and to types of the [mint](https://crates.io/crates/mint) crate.
+  * Aliases for matrix and vector slices. Their are named by adding `Slice`
+    before the dimension numbers, i.e., a 3x5 matrix slice with dimensions known
+    at compile-time is called `MatrixSlice3x5`. A vector slice with dimensions
+    unknown at compile-time is called `DVectorSlice`.
+  * Add functions for constructing matrix slices from a slice `&[N]`, i.e.,
+    `::new()` and `::new_with_strides()`.
+  * The `::repeat(...)` constructor that is an alternative name to
+    `::from_element(...)`.
   * `UnitQuaternion::scaled_rotation_between_axis` and
     `UnitQuaternion::rotation_between_axis` that take Unit vectors instead of
     Vector as arguments.
-  * `.cross_matrix()` returns the cross-product matrix of a given vector, i.e.,
-    the matrix `M` such that for all vector `v` we have `M * v ==
-    self.cross(&v)`.
 
 
 
