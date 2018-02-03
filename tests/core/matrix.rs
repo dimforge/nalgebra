@@ -59,9 +59,9 @@ fn iter() {
 
 #[test]
 fn debug_output_corresponds_to_data_container() {
-    assert_eq!(
-        format!("{:?}", Matrix2::new(1.0, 2.0, 3.0, 4.0)),
-        "Matrix { data: [1.0, 3.0, 2.0, 4.0] }"
+    assert!(
+        format!("{:?}", Matrix2::new(1.0, 2.0, 3.0, 4.0)) == "Matrix { data: [1, 3, 2, 4] }" || // Current output on the stable chanel.
+        format!("{:?}", Matrix2::new(1.0, 2.0, 3.0, 4.0)) == "Matrix { data: [1.0, 3.0, 2.0, 4.0] }" // Current output on the nightyl chanel.
     );
 }
 
