@@ -21,7 +21,7 @@ netlib     = ["lapack/netlib"]
 accelerate = ["lapack/accelerate"]
 
 [dependencies]
-nalgebra      = { version = "0.13", path = ".." }
+nalgebra      = { version = "0.14", path = ".." }
 num-traits    = "0.1"
 num-complex   = "0.1"
 alga          = "0.5"
@@ -34,7 +34,7 @@ version          = "0.11"
 default-features = false
 
 [dev-dependencies]
-nalgebra   = { version = "0.13", path = "..", features = [ "arbitrary" ] }
+nalgebra   = { version = "0.14", path = "..", features = [ "arbitrary" ] }
 quickcheck = "0.4"
 approx     = "0.1"
-rand       = "0.3"
+rand       = "0.4"
