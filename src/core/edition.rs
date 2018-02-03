@@ -671,6 +671,8 @@ unsafe fn compress_rows<N: Scalar>(
     );
 }
 
+// Moves entries of a matrix buffer to make place for `ninsert` emty rows starting at the `i-th` row index.
+// The `data` buffer is assumed to contained at least `(nrows + ninsert) * ncols` elements.
 unsafe fn extend_rows<N: Scalar>(
     data: &mut [N],
     nrows: usize,
