@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/geometry/quaternion.rs`.">
+    <meta name="description" content="Source to the Rust file `src\geometry\quaternion.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>quaternion.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -634,6 +645,46 @@
 <span id="589">589</span>
 <span id="590">590</span>
 <span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>;
@@ -650,9 +701,9 @@
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Unit</span>, <span class="ident">Vector3</span>, <span class="ident">Vector4</span>, <span class="ident">MatrixSlice</span>, <span class="ident">MatrixSliceMut</span>, <span class="ident">SquareMatrix</span>, <span class="ident">MatrixN</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Matrix3</span>, <span class="ident">MatrixN</span>, <span class="ident">MatrixSlice</span>, <span class="ident">MatrixSliceMut</span>, <span class="ident">Unit</span>, <span class="ident">Vector3</span>, <span class="ident">Vector4</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">U1</span>, <span class="ident">U3</span>, <span class="ident">U4</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">RStride</span>, <span class="ident">CStride</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">CStride</span>, <span class="ident">RStride</span>};
 
 <span class="kw">use</span> <span class="ident">geometry</span>::<span class="ident">Rotation</span>;
 
@@ -662,12 +713,13 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> {
     <span class="doccomment">/// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.</span>
-    <span class="kw">pub</span> <span class="ident">coords</span>: <span class="ident">Vector4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="ident">coords</span>: <span class="ident">Vector4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Abomonation</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">Vector4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>: <span class="ident">Abomonation</span>
+<span class="kw">where</span>
+    <span class="ident">Vector4</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>: <span class="ident">Abomonation</span>,
 {
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">entomb</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">entomb</span>(<span class="ident">writer</span>)
@@ -682,7 +734,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">Eq</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> { }
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">Eq</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
@@ -698,7 +750,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> { }
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -709,24 +761,30 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">serde</span>::<span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U4</span><span class="op">&gt;</span>: <span class="ident">serde</span>::<span class="ident">Serialize</span> {
-
+<span class="kw">where</span>
+    <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U4</span><span class="op">&gt;</span>: <span class="ident">serde</span>::<span class="ident">Serialize</span>,
+{
     <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="prelude-val">Ok</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">S</span>: <span class="ident">serde</span>::<span class="ident">Serializer</span> {
-            <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
-        }
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">serde</span>::<span class="ident">Serializer</span>,
+    {
+        <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
+    }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U4</span><span class="op">&gt;</span>: <span class="ident">serde</span>::<span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-
+<span class="kw">where</span>
+    <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U4</span><span class="op">&gt;</span>: <span class="ident">serde</span>::<span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+{
     <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">Des</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">Des</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Des</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">Des</span>: <span class="ident">serde</span>::<span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">coords</span> <span class="op">=</span> <span class="ident">Vector4</span>::<span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>::<span class="ident">deserialize</span>(<span class="ident">deserializer</span>)<span class="question-mark">?</span>;
+    <span class="kw">where</span>
+        <span class="ident">Des</span>: <span class="ident">serde</span>::<span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">let</span> <span class="ident">coords</span> <span class="op">=</span> <span class="ident">Vector4</span>::<span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>::<span class="ident">deserialize</span>(<span class="ident">deserializer</span>)<span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(<span class="ident">Quaternion</span>::<span class="ident">from_vector</span>(<span class="ident">coords</span>))
-        }
+        <span class="prelude-val">Ok</span>(<span class="ident">Quaternion</span>::<span class="ident">from_vector</span>(<span class="ident">coords</span>))
+    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
@@ -753,7 +811,12 @@
     <span class="doccomment">/// Compute the conjugate of this quaternion.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conjugate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">Vector4</span>::<span class="ident">new</span>(<span class="op">-</span><span class="self">self</span>.<span class="ident">coords</span>[<span class="number">0</span>], <span class="op">-</span><span class="self">self</span>.<span class="ident">coords</span>[<span class="number">1</span>], <span class="op">-</span><span class="self">self</span>.<span class="ident">coords</span>[<span class="number">2</span>], <span class="self">self</span>.<span class="ident">coords</span>[<span class="number">3</span>]);
+        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">Vector4</span>::<span class="ident">new</span>(
+            <span class="op">-</span><span class="self">self</span>.<span class="ident">coords</span>[<span class="number">0</span>],
+            <span class="op">-</span><span class="self">self</span>.<span class="ident">coords</span>[<span class="number">1</span>],
+            <span class="op">-</span><span class="self">self</span>.<span class="ident">coords</span>[<span class="number">2</span>],
+            <span class="self">self</span>.<span class="ident">coords</span>[<span class="number">3</span>],
+        );
         <span class="ident">Quaternion</span>::<span class="ident">from_vector</span>(<span class="ident">v</span>)
     }
 
@@ -764,8 +827,7 @@
 
         <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">try_inverse_mut</span>() {
             <span class="prelude-val">Some</span>(<span class="ident">res</span>)
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
     }
@@ -816,12 +878,10 @@
                 <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">q</span>.<span class="ident">angle</span>() <span class="op">/</span> ::<span class="ident">convert</span>(<span class="number">2.0f64</span>);
 
                 (<span class="ident">n</span>, <span class="ident">angle</span>, <span class="prelude-val">Some</span>(<span class="ident">axis</span>))
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 (<span class="ident">n</span>, <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="prelude-val">None</span>)
             }
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             (<span class="ident">N</span>::<span class="ident">zero</span>(), <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="prelude-val">None</span>)
         }
     }
@@ -829,15 +889,14 @@
     <span class="doccomment">/// Compute the exponential of a quaternion.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">v</span>  <span class="op">=</span> <span class="self">self</span>.<span class="ident">vector</span>();
+        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">vector</span>();
         <span class="kw">let</span> <span class="ident">nn</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">norm_squared</span>();
 
         <span class="kw">if</span> <span class="macro">relative_eq</span><span class="macro">!</span>(<span class="ident">nn</span>, <span class="ident">N</span>::<span class="ident">zero</span>()) {
             <span class="ident">Quaternion</span>::<span class="ident">identity</span>()
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">w_exp</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scalar</span>().<span class="ident">exp</span>();
-            <span class="kw">let</span> <span class="ident">n</span>  <span class="op">=</span> <span class="ident">nn</span>.<span class="ident">sqrt</span>();
+            <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">nn</span>.<span class="ident">sqrt</span>();
             <span class="kw">let</span> <span class="ident">nv</span> <span class="op">=</span> <span class="ident">v</span> <span class="op">*</span> (<span class="ident">w_exp</span> <span class="op">*</span> <span class="ident">n</span>.<span class="ident">sin</span>() <span class="op">/</span> <span class="ident">n</span>);
 
             <span class="ident">Quaternion</span>::<span class="ident">from_parts</span>(<span class="ident">n</span>.<span class="ident">cos</span>(), <span class="ident">nv</span>)
@@ -851,7 +910,7 @@
         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">vector</span>();
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scalar</span>();
 
-        <span class="ident">Quaternion</span>::<span class="ident">from_parts</span>(<span class="ident">n</span>.<span class="ident">ln</span>(), <span class="ident">v</span>.<span class="ident">normalize</span>() <span class="op">*</span>  (<span class="ident">s</span> <span class="op">/</span> <span class="ident">n</span>).<span class="ident">acos</span>())
+        <span class="ident">Quaternion</span>::<span class="ident">from_parts</span>(<span class="ident">n</span>.<span class="ident">ln</span>(), <span class="ident">v</span>.<span class="ident">normalize</span>() <span class="op">*</span> (<span class="ident">s</span> <span class="op">/</span> <span class="ident">n</span>).<span class="ident">acos</span>())
     }
 
     <span class="doccomment">/// Raise the quaternion to a given floating power.</span>
@@ -868,7 +927,9 @@
 
     <span class="doccomment">/// The mutable vector part `(i, j, k)` of this quaternion.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vector_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">MatrixSliceMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="ident">U1</span>, <span class="ident">RStride</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U4</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">CStride</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U4</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vector_mut</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixSliceMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U3</span>, <span class="ident">U1</span>, <span class="ident">RStride</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U4</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">CStride</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U4</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
         <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">fixed_rows_mut</span>::<span class="op">&lt;</span><span class="ident">U3</span><span class="op">&gt;</span>(<span class="number">0</span>)
     }
 
@@ -887,8 +948,7 @@
 
         <span class="kw">if</span> <span class="macro">relative_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">norm_squared</span>, <span class="kw-2">&amp;</span><span class="ident">N</span>::<span class="ident">zero</span>()) {
             <span class="bool-val">false</span>
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">conjugate_mut</span>();
             <span class="self">self</span>.<span class="ident">coords</span> <span class="op">/=</span> <span class="ident">norm_squared</span>;
 
@@ -922,7 +982,12 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">relative_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">epsilon</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>, <span class="ident">max_relative</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">relative_eq</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>,
+        <span class="ident">epsilon</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>,
+        <span class="ident">max_relative</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">as_vector</span>().<span class="ident">relative_eq</span>(<span class="ident">other</span>.<span class="ident">as_vector</span>(), <span class="ident">epsilon</span>, <span class="ident">max_relative</span>) <span class="op">||</span>
         <span class="comment">// Account for the double-covering of S², i.e. q = -q</span>
        <span class="self">self</span>.<span class="ident">as_vector</span>().<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">other</span>.<span class="ident">as_vector</span>().<span class="ident">iter</span>()).<span class="ident">all</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="ident">b</span>)<span class="op">|</span> <span class="ident">a</span>.<span class="ident">relative_eq</span>(<span class="kw-2">&amp;</span><span class="op">-</span><span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">epsilon</span>, <span class="ident">max_relative</span>))
@@ -936,16 +1001,18 @@
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">fmt</span>::<span class="ident">Display</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;Quaternion {} − ({}, {}, {})&quot;</span>, <span class="self">self</span>[<span class="number">3</span>], <span class="self">self</span>[<span class="number">0</span>], <span class="self">self</span>[<span class="number">1</span>], <span class="self">self</span>[<span class="number">2</span>])
+        <span class="macro">write</span><span class="macro">!</span>(
+            <span class="ident">f</span>,
+            <span class="string">&quot;Quaternion {} − ({}, {}, {})&quot;</span>,
+            <span class="self">self</span>[<span class="number">3</span>], <span class="self">self</span>[<span class="number">0</span>], <span class="self">self</span>[<span class="number">1</span>], <span class="self">self</span>[<span class="number">2</span>]
+        )
     }
 }
 
 <span class="doccomment">/// A unit quaternions. May be used to represent a rotation.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>;
-
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Moves this unit quaternion into one that owns its data.</span>
@@ -970,8 +1037,7 @@
         <span class="comment">// Handle innacuracies that make break `.acos`.</span>
         <span class="kw">if</span> <span class="ident">w</span> <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">one</span>() {
             <span class="ident">N</span>::<span class="ident">zero</span>()
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="ident">w</span>.<span class="ident">acos</span>() <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">2.0f64</span>)
         }
     }
@@ -1036,7 +1102,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slerp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">t</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">try_slerp</span>(<span class="ident">other</span>, <span class="ident">t</span>, <span class="ident">N</span>::<span class="ident">zero</span>()).<span class="ident">expect</span>(
             <span class="string">&quot;Unable to perform a spherical quaternion interpolation when they \
-             are 180 degree apart (the result is not unique).&quot;</span>)
+             are 180 degree apart (the result is not unique).&quot;</span>,
+        )
     }
 
     <span class="doccomment">/// Computes the spherical linear interpolation between two unit quaternions or returns `None`</span>
@@ -1047,28 +1114,31 @@
     <span class="doccomment">/// * `self`: the first quaternion to interpolate from.</span>
     <span class="doccomment">/// * `other`: the second quaternion to interpolate toward.</span>
     <span class="doccomment">/// * `t`: the interpolation parameter. Should be between 0 and 1.</span>
-    <span class="doccomment">/// * `epsilon`: the value bellow which the sinus of the angle separating both quaternion</span>
+    <span class="doccomment">/// * `epsilon`: the value below which the sinus of the angle separating both quaternion</span>
     <span class="doccomment">/// must be to return `None`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_slerp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">t</span>: <span class="ident">N</span>, <span class="ident">epsilon</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_slerp</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+        <span class="ident">t</span>: <span class="ident">N</span>,
+        <span class="ident">epsilon</span>: <span class="ident">N</span>,
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="ident">c_hang</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">coords</span>.<span class="ident">dot</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">coords</span>);
 
         <span class="comment">// self == other</span>
         <span class="kw">if</span> <span class="ident">c_hang</span>.<span class="ident">abs</span>() <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">one</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="self">self</span>)
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="self">self</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">hang</span>   <span class="op">=</span> <span class="ident">c_hang</span>.<span class="ident">acos</span>();
+        <span class="kw">let</span> <span class="ident">hang</span> <span class="op">=</span> <span class="ident">c_hang</span>.<span class="ident">acos</span>();
         <span class="kw">let</span> <span class="ident">s_hang</span> <span class="op">=</span> (<span class="ident">N</span>::<span class="ident">one</span>() <span class="op">-</span> <span class="ident">c_hang</span> <span class="op">*</span> <span class="ident">c_hang</span>).<span class="ident">sqrt</span>();
 
         <span class="comment">// FIXME: what if s_hang is 0.0 ? The result is not well-defined.</span>
         <span class="kw">if</span> <span class="macro">relative_eq</span><span class="macro">!</span>(<span class="ident">s_hang</span>, <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="ident">epsilon</span> <span class="op">=</span> <span class="ident">epsilon</span>) {
             <span class="prelude-val">None</span>
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">ta</span> <span class="op">=</span> ((<span class="ident">N</span>::<span class="ident">one</span>() <span class="op">-</span> <span class="ident">t</span>) <span class="op">*</span> <span class="ident">hang</span>).<span class="ident">sin</span>() <span class="op">/</span> <span class="ident">s_hang</span>;
-            <span class="kw">let</span> <span class="ident">tb</span> <span class="op">=</span> (<span class="ident">t</span> <span class="op">*</span> <span class="ident">hang</span>).<span class="ident">sin</span>() <span class="op">/</span> <span class="ident">s_hang</span>; 
+            <span class="kw">let</span> <span class="ident">tb</span> <span class="op">=</span> (<span class="ident">t</span> <span class="op">*</span> <span class="ident">hang</span>).<span class="ident">sin</span>() <span class="op">/</span> <span class="ident">s_hang</span>;
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>() <span class="op">*</span> <span class="ident">ta</span> <span class="op">+</span> <span class="ident">other</span>.<span class="ident">as_ref</span>() <span class="op">*</span> <span class="ident">tb</span>;
 
             <span class="prelude-val">Some</span>(<span class="ident">UnitQuaternion</span>::<span class="ident">new_unchecked</span>(<span class="ident">res</span>))
@@ -1090,25 +1160,21 @@
     <span class="doccomment">/// The rotation axis of this unit quaternion or `None` if the rotation is zero.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">axis</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quaternion</span>().<span class="ident">scalar</span>() <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">zero</span>() {
-                <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">vector</span>().<span class="ident">clone_owned</span>()
-            }
-            <span class="kw">else</span> {
-                <span class="op">-</span><span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">vector</span>()
-            };
+        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quaternion</span>().<span class="ident">scalar</span>() <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">zero</span>() {
+            <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">vector</span>().<span class="ident">clone_owned</span>()
+        } <span class="kw">else</span> {
+            <span class="op">-</span><span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">vector</span>()
+        };
 
         <span class="ident">Unit</span>::<span class="ident">try_new</span>(<span class="ident">v</span>, <span class="ident">N</span>::<span class="ident">zero</span>())
     }
-
 
     <span class="doccomment">/// The rotation axis of this unit quaternion multiplied by the rotation agle.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scaled_axis</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vector3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">axis</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">axis</span>() {
             <span class="ident">axis</span>.<span class="ident">unwrap</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">angle</span>()
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="ident">Vector3</span>::<span class="ident">zero</span>()
         }
     }
@@ -1130,8 +1196,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ln</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">axis</span>() {
             <span class="ident">Quaternion</span>::<span class="ident">from_parts</span>(<span class="ident">N</span>::<span class="ident">zero</span>(), <span class="ident">v</span>.<span class="ident">unwrap</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">angle</span>())
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="ident">Quaternion</span>::<span class="ident">zero</span>()
         }
     }
@@ -1144,8 +1209,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">powf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">n</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">axis</span>() {
             <span class="ident">UnitQuaternion</span>::<span class="ident">from_axis_angle</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>, <span class="self">self</span>.<span class="ident">angle</span>() <span class="op">*</span> <span class="ident">n</span>)
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="ident">UnitQuaternion</span>::<span class="ident">identity</span>()
         }
     }
@@ -1169,13 +1233,25 @@
         <span class="kw">let</span> <span class="ident">jk</span> <span class="op">=</span> <span class="ident">j</span> <span class="op">*</span> <span class="ident">k</span> <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">2.0f64</span>);
         <span class="kw">let</span> <span class="ident">wi</span> <span class="op">=</span> <span class="ident">w</span> <span class="op">*</span> <span class="ident">i</span> <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">2.0f64</span>);
 
-        <span class="ident">Rotation</span>::<span class="ident">from_matrix_unchecked</span>(
-            <span class="ident">SquareMatrix</span>::<span class="op">&lt;</span>_, <span class="ident">U3</span>, _<span class="op">&gt;</span>::<span class="ident">new</span>(
-                <span class="ident">ww</span> <span class="op">+</span> <span class="ident">ii</span> <span class="op">-</span> <span class="ident">jj</span> <span class="op">-</span> <span class="ident">kk</span>, <span class="ident">ij</span> <span class="op">-</span> <span class="ident">wk</span>,           <span class="ident">wj</span> <span class="op">+</span> <span class="ident">ik</span>,
-                <span class="ident">wk</span> <span class="op">+</span> <span class="ident">ij</span>,           <span class="ident">ww</span> <span class="op">-</span> <span class="ident">ii</span> <span class="op">+</span> <span class="ident">jj</span> <span class="op">-</span> <span class="ident">kk</span>, <span class="ident">jk</span> <span class="op">-</span> <span class="ident">wi</span>,
-                <span class="ident">ik</span> <span class="op">-</span> <span class="ident">wj</span>,           <span class="ident">wi</span> <span class="op">+</span> <span class="ident">jk</span>,           <span class="ident">ww</span> <span class="op">-</span> <span class="ident">ii</span> <span class="op">-</span> <span class="ident">jj</span> <span class="op">+</span> <span class="ident">kk</span>
-            )
-        )
+        <span class="ident">Rotation</span>::<span class="ident">from_matrix_unchecked</span>(<span class="ident">Matrix3</span>::<span class="ident">new</span>(
+            <span class="ident">ww</span> <span class="op">+</span> <span class="ident">ii</span> <span class="op">-</span> <span class="ident">jj</span> <span class="op">-</span> <span class="ident">kk</span>,
+            <span class="ident">ij</span> <span class="op">-</span> <span class="ident">wk</span>,
+            <span class="ident">wj</span> <span class="op">+</span> <span class="ident">ik</span>,
+            <span class="ident">wk</span> <span class="op">+</span> <span class="ident">ij</span>,
+            <span class="ident">ww</span> <span class="op">-</span> <span class="ident">ii</span> <span class="op">+</span> <span class="ident">jj</span> <span class="op">-</span> <span class="ident">kk</span>,
+            <span class="ident">jk</span> <span class="op">-</span> <span class="ident">wi</span>,
+            <span class="ident">ik</span> <span class="op">-</span> <span class="ident">wj</span>,
+            <span class="ident">wi</span> <span class="op">+</span> <span class="ident">jk</span>,
+            <span class="ident">ww</span> <span class="op">-</span> <span class="ident">ii</span> <span class="op">-</span> <span class="ident">jj</span> <span class="op">+</span> <span class="ident">kk</span>,
+        ))
+    }
+
+    <span class="doccomment">/// Converts this unit quaternion into its equivalent Euler angles.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The angles are produced in the form (roll, yaw, pitch).</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_euler_angles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">N</span>, <span class="ident">N</span>, <span class="ident">N</span>) {
+        <span class="self">self</span>.<span class="ident">to_rotation_matrix</span>().<span class="ident">to_euler_angles</span>()
     }
 
     <span class="doccomment">/// Converts this unit quaternion into its equivalent homogeneous transformation matrix.</span>
@@ -1185,15 +1261,24 @@
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">fmt</span>::<span class="ident">Display</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">axis</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">axis</span>() {
             <span class="kw">let</span> <span class="ident">axis</span> <span class="op">=</span> <span class="ident">axis</span>.<span class="ident">unwrap</span>();
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;UnitQuaternion angle: {} − axis: ({}, {}, {})&quot;</span>, <span class="self">self</span>.<span class="ident">angle</span>(), <span class="ident">axis</span>[<span class="number">0</span>], <span class="ident">axis</span>[<span class="number">1</span>], <span class="ident">axis</span>[<span class="number">2</span>])
-        }
-        <span class="kw">else</span> {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;UnitQuaternion angle: {} − axis: (undefined)&quot;</span>, <span class="self">self</span>.<span class="ident">angle</span>())
+            <span class="macro">write</span><span class="macro">!</span>(
+                <span class="ident">f</span>,
+                <span class="string">&quot;UnitQuaternion angle: {} − axis: ({}, {}, {})&quot;</span>,
+                <span class="self">self</span>.<span class="ident">angle</span>(),
+                <span class="ident">axis</span>[<span class="number">0</span>],
+                <span class="ident">axis</span>[<span class="number">1</span>],
+                <span class="ident">axis</span>[<span class="number">2</span>]
+            )
+        } <span class="kw">else</span> {
+            <span class="macro">write</span><span class="macro">!</span>(
+                <span class="ident">f</span>,
+                <span class="string">&quot;UnitQuaternion angle: {} − axis: (undefined)&quot;</span>,
+                <span class="self">self</span>.<span class="ident">angle</span>()
+            )
         }
     }
 }
@@ -1217,8 +1302,14 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">relative_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">epsilon</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>, <span class="ident">max_relative</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">relative_eq</span>(<span class="ident">other</span>.<span class="ident">as_ref</span>(), <span class="ident">epsilon</span>, <span class="ident">max_relative</span>)
+    <span class="kw">fn</span> <span class="ident">relative_eq</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>,
+        <span class="ident">epsilon</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>,
+        <span class="ident">max_relative</span>: <span class="self">Self</span>::<span class="ident">Epsilon</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">as_ref</span>()
+            .<span class="ident">relative_eq</span>(<span class="ident">other</span>.<span class="ident">as_ref</span>(), <span class="ident">epsilon</span>, <span class="ident">max_relative</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -1240,18 +1331,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -1287,11 +1382,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

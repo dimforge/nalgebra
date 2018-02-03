@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/core/matrix_slice.rs`.">
+    <meta name="description" content="Source to the Rust file `src\core\matrix_slice.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>matrix_slice.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -866,15 +877,38 @@
 <span id="821">821</span>
 <span id="822">822</span>
 <span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Range</span>, <span class="ident">RangeFrom</span>, <span class="ident">RangeTo</span>, <span class="ident">RangeFull</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Range</span>, <span class="ident">RangeFrom</span>, <span class="ident">RangeFull</span>, <span class="ident">RangeTo</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">slice</span>;
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Scalar</span>, <span class="ident">Matrix</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Matrix</span>, <span class="ident">Scalar</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimName</span>, <span class="ident">Dynamic</span>, <span class="ident">U1</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">MatrixIter</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">Storage</span>, <span class="ident">StorageMut</span>, <span class="ident">Owned</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">Owned</span>, <span class="ident">Storage</span>, <span class="ident">StorageMut</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">default_allocator</span>::<span class="ident">DefaultAllocator</span>;
 
@@ -887,6 +921,25 @@
             <span class="ident">shape</span>:     (<span class="ident">R</span>, <span class="ident">C</span>),
             <span class="ident">strides</span>:   (<span class="ident">RStride</span>, <span class="ident">CStride</span>),
             <span class="ident">_phantoms</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ref</span><span class="op">&gt;</span>,
+        }
+
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span>, <span class="ident">RStride</span>: <span class="ident">Dim</span>, <span class="ident">CStride</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">RStride</span>, <span class="ident">CStride</span><span class="op">&gt;</span> {
+            <span class="doccomment">/// Create a new matrix slice without bound checking and from a raw pointer.</span>
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw_parts</span>(<span class="ident">ptr</span>:     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ptr</span>,
+                                         <span class="ident">shape</span>:   (<span class="ident">R</span>, <span class="ident">C</span>),
+                                         <span class="ident">strides</span>: (<span class="ident">RStride</span>, <span class="ident">CStride</span>))
+                                        <span class="op">-&gt;</span> <span class="self">Self</span>
+                <span class="kw">where</span> <span class="ident">RStride</span>: <span class="ident">Dim</span>,
+                      <span class="ident">CStride</span>: <span class="ident">Dim</span> {
+
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> {
+                    <span class="ident">ptr</span>:       <span class="ident">ptr</span>,
+                    <span class="ident">shape</span>:     <span class="ident">shape</span>,
+                    <span class="ident">strides</span>:   <span class="ident">strides</span>,
+                    <span class="ident">_phantoms</span>: <span class="ident">PhantomData</span>
+                }
+            }
         }
 
         <span class="comment">// Dynamic is arbitrary. It&#39;s just to be able to call the constructors with `Slice::`</span>
@@ -918,23 +971,6 @@
 
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>::<span class="ident">from_raw_parts</span>(<span class="ident">storage</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">get_addr</span>(<span class="ident">start</span>.<span class="number">0</span>, <span class="ident">start</span>.<span class="number">1</span>), <span class="ident">shape</span>, <span class="ident">strides</span>)
             }
-
-            <span class="doccomment">/// Create a new matrix slice without bound checking and from a raw pointer.</span>
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw_parts</span><span class="op">&lt;</span><span class="ident">RStride</span>, <span class="ident">CStride</span><span class="op">&gt;</span>(<span class="ident">ptr</span>:     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Ptr</span>,
-                                                           <span class="ident">shape</span>:   (<span class="ident">R</span>, <span class="ident">C</span>),
-                                                           <span class="ident">strides</span>: (<span class="ident">RStride</span>, <span class="ident">CStride</span>))
-                <span class="op">-&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">RStride</span>, <span class="ident">CStride</span><span class="op">&gt;</span>
-                <span class="kw">where</span> <span class="ident">RStride</span>: <span class="ident">Dim</span>,
-                      <span class="ident">CStride</span>: <span class="ident">Dim</span> {
-
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> {
-                    <span class="ident">ptr</span>:       <span class="ident">ptr</span>,
-                    <span class="ident">shape</span>:     <span class="ident">shape</span>,
-                    <span class="ident">strides</span>:   <span class="ident">strides</span>,
-                    <span class="ident">_phantoms</span>: <span class="ident">PhantomData</span>
-                }
-            }
         }
     }
 );
@@ -948,18 +984,18 @@
     <span class="ident">StorageMut</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">S</span>; <span class="ident">SliceStorageMut</span>.<span class="ident">get_address_unchecked_mut</span>(<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">N</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">N</span>)
 );
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span>, <span class="ident">RStride</span>: <span class="ident">Dim</span>, <span class="ident">CStride</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">Copy</span>
-<span class="kw">for</span> <span class="ident">SliceStorage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">RStride</span>, <span class="ident">CStride</span><span class="op">&gt;</span> { }
+    <span class="kw">for</span> <span class="ident">SliceStorage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">RStride</span>, <span class="ident">CStride</span><span class="op">&gt;</span> {
+}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span>, <span class="ident">RStride</span>: <span class="ident">Dim</span>, <span class="ident">CStride</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">Clone</span>
-<span class="kw">for</span> <span class="ident">SliceStorage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">RStride</span>, <span class="ident">CStride</span><span class="op">&gt;</span> {
+    <span class="kw">for</span> <span class="ident">SliceStorage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">RStride</span>, <span class="ident">CStride</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="ident">SliceStorage</span> {
-            <span class="ident">ptr</span>:       <span class="self">self</span>.<span class="ident">ptr</span>,
-            <span class="ident">shape</span>:     <span class="self">self</span>.<span class="ident">shape</span>,
-            <span class="ident">strides</span>:   <span class="self">self</span>.<span class="ident">strides</span>,
+            <span class="ident">ptr</span>: <span class="self">self</span>.<span class="ident">ptr</span>,
+            <span class="ident">shape</span>: <span class="self">self</span>.<span class="ident">shape</span>,
+            <span class="ident">strides</span>: <span class="self">self</span>.<span class="ident">strides</span>,
             <span class="ident">_phantoms</span>: <span class="ident">PhantomData</span>,
         }
     }
@@ -1050,27 +1086,35 @@
         <span class="kw">if</span> <span class="ident">nrows</span>.<span class="ident">value</span>() <span class="op">!=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">ncols</span>.<span class="ident">value</span>() <span class="op">!=</span> <span class="number">0</span> {
             <span class="kw">let</span> <span class="ident">sz</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">linear_index</span>(<span class="ident">nrows</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="number">1</span>, <span class="ident">ncols</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="number">1</span>);
             <span class="kw">unsafe</span> { <span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="self">self</span>.<span class="ident">ptr</span>, <span class="ident">sz</span> <span class="op">+</span> <span class="number">1</span>) }
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="kw">unsafe</span> { <span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="self">self</span>.<span class="ident">ptr</span>, <span class="number">0</span>) }
         }
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">S</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">assert_slice_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: (<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">shape</span>: (<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">steps</span>: (<span class="ident">usize</span>, <span class="ident">usize</span>)) {
+    <span class="kw">fn</span> <span class="ident">assert_slice_index</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">start</span>: (<span class="ident">usize</span>, <span class="ident">usize</span>),
+        <span class="ident">shape</span>: (<span class="ident">usize</span>, <span class="ident">usize</span>),
+        <span class="ident">steps</span>: (<span class="ident">usize</span>, <span class="ident">usize</span>),
+    ) {
         <span class="kw">let</span> <span class="ident">my_shape</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">shape</span>();
         <span class="comment">// NOTE: we don&#39;t do any subtraction to avoid underflow for zero-sized matrices.</span>
         <span class="comment">//</span>
         <span class="comment">// Terms that would have been negative are moved to the other side of the inequality</span>
         <span class="comment">// instead.</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">start</span>.<span class="number">0</span> <span class="op">+</span> (<span class="ident">steps</span>.<span class="number">0</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">*</span> <span class="ident">shape</span>.<span class="number">0</span> <span class="op">&lt;=</span> <span class="ident">my_shape</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">steps</span>.<span class="number">0</span>, <span class="string">&quot;Matrix slicing out of bounds.&quot;</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">start</span>.<span class="number">1</span> <span class="op">+</span> (<span class="ident">steps</span>.<span class="number">1</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">*</span> <span class="ident">shape</span>.<span class="number">1</span> <span class="op">&lt;=</span> <span class="ident">my_shape</span>.<span class="number">1</span> <span class="op">+</span> <span class="ident">steps</span>.<span class="number">1</span>, <span class="string">&quot;Matrix slicing out of bounds.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">start</span>.<span class="number">0</span> <span class="op">+</span> (<span class="ident">steps</span>.<span class="number">0</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">*</span> <span class="ident">shape</span>.<span class="number">0</span> <span class="op">&lt;=</span> <span class="ident">my_shape</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">steps</span>.<span class="number">0</span>,
+            <span class="string">&quot;Matrix slicing out of bounds.&quot;</span>
+        );
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">start</span>.<span class="number">1</span> <span class="op">+</span> (<span class="ident">steps</span>.<span class="number">1</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">*</span> <span class="ident">shape</span>.<span class="number">1</span> <span class="op">&lt;=</span> <span class="ident">my_shape</span>.<span class="number">1</span> <span class="op">+</span> <span class="ident">steps</span>.<span class="number">1</span>,
+            <span class="string">&quot;Matrix slicing out of bounds.&quot;</span>
+        );
     }
 }
-
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">matrix_slice_impl</span>(
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">me</span>: <span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Me</span>: <span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">MatrixSlice</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">SliceStorage</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Storage</span>: <span class="ident">ident</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">get_addr</span>: <span class="ident">ident</span> (), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">data</span>: <span class="ident">expr</span>;
@@ -1485,7 +1529,6 @@
      <span class="ident">rows_range_pair</span>,
      <span class="ident">columns_range_pair</span>);
 
-
 <span class="macro">matrix_slice_impl</span><span class="macro">!</span>(
      <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">MatrixSliceMut</span>, <span class="ident">SliceStorageMut</span>, <span class="ident">StorageMut</span>.<span class="ident">get_address_unchecked_mut</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">data</span>;
      <span class="ident">row_mut</span>,
@@ -1512,7 +1555,6 @@
      <span class="ident">generic_slice_with_steps_mut</span>,
      <span class="ident">rows_range_pair_mut</span>,
      <span class="ident">columns_range_pair_mut</span>);
-
 
 <span class="doccomment">/// A range with a size that may be known at compile-time.</span>
 <span class="doccomment">///</span>
@@ -1629,34 +1671,41 @@
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">S</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Slices a sub-matrix containing the rows indexed by the range `rows` and the columns indexed</span>
     <span class="doccomment">/// by the range `cols`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slice_range</span><span class="op">&lt;</span><span class="ident">RowRange</span>, <span class="ident">ColRange</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rows</span>: <span class="ident">RowRange</span>, <span class="ident">cols</span>: <span class="ident">ColRange</span>)
-        <span class="op">-&gt;</span> <span class="ident">MatrixSlice</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RowRange</span>::<span class="ident">Size</span>, <span class="ident">ColRange</span>::<span class="ident">Size</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">RowRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
-              <span class="ident">ColRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slice_range</span><span class="op">&lt;</span><span class="ident">RowRange</span>, <span class="ident">ColRange</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">rows</span>: <span class="ident">RowRange</span>,
+        <span class="ident">cols</span>: <span class="ident">ColRange</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixSlice</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RowRange</span>::<span class="ident">Size</span>, <span class="ident">ColRange</span>::<span class="ident">Size</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">RowRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
+        <span class="ident">ColRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">shape</span>();
-        <span class="self">self</span>.<span class="ident">generic_slice</span>((<span class="ident">rows</span>.<span class="ident">begin</span>(<span class="ident">nrows</span>), <span class="ident">cols</span>.<span class="ident">begin</span>(<span class="ident">ncols</span>)),
-                           (<span class="ident">rows</span>.<span class="ident">size</span>(<span class="ident">nrows</span>), <span class="ident">cols</span>.<span class="ident">size</span>(<span class="ident">ncols</span>)))
+        <span class="self">self</span>.<span class="ident">generic_slice</span>(
+            (<span class="ident">rows</span>.<span class="ident">begin</span>(<span class="ident">nrows</span>), <span class="ident">cols</span>.<span class="ident">begin</span>(<span class="ident">ncols</span>)),
+            (<span class="ident">rows</span>.<span class="ident">size</span>(<span class="ident">nrows</span>), <span class="ident">cols</span>.<span class="ident">size</span>(<span class="ident">ncols</span>)),
+        )
     }
 
     <span class="doccomment">/// Slice containing all the rows indexed by the range `rows`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rows_range</span><span class="op">&lt;</span><span class="ident">RowRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rows</span>: <span class="ident">RowRange</span>)
-        <span class="op">-&gt;</span> <span class="ident">MatrixSlice</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RowRange</span>::<span class="ident">Size</span>, <span class="ident">C</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rows_range</span><span class="op">&lt;</span><span class="ident">RowRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">rows</span>: <span class="ident">RowRange</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixSlice</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RowRange</span>::<span class="ident">Size</span>, <span class="ident">C</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">slice_range</span>(<span class="ident">rows</span>, ..)
     }
 
     <span class="doccomment">/// Slice containing all the columns indexed by the range `rows`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns_range</span><span class="op">&lt;</span><span class="ident">ColRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cols</span>: <span class="ident">ColRange</span>)
-        <span class="op">-&gt;</span> <span class="ident">MatrixSlice</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">ColRange</span>::<span class="ident">Size</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns_range</span><span class="op">&lt;</span><span class="ident">ColRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">cols</span>: <span class="ident">ColRange</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixSlice</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">ColRange</span>::<span class="ident">Size</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">slice_range</span>(.., <span class="ident">cols</span>)
     }
 }
@@ -1664,29 +1713,37 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">S</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Slices a mutable sub-matrix containing the rows indexed by the range `rows` and the columns</span>
     <span class="doccomment">/// indexed by the range `cols`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slice_range_mut</span><span class="op">&lt;</span><span class="ident">RowRange</span>, <span class="ident">ColRange</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rows</span>: <span class="ident">RowRange</span>, <span class="ident">cols</span>: <span class="ident">ColRange</span>)
-        <span class="op">-&gt;</span> <span class="ident">MatrixSliceMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RowRange</span>::<span class="ident">Size</span>, <span class="ident">ColRange</span>::<span class="ident">Size</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">RowRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
-              <span class="ident">ColRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slice_range_mut</span><span class="op">&lt;</span><span class="ident">RowRange</span>, <span class="ident">ColRange</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">rows</span>: <span class="ident">RowRange</span>,
+        <span class="ident">cols</span>: <span class="ident">ColRange</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixSliceMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RowRange</span>::<span class="ident">Size</span>, <span class="ident">ColRange</span>::<span class="ident">Size</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">RowRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
+        <span class="ident">ColRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">shape</span>();
-        <span class="self">self</span>.<span class="ident">generic_slice_mut</span>((<span class="ident">rows</span>.<span class="ident">begin</span>(<span class="ident">nrows</span>), <span class="ident">cols</span>.<span class="ident">begin</span>(<span class="ident">ncols</span>)),
-                               (<span class="ident">rows</span>.<span class="ident">size</span>(<span class="ident">nrows</span>), <span class="ident">cols</span>.<span class="ident">size</span>(<span class="ident">ncols</span>)))
+        <span class="self">self</span>.<span class="ident">generic_slice_mut</span>(
+            (<span class="ident">rows</span>.<span class="ident">begin</span>(<span class="ident">nrows</span>), <span class="ident">cols</span>.<span class="ident">begin</span>(<span class="ident">ncols</span>)),
+            (<span class="ident">rows</span>.<span class="ident">size</span>(<span class="ident">nrows</span>), <span class="ident">cols</span>.<span class="ident">size</span>(<span class="ident">ncols</span>)),
+        )
     }
 
     <span class="doccomment">/// Slice containing all the rows indexed by the range `rows`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rows_range_mut</span><span class="op">&lt;</span><span class="ident">RowRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rows</span>: <span class="ident">RowRange</span>)
-        <span class="op">-&gt;</span> <span class="ident">MatrixSliceMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RowRange</span>::<span class="ident">Size</span>, <span class="ident">C</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rows_range_mut</span><span class="op">&lt;</span><span class="ident">RowRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">rows</span>: <span class="ident">RowRange</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixSliceMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">RowRange</span>::<span class="ident">Size</span>, <span class="ident">C</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">slice_range_mut</span>(<span class="ident">rows</span>, ..)
     }
 
     <span class="doccomment">/// Slice containing all the columns indexed by the range `cols`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns_range_mut</span><span class="op">&lt;</span><span class="ident">ColRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cols</span>: <span class="ident">ColRange</span>)
-        <span class="op">-&gt;</span> <span class="ident">MatrixSliceMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">ColRange</span>::<span class="ident">Size</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns_range_mut</span><span class="op">&lt;</span><span class="ident">ColRange</span>: <span class="ident">SliceRange</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">cols</span>: <span class="ident">ColRange</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixSliceMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">ColRange</span>::<span class="ident">Size</span>, <span class="ident">S</span>::<span class="ident">RStride</span>, <span class="ident">S</span>::<span class="ident">CStride</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">slice_range_mut</span>(.., <span class="ident">cols</span>)
     }
 }
@@ -1704,18 +1761,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -1751,11 +1812,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

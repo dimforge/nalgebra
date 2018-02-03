@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/geometry/unit_complex_ops.rs`.">
+    <meta name="description" content="Source to the Rust file `src\geometry\unit_complex_ops.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>unit_complex_ops.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -476,16 +487,42 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
 </pre><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Mul</span>, <span class="ident">MulAssign</span>, <span class="ident">Div</span>, <span class="ident">DivAssign</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Div</span>, <span class="ident">DivAssign</span>, <span class="ident">Mul</span>, <span class="ident">MulAssign</span>};
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Unit</span>, <span class="ident">Vector</span>, <span class="ident">Vector2</span>, <span class="ident">Matrix</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Matrix</span>, <span class="ident">Unit</span>, <span class="ident">Vector</span>, <span class="ident">Vector2</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">U1</span>, <span class="ident">U2</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">Storage</span>, <span class="ident">StorageMut</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">ShapeConstraint</span>, <span class="ident">DimEq</span>};
-<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">UnitComplex</span>, <span class="ident">Rotation</span>, <span class="ident">Isometry</span>, <span class="ident">Similarity</span>, <span class="ident">Translation</span>, <span class="ident">Point2</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">DimEq</span>, <span class="ident">ShapeConstraint</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Isometry</span>, <span class="ident">Point2</span>, <span class="ident">Rotation</span>, <span class="ident">Similarity</span>, <span class="ident">Translation</span>, <span class="ident">UnitComplex</span>};
 
 <span class="comment">/*
  * This file provides:
@@ -647,7 +684,6 @@
     }
 );
 
-
 <span class="comment">// UnitComplex × Rotation</span>
 <span class="macro">complex_op_impl_all</span><span class="macro">!</span>(
     <span class="ident">Mul</span>, <span class="ident">mul</span>;
@@ -669,7 +705,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">/</span>  <span class="ident">rhs</span>;
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span>  <span class="self">self</span> <span class="op">*</span> <span class="ident">UnitComplex</span>::<span class="ident">from_rotation_matrix</span>(<span class="ident">rhs</span>).<span class="ident">inverse</span>();
 );
-
 
 <span class="comment">// Rotation × UnitComplex</span>
 <span class="macro">complex_op_impl_all</span><span class="macro">!</span>(
@@ -799,10 +834,11 @@
     }
 }
 
-
 <span class="comment">// UnitComplex ×= Rotation</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">MulAssign</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">mul_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;</span>) {
         <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>
@@ -810,7 +846,9 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">MulAssign</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">mul_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;</span>) {
         <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>
@@ -819,7 +857,9 @@
 
 <span class="comment">// UnitComplex ÷= Rotation</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">DivAssign</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">div_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;</span>) {
         <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="op">/</span> <span class="ident">rhs</span>
@@ -827,17 +867,20 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">DivAssign</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">div_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;</span>) {
         <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span> <span class="op">/</span> <span class="ident">rhs</span>
     }
 }
 
-
 <span class="comment">// Rotation ×= UnitComplex</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">MulAssign</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">mul_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">mul_assign</span>(<span class="ident">rhs</span>.<span class="ident">to_rotation_matrix</span>())
@@ -845,7 +888,9 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">MulAssign</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">mul_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">mul_assign</span>(<span class="ident">rhs</span>.<span class="ident">to_rotation_matrix</span>())
@@ -854,7 +899,9 @@
 
 <span class="comment">// Rotation ÷= UnitComplex</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">DivAssign</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">div_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">div_assign</span>(<span class="ident">rhs</span>.<span class="ident">to_rotation_matrix</span>())
@@ -862,7 +909,9 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span>, <span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">DivAssign</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">div_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">div_assign</span>(<span class="ident">rhs</span>.<span class="ident">to_rotation_matrix</span>())
@@ -872,14 +921,21 @@
 <span class="comment">// Matrix = UnitComplex * Matrix</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Performs the multiplication `rhs = self * rhs` in-place.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
-
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rhs</span>.<span class="ident">nrows</span>(), <span class="number">2</span>, <span class="string">&quot;Unit complex rotation: the input matrix must have exactly two rows.&quot;</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>,
+    ) <span class="kw">where</span>
+        <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+    {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">rhs</span>.<span class="ident">nrows</span>(),
+            <span class="number">2</span>,
+            <span class="string">&quot;Unit complex rotation: the input matrix must have exactly two rows.&quot;</span>
+        );
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">im</span>;
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">re</span>;
 
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">rhs</span>.<span class="ident">ncols</span>() {
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">rhs</span>.<span class="ident">ncols</span>() {
             <span class="kw">unsafe</span> {
                 <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">rhs</span>.<span class="ident">get_unchecked</span>(<span class="number">0</span>, <span class="ident">j</span>);
                 <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">rhs</span>.<span class="ident">get_unchecked</span>(<span class="number">1</span>, <span class="ident">j</span>);
@@ -891,15 +947,22 @@
     }
 
     <span class="doccomment">/// Performs the multiplication `lhs = lhs * self` in-place.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_rows</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">C2</span>, <span class="ident">U2</span><span class="op">&gt;</span> {
-
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">lhs</span>.<span class="ident">ncols</span>(), <span class="number">2</span>, <span class="string">&quot;Unit complex rotation: the input matrix must have exactly two columns.&quot;</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_rows</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">lhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>,
+    ) <span class="kw">where</span>
+        <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">C2</span>, <span class="ident">U2</span><span class="op">&gt;</span>,
+    {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="ident">lhs</span>.<span class="ident">ncols</span>(),
+            <span class="number">2</span>,
+            <span class="string">&quot;Unit complex rotation: the input matrix must have exactly two columns.&quot;</span>
+        );
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">im</span>;
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>().<span class="ident">re</span>;
 
         <span class="comment">// FIXME: can we optimize that to iterate on one column at a time ?</span>
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">lhs</span>.<span class="ident">nrows</span>() {
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">lhs</span>.<span class="ident">nrows</span>() {
             <span class="kw">unsafe</span> {
                 <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">lhs</span>.<span class="ident">get_unchecked</span>(<span class="ident">j</span>, <span class="number">0</span>);
                 <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">lhs</span>.<span class="ident">get_unchecked</span>(<span class="ident">j</span>, <span class="number">1</span>);
@@ -924,18 +987,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -971,11 +1038,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

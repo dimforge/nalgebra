@@ -10,14 +10,17 @@
     <title>nalgebra::geometry::Reflection - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css" id="themeStyle">
+    <script src="../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc struct">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc struct"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'>Struct Reflection</p><div class="block items"><ul><li><a href="#methods">Methods</a></li></ul></div><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a></p><script>window.sidebarCurrent = {name: 'Reflection', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct Reflection</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new">new</a><a href="#method.new_containing_point">new_containing_point</a><a href="#method.axis">axis</a><a href="#method.reflect">reflect</a><a href="#method.reflect_rows">reflect_rows</a></div></div><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>geometry</a></p><script>window.sidebarCurrent = {name: 'Reflection', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -54,20 +65,19 @@
                     <h2 id='methods' class='small-section-header'>
                       Methods<a href='#methods' class='anchor'></a>
                     </h2>
-                <h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="../../nalgebra/trait.Real.html" title="trait nalgebra::Real">Real</a>, D:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, S:&nbsp;<a class="trait" href="../../nalgebra/core/storage/trait.Storage.html" title="trait nalgebra::core::storage::Storage">Storage</a>&lt;N, D&gt;&gt; <a class="struct" href="../../nalgebra/geometry/struct.Reflection.html" title="struct nalgebra::geometry::Reflection">Reflection</a>&lt;N, D, S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#16-72' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>fn <a href='#method.new' class='fnname'>new</a>(axis: <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;<a class="type" href="../../nalgebra/core/type.Vector.html" title="type nalgebra::core::Vector">Vector</a>&lt;N, D, S&gt;&gt;, bias: N) -&gt; <a class="struct" href="../../nalgebra/geometry/struct.Reflection.html" title="struct nalgebra::geometry::Reflection">Reflection</a>&lt;N, D, S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#21-23' title='goto source code'>[src]</a></span></h4>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="../../nalgebra/trait.Real.html" title="trait nalgebra::Real">Real</a>, D:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, S:&nbsp;<a class="trait" href="../../nalgebra/core/storage/trait.Storage.html" title="trait nalgebra::core::storage::Storage">Storage</a>&lt;N, D&gt;&gt; <a class="struct" href="../../nalgebra/geometry/struct.Reflection.html" title="struct nalgebra::geometry::Reflection">Reflection</a>&lt;N, D, S&gt;</code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#16-83' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>(axis: <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;<a class="type" href="../../nalgebra/core/type.Vector.html" title="type nalgebra::core::Vector">Vector</a>&lt;N, D, S&gt;&gt;, bias: N) -&gt; <a class="struct" href="../../nalgebra/geometry/struct.Reflection.html" title="struct nalgebra::geometry::Reflection">Reflection</a>&lt;N, D, S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#21-26' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Creates a new reflection wrt the plane orthogonal to the given axis and bias.</p>
-
 <p>The bias is the position of the plane on the axis. In particular, a bias equal to zero
 represents a plane that passes through the origin.</p>
-</div><h4 id='method.new_containing_point' class="method"><span id='new_containing_point.v' class='invisible'><code>fn <a href='#method.new_containing_point' class='fnname'>new_containing_point</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;axis: <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;<a class="type" href="../../nalgebra/core/type.Vector.html" title="type nalgebra::core::Vector">Vector</a>&lt;N, D, S&gt;&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;pt: &amp;<a class="struct" href="../../nalgebra/geometry/struct.Point.html" title="struct nalgebra::geometry::Point">Point</a>&lt;N, D&gt;<br>) -&gt; <a class="struct" href="../../nalgebra/geometry/struct.Reflection.html" title="struct nalgebra::geometry::Reflection">Reflection</a>&lt;N, D, S&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;D: <a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, D&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#27-32' title='goto source code'>[src]</a></span></h4>
+</div><h4 id='method.new_containing_point' class="method"><span id='new_containing_point.v' class='invisible'><code>pub fn <a href='#method.new_containing_point' class='fnname'>new_containing_point</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;axis: <a class="struct" href="../../nalgebra/core/struct.Unit.html" title="struct nalgebra::core::Unit">Unit</a>&lt;<a class="type" href="../../nalgebra/core/type.Vector.html" title="type nalgebra::core::Vector">Vector</a>&lt;N, D, S&gt;&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;pt: &amp;<a class="struct" href="../../nalgebra/geometry/struct.Point.html" title="struct nalgebra::geometry::Point">Point</a>&lt;N, D&gt;<br>) -&gt; <a class="struct" href="../../nalgebra/geometry/struct.Reflection.html" title="struct nalgebra::geometry::Reflection">Reflection</a>&lt;N, D, S&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;D: <a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, D&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#30-40' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Creates a new reflection wrt. the plane orthogonal to the given axis and that contains the
 point <code>pt</code>.</p>
-</div><h4 id='method.axis' class="method"><span id='axis.v' class='invisible'><code>fn <a href='#method.axis' class='fnname'>axis</a>(&amp;self) -&gt; &amp;<a class="type" href="../../nalgebra/core/type.Vector.html" title="type nalgebra::core::Vector">Vector</a>&lt;N, D, S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#35-37' title='goto source code'>[src]</a></span></h4>
+</div><h4 id='method.axis' class="method"><span id='axis.v' class='invisible'><code>pub fn <a href='#method.axis' class='fnname'>axis</a>(&amp;self) -&gt; &amp;<a class="type" href="../../nalgebra/core/type.Vector.html" title="type nalgebra::core::Vector">Vector</a>&lt;N, D, S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#43-45' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>The reflexion axis.</p>
-</div><h4 id='method.reflect' class="method"><span id='reflect.v' class='invisible'><code>fn <a href='#method.reflect' class='fnname'>reflect</a>&lt;R2:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, C2:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, S2&gt;(&amp;self, rhs: &amp;mut <a class="struct" href="../../nalgebra/core/struct.Matrix.html" title="struct nalgebra::core::Matrix">Matrix</a>&lt;N, R2, C2, S2&gt;) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;S2: <a class="trait" href="../../nalgebra/core/storage/trait.StorageMut.html" title="trait nalgebra::core::storage::StorageMut">StorageMut</a>&lt;N, R2, C2&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../nalgebra/core/constraint/struct.ShapeConstraint.html" title="struct nalgebra::core::constraint::ShapeConstraint">ShapeConstraint</a>: <a class="trait" href="../../nalgebra/core/constraint/trait.SameNumberOfRows.html" title="trait nalgebra::core::constraint::SameNumberOfRows">SameNumberOfRows</a>&lt;R2, D&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#41-53' title='goto source code'>[src]</a></span></h4>
+</div><h4 id='method.reflect' class="method"><span id='reflect.v' class='invisible'><code>pub fn <a href='#method.reflect' class='fnname'>reflect</a>&lt;R2:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, C2:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, S2&gt;(&amp;self, rhs: &amp;mut <a class="struct" href="../../nalgebra/core/struct.Matrix.html" title="struct nalgebra::core::Matrix">Matrix</a>&lt;N, R2, C2, S2&gt;) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;S2: <a class="trait" href="../../nalgebra/core/storage/trait.StorageMut.html" title="trait nalgebra::core::storage::StorageMut">StorageMut</a>&lt;N, R2, C2&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../nalgebra/core/constraint/struct.ShapeConstraint.html" title="struct nalgebra::core::constraint::ShapeConstraint">ShapeConstraint</a>: <a class="trait" href="../../nalgebra/core/constraint/trait.SameNumberOfRows.html" title="trait nalgebra::core::constraint::SameNumberOfRows">SameNumberOfRows</a>&lt;R2, D&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#49-62' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Applies the reflection to the columns of <code>rhs</code>.</p>
-</div><h4 id='method.reflect_rows' class="method"><span id='reflect_rows.v' class='invisible'><code>fn <a href='#method.reflect_rows' class='fnname'>reflect_rows</a>&lt;R2:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, C2:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, S2, S3&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;rhs: &amp;mut <a class="struct" href="../../nalgebra/core/struct.Matrix.html" title="struct nalgebra::core::Matrix">Matrix</a>&lt;N, R2, C2, S2&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;work: &amp;mut <a class="type" href="../../nalgebra/core/type.Vector.html" title="type nalgebra::core::Vector">Vector</a>&lt;N, R2, S3&gt;<br>) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;S2: <a class="trait" href="../../nalgebra/core/storage/trait.StorageMut.html" title="trait nalgebra::core::storage::StorageMut">StorageMut</a>&lt;N, R2, C2&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;S3: <a class="trait" href="../../nalgebra/core/storage/trait.StorageMut.html" title="trait nalgebra::core::storage::StorageMut">StorageMut</a>&lt;N, R2&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../nalgebra/core/constraint/struct.ShapeConstraint.html" title="struct nalgebra::core::constraint::ShapeConstraint">ShapeConstraint</a>: <a class="trait" href="../../nalgebra/core/constraint/trait.DimEq.html" title="trait nalgebra::core::constraint::DimEq">DimEq</a>&lt;C2, D&gt; + <a class="trait" href="../../nalgebra/core/constraint/trait.AreMultipliable.html" title="trait nalgebra::core::constraint::AreMultipliable">AreMultipliable</a>&lt;R2, C2, D, <a class="struct" href="../../nalgebra/core/dimension/struct.U1.html" title="struct nalgebra::core::dimension::U1">U1</a>&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#56-71' title='goto source code'>[src]</a></span></h4>
+</div><h4 id='method.reflect_rows' class="method"><span id='reflect_rows.v' class='invisible'><code>pub fn <a href='#method.reflect_rows' class='fnname'>reflect_rows</a>&lt;R2:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, C2:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, S2, S3&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;rhs: &amp;mut <a class="struct" href="../../nalgebra/core/struct.Matrix.html" title="struct nalgebra::core::Matrix">Matrix</a>&lt;N, R2, C2, S2&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;work: &amp;mut <a class="type" href="../../nalgebra/core/type.Vector.html" title="type nalgebra::core::Vector">Vector</a>&lt;N, R2, S3&gt;<br>) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;S2: <a class="trait" href="../../nalgebra/core/storage/trait.StorageMut.html" title="trait nalgebra::core::storage::StorageMut">StorageMut</a>&lt;N, R2, C2&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;S3: <a class="trait" href="../../nalgebra/core/storage/trait.StorageMut.html" title="trait nalgebra::core::storage::StorageMut">StorageMut</a>&lt;N, R2&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../nalgebra/core/constraint/struct.ShapeConstraint.html" title="struct nalgebra::core::constraint::ShapeConstraint">ShapeConstraint</a>: <a class="trait" href="../../nalgebra/core/constraint/trait.DimEq.html" title="trait nalgebra::core::constraint::DimEq">DimEq</a>&lt;C2, D&gt; + <a class="trait" href="../../nalgebra/core/constraint/trait.AreMultipliable.html" title="trait nalgebra::core::constraint::AreMultipliable">AreMultipliable</a>&lt;R2, C2, D, <a class="struct" href="../../nalgebra/core/dimension/struct.U1.html" title="struct nalgebra::core::dimension::U1">U1</a>&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/geometry/reflection.rs.html#65-82' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Applies the reflection to the rows of <code>rhs</code>.</p>
 </div></div></section>
     <section id='search' class="content hidden"></section>
@@ -82,18 +92,22 @@ point <code>pt</code>.</p>
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -129,11 +143,4 @@ point <code>pt</code>.</p>
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

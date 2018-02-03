@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/core/properties.rs`.">
+    <meta name="description" content="Source to the Rust file `src\core\properties.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>properties.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -158,18 +169,24 @@
 <span id="113">113</span>
 <span id="114">114</span>
 <span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
 </pre><pre class="rust ">
 <span class="comment">// Matrix properties checks.</span>
-<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">Zero</span>, <span class="ident">One</span>};
+<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">One</span>, <span class="ident">Zero</span>};
 <span class="kw">use</span> <span class="ident">approx</span>::<span class="ident">ApproxEq</span>;
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">ClosedAdd</span>, <span class="ident">ClosedMul</span>, <span class="ident">Real</span>};
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Scalar</span>, <span class="ident">Matrix</span>, <span class="ident">SquareMatrix</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Matrix</span>, <span class="ident">Scalar</span>, <span class="ident">SquareMatrix</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimMin</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::<span class="ident">Storage</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
-
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">S</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Indicates if this is a square matrix.</span>
@@ -193,27 +210,29 @@
     <span class="doccomment">/// for i from `0` to `min(R, C)`) are equal one; and that all other elements are zero.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_identity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">eps</span>: <span class="ident">N</span>::<span class="ident">Epsilon</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">ApproxEq</span>,
-          <span class="ident">N</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span> {
+    <span class="kw">where</span>
+        <span class="ident">N</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">ApproxEq</span>,
+        <span class="ident">N</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span>,
+    {
         <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">shape</span>();
         <span class="kw">let</span> <span class="ident">d</span>;
 
         <span class="kw">if</span> <span class="ident">nrows</span> <span class="op">&gt;</span> <span class="ident">ncols</span> {
             <span class="ident">d</span> <span class="op">=</span> <span class="ident">ncols</span>;
 
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">d</span> .. <span class="ident">nrows</span> {
-                <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">ncols</span> {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">d</span>..<span class="ident">nrows</span> {
+                <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">ncols</span> {
                     <span class="kw">if</span> <span class="op">!</span><span class="macro">relative_eq</span><span class="macro">!</span>(<span class="self">self</span>[(<span class="ident">i</span>, <span class="ident">j</span>)], <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="ident">epsilon</span> <span class="op">=</span> <span class="ident">eps</span>) {
                         <span class="kw">return</span> <span class="bool-val">false</span>;
                     }
                 }
             }
-        }
-        <span class="kw">else</span> { <span class="comment">// nrows &lt;= ncols</span>
+        } <span class="kw">else</span> {
+            <span class="comment">// nrows &lt;= ncols</span>
             <span class="ident">d</span> <span class="op">=</span> <span class="ident">nrows</span>;
 
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">nrows</span> {
-                <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="ident">d</span> .. <span class="ident">ncols</span> {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">nrows</span> {
+                <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="ident">d</span>..<span class="ident">ncols</span> {
                     <span class="kw">if</span> <span class="op">!</span><span class="macro">relative_eq</span><span class="macro">!</span>(<span class="self">self</span>[(<span class="ident">i</span>, <span class="ident">j</span>)], <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="ident">epsilon</span> <span class="op">=</span> <span class="ident">eps</span>) {
                         <span class="kw">return</span> <span class="bool-val">false</span>;
                     }
@@ -222,18 +241,19 @@
         }
 
         <span class="comment">// Off-diagonal elements of the sub-square matrix.</span>
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span> .. <span class="ident">d</span> {
-            <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">i</span> {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">d</span> {
+            <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">i</span> {
                 <span class="comment">// FIXME: use unsafe indexing.</span>
-                <span class="kw">if</span> <span class="op">!</span><span class="macro">relative_eq</span><span class="macro">!</span>(<span class="self">self</span>[(<span class="ident">i</span>, <span class="ident">j</span>)], <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="ident">epsilon</span> <span class="op">=</span> <span class="ident">eps</span>) <span class="op">||</span>
-                   <span class="op">!</span><span class="macro">relative_eq</span><span class="macro">!</span>(<span class="self">self</span>[(<span class="ident">j</span>, <span class="ident">i</span>)], <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="ident">epsilon</span> <span class="op">=</span> <span class="ident">eps</span>) {
+                <span class="kw">if</span> <span class="op">!</span><span class="macro">relative_eq</span><span class="macro">!</span>(<span class="self">self</span>[(<span class="ident">i</span>, <span class="ident">j</span>)], <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="ident">epsilon</span> <span class="op">=</span> <span class="ident">eps</span>)
+                    <span class="op">||</span> <span class="op">!</span><span class="macro">relative_eq</span><span class="macro">!</span>(<span class="self">self</span>[(<span class="ident">j</span>, <span class="ident">i</span>)], <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="ident">epsilon</span> <span class="op">=</span> <span class="ident">eps</span>)
+                {
                     <span class="kw">return</span> <span class="bool-val">false</span>;
                 }
             }
         }
 
         <span class="comment">// Diagonal elements of the sub-square matrix.</span>
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">d</span> {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">d</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="macro">relative_eq</span><span class="macro">!</span>(<span class="self">self</span>[(<span class="ident">i</span>, <span class="ident">i</span>)], <span class="ident">N</span>::<span class="ident">one</span>(), <span class="ident">epsilon</span> <span class="op">=</span> <span class="ident">eps</span>) {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
@@ -248,23 +268,28 @@
     <span class="doccomment">/// equal to `eps`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_orthogonal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">eps</span>: <span class="ident">N</span>::<span class="ident">Epsilon</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>
-        <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedMul</span> <span class="op">+</span> <span class="ident">ApproxEq</span>,
-              <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
-              <span class="ident">N</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">N</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedMul</span> <span class="op">+</span> <span class="ident">ApproxEq</span>,
+        <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+        <span class="ident">N</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         (<span class="self">self</span>.<span class="ident">tr_mul</span>(<span class="self">self</span>)).<span class="ident">is_identity</span>(<span class="ident">eps</span>)
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="ident">SquareMatrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="doccomment">/// Checks that this matrix is orthogonal and has a determinant equal to 1.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_special_orthogonal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">eps</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">D</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span> {
-            <span class="self">self</span>.<span class="ident">is_square</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_orthogonal</span>(<span class="ident">eps</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">determinant</span>() <span class="op">&gt;</span> <span class="ident">N</span>::<span class="ident">zero</span>()
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">is_square</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_orthogonal</span>(<span class="ident">eps</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">determinant</span>() <span class="op">&gt;</span> <span class="ident">N</span>::<span class="ident">zero</span>()
     }
 
     <span class="doccomment">/// Returns `true` if this matrix is invertible.</span>
@@ -288,18 +313,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -335,11 +364,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

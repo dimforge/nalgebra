@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/geometry/quaternion_ops.rs`.">
+    <meta name="description" content="Source to the Rust file `src\geometry\quaternion_ops.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>quaternion_ops.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -739,11 +750,6 @@
 <span id="694">694</span>
 <span id="695">695</span>
 <span id="696">696</span>
-<span id="697">697</span>
-<span id="698">698</span>
-<span id="699">699</span>
-<span id="700">700</span>
-<span id="701">701</span>
 </pre><pre class="rust ">
 <span class="comment">/*
  * This file provides:
@@ -797,16 +803,17 @@
  *
  */</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Index</span>, <span class="ident">IndexMut</span>, <span class="ident">Neg</span>, <span class="ident">Add</span>, <span class="ident">AddAssign</span>, <span class="ident">Mul</span>, <span class="ident">MulAssign</span>, <span class="ident">Sub</span>, <span class="ident">SubAssign</span>, <span class="ident">Div</span>, <span class="ident">DivAssign</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Add</span>, <span class="ident">AddAssign</span>, <span class="ident">Div</span>, <span class="ident">DivAssign</span>, <span class="ident">Index</span>, <span class="ident">IndexMut</span>, <span class="ident">Mul</span>, <span class="ident">MulAssign</span>, <span class="ident">Neg</span>, <span class="ident">Sub</span>,
+               <span class="ident">SubAssign</span>};
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Vector</span>, <span class="ident">Vector3</span>, <span class="ident">Unit</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Unit</span>, <span class="ident">Vector</span>, <span class="ident">Vector3</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::<span class="ident">Storage</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">U1</span>, <span class="ident">U3</span>, <span class="ident">U4</span>};
 
-<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Quaternion</span>, <span class="ident">UnitQuaternion</span>, <span class="ident">Point3</span>, <span class="ident">Rotation</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point3</span>, <span class="ident">Quaternion</span>, <span class="ident">Rotation</span>, <span class="ident">UnitQuaternion</span>};
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">Index</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">N</span>;
@@ -843,7 +850,6 @@
     }
 );
 
-
 <span class="comment">// Quaternion + Quaternion</span>
 <span class="macro">quaternion_op_impl</span><span class="macro">!</span>(
     <span class="ident">Add</span>, <span class="ident">add</span>;
@@ -873,7 +879,6 @@
     <span class="ident">Quaternion</span>::<span class="ident">from_vector</span>(<span class="self">self</span>.<span class="ident">coords</span> <span class="op">+</span> <span class="ident">rhs</span>.<span class="ident">coords</span>);
     );
 
-
 <span class="comment">// Quaternion - Quaternion</span>
 <span class="macro">quaternion_op_impl</span><span class="macro">!</span>(
     <span class="ident">Sub</span>, <span class="ident">sub</span>;
@@ -902,7 +907,6 @@
     <span class="self">self</span>: <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>;
     <span class="ident">Quaternion</span>::<span class="ident">from_vector</span>(<span class="self">self</span>.<span class="ident">coords</span> <span class="op">-</span> <span class="ident">rhs</span>.<span class="ident">coords</span>);
     );
-
 
 <span class="comment">// Quaternion × Quaternion</span>
 <span class="macro">quaternion_op_impl</span><span class="macro">!</span>(
@@ -1236,8 +1240,6 @@
     <span class="ident">Unit</span>::<span class="ident">new_unchecked</span>(<span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">unwrap</span>());
     );
 
-
-
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">scalar_op_impl</span>(
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">OpAssign</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op_assign</span>: <span class="ident">ident</span>);<span class="op">*</span> $(;)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
@@ -1345,7 +1347,6 @@
     (<span class="ident">U4</span>, <span class="ident">U1</span>), (<span class="ident">U4</span>, <span class="ident">U1</span>);
     <span class="self">self</span>: <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Quaternion</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>;
     <span class="self">self</span>.<span class="ident">coords</span> <span class="op">+=</span> <span class="ident">rhs</span>.<span class="ident">coords</span>; );
-
 
 <span class="comment">// Quaternion -= Quaternion</span>
 <span class="macro">quaternion_op_impl</span><span class="macro">!</span>(
@@ -1460,18 +1461,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -1507,11 +1512,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

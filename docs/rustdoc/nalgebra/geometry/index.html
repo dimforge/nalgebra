@@ -10,14 +10,17 @@
     <title>nalgebra::geometry - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css" id="themeStyle">
+    <script src="../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc mod">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc mod"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'>Module geometry</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'><a href='../index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'geometry', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module geometry</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'><a href='../index.html'>nalgebra</a></p><script>window.sidebarCurrent = {name: 'geometry', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script></div>
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -58,6 +69,7 @@
                                   title='struct nalgebra::geometry::Isometry'>Isometry</a></td>
                            <td class='docblock-short'>
                                 <p>A direct isometry, i.e., a rotation followed by a translation.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -65,6 +77,7 @@
                                   title='struct nalgebra::geometry::Orthographic3'>Orthographic3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3D orthographic projection stored as an homogeneous 4x4 matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -72,6 +85,7 @@
                                   title='struct nalgebra::geometry::Perspective3'>Perspective3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3D perspective projection stored as an homogeneous 4x4 matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -79,6 +93,7 @@
                                   title='struct nalgebra::geometry::Point'>Point</a></td>
                            <td class='docblock-short'>
                                 <p>A point in a n-dimensional euclidean space.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -87,6 +102,7 @@
                            <td class='docblock-short'>
                                 <p>A quaternion. See the type alias <code>UnitQuaternion = Unit&lt;Quaternion&gt;</code> for a quaternion
 that may be used as a rotation.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -94,6 +110,7 @@ that may be used as a rotation.</p>
                                   title='struct nalgebra::geometry::Reflection'>Reflection</a></td>
                            <td class='docblock-short'>
                                 <p>A reflection wrt. a plane.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -101,6 +118,7 @@ that may be used as a rotation.</p>
                                   title='struct nalgebra::geometry::Rotation'>Rotation</a></td>
                            <td class='docblock-short'>
                                 <p>A rotation matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -108,6 +126,7 @@ that may be used as a rotation.</p>
                                   title='struct nalgebra::geometry::Similarity'>Similarity</a></td>
                            <td class='docblock-short'>
                                 <p>A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -115,6 +134,7 @@ that may be used as a rotation.</p>
                                   title='struct nalgebra::geometry::Transform'>Transform</a></td>
                            <td class='docblock-short'>
                                 <p>A transformation matrix in homogeneous coordinates.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -122,6 +142,7 @@ that may be used as a rotation.</p>
                                   title='struct nalgebra::geometry::Translation'>Translation</a></td>
                            <td class='docblock-short'>
                                 <p>A translation.</p>
+
                            </td>
                        </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
@@ -130,6 +151,7 @@ that may be used as a rotation.</p>
                                   title='enum nalgebra::geometry::TAffine'>TAffine</a></td>
                            <td class='docblock-short'>
                                 <p>Tag representing an affine <code>Transform</code>. Its bottom-row is equal to <code>(0, 0 ... 0, 1)</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -137,6 +159,7 @@ that may be used as a rotation.</p>
                                   title='enum nalgebra::geometry::TGeneral'>TGeneral</a></td>
                            <td class='docblock-short'>
                                 <p>Tag representing the most general (not necessarily inversible) <code>Transform</code> type.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -144,6 +167,7 @@ that may be used as a rotation.</p>
                                   title='enum nalgebra::geometry::TProjective'>TProjective</a></td>
                            <td class='docblock-short'>
                                 <p>Tag representing the most general inversible <code>Transform</code> type.</p>
+
                            </td>
                        </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
@@ -152,6 +176,7 @@ that may be used as a rotation.</p>
                                   title='trait nalgebra::geometry::SubTCategoryOf'>SubTCategoryOf</a></td>
                            <td class='docblock-short'>
                                 <p>Indicates that <code>Self</code> is a more specific <code>Transform</code> category than <code>Other</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -159,6 +184,7 @@ that may be used as a rotation.</p>
                                   title='trait nalgebra::geometry::SuperTCategoryOf'>SuperTCategoryOf</a></td>
                            <td class='docblock-short'>
                                 <p>Indicates that <code>Self</code> is a more general <code>Transform</code> category than <code>Other</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -166,6 +192,7 @@ that may be used as a rotation.</p>
                                   title='trait nalgebra::geometry::TCategory'>TCategory</a></td>
                            <td class='docblock-short'>
                                 <p>Trait implemented by phantom types identifying the projective transformation type.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -174,6 +201,7 @@ that may be used as a rotation.</p>
                            <td class='docblock-short'>
                                 <p>Traits that gives the <code>Transform</code> category that is compatible with the result of the
 multiplication of transformations with categories <code>Self</code> and <code>Other</code>.</p>
+
                            </td>
                        </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
@@ -182,6 +210,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Affine2'>Affine2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2D affine transformation. Stored as an homogeneous 3x3 matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -189,6 +218,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Affine3'>Affine3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3D affine transformation. Stored as an homogeneous 4x4 matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -196,6 +226,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Isometry2'>Isometry2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional isometry using a unit complex number for its rotational part.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -203,6 +234,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Isometry3'>Isometry3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional isometry using a unit quaternion for its rotational part.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -210,6 +242,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::IsometryMatrix2'>IsometryMatrix2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional isometry using a rotation matrix for its rotational part.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -217,6 +250,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::IsometryMatrix3'>IsometryMatrix3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional isometry using a rotation matrix for its rotational part.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -224,6 +258,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Point1'>Point1</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 1-dimensional column point.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -231,6 +266,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Point2'>Point2</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 2-dimensional column point.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -238,6 +274,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Point3'>Point3</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 3-dimensional column point.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -245,6 +282,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Point4'>Point4</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 4-dimensional column point.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -252,6 +290,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Point5'>Point5</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 5-dimensional column point.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -259,6 +298,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Point6'>Point6</a></td>
                            <td class='docblock-short'>
                                 <p>A statically sized 6-dimensional column point.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -266,6 +306,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Projective2'>Projective2</a></td>
                            <td class='docblock-short'>
                                 <p>An inversible 2D general transformation. Stored as an homogeneous 3x3 matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -273,6 +314,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Projective3'>Projective3</a></td>
                            <td class='docblock-short'>
                                 <p>An inversible 3D general transformation. Stored as an homogeneous 4x4 matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -280,6 +322,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Rotation2'>Rotation2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional rotation matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -287,6 +330,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Rotation3'>Rotation3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional rotation matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -294,6 +338,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Similarity2'>Similarity2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional similarity.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -301,6 +346,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Similarity3'>Similarity3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional similarity.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -308,6 +354,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::SimilarityMatrix2'>SimilarityMatrix2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional similarity using a rotation matrix for its rotation part.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -315,6 +362,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::SimilarityMatrix3'>SimilarityMatrix3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional similarity using a rotation matrix for its rotation part.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -322,6 +370,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Transform2'>Transform2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2D general transformation that may not be inversible. Stored as an homogeneous 3x3 matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -329,6 +378,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Transform3'>Transform3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3D general transformation that may not be inversible. Stored as an homogeneous 4x4 matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -336,6 +386,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Translation2'>Translation2</a></td>
                            <td class='docblock-short'>
                                 <p>A 2-dimensional translation.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -343,6 +394,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::Translation3'>Translation3</a></td>
                            <td class='docblock-short'>
                                 <p>A 3-dimensional translation.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -350,6 +402,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::UnitComplex'>UnitComplex</a></td>
                            <td class='docblock-short'>
                                 <p>A complex number with a norm equal to 1.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -357,6 +410,7 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                                   title='type nalgebra::geometry::UnitQuaternion'>UnitQuaternion</a></td>
                            <td class='docblock-short'>
                                 <p>A unit quaternions. May be used to represent a rotation.</p>
+
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
@@ -371,18 +425,22 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -418,11 +476,4 @@ multiplication of transformations with categories <code>Self</code> and <code>Ot
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

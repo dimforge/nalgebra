@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/geometry/transform_conversion.rs`.">
+    <meta name="description" content="Source to the Rust file `src\geometry\transform_conversion.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>transform_conversion.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -103,26 +114,29 @@
 <span id="58">58</span>
 <span id="59">59</span>
 <span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
 </pre><pre class="rust ">
-<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">SubsetOf</span>, <span class="ident">Real</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Real</span>, <span class="ident">SubsetOf</span>};
 
 <span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">MatrixN</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">DimNameAdd</span>, <span class="ident">DimNameSum</span>, <span class="ident">U1</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Transform</span>, <span class="ident">TCategory</span>, <span class="ident">SuperTCategoryOf</span>};
-
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">SuperTCategoryOf</span>, <span class="ident">TCategory</span>, <span class="ident">Transform</span>};
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C2</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">C1</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span>,
-          <span class="ident">N2</span>: <span class="ident">Real</span>,
-          <span class="ident">C1</span>: <span class="ident">TCategory</span>,
-          <span class="ident">C2</span>: <span class="ident">SuperTCategoryOf</span><span class="op">&lt;</span><span class="ident">C1</span><span class="op">&gt;</span>,
-          <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>,
-          <span class="ident">N1</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span>,
-          <span class="ident">N2</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span> {
+<span class="kw">where</span>
+    <span class="ident">N1</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span>,
+    <span class="ident">N2</span>: <span class="ident">Real</span>,
+    <span class="ident">C1</span>: <span class="ident">TCategory</span>,
+    <span class="ident">C2</span>: <span class="ident">SuperTCategoryOf</span><span class="op">&lt;</span><span class="ident">C1</span><span class="op">&gt;</span>,
+    <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">N1</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span>,
+    <span class="ident">N2</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
         <span class="ident">Transform</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>().<span class="ident">to_superset</span>())
@@ -139,16 +153,17 @@
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span>,
-          <span class="ident">N2</span>: <span class="ident">Real</span>,
-          <span class="ident">C</span>: <span class="ident">TCategory</span>,
-          <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>,
-          <span class="ident">N1</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span>,
-          <span class="ident">N2</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span> {
+<span class="kw">where</span>
+    <span class="ident">N1</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span>,
+    <span class="ident">N2</span>: <span class="ident">Real</span>,
+    <span class="ident">C</span>: <span class="ident">TCategory</span>,
+    <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">N1</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span>,
+    <span class="ident">N2</span>::<span class="ident">Epsilon</span>: <span class="ident">Copy</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
         <span class="self">self</span>.<span class="ident">matrix</span>().<span class="ident">to_superset</span>()
@@ -178,18 +193,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -225,11 +244,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

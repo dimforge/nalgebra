@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/geometry/similarity_ops.rs`.">
+    <meta name="description" content="Source to the Rust file `src\geometry\similarity_ops.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>similarity_ops.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -521,32 +532,8 @@
 <span id="476">476</span>
 <span id="477">477</span>
 <span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
 </pre><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Mul</span>, <span class="ident">MulAssign</span>, <span class="ident">Div</span>, <span class="ident">DivAssign</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Div</span>, <span class="ident">DivAssign</span>, <span class="ident">Mul</span>, <span class="ident">MulAssign</span>};
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::<span class="ident">Rotation</span> <span class="kw">as</span> <span class="ident">AlgaRotation</span>;
@@ -555,7 +542,7 @@
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">U1</span>, <span class="ident">U3</span>, <span class="ident">U4</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Rotation</span>, <span class="ident">Similarity</span>, <span class="ident">Translation</span>, <span class="ident">UnitQuaternion</span>, <span class="ident">Isometry</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Isometry</span>, <span class="ident">Point</span>, <span class="ident">Rotation</span>, <span class="ident">Similarity</span>, <span class="ident">Translation</span>, <span class="ident">UnitQuaternion</span>};
 
 <span class="comment">// FIXME: there are several cloning of rotations that we could probably get rid of (but we didn&#39;t</span>
 <span class="comment">// yet because that would require to add a bound like `where for&lt;&#39;a, &#39;b&gt; &amp;&#39;a R: Mul&lt;&amp;&#39;b R, Output = R&gt;`</span>
@@ -608,7 +595,6 @@
  * Similarity ÷= R
  *
  */</span>
-
 
 <span class="comment">// XXX: code duplication: those macros are the same as for the isometry.</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">similarity_binop_impl</span>(
@@ -697,7 +683,6 @@
     };
 );
 
-
 <span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
     <span class="ident">Div</span>, <span class="ident">div</span>;
     <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
@@ -706,7 +691,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
-
 
 <span class="comment">// Similarity ×= Translation</span>
 <span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
@@ -718,7 +702,6 @@
         <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span>.<span class="ident">vector</span> <span class="op">+=</span> <span class="ident">shift</span>;
     };
 );
-
 
 <span class="comment">// Similarity ×= Similarity</span>
 <span class="comment">// Similarity ÷= Similarity</span>
@@ -732,7 +715,6 @@
     };
 );
 
-
 <span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
     <span class="ident">DivAssign</span>, <span class="ident">div_assign</span>;
     <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
@@ -740,7 +722,6 @@
     <span class="comment">// FIXME: don&#39;t invert explicitly.</span>
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
-
 
 <span class="comment">// Similarity ×= Isometry</span>
 <span class="comment">// Similarity ÷= Isometry</span>
@@ -755,7 +736,6 @@
     };
 );
 
-
 <span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
     <span class="ident">DivAssign</span>, <span class="ident">div_assign</span>;
     <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
@@ -763,7 +743,6 @@
     <span class="comment">// FIXME: don&#39;t invert explicitly.</span>
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
-
 
 <span class="comment">// Similarity ×= R</span>
 <span class="comment">// Similarity ÷= R</span>
@@ -774,7 +753,6 @@
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">clone</span>();
 );
 
-
 <span class="macro">similarity_binop_assign_impl_all</span><span class="macro">!</span>(
     <span class="ident">DivAssign</span>, <span class="ident">div_assign</span>;
     <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">R</span>;
@@ -782,7 +760,6 @@
     [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
-
 
 <span class="comment">// Similarity × R</span>
 <span class="comment">// Similarity ÷ R</span>
@@ -800,8 +777,6 @@
     };
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span> <span class="op">*</span> <span class="ident">rhs</span>, <span class="self">self</span>.<span class="ident">scaling</span>());
 );
-
-
 
 <span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
     <span class="ident">Div</span>, <span class="ident">div</span>;
@@ -835,8 +810,6 @@
     };
 );
 
-
-
 <span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
     <span class="ident">Div</span>, <span class="ident">div</span>;
     <span class="self">self</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
@@ -869,7 +842,6 @@
     };
 );
 
-
 <span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
     <span class="ident">Div</span>, <span class="ident">div</span>;
     <span class="self">self</span>: <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">rhs</span>: <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>;
@@ -878,7 +850,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
-
 
 <span class="comment">// Similarity × Point</span>
 <span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
@@ -896,7 +867,6 @@
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">translation</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_point</span>(<span class="ident">right</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>());
 );
 
-
 <span class="comment">// Similarity × Vector</span>
 <span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
     <span class="ident">Mul</span>, <span class="ident">mul</span>;
@@ -906,7 +876,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="ident">right</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">isometry</span>.<span class="ident">rotation</span>.<span class="ident">transform_vector</span>(<span class="ident">right</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">scaling</span>();
 );
-
 
 <span class="comment">// Similarity × Translation</span>
 <span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
@@ -924,7 +893,6 @@
     };
 );
 
-
 <span class="comment">// Translation × Similarity</span>
 <span class="macro">similarity_binop_impl_all</span><span class="macro">!</span>(
     <span class="ident">Mul</span>, <span class="ident">mul</span>;
@@ -940,7 +908,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">right</span>.<span class="ident">scaling</span>());
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">right</span>.<span class="ident">scaling</span>());
 );
-
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">similarity_from_composition_impl</span>(
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">Op</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>: <span class="ident">ident</span>;
@@ -995,7 +962,6 @@
     }
 );
 
-
 <span class="comment">// Rotation × Similarity</span>
 <span class="macro">similarity_from_composition_impl_all</span><span class="macro">!</span>(
     <span class="ident">Mul</span>, <span class="ident">mul</span>;
@@ -1007,7 +973,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span>  <span class="ident">right</span>;
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">right</span>.<span class="ident">scaling</span>());
 );
-
 
 <span class="comment">// Rotation ÷ Similarity</span>
 <span class="macro">similarity_from_composition_impl_all</span><span class="macro">!</span>(
@@ -1022,7 +987,6 @@
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">right</span>.<span class="ident">inverse</span>();
 );
 
-
 <span class="comment">// UnitQuaternion × Similarity</span>
 <span class="macro">similarity_from_composition_impl_all</span><span class="macro">!</span>(
     <span class="ident">Mul</span>, <span class="ident">mul</span>;
@@ -1034,7 +998,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span> <span class="op">*</span>  <span class="ident">right</span>;
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="ident">Similarity</span>::<span class="ident">from_isometry</span>(<span class="self">self</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">isometry</span>, <span class="ident">right</span>.<span class="ident">scaling</span>());
 );
-
 
 <span class="comment">// UnitQuaternion ÷ Similarity</span>
 <span class="macro">similarity_from_composition_impl_all</span><span class="macro">!</span>(
@@ -1062,18 +1025,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -1109,11 +1076,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

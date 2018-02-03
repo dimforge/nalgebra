@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/linalg/permutation_sequence.rs`.">
+    <meta name="description" content="Source to the Rust file `src\linalg\permutation_sequence.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>permutation_sequence.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -178,6 +189,20 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>;
@@ -185,36 +210,39 @@
 <span class="kw">use</span> <span class="ident">num</span>::<span class="ident">One</span>;
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">ClosedNeg</span>;
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Scalar</span>, <span class="ident">Matrix</span>, <span class="ident">VectorN</span>, <span class="ident">DefaultAllocator</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Matrix</span>, <span class="ident">Scalar</span>, <span class="ident">VectorN</span>};
 <span class="kw">use</span> <span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimName</span>, <span class="ident">Dynamic</span>, <span class="ident">U1</span>};
 <span class="kw">use</span> <span class="ident">storage</span>::<span class="ident">StorageMut</span>;
 <span class="kw">use</span> <span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-
 <span class="doccomment">/// A sequence of row or column permutations.</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>,
-    <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span>
-        <span class="string">&quot;DefaultAllocator: Allocator&lt;(usize, usize), D&gt;,
+           <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;DefaultAllocator: Allocator&lt;(usize, usize), D&gt;,
          VectorN&lt;(usize, usize), D&gt;: serde::Serialize&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>,
-    <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">deserialize</span> <span class="op">=</span>
-        <span class="string">&quot;DefaultAllocator: Allocator&lt;(usize, usize), D&gt;,
+           <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;DefaultAllocator: Allocator&lt;(usize, usize), D&gt;,
          VectorN&lt;(usize, usize), D&gt;: serde::Deserialize&lt;&#39;de&gt;&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PermutationSequence</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span> {
-    <span class="ident">len</span>:  <span class="ident">usize</span>,
-    <span class="ident">ipiv</span>: <span class="ident">VectorN</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>,
+{
+    <span class="ident">len</span>: <span class="ident">usize</span>,
+    <span class="ident">ipiv</span>: <span class="ident">VectorN</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">PermutationSequence</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>,
-          <span class="ident">VectorN</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>: <span class="ident">Copy</span> { }
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>,
+    <span class="ident">VectorN</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>: <span class="ident">Copy</span>,
+{
+}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">PermutationSequence</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span> {
-
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="doccomment">/// Creates a new statically-allocated sequence of `D` identity permutations.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
@@ -223,8 +251,9 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PermutationSequence</span><span class="op">&lt;</span><span class="ident">Dynamic</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">Dynamic</span><span class="op">&gt;</span> {
-
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">Dynamic</span><span class="op">&gt;</span>,
+{
     <span class="doccomment">/// Creates a new dynamically-allocated sequence of `n` identity permutations.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">identity</span>(<span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
@@ -233,14 +262,16 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">PermutationSequence</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="doccomment">/// Creates a new sequence of D identity permutations.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">identity_generic</span>(<span class="ident">dim</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="kw">unsafe</span> {
             <span class="ident">PermutationSequence</span> {
-                <span class="ident">len</span>:  <span class="number">0</span>,
-                <span class="ident">ipiv</span>: <span class="ident">VectorN</span>::<span class="ident">new_uninitialized_generic</span>(<span class="ident">dim</span>, <span class="ident">U1</span>)
+                <span class="ident">len</span>: <span class="number">0</span>,
+                <span class="ident">ipiv</span>: <span class="ident">VectorN</span>::<span class="ident">new_uninitialized_generic</span>(<span class="ident">dim</span>, <span class="ident">U1</span>),
             }
         }
     }
@@ -250,7 +281,10 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_permutation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">i2</span>: <span class="ident">usize</span>) {
         <span class="kw">if</span> <span class="ident">i</span> <span class="op">!=</span> <span class="ident">i2</span> {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">len</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">ipiv</span>.<span class="ident">len</span>(), <span class="string">&quot;Maximum number of permutations exceeded.&quot;</span>);
+            <span class="macro">assert</span><span class="macro">!</span>(
+                <span class="self">self</span>.<span class="ident">len</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">ipiv</span>.<span class="ident">len</span>(),
+                <span class="string">&quot;Maximum number of permutations exceeded.&quot;</span>
+            );
             <span class="self">self</span>.<span class="ident">ipiv</span>[<span class="self">self</span>.<span class="ident">len</span>] <span class="op">=</span> (<span class="ident">i</span>, <span class="ident">i2</span>);
             <span class="self">self</span>.<span class="ident">len</span> <span class="op">+=</span> <span class="number">1</span>;
         }
@@ -259,9 +293,10 @@
     <span class="doccomment">/// Applies this sequence of permutations to the rows of `rhs`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">permute_rows</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
-
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">ipiv</span>.<span class="ident">rows_range</span>(.. <span class="self">self</span>.<span class="ident">len</span>).<span class="ident">iter</span>() {
+    <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">ipiv</span>.<span class="ident">rows_range</span>(..<span class="self">self</span>.<span class="ident">len</span>).<span class="ident">iter</span>() {
             <span class="ident">rhs</span>.<span class="ident">swap_rows</span>(<span class="ident">i</span>.<span class="number">0</span>, <span class="ident">i</span>.<span class="number">1</span>)
         }
     }
@@ -269,9 +304,10 @@
     <span class="doccomment">/// Applies this sequence of permutations in reverse to the rows of `rhs`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inv_permute_rows</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
-
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">len</span> {
+    <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">len</span> {
             <span class="kw">let</span> (<span class="ident">i1</span>, <span class="ident">i2</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">ipiv</span>[<span class="self">self</span>.<span class="ident">len</span> <span class="op">-</span> <span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>];
             <span class="ident">rhs</span>.<span class="ident">swap_rows</span>(<span class="ident">i1</span>, <span class="ident">i2</span>)
         }
@@ -280,19 +316,23 @@
     <span class="doccomment">/// Applies this sequence of permutations to the columns of `rhs`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">permute_columns</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
-
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">ipiv</span>.<span class="ident">rows_range</span>(.. <span class="self">self</span>.<span class="ident">len</span>).<span class="ident">iter</span>() {
+    <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">ipiv</span>.<span class="ident">rows_range</span>(..<span class="self">self</span>.<span class="ident">len</span>).<span class="ident">iter</span>() {
             <span class="ident">rhs</span>.<span class="ident">swap_columns</span>(<span class="ident">i</span>.<span class="number">0</span>, <span class="ident">i</span>.<span class="number">1</span>)
         }
     }
 
     <span class="doccomment">/// Applies this sequence of permutations in reverse to the columns of `rhs`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inv_permute_columns</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
-
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">len</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inv_permute_columns</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>,
+    ) <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">len</span> {
             <span class="kw">let</span> (<span class="ident">i1</span>, <span class="ident">i2</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">ipiv</span>[<span class="self">self</span>.<span class="ident">len</span> <span class="op">-</span> <span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>];
             <span class="ident">rhs</span>.<span class="ident">swap_columns</span>(<span class="ident">i1</span>, <span class="ident">i2</span>)
         }
@@ -308,8 +348,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">determinant</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">One</span> <span class="op">+</span> <span class="ident">ClosedNeg</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">len</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">N</span>::<span class="ident">one</span>()
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="op">-</span><span class="ident">N</span>::<span class="ident">one</span>()
         }
     }
@@ -328,18 +367,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -375,11 +418,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

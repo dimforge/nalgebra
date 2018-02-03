@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/geometry/rotation_conversion.rs`.">
+    <meta name="description" content="Source to the Rust file `src\geometry\rotation_conversion.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>rotation_conversion.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -246,19 +257,34 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">num</span>::<span class="ident">Zero</span>;
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Real</span>, <span class="ident">SubsetOf</span>, <span class="ident">SupersetOf</span>};
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::<span class="ident">Rotation</span> <span class="kw">as</span> <span class="ident">AlgaRotation</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mint&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">mint</span>;
+
 <span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">MatrixN</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">DimNameSum</span>, <span class="ident">DimNameAdd</span>, <span class="ident">DimMin</span>, <span class="ident">U1</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimMin</span>, <span class="ident">DimName</span>, <span class="ident">DimNameAdd</span>, <span class="ident">DimNameSum</span>, <span class="ident">U1</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
-<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Translation</span>, <span class="ident">Rotation</span>, <span class="ident">UnitQuaternion</span>, <span class="ident">UnitComplex</span>, <span class="ident">Isometry</span>,
-               <span class="ident">Similarity</span>, <span class="ident">Transform</span>, <span class="ident">SuperTCategoryOf</span>, <span class="ident">TAffine</span>,
-               <span class="ident">Rotation2</span>, <span class="ident">Rotation3</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Isometry</span>, <span class="ident">Point</span>, <span class="ident">Rotation</span>, <span class="ident">Rotation2</span>, <span class="ident">Rotation3</span>, <span class="ident">Similarity</span>, <span class="ident">SuperTCategoryOf</span>,
+               <span class="ident">TAffine</span>, <span class="ident">Transform</span>, <span class="ident">Translation</span>, <span class="ident">UnitComplex</span>, <span class="ident">UnitQuaternion</span>};
 
 <span class="comment">/*
  * This file provides the following conversions:
@@ -271,14 +297,16 @@
  * Rotation  -&gt; Similarity
  * Rotation  -&gt; Transform
  * Rotation  -&gt; Matrix (homogeneous)
- */</span>
+ * mint::EulerAngles -&gt; Rotation
 
+*/</span>
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
-          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N1</span>: <span class="ident">Real</span>,
+    <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span> {
         <span class="ident">Rotation</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">matrix</span>().<span class="ident">to_superset</span>())
@@ -295,10 +323,11 @@
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation3</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
-          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N1</span>: <span class="ident">Real</span>,
+    <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">UnitQuaternion</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">UnitQuaternion</span>::<span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>::<span class="ident">from_rotation_matrix</span>(<span class="self">self</span>);
@@ -318,8 +347,10 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation2</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
-          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N1</span>: <span class="ident">Real</span>,
+    <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N2</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">UnitComplex</span>::<span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>::<span class="ident">from_rotation_matrix</span>(<span class="self">self</span>);
@@ -338,14 +369,13 @@
     }
 }
 
-
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
-          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
-          <span class="ident">R</span>:  <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N1</span>: <span class="ident">Real</span>,
+    <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+    <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Isometry</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">Isometry</span>::<span class="ident">from_parts</span>(<span class="ident">Translation</span>::<span class="ident">identity</span>(), ::<span class="ident">convert_ref</span>(<span class="self">self</span>))
@@ -362,13 +392,13 @@
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>: <span class="ident">DimName</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
-          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
-          <span class="ident">R</span>:  <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N1</span>: <span class="ident">Real</span>,
+    <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+    <span class="ident">R</span>: <span class="ident">AlgaRotation</span><span class="op">&lt;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">Similarity</span>::<span class="ident">from_parts</span>(<span class="ident">Translation</span>::<span class="ident">identity</span>(), ::<span class="ident">convert_ref</span>(<span class="self">self</span>), <span class="ident">N2</span>::<span class="ident">one</span>())
@@ -376,8 +406,7 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">is_in_subset</span>(<span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Similarity</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">R</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="ident">sim</span>.<span class="ident">isometry</span>.<span class="ident">translation</span>.<span class="ident">vector</span>.<span class="ident">is_zero</span>() <span class="op">&amp;&amp;</span>
-        <span class="ident">sim</span>.<span class="ident">scaling</span>() <span class="op">==</span> <span class="ident">N2</span>::<span class="ident">one</span>()
+        <span class="ident">sim</span>.<span class="ident">isometry</span>.<span class="ident">translation</span>.<span class="ident">vector</span>.<span class="ident">is_zero</span>() <span class="op">&amp;&amp;</span> <span class="ident">sim</span>.<span class="ident">scaling</span>() <span class="op">==</span> <span class="ident">N2</span>::<span class="ident">one</span>()
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -386,18 +415,19 @@
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
-          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
-          <span class="ident">C</span>:  <span class="ident">SuperTCategoryOf</span><span class="op">&lt;</span><span class="ident">TAffine</span><span class="op">&gt;</span>,
-          <span class="ident">D</span>:  <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span> <span class="op">+</span>
-              <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">D</span><span class="op">&gt;</span>, <span class="comment">// needed by .is_special_orthogonal()</span>
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span> { <span class="comment">// needed by .is_special_orthogonal()</span>
+<span class="kw">where</span>
+    <span class="ident">N1</span>: <span class="ident">Real</span>,
+    <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+    <span class="ident">C</span>: <span class="ident">SuperTCategoryOf</span><span class="op">&lt;</span><span class="ident">TAffine</span><span class="op">&gt;</span>,
+    <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">D</span><span class="op">&gt;</span>, <span class="comment">// needed by .is_special_orthogonal()</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>,
+{
+    <span class="comment">// needed by .is_special_orthogonal()</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span> {
         <span class="ident">Transform</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>().<span class="ident">to_superset</span>())
@@ -414,17 +444,18 @@
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">N2</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rotation</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N1</span>: <span class="ident">Real</span>,
-          <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
-          <span class="ident">D</span>:  <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span> <span class="op">+</span>
-              <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">D</span><span class="op">&gt;</span>, <span class="comment">// needed by .is_special_orthogonal()</span>
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span> { <span class="comment">// needed by .is_special_orthogonal()</span>
+<span class="kw">where</span>
+    <span class="ident">N1</span>: <span class="ident">Real</span>,
+    <span class="ident">N2</span>: <span class="ident">Real</span> <span class="op">+</span> <span class="ident">SupersetOf</span><span class="op">&lt;</span><span class="ident">N1</span><span class="op">&gt;</span>,
+    <span class="ident">D</span>: <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">D</span><span class="op">&gt;</span>, <span class="comment">// needed by .is_special_orthogonal()</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N1</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">D</span><span class="op">&gt;</span>,
+{
+    <span class="comment">// needed by .is_special_orthogonal()</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
         <span class="self">self</span>.<span class="ident">to_homogeneous</span>().<span class="ident">to_superset</span>()
@@ -432,7 +463,7 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">is_in_subset</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">rot</span>    <span class="op">=</span> <span class="ident">m</span>.<span class="ident">fixed_slice</span>::<span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">0</span>);
+        <span class="kw">let</span> <span class="ident">rot</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">fixed_slice</span>::<span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">0</span>);
         <span class="kw">let</span> <span class="ident">bottom</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">fixed_slice</span>::<span class="op">&lt;</span><span class="ident">U1</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">D</span>::<span class="ident">dim</span>(), <span class="number">0</span>);
 
         <span class="comment">// Scalar types agree.</span>
@@ -440,14 +471,20 @@
         <span class="comment">// The block part is a rotation.</span>
         <span class="ident">rot</span>.<span class="ident">is_special_orthogonal</span>(<span class="ident">N2</span>::<span class="ident">default_epsilon</span>() <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">100.0</span>)) <span class="op">&amp;&amp;</span>
         <span class="comment">// The bottom row is (0, 0, ..., 1)</span>
-        <span class="ident">bottom</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">is_zero</span>()) <span class="op">&amp;&amp;</span>
-        <span class="ident">m</span>[(<span class="ident">D</span>::<span class="ident">dim</span>(), <span class="ident">D</span>::<span class="ident">dim</span>())] <span class="op">==</span> <span class="ident">N2</span>::<span class="ident">one</span>()
+        <span class="ident">bottom</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">is_zero</span>()) <span class="op">&amp;&amp;</span> <span class="ident">m</span>[(<span class="ident">D</span>::<span class="ident">dim</span>(), <span class="ident">D</span>::<span class="ident">dim</span>())] <span class="op">==</span> <span class="ident">N2</span>::<span class="ident">one</span>()
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_superset_unchecked</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N2</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">fixed_slice</span>::<span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">0</span>);
         <span class="self">Self</span>::<span class="ident">from_matrix_unchecked</span>(::<span class="ident">convert_unchecked</span>(<span class="ident">r</span>.<span class="ident">into_owned</span>()))
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mint&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">mint</span>::<span class="ident">EulerAngles</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">mint</span>::<span class="ident">IntraXYZ</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Rotation3</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">euler</span>: <span class="ident">mint</span>::<span class="ident">EulerAngles</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">mint</span>::<span class="ident">IntraXYZ</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">from_euler_angles</span>(<span class="ident">euler</span>.<span class="ident">a</span>, <span class="ident">euler</span>.<span class="ident">b</span>, <span class="ident">euler</span>.<span class="ident">c</span>)
     }
 }
 </pre>
@@ -464,18 +501,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -511,11 +552,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

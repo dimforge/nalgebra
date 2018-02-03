@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/linalg/svd.rs`.">
+    <meta name="description" content="Source to the Rust file `src\linalg\svd.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>svd.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -603,6 +614,66 @@
 <span id="558">558</span>
 <span id="559">559</span>
 <span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
 </pre><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>;
@@ -611,24 +682,21 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">MulAssign</span>;
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">Matrix</span>, <span class="ident">MatrixMN</span>, <span class="ident">VectorN</span>, <span class="ident">DefaultAllocator</span>, <span class="ident">Matrix2x3</span>, <span class="ident">Vector2</span>};
-<span class="kw">use</span> <span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimMin</span>, <span class="ident">DimMinimum</span>, <span class="ident">DimSub</span>, <span class="ident">DimDiff</span>, <span class="ident">U1</span>, <span class="ident">U2</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Matrix</span>, <span class="ident">Matrix2x3</span>, <span class="ident">MatrixMN</span>, <span class="ident">Vector2</span>, <span class="ident">VectorN</span>};
+<span class="kw">use</span> <span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimDiff</span>, <span class="ident">DimMin</span>, <span class="ident">DimMinimum</span>, <span class="ident">DimSub</span>, <span class="ident">U1</span>, <span class="ident">U2</span>};
 <span class="kw">use</span> <span class="ident">storage</span>::<span class="ident">Storage</span>;
 <span class="kw">use</span> <span class="ident">allocator</span>::<span class="ident">Allocator</span>;
-<span class="kw">use</span> <span class="ident">constraint</span>::{<span class="ident">ShapeConstraint</span>, <span class="ident">SameNumberOfRows</span>};
+<span class="kw">use</span> <span class="ident">constraint</span>::{<span class="ident">SameNumberOfRows</span>, <span class="ident">ShapeConstraint</span>};
 
 <span class="kw">use</span> <span class="ident">linalg</span>::<span class="ident">givens</span>;
 <span class="kw">use</span> <span class="ident">linalg</span>::<span class="ident">symmetric_eigen</span>;
 <span class="kw">use</span> <span class="ident">linalg</span>::<span class="ident">Bidiagonal</span>;
 <span class="kw">use</span> <span class="ident">geometry</span>::<span class="ident">UnitComplex</span>;
 
-
-
 <span class="doccomment">/// Singular Value Decomposition of a general matrix.</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>,
-    <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span>
-        <span class="string">&quot;DefaultAllocator: Allocator&lt;N, R, C&gt;                +
+           <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;DefaultAllocator: Allocator&lt;N, R, C&gt;                +
                            Allocator&lt;N, DimMinimum&lt;R, C&gt;&gt;    +
                            Allocator&lt;N, DimMinimum&lt;R, C&gt;, C&gt; +
                            Allocator&lt;N, R, DimMinimum&lt;R, C&gt;&gt;,
@@ -636,8 +704,7 @@
          MatrixMN&lt;N, DimMinimum&lt;R, C&gt;, C&gt;: serde::Serialize,
          VectorN&lt;N, DimMinimum&lt;R, C&gt;&gt;: serde::Serialize&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>,
-    <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">deserialize</span> <span class="op">=</span>
-        <span class="string">&quot;DefaultAllocator: Allocator&lt;N, R, C&gt;                +
+           <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;DefaultAllocator: Allocator&lt;N, R, C&gt;                +
                            Allocator&lt;N, DimMinimum&lt;R, C&gt;&gt;    +
                            Allocator&lt;N, DimMinimum&lt;R, C&gt;, C&gt; +
                            Allocator&lt;N, R, DimMinimum&lt;R, C&gt;&gt;,
@@ -646,9 +713,11 @@
          VectorN&lt;N, DimMinimum&lt;R, C&gt;&gt;: serde::Deserialize&lt;&#39;de&gt;&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SVD</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">R</span>: <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span>: <span class="ident">Dim</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
+{
     <span class="doccomment">/// The left-singular vectors `U` of this SVD.</span>
     <span class="kw">pub</span> <span class="ident">u</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The right-singular vectors `V^t` of this SVD.</span>
@@ -657,25 +726,28 @@
     <span class="kw">pub</span> <span class="ident">singular_values</span>: <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">R</span>: <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">SVD</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
-          <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>: <span class="ident">Copy</span>,
-          <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>: <span class="ident">Copy</span>,
-          <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>:     <span class="ident">Copy</span> { }
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>: <span class="ident">Copy</span>,
+    <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>: <span class="ident">Copy</span>,
+    <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>: <span class="ident">Copy</span>,
+{
+}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">R</span>: <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">SVD</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="comment">// for Bidiagonal.</span>
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>                <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span><span class="op">&gt;</span>                   <span class="op">+</span> <span class="comment">// for Bidiagonal</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span><span class="op">&gt;</span>                   <span class="op">+</span> <span class="comment">// for Bidiagonal</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="comment">// for Bidiagonal</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> {
-
+<span class="kw">where</span>
+    <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="comment">// for Bidiagonal.</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
+{
     <span class="doccomment">/// Computes the Singular Value Decomposition of `matrix` using implicit shift.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">matrix</span>: <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">compute_u</span>: <span class="ident">bool</span>, <span class="ident">compute_v</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>::<span class="ident">try_new</span>(<span class="ident">matrix</span>, <span class="ident">compute_u</span>, <span class="ident">compute_v</span>, <span class="ident">N</span>::<span class="ident">default_epsilon</span>(), <span class="number">0</span>).<span class="ident">unwrap</span>()
@@ -691,14 +763,18 @@
     <span class="doccomment">/// * `max_niter` − maximum total number of iterations performed by the algorithm. If this</span>
     <span class="doccomment">/// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm</span>
     <span class="doccomment">/// continues indefinitely until convergence.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_new</span>(<span class="kw-2">mut</span> <span class="ident">matrix</span>: <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
-                   <span class="ident">compute_u</span>:  <span class="ident">bool</span>,
-                   <span class="ident">compute_v</span>:  <span class="ident">bool</span>,
-                   <span class="ident">eps</span>:        <span class="ident">N</span>,
-                   <span class="ident">max_niter</span>:  <span class="ident">usize</span>)
-                   <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">matrix</span>.<span class="ident">len</span>() <span class="op">!=</span> <span class="number">0</span>, <span class="string">&quot;Cannot compute the SVD of an empty matrix.&quot;</span>);
-        <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>)  <span class="op">=</span> <span class="ident">matrix</span>.<span class="ident">data</span>.<span class="ident">shape</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_new</span>(
+        <span class="kw-2">mut</span> <span class="ident">matrix</span>: <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+        <span class="ident">compute_u</span>: <span class="ident">bool</span>,
+        <span class="ident">compute_v</span>: <span class="ident">bool</span>,
+        <span class="ident">eps</span>: <span class="ident">N</span>,
+        <span class="ident">max_niter</span>: <span class="ident">usize</span>,
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">matrix</span>.<span class="ident">len</span>() <span class="op">!=</span> <span class="number">0</span>,
+            <span class="string">&quot;Cannot compute the SVD of an empty matrix.&quot;</span>
+        );
+        <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="ident">matrix</span>.<span class="ident">data</span>.<span class="ident">shape</span>();
         <span class="kw">let</span> <span class="ident">min_nrows_ncols</span> <span class="op">=</span> <span class="ident">nrows</span>.<span class="ident">min</span>(<span class="ident">ncols</span>);
         <span class="kw">let</span> <span class="ident">dim</span> <span class="op">=</span> <span class="ident">min_nrows_ncols</span>.<span class="ident">value</span>();
 
@@ -708,8 +784,8 @@
             <span class="ident">matrix</span> <span class="op">/=</span> <span class="ident">m_amax</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span>   <span class="op">=</span> <span class="ident">Bidiagonal</span>::<span class="ident">new</span>(<span class="ident">matrix</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">u</span>   <span class="op">=</span> <span class="kw">if</span> <span class="ident">compute_u</span> { <span class="prelude-val">Some</span>(<span class="ident">b</span>.<span class="ident">u</span>()) } <span class="kw">else</span> { <span class="prelude-val">None</span> };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bidiagonal</span>::<span class="ident">new</span>(<span class="ident">matrix</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">u</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">compute_u</span> { <span class="prelude-val">Some</span>(<span class="ident">b</span>.<span class="ident">u</span>()) } <span class="kw">else</span> { <span class="prelude-val">None</span> };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v_t</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">compute_v</span> { <span class="prelude-val">Some</span>(<span class="ident">b</span>.<span class="ident">v_t</span>()) } <span class="kw">else</span> { <span class="prelude-val">None</span> };
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">niter</span> <span class="op">=</span> <span class="number">0</span>;
@@ -735,20 +811,31 @@
 
                     <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="ident">symmetric_eigen</span>::<span class="ident">wilkinson_shift</span>(<span class="ident">tmm</span>, <span class="ident">tnn</span>, <span class="ident">tmn</span>);
 
-                    <span class="ident">vec</span> <span class="op">=</span> <span class="ident">Vector2</span>::<span class="ident">new</span>(<span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span>] <span class="op">*</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span>] <span class="op">-</span> <span class="ident">shift</span>,
-                                       <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span>] <span class="op">*</span> <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">start</span>]);
+                    <span class="ident">vec</span> <span class="op">=</span> <span class="ident">Vector2</span>::<span class="ident">new</span>(
+                        <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span>] <span class="op">*</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span>] <span class="op">-</span> <span class="ident">shift</span>,
+                        <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span>] <span class="op">*</span> <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">start</span>],
+                    );
                 }
 
-
-                <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="ident">start</span> .. <span class="ident">n</span> {
-                    <span class="kw">let</span> <span class="ident">m12</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">n</span> <span class="op">-</span> <span class="number">1</span> { <span class="ident">N</span>::<span class="ident">zero</span>() } <span class="kw">else</span> { <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>] };
+                <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="ident">start</span>..<span class="ident">n</span> {
+                    <span class="kw">let</span> <span class="ident">m12</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">n</span> <span class="op">-</span> <span class="number">1</span> {
+                        <span class="ident">N</span>::<span class="ident">zero</span>()
+                    } <span class="kw">else</span> {
+                        <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>]
+                    };
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">subm</span> <span class="op">=</span> <span class="ident">Matrix2x3</span>::<span class="ident">new</span>(
-                        <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span>], <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">k</span>], <span class="ident">N</span>::<span class="ident">zero</span>(),
-                        <span class="ident">N</span>::<span class="ident">zero</span>(),     <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>], <span class="ident">m12</span>);
+                        <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span>],
+                        <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">k</span>],
+                        <span class="ident">N</span>::<span class="ident">zero</span>(),
+                        <span class="ident">N</span>::<span class="ident">zero</span>(),
+                        <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>],
+                        <span class="ident">m12</span>,
+                    );
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">rot1</span>, <span class="ident">norm1</span>)) <span class="op">=</span> <span class="ident">givens</span>::<span class="ident">cancel_y</span>(<span class="kw-2">&amp;</span><span class="ident">vec</span>) {
-                        <span class="ident">rot1</span>.<span class="ident">conjugate</span>().<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">subm</span>.<span class="ident">fixed_columns_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="number">0</span>));
+                        <span class="ident">rot1</span>.<span class="ident">conjugate</span>()
+                            .<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">subm</span>.<span class="ident">fixed_columns_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="number">0</span>));
 
                         <span class="kw">if</span> <span class="ident">k</span> <span class="op">&gt;</span> <span class="ident">start</span> {
                             <span class="comment">// This is not the first iteration.</span>
@@ -757,30 +844,31 @@
 
                         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">Vector2</span>::<span class="ident">new</span>(<span class="ident">subm</span>[(<span class="number">0</span>, <span class="number">0</span>)], <span class="ident">subm</span>[(<span class="number">1</span>, <span class="number">0</span>)]);
                         <span class="comment">// FIXME: does the case `v.y == 0` ever happen?</span>
-                        <span class="kw">let</span> (<span class="ident">rot2</span>, <span class="ident">norm2</span>) <span class="op">=</span> <span class="ident">givens</span>::<span class="ident">cancel_y</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>).<span class="ident">unwrap_or</span>((<span class="ident">UnitComplex</span>::<span class="ident">identity</span>(), <span class="ident">subm</span>[(<span class="number">0</span>, <span class="number">0</span>)]));
+                        <span class="kw">let</span> (<span class="ident">rot2</span>, <span class="ident">norm2</span>) <span class="op">=</span>
+                            <span class="ident">givens</span>::<span class="ident">cancel_y</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>).<span class="ident">unwrap_or</span>((<span class="ident">UnitComplex</span>::<span class="ident">identity</span>(), <span class="ident">subm</span>[(<span class="number">0</span>, <span class="number">0</span>)]));
                         <span class="ident">rot2</span>.<span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">subm</span>.<span class="ident">fixed_columns_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="number">1</span>));
                         <span class="ident">subm</span>[(<span class="number">0</span>, <span class="number">0</span>)] <span class="op">=</span> <span class="ident">norm2</span>;
 
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v_t</span>) <span class="op">=</span> <span class="ident">v_t</span> {
                             <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() {
                                 <span class="ident">rot1</span>.<span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v_t</span>.<span class="ident">fixed_rows_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">k</span>));
-                            }
-                            <span class="kw">else</span> {
+                            } <span class="kw">else</span> {
                                 <span class="ident">rot2</span>.<span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v_t</span>.<span class="ident">fixed_rows_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">k</span>));
                             }
                         }
 
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">u</span>) <span class="op">=</span> <span class="ident">u</span> {
                             <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() {
-                                <span class="ident">rot2</span>.<span class="ident">inverse</span>().<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>.<span class="ident">fixed_columns_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">k</span>));
-                            }
-                            <span class="kw">else</span> {
-                                <span class="ident">rot1</span>.<span class="ident">inverse</span>().<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>.<span class="ident">fixed_columns_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">k</span>));
+                                <span class="ident">rot2</span>.<span class="ident">inverse</span>()
+                                    .<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>.<span class="ident">fixed_columns_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">k</span>));
+                            } <span class="kw">else</span> {
+                                <span class="ident">rot1</span>.<span class="ident">inverse</span>()
+                                    .<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>.<span class="ident">fixed_columns_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">k</span>));
                             }
                         }
 
-                        <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">0</span>]     <span class="op">=</span> <span class="ident">subm</span>[(<span class="number">0</span>, <span class="number">0</span>)];
-                        <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>]     <span class="op">=</span> <span class="ident">subm</span>[(<span class="number">1</span>, <span class="number">1</span>)];
+                        <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">0</span>] <span class="op">=</span> <span class="ident">subm</span>[(<span class="number">0</span>, <span class="number">0</span>)];
+                        <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">=</span> <span class="ident">subm</span>[(<span class="number">1</span>, <span class="number">1</span>)];
                         <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">0</span>] <span class="op">=</span> <span class="ident">subm</span>[(<span class="number">0</span>, <span class="number">1</span>)];
 
                         <span class="kw">if</span> <span class="ident">k</span> <span class="op">!=</span> <span class="ident">n</span> <span class="op">-</span> <span class="number">1</span> {
@@ -789,30 +877,39 @@
 
                         <span class="ident">vec</span>.<span class="ident">x</span> <span class="op">=</span> <span class="ident">subm</span>[(<span class="number">0</span>, <span class="number">1</span>)];
                         <span class="ident">vec</span>.<span class="ident">y</span> <span class="op">=</span> <span class="ident">subm</span>[(<span class="number">0</span>, <span class="number">2</span>)];
-                    }
-                    <span class="kw">else</span> {
+                    } <span class="kw">else</span> {
                         <span class="kw">break</span>;
                     }
                 }
-            }
-            <span class="kw">else</span> <span class="kw">if</span> <span class="ident">subdim</span> <span class="op">==</span> <span class="number">2</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">subdim</span> <span class="op">==</span> <span class="number">2</span> {
                 <span class="comment">// Solve the remaining 2x2 subproblem.</span>
                 <span class="kw">let</span> (<span class="ident">u2</span>, <span class="ident">s</span>, <span class="ident">v2</span>) <span class="op">=</span> <span class="self">Self</span>::<span class="ident">compute_2x2_uptrig_svd</span>(
-                    <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span>], <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">start</span>], <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span> <span class="op">+</span> <span class="number">1</span>],
+                    <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span>],
+                    <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">start</span>],
+                    <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span> <span class="op">+</span> <span class="number">1</span>],
                     <span class="ident">compute_u</span> <span class="op">&amp;&amp;</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() <span class="op">||</span> <span class="ident">compute_v</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>(),
-                    <span class="ident">compute_v</span> <span class="op">&amp;&amp;</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() <span class="op">||</span> <span class="ident">compute_u</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>());
+                    <span class="ident">compute_v</span> <span class="op">&amp;&amp;</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() <span class="op">||</span> <span class="ident">compute_u</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>(),
+                );
 
                 <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span> <span class="op">+</span> <span class="number">0</span>] <span class="op">=</span> <span class="ident">s</span>[<span class="number">0</span>];
                 <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">start</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">=</span> <span class="ident">s</span>[<span class="number">1</span>];
                 <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">start</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">u</span>) <span class="op">=</span> <span class="ident">u</span> {
-                    <span class="kw">let</span> <span class="ident">rot</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() { <span class="ident">u2</span>.<span class="ident">unwrap</span>() } <span class="kw">else</span> { <span class="ident">v2</span>.<span class="ident">unwrap</span>() };
+                    <span class="kw">let</span> <span class="ident">rot</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() {
+                        <span class="ident">u2</span>.<span class="ident">unwrap</span>()
+                    } <span class="kw">else</span> {
+                        <span class="ident">v2</span>.<span class="ident">unwrap</span>()
+                    };
                     <span class="ident">rot</span>.<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>.<span class="ident">fixed_columns_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">start</span>));
                 }
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v_t</span>) <span class="op">=</span> <span class="ident">v_t</span> {
-                    <span class="kw">let</span> <span class="ident">rot</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() { <span class="ident">v2</span>.<span class="ident">unwrap</span>() } <span class="kw">else</span> { <span class="ident">u2</span>.<span class="ident">unwrap</span>() };
+                    <span class="kw">let</span> <span class="ident">rot</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() {
+                        <span class="ident">v2</span>.<span class="ident">unwrap</span>()
+                    } <span class="kw">else</span> {
+                        <span class="ident">u2</span>.<span class="ident">unwrap</span>()
+                    };
                     <span class="ident">rot</span>.<span class="ident">inverse</span>().<span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v_t</span>.<span class="ident">fixed_rows_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">start</span>));
                 }
 
@@ -822,7 +919,7 @@
             <span class="comment">// Re-delimit the suproblem in case some decoupling occured.</span>
             <span class="kw">let</span> <span class="ident">sub</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">delimit_subproblem</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v_t</span>, <span class="ident">end</span>, <span class="ident">eps</span>);
             <span class="ident">start</span> <span class="op">=</span> <span class="ident">sub</span>.<span class="number">0</span>;
-            <span class="ident">end</span>   <span class="op">=</span> <span class="ident">sub</span>.<span class="number">1</span>;
+            <span class="ident">end</span> <span class="op">=</span> <span class="ident">sub</span>.<span class="number">1</span>;
 
             <span class="ident">niter</span> <span class="op">+=</span> <span class="number">1</span>;
             <span class="kw">if</span> <span class="ident">niter</span> <span class="op">==</span> <span class="ident">max_niter</span> {
@@ -833,7 +930,7 @@
         <span class="ident">b</span>.<span class="ident">diagonal</span> <span class="op">*=</span> <span class="ident">m_amax</span>;
 
         <span class="comment">// Ensure all singular value are non-negative.</span>
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">dim</span> {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">dim</span> {
             <span class="kw">let</span> <span class="ident">sval</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">i</span>];
             <span class="kw">if</span> <span class="ident">sval</span> <span class="op">&lt;</span> <span class="ident">N</span>::<span class="ident">zero</span>() {
                 <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="op">-</span><span class="ident">sval</span>;
@@ -844,28 +941,36 @@
             }
         }
 
-        <span class="prelude-val">Some</span>(<span class="ident">SVD</span> { <span class="ident">u</span>: <span class="ident">u</span>, <span class="ident">v_t</span>: <span class="ident">v_t</span>, <span class="ident">singular_values</span>: <span class="ident">b</span>.<span class="ident">diagonal</span> })
+        <span class="prelude-val">Some</span>(<span class="ident">SVD</span> {
+            <span class="ident">u</span>: <span class="ident">u</span>,
+            <span class="ident">v_t</span>: <span class="ident">v_t</span>,
+            <span class="ident">singular_values</span>: <span class="ident">b</span>.<span class="ident">diagonal</span>,
+        })
     }
 
     <span class="comment">// Explicit formulaes inspired from the paper &quot;Computing the Singular Values of 2-by-2 Complex</span>
     <span class="comment">// Matrices&quot;, Sanzheng Qiao and Xiaohong Wang.</span>
     <span class="comment">// http://www.cas.mcmaster.ca/sqrl/papers/sqrl5.pdf</span>
-    <span class="kw">fn</span> <span class="ident">compute_2x2_uptrig_svd</span>(<span class="ident">m11</span>: <span class="ident">N</span>, <span class="ident">m12</span>: <span class="ident">N</span>, <span class="ident">m22</span>: <span class="ident">N</span>, <span class="ident">compute_u</span>: <span class="ident">bool</span>, <span class="ident">compute_v</span>: <span class="ident">bool</span>)
-        <span class="op">-&gt;</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>, <span class="ident">Vector2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>) {
-
-        <span class="kw">let</span> <span class="ident">two</span>:  <span class="ident">N</span> <span class="op">=</span> ::<span class="ident">convert</span>(<span class="number">2.0f64</span>);
+    <span class="kw">fn</span> <span class="ident">compute_2x2_uptrig_svd</span>(
+        <span class="ident">m11</span>: <span class="ident">N</span>,
+        <span class="ident">m12</span>: <span class="ident">N</span>,
+        <span class="ident">m22</span>: <span class="ident">N</span>,
+        <span class="ident">compute_u</span>: <span class="ident">bool</span>,
+        <span class="ident">compute_v</span>: <span class="ident">bool</span>,
+    ) <span class="op">-&gt;</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>, <span class="ident">Vector2</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span>) {
+        <span class="kw">let</span> <span class="ident">two</span>: <span class="ident">N</span> <span class="op">=</span> ::<span class="ident">convert</span>(<span class="number">2.0f64</span>);
         <span class="kw">let</span> <span class="ident">half</span>: <span class="ident">N</span> <span class="op">=</span> ::<span class="ident">convert</span>(<span class="number">0.5f64</span>);
 
         <span class="kw">let</span> <span class="ident">denom</span> <span class="op">=</span> (<span class="ident">m11</span> <span class="op">+</span> <span class="ident">m22</span>).<span class="ident">hypot</span>(<span class="ident">m12</span>) <span class="op">+</span> (<span class="ident">m11</span> <span class="op">-</span> <span class="ident">m22</span>).<span class="ident">hypot</span>(<span class="ident">m12</span>);
 
         <span class="comment">// NOTE: v1 is the singular value that is the closest to m22.</span>
-        <span class="comment">// This prevents cancellation issues when constructing the vector `csv` bellow. If we chose</span>
-        <span class="comment">// otherwise, we would have v1 ~= m11 when m12 is small. This would cause catastrofic</span>
-        <span class="comment">// cancellation on `v1 * v1 - m11 * m11` bellow.</span>
+        <span class="comment">// This prevents cancellation issues when constructing the vector `csv` below. If we chose</span>
+        <span class="comment">// otherwise, we would have v1 ~= m11 when m12 is small. This would cause catastrophic</span>
+        <span class="comment">// cancellation on `v1 * v1 - m11 * m11` below.</span>
         <span class="kw">let</span> <span class="ident">v1</span> <span class="op">=</span> <span class="ident">two</span> <span class="op">*</span> <span class="ident">m11</span> <span class="op">*</span> <span class="ident">m22</span> <span class="op">/</span> <span class="ident">denom</span>;
         <span class="kw">let</span> <span class="ident">v2</span> <span class="op">=</span> <span class="ident">half</span> <span class="op">*</span> <span class="ident">denom</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">u</span>   <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">u</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v_t</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
         <span class="kw">if</span> <span class="ident">compute_u</span> <span class="op">||</span> <span class="ident">compute_v</span> {
@@ -901,35 +1006,33 @@
     }
     */</span>
 
-    <span class="kw">fn</span> <span class="ident">delimit_subproblem</span>(<span class="ident">b</span>:   <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bidiagonal</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
-                          <span class="ident">u</span>:   <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
-                          <span class="ident">v_t</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
-                          <span class="ident">end</span>: <span class="ident">usize</span>,
-                          <span class="ident">eps</span>: <span class="ident">N</span>)
-                          <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">delimit_subproblem</span>(
+        <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bidiagonal</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+        <span class="ident">u</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">v_t</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">end</span>: <span class="ident">usize</span>,
+        <span class="ident">eps</span>: <span class="ident">N</span>,
+    ) <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">end</span>;
 
         <span class="kw">while</span> <span class="ident">n</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>;
 
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">m</span>].<span class="ident">is_zero</span>() <span class="op">||</span>
-               <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> <span class="op">*</span> (<span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">n</span>].<span class="ident">abs</span>() <span class="op">+</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>()) {
-
+            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">m</span>].<span class="ident">is_zero</span>()
+                <span class="op">||</span> <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> <span class="op">*</span> (<span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">n</span>].<span class="ident">abs</span>() <span class="op">+</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>())
+            {
                 <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">m</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
-            }
-            <span class="kw">else</span> <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> {
                 <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">m</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
                 <span class="self">Self</span>::<span class="ident">cancel_horizontal_off_diagonal_elt</span>(<span class="ident">b</span>, <span class="ident">u</span>, <span class="ident">v_t</span>, <span class="ident">m</span>, <span class="ident">m</span> <span class="op">+</span> <span class="number">1</span>);
 
                 <span class="kw">if</span> <span class="ident">m</span> <span class="op">!=</span> <span class="number">0</span> {
                     <span class="self">Self</span>::<span class="ident">cancel_vertical_off_diagonal_elt</span>(<span class="ident">b</span>, <span class="ident">u</span>, <span class="ident">v_t</span>, <span class="ident">m</span> <span class="op">-</span> <span class="number">1</span>);
                 }
-            }
-            <span class="kw">else</span> <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">n</span>].<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> {
-                    <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">n</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
-                    <span class="self">Self</span>::<span class="ident">cancel_vertical_off_diagonal_elt</span>(<span class="ident">b</span>, <span class="ident">u</span>, <span class="ident">v_t</span>, <span class="ident">m</span>);
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">n</span>].<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> {
+                <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">n</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
+                <span class="self">Self</span>::<span class="ident">cancel_vertical_off_diagonal_elt</span>(<span class="ident">b</span>, <span class="ident">u</span>, <span class="ident">v_t</span>, <span class="ident">m</span>);
+            } <span class="kw">else</span> {
                 <span class="kw">break</span>;
             }
 
@@ -944,7 +1047,8 @@
         <span class="kw">while</span> <span class="ident">new_start</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">new_start</span> <span class="op">-</span> <span class="number">1</span>;
 
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> <span class="op">*</span> (<span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">new_start</span>].<span class="ident">abs</span>() <span class="op">+</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>()) {
+            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> <span class="op">*</span> (<span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">new_start</span>].<span class="ident">abs</span>() <span class="op">+</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">m</span>].<span class="ident">abs</span>())
+            {
                 <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">m</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
                 <span class="kw">break</span>;
             }
@@ -966,24 +1070,26 @@
     }
 
     <span class="comment">// Cancels the i-th off-diagonal element using givens rotations.</span>
-    <span class="kw">fn</span> <span class="ident">cancel_horizontal_off_diagonal_elt</span>(<span class="ident">b</span>:   <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bidiagonal</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
-                               <span class="ident">u</span>:   <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
-                               <span class="ident">v_t</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
-                               <span class="ident">i</span>:        <span class="ident">usize</span>,
-                               <span class="ident">end</span>:      <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">cancel_horizontal_off_diagonal_elt</span>(
+        <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bidiagonal</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+        <span class="ident">u</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">v_t</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">i</span>: <span class="ident">usize</span>,
+        <span class="ident">end</span>: <span class="ident">usize</span>,
+    ) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">Vector2</span>::<span class="ident">new</span>(<span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">i</span>], <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>]);
         <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
 
-        <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="ident">i</span> .. <span class="ident">end</span> {
+        <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="ident">i</span>..<span class="ident">end</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">rot</span>, <span class="ident">norm</span>)) <span class="op">=</span> <span class="ident">givens</span>::<span class="ident">cancel_x</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>) {
                 <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">=</span> <span class="ident">norm</span>;
 
                 <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">is_upper_diagonal</span>() {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">u</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">u</span> {
-                        <span class="ident">rot</span>.<span class="ident">inverse</span>().<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>.<span class="ident">fixed_columns_with_step_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">k</span> <span class="op">-</span> <span class="ident">i</span>));
+                        <span class="ident">rot</span>.<span class="ident">inverse</span>()
+                            .<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>.<span class="ident">fixed_columns_with_step_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">k</span> <span class="op">-</span> <span class="ident">i</span>));
                     }
-                }
-                <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v_t</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">v_t</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v_t</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">v_t</span> {
                     <span class="ident">rot</span>.<span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v_t</span>.<span class="ident">fixed_rows_with_step_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">k</span> <span class="op">-</span> <span class="ident">i</span>));
                 }
 
@@ -992,22 +1098,23 @@
                     <span class="ident">v</span>.<span class="ident">y</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">2</span>];
                     <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">*=</span> <span class="ident">rot</span>.<span class="ident">cos_angle</span>();
                 }
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 <span class="kw">break</span>;
             }
         }
     }
 
     <span class="comment">// Cancels the i-th off-diagonal element using givens rotations.</span>
-    <span class="kw">fn</span> <span class="ident">cancel_vertical_off_diagonal_elt</span>(<span class="ident">b</span>:   <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bidiagonal</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
-                                        <span class="ident">u</span>:   <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
-                                        <span class="ident">v_t</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
-                                        <span class="ident">i</span>:   <span class="ident">usize</span>) {
+    <span class="kw">fn</span> <span class="ident">cancel_vertical_off_diagonal_elt</span>(
+        <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bidiagonal</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+        <span class="ident">u</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">v_t</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">i</span>: <span class="ident">usize</span>,
+    ) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">Vector2</span>::<span class="ident">new</span>(<span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">i</span>], <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">i</span>]);
         <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
 
-        <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> (<span class="number">0</span> .. <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">rev</span>() {
+        <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">rev</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">rot</span>, <span class="ident">norm</span>)) <span class="op">=</span> <span class="ident">givens</span>::<span class="ident">cancel_y</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>) {
                 <span class="ident">b</span>.<span class="ident">diagonal</span>[<span class="ident">k</span>] <span class="op">=</span> <span class="ident">norm</span>;
 
@@ -1015,9 +1122,9 @@
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">v_t</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">v_t</span> {
                         <span class="ident">rot</span>.<span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v_t</span>.<span class="ident">fixed_rows_with_step_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">k</span>, <span class="ident">i</span> <span class="op">-</span> <span class="ident">k</span>));
                     }
-                }
-                <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">u</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">u</span> {
-                    <span class="ident">rot</span>.<span class="ident">inverse</span>().<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>.<span class="ident">fixed_columns_with_step_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">k</span>, <span class="ident">i</span> <span class="op">-</span> <span class="ident">k</span>));
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">u</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">u</span> {
+                    <span class="ident">rot</span>.<span class="ident">inverse</span>()
+                        .<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">u</span>.<span class="ident">fixed_columns_with_step_mut</span>::<span class="op">&lt;</span><span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">k</span>, <span class="ident">i</span> <span class="op">-</span> <span class="ident">k</span>));
                 }
 
                 <span class="kw">if</span> <span class="ident">k</span> <span class="op">&gt;</span> <span class="number">0</span> {
@@ -1025,8 +1132,7 @@
                     <span class="ident">v</span>.<span class="ident">y</span> <span class="op">=</span> <span class="ident">rot</span>.<span class="ident">sin_angle</span>() <span class="op">*</span> <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">k</span> <span class="op">-</span> <span class="number">1</span>];
                     <span class="ident">b</span>.<span class="ident">off_diagonal</span>[<span class="ident">k</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">*=</span> <span class="ident">rot</span>.<span class="ident">cos_angle</span>();
                 }
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 <span class="kw">break</span>;
             }
         }
@@ -1035,7 +1141,10 @@
     <span class="doccomment">/// Computes the rank of the decomposed matrix, i.e., the number of singular values greater</span>
     <span class="doccomment">/// than `eps`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rank</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">eps</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">eps</span> <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="string">&quot;SVD rank: the epsilon must be non-negative.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">eps</span> <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">zero</span>(),
+            <span class="string">&quot;SVD rank: the epsilon must be non-negative.&quot;</span>
+        );
         <span class="self">self</span>.<span class="ident">singular_values</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">e</span> <span class="op">&gt;</span> <span class="ident">eps</span>).<span class="ident">count</span>()
     }
 
@@ -1045,9 +1154,10 @@
     <span class="doccomment">/// right- and left- singular vectors have not been computed at construction-time.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recompose</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">u</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">u</span>.<span class="ident">expect</span>(<span class="string">&quot;SVD recomposition: U has not been computed.&quot;</span>);
-        <span class="kw">let</span> <span class="ident">v_t</span>   <span class="op">=</span> <span class="self">self</span>.<span class="ident">v_t</span>.<span class="ident">expect</span>(<span class="string">&quot;SVD recomposition: V^t has not been computed.&quot;</span>);
+        <span class="kw">let</span> <span class="ident">v_t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">v_t</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;SVD recomposition: V^t has not been computed.&quot;</span>);
 
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">singular_values</span>.<span class="ident">len</span>() {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">singular_values</span>.<span class="ident">len</span>() {
             <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">singular_values</span>[<span class="ident">i</span>];
             <span class="ident">u</span>.<span class="ident">column_mut</span>(<span class="ident">i</span>).<span class="ident">mul_assign</span>(<span class="ident">val</span>);
         }
@@ -1061,16 +1171,19 @@
     <span class="doccomment">/// Panics if the right- and left- singular vectors have not been computed at</span>
     <span class="doccomment">/// construction-time.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pseudo_inverse</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">eps</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">R</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">eps</span> <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="string">&quot;SVD pseudo inverse: the epsilon must be non-negative.&quot;</span>);
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">singular_values</span>.<span class="ident">len</span>() {
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    {
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">eps</span> <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">zero</span>(),
+            <span class="string">&quot;SVD pseudo inverse: the epsilon must be non-negative.&quot;</span>
+        );
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">singular_values</span>.<span class="ident">len</span>() {
             <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">singular_values</span>[<span class="ident">i</span>];
 
             <span class="kw">if</span> <span class="ident">val</span> <span class="op">&gt;</span> <span class="ident">eps</span> {
                 <span class="self">self</span>.<span class="ident">singular_values</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">one</span>() <span class="op">/</span> <span class="ident">val</span>;
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 <span class="self">self</span>.<span class="ident">singular_values</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
             }
         }
@@ -1083,27 +1196,37 @@
     <span class="doccomment">/// Any singular value smaller than `eps` is assumed to be zero.</span>
     <span class="doccomment">/// Returns `None` if the singular vectors `U` and `V` have not been computed.</span>
     <span class="comment">// FIXME: make this more generic wrt the storage types and the dimensions for `b`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">solve</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>, <span class="ident">eps</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">C2</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="op">+</span>
-                                <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
-              <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">R2</span><span class="op">&gt;</span> {
-
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">eps</span> <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="string">&quot;SVD solve: the epsilon must be non-negative.&quot;</span>);
-        <span class="kw">let</span> <span class="ident">u</span>   <span class="op">=</span> <span class="self">self</span>.<span class="ident">u</span>.<span class="ident">as_ref</span>().<span class="ident">expect</span>(<span class="string">&quot;SVD solve: U has not been computed.&quot;</span>);
-        <span class="kw">let</span> <span class="ident">v_t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">v_t</span>.<span class="ident">as_ref</span>().<span class="ident">expect</span>(<span class="string">&quot;SVD solve: V^t has not been computed.&quot;</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">solve</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>,
+        <span class="ident">eps</span>: <span class="ident">N</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">C2</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+        <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">R2</span><span class="op">&gt;</span>,
+    {
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">eps</span> <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">zero</span>(),
+            <span class="string">&quot;SVD solve: the epsilon must be non-negative.&quot;</span>
+        );
+        <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">u</span>
+            .<span class="ident">as_ref</span>()
+            .<span class="ident">expect</span>(<span class="string">&quot;SVD solve: U has not been computed.&quot;</span>);
+        <span class="kw">let</span> <span class="ident">v_t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">v_t</span>
+            .<span class="ident">as_ref</span>()
+            .<span class="ident">expect</span>(<span class="string">&quot;SVD solve: V^t has not been computed.&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ut_b</span> <span class="op">=</span> <span class="ident">u</span>.<span class="ident">tr_mul</span>(<span class="ident">b</span>);
 
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">ut_b</span>.<span class="ident">ncols</span>() {
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">ut_b</span>.<span class="ident">ncols</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">ut_b</span>.<span class="ident">column_mut</span>(<span class="ident">j</span>);
 
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">singular_values</span>.<span class="ident">len</span>() {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">singular_values</span>.<span class="ident">len</span>() {
                 <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">singular_values</span>[<span class="ident">i</span>];
                 <span class="kw">if</span> <span class="ident">val</span> <span class="op">&gt;</span> <span class="ident">eps</span> {
                     <span class="ident">col</span>[<span class="ident">i</span>] <span class="op">/=</span> <span class="ident">val</span>;
-                }
-                <span class="kw">else</span> {
+                } <span class="kw">else</span> {
                     <span class="ident">col</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
                 }
             }
@@ -1113,16 +1236,17 @@
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">R</span>: <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">S</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="comment">// for Bidiagonal.</span>
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>                <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span><span class="op">&gt;</span>                   <span class="op">+</span> <span class="comment">// for Bidiagonal</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span><span class="op">&gt;</span>                   <span class="op">+</span> <span class="comment">// for Bidiagonal</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="comment">// for Bidiagonal</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> <span class="op">+</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="comment">// for Bidiagonal.</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span>,
+{
     <span class="doccomment">/// Computes the Singular Value Decomposition using implicit shift.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">svd</span>(<span class="self">self</span>, <span class="ident">compute_u</span>: <span class="ident">bool</span>, <span class="ident">compute_v</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="ident">SVD</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
         <span class="ident">SVD</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">into_owned</span>(), <span class="ident">compute_u</span>, <span class="ident">compute_v</span>)
@@ -1138,7 +1262,13 @@
     <span class="doccomment">/// * `max_niter` − maximum total number of iterations performed by the algorithm. If this</span>
     <span class="doccomment">/// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm</span>
     <span class="doccomment">/// continues indefinitely until convergence.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_svd</span>(<span class="self">self</span>, <span class="ident">compute_u</span>: <span class="ident">bool</span>, <span class="ident">compute_v</span>: <span class="ident">bool</span>, <span class="ident">eps</span>: <span class="ident">N</span>, <span class="ident">max_niter</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SVD</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_svd</span>(
+        <span class="self">self</span>,
+        <span class="ident">compute_u</span>: <span class="ident">bool</span>,
+        <span class="ident">compute_v</span>: <span class="ident">bool</span>,
+        <span class="ident">eps</span>: <span class="ident">N</span>,
+        <span class="ident">max_niter</span>: <span class="ident">usize</span>,
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SVD</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;&gt;</span> {
         <span class="ident">SVD</span>::<span class="ident">try_new</span>(<span class="self">self</span>.<span class="ident">into_owned</span>(), <span class="ident">compute_u</span>, <span class="ident">compute_v</span>, <span class="ident">eps</span>, <span class="ident">max_niter</span>)
     }
 
@@ -1149,7 +1279,7 @@
 
     <span class="doccomment">/// Computes the rank of this matrix.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// All singular values bellow `eps` are considered equal to 0.</span>
+    <span class="doccomment">/// All singular values below `eps` are considered equal to 0.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rank</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">eps</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="ident">svd</span> <span class="op">=</span> <span class="ident">SVD</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">clone_owned</span>(), <span class="bool-val">false</span>, <span class="bool-val">false</span>);
         <span class="ident">svd</span>.<span class="ident">rank</span>(<span class="ident">eps</span>)
@@ -1157,10 +1287,11 @@
 
     <span class="doccomment">/// Computes the pseudo-inverse of this matrix.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// All singular values bellow `eps` are considered equal to 0.</span>
+    <span class="doccomment">/// All singular values below `eps` are considered equal to 0.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pseudo_inverse</span>(<span class="self">self</span>, <span class="ident">eps</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">R</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    {
         <span class="ident">SVD</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">clone_owned</span>(), <span class="bool-val">true</span>, <span class="bool-val">true</span>).<span class="ident">pseudo_inverse</span>(<span class="ident">eps</span>)
     }
 }
@@ -1178,18 +1309,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -1225,11 +1360,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

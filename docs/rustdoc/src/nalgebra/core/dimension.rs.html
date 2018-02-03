@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/core/dimension.rs`.">
+    <meta name="description" content="Source to the Rust file `src\core\dimension.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>dimension.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -450,41 +461,153 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
 </pre><pre class="rust ">
-<span class="attribute">#<span class="op">!</span>[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
 
 <span class="doccomment">//! Traits and tags for identifying the dimension of all algebraic entities.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">any</span>::{<span class="ident">TypeId</span>, <span class="ident">Any</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">any</span>::{<span class="ident">Any</span>, <span class="ident">TypeId</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Add</span>, <span class="ident">Sub</span>, <span class="ident">Mul</span>, <span class="ident">Div</span>};
-<span class="kw">use</span> <span class="ident">typenum</span>::{<span class="self">self</span>, <span class="ident">Unsigned</span>, <span class="ident">UInt</span>, <span class="ident">B1</span>, <span class="ident">Bit</span>, <span class="ident">UTerm</span>, <span class="ident">Sum</span>, <span class="ident">Prod</span>, <span class="ident">Diff</span>, <span class="ident">Quot</span>,
-              <span class="ident">Min</span>, <span class="ident">Minimum</span>, <span class="ident">Max</span>, <span class="ident">Maximum</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Add</span>, <span class="ident">Div</span>, <span class="ident">Mul</span>, <span class="ident">Sub</span>};
+<span class="kw">use</span> <span class="ident">typenum</span>::{<span class="self">self</span>, <span class="ident">B1</span>, <span class="ident">Bit</span>, <span class="ident">Diff</span>, <span class="ident">Max</span>, <span class="ident">Maximum</span>, <span class="ident">Min</span>, <span class="ident">Minimum</span>, <span class="ident">Prod</span>, <span class="ident">Quot</span>, <span class="ident">Sum</span>, <span class="ident">UInt</span>, <span class="ident">UTerm</span>,
+              <span class="ident">Unsigned</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Serializer</span>, <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
 
 <span class="doccomment">/// Dim of dynamically-sized algebraic entities.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dynamic</span> {
-    <span class="ident">value</span>: <span class="ident">usize</span>
+    <span class="ident">value</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Dynamic</span> {
     <span class="doccomment">/// A dynamic size equal to `value`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">Dynamic</span> {
-        <span class="ident">Dynamic</span> {
-            <span class="ident">value</span>: <span class="ident">value</span>
-        }
+        <span class="ident">Dynamic</span> { <span class="ident">value</span>: <span class="ident">value</span> }
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
     <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="prelude-val">Ok</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">S</span>: <span class="ident">Serializer</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Serializer</span>,
     {
         <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
     }
@@ -493,19 +616,20 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
     <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
     {
         <span class="ident">usize</span>::<span class="ident">deserialize</span>(<span class="ident">deserializer</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Dynamic</span> { <span class="ident">value</span>: <span class="ident">x</span> })
     }
 }
 
 <span class="doccomment">/// Trait implemented by `Dynamic`.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsDynamic</span> { }
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsDynamic</span> {}
 <span class="doccomment">/// Trait implemented by `Dynamic` and type-level integers different from `U1`.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsNotStaticOne</span> { }
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsNotStaticOne</span> {}
 
-<span class="kw">impl</span> <span class="ident">IsDynamic</span> <span class="kw">for</span> <span class="ident">Dynamic</span> { }
-<span class="kw">impl</span> <span class="ident">IsNotStaticOne</span> <span class="kw">for</span> <span class="ident">Dynamic</span> { }
+<span class="kw">impl</span> <span class="ident">IsDynamic</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {}
+<span class="kw">impl</span> <span class="ident">IsNotStaticOne</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {}
 
 <span class="doccomment">/// Trait implemented by any type that can be used as a dimension. This includes type-level</span>
 <span class="doccomment">/// integers and `Dynamic` (for dimensions not known at compile-time).</span>
@@ -641,7 +765,6 @@
     <span class="ident">DimMax</span>, <span class="ident">DimNameMax</span>, <span class="ident">Max</span>, <span class="ident">max</span>, <span class="ident">cmp</span>::<span class="ident">max</span>, <span class="ident">DimMaximum</span>, <span class="ident">DimNameMaximum</span>, <span class="ident">Maximum</span>;
 );
 
-
 <span class="doccomment">/// Trait implemented exclusively by type-level integers.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DimName</span>: <span class="ident">Dim</span> {
     <span class="kw">type</span> <span class="ident">Value</span>: <span class="ident">NamedDim</span><span class="op">&lt;</span><span class="ident">Name</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>;
@@ -693,7 +816,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">NamedDim</span> <span class="kw">for</span> <span class="ident">typenum</span>::<span class="ident">U1</span>{
+<span class="kw">impl</span> <span class="ident">NamedDim</span> <span class="kw">for</span> <span class="ident">typenum</span>::<span class="ident">U1</span> {
     <span class="kw">type</span> <span class="ident">Name</span> <span class="op">=</span> <span class="ident">U1</span>;
 }
 
@@ -738,46 +861,159 @@
     )<span class="kw-2">*</span>}
 );
 
-
 <span class="comment">// We give explicit names to all Unsigned in [0, 128[</span>
 <span class="macro">named_dimension</span><span class="macro">!</span>(
-    <span class="ident">U0</span>, <span class="comment">/*U1,*/</span> <span class="ident">U2</span>, <span class="ident">U3</span>, <span class="ident">U4</span>, <span class="ident">U5</span>, <span class="ident">U6</span>, <span class="ident">U7</span>, <span class="ident">U8</span>, <span class="ident">U9</span>,
-    <span class="ident">U10</span>, <span class="ident">U11</span>, <span class="ident">U12</span>, <span class="ident">U13</span>, <span class="ident">U14</span>, <span class="ident">U15</span>, <span class="ident">U16</span>, <span class="ident">U17</span>, <span class="ident">U18</span>, <span class="ident">U19</span>,
-    <span class="ident">U20</span>, <span class="ident">U21</span>, <span class="ident">U22</span>, <span class="ident">U23</span>, <span class="ident">U24</span>, <span class="ident">U25</span>, <span class="ident">U26</span>, <span class="ident">U27</span>, <span class="ident">U28</span>, <span class="ident">U29</span>,
-    <span class="ident">U30</span>, <span class="ident">U31</span>, <span class="ident">U32</span>, <span class="ident">U33</span>, <span class="ident">U34</span>, <span class="ident">U35</span>, <span class="ident">U36</span>, <span class="ident">U37</span>, <span class="ident">U38</span>, <span class="ident">U39</span>,
-    <span class="ident">U40</span>, <span class="ident">U41</span>, <span class="ident">U42</span>, <span class="ident">U43</span>, <span class="ident">U44</span>, <span class="ident">U45</span>, <span class="ident">U46</span>, <span class="ident">U47</span>, <span class="ident">U48</span>, <span class="ident">U49</span>,
-    <span class="ident">U50</span>, <span class="ident">U51</span>, <span class="ident">U52</span>, <span class="ident">U53</span>, <span class="ident">U54</span>, <span class="ident">U55</span>, <span class="ident">U56</span>, <span class="ident">U57</span>, <span class="ident">U58</span>, <span class="ident">U59</span>,
-    <span class="ident">U60</span>, <span class="ident">U61</span>, <span class="ident">U62</span>, <span class="ident">U63</span>, <span class="ident">U64</span>, <span class="ident">U65</span>, <span class="ident">U66</span>, <span class="ident">U67</span>, <span class="ident">U68</span>, <span class="ident">U69</span>,
-    <span class="ident">U70</span>, <span class="ident">U71</span>, <span class="ident">U72</span>, <span class="ident">U73</span>, <span class="ident">U74</span>, <span class="ident">U75</span>, <span class="ident">U76</span>, <span class="ident">U77</span>, <span class="ident">U78</span>, <span class="ident">U79</span>,
-    <span class="ident">U80</span>, <span class="ident">U81</span>, <span class="ident">U82</span>, <span class="ident">U83</span>, <span class="ident">U84</span>, <span class="ident">U85</span>, <span class="ident">U86</span>, <span class="ident">U87</span>, <span class="ident">U88</span>, <span class="ident">U89</span>,
-    <span class="ident">U90</span>, <span class="ident">U91</span>, <span class="ident">U92</span>, <span class="ident">U93</span>, <span class="ident">U94</span>, <span class="ident">U95</span>, <span class="ident">U96</span>, <span class="ident">U97</span>, <span class="ident">U98</span>, <span class="ident">U99</span>,
-    <span class="ident">U100</span>, <span class="ident">U101</span>, <span class="ident">U102</span>, <span class="ident">U103</span>, <span class="ident">U104</span>, <span class="ident">U105</span>, <span class="ident">U106</span>, <span class="ident">U107</span>, <span class="ident">U108</span>, <span class="ident">U109</span>,
-    <span class="ident">U110</span>, <span class="ident">U111</span>, <span class="ident">U112</span>, <span class="ident">U113</span>, <span class="ident">U114</span>, <span class="ident">U115</span>, <span class="ident">U116</span>, <span class="ident">U117</span>, <span class="ident">U118</span>, <span class="ident">U119</span>,
-    <span class="ident">U120</span>, <span class="ident">U121</span>, <span class="ident">U122</span>, <span class="ident">U123</span>, <span class="ident">U124</span>, <span class="ident">U125</span>, <span class="ident">U126</span>, <span class="ident">U127</span>
+    <span class="ident">U0</span>,
+    <span class="comment">/*U1,*/</span> <span class="ident">U2</span>,
+    <span class="ident">U3</span>,
+    <span class="ident">U4</span>,
+    <span class="ident">U5</span>,
+    <span class="ident">U6</span>,
+    <span class="ident">U7</span>,
+    <span class="ident">U8</span>,
+    <span class="ident">U9</span>,
+    <span class="ident">U10</span>,
+    <span class="ident">U11</span>,
+    <span class="ident">U12</span>,
+    <span class="ident">U13</span>,
+    <span class="ident">U14</span>,
+    <span class="ident">U15</span>,
+    <span class="ident">U16</span>,
+    <span class="ident">U17</span>,
+    <span class="ident">U18</span>,
+    <span class="ident">U19</span>,
+    <span class="ident">U20</span>,
+    <span class="ident">U21</span>,
+    <span class="ident">U22</span>,
+    <span class="ident">U23</span>,
+    <span class="ident">U24</span>,
+    <span class="ident">U25</span>,
+    <span class="ident">U26</span>,
+    <span class="ident">U27</span>,
+    <span class="ident">U28</span>,
+    <span class="ident">U29</span>,
+    <span class="ident">U30</span>,
+    <span class="ident">U31</span>,
+    <span class="ident">U32</span>,
+    <span class="ident">U33</span>,
+    <span class="ident">U34</span>,
+    <span class="ident">U35</span>,
+    <span class="ident">U36</span>,
+    <span class="ident">U37</span>,
+    <span class="ident">U38</span>,
+    <span class="ident">U39</span>,
+    <span class="ident">U40</span>,
+    <span class="ident">U41</span>,
+    <span class="ident">U42</span>,
+    <span class="ident">U43</span>,
+    <span class="ident">U44</span>,
+    <span class="ident">U45</span>,
+    <span class="ident">U46</span>,
+    <span class="ident">U47</span>,
+    <span class="ident">U48</span>,
+    <span class="ident">U49</span>,
+    <span class="ident">U50</span>,
+    <span class="ident">U51</span>,
+    <span class="ident">U52</span>,
+    <span class="ident">U53</span>,
+    <span class="ident">U54</span>,
+    <span class="ident">U55</span>,
+    <span class="ident">U56</span>,
+    <span class="ident">U57</span>,
+    <span class="ident">U58</span>,
+    <span class="ident">U59</span>,
+    <span class="ident">U60</span>,
+    <span class="ident">U61</span>,
+    <span class="ident">U62</span>,
+    <span class="ident">U63</span>,
+    <span class="ident">U64</span>,
+    <span class="ident">U65</span>,
+    <span class="ident">U66</span>,
+    <span class="ident">U67</span>,
+    <span class="ident">U68</span>,
+    <span class="ident">U69</span>,
+    <span class="ident">U70</span>,
+    <span class="ident">U71</span>,
+    <span class="ident">U72</span>,
+    <span class="ident">U73</span>,
+    <span class="ident">U74</span>,
+    <span class="ident">U75</span>,
+    <span class="ident">U76</span>,
+    <span class="ident">U77</span>,
+    <span class="ident">U78</span>,
+    <span class="ident">U79</span>,
+    <span class="ident">U80</span>,
+    <span class="ident">U81</span>,
+    <span class="ident">U82</span>,
+    <span class="ident">U83</span>,
+    <span class="ident">U84</span>,
+    <span class="ident">U85</span>,
+    <span class="ident">U86</span>,
+    <span class="ident">U87</span>,
+    <span class="ident">U88</span>,
+    <span class="ident">U89</span>,
+    <span class="ident">U90</span>,
+    <span class="ident">U91</span>,
+    <span class="ident">U92</span>,
+    <span class="ident">U93</span>,
+    <span class="ident">U94</span>,
+    <span class="ident">U95</span>,
+    <span class="ident">U96</span>,
+    <span class="ident">U97</span>,
+    <span class="ident">U98</span>,
+    <span class="ident">U99</span>,
+    <span class="ident">U100</span>,
+    <span class="ident">U101</span>,
+    <span class="ident">U102</span>,
+    <span class="ident">U103</span>,
+    <span class="ident">U104</span>,
+    <span class="ident">U105</span>,
+    <span class="ident">U106</span>,
+    <span class="ident">U107</span>,
+    <span class="ident">U108</span>,
+    <span class="ident">U109</span>,
+    <span class="ident">U110</span>,
+    <span class="ident">U111</span>,
+    <span class="ident">U112</span>,
+    <span class="ident">U113</span>,
+    <span class="ident">U114</span>,
+    <span class="ident">U115</span>,
+    <span class="ident">U116</span>,
+    <span class="ident">U117</span>,
+    <span class="ident">U118</span>,
+    <span class="ident">U119</span>,
+    <span class="ident">U120</span>,
+    <span class="ident">U121</span>,
+    <span class="ident">U122</span>,
+    <span class="ident">U123</span>,
+    <span class="ident">U124</span>,
+    <span class="ident">U125</span>,
+    <span class="ident">U126</span>,
+    <span class="ident">U127</span>
 );
 
 <span class="comment">// For values greater than U1023, just use the typenum binary representation directly.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
-<span class="ident">NamedDim</span>
-<span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span>
+    <span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+<span class="op">&gt;</span> <span class="ident">NamedDim</span> <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Name</span> <span class="op">=</span> <span class="self">Self</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
-<span class="ident">Dim</span>
-<span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span>
+    <span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+<span class="op">&gt;</span> <span class="ident">Dim</span> <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_to_usize</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="self">Self</span>::<span class="ident">to_usize</span>())
@@ -795,15 +1031,15 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
-<span class="ident">DimName</span>
-<span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span>
+    <span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+<span class="op">&gt;</span> <span class="ident">DimName</span> <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="self">Self</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -812,20 +1048,20 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
-     <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
-<span class="ident">IsNotStaticOne</span>
-<span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span>
+    <span class="ident">A</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">C</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">D</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">E</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">F</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+    <span class="ident">G</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span>,
+<span class="op">&gt;</span> <span class="ident">IsNotStaticOne</span>
+    <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">UTerm</span>, <span class="ident">B1</span><span class="op">&gt;</span>, <span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">B</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">F</span><span class="op">&gt;</span>, <span class="ident">G</span><span class="op">&gt;</span> {
 }
 
-
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">Unsigned</span> <span class="op">+</span> <span class="ident">DimName</span>, <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">NamedDim</span> <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">Unsigned</span> <span class="op">+</span> <span class="ident">DimName</span>, <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">NamedDim</span>
+    <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Name</span> <span class="op">=</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span>;
 }
 
@@ -856,7 +1092,8 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">Unsigned</span> <span class="op">+</span> <span class="ident">DimName</span>, <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">IsNotStaticOne</span> <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span>: <span class="ident">Unsigned</span> <span class="op">+</span> <span class="ident">DimName</span>, <span class="ident">B</span>: <span class="ident">Bit</span> <span class="op">+</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span> <span class="ident">IsNotStaticOne</span>
+    <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">B</span><span class="op">&gt;</span> {
 }
 </pre>
 </section>
@@ -872,18 +1109,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -919,11 +1160,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

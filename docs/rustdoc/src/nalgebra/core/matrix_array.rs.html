@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/core/matrix_array.rs`.">
+    <meta name="description" content="Source to the Rust file `src\core\matrix_array.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>matrix_array.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -400,17 +411,46 @@
 <span id="355">355</span>
 <span id="356">356</span>
 <span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>, <span class="ident">Mul</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Serializer</span>, <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">ser</span>::<span class="ident">SerializeSeq</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::{<span class="ident">SeqAccess</span>, <span class="ident">Visitor</span>, <span class="ident">Error</span>};
+<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::{<span class="ident">Error</span>, <span class="ident">SeqAccess</span>, <span class="ident">Visitor</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
@@ -424,10 +464,9 @@
 
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">Scalar</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">U1</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">Storage</span>, <span class="ident">StorageMut</span>, <span class="ident">Owned</span>, <span class="ident">ContiguousStorage</span>, <span class="ident">ContiguousStorageMut</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">ContiguousStorage</span>, <span class="ident">ContiguousStorageMut</span>, <span class="ident">Owned</span>, <span class="ident">Storage</span>, <span class="ident">StorageMut</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">default_allocator</span>::<span class="ident">DefaultAllocator</span>;
-
 
 <span class="comment">/*
  *
@@ -437,31 +476,35 @@
 <span class="doccomment">/// A array-based statically sized matrix data storage.</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">R</span>: <span class="ident">DimName</span>,
-      <span class="ident">C</span>: <span class="ident">DimName</span>,
-      <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-      <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
-
-    <span class="ident">data</span>: <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
+    <span class="ident">data</span>: <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;&gt;</span>,
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Hash</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Hash</span>,
-      <span class="ident">R</span>: <span class="ident">DimName</span>,
-      <span class="ident">C</span>: <span class="ident">DimName</span>,
-      <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-      <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Hash</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) {
         <span class="self">self</span>.<span class="ident">data</span>[..].<span class="ident">hash</span>(<span class="ident">state</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">R</span>: <span class="ident">DimName</span>,
-      <span class="ident">C</span>: <span class="ident">DimName</span>,
-      <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-      <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;&gt;</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -471,10 +514,12 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">R</span>: <span class="ident">DimName</span>,
-      <span class="ident">C</span>: <span class="ident">DimName</span>,
-      <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-      <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">Target</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">data</span>
@@ -482,11 +527,13 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Debug</span>,
-      <span class="ident">R</span>: <span class="ident">DimName</span>,
-      <span class="ident">C</span>: <span class="ident">DimName</span>,
-      <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-      <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Debug</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">fmt</span>(<span class="ident">fmt</span>)
@@ -494,56 +541,65 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Copy</span>,
-          <span class="ident">R</span>: <span class="ident">DimName</span>,
-          <span class="ident">C</span>: <span class="ident">DimName</span>,
-          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
-          <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;&gt;</span> : <span class="ident">Copy</span>
-{ }
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Copy</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+    <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;&gt;</span>: <span class="ident">Copy</span>,
+{
+}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Clone</span>,
-          <span class="ident">R</span>: <span class="ident">DimName</span>,
-          <span class="ident">C</span>: <span class="ident">DimName</span>,
-          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Clone</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="ident">MatrixArray</span> {
-            <span class="ident">data</span>: <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">clone</span>()
+            <span class="ident">data</span>: <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">clone</span>(),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Eq</span>,
-          <span class="ident">R</span>: <span class="ident">DimName</span>,
-          <span class="ident">C</span>: <span class="ident">DimName</span>,
-          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Eq</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">PartialEq</span>,
-          <span class="ident">R</span>: <span class="ident">DimName</span>,
-          <span class="ident">C</span>: <span class="ident">DimName</span>,
-          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">PartialEq</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">data</span>  <span class="op">==</span> <span class="ident">right</span>.<span class="ident">data</span>
+        <span class="self">self</span>.<span class="ident">data</span> <span class="op">==</span> <span class="ident">right</span>.<span class="ident">data</span>
     }
 }
 
-
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span>,
-          <span class="ident">R</span>: <span class="ident">DimName</span>,
-          <span class="ident">C</span>: <span class="ident">DimName</span>,
-          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Buffer</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Buffer</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>,
+{
     <span class="kw">type</span> <span class="ident">RStride</span> <span class="op">=</span> <span class="ident">U1</span>;
     <span class="kw">type</span> <span class="ident">CStride</span> <span class="op">=</span> <span class="ident">R</span>;
 
@@ -569,13 +625,17 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">into_owned</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">clone_owned</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Owned</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="ident">it</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>();
 
         <span class="ident">DefaultAllocator</span>::<span class="ident">allocate_from_iterator</span>(<span class="self">self</span>.<span class="ident">shape</span>().<span class="number">0</span>, <span class="self">self</span>.<span class="ident">shape</span>().<span class="number">1</span>, <span class="ident">it</span>)
@@ -587,14 +647,15 @@
     }
 }
 
-
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span>,
-          <span class="ident">R</span>: <span class="ident">DimName</span>,
-          <span class="ident">C</span>: <span class="ident">DimName</span>,
-          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Buffer</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Buffer</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">ptr_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">N</span> {
         <span class="self">self</span>[..].<span class="ident">as_mut_ptr</span>()
@@ -607,23 +668,26 @@
 }
 
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">ContiguousStorage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span>,
-          <span class="ident">R</span>: <span class="ident">DimName</span>,
-          <span class="ident">C</span>: <span class="ident">DimName</span>,
-          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Buffer</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Buffer</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>,
+{
 }
 
 <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">ContiguousStorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span>,
-          <span class="ident">R</span>: <span class="ident">DimName</span>,
-          <span class="ident">C</span>: <span class="ident">DimName</span>,
-          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Buffer</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Buffer</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>,
+{
 }
-
 
 <span class="comment">/*
  *
@@ -633,56 +697,59 @@
 <span class="comment">// XXX: open an issue for GenericArray so that it implements serde traits?</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Serialize</span>,
-      <span class="ident">R</span>: <span class="ident">DimName</span>,
-      <span class="ident">C</span>: <span class="ident">DimName</span>,
-      <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-      <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
-
-
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Serialize</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="prelude-val">Ok</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">S</span>: <span class="ident">Serializer</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">serializer</span> <span class="op">=</span> <span class="ident">serializer</span>.<span class="ident">serialize_seq</span>(<span class="prelude-val">Some</span>(<span class="ident">R</span>::<span class="ident">dim</span>() <span class="op">*</span> <span class="ident">C</span>::<span class="ident">dim</span>()))<span class="question-mark">?</span>;
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Serializer</span>,
+    {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">serializer</span> <span class="op">=</span> <span class="ident">serializer</span>.<span class="ident">serialize_seq</span>(<span class="prelude-val">Some</span>(<span class="ident">R</span>::<span class="ident">dim</span>() <span class="op">*</span> <span class="ident">C</span>::<span class="ident">dim</span>()))<span class="question-mark">?</span>;
 
-            <span class="kw">for</span> <span class="ident">e</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>() {
-                <span class="ident">serializer</span>.<span class="ident">serialize_element</span>(<span class="ident">e</span>)<span class="question-mark">?</span>;
-            }
-
-            <span class="ident">serializer</span>.<span class="ident">end</span>()
+        <span class="kw">for</span> <span class="ident">e</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">iter</span>() {
+            <span class="ident">serializer</span>.<span class="ident">serialize_element</span>(<span class="ident">e</span>)<span class="question-mark">?</span>;
         }
-}
 
+        <span class="ident">serializer</span>.<span class="ident">end</span>()
+    }
+}
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-      <span class="ident">R</span>: <span class="ident">DimName</span>,
-      <span class="ident">C</span>: <span class="ident">DimName</span>,
-      <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-      <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
-
-
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-            <span class="ident">deserializer</span>.<span class="ident">deserialize_seq</span>(<span class="ident">MatrixArrayVisitor</span>::<span class="ident">new</span>())
-        }
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    {
+        <span class="ident">deserializer</span>.<span class="ident">deserialize_seq</span>(<span class="ident">MatrixArrayVisitor</span>::<span class="ident">new</span>())
+    }
 }
-
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="doccomment">/// A visitor that produces a matrix array.</span>
 <span class="kw">struct</span> <span class="ident">MatrixArrayVisitor</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>)<span class="op">&gt;</span>
+    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>)<span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">MatrixArrayVisitor</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span>,
-      <span class="ident">R</span>: <span class="ident">DimName</span>,
-      <span class="ident">C</span>: <span class="ident">DimName</span>,
-      <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-      <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
-
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="doccomment">/// Construct a new sequence visitor.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="ident">MatrixArrayVisitor</span> {
@@ -693,12 +760,13 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixArrayVisitor</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-      <span class="ident">R</span>: <span class="ident">DimName</span>,
-      <span class="ident">C</span>: <span class="ident">DimName</span>,
-      <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-      <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
-
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+{
     <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
@@ -707,8 +775,9 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">visit_seq</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">V</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">SeqAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">V</span>: <span class="ident">SeqAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span>: <span class="self">Self</span>::<span class="ident">Value</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">mem</span>::<span class="ident">uninitialized</span>() };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">curr</span> <span class="op">=</span> <span class="number">0</span>;
 
@@ -719,8 +788,7 @@
 
         <span class="kw">if</span> <span class="ident">curr</span> <span class="op">==</span> <span class="ident">R</span>::<span class="ident">dim</span>() <span class="op">*</span> <span class="ident">C</span>::<span class="ident">dim</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">out</span>)
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="prelude-val">Err</span>(<span class="ident">V</span>::<span class="ident">Error</span>::<span class="ident">invalid_length</span>(<span class="ident">curr</span>, <span class="kw-2">&amp;</span><span class="self">self</span>))
         }
     }
@@ -728,11 +796,12 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Abomonation</span> <span class="kw">for</span> <span class="ident">MatrixArray</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">DimName</span>,
-          <span class="ident">C</span>: <span class="ident">DimName</span>,
-          <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
-          <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
-          <span class="ident">N</span>: <span class="ident">Abomonation</span>
+<span class="kw">where</span>
+    <span class="ident">R</span>: <span class="ident">DimName</span>,
+    <span class="ident">C</span>: <span class="ident">DimName</span>,
+    <span class="ident">R</span>::<span class="ident">Value</span>: <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>,
+    <span class="ident">Prod</span><span class="op">&lt;</span><span class="ident">R</span>::<span class="ident">Value</span>, <span class="ident">C</span>::<span class="ident">Value</span><span class="op">&gt;</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>,
+    <span class="ident">N</span>: <span class="ident">Abomonation</span>,
 {
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">entomb</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
         <span class="kw">for</span> <span class="ident">element</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">as_slice</span>() {
@@ -772,18 +841,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -819,11 +892,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

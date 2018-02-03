@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/geometry/transform_ops.rs`.">
+    <meta name="description" content="Source to the Rust file `src\geometry\transform_ops.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>transform_ops.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -585,47 +596,19 @@
 <span id="540">540</span>
 <span id="541">541</span>
 <span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
 </pre><pre class="rust ">
-<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">Zero</span>, <span class="ident">One</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Index</span>, <span class="ident">IndexMut</span>, <span class="ident">Mul</span>, <span class="ident">MulAssign</span>, <span class="ident">Div</span>, <span class="ident">DivAssign</span>};
+<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">One</span>, <span class="ident">Zero</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Div</span>, <span class="ident">DivAssign</span>, <span class="ident">Index</span>, <span class="ident">IndexMut</span>, <span class="ident">Mul</span>, <span class="ident">MulAssign</span>};
 
-<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Real</span>, <span class="ident">ClosedAdd</span>, <span class="ident">ClosedMul</span>, <span class="ident">SubsetOf</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">ClosedAdd</span>, <span class="ident">ClosedMul</span>, <span class="ident">Real</span>, <span class="ident">SubsetOf</span>};
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Scalar</span>, <span class="ident">VectorN</span>, <span class="ident">MatrixN</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">MatrixN</span>, <span class="ident">Scalar</span>, <span class="ident">VectorN</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">DimNameAdd</span>, <span class="ident">DimNameSum</span>, <span class="ident">U1</span>, <span class="ident">U3</span>, <span class="ident">U4</span>};
 
-<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Transform</span>, <span class="ident">TCategory</span>, <span class="ident">TCategoryMul</span>,
-               <span class="ident">SubTCategoryOf</span>, <span class="ident">SuperTCategoryOf</span>, <span class="ident">TGeneral</span>, <span class="ident">TProjective</span>, <span class="ident">TAffine</span>, <span class="ident">Rotation</span>,
-               <span class="ident">UnitQuaternion</span>, <span class="ident">Isometry</span>, <span class="ident">Similarity</span>, <span class="ident">Translation</span>};
+<span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Isometry</span>, <span class="ident">Point</span>, <span class="ident">Rotation</span>, <span class="ident">Similarity</span>, <span class="ident">SubTCategoryOf</span>, <span class="ident">SuperTCategoryOf</span>, <span class="ident">TAffine</span>,
+               <span class="ident">TCategory</span>, <span class="ident">TCategoryMul</span>, <span class="ident">TGeneral</span>, <span class="ident">TProjective</span>, <span class="ident">Transform</span>, <span class="ident">Translation</span>,
+               <span class="ident">UnitQuaternion</span>};
 
 <span class="comment">/*
  *
@@ -695,8 +678,10 @@
  *
  */</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>, <span class="ident">C</span>: <span class="ident">TCategory</span><span class="op">&gt;</span> <span class="ident">Index</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimName</span> <span class="op">+</span> <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">D</span>: <span class="ident">DimName</span> <span class="op">+</span> <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>,
+{
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">N</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -707,14 +692,15 @@
 
 <span class="comment">// Only general transformations are mutably indexable.</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="ident">IndexMut</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Transform</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">TGeneral</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimName</span> <span class="op">+</span> <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">D</span>: <span class="ident">DimName</span> <span class="op">+</span> <span class="ident">DimNameAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">DimNameSum</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ij</span>: (<span class="ident">usize</span>, <span class="ident">usize</span>)) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">N</span> {
         <span class="self">self</span>.<span class="ident">matrix_mut</span>().<span class="ident">index_mut</span>(<span class="ident">ij</span>)
     }
 }
-
 
 <span class="comment">// Transform × Vector</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
@@ -739,7 +725,6 @@
         <span class="ident">transform</span> <span class="op">*</span> <span class="ident">rhs</span>
     };
 );
-
 
 <span class="comment">// Transform × Point</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
@@ -767,7 +752,6 @@
     };
 );
 
-
 <span class="comment">// Transform × Transform</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
     <span class="ident">Mul</span>, <span class="ident">mul</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -778,7 +762,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">unwrap</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">matrix</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
 );
-
 
 <span class="comment">// Transform × Rotation</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
@@ -791,7 +774,6 @@
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">matrix</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">to_homogeneous</span>());
 );
 
-
 <span class="comment">// Rotation × Transform</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
     <span class="ident">Mul</span>, <span class="ident">mul</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -802,7 +784,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
 );
-
 
 <span class="comment">// Transform × UnitQuaternion</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
@@ -815,7 +796,6 @@
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">matrix</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">to_homogeneous</span>());
 );
 
-
 <span class="comment">// UnitQuaternion × Transform</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
     <span class="ident">Mul</span>, <span class="ident">mul</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -826,8 +806,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
 );
-
-
 
 <span class="comment">// Transform × Isometry</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
@@ -853,7 +831,6 @@
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
 );
 
-
 <span class="comment">// Transform × Similarity</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
     <span class="ident">Mul</span>, <span class="ident">mul</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -877,8 +854,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
 );
-
-
 
 <span class="comment">/*
  *
@@ -911,8 +886,6 @@
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>::<span class="ident">from_matrix_unchecked</span>(<span class="self">self</span>.<span class="ident">to_homogeneous</span>() <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>());
 );
 
-
-
 <span class="comment">// Transform ÷ Transform</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
     <span class="ident">Div</span>, <span class="ident">div</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -935,7 +908,6 @@
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
 
-
 <span class="comment">// Rotation ÷ Transform</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
     <span class="ident">Div</span>, <span class="ident">div</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -946,7 +918,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">inverse</span>() <span class="op">*</span> <span class="ident">rhs</span>;
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">inverse</span>() <span class="op">*</span> <span class="ident">rhs</span>;
 );
-
 
 <span class="comment">// Transform ÷ UnitQuaternion</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
@@ -959,7 +930,6 @@
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span> <span class="op">*</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
 
-
 <span class="comment">// UnitQuaternion ÷ Transform</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
     <span class="ident">Div</span>, <span class="ident">div</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -970,8 +940,6 @@
     [<span class="ident">val</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">inverse</span>() <span class="op">*</span> <span class="ident">rhs</span>;
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">inverse</span>() <span class="op">*</span> <span class="ident">rhs</span>;
 );
-
-
 
 <span class="comment">//      // Transform ÷ Isometry</span>
 <span class="comment">//      md_impl_all!(</span>
@@ -998,7 +966,6 @@
 <span class="comment">//          [val ref] =&gt; Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());</span>
 <span class="comment">//          [ref ref] =&gt; Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());</span>
 <span class="comment">//      );</span>
-
 
 <span class="comment">//      // Transform ÷ Similarity</span>
 <span class="comment">//      md_impl_all!(</span>
@@ -1028,8 +995,6 @@
 <span class="comment">//          [ref ref] =&gt; Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());</span>
 <span class="comment">//      );</span>
 
-
-
 <span class="comment">// Transform ÷ Translation</span>
 <span class="macro">md_impl_all</span><span class="macro">!</span>(
     <span class="ident">Div</span>, <span class="ident">div</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -1053,7 +1018,6 @@
     [<span class="kw-2">ref</span> <span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">inverse</span>() <span class="op">*</span> <span class="ident">rhs</span>;
 );
 
-
 <span class="comment">// Transform ×= Transform</span>
 <span class="macro">md_assign_impl_all</span><span class="macro">!</span>(
     <span class="ident">MulAssign</span>, <span class="ident">mul_assign</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -1062,7 +1026,6 @@
     [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">matrix_mut_unchecked</span>() <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">unwrap</span>();
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">matrix_mut_unchecked</span>() <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">matrix</span>();
 );
-
 
 <span class="comment">// Transform ×= Similarity</span>
 <span class="macro">md_assign_impl_all</span><span class="macro">!</span>(
@@ -1073,7 +1036,6 @@
     [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">matrix_mut_unchecked</span>() <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">to_homogeneous</span>();
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">matrix_mut_unchecked</span>() <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">to_homogeneous</span>();
 );
-
 
 <span class="comment">// Transform ×= Isometry</span>
 <span class="macro">md_assign_impl_all</span><span class="macro">!</span>(
@@ -1102,7 +1064,6 @@
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">matrix_mut_unchecked</span>() <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">to_homogeneous</span>();
 );
 
-
 <span class="comment">// Transform ×= Rotation</span>
 <span class="macro">md_assign_impl_all</span><span class="macro">!</span>(
     <span class="ident">MulAssign</span>, <span class="ident">mul_assign</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -1112,7 +1073,6 @@
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">matrix_mut_unchecked</span>() <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">to_homogeneous</span>();
 );
 
-
 <span class="comment">// Transform ×= UnitQuaternion</span>
 <span class="macro">md_assign_impl_all</span><span class="macro">!</span>(
     <span class="ident">MulAssign</span>, <span class="ident">mul_assign</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -1121,7 +1081,6 @@
     [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">matrix_mut_unchecked</span>() <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">to_homogeneous</span>();
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">matrix_mut_unchecked</span>() <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">to_homogeneous</span>();
 );
-
 
 <span class="comment">// Transform ÷= Transform</span>
 <span class="macro">md_assign_impl_all</span><span class="macro">!</span>(
@@ -1133,7 +1092,6 @@
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">clone</span>().<span class="ident">inverse</span>();
 );
 
-
 <span class="comment">//      // Transform ÷= Similarity</span>
 <span class="comment">//      md_assign_impl_all!(</span>
 <span class="comment">//          DivAssign, div_assign;</span>
@@ -1143,8 +1101,8 @@
 <span class="comment">//          [val] =&gt; *self *= rhs.inverse();</span>
 <span class="comment">//          [ref] =&gt; *self *= rhs.inverse();</span>
 <span class="comment">//      );</span>
-<span class="comment">//      </span>
-<span class="comment">//      </span>
+<span class="comment">//</span>
+<span class="comment">//</span>
 <span class="comment">//      // Transform ÷= Isometry</span>
 <span class="comment">//      md_assign_impl_all!(</span>
 <span class="comment">//          DivAssign, div_assign;</span>
@@ -1155,7 +1113,6 @@
 <span class="comment">//          [ref] =&gt; *self *= rhs.inverse();</span>
 <span class="comment">//      );</span>
 
-
 <span class="comment">// Transform ÷= Translation</span>
 <span class="macro">md_assign_impl_all</span><span class="macro">!</span>(
     <span class="ident">DivAssign</span>, <span class="ident">div_assign</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -1165,7 +1122,6 @@
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
 
-
 <span class="comment">// Transform ÷= Rotation</span>
 <span class="macro">md_assign_impl_all</span><span class="macro">!</span>(
     <span class="ident">DivAssign</span>, <span class="ident">div_assign</span> <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Real</span>;
@@ -1174,7 +1130,6 @@
     [<span class="ident">val</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
     [<span class="kw-2">ref</span>] <span class="op">=&gt;</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*=</span> <span class="ident">rhs</span>.<span class="ident">inverse</span>();
 );
-
 
 <span class="comment">// Transform ÷= UnitQuaternion</span>
 <span class="macro">md_assign_impl_all</span><span class="macro">!</span>(
@@ -1198,18 +1153,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -1245,11 +1204,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

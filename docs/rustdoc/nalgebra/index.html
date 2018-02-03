@@ -10,14 +10,17 @@
     <title>nalgebra - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../main.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../dark.css">
+    <link rel="stylesheet" type="text/css" href="../main.css" id="themeStyle">
+    <script src="../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc mod">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc mod"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'>Crate nalgebra</p><div class="block items"><ul><li><a href="#reexports">Reexports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'nalgebra', ty: 'mod', relpath: '../'};</script>
+        <p class='location'>Crate nalgebra</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'nalgebra', ty: 'mod', relpath: '../'};</script></div>
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -48,29 +59,23 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../src/nalgebra/lib.rs.html#1-499' title='goto source code'>[src]</a></span></h1>
-<div class='docblock'>
-<h1 id='nalgebra' class='section-header'><a href='#nalgebra'>nalgebra</a></h1>
+               </span><a class='srclink' href='../src/nalgebra/lib.rs.html#1-486' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><h1 id="nalgebra" class="section-header"><a href="#nalgebra">nalgebra</a></h1>
 <p><strong>nalgebra</strong> is a linear algebra library written for Rust targeting:</p>
-
 <ul>
 <li>General-purpose linear algebra (still lacks a lot of features…)</li>
 <li>Real time computer graphics.</li>
 <li>Real time computer physics.</li>
 </ul>
-
-<h2 id='using-nalgebra' class='section-header'><a href='#using-nalgebra'>Using <strong>nalgebra</strong></a></h2>
+<h2 id="using-nalgebra" class="section-header"><a href="#using-nalgebra">Using <strong>nalgebra</strong></a></h2>
 <p>You will need the last stable build of the <a href="http://www.rust-lang.org">rust compiler</a>
 and the official package manager: <a href="https://github.com/rust-lang/cargo">cargo</a>.</p>
-
 <p>Simply add the following to your <code>Cargo.toml</code> file:</p>
 
-<pre class="rust rust-example-rendered">
+<div class='information'><div class='tooltip ignore'>ⓘ<span class='tooltiptext'>This example is not tested</span></div></div><pre class="rust rust-example-rendered ignore">
 [<span class="ident">dependencies</span>]
 <span class="ident">nalgebra</span> <span class="op">=</span> <span class="string">&quot;0.13&quot;</span></pre>
-
 <p>Most useful functionalities of <strong>nalgebra</strong> are grouped in the root module <code>nalgebra::</code>.</p>
-
 <p>However, the recommended way to use <strong>nalgebra</strong> is to import types and traits
 explicitly, and call free-functions using the <code>na::</code> prefix:</p>
 
@@ -88,11 +93,9 @@ explicitly, and call free-functions using the <code>na::</code> prefix:</p>
     <span class="macro">relative_eq</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">axis</span>().<span class="ident">unwrap</span>(), <span class="ident">axis</span>);
     <span class="macro">relative_eq</span><span class="macro">!</span>(<span class="ident">b</span>.<span class="ident">angle</span>(), <span class="ident">angle</span>);
 }</pre>
-
-<h2 id='features' class='section-header'><a href='#features'>Features</a></h2>
+<h2 id="features" class="section-header"><a href="#features">Features</a></h2>
 <p><strong>nalgebra</strong> is meant to be a general-purpose, low-dimensional, linear algebra library, with
 an optimized set of tools for computer graphics and physics. Those features include:</p>
-
 <ul>
 <li>A single parametrizable type <code>Matrix</code> for vectors, (square or rectangular) matrices, and slices
 with dimensions known either at compile-time (using type-level integers) or at runtime.</li>
@@ -120,7 +123,7 @@ allocated on the heap.</li>
 <li>Implements traits from the <a href="https://crates.io/crates/alga">alga</a> crate for
 generic programming.</li>
 </ul>
-</div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
+</div><h2 id='reexports' class='section-header'><a href="#reexports">Re-exports</a></h2>
 <table><tr><td><code>pub use <a class="mod" href="../nalgebra/core/index.html" title="mod nalgebra::core">core</a>::*;</code></td></tr><tr><td><code>pub use <a class="mod" href="../nalgebra/linalg/index.html" title="mod nalgebra::linalg">linalg</a>::*;</code></td></tr><tr><td><code>pub use <a class="mod" href="../nalgebra/geometry/index.html" title="mod nalgebra::geometry">geometry</a>::*;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                        <tr class=' module-item'>
@@ -128,6 +131,7 @@ generic programming.</li>
                                   title='mod nalgebra::core'>core</a></td>
                            <td class='docblock-short'>
                                 <p>[Reexported at the root of this crate.] Data structures for vector and matrix computations.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -136,6 +140,7 @@ generic programming.</li>
                            <td class='docblock-short'>
                                 <p>[Reexported at the root of this crate.] Data structures for points and usual transformations
 (rotations, isometries, etc.)</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -143,6 +148,7 @@ generic programming.</li>
                                   title='mod nalgebra::linalg'>linalg</a></td>
                            <td class='docblock-short'>
                                 <p>[Reexported at the root of this crate.] Factorization of real matrices.</p>
+
                            </td>
                        </tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
@@ -152,6 +158,7 @@ generic programming.</li>
                            <td class='docblock-short'>
                                 <p>The universal identity element wrt. a given operator, usually noted <code>Id</code> with a
 context-dependent subscript.</p>
+
                            </td>
                        </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
@@ -160,6 +167,7 @@ context-dependent subscript.</p>
                                   title='trait nalgebra::Real'>Real</a></td>
                            <td class='docblock-short'>
                                 <p>Trait shared by all reals.</p>
+
                            </td>
                        </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
@@ -168,6 +176,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::abs'>abs</a></td>
                            <td class='docblock-short'>
                                 <p>The absolute value of <code>a</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -175,6 +184,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::angle'>angle</a></td>
                            <td class='docblock-short'>
                                 <p>Computes the smallest angle between two vectors.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -182,6 +192,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::center'>center</a></td>
                            <td class='docblock-short'>
                                 <p>The center of two points.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -189,6 +200,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::clamp'>clamp</a></td>
                            <td class='docblock-short'>
                                 <p>Returns a reference to the input value clamped to the interval <code>[min, max]</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -196,6 +208,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::convert'>convert</a></td>
                            <td class='docblock-short'>
                                 <p>Converts an object from one type to an equivalent or more general one.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -203,6 +216,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::convert_ref'>convert_ref</a></td>
                            <td class='docblock-short'>
                                 <p>Converts an object from one type to an equivalent or more general one.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -210,6 +224,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::convert_ref_unchecked'>convert_ref_unchecked</a><a title='unsafe function' href='#'><sup>⚠</sup></a></td>
                            <td class='docblock-short'>
                                 <p>Use with care! Same as <code>try_convert</code> but without any property checks.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -217,6 +232,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::convert_unchecked'>convert_unchecked</a><a title='unsafe function' href='#'><sup>⚠</sup></a></td>
                            <td class='docblock-short'>
                                 <p>Use with care! Same as <code>try_convert</code> but without any property checks.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -224,6 +240,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::dimension'>dimension</a></td>
                            <td class='docblock-short'>
                                 <p>The dimension of the given algebraic entity seen as a vector space.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -231,6 +248,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::distance'>distance</a></td>
                            <td class='docblock-short'>
                                 <p>The distance between two points.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -238,6 +256,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::distance_squared'>distance_squared</a></td>
                            <td class='docblock-short'>
                                 <p>The squared distance between two points.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -245,6 +264,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::dot'>dot</a></td>
                            <td class='docblock-short'>
                                 <p>Computes the dot product of two vectors.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -252,6 +272,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::id'>id</a></td>
                            <td class='docblock-short'>
                                 <p>Gets the ubiquitous multiplicative identity element.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -259,6 +280,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::inf'>inf</a></td>
                            <td class='docblock-short'>
                                 <p>Returns the infimum of <code>a</code> and <code>b</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -266,6 +288,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::inf_sup'>inf_sup</a></td>
                            <td class='docblock-short'>
                                 <p>Returns simultaneously the infimum and supremum of <code>a</code> and <code>b</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -273,6 +296,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::inverse'>inverse</a></td>
                            <td class='docblock-short'>
                                 <p>Computes the multiplicative inverse of an (always invertible) algebraic entity.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -280,6 +304,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::is_convertible'>is_convertible</a></td>
                            <td class='docblock-short'>
                                 <p>Indicates if <code>::try_convert</code> will succeed without actually performing the conversion.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -287,6 +312,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::max'>max</a></td>
                            <td class='docblock-short'>
                                 <p>Same as <code>cmp::max</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -294,6 +320,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::min'>min</a></td>
                            <td class='docblock-short'>
                                 <p>Same as <code>cmp::min</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -301,6 +328,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::norm'>norm</a></td>
                            <td class='docblock-short'>
                                 <p>Computes the L2 (euclidean) norm of a vector.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -308,6 +336,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::norm_squared'>norm_squared</a></td>
                            <td class='docblock-short'>
                                 <p>Computes the squared L2 (euclidean) norm of the vector <code>v</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -315,6 +344,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::normalize'>normalize</a></td>
                            <td class='docblock-short'>
                                 <p>Computes the normalized version of the vector <code>v</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -322,6 +352,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::one'>one</a></td>
                            <td class='docblock-short'>
                                 <p>Gets the multiplicative identity element.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -329,6 +360,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::origin'>origin</a></td>
                            <td class='docblock-short'>
                                 <p>Gets the origin of the given point.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -337,6 +369,7 @@ context-dependent subscript.</p>
                            <td class='docblock-short'>
                                 <p>Clamp <code>value</code> between <code>min</code> and <code>max</code>. Returns <code>None</code> if <code>value</code> is not comparable to
 <code>min</code> or <code>max</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -344,6 +377,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::partial_cmp'>partial_cmp</a></td>
                            <td class='docblock-short'>
                                 <p>Compare <code>a</code> and <code>b</code> using a partial ordering relation.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -351,6 +385,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::partial_ge'>partial_ge</a></td>
                            <td class='docblock-short'>
                                 <p>Returns <code>true</code> iff <code>a</code> and <code>b</code> are comparable and <code>a &gt;= b</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -358,6 +393,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::partial_gt'>partial_gt</a></td>
                            <td class='docblock-short'>
                                 <p>Returns <code>true</code> iff <code>a</code> and <code>b</code> are comparable and <code>a &gt; b</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -365,6 +401,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::partial_le'>partial_le</a></td>
                            <td class='docblock-short'>
                                 <p>Returns <code>true</code> iff <code>a</code> and <code>b</code> are comparable and <code>a &lt;= b</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -372,6 +409,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::partial_lt'>partial_lt</a></td>
                            <td class='docblock-short'>
                                 <p>Returns <code>true</code> iff <code>a</code> and <code>b</code> are comparable and <code>a &lt; b</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -379,6 +417,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::partial_max'>partial_max</a></td>
                            <td class='docblock-short'>
                                 <p>Return the maximum of <code>a</code> and <code>b</code> if they are comparable.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -386,6 +425,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::partial_min'>partial_min</a></td>
                            <td class='docblock-short'>
                                 <p>Return the minimum of <code>a</code> and <code>b</code> if they are comparable.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -393,6 +433,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::partial_sort2'>partial_sort2</a></td>
                            <td class='docblock-short'>
                                 <p>Sorts two values in increasing order using a partial ordering.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -400,6 +441,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::sup'>sup</a></td>
                            <td class='docblock-short'>
                                 <p>Returns the supremum of <code>a</code> and <code>b</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -407,6 +449,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::try_convert'>try_convert</a></td>
                            <td class='docblock-short'>
                                 <p>Attempts to convert an object to a more specific one.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -414,6 +457,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::try_convert_ref'>try_convert_ref</a></td>
                            <td class='docblock-short'>
                                 <p>Attempts to convert an object to a more specific one.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -421,6 +465,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::try_inverse'>try_inverse</a></td>
                            <td class='docblock-short'>
                                 <p>Tries to gets an inverted copy of a square matrix.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -428,6 +473,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::try_normalize'>try_normalize</a></td>
                            <td class='docblock-short'>
                                 <p>Computes the normalized version of the vector <code>v</code> or returns <code>None</code> if its norm is smaller than <code>min_norm</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -435,6 +481,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::wrap'>wrap</a></td>
                            <td class='docblock-short'>
                                 <p>Wraps <code>val</code> into the range <code>[min, max]</code> using modular arithmetics.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -442,6 +489,7 @@ context-dependent subscript.</p>
                                   title='fn nalgebra::zero'>zero</a></td>
                            <td class='docblock-short'>
                                 <p>Gets the additive identity element.</p>
+
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
@@ -456,18 +504,22 @@ context-dependent subscript.</p>
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -503,11 +555,4 @@ context-dependent subscript.</p>
     <script src="../main.js"></script>
     <script defer src="../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

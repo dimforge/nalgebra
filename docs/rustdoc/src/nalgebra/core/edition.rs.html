@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/core/edition.rs`.">
+    <meta name="description" content="Source to the Rust file `src\core\edition.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>edition.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -608,14 +619,161 @@
 <span id="563">563</span>
 <span id="564">564</span>
 <span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
 </pre><pre class="rust ">
-<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">Zero</span>, <span class="ident">One</span>};
+<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">One</span>, <span class="ident">Zero</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Scalar</span>, <span class="ident">Matrix</span>, <span class="ident">DMatrix</span>, <span class="ident">MatrixMN</span>, <span class="ident">Vector</span>, <span class="ident">RowVector</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimName</span>, <span class="ident">DimSub</span>, <span class="ident">DimDiff</span>, <span class="ident">DimAdd</span>, <span class="ident">DimSum</span>, <span class="ident">DimMin</span>, <span class="ident">DimMinimum</span>, <span class="ident">U1</span>, <span class="ident">Dynamic</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">ShapeConstraint</span>, <span class="ident">DimEq</span>, <span class="ident">SameNumberOfColumns</span>, <span class="ident">SameNumberOfRows</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DMatrix</span>, <span class="ident">DefaultAllocator</span>, <span class="ident">Matrix</span>, <span class="ident">MatrixMN</span>, <span class="ident">RowVector</span>, <span class="ident">Scalar</span>, <span class="ident">Vector</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimAdd</span>, <span class="ident">DimDiff</span>, <span class="ident">DimMin</span>, <span class="ident">DimMinimum</span>, <span class="ident">DimName</span>, <span class="ident">DimSub</span>, <span class="ident">DimSum</span>, <span class="ident">Dynamic</span>,
+                      <span class="ident">U1</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">DimEq</span>, <span class="ident">SameNumberOfColumns</span>, <span class="ident">SameNumberOfRows</span>, <span class="ident">ShapeConstraint</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::{<span class="ident">Allocator</span>, <span class="ident">Reallocator</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">Storage</span>, <span class="ident">StorageMut</span>};
 
@@ -623,7 +781,9 @@
     <span class="doccomment">/// Extracts the upper triangular part of this matrix (including the diagonal).</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upper_triangle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone_owned</span>();
         <span class="ident">res</span>.<span class="ident">fill_lower_triangle</span>(<span class="ident">N</span>::<span class="ident">zero</span>(), <span class="number">1</span>);
 
@@ -633,7 +793,9 @@
     <span class="doccomment">/// Extracts the upper triangular part of this matrix (including the diagonal).</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lower_triangle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone_owned</span>();
         <span class="ident">res</span>.<span class="ident">fill_upper_triangle</span>(<span class="ident">N</span>::<span class="ident">zero</span>(), <span class="number">1</span>);
 
@@ -653,7 +815,9 @@
     <span class="doccomment">/// Fills `self` with the identity matrix.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill_with_identity</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>)
-        <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> {
+    <span class="kw">where</span>
+        <span class="ident">N</span>: <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span>,
+    {
         <span class="self">self</span>.<span class="ident">fill</span>(<span class="ident">N</span>::<span class="ident">zero</span>());
         <span class="self">self</span>.<span class="ident">fill_diagonal</span>(<span class="ident">N</span>::<span class="ident">one</span>());
     }
@@ -664,7 +828,7 @@
         <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">shape</span>();
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">nrows</span>, <span class="ident">ncols</span>);
 
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">n</span> {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> {
             <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">i</span>) <span class="op">=</span> <span class="ident">val</span> }
         }
     }
@@ -673,7 +837,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill_row</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">val</span>: <span class="ident">N</span>) {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">nrows</span>(), <span class="string">&quot;Row index out of bounds.&quot;</span>);
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">ncols</span>() {
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">ncols</span>() {
             <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="ident">val</span> }
         }
     }
@@ -682,7 +846,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill_column</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">j</span>: <span class="ident">usize</span>, <span class="ident">val</span>: <span class="ident">N</span>) {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">j</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">ncols</span>(), <span class="string">&quot;Row index out of bounds.&quot;</span>);
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">nrows</span>() {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">nrows</span>() {
             <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="ident">val</span> }
         }
     }
@@ -690,14 +854,16 @@
     <span class="doccomment">/// Fills the diagonal of this matrix with the content of the given vector.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_diagonal</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">diag</span>: <span class="kw-2">&amp;</span><span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">R</span>:  <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>,
-              <span class="ident">S2</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span><span class="op">&gt;</span>,
-              <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">R2</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>)  <span class="op">=</span> <span class="self">self</span>.<span class="ident">shape</span>();
+    <span class="kw">where</span>
+        <span class="ident">R</span>: <span class="ident">DimMin</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>,
+        <span class="ident">S2</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span><span class="op">&gt;</span>,
+        <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">DimMinimum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>, <span class="ident">R2</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">shape</span>();
         <span class="kw">let</span> <span class="ident">min_nrows_ncols</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">nrows</span>, <span class="ident">ncols</span>);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">diag</span>.<span class="ident">len</span>(), <span class="ident">min_nrows_ncols</span>, <span class="string">&quot;Mismatched dimensions.&quot;</span>);
 
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">min_nrows_ncols</span> {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">min_nrows_ncols</span> {
             <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">i</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">diag</span>.<span class="ident">vget_unchecked</span>(<span class="ident">i</span>) }
         }
     }
@@ -705,16 +871,20 @@
     <span class="doccomment">/// Fills the selected row of this matrix with the content of the given vector.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_row</span><span class="op">&lt;</span><span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">RowVector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U1</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
-              <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfColumns</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U1</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+        <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfColumns</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">row_mut</span>(<span class="ident">i</span>).<span class="ident">copy_from</span>(<span class="ident">row</span>);
     }
 
     <span class="doccomment">/// Fills the selected column of this matrix with the content of the given vector.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_column</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">column</span>: <span class="kw-2">&amp;</span><span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">U1</span><span class="op">&gt;</span>,
-              <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">R2</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">U1</span><span class="op">&gt;</span>,
+        <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">R2</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">column_mut</span>(<span class="ident">i</span>).<span class="ident">copy_from</span>(<span class="ident">column</span>);
     }
 
@@ -727,8 +897,8 @@
     <span class="doccomment">/// untouched.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill_lower_triangle</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">N</span>, <span class="ident">shift</span>: <span class="ident">usize</span>) {
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">ncols</span>() {
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="ident">j</span> <span class="op">+</span> <span class="ident">shift</span>) .. <span class="self">self</span>.<span class="ident">nrows</span>() {
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">ncols</span>() {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="ident">j</span> <span class="op">+</span> <span class="ident">shift</span>)..<span class="self">self</span>.<span class="ident">nrows</span>() {
                 <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="ident">val</span> }
             }
         }
@@ -743,10 +913,10 @@
     <span class="doccomment">/// untouched.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill_upper_triangle</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">N</span>, <span class="ident">shift</span>: <span class="ident">usize</span>) {
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="ident">shift</span> .. <span class="self">self</span>.<span class="ident">ncols</span>() {
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="ident">shift</span>..<span class="self">self</span>.<span class="ident">ncols</span>() {
             <span class="comment">// FIXME: is there a more efficient way to avoid the min ?</span>
             <span class="comment">// (necessary for rectangular matrices)</span>
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">j</span> <span class="op">+</span> <span class="number">1</span> <span class="op">-</span> <span class="ident">shift</span>, <span class="self">self</span>.<span class="ident">nrows</span>()) {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">j</span> <span class="op">+</span> <span class="number">1</span> <span class="op">-</span> <span class="ident">shift</span>, <span class="self">self</span>.<span class="ident">nrows</span>()) {
                 <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="ident">val</span> }
             }
         }
@@ -759,7 +929,7 @@
 
         <span class="kw">if</span> <span class="ident">irow1</span> <span class="op">!=</span> <span class="ident">irow2</span> {
             <span class="comment">// FIXME: optimize that.</span>
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">ncols</span>() {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">ncols</span>() {
                 <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">swap_unchecked</span>((<span class="ident">irow1</span>, <span class="ident">i</span>), (<span class="ident">irow2</span>, <span class="ident">i</span>)) }
             }
         }
@@ -773,7 +943,7 @@
 
         <span class="kw">if</span> <span class="ident">icol1</span> <span class="op">!=</span> <span class="ident">icol2</span> {
             <span class="comment">// FIXME: optimize that.</span>
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">nrows</span>() {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">nrows</span>() {
                 <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">swap_unchecked</span>((<span class="ident">i</span>, <span class="ident">icol1</span>), (<span class="ident">i</span>, <span class="ident">icol2</span>)) }
             }
         }
@@ -789,8 +959,8 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">is_square</span>(), <span class="string">&quot;The input matrix should be square.&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">dim</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nrows</span>();
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">dim</span> {
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">j</span> <span class="op">+</span> <span class="number">1</span> .. <span class="ident">dim</span> {
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">dim</span> {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">j</span> <span class="op">+</span> <span class="number">1</span>..<span class="ident">dim</span> {
                 <span class="kw">unsafe</span> {
                     <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked</span>(<span class="ident">j</span>, <span class="ident">i</span>);
                 }
@@ -804,8 +974,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill_upper_triangle_with_lower_triangle</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">is_square</span>(), <span class="string">&quot;The input matrix should be square.&quot;</span>);
 
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">1</span> .. <span class="self">self</span>.<span class="ident">ncols</span>() {
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">j</span> {
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">1</span>..<span class="self">self</span>.<span class="ident">ncols</span>() {
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">j</span> {
                 <span class="kw">unsafe</span> {
                     <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked</span>(<span class="ident">j</span>, <span class="ident">i</span>);
                 }
@@ -828,8 +998,10 @@
     <span class="doccomment">/// Removes the `i`-th column from this matrix.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_column</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
-        <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">C</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">remove_fixed_columns</span>::<span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>(<span class="ident">i</span>)
     }
 
@@ -837,19 +1009,21 @@
     <span class="doccomment">/// (included).</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_fixed_columns</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimName</span>,
-              <span class="ident">C</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">DimName</span>,
+        <span class="ident">C</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">remove_columns_generic</span>(<span class="ident">i</span>, <span class="ident">D</span>::<span class="ident">name</span>())
     }
 
     <span class="doccomment">/// Removes `n` consecutive columns from this matrix, starting with the `i`-th (included).</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_columns</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">C</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">remove_columns_generic</span>(<span class="ident">i</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">n</span>))
     }
 
@@ -859,31 +1033,44 @@
     <span class="doccomment">/// `.remove_fixed_columns(...)` which have nicer API interfaces.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_columns_generic</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">nremove</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">Dim</span>,
-              <span class="ident">C</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Dim</span>,
+        <span class="ident">C</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_owned</span>();
         <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">shape</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i</span> <span class="op">+</span> <span class="ident">nremove</span>.<span class="ident">value</span>() <span class="op">&lt;=</span> <span class="ident">ncols</span>.<span class="ident">value</span>(), <span class="string">&quot;Column index out of range.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">i</span> <span class="op">+</span> <span class="ident">nremove</span>.<span class="ident">value</span>() <span class="op">&lt;=</span> <span class="ident">ncols</span>.<span class="ident">value</span>(),
+            <span class="string">&quot;Column index out of range.&quot;</span>
+        );
 
         <span class="kw">if</span> <span class="ident">nremove</span>.<span class="ident">value</span>() <span class="op">!=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">i</span> <span class="op">+</span> <span class="ident">nremove</span>.<span class="ident">value</span>() <span class="op">&lt;</span> <span class="ident">ncols</span>.<span class="ident">value</span>() {
             <span class="comment">// The first `deleted_i * nrows` are left untouched.</span>
             <span class="kw">let</span> <span class="ident">copied_value_start</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">+</span> <span class="ident">nremove</span>.<span class="ident">value</span>();
 
             <span class="kw">unsafe</span> {
-                <span class="kw">let</span> <span class="ident">ptr_in</span>  <span class="op">=</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">ptr</span>().<span class="ident">offset</span>((<span class="ident">copied_value_start</span> <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">isize</span>);
+                <span class="kw">let</span> <span class="ident">ptr_in</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">data</span>
+                    .<span class="ident">ptr</span>()
+                    .<span class="ident">offset</span>((<span class="ident">copied_value_start</span> <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">isize</span>);
                 <span class="kw">let</span> <span class="ident">ptr_out</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">ptr_mut</span>().<span class="ident">offset</span>((<span class="ident">i</span> <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">isize</span>);
 
-                <span class="ident">ptr</span>::<span class="ident">copy</span>(<span class="ident">ptr_in</span>, <span class="ident">ptr_out</span>, (<span class="ident">ncols</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">copied_value_start</span>) <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>());
+                <span class="ident">ptr</span>::<span class="ident">copy</span>(
+                    <span class="ident">ptr_in</span>,
+                    <span class="ident">ptr_out</span>,
+                    (<span class="ident">ncols</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">copied_value_start</span>) <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>(),
+                );
             }
         }
 
         <span class="kw">unsafe</span> {
-            <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(<span class="ident">nrows</span>, <span class="ident">ncols</span>.<span class="ident">sub</span>(<span class="ident">nremove</span>), <span class="ident">m</span>.<span class="ident">data</span>))
+            <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(
+                <span class="ident">nrows</span>,
+                <span class="ident">ncols</span>.<span class="ident">sub</span>(<span class="ident">nremove</span>),
+                <span class="ident">m</span>.<span class="ident">data</span>,
+            ))
         }
     }
-
 
     <span class="comment">/*
      *
@@ -893,27 +1080,31 @@
     <span class="doccomment">/// Removes the `i`-th row from this matrix.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_row</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">R</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">remove_fixed_rows</span>::<span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>(<span class="ident">i</span>)
     }
 
     <span class="doccomment">/// Removes `D::dim()` consecutive rows from this matrix, starting with the `i`-th (included).</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_fixed_rows</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimName</span>,
-              <span class="ident">R</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">DimName</span>,
+        <span class="ident">R</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">remove_rows_generic</span>(<span class="ident">i</span>, <span class="ident">D</span>::<span class="ident">name</span>())
     }
 
     <span class="doccomment">/// Removes `n` consecutive rows from this matrix, starting with the `i`-th (included).</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_rows</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Dynamic</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Dynamic</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">R</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Dynamic</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">remove_rows_generic</span>(<span class="ident">i</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">n</span>))
     }
 
@@ -923,21 +1114,36 @@
     <span class="doccomment">/// which have nicer API interfaces.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_rows_generic</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">nremove</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">Dim</span>,
-              <span class="ident">R</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Dim</span>,
+        <span class="ident">R</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_owned</span>();
         <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">shape</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i</span> <span class="op">+</span> <span class="ident">nremove</span>.<span class="ident">value</span>() <span class="op">&lt;=</span> <span class="ident">nrows</span>.<span class="ident">value</span>(), <span class="string">&quot;Row index out of range.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">i</span> <span class="op">+</span> <span class="ident">nremove</span>.<span class="ident">value</span>() <span class="op">&lt;=</span> <span class="ident">nrows</span>.<span class="ident">value</span>(),
+            <span class="string">&quot;Row index out of range.&quot;</span>
+        );
 
         <span class="kw">if</span> <span class="ident">nremove</span>.<span class="ident">value</span>() <span class="op">!=</span> <span class="number">0</span> {
             <span class="kw">unsafe</span> {
-                <span class="ident">compress_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">as_mut_slice</span>(), <span class="ident">nrows</span>.<span class="ident">value</span>(), <span class="ident">ncols</span>.<span class="ident">value</span>(), <span class="ident">i</span>, <span class="ident">nremove</span>.<span class="ident">value</span>());
+                <span class="ident">compress_rows</span>(
+                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">as_mut_slice</span>(),
+                    <span class="ident">nrows</span>.<span class="ident">value</span>(),
+                    <span class="ident">ncols</span>.<span class="ident">value</span>(),
+                    <span class="ident">i</span>,
+                    <span class="ident">nremove</span>.<span class="ident">value</span>(),
+                );
             }
         }
 
         <span class="kw">unsafe</span> {
-            <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(<span class="ident">nrows</span>.<span class="ident">sub</span>(<span class="ident">nremove</span>), <span class="ident">ncols</span>, <span class="ident">m</span>.<span class="ident">data</span>))
+            <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(
+                <span class="ident">nrows</span>.<span class="ident">sub</span>(<span class="ident">nremove</span>),
+                <span class="ident">ncols</span>,
+                <span class="ident">m</span>.<span class="ident">data</span>,
+            ))
         }
     }
 
@@ -949,17 +1155,21 @@
     <span class="doccomment">/// Inserts a column filled with `val` at the `i-th` position.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_column</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">val</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
-        <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">C</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">insert_fixed_columns</span>::<span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">val</span>)
     }
 
     <span class="doccomment">/// Inserts `D::dim()` columns filled with `val` starting at the `i-th` position.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_fixed_columns</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">val</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimName</span>,
-              <span class="ident">C</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">DimName</span>,
+        <span class="ident">C</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">insert_columns_generic_uninitialized</span>(<span class="ident">i</span>, <span class="ident">D</span>::<span class="ident">name</span>()) };
         <span class="ident">res</span>.<span class="ident">fixed_columns_mut</span>::<span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">i</span>).<span class="ident">fill</span>(<span class="ident">val</span>);
         <span class="ident">res</span>
@@ -968,8 +1178,10 @@
     <span class="doccomment">/// Inserts `n` columns filled with `val` starting at the `i-th` position.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_columns</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">n</span>: <span class="ident">usize</span>, <span class="ident">val</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">C</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">insert_columns_generic_uninitialized</span>(<span class="ident">i</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">n</span>)) };
         <span class="ident">res</span>.<span class="ident">columns_mut</span>(<span class="ident">i</span>, <span class="ident">n</span>).<span class="ident">fill</span>(<span class="ident">val</span>);
         <span class="ident">res</span>
@@ -979,21 +1191,31 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The added column values are not initialized.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">insert_columns_generic_uninitialized</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">ninsert</span>: <span class="ident">D</span>)
-        <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">Dim</span>,
-              <span class="ident">C</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">insert_columns_generic_uninitialized</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(
+        <span class="self">self</span>,
+        <span class="ident">i</span>: <span class="ident">usize</span>,
+        <span class="ident">ninsert</span>: <span class="ident">D</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Dim</span>,
+        <span class="ident">C</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>,
+    {
         <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_owned</span>();
         <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">shape</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(<span class="ident">nrows</span>, <span class="ident">ncols</span>.<span class="ident">add</span>(<span class="ident">ninsert</span>), <span class="ident">m</span>.<span class="ident">data</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(
+            <span class="ident">nrows</span>,
+            <span class="ident">ncols</span>.<span class="ident">add</span>(<span class="ident">ninsert</span>),
+            <span class="ident">m</span>.<span class="ident">data</span>,
+        ));
 
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i</span> <span class="op">&lt;=</span> <span class="ident">ncols</span>.<span class="ident">value</span>(), <span class="string">&quot;Column insertion index out of range.&quot;</span>);
 
         <span class="kw">if</span> <span class="ident">ninsert</span>.<span class="ident">value</span>() <span class="op">!=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">i</span> <span class="op">!=</span> <span class="ident">ncols</span>.<span class="ident">value</span>() {
-            <span class="kw">let</span> <span class="ident">ptr_in</span>  <span class="op">=</span> <span class="ident">res</span>.<span class="ident">data</span>.<span class="ident">ptr</span>().<span class="ident">offset</span>((<span class="ident">i</span> <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">isize</span>);
-            <span class="kw">let</span> <span class="ident">ptr_out</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">data</span>.<span class="ident">ptr_mut</span>().<span class="ident">offset</span>(((<span class="ident">i</span> <span class="op">+</span> <span class="ident">ninsert</span>.<span class="ident">value</span>()) <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">isize</span>);
+            <span class="kw">let</span> <span class="ident">ptr_in</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">data</span>.<span class="ident">ptr</span>().<span class="ident">offset</span>((<span class="ident">i</span> <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">isize</span>);
+            <span class="kw">let</span> <span class="ident">ptr_out</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">data</span>
+                .<span class="ident">ptr_mut</span>()
+                .<span class="ident">offset</span>(((<span class="ident">i</span> <span class="op">+</span> <span class="ident">ninsert</span>.<span class="ident">value</span>()) <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>()) <span class="kw">as</span> <span class="ident">isize</span>);
 
             <span class="ident">ptr</span>::<span class="ident">copy</span>(<span class="ident">ptr_in</span>, <span class="ident">ptr_out</span>, (<span class="ident">ncols</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">i</span>) <span class="op">*</span> <span class="ident">nrows</span>.<span class="ident">value</span>())
         }
@@ -1009,17 +1231,21 @@
     <span class="doccomment">/// Inserts a row filled with `val` at the `i-th` position.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_row</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">val</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">R</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">U1</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">insert_fixed_rows</span>::<span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">val</span>)
     }
 
     <span class="doccomment">/// Inserts `D::dim()` rows filled with `val` starting at the `i-th` position.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_fixed_rows</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">val</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimName</span>,
-              <span class="ident">R</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">DimName</span>,
+        <span class="ident">R</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">insert_rows_generic_uninitialized</span>(<span class="ident">i</span>, <span class="ident">D</span>::<span class="ident">name</span>()) };
         <span class="ident">res</span>.<span class="ident">fixed_rows_mut</span>::<span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">i</span>).<span class="ident">fill</span>(<span class="ident">val</span>);
         <span class="ident">res</span>
@@ -1028,8 +1254,10 @@
     <span class="doccomment">/// Inserts `n` rows filled with `val` starting at the `i-th` position.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_rows</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">n</span>: <span class="ident">usize</span>, <span class="ident">val</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Dynamic</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Dynamic</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">R</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Dynamic</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Dynamic</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">insert_rows_generic_uninitialized</span>(<span class="ident">i</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">n</span>)) };
         <span class="ident">res</span>.<span class="ident">rows_mut</span>(<span class="ident">i</span>, <span class="ident">n</span>).<span class="ident">fill</span>(<span class="ident">val</span>);
         <span class="ident">res</span>
@@ -1041,20 +1269,34 @@
     <span class="doccomment">/// This is the generic implementation of `.insert_rows(...)` and</span>
     <span class="doccomment">/// `.insert_fixed_rows(...)` which have nicer API interfaces.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">insert_rows_generic_uninitialized</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">ninsert</span>: <span class="ident">D</span>)
-        <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">Dim</span>,
-              <span class="ident">R</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">insert_rows_generic_uninitialized</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(
+        <span class="self">self</span>,
+        <span class="ident">i</span>: <span class="ident">usize</span>,
+        <span class="ident">ninsert</span>: <span class="ident">D</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Dim</span>,
+        <span class="ident">R</span>: <span class="ident">DimAdd</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">DimSum</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_owned</span>();
         <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">shape</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(<span class="ident">nrows</span>.<span class="ident">add</span>(<span class="ident">ninsert</span>), <span class="ident">ncols</span>, <span class="ident">m</span>.<span class="ident">data</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(
+            <span class="ident">nrows</span>.<span class="ident">add</span>(<span class="ident">ninsert</span>),
+            <span class="ident">ncols</span>,
+            <span class="ident">m</span>.<span class="ident">data</span>,
+        ));
 
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i</span> <span class="op">&lt;=</span> <span class="ident">nrows</span>.<span class="ident">value</span>(), <span class="string">&quot;Row insertion index out of range.&quot;</span>);
 
         <span class="kw">if</span> <span class="ident">ninsert</span>.<span class="ident">value</span>() <span class="op">!=</span> <span class="number">0</span> {
-            <span class="ident">extend_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">res</span>.<span class="ident">data</span>.<span class="ident">as_mut_slice</span>(), <span class="ident">nrows</span>.<span class="ident">value</span>(), <span class="ident">ncols</span>.<span class="ident">value</span>(), <span class="ident">i</span>, <span class="ident">ninsert</span>.<span class="ident">value</span>());
+            <span class="ident">extend_rows</span>(
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">res</span>.<span class="ident">data</span>.<span class="ident">as_mut_slice</span>(),
+                <span class="ident">nrows</span>.<span class="ident">value</span>(),
+                <span class="ident">ncols</span>.<span class="ident">value</span>(),
+                <span class="ident">i</span>,
+                <span class="ident">ninsert</span>.<span class="ident">value</span>(),
+            );
         }
 
         <span class="ident">res</span>
@@ -1071,8 +1313,9 @@
     <span class="doccomment">/// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more</span>
     <span class="doccomment">/// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resize</span>(<span class="self">self</span>, <span class="ident">new_nrows</span>: <span class="ident">usize</span>, <span class="ident">new_ncols</span>: <span class="ident">usize</span>, <span class="ident">val</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">DMatrix</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Dynamic</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">Dynamic</span>, <span class="ident">Dynamic</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">resize_generic</span>(<span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">new_nrows</span>), <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">new_ncols</span>), <span class="ident">val</span>)
     }
 
@@ -1081,8 +1324,9 @@
     <span class="doccomment">/// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more</span>
     <span class="doccomment">/// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fixed_resize</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">DimName</span>, <span class="ident">C2</span>: <span class="ident">DimName</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">val</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+    {
         <span class="self">self</span>.<span class="ident">resize_generic</span>(<span class="ident">R2</span>::<span class="ident">name</span>(), <span class="ident">C2</span>::<span class="ident">name</span>(), <span class="ident">val</span>)
     }
 
@@ -1091,37 +1335,66 @@
     <span class="doccomment">/// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more</span>
     <span class="doccomment">/// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resize_generic</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">new_nrows</span>: <span class="ident">R2</span>, <span class="ident">new_ncols</span>: <span class="ident">C2</span>, <span class="ident">val</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resize_generic</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span><span class="op">&gt;</span>(
+        <span class="self">self</span>,
+        <span class="ident">new_nrows</span>: <span class="ident">R2</span>,
+        <span class="ident">new_ncols</span>: <span class="ident">C2</span>,
+        <span class="ident">val</span>: <span class="ident">N</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Reallocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">ncols</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">shape</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">into_owned</span>();
 
         <span class="kw">if</span> <span class="ident">new_nrows</span>.<span class="ident">value</span>() <span class="op">==</span> <span class="ident">nrows</span> {
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(<span class="ident">new_nrows</span>, <span class="ident">new_ncols</span>, <span class="ident">data</span>) };
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span>  <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">res</span>);
+            <span class="kw">if</span> <span class="ident">new_ncols</span>.<span class="ident">value</span>() <span class="op">&gt;</span> <span class="ident">ncols</span> {
+                <span class="ident">res</span>.<span class="ident">columns_range_mut</span>(<span class="ident">ncols</span>..).<span class="ident">fill</span>(<span class="ident">val</span>);
+            }
 
-            <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">res</span>)
-        }
-        <span class="kw">else</span> {
+            <span class="ident">res</span>
+        } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span>;
 
             <span class="kw">unsafe</span> {
                 <span class="kw">if</span> <span class="ident">new_nrows</span>.<span class="ident">value</span>() <span class="op">&lt;</span> <span class="ident">nrows</span> {
-                    <span class="ident">compress_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">data</span>.<span class="ident">as_mut_slice</span>(), <span class="ident">nrows</span>, <span class="ident">ncols</span>, <span class="ident">new_nrows</span>.<span class="ident">value</span>(), <span class="ident">nrows</span> <span class="op">-</span> <span class="ident">new_nrows</span>.<span class="ident">value</span>());
-                    <span class="ident">res</span> <span class="op">=</span> <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(<span class="ident">new_nrows</span>, <span class="ident">new_ncols</span>, <span class="ident">data</span>));
-                }
-                <span class="kw">else</span> {
-                    <span class="ident">res</span> <span class="op">=</span> <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(<span class="ident">new_nrows</span>, <span class="ident">new_ncols</span>, <span class="ident">data</span>));
-                    <span class="ident">extend_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">res</span>.<span class="ident">data</span>.<span class="ident">as_mut_slice</span>(), <span class="ident">nrows</span>, <span class="ident">ncols</span>, <span class="ident">nrows</span>, <span class="ident">new_nrows</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">nrows</span>);
+                    <span class="ident">compress_rows</span>(
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">data</span>.<span class="ident">as_mut_slice</span>(),
+                        <span class="ident">nrows</span>,
+                        <span class="ident">ncols</span>,
+                        <span class="ident">new_nrows</span>.<span class="ident">value</span>(),
+                        <span class="ident">nrows</span> <span class="op">-</span> <span class="ident">new_nrows</span>.<span class="ident">value</span>(),
+                    );
+                    <span class="ident">res</span> <span class="op">=</span> <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(
+                        <span class="ident">new_nrows</span>,
+                        <span class="ident">new_ncols</span>,
+                        <span class="ident">data</span>,
+                    ));
+                } <span class="kw">else</span> {
+                    <span class="ident">res</span> <span class="op">=</span> <span class="ident">Matrix</span>::<span class="ident">from_data</span>(<span class="ident">DefaultAllocator</span>::<span class="ident">reallocate_copy</span>(
+                        <span class="ident">new_nrows</span>,
+                        <span class="ident">new_ncols</span>,
+                        <span class="ident">data</span>,
+                    ));
+                    <span class="ident">extend_rows</span>(
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">res</span>.<span class="ident">data</span>.<span class="ident">as_mut_slice</span>(),
+                        <span class="ident">nrows</span>,
+                        <span class="ident">new_ncols</span>.<span class="ident">value</span>(),
+                        <span class="ident">nrows</span>,
+                        <span class="ident">new_nrows</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">nrows</span>,
+                    );
                 }
             }
 
             <span class="kw">if</span> <span class="ident">new_ncols</span>.<span class="ident">value</span>() <span class="op">&gt;</span> <span class="ident">ncols</span> {
-                <span class="ident">res</span>.<span class="ident">columns_range_mut</span>(<span class="ident">ncols</span> ..).<span class="ident">fill</span>(<span class="ident">val</span>);
+                <span class="ident">res</span>.<span class="ident">columns_range_mut</span>(<span class="ident">ncols</span>..).<span class="ident">fill</span>(<span class="ident">val</span>);
             }
 
             <span class="kw">if</span> <span class="ident">new_nrows</span>.<span class="ident">value</span>() <span class="op">&gt;</span> <span class="ident">nrows</span> {
-                <span class="ident">res</span>.<span class="ident">slice_range_mut</span>(<span class="ident">nrows</span> .., .. <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">ncols</span>, <span class="ident">new_ncols</span>.<span class="ident">value</span>())).<span class="ident">fill</span>(<span class="ident">val</span>);
+                <span class="ident">res</span>.<span class="ident">slice_range_mut</span>(<span class="ident">nrows</span>.., ..<span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">ncols</span>, <span class="ident">new_ncols</span>.<span class="ident">value</span>()))
+                    .<span class="ident">fill</span>(<span class="ident">val</span>);
             }
 
             <span class="ident">res</span>
@@ -1129,49 +1402,79 @@
     }
 }
 
-
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">compress_rows</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span><span class="op">&gt;</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">N</span>], <span class="ident">nrows</span>: <span class="ident">usize</span>, <span class="ident">ncols</span>: <span class="ident">usize</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">nremove</span>: <span class="ident">usize</span>) {
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">compress_rows</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span><span class="op">&gt;</span>(
+    <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">N</span>],
+    <span class="ident">nrows</span>: <span class="ident">usize</span>,
+    <span class="ident">ncols</span>: <span class="ident">usize</span>,
+    <span class="ident">i</span>: <span class="ident">usize</span>,
+    <span class="ident">nremove</span>: <span class="ident">usize</span>,
+) {
     <span class="kw">let</span> <span class="ident">new_nrows</span> <span class="op">=</span> <span class="ident">nrows</span> <span class="op">-</span> <span class="ident">nremove</span>;
-    <span class="kw">let</span> <span class="ident">ptr_in</span>    <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_ptr</span>();
-    <span class="kw">let</span> <span class="ident">ptr_out</span>   <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_mut_ptr</span>();
+
+    <span class="kw">if</span> <span class="ident">new_nrows</span> <span class="op">==</span> <span class="number">0</span> <span class="op">||</span> <span class="ident">ncols</span> <span class="op">==</span> <span class="number">0</span> {
+        <span class="kw">return</span>; <span class="comment">// Nothing to do as the output matrix is empty.</span>
+    }
+
+    <span class="kw">let</span> <span class="ident">ptr_in</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_ptr</span>();
+    <span class="kw">let</span> <span class="ident">ptr_out</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_mut_ptr</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">curr_i</span> <span class="op">=</span> <span class="ident">i</span>;
 
-    <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">ncols</span> <span class="op">-</span> <span class="number">1</span> {
-        <span class="ident">ptr</span>::<span class="ident">copy</span>(<span class="ident">ptr_in</span>.<span class="ident">offset</span>((<span class="ident">curr_i</span> <span class="op">+</span> (<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">*</span> <span class="ident">nremove</span>) <span class="kw">as</span> <span class="ident">isize</span>),
-                  <span class="ident">ptr_out</span>.<span class="ident">offset</span>(<span class="ident">curr_i</span> <span class="kw">as</span> <span class="ident">isize</span>),
-                  <span class="ident">new_nrows</span>);
+    <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">ncols</span> <span class="op">-</span> <span class="number">1</span> {
+        <span class="ident">ptr</span>::<span class="ident">copy</span>(
+            <span class="ident">ptr_in</span>.<span class="ident">offset</span>((<span class="ident">curr_i</span> <span class="op">+</span> (<span class="ident">k</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">*</span> <span class="ident">nremove</span>) <span class="kw">as</span> <span class="ident">isize</span>),
+            <span class="ident">ptr_out</span>.<span class="ident">offset</span>(<span class="ident">curr_i</span> <span class="kw">as</span> <span class="ident">isize</span>),
+            <span class="ident">new_nrows</span>,
+        );
 
         <span class="ident">curr_i</span> <span class="op">+=</span> <span class="ident">new_nrows</span>;
     }
 
     <span class="comment">// Deal with the last column from which less values have to be copied.</span>
     <span class="kw">let</span> <span class="ident">remaining_len</span> <span class="op">=</span> <span class="ident">nrows</span> <span class="op">-</span> <span class="ident">i</span> <span class="op">-</span> <span class="ident">nremove</span>;
-    <span class="ident">ptr</span>::<span class="ident">copy</span>(<span class="ident">ptr_in</span>.<span class="ident">offset</span>((<span class="ident">nrows</span> <span class="op">*</span> <span class="ident">ncols</span> <span class="op">-</span> <span class="ident">remaining_len</span>) <span class="kw">as</span> <span class="ident">isize</span>),
-              <span class="ident">ptr_out</span>.<span class="ident">offset</span>(<span class="ident">curr_i</span> <span class="kw">as</span> <span class="ident">isize</span>),
-              <span class="ident">remaining_len</span>);
+    <span class="ident">ptr</span>::<span class="ident">copy</span>(
+        <span class="ident">ptr_in</span>.<span class="ident">offset</span>((<span class="ident">nrows</span> <span class="op">*</span> <span class="ident">ncols</span> <span class="op">-</span> <span class="ident">remaining_len</span>) <span class="kw">as</span> <span class="ident">isize</span>),
+        <span class="ident">ptr_out</span>.<span class="ident">offset</span>(<span class="ident">curr_i</span> <span class="kw">as</span> <span class="ident">isize</span>),
+        <span class="ident">remaining_len</span>,
+    );
 }
 
-
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">extend_rows</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span><span class="op">&gt;</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">N</span>], <span class="ident">nrows</span>: <span class="ident">usize</span>, <span class="ident">ncols</span>: <span class="ident">usize</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">ninsert</span>: <span class="ident">usize</span>) {
+<span class="comment">// Moves entries of a matrix buffer to make place for `ninsert` emty rows starting at the `i-th` row index.</span>
+<span class="comment">// The `data` buffer is assumed to contained at least `(nrows + ninsert) * ncols` elements.</span>
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">extend_rows</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span><span class="op">&gt;</span>(
+    <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">N</span>],
+    <span class="ident">nrows</span>: <span class="ident">usize</span>,
+    <span class="ident">ncols</span>: <span class="ident">usize</span>,
+    <span class="ident">i</span>: <span class="ident">usize</span>,
+    <span class="ident">ninsert</span>: <span class="ident">usize</span>,
+) {
     <span class="kw">let</span> <span class="ident">new_nrows</span> <span class="op">=</span> <span class="ident">nrows</span> <span class="op">+</span> <span class="ident">ninsert</span>;
-    <span class="kw">let</span> <span class="ident">ptr_in</span>    <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_ptr</span>();
-    <span class="kw">let</span> <span class="ident">ptr_out</span>   <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_mut_ptr</span>();
+
+    <span class="kw">if</span> <span class="ident">new_nrows</span> <span class="op">==</span> <span class="number">0</span> <span class="op">||</span> <span class="ident">ncols</span> <span class="op">==</span> <span class="number">0</span> {
+        <span class="kw">return</span>; <span class="comment">// Nothing to do as the output matrix is empty.</span>
+    }
+
+    <span class="kw">let</span> <span class="ident">ptr_in</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_ptr</span>();
+    <span class="kw">let</span> <span class="ident">ptr_out</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_mut_ptr</span>();
 
     <span class="kw">let</span> <span class="ident">remaining_len</span> <span class="op">=</span> <span class="ident">nrows</span> <span class="op">-</span> <span class="ident">i</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">curr_i</span> <span class="op">=</span> <span class="ident">new_nrows</span> <span class="op">*</span> <span class="ident">ncols</span> <span class="op">-</span> <span class="ident">remaining_len</span>;
 
     <span class="comment">// Deal with the last column from which less values have to be copied.</span>
-    <span class="ident">ptr</span>::<span class="ident">copy</span>(<span class="ident">ptr_in</span>.<span class="ident">offset</span>((<span class="ident">nrows</span> <span class="op">*</span> <span class="ident">ncols</span> <span class="op">-</span> <span class="ident">remaining_len</span>) <span class="kw">as</span> <span class="ident">isize</span>),
-              <span class="ident">ptr_out</span>.<span class="ident">offset</span>(<span class="ident">curr_i</span> <span class="kw">as</span> <span class="ident">isize</span>),
-              <span class="ident">remaining_len</span>);
+    <span class="ident">ptr</span>::<span class="ident">copy</span>(
+        <span class="ident">ptr_in</span>.<span class="ident">offset</span>((<span class="ident">nrows</span> <span class="op">*</span> <span class="ident">ncols</span> <span class="op">-</span> <span class="ident">remaining_len</span>) <span class="kw">as</span> <span class="ident">isize</span>),
+        <span class="ident">ptr_out</span>.<span class="ident">offset</span>(<span class="ident">curr_i</span> <span class="kw">as</span> <span class="ident">isize</span>),
+        <span class="ident">remaining_len</span>,
+    );
 
-    <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> (<span class="number">0</span> .. <span class="ident">ncols</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">rev</span>() {
+    <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="ident">ncols</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">rev</span>() {
         <span class="ident">curr_i</span> <span class="op">-=</span> <span class="ident">new_nrows</span>;
 
-        <span class="ident">ptr</span>::<span class="ident">copy</span>(<span class="ident">ptr_in</span>.<span class="ident">offset</span>((<span class="ident">k</span> <span class="op">*</span> <span class="ident">nrows</span> <span class="op">+</span> <span class="ident">i</span>) <span class="kw">as</span> <span class="ident">isize</span>),
-                  <span class="ident">ptr_out</span>.<span class="ident">offset</span>(<span class="ident">curr_i</span> <span class="kw">as</span> <span class="ident">isize</span>),
-                  <span class="ident">nrows</span>);
+        <span class="ident">ptr</span>::<span class="ident">copy</span>(
+            <span class="ident">ptr_in</span>.<span class="ident">offset</span>((<span class="ident">k</span> <span class="op">*</span> <span class="ident">nrows</span> <span class="op">+</span> <span class="ident">i</span>) <span class="kw">as</span> <span class="ident">isize</span>),
+            <span class="ident">ptr_out</span>.<span class="ident">offset</span>(<span class="ident">curr_i</span> <span class="kw">as</span> <span class="ident">isize</span>),
+            <span class="ident">nrows</span>,
+        );
     }
 }
 </pre>
@@ -1188,18 +1491,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -1235,11 +1542,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

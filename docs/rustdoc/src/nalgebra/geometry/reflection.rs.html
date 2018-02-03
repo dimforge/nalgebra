@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/geometry/reflection.rs`.">
+    <meta name="description" content="Source to the Rust file `src\geometry\reflection.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>reflection.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -115,10 +126,21 @@
 <span id="70">70</span>
 <span id="71">71</span>
 <span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Scalar</span>, <span class="ident">Unit</span>, <span class="ident">Matrix</span>, <span class="ident">Vector</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">ShapeConstraint</span>, <span class="ident">SameNumberOfRows</span>, <span class="ident">DimEq</span>, <span class="ident">AreMultipliable</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Matrix</span>, <span class="ident">Scalar</span>, <span class="ident">Unit</span>, <span class="ident">Vector</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">AreMultipliable</span>, <span class="ident">DimEq</span>, <span class="ident">SameNumberOfRows</span>, <span class="ident">ShapeConstraint</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 <span class="kw">use</span> <span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimName</span>, <span class="ident">U1</span>};
 <span class="kw">use</span> <span class="ident">storage</span>::{<span class="ident">Storage</span>, <span class="ident">StorageMut</span>};
@@ -127,8 +149,8 @@
 
 <span class="doccomment">/// A reflection wrt. a plane.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Reflection</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">D</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> {
-    <span class="ident">axis</span>:  <span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;</span>,
-    <span class="ident">bias</span>:  <span class="ident">N</span>
+    <span class="ident">axis</span>: <span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;</span>,
+    <span class="ident">bias</span>: <span class="ident">N</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="ident">Reflection</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;</span> {
@@ -137,14 +159,22 @@
     <span class="doccomment">/// The bias is the position of the plane on the axis. In particular, a bias equal to zero</span>
     <span class="doccomment">/// represents a plane that passes through the origin.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">axis</span>: <span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;&gt;</span>, <span class="ident">bias</span>: <span class="ident">N</span>) <span class="op">-&gt;</span> <span class="ident">Reflection</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="ident">Reflection</span> { <span class="ident">axis</span>: <span class="ident">axis</span>.<span class="ident">unwrap</span>(), <span class="ident">bias</span>: <span class="ident">bias</span> }
+        <span class="ident">Reflection</span> {
+            <span class="ident">axis</span>: <span class="ident">axis</span>.<span class="ident">unwrap</span>(),
+            <span class="ident">bias</span>: <span class="ident">bias</span>,
+        }
     }
 
     <span class="doccomment">/// Creates a new reflection wrt. the plane orthogonal to the given axis and that contains the</span>
     <span class="doccomment">/// point `pt`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_containing_point</span>(<span class="ident">axis</span>: <span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;&gt;</span>, <span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Reflection</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimName</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_containing_point</span>(
+        <span class="ident">axis</span>: <span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">Reflection</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">DimName</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="ident">bias</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">coords</span>.<span class="ident">dot</span>(<span class="ident">axis</span>.<span class="ident">as_ref</span>());
         <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">axis</span>, <span class="ident">bias</span>)
     }
@@ -157,27 +187,30 @@
     <span class="comment">// FIXME: naming convension: reflect_to, reflect_assign ?</span>
     <span class="doccomment">/// Applies the reflection to the columns of `rhs`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reflect</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
-              <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">D</span><span class="op">&gt;</span> {
-
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">rhs</span>.<span class="ident">ncols</span>() {
+    <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+        <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">rhs</span>.<span class="ident">ncols</span>() {
             <span class="comment">// NOTE: we borrow the column twice here. First it is borrowed immutably for the</span>
             <span class="comment">// dot product, and then mutably. Somehow, this allows significantly</span>
             <span class="comment">// better optimizations of the dot product from the compiler.</span>
             <span class="kw">let</span> <span class="ident">m_two</span>: <span class="ident">N</span> <span class="op">=</span> ::<span class="ident">convert</span>(<span class="op">-</span><span class="number">2.0f64</span>);
-            <span class="kw">let</span> <span class="ident">factor</span>  <span class="op">=</span> (<span class="ident">rhs</span>.<span class="ident">column</span>(<span class="ident">i</span>).<span class="ident">dot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">axis</span>) <span class="op">-</span> <span class="self">self</span>.<span class="ident">bias</span>) <span class="op">*</span> <span class="ident">m_two</span>;
+            <span class="kw">let</span> <span class="ident">factor</span> <span class="op">=</span> (<span class="ident">rhs</span>.<span class="ident">column</span>(<span class="ident">i</span>).<span class="ident">dot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">axis</span>) <span class="op">-</span> <span class="self">self</span>.<span class="ident">bias</span>) <span class="op">*</span> <span class="ident">m_two</span>;
             <span class="ident">rhs</span>.<span class="ident">column_mut</span>(<span class="ident">i</span>).<span class="ident">axpy</span>(<span class="ident">factor</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">axis</span>, <span class="ident">N</span>::<span class="ident">one</span>());
         }
     }
 
     <span class="doccomment">/// Applies the reflection to the rows of `rhs`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reflect_rows</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span>, <span class="ident">S3</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,
-                                                  <span class="ident">rhs</span>:  <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>,
-                                                  <span class="ident">work</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">S3</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
-              <span class="ident">S3</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span><span class="op">&gt;</span>,
-              <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">C2</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AreMultipliable</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span> {
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reflect_rows</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span>, <span class="ident">S3</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>,
+        <span class="ident">work</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vector</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">S3</span><span class="op">&gt;</span>,
+    ) <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+        <span class="ident">S3</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span><span class="op">&gt;</span>,
+        <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">C2</span>, <span class="ident">D</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">AreMultipliable</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;</span>,
+    {
         <span class="ident">rhs</span>.<span class="ident">mul_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">axis</span>, <span class="ident">work</span>);
 
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">bias</span>.<span class="ident">is_zero</span>() {
@@ -202,18 +235,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -249,11 +286,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/linalg/schur.rs`.">
+    <meta name="description" content="Source to the Rust file `src\linalg\schur.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>schur.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -573,6 +584,53 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
 </pre><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>;
@@ -581,48 +639,49 @@
 <span class="kw">use</span> <span class="ident">num_complex</span>::<span class="ident">Complex</span>;
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">SquareMatrix</span>, <span class="ident">VectorN</span>, <span class="ident">MatrixN</span>, <span class="ident">Unit</span>, <span class="ident">Vector2</span>, <span class="ident">Vector3</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimSub</span>, <span class="ident">DimDiff</span>, <span class="ident">Dynamic</span>, <span class="ident">U1</span>, <span class="ident">U2</span>, <span class="ident">U3</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">MatrixN</span>, <span class="ident">SquareMatrix</span>, <span class="ident">Unit</span>, <span class="ident">Vector2</span>, <span class="ident">Vector3</span>, <span class="ident">VectorN</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimDiff</span>, <span class="ident">DimSub</span>, <span class="ident">Dynamic</span>, <span class="ident">U1</span>, <span class="ident">U2</span>, <span class="ident">U3</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::<span class="ident">Storage</span>;
-<span class="kw">use</span> <span class="ident">constraint</span>::{<span class="ident">ShapeConstraint</span>, <span class="ident">DimEq</span>};
+<span class="kw">use</span> <span class="ident">constraint</span>::{<span class="ident">DimEq</span>, <span class="ident">ShapeConstraint</span>};
 <span class="kw">use</span> <span class="ident">allocator</span>::<span class="ident">Allocator</span>;
 
 <span class="kw">use</span> <span class="ident">linalg</span>::<span class="ident">householder</span>;
 <span class="kw">use</span> <span class="ident">linalg</span>::<span class="ident">Hessenberg</span>;
 <span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Reflection</span>, <span class="ident">UnitComplex</span>};
 
-
-
 <span class="doccomment">/// Real Schur decomposition of a square matrix.</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>,
-    <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span>
-        <span class="string">&quot;DefaultAllocator: Allocator&lt;N, D, D&gt;,
+           <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;DefaultAllocator: Allocator&lt;N, D, D&gt;,
          MatrixN&lt;N, D&gt;: serde::Serialize&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>,
-    <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">deserialize</span> <span class="op">=</span>
-        <span class="string">&quot;DefaultAllocator: Allocator&lt;N, D, D&gt;,
+           <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;DefaultAllocator: Allocator&lt;N, D, D&gt;,
          MatrixN&lt;N, D&gt;: serde::Deserialize&lt;&#39;de&gt;&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RealSchur</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="ident">q</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
-    <span class="ident">t</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+    <span class="ident">t</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">RealSchur</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
-          <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>: <span class="ident">Copy</span> { }
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>: <span class="ident">Copy</span>,
+{
+}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">RealSchur</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,                        <span class="comment">// For Hessenberg.</span>
-          <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>, <span class="comment">// For Hessenberg.</span>
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="comment">// For Hessenberg.</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>    <span class="op">+</span> <span class="comment">// For Hessenberg.</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>              <span class="op">+</span> 
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
-
+<span class="kw">where</span>
+    <span class="ident">D</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,                                   <span class="comment">// For Hessenberg.</span>
+    <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>, <span class="comment">// For Hessenberg.</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="doccomment">/// Computes the Schur decomposition of a square matrix.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">m</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">RealSchur</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
         <span class="self">Self</span>::<span class="ident">try_new</span>(<span class="ident">m</span>, <span class="ident">N</span>::<span class="ident">default_epsilon</span>(), <span class="number">0</span>).<span class="ident">unwrap</span>()
@@ -642,15 +701,23 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_new</span>(<span class="ident">m</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">eps</span>: <span class="ident">N</span>, <span class="ident">max_niter</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RealSchur</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">work</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">VectorN</span>::<span class="ident">new_uninitialized_generic</span>(<span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">shape</span>().<span class="number">0</span>, <span class="ident">U1</span>) };
 
-        <span class="self">Self</span>::<span class="ident">do_decompose</span>(<span class="ident">m</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>, <span class="ident">eps</span>, <span class="ident">max_niter</span>, <span class="bool-val">true</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">q</span>, <span class="ident">t</span>)<span class="op">|</span>
-            <span class="ident">RealSchur</span> { <span class="ident">q</span>: <span class="ident">q</span>.<span class="ident">unwrap</span>(), <span class="ident">t</span>: <span class="ident">t</span> })
+        <span class="self">Self</span>::<span class="ident">do_decompose</span>(<span class="ident">m</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>, <span class="ident">eps</span>, <span class="ident">max_niter</span>, <span class="bool-val">true</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">q</span>, <span class="ident">t</span>)<span class="op">|</span> <span class="ident">RealSchur</span> {
+            <span class="ident">q</span>: <span class="ident">q</span>.<span class="ident">unwrap</span>(),
+            <span class="ident">t</span>: <span class="ident">t</span>,
+        })
     }
 
-    <span class="kw">fn</span> <span class="ident">do_decompose</span>(<span class="kw-2">mut</span> <span class="ident">m</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">work</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">eps</span>: <span class="ident">N</span>, <span class="ident">max_niter</span>: <span class="ident">usize</span>, <span class="ident">compute_q</span>: <span class="ident">bool</span>)
-        <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>, <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">m</span>.<span class="ident">is_square</span>(),
-                <span class="string">&quot;Unable to compute the eigenvectors and eigenvalues of a non-square matrix.&quot;</span>);
+    <span class="kw">fn</span> <span class="ident">do_decompose</span>(
+        <span class="kw-2">mut</span> <span class="ident">m</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">work</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+        <span class="ident">eps</span>: <span class="ident">N</span>,
+        <span class="ident">max_niter</span>: <span class="ident">usize</span>,
+        <span class="ident">compute_q</span>: <span class="ident">bool</span>,
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>, <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">m</span>.<span class="ident">is_square</span>(),
+            <span class="string">&quot;Unable to compute the eigenvectors and eigenvalues of a non-square matrix.&quot;</span>
+        );
 
         <span class="kw">let</span> <span class="ident">dim</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">shape</span>().<span class="number">0</span>;
 
@@ -658,13 +725,11 @@
             <span class="kw">let</span> <span class="ident">vecs</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">MatrixN</span>::<span class="ident">from_element_generic</span>(<span class="ident">dim</span>, <span class="ident">dim</span>, <span class="ident">N</span>::<span class="ident">zero</span>()));
             <span class="kw">let</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">MatrixN</span>::<span class="ident">from_element_generic</span>(<span class="ident">dim</span>, <span class="ident">dim</span>, <span class="ident">N</span>::<span class="ident">zero</span>());
             <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">vecs</span>, <span class="ident">vals</span>));
-        }
-        <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dim</span>.<span class="ident">value</span>() <span class="op">==</span> <span class="number">1</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dim</span>.<span class="ident">value</span>() <span class="op">==</span> <span class="number">1</span> {
             <span class="kw">if</span> <span class="ident">compute_q</span> {
                 <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">MatrixN</span>::<span class="ident">from_element_generic</span>(<span class="ident">dim</span>, <span class="ident">dim</span>, <span class="ident">N</span>::<span class="ident">one</span>());
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="prelude-val">Some</span>(<span class="ident">q</span>), <span class="ident">m</span>));
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="prelude-val">None</span>, <span class="ident">m</span>));
             }
         }
@@ -686,8 +751,7 @@
             <span class="kw">let</span> (<span class="ident">vecs</span>, <span class="ident">vals</span>) <span class="op">=</span> <span class="ident">hess</span>.<span class="ident">unpack</span>();
             <span class="ident">q</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">vecs</span>);
             <span class="ident">t</span> <span class="op">=</span> <span class="ident">vals</span>;
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="ident">q</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="ident">t</span> <span class="op">=</span> <span class="ident">hess</span>.<span class="ident">unpack_h</span>()
         }
@@ -717,11 +781,13 @@
                 <span class="kw">let</span> <span class="ident">tra</span> <span class="op">=</span> <span class="ident">hnn</span> <span class="op">+</span> <span class="ident">hmm</span>;
                 <span class="kw">let</span> <span class="ident">det</span> <span class="op">=</span> <span class="ident">hnn</span> <span class="op">*</span> <span class="ident">hmm</span> <span class="op">-</span> <span class="ident">hnm</span> <span class="op">*</span> <span class="ident">hmn</span>;
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">axis</span> <span class="op">=</span> <span class="ident">Vector3</span>::<span class="ident">new</span>(<span class="ident">h11</span> <span class="op">*</span> <span class="ident">h11</span> <span class="op">+</span> <span class="ident">h12</span> <span class="op">*</span> <span class="ident">h21</span> <span class="op">-</span> <span class="ident">tra</span> <span class="op">*</span> <span class="ident">h11</span> <span class="op">+</span> <span class="ident">det</span>,
-                                            <span class="ident">h21</span> <span class="op">*</span> (<span class="ident">h11</span> <span class="op">+</span> <span class="ident">h22</span> <span class="op">-</span> <span class="ident">tra</span>),
-                                            <span class="ident">h21</span> <span class="op">*</span> <span class="ident">h32</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">axis</span> <span class="op">=</span> <span class="ident">Vector3</span>::<span class="ident">new</span>(
+                    <span class="ident">h11</span> <span class="op">*</span> <span class="ident">h11</span> <span class="op">+</span> <span class="ident">h12</span> <span class="op">*</span> <span class="ident">h21</span> <span class="op">-</span> <span class="ident">tra</span> <span class="op">*</span> <span class="ident">h11</span> <span class="op">+</span> <span class="ident">det</span>,
+                    <span class="ident">h21</span> <span class="op">*</span> (<span class="ident">h11</span> <span class="op">+</span> <span class="ident">h22</span> <span class="op">-</span> <span class="ident">tra</span>),
+                    <span class="ident">h21</span> <span class="op">*</span> <span class="ident">h32</span>,
+                );
 
-                <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="ident">start</span> .. <span class="ident">n</span> <span class="op">-</span> <span class="number">1</span> {
+                <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="ident">start</span>..<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span> {
                     <span class="kw">let</span> (<span class="ident">norm</span>, <span class="ident">not_zero</span>) <span class="op">=</span> <span class="ident">householder</span>::<span class="ident">reflection_axis_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">axis</span>);
 
                     <span class="kw">if</span> <span class="ident">not_zero</span> {
@@ -736,8 +802,14 @@
                         {
                             <span class="kw">let</span> <span class="ident">krows</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">k</span> <span class="op">+</span> <span class="number">4</span>, <span class="ident">end</span> <span class="op">+</span> <span class="number">1</span>);
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">work</span> <span class="op">=</span> <span class="ident">work</span>.<span class="ident">rows_mut</span>(<span class="number">0</span>, <span class="ident">krows</span>);
-                            <span class="ident">refl</span>.<span class="ident">reflect</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>((<span class="ident">k</span>, <span class="ident">k</span>), (<span class="ident">U3</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">dim</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">k</span>))));
-                            <span class="ident">refl</span>.<span class="ident">reflect_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>((<span class="number">0</span>, <span class="ident">k</span>), (<span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">krows</span>), <span class="ident">U3</span>)), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>);
+                            <span class="ident">refl</span>.<span class="ident">reflect</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>(
+                                (<span class="ident">k</span>, <span class="ident">k</span>),
+                                (<span class="ident">U3</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">dim</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">k</span>)),
+                            ));
+                            <span class="ident">refl</span>.<span class="ident">reflect_rows</span>(
+                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>((<span class="number">0</span>, <span class="ident">k</span>), (<span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">krows</span>), <span class="ident">U3</span>)),
+                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>,
+                            );
                         }
 
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">q</span>) <span class="op">=</span> <span class="ident">q</span> {
@@ -764,21 +836,32 @@
 
                     {
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">work</span> <span class="op">=</span> <span class="ident">work</span>.<span class="ident">rows_mut</span>(<span class="number">0</span>, <span class="ident">end</span> <span class="op">+</span> <span class="number">1</span>);
-                        <span class="ident">refl</span>.<span class="ident">reflect</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>((<span class="ident">m</span>, <span class="ident">m</span>), (<span class="ident">U2</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">dim</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">m</span>))));
-                        <span class="ident">refl</span>.<span class="ident">reflect_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>((<span class="number">0</span>, <span class="ident">m</span>), (<span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">end</span> <span class="op">+</span> <span class="number">1</span>), <span class="ident">U2</span>)), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>);
+                        <span class="ident">refl</span>.<span class="ident">reflect</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>(
+                            (<span class="ident">m</span>, <span class="ident">m</span>),
+                            (<span class="ident">U2</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">dim</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">m</span>)),
+                        ));
+                        <span class="ident">refl</span>.<span class="ident">reflect_rows</span>(
+                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>((<span class="number">0</span>, <span class="ident">m</span>), (<span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">end</span> <span class="op">+</span> <span class="number">1</span>), <span class="ident">U2</span>)),
+                            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>,
+                        );
                     }
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">q</span>) <span class="op">=</span> <span class="ident">q</span> {
                         <span class="ident">refl</span>.<span class="ident">reflect_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">q</span>.<span class="ident">generic_slice_mut</span>((<span class="number">0</span>, <span class="ident">m</span>), (<span class="ident">dim</span>, <span class="ident">U2</span>)), <span class="ident">work</span>);
                     }
                 }
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 <span class="comment">// Decouple the 2x2 block if it has real eigenvalues.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">rot</span>) <span class="op">=</span> <span class="ident">compute_2x2_basis</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">fixed_slice</span>::<span class="op">&lt;</span><span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>(<span class="ident">start</span>, <span class="ident">start</span>)) {
                     <span class="kw">let</span> <span class="ident">inv_rot</span> <span class="op">=</span> <span class="ident">rot</span>.<span class="ident">inverse</span>();
-                    <span class="ident">inv_rot</span>.<span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>((<span class="ident">start</span>, <span class="ident">start</span>), (<span class="ident">U2</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">dim</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">start</span>))));
-                    <span class="ident">rot</span>.<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>((<span class="number">0</span>, <span class="ident">start</span>), (<span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">end</span> <span class="op">+</span> <span class="number">1</span>), <span class="ident">U2</span>)));
+                    <span class="ident">inv_rot</span>.<span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>(
+                        (<span class="ident">start</span>, <span class="ident">start</span>),
+                        (<span class="ident">U2</span>, <span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">dim</span>.<span class="ident">value</span>() <span class="op">-</span> <span class="ident">start</span>)),
+                    ));
+                    <span class="ident">rot</span>.<span class="ident">rotate_rows</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>.<span class="ident">generic_slice_mut</span>(
+                        (<span class="number">0</span>, <span class="ident">start</span>),
+                        (<span class="ident">Dynamic</span>::<span class="ident">new</span>(<span class="ident">end</span> <span class="op">+</span> <span class="number">1</span>), <span class="ident">U2</span>),
+                    ));
                     <span class="ident">t</span>[(<span class="ident">end</span>, <span class="ident">start</span>)] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">q</span>) <span class="op">=</span> <span class="ident">q</span> {
@@ -789,8 +872,7 @@
                 <span class="comment">// Check if we reached the beginning of the matrix.</span>
                 <span class="kw">if</span> <span class="ident">end</span> <span class="op">&gt;</span> <span class="number">2</span> {
                     <span class="ident">end</span> <span class="op">-=</span> <span class="number">2</span>;
-                }
-                <span class="kw">else</span> {
+                } <span class="kw">else</span> {
                     <span class="kw">break</span>;
                 }
             }
@@ -798,7 +880,7 @@
             <span class="kw">let</span> <span class="ident">sub</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">delimit_subproblem</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">t</span>, <span class="ident">eps</span>, <span class="ident">end</span>);
 
             <span class="ident">start</span> <span class="op">=</span> <span class="ident">sub</span>.<span class="number">0</span>;
-            <span class="ident">end</span>   <span class="op">=</span> <span class="ident">sub</span>.<span class="number">1</span>;
+            <span class="ident">end</span> <span class="op">=</span> <span class="ident">sub</span>.<span class="number">1</span>;
 
             <span class="ident">niter</span> <span class="op">+=</span> <span class="number">1</span>;
             <span class="kw">if</span> <span class="ident">niter</span> <span class="op">==</span> <span class="ident">max_niter</span> {
@@ -822,8 +904,7 @@
             <span class="kw">if</span> <span class="ident">t</span>[(<span class="ident">n</span>, <span class="ident">m</span>)].<span class="ident">is_zero</span>() {
                 <span class="ident">out</span>[<span class="ident">m</span>] <span class="op">=</span> <span class="ident">t</span>[(<span class="ident">m</span>, <span class="ident">m</span>)];
                 <span class="ident">m</span> <span class="op">+=</span> <span class="number">1</span>;
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 <span class="comment">// Complex eigenvalue.</span>
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
@@ -838,7 +919,9 @@
 
     <span class="doccomment">/// Computes the complex eigenvalues of the decomposed matrix.</span>
     <span class="kw">fn</span> <span class="ident">do_complex_eigenvalues</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="ident">dim</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">nrows</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="number">0</span>;
 
@@ -848,23 +931,22 @@
             <span class="kw">if</span> <span class="ident">t</span>[(<span class="ident">n</span>, <span class="ident">m</span>)].<span class="ident">is_zero</span>() {
                 <span class="ident">out</span>[<span class="ident">m</span>] <span class="op">=</span> <span class="ident">Complex</span>::<span class="ident">new</span>(<span class="ident">t</span>[(<span class="ident">m</span>, <span class="ident">m</span>)], <span class="ident">N</span>::<span class="ident">zero</span>());
                 <span class="ident">m</span> <span class="op">+=</span> <span class="number">1</span>;
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 <span class="comment">// Solve the 2x2 eigenvalue subproblem.</span>
                 <span class="kw">let</span> <span class="ident">hmm</span> <span class="op">=</span> <span class="ident">t</span>[(<span class="ident">m</span>, <span class="ident">m</span>)];
                 <span class="kw">let</span> <span class="ident">hnm</span> <span class="op">=</span> <span class="ident">t</span>[(<span class="ident">n</span>, <span class="ident">m</span>)];
                 <span class="kw">let</span> <span class="ident">hmn</span> <span class="op">=</span> <span class="ident">t</span>[(<span class="ident">m</span>, <span class="ident">n</span>)];
                 <span class="kw">let</span> <span class="ident">hnn</span> <span class="op">=</span> <span class="ident">t</span>[(<span class="ident">n</span>, <span class="ident">n</span>)];
 
-                <span class="kw">let</span> <span class="ident">tra</span>   <span class="op">=</span> <span class="ident">hnn</span> <span class="op">+</span> <span class="ident">hmm</span>;
-                <span class="kw">let</span> <span class="ident">det</span>   <span class="op">=</span> <span class="ident">hnn</span> <span class="op">*</span> <span class="ident">hmm</span> <span class="op">-</span> <span class="ident">hnm</span> <span class="op">*</span> <span class="ident">hmn</span>;
+                <span class="kw">let</span> <span class="ident">tra</span> <span class="op">=</span> <span class="ident">hnn</span> <span class="op">+</span> <span class="ident">hmm</span>;
+                <span class="kw">let</span> <span class="ident">det</span> <span class="op">=</span> <span class="ident">hnn</span> <span class="op">*</span> <span class="ident">hmm</span> <span class="op">-</span> <span class="ident">hnm</span> <span class="op">*</span> <span class="ident">hmn</span>;
                 <span class="kw">let</span> <span class="ident">discr</span> <span class="op">=</span> <span class="ident">tra</span> <span class="op">*</span> <span class="ident">tra</span> <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">0.25</span>) <span class="op">-</span> <span class="ident">det</span>;
 
                 <span class="comment">// All 2x2 blocks have negative discriminant because we already decoupled those</span>
                 <span class="comment">// with positive eigenvalues..</span>
                 <span class="kw">let</span> <span class="ident">sqrt_discr</span> <span class="op">=</span> <span class="ident">Complex</span>::<span class="ident">new</span>(<span class="ident">N</span>::<span class="ident">zero</span>(), (<span class="op">-</span><span class="ident">discr</span>).<span class="ident">sqrt</span>());
 
-                <span class="ident">out</span>[<span class="ident">m</span>]     <span class="op">=</span> <span class="ident">Complex</span>::<span class="ident">new</span>(<span class="ident">tra</span> <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">0.5</span>), <span class="ident">N</span>::<span class="ident">zero</span>()) <span class="op">+</span> <span class="ident">sqrt_discr</span>;
+                <span class="ident">out</span>[<span class="ident">m</span>] <span class="op">=</span> <span class="ident">Complex</span>::<span class="ident">new</span>(<span class="ident">tra</span> <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">0.5</span>), <span class="ident">N</span>::<span class="ident">zero</span>()) <span class="op">+</span> <span class="ident">sqrt_discr</span>;
                 <span class="ident">out</span>[<span class="ident">m</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">=</span> <span class="ident">Complex</span>::<span class="ident">new</span>(<span class="ident">tra</span> <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">0.5</span>), <span class="ident">N</span>::<span class="ident">zero</span>()) <span class="op">-</span> <span class="ident">sqrt_discr</span>;
 
                 <span class="ident">m</span> <span class="op">+=</span> <span class="number">2</span>;
@@ -877,9 +959,10 @@
     }
 
     <span class="kw">fn</span> <span class="ident">delimit_subproblem</span>(<span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">eps</span>: <span class="ident">N</span>, <span class="ident">end</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>)
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> {
-
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">end</span>;
 
         <span class="kw">while</span> <span class="ident">n</span> <span class="op">&gt;</span> <span class="number">0</span> {
@@ -887,8 +970,7 @@
 
             <span class="kw">if</span> <span class="ident">t</span>[(<span class="ident">n</span>, <span class="ident">m</span>)].<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> <span class="op">*</span> (<span class="ident">t</span>[(<span class="ident">n</span>, <span class="ident">n</span>)].<span class="ident">abs</span>() <span class="op">+</span> <span class="ident">t</span>[(<span class="ident">m</span>, <span class="ident">m</span>)].<span class="ident">abs</span>()) {
                 <span class="ident">t</span>[(<span class="ident">n</span>, <span class="ident">m</span>)] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 <span class="kw">break</span>;
             }
 
@@ -904,8 +986,9 @@
             <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">new_start</span> <span class="op">-</span> <span class="number">1</span>;
 
             <span class="kw">let</span> <span class="ident">off_diag</span> <span class="op">=</span> <span class="ident">t</span>[(<span class="ident">new_start</span>, <span class="ident">m</span>)];
-            <span class="kw">if</span> <span class="ident">off_diag</span>.<span class="ident">is_zero</span>() <span class="op">||</span>
-               <span class="ident">off_diag</span>.<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> <span class="op">*</span> (<span class="ident">t</span>[(<span class="ident">new_start</span>, <span class="ident">new_start</span>)].<span class="ident">abs</span>() <span class="op">+</span> <span class="ident">t</span>[(<span class="ident">m</span>, <span class="ident">m</span>)].<span class="ident">abs</span>()) {
+            <span class="kw">if</span> <span class="ident">off_diag</span>.<span class="ident">is_zero</span>()
+                <span class="op">||</span> <span class="ident">off_diag</span>.<span class="ident">abs</span>() <span class="op">&lt;=</span> <span class="ident">eps</span> <span class="op">*</span> (<span class="ident">t</span>[(<span class="ident">new_start</span>, <span class="ident">new_start</span>)].<span class="ident">abs</span>() <span class="op">+</span> <span class="ident">t</span>[(<span class="ident">m</span>, <span class="ident">m</span>)].<span class="ident">abs</span>())
+            {
                 <span class="ident">t</span>[(<span class="ident">new_start</span>, <span class="ident">m</span>)] <span class="op">=</span> <span class="ident">N</span>::<span class="ident">zero</span>();
                 <span class="kw">break</span>;
             }
@@ -929,25 +1012,29 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">VectorN</span>::<span class="ident">new_uninitialized_generic</span>(<span class="self">self</span>.<span class="ident">t</span>.<span class="ident">data</span>.<span class="ident">shape</span>().<span class="number">0</span>, <span class="ident">U1</span>) };
         <span class="kw">if</span> <span class="self">Self</span>::<span class="ident">do_eigenvalues</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">t</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">out</span>)
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
     }
 
     <span class="doccomment">/// Computes the complex eigenvalues of the decomposed matrix.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">complex_eigenvalues</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">VectorN</span>::<span class="ident">new_uninitialized_generic</span>(<span class="self">self</span>.<span class="ident">t</span>.<span class="ident">data</span>.<span class="ident">shape</span>().<span class="number">0</span>, <span class="ident">U1</span>) };
         <span class="self">Self</span>::<span class="ident">do_complex_eigenvalues</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">t</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>);
         <span class="ident">out</span>
     }
 }
 
-<span class="kw">fn</span> <span class="ident">decompose_2x2</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">m</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">compute_q</span>: <span class="ident">bool</span>)
-                                  <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>, <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>)<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
-
+<span class="kw">fn</span> <span class="ident">decompose_2x2</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span>(
+    <span class="kw-2">mut</span> <span class="ident">m</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    <span class="ident">compute_q</span>: <span class="ident">bool</span>,
+) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span>, <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>)<span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="kw">let</span> <span class="ident">dim</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">data</span>.<span class="ident">shape</span>().<span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">q</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">match</span> <span class="ident">compute_2x2_basis</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">fixed_slice</span>::<span class="op">&lt;</span><span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;</span>(<span class="number">0</span>, <span class="number">0</span>)) {
@@ -961,19 +1048,24 @@
                 <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">rot</span>.<span class="ident">unwrap</span>();
                 <span class="comment">// XXX: we have to build the matrix manually because</span>
                 <span class="comment">// rot.to_rotation_matrix().unwrap() causes an ICE.</span>
-                <span class="ident">q</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">MatrixN</span>::<span class="ident">from_column_slice_generic</span>(<span class="ident">dim</span>, <span class="ident">dim</span>, <span class="kw-2">&amp;</span>[<span class="ident">c</span>.<span class="ident">re</span>,  <span class="ident">c</span>.<span class="ident">im</span>,
-                                                                       <span class="op">-</span><span class="ident">c</span>.<span class="ident">im</span>, <span class="ident">c</span>.<span class="ident">re</span>]));
+                <span class="ident">q</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">MatrixN</span>::<span class="ident">from_column_slice_generic</span>(
+                    <span class="ident">dim</span>,
+                    <span class="ident">dim</span>,
+                    <span class="kw-2">&amp;</span>[<span class="ident">c</span>.<span class="ident">re</span>, <span class="ident">c</span>.<span class="ident">im</span>, <span class="op">-</span><span class="ident">c</span>.<span class="ident">im</span>, <span class="ident">c</span>.<span class="ident">re</span>],
+                ));
             }
+        }
+        <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="kw">if</span> <span class="ident">compute_q</span> {
+            <span class="ident">q</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">MatrixN</span>::<span class="ident">identity_generic</span>(<span class="ident">dim</span>, <span class="ident">dim</span>));
         },
-        <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="kw">if</span> <span class="ident">compute_q</span> { <span class="ident">q</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">MatrixN</span>::<span class="ident">identity_generic</span>(<span class="ident">dim</span>, <span class="ident">dim</span>)); }
     };
 
     <span class="prelude-val">Some</span>((<span class="ident">q</span>, <span class="ident">m</span>))
 }
 
-<span class="kw">fn</span> <span class="ident">compute_2x2_eigvals</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;&gt;</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">SquareMatrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">S</span><span class="op">&gt;</span>)
-                                                       <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">N</span>, <span class="ident">N</span>)<span class="op">&gt;</span> {
-
+<span class="kw">fn</span> <span class="ident">compute_2x2_eigvals</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;&gt;</span>(
+    <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">SquareMatrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">S</span><span class="op">&gt;</span>,
+) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">N</span>, <span class="ident">N</span>)<span class="op">&gt;</span> {
     <span class="comment">// Solve the 2x2 eigenvalue subproblem.</span>
     <span class="kw">let</span> <span class="ident">h00</span> <span class="op">=</span> <span class="ident">m</span>[(<span class="number">0</span>, <span class="number">0</span>)];
     <span class="kw">let</span> <span class="ident">h10</span> <span class="op">=</span> <span class="ident">m</span>[(<span class="number">1</span>, <span class="number">0</span>)];
@@ -983,15 +1075,14 @@
     <span class="comment">// NOTE: this discriminant computation is mor stable than the</span>
     <span class="comment">// one based on the trace and determinant: 0.25 * tra * tra - det</span>
     <span class="comment">// because et ensures positiveness for symmetric matrices.</span>
-    <span class="kw">let</span> <span class="ident">val</span>   <span class="op">=</span> (<span class="ident">h00</span> <span class="op">-</span> <span class="ident">h11</span>) <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">0.5</span>);
+    <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> (<span class="ident">h00</span> <span class="op">-</span> <span class="ident">h11</span>) <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">0.5</span>);
     <span class="kw">let</span> <span class="ident">discr</span> <span class="op">=</span> <span class="ident">h10</span> <span class="op">*</span> <span class="ident">h01</span> <span class="op">+</span> <span class="ident">val</span> <span class="op">*</span> <span class="ident">val</span>;
 
     <span class="kw">if</span> <span class="ident">discr</span> <span class="op">&gt;=</span> <span class="ident">N</span>::<span class="ident">zero</span>() {
         <span class="kw">let</span> <span class="ident">sqrt_discr</span> <span class="op">=</span> <span class="ident">discr</span>.<span class="ident">sqrt</span>();
-        <span class="kw">let</span> <span class="ident">half_tra</span>   <span class="op">=</span> (<span class="ident">h00</span> <span class="op">+</span> <span class="ident">h11</span>) <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">0.5</span>);
+        <span class="kw">let</span> <span class="ident">half_tra</span> <span class="op">=</span> (<span class="ident">h00</span> <span class="op">+</span> <span class="ident">h11</span>) <span class="op">*</span> ::<span class="ident">convert</span>(<span class="number">0.5</span>);
         <span class="prelude-val">Some</span>((<span class="ident">half_tra</span> <span class="op">+</span> <span class="ident">sqrt_discr</span>, <span class="ident">half_tra</span> <span class="op">-</span> <span class="ident">sqrt_discr</span>))
-    }
-    <span class="kw">else</span> {
+    } <span class="kw">else</span> {
         <span class="prelude-val">None</span>
     }
 }
@@ -1001,8 +1092,9 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Returns `None` if the matrix has complex eigenvalues, or is upper-triangular. In both case,</span>
 <span class="doccomment">/// the basis is the identity.</span>
-<span class="kw">fn</span> <span class="ident">compute_2x2_basis</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;&gt;</span>(<span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">SquareMatrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">S</span><span class="op">&gt;</span>)
-                                                     <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> {
+<span class="kw">fn</span> <span class="ident">compute_2x2_basis</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">U2</span><span class="op">&gt;&gt;</span>(
+    <span class="ident">m</span>: <span class="kw-2">&amp;</span><span class="ident">SquareMatrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">U2</span>, <span class="ident">S</span><span class="op">&gt;</span>,
+) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UnitComplex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;&gt;</span> {
     <span class="kw">let</span> <span class="ident">h10</span> <span class="op">=</span> <span class="ident">m</span>[(<span class="number">1</span>, <span class="number">0</span>)];
 
     <span class="kw">if</span> <span class="ident">h10</span>.<span class="ident">is_zero</span>() {
@@ -1018,25 +1110,25 @@
         <span class="comment">// number.</span>
         <span class="kw">let</span> <span class="ident">basis</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">x1</span>.<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">x2</span>.<span class="ident">abs</span>() {
             <span class="ident">Complex</span>::<span class="ident">new</span>(<span class="ident">x1</span>, <span class="op">-</span><span class="ident">h10</span>)
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="ident">Complex</span>::<span class="ident">new</span>(<span class="ident">x2</span>, <span class="op">-</span><span class="ident">h10</span>)
         };
 
         <span class="prelude-val">Some</span>(<span class="ident">UnitComplex</span>::<span class="ident">from_complex</span>(<span class="ident">basis</span>))
-    }
-    <span class="kw">else</span> {
+    } <span class="kw">else</span> {
         <span class="prelude-val">None</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="ident">SquareMatrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>, <span class="comment">// For Hessenberg.</span>
-          <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>, <span class="comment">// For Hessenberg.</span>
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="comment">// For Hessenberg.</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>    <span class="op">+</span> <span class="comment">// For Hessenberg.</span>
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>              <span class="op">+</span> 
-                            <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">D</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">U1</span><span class="op">&gt;</span>,                                   <span class="comment">// For Hessenberg.</span>
+    <span class="ident">ShapeConstraint</span>: <span class="ident">DimEq</span><span class="op">&lt;</span><span class="ident">Dynamic</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>, <span class="comment">// For Hessenberg.</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">DimDiff</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">U1</span><span class="op">&gt;&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>
+        <span class="op">+</span> <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="doccomment">/// Computes the Schur decomposition of a square matrix.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">real_schur</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">RealSchur</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span> {
         <span class="ident">RealSchur</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">into_owned</span>())
@@ -1059,11 +1151,12 @@
 
     <span class="doccomment">/// Computes the eigenvalues of this matrix.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eigenvalues</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">is_square</span>(), <span class="string">&quot;Unable to compute eigenvalues of a non-square matrix.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="self">self</span>.<span class="ident">is_square</span>(),
+            <span class="string">&quot;Unable to compute eigenvalues of a non-square matrix.&quot;</span>
+        );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">work</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="ident">VectorN</span>::<span class="ident">new_uninitialized_generic</span>(<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">shape</span>().<span class="number">0</span>, <span class="ident">U1</span>)
-        };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">work</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">VectorN</span>::<span class="ident">new_uninitialized_generic</span>(<span class="self">self</span>.<span class="ident">data</span>.<span class="ident">shape</span>().<span class="number">0</span>, <span class="ident">U1</span>) };
 
         <span class="comment">// Special case for 2x2 natrices.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">nrows</span>() <span class="op">==</span> <span class="number">2</span> {
@@ -1075,30 +1168,42 @@
                     <span class="ident">work</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">a</span>;
                     <span class="ident">work</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">b</span>;
                     <span class="prelude-val">Some</span>(<span class="ident">work</span>)
-                },
-                <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>
-            }
+                }
+                <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            };
         }
 
         <span class="comment">// FIXME: add balancing?</span>
-        <span class="kw">let</span> <span class="ident">schur</span> <span class="op">=</span> <span class="ident">RealSchur</span>::<span class="ident">do_decompose</span>(<span class="self">self</span>.<span class="ident">clone_owned</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>, <span class="ident">N</span>::<span class="ident">default_epsilon</span>(), <span class="number">0</span>, <span class="bool-val">false</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">schur</span> <span class="op">=</span> <span class="ident">RealSchur</span>::<span class="ident">do_decompose</span>(
+            <span class="self">self</span>.<span class="ident">clone_owned</span>(),
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>,
+            <span class="ident">N</span>::<span class="ident">default_epsilon</span>(),
+            <span class="number">0</span>,
+            <span class="bool-val">false</span>,
+        ).<span class="ident">unwrap</span>();
         <span class="kw">if</span> <span class="ident">RealSchur</span>::<span class="ident">do_eigenvalues</span>(<span class="kw-2">&amp;</span><span class="ident">schur</span>.<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>) {
             <span class="prelude-val">Some</span>(<span class="ident">work</span>)
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
     }
 
     <span class="doccomment">/// Computes the eigenvalues of this matrix.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">complex_eigenvalues</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">VectorN</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>
-        <span class="comment">// FIXME: add balancing?</span>
-        <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span> {
-
+    <span class="comment">// FIXME: add balancing?</span>
+    <span class="kw">where</span>
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">Complex</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="ident">dim</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">shape</span>().<span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">work</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">VectorN</span>::<span class="ident">new_uninitialized_generic</span>(<span class="ident">dim</span>, <span class="ident">U1</span>) };
 
-        <span class="kw">let</span> <span class="ident">schur</span> <span class="op">=</span> <span class="ident">RealSchur</span>::<span class="ident">do_decompose</span>(<span class="self">self</span>.<span class="ident">clone_owned</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>, <span class="ident">N</span>::<span class="ident">default_epsilon</span>(), <span class="number">0</span>, <span class="bool-val">false</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">schur</span> <span class="op">=</span> <span class="ident">RealSchur</span>::<span class="ident">do_decompose</span>(
+            <span class="self">self</span>.<span class="ident">clone_owned</span>(),
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">work</span>,
+            <span class="ident">N</span>::<span class="ident">default_epsilon</span>(),
+            <span class="number">0</span>,
+            <span class="bool-val">false</span>,
+        ).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">eig</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">VectorN</span>::<span class="ident">new_uninitialized_generic</span>(<span class="ident">dim</span>, <span class="ident">U1</span>) };
         <span class="ident">RealSchur</span>::<span class="ident">do_complex_eigenvalues</span>(<span class="kw-2">&amp;</span><span class="ident">schur</span>.<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">eig</span>);
         <span class="ident">eig</span>
@@ -1118,18 +1223,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -1165,11 +1274,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

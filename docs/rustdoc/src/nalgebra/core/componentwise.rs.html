@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/core/componentwise.rs`.">
+    <meta name="description" content="Source to the Rust file `src\core\componentwise.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>componentwise.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -147,19 +158,61 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
 </pre><pre class="rust ">
 <span class="comment">// Non-convensional componentwise operators.</span>
 
-<span class="kw">use</span> <span class="ident">num</span>::<span class="ident">Signed</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Add</span>, <span class="ident">Mul</span>};
+<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">Signed</span>, <span class="ident">Zero</span>};
 
-<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">ClosedMul</span>, <span class="ident">ClosedDiv</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">ClosedDiv</span>, <span class="ident">ClosedMul</span>};
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Scalar</span>, <span class="ident">Matrix</span>, <span class="ident">MatrixMN</span>, <span class="ident">MatrixSum</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Matrix</span>, <span class="ident">MatrixMN</span>, <span class="ident">MatrixSum</span>, <span class="ident">Scalar</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::<span class="ident">Dim</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">Storage</span>, <span class="ident">StorageMut</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::{<span class="ident">Allocator</span>, <span class="ident">SameShapeAllocator</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">ShapeConstraint</span>, <span class="ident">SameNumberOfRows</span>, <span class="ident">SameNumberOfColumns</span>};
-
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">SameNumberOfColumns</span>, <span class="ident">SameNumberOfRows</span>, <span class="ident">ShapeConstraint</span>};
 
 <span class="doccomment">/// The type of the result of a matrix componentwise operation.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">MatrixComponentOp</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MatrixSum</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>;
@@ -168,8 +221,10 @@
     <span class="doccomment">/// Computes the componentwise absolute value.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Signed</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">N</span>: <span class="ident">Signed</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone_owned</span>();
 
         <span class="kw">for</span> <span class="ident">e</span> <span class="kw">in</span> <span class="ident">res</span>.<span class="ident">iter_mut</span>() {
@@ -183,7 +238,7 @@
 }
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">component_binop_impl</span>(
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">binop</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">binop_mut</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">binop_assign</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span>: <span class="ident">ident</span> . <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op_assign</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">desc</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">desc_mut</span>:<span class="ident">expr</span>);<span class="op">*</span> $(;)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">binop</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">binop_mut</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">binop_assign</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cmpy</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span>: <span class="ident">ident</span> . <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>: <span class="ident">ident</span> . <span class="macro-nonterminal">$</span><span class="macro-nonterminal">op_assign</span>: <span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">desc</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">desc_cmpy</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">desc_mut</span>:<span class="ident">expr</span>);<span class="op">*</span> $(;)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {$(
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R1</span>: <span class="ident">Dim</span>, <span class="ident">C1</span>: <span class="ident">Dim</span>, <span class="ident">SA</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span><span class="op">&gt;&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span>, <span class="ident">SA</span><span class="op">&gt;</span> {
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">desc</span>]</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -193,7 +248,7 @@
                       <span class="ident">SB</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
                       <span class="ident">DefaultAllocator</span>: <span class="ident">SameShapeAllocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
                       <span class="ident">ShapeConstraint</span>:  <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SameNumberOfColumns</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;</span> {
-        
+
                 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">shape</span>(), <span class="ident">rhs</span>.<span class="ident">shape</span>(), <span class="string">&quot;Componentwise mul/div: mismatched matrix dimensions.&quot;</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone_owned_sum</span>();
 
@@ -210,6 +265,42 @@
         }
 
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Scalar</span>, <span class="ident">R1</span>: <span class="ident">Dim</span>, <span class="ident">C1</span>: <span class="ident">Dim</span>, <span class="ident">SA</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span><span class="op">&gt;&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R1</span>, <span class="ident">C1</span>, <span class="ident">SA</span><span class="op">&gt;</span> {
+            <span class="comment">// componentwise binop plus Y.</span>
+            <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">desc_cmpy</span>]</span>
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cmpy</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">SB</span>, <span class="ident">R3</span>, <span class="ident">C3</span>, <span class="ident">SC</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">alpha</span>: <span class="ident">N</span>, <span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">SB</span><span class="op">&gt;</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R3</span>, <span class="ident">C3</span>, <span class="ident">SC</span><span class="op">&gt;</span>, <span class="ident">beta</span>: <span class="ident">N</span>)
+                <span class="kw">where</span> <span class="ident">N</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">Trait</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">Mul</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">N</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">N</span><span class="op">&gt;</span>,
+                      <span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>,
+                      <span class="ident">R3</span>: <span class="ident">Dim</span>, <span class="ident">C3</span>: <span class="ident">Dim</span>,
+                      <span class="ident">SB</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+                      <span class="ident">SC</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R3</span>, <span class="ident">C3</span><span class="op">&gt;</span>,
+                      <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SameNumberOfColumns</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C2</span><span class="op">&gt;</span> <span class="op">+</span>
+                                       <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R1</span>, <span class="ident">R3</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">SameNumberOfColumns</span><span class="op">&lt;</span><span class="ident">C1</span>, <span class="ident">C3</span><span class="op">&gt;</span> {
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">shape</span>(), <span class="ident">a</span>.<span class="ident">shape</span>(), <span class="string">&quot;Componentwise mul/div: mismatched matrix dimensions.&quot;</span>);
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">shape</span>(), <span class="ident">b</span>.<span class="ident">shape</span>(), <span class="string">&quot;Componentwise mul/div: mismatched matrix dimensions.&quot;</span>);
+
+                <span class="kw">if</span> <span class="ident">beta</span>.<span class="ident">is_zero</span>() {
+                    <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">ncols</span>() {
+                        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">nrows</span>() {
+                            <span class="kw">unsafe</span> {
+                                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">alpha</span> <span class="op">*</span> <span class="ident">a</span>.<span class="ident">get_unchecked</span>(<span class="ident">i</span>, <span class="ident">j</span>).<span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="kw-2">*</span><span class="ident">b</span>.<span class="ident">get_unchecked</span>(<span class="ident">i</span>, <span class="ident">j</span>));
+                                <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="ident">res</span>;
+                            }
+                        }
+                    }
+                }
+                <span class="kw">else</span> {
+                    <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">ncols</span>() {
+                        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">self</span>.<span class="ident">nrows</span>() {
+                            <span class="kw">unsafe</span> {
+                                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">alpha</span> <span class="op">*</span> <span class="ident">a</span>.<span class="ident">get_unchecked</span>(<span class="ident">i</span>, <span class="ident">j</span>).<span class="macro-nonterminal">$</span><span class="macro-nonterminal">op</span>(<span class="kw-2">*</span><span class="ident">b</span>.<span class="ident">get_unchecked</span>(<span class="ident">i</span>, <span class="ident">j</span>));
+                                <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="ident">beta</span> <span class="op">*</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">get_unchecked</span>(<span class="ident">i</span>, <span class="ident">j</span>) <span class="op">+</span> <span class="ident">res</span>;
+                            }
+                        }
+                    }
+                }
+            }
+
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">desc_mut</span>]</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
             <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">binop_assign</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">SB</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">SB</span><span class="op">&gt;</span>)
@@ -246,10 +337,14 @@
 );
 
 <span class="macro">component_binop_impl</span><span class="macro">!</span>(
-    <span class="ident">component_mul</span>, <span class="ident">component_mul_mut</span>, <span class="ident">component_mul_assign</span>, <span class="ident">ClosedMul</span>.<span class="ident">mul_assign</span>,
-    <span class="string">&quot;Componentwise matrix multiplication.&quot;</span>, <span class="string">&quot;Mutable, componentwise matrix multiplication.&quot;</span>;
-    <span class="ident">component_div</span>, <span class="ident">component_div_mut</span>, <span class="ident">component_div_assign</span>, <span class="ident">ClosedDiv</span>.<span class="ident">div_assign</span>,
-    <span class="string">&quot;Componentwise matrix division.&quot;</span>, <span class="string">&quot;Mutable, componentwise matrix division.&quot;</span>;
+    <span class="ident">component_mul</span>, <span class="ident">component_mul_mut</span>, <span class="ident">component_mul_assign</span>, <span class="ident">cmpy</span>, <span class="ident">ClosedMul</span>.<span class="ident">mul</span>.<span class="ident">mul_assign</span>,
+    <span class="string">&quot;Componentwise matrix multiplication.&quot;</span>,
+    <span class="string">&quot;Computes componentwise `self[i] = alpha * a[i] * b[i] + beta * self[i]&quot;</span>,
+    <span class="string">&quot;Inplace componentwise matrix multiplication.&quot;</span>;
+    <span class="ident">component_div</span>, <span class="ident">component_div_mut</span>, <span class="ident">component_div_assign</span>, <span class="ident">cdpy</span>, <span class="ident">ClosedDiv</span>.<span class="ident">div</span>.<span class="ident">div_assign</span>,
+    <span class="string">&quot;Componentwise matrix division.&quot;</span>,
+    <span class="string">&quot;Computes componentwise `self[i] = alpha * a[i] / b[i] + beta * self[i]&quot;</span>,    
+    <span class="string">&quot;Inplace componentwise matrix division.&quot;</span>;
     <span class="comment">// FIXME: add other operators like bitshift, etc. ?</span>
 );
 </pre>
@@ -266,18 +361,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -313,11 +412,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

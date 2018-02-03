@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/linalg/cholesky.rs`.">
+    <meta name="description" content="Source to the Rust file `src\linalg\cholesky.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>cholesky.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -185,40 +196,56 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
 </pre><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>;
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">Real</span>;
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">MatrixN</span>, <span class="ident">MatrixMN</span>, <span class="ident">Matrix</span>, <span class="ident">SquareMatrix</span>};
-<span class="kw">use</span> <span class="ident">constraint</span>::{<span class="ident">ShapeConstraint</span>, <span class="ident">SameNumberOfRows</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Matrix</span>, <span class="ident">MatrixMN</span>, <span class="ident">MatrixN</span>, <span class="ident">SquareMatrix</span>};
+<span class="kw">use</span> <span class="ident">constraint</span>::{<span class="ident">SameNumberOfRows</span>, <span class="ident">ShapeConstraint</span>};
 <span class="kw">use</span> <span class="ident">storage</span>::{<span class="ident">Storage</span>, <span class="ident">StorageMut</span>};
 <span class="kw">use</span> <span class="ident">allocator</span>::<span class="ident">Allocator</span>;
-<span class="kw">use</span> <span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">Dynamic</span>, <span class="ident">DimSub</span>};
+<span class="kw">use</span> <span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimSub</span>, <span class="ident">Dynamic</span>};
 
 <span class="doccomment">/// The Cholesky decomposion of a symmetric-definite-positive matrix.</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>,
-    <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span>
-        <span class="string">&quot;DefaultAllocator: Allocator&lt;N, D&gt;,
+           <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;DefaultAllocator: Allocator&lt;N, D&gt;,
          MatrixN&lt;N, D&gt;: serde::Serialize&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>,
-    <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">deserialize</span> <span class="op">=</span>
-        <span class="string">&quot;DefaultAllocator: Allocator&lt;N, D&gt;,
+           <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;DefaultAllocator: Allocator&lt;N, D&gt;,
          MatrixN&lt;N, D&gt;: serde::Deserialize&lt;&#39;de&gt;&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cholesky</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
-    <span class="ident">chol</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
+    <span class="ident">chol</span>: <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Cholesky</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
-          <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>: <span class="ident">Copy</span> { }
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>: <span class="ident">Copy</span>,
+{
+}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">Dynamic</span><span class="op">&gt;&gt;</span> <span class="ident">Cholesky</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="doccomment">/// Attempts to compute the Cholesky decomposition of `matrix`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if the input matrix is not definite-positive. The intput matrix is assumed</span>
@@ -228,13 +255,13 @@
 
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">matrix</span>.<span class="ident">nrows</span>();
 
-        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">n</span> {
-            <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">j</span> {
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> {
+            <span class="kw">for</span> <span class="ident">k</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">j</span> {
                 <span class="kw">let</span> <span class="ident">factor</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="op">-</span><span class="kw-2">*</span><span class="ident">matrix</span>.<span class="ident">get_unchecked</span>(<span class="ident">j</span>, <span class="ident">k</span>) };
 
                 <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">col_j</span>, <span class="ident">col_k</span>) <span class="op">=</span> <span class="ident">matrix</span>.<span class="ident">columns_range_pair_mut</span>(<span class="ident">j</span>, <span class="ident">k</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col_j</span> <span class="op">=</span> <span class="ident">col_j</span>.<span class="ident">rows_range_mut</span>(<span class="ident">j</span> ..);
-                <span class="kw">let</span> <span class="ident">col_k</span>     <span class="op">=</span> <span class="ident">col_k</span>.<span class="ident">rows_range</span>(<span class="ident">j</span> ..);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col_j</span> <span class="op">=</span> <span class="ident">col_j</span>.<span class="ident">rows_range_mut</span>(<span class="ident">j</span>..);
+                <span class="kw">let</span> <span class="ident">col_k</span> <span class="op">=</span> <span class="ident">col_k</span>.<span class="ident">rows_range</span>(<span class="ident">j</span>..);
 
                 <span class="ident">col_j</span>.<span class="ident">axpy</span>(<span class="ident">factor</span>, <span class="kw-2">&amp;</span><span class="ident">col_k</span>, <span class="ident">N</span>::<span class="ident">one</span>());
             }
@@ -242,12 +269,13 @@
             <span class="kw">let</span> <span class="ident">diag</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="ident">matrix</span>.<span class="ident">get_unchecked</span>(<span class="ident">j</span>, <span class="ident">j</span>) };
             <span class="kw">if</span> <span class="ident">diag</span> <span class="op">&gt;</span> <span class="ident">N</span>::<span class="ident">zero</span>() {
                 <span class="kw">let</span> <span class="ident">denom</span> <span class="op">=</span> <span class="ident">diag</span>.<span class="ident">sqrt</span>();
-                <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="ident">matrix</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">j</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="ident">denom</span>; }
+                <span class="kw">unsafe</span> {
+                    <span class="kw-2">*</span><span class="ident">matrix</span>.<span class="ident">get_unchecked_mut</span>(<span class="ident">j</span>, <span class="ident">j</span>) <span class="op">=</span> <span class="ident">denom</span>;
+                }
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">matrix</span>.<span class="ident">slice_range_mut</span>(<span class="ident">j</span> <span class="op">+</span> <span class="number">1</span> .., <span class="ident">j</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">matrix</span>.<span class="ident">slice_range_mut</span>(<span class="ident">j</span> <span class="op">+</span> <span class="number">1</span>.., <span class="ident">j</span>);
                 <span class="ident">col</span> <span class="op">/=</span> <span class="ident">denom</span>;
-            }
-            <span class="kw">else</span> {
+            } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
         }
@@ -290,8 +318,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The result is stored on `b`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">solve_mut</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>)
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
-              <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+        <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> _ <span class="op">=</span> <span class="self">self</span>.<span class="ident">chol</span>.<span class="ident">solve_lower_triangular_mut</span>(<span class="ident">b</span>);
         <span class="kw">let</span> _ <span class="op">=</span> <span class="self">self</span>.<span class="ident">chol</span>.<span class="ident">tr_solve_lower_triangular_mut</span>(<span class="ident">b</span>);
     }
@@ -299,9 +329,11 @@
     <span class="doccomment">/// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and</span>
     <span class="doccomment">/// `x` the unknown.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">solve</span><span class="op">&lt;</span><span class="ident">R2</span>: <span class="ident">Dim</span>, <span class="ident">C2</span>: <span class="ident">Dim</span>, <span class="ident">S2</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span>, <span class="ident">S2</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
-              <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
-              <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+    <span class="kw">where</span>
+        <span class="ident">S2</span>: <span class="ident">StorageMut</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+        <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R2</span>, <span class="ident">C2</span><span class="op">&gt;</span>,
+        <span class="ident">ShapeConstraint</span>: <span class="ident">SameNumberOfRows</span><span class="op">&lt;</span><span class="ident">R2</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+    {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">clone_owned</span>();
         <span class="self">self</span>.<span class="ident">solve_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">res</span>);
         <span class="ident">res</span>
@@ -318,8 +350,9 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">D</span>: <span class="ident">DimSub</span><span class="op">&lt;</span><span class="ident">Dynamic</span><span class="op">&gt;</span>, <span class="ident">S</span>: <span class="ident">Storage</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;&gt;</span> <span class="ident">SquareMatrix</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">S</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
-
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="doccomment">/// Attempts to compute the Cholesky decomposition of this matrix.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if the input matrix is not definite-positive. The intput matrix is assumed</span>
@@ -342,18 +375,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -389,11 +426,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

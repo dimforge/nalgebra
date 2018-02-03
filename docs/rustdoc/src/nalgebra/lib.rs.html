@@ -10,14 +10,17 @@
     <title>lib.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css" id="themeStyle">
+    <script src="../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -529,19 +540,6 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
 </pre><pre class="rust ">
 <span class="doccomment">/*!
 # nalgebra
@@ -617,21 +615,17 @@ an optimized set of tools for computer graphics and physics. Those features incl
   generic programming.
 */</span>
 
-
-
-
-
 <span class="comment">// #![feature(plugin)]</span>
 <span class="comment">//</span>
 <span class="comment">// #![plugin(clippy)]</span>
 
-<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">non_camel_case_types</span>)]</span>
-<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">unused_parens</span>)]</span>
-<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">non_upper_case_globals</span>)]</span>
-<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">unused_qualifications</span>)]</span>
-<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">unused_results</span>)]</span>
-<span class="attribute">#<span class="op">!</span>[<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
-<span class="attribute">#<span class="op">!</span>[<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;http://nalgebra.org/rustdoc&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">non_camel_case_types</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">unused_parens</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">non_upper_case_globals</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">unused_qualifications</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">unused_results</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;http://nalgebra.org/rustdoc&quot;</span>)]</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;arbitrary&quot;</span>)]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">quickcheck</span>;
@@ -642,20 +636,22 @@ an optimized set of tools for computer graphics and physics. Those features incl
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde_derive</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">abomonation</span>;
 
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">num_traits</span> <span class="kw">as</span> <span class="ident">num</span>;
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">num_complex</span>;
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">rand</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mint&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">mint</span>;
+
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">approx</span>;
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">typenum</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">generic_array</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">matrixmultiply</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">num_complex</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">num_traits</span> <span class="kw">as</span> <span class="ident">num</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">rand</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">typenum</span>;
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alga</span>;
-
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">core</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">linalg</span>;
@@ -667,17 +663,15 @@ an optimized set of tools for computer graphics and physics. Those features incl
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">linalg</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">geometry</span>::<span class="kw-2">*</span>;
 
-
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::{<span class="self">self</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::{<span class="self">self</span>, <span class="ident">Ordering</span>, <span class="ident">PartialOrd</span>};
 
 <span class="kw">use</span> <span class="ident">num</span>::<span class="ident">Signed</span>;
-<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Identity</span>, <span class="ident">SupersetOf</span>, <span class="ident">MeetSemilattice</span>, <span class="ident">JoinSemilattice</span>, <span class="ident">Lattice</span>, <span class="ident">Inverse</span>,
-                    <span class="ident">Multiplicative</span>, <span class="ident">Additive</span>, <span class="ident">AdditiveGroup</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Additive</span>, <span class="ident">AdditiveGroup</span>, <span class="ident">Identity</span>, <span class="ident">Inverse</span>, <span class="ident">JoinSemilattice</span>, <span class="ident">Lattice</span>,
+                    <span class="ident">MeetSemilattice</span>, <span class="ident">Multiplicative</span>, <span class="ident">SupersetOf</span>};
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::<span class="ident">SquareMatrix</span> <span class="kw">as</span> <span class="ident">AlgaSquareMatrix</span>;
-<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::{<span class="ident">InnerSpace</span>, <span class="ident">NormedSpace</span>, <span class="ident">FiniteDimVectorSpace</span>, <span class="ident">EuclideanSpace</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::{<span class="ident">EuclideanSpace</span>, <span class="ident">FiniteDimVectorSpace</span>, <span class="ident">InnerSpace</span>, <span class="ident">NormedSpace</span>};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Real</span>, <span class="ident">Id</span>};
-
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">Id</span>, <span class="ident">Real</span>};
 
 <span class="comment">/*
  *
@@ -734,8 +728,9 @@ an optimized set of tools for computer graphics and physics. Those features incl
 <span class="doccomment">/// The range must not be empty.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">val</span>: <span class="ident">T</span>, <span class="ident">min</span>: <span class="ident">T</span>, <span class="ident">max</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">T</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">AdditiveGroup</span> {
-
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">AdditiveGroup</span>,
+{
     <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">min</span> <span class="op">&lt;</span> <span class="ident">max</span>, <span class="string">&quot;Invalid wrapping bounds.&quot;</span>);
     <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">max</span> <span class="op">-</span> <span class="ident">min</span>;
 
@@ -747,8 +742,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
         }
 
         <span class="ident">val</span>
-    }
-    <span class="kw">else</span> <span class="kw">if</span> <span class="ident">val</span> <span class="op">&gt;</span> <span class="ident">max</span> {
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">val</span> <span class="op">&gt;</span> <span class="ident">max</span> {
         <span class="ident">val</span> <span class="op">-=</span> <span class="ident">width</span>;
 
         <span class="kw">while</span> <span class="ident">val</span> <span class="op">&gt;</span> <span class="ident">max</span> {
@@ -756,8 +750,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
         }
 
         <span class="ident">val</span>
-    }
-    <span class="kw">else</span> {
+    } <span class="kw">else</span> {
         <span class="ident">val</span>
     }
 }
@@ -773,12 +766,10 @@ an optimized set of tools for computer graphics and physics. Those features incl
     <span class="kw">if</span> <span class="ident">val</span> <span class="op">&gt;</span> <span class="ident">min</span> {
         <span class="kw">if</span> <span class="ident">val</span> <span class="op">&lt;</span> <span class="ident">max</span> {
             <span class="ident">val</span>
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="ident">max</span>
         }
-    }
-    <span class="kw">else</span> {
+    } <span class="kw">else</span> {
         <span class="ident">min</span>
     }
 }
@@ -855,10 +846,9 @@ an optimized set of tools for computer graphics and physics. Those features incl
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ord</span>) <span class="op">=</span> <span class="ident">a</span>.<span class="ident">partial_cmp</span>(<span class="ident">b</span>) {
         <span class="kw">match</span> <span class="ident">ord</span> {
             <span class="ident">Ordering</span>::<span class="ident">Greater</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
-            _                 <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>),
+            _ <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>),
         }
-    }
-    <span class="kw">else</span> {
+    } <span class="kw">else</span> {
         <span class="prelude-val">None</span>
     }
 }
@@ -869,10 +859,9 @@ an optimized set of tools for computer graphics and physics. Those features incl
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ord</span>) <span class="op">=</span> <span class="ident">a</span>.<span class="ident">partial_cmp</span>(<span class="ident">b</span>) {
         <span class="kw">match</span> <span class="ident">ord</span> {
             <span class="ident">Ordering</span>::<span class="ident">Less</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
-            _              <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>),
+            _ <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>),
         }
-    }
-    <span class="kw">else</span> {
+    } <span class="kw">else</span> {
         <span class="prelude-val">None</span>
     }
 }
@@ -884,15 +873,12 @@ an optimized set of tools for computer graphics and physics. Those features incl
     <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">cmp_min</span>), <span class="prelude-val">Some</span>(<span class="ident">cmp_max</span>)) <span class="op">=</span> (<span class="ident">value</span>.<span class="ident">partial_cmp</span>(<span class="ident">min</span>), <span class="ident">value</span>.<span class="ident">partial_cmp</span>(<span class="ident">max</span>)) {
         <span class="kw">if</span> <span class="ident">cmp_min</span> <span class="op">==</span> <span class="ident">Ordering</span>::<span class="ident">Less</span> {
             <span class="prelude-val">Some</span>(<span class="ident">min</span>)
-        }
-        <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cmp_max</span> <span class="op">==</span> <span class="ident">Ordering</span>::<span class="ident">Greater</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cmp_max</span> <span class="op">==</span> <span class="ident">Ordering</span>::<span class="ident">Greater</span> {
             <span class="prelude-val">Some</span>(<span class="ident">max</span>)
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="prelude-val">Some</span>(<span class="ident">value</span>)
         }
-    }
-    <span class="kw">else</span> {
+    } <span class="kw">else</span> {
         <span class="prelude-val">None</span>
     }
 }
@@ -903,10 +889,9 @@ an optimized set of tools for computer graphics and physics. Those features incl
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ord</span>) <span class="op">=</span> <span class="ident">a</span>.<span class="ident">partial_cmp</span>(<span class="ident">b</span>) {
         <span class="kw">match</span> <span class="ident">ord</span> {
             <span class="ident">Ordering</span>::<span class="ident">Less</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">a</span>, <span class="ident">b</span>)),
-            _              <span class="op">=&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">b</span>, <span class="ident">a</span>)),
+            _ <span class="op">=&gt;</span> <span class="prelude-val">Some</span>((<span class="ident">b</span>, <span class="ident">a</span>)),
         }
-    }
-    <span class="kw">else</span> {
+    } <span class="kw">else</span> {
         <span class="prelude-val">None</span>
     }
 }
@@ -1056,18 +1041,22 @@ an optimized set of tools for computer graphics and physics. Those features incl
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -1103,11 +1092,4 @@ an optimized set of tools for computer graphics and physics. Those features incl
     <script src="../../main.js"></script>
     <script defer src="../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

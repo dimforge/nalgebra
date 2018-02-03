@@ -10,14 +10,17 @@
     <title>nalgebra::core::allocator - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc mod">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc mod"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'>Module allocator</p><div class="block items"><ul><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a></p><script>window.sidebarCurrent = {name: 'allocator', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module allocator</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a></p><script>window.sidebarCurrent = {name: 'allocator', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script></div>
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -48,7 +59,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/nalgebra/core/allocator.rs.html#1-85' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../../../src/nalgebra/core/allocator.rs.html#1-104' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Abstract definition of a matrix data storage allocator.</p>
 </div><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
@@ -58,6 +69,7 @@
                            <td class='docblock-short'>
                                 <p>A matrix allocator of a memory buffer that may contain <code>R::to_usize() * C::to_usize()</code>
 elements of type <code>N</code>.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -66,6 +78,7 @@ elements of type <code>N</code>.</p>
                            <td class='docblock-short'>
                                 <p>A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
 CFrom) elements to a smaller or larger size (RTo, CTo).</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -73,6 +86,7 @@ CFrom) elements to a smaller or larger size (RTo, CTo).</p>
                                   title='trait nalgebra::core::allocator::SameShapeAllocator'>SameShapeAllocator</a></td>
                            <td class='docblock-short'>
                                 <p>Restricts the given number of rows and columns to be respectively the same.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -80,6 +94,7 @@ CFrom) elements to a smaller or larger size (RTo, CTo).</p>
                                   title='trait nalgebra::core::allocator::SameShapeVectorAllocator'>SameShapeVectorAllocator</a></td>
                            <td class='docblock-short'>
                                 <p>Restricts the given number of rows to be equal.</p>
+
                            </td>
                        </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
@@ -88,6 +103,7 @@ CFrom) elements to a smaller or larger size (RTo, CTo).</p>
                                   title='type nalgebra::core::allocator::SameShapeC'>SameShapeC</a></td>
                            <td class='docblock-short'>
                                 <p>The number of columns of the result of a componentwise operation on two matrices.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -95,6 +111,7 @@ CFrom) elements to a smaller or larger size (RTo, CTo).</p>
                                   title='type nalgebra::core::allocator::SameShapeR'>SameShapeR</a></td>
                            <td class='docblock-short'>
                                 <p>The number of rows of the result of a componentwise operation on two matrices.</p>
+
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
@@ -109,18 +126,22 @@ CFrom) elements to a smaller or larger size (RTo, CTo).</p>
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -156,11 +177,4 @@ CFrom) elements to a smaller or larger size (RTo, CTo).</p>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

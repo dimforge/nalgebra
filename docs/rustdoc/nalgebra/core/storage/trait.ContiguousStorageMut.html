@@ -10,14 +10,17 @@
     <title>nalgebra::core::storage::ContiguousStorageMut - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc trait">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc trait"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'>Trait ContiguousStorageMut</p><div class="block items"><ul><li><a href="#implementors">Implementors</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>storage</a></p><script>window.sidebarCurrent = {name: 'ContiguousStorageMut', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait ContiguousStorageMut</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>storage</a></p><script>window.sidebarCurrent = {name: 'ContiguousStorageMut', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -48,9 +59,8 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/nalgebra/core/storage.rs.html#184' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../../../src/nalgebra/core/storage.rs.html#189-191' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub unsafe trait ContiguousStorageMut&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, R:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, C:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&nbsp;=&nbsp;<a class="struct" href="../../../nalgebra/core/dimension/struct.U1.html" title="struct nalgebra::core::dimension::U1">U1</a>&gt;: <a class="trait" href="../../../nalgebra/core/storage/trait.ContiguousStorage.html" title="trait nalgebra::core::storage::ContiguousStorage">ContiguousStorage</a>&lt;N, R, C&gt; + <a class="trait" href="../../../nalgebra/core/storage/trait.StorageMut.html" title="trait nalgebra::core::storage::StorageMut">StorageMut</a>&lt;N, R, C&gt; { }</pre><div class='docblock'><p>A mutable matrix storage that is stored contiguously in memory.</p>
-
 <p>The storage requirement means that for any value of <code>i</code> in <code>[0, nrows * ncols[</code>, the value
 <code>.get_unchecked_linear</code> returns one of the matrix component. This trait is unsafe because
 failing to comply to this may cause Undefined Behaviors.</p>
@@ -59,9 +69,9 @@ failing to comply to this may cause Undefined Behaviors.</p>
           Implementors<a href='#implementors' class='anchor'></a>
         </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;N, R, C&gt; ContiguousStorageMut&lt;N, R, C&gt; for <a class="struct" href="../../../nalgebra/core/struct.MatrixArray.html" title="struct nalgebra::core::MatrixArray">MatrixArray</a>&lt;N, R, C&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;N: <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;R: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;C: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Mul.html" title="trait core::ops::arith::Mul">Mul</a>&lt;C::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;Prod&lt;R::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>, C::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;: ArrayLength&lt;N&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, R, C, Buffer = Self&gt;,&nbsp;</span></code></li>
-<li><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, C:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt; ContiguousStorageMut&lt;N, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, C&gt; for <a class="struct" href="../../../nalgebra/core/struct.MatrixVec.html" title="struct nalgebra::core::MatrixVec">MatrixVec</a>&lt;N, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, C&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, C, Buffer = Self&gt;,&nbsp;</span></code></li>
-<li><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, R:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; ContiguousStorageMut&lt;N, R, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt; for <a class="struct" href="../../../nalgebra/core/struct.MatrixVec.html" title="struct nalgebra::core::MatrixVec">MatrixVec</a>&lt;N, R, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, R, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, Buffer = Self&gt;,&nbsp;</span></code></li>
+    <li><div class='out-of-band'><a class='srclink' href='../../../src/nalgebra/core/matrix_array.rs.html#238-247' title='goto source code'>[src]</a></div><code>impl&lt;N, R, C&gt; ContiguousStorageMut&lt;N, R, C&gt; for <a class="struct" href="../../../nalgebra/core/struct.MatrixArray.html" title="struct nalgebra::core::MatrixArray">MatrixArray</a>&lt;N, R, C&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;N: <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;R: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;C: <a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;R::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Mul.html" title="trait core::ops::arith::Mul">Mul</a>&lt;C::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;Prod&lt;R::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>, C::<a class="type" href="../../../nalgebra/core/dimension/trait.DimName.html#associatedtype.Value" title="type nalgebra::core::dimension::DimName::Value">Value</a>&gt;: ArrayLength&lt;N&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, R, C, Buffer = Self&gt;,&nbsp;</span></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../../src/nalgebra/core/matrix_vec.rs.html#215-219' title='goto source code'>[src]</a></div><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, C:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt; ContiguousStorageMut&lt;N, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, C&gt; for <a class="struct" href="../../../nalgebra/core/struct.MatrixVec.html" title="struct nalgebra::core::MatrixVec">MatrixVec</a>&lt;N, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, C&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, C, Buffer = Self&gt;,&nbsp;</span></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../../src/nalgebra/core/matrix_vec.rs.html#257-261' title='goto source code'>[src]</a></div><code>impl&lt;N:&nbsp;<a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, R:&nbsp;<a class="trait" href="../../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; ContiguousStorageMut&lt;N, R, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt; for <a class="struct" href="../../../nalgebra/core/struct.MatrixVec.html" title="struct nalgebra::core::MatrixVec">MatrixVec</a>&lt;N, R, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="../../../nalgebra/core/default_allocator/struct.DefaultAllocator.html" title="struct nalgebra::core::default_allocator::DefaultAllocator">DefaultAllocator</a>: <a class="trait" href="../../../nalgebra/core/allocator/trait.Allocator.html" title="trait nalgebra::core::allocator::Allocator">Allocator</a>&lt;N, R, <a class="struct" href="../../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, Buffer = Self&gt;,&nbsp;</span></code></li>
 </ul><script type="text/javascript" async
                          src="../../../implementors/nalgebra/core/storage/trait.ContiguousStorageMut.js">
                  </script></section>
@@ -77,18 +87,22 @@ failing to comply to this may cause Undefined Behaviors.</p>
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -124,11 +138,4 @@ failing to comply to this may cause Undefined Behaviors.</p>
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

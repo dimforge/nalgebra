@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/core/unit.rs`.">
+    <meta name="description" content="Source to the Rust file `src\core\unit.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>unit.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -257,13 +268,14 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
+<span id="215">215</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Neg</span>, <span class="ident">Deref</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">Neg</span>};
 <span class="kw">use</span> <span class="ident">approx</span>::<span class="ident">ApproxEq</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Serializer</span>, <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;abomonation-serialize&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">abomonation</span>::<span class="ident">Abomonation</span>;
@@ -271,20 +283,20 @@
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::<span class="ident">SubsetOf</span>;
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::<span class="ident">NormedSpace</span>;
 
-
 <span class="doccomment">/// A wrapper that ensures the undelying algebraic entity has a unit norm.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Use `.as_ref()` or `.unwrap()` to obtain the undelying value by-reference or by-move.</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">Debug</span>, <span class="ident">Copy</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">value</span>: <span class="ident">T</span>
+    <span class="ident">value</span>: <span class="ident">T</span>,
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="prelude-val">Ok</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">S</span>: <span class="ident">Serializer</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Serializer</span>,
     {
         <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
     }
@@ -293,7 +305,8 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-serialize&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>: <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
     {
         <span class="ident">T</span>::<span class="ident">deserialize</span>(<span class="ident">deserializer</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Unit</span> { <span class="ident">value</span>: <span class="ident">x</span> })
     }
@@ -344,8 +357,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_new_and_get</span>(<span class="kw-2">mut</span> <span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">min_norm</span>: <span class="ident">T</span>::<span class="ident">Field</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="self">Self</span>, <span class="ident">T</span>::<span class="ident">Field</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">value</span>.<span class="ident">try_normalize_mut</span>(<span class="ident">min_norm</span>) {
             <span class="prelude-val">Some</span>((<span class="ident">Unit</span> { <span class="ident">value</span>: <span class="ident">value</span> }, <span class="ident">n</span>))
-        }
-        <span class="kw">else</span> {
+        } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
     }
@@ -397,7 +409,9 @@
  *
  */</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">NormedSpace</span><span class="op">&gt;</span> <span class="ident">SubsetOf</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Unit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span> <span class="ident">T</span>::<span class="ident">Field</span>: <span class="ident">ApproxEq</span> {
+<span class="kw">where</span>
+    <span class="ident">T</span>::<span class="ident">Field</span>: <span class="ident">ApproxEq</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">to_superset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
         <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>()
@@ -416,33 +430,32 @@
 
 <span class="comment">// impl&lt;T: ApproxEq&gt; ApproxEq for Unit&lt;T&gt; {</span>
 <span class="comment">//     type Epsilon = T::Epsilon;</span>
-<span class="comment">// </span>
+<span class="comment">//</span>
 <span class="comment">//     #[inline]</span>
 <span class="comment">//     fn default_epsilon() -&gt; Self::Epsilon {</span>
 <span class="comment">//         T::default_epsilon()</span>
 <span class="comment">//     }</span>
-<span class="comment">// </span>
+<span class="comment">//</span>
 <span class="comment">//     #[inline]</span>
 <span class="comment">//     fn default_max_relative() -&gt; Self::Epsilon {</span>
 <span class="comment">//         T::default_max_relative()</span>
 <span class="comment">//     }</span>
-<span class="comment">// </span>
+<span class="comment">//</span>
 <span class="comment">//     #[inline]</span>
 <span class="comment">//     fn default_max_ulps() -&gt; u32 {</span>
 <span class="comment">//         T::default_max_ulps()</span>
 <span class="comment">//     }</span>
-<span class="comment">// </span>
+<span class="comment">//</span>
 <span class="comment">//     #[inline]</span>
 <span class="comment">//     fn relative_eq(&amp;self, other: &amp;Self, epsilon: Self::Epsilon, max_relative: Self::Epsilon) -&gt; bool {</span>
 <span class="comment">//         self.value.relative_eq(&amp;other.value, epsilon, max_relative)</span>
 <span class="comment">//     }</span>
-<span class="comment">// </span>
+<span class="comment">//</span>
 <span class="comment">//     #[inline]</span>
 <span class="comment">//     fn ulps_eq(&amp;self, other: &amp;Self, epsilon: Self::Epsilon, max_ulps: u32) -&gt; bool {</span>
 <span class="comment">//         self.value.ulps_eq(&amp;other.value, epsilon, max_ulps)</span>
 <span class="comment">//     }</span>
 <span class="comment">// }</span>
-
 
 <span class="comment">// FIXME:re-enable this impl when spacialization is possible.</span>
 <span class="comment">// Currently, it is disabled so that we can have a nice output for the `UnitQuaternion` display.</span>
@@ -486,18 +499,22 @@ impl&lt;T: fmt::Display&gt; fmt::Display for Unit&lt;T&gt; {
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -533,11 +550,4 @@ impl&lt;T: fmt::Display&gt; fmt::Display for Unit&lt;T&gt; {
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

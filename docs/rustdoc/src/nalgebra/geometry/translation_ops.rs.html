@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/geometry/translation_ops.rs`.">
+    <meta name="description" content="Source to the Rust file `src\geometry\translation_ops.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>translation_ops.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -207,17 +218,14 @@
 <span id="162">162</span>
 <span id="163">163</span>
 <span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
 </pre><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Mul</span>, <span class="ident">MulAssign</span>, <span class="ident">Div</span>, <span class="ident">DivAssign</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Div</span>, <span class="ident">DivAssign</span>, <span class="ident">Mul</span>, <span class="ident">MulAssign</span>};
 
 <span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">ClosedAdd</span>, <span class="ident">ClosedSub</span>};
 
 <span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Scalar</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">DimName</span>, <span class="ident">U1</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">ShapeConstraint</span>, <span class="ident">SameNumberOfRows</span>, <span class="ident">SameNumberOfColumns</span>};
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">constraint</span>::{<span class="ident">SameNumberOfColumns</span>, <span class="ident">SameNumberOfRows</span>, <span class="ident">ShapeConstraint</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::{<span class="ident">Allocator</span>, <span class="ident">SameShapeAllocator</span>};
 
 <span class="kw">use</span> <span class="ident">geometry</span>::{<span class="ident">Point</span>, <span class="ident">Translation</span>};
@@ -265,7 +273,6 @@
     <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
     <span class="ident">Translation</span>::<span class="ident">from_vector</span>(<span class="self">self</span>.<span class="ident">vector</span> <span class="op">-</span> <span class="ident">right</span>.<span class="ident">vector</span>); );
 
-
 <span class="comment">// Translation × Point</span>
 <span class="comment">// FIXME: we don&#39;t handle properly non-zero origins here. Do we want this to be the intended</span>
 <span class="comment">// behavior?</span>
@@ -289,7 +296,6 @@
     <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
     <span class="ident">right</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">vector</span>; );
 
-
 <span class="comment">// Translation *= Translation</span>
 <span class="macro">add_sub_assign_impl</span><span class="macro">!</span>(<span class="ident">MulAssign</span>, <span class="ident">mul_assign</span>, <span class="ident">ClosedAdd</span>;
     (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
@@ -300,7 +306,6 @@
     (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
     <span class="self">self</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Translation</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>;
     <span class="self">self</span>.<span class="ident">vector</span> <span class="op">+=</span> <span class="ident">right</span>.<span class="ident">vector</span>; );
-
 
 <span class="macro">add_sub_assign_impl</span><span class="macro">!</span>(<span class="ident">DivAssign</span>, <span class="ident">div_assign</span>, <span class="ident">ClosedSub</span>;
     (<span class="ident">D</span>, <span class="ident">U1</span>), (<span class="ident">D</span>, <span class="ident">U1</span>) <span class="kw">for</span> <span class="ident">D</span>: <span class="ident">DimName</span>;
@@ -392,18 +397,22 @@ md_assign_impl!(DivAssign, div_assign;
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -439,11 +448,4 @@ md_assign_impl!(DivAssign, div_assign;
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

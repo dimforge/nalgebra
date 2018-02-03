@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="shortcut icon" href="/img/favicon.ico">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `MatrixSliceMN` type in crate `nalgebra`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, MatrixSliceMN">
+
+    <title>nalgebra::core::MatrixSliceMN - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css" id="themeStyle">
+    <script src="../../storage.js"></script>
+    
+
+    
+    
+</head>
+<body class="rustdoc type"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
+        
+        <p class='location'>Type Definition MatrixSliceMN</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new_with_strides_generic_unchecked">new_with_strides_generic_unchecked</a><a href="#method.new_with_strides_generic">new_with_strides_generic</a><a href="#method.new_generic_unchecked">new_generic_unchecked</a><a href="#method.new_generic">new_generic</a><a href="#method.new">new</a><a href="#method.new_unchecked">new_unchecked</a><a href="#method.new_with_strides">new_with_strides</a><a href="#method.new_with_strides_unchecked">new_with_strides_unchecked</a><a href="#method.new">new</a><a href="#method.new_unchecked">new_unchecked</a><a href="#method.new_with_strides">new_with_strides</a><a href="#method.new_with_strides_unchecked">new_with_strides_unchecked</a><a href="#method.new">new</a><a href="#method.new_unchecked">new_unchecked</a><a href="#method.new_with_strides">new_with_strides</a><a href="#method.new_with_strides_unchecked">new_with_strides_unchecked</a><a href="#method.new">new</a><a href="#method.new_unchecked">new_unchecked</a><a href="#method.new_with_strides">new_with_strides</a><a href="#method.new_with_strides_unchecked">new_with_strides_unchecked</a></div></div><p class='location'><a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'MatrixSliceMN', ty: 'type', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
+    </nav>
+
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../theme.js"></script>
+    </div><div class="col-md-9"><nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Type Definition <a href='../index.html'>nalgebra</a>::<wbr><a href='index.html'>core</a>::<wbr><a class="type" href=''>MatrixSliceMN</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/nalgebra/core/alias_slice.rs.html#13-14' title='goto source code'>[src]</a></span></h1>
+<pre class='rust typedef'>type MatrixSliceMN&lt;'a, N, R, C, RStride&nbsp;=&nbsp;<a class="struct" href="../../nalgebra/core/dimension/struct.U1.html" title="struct nalgebra::core::dimension::U1">U1</a>, CStride&nbsp;=&nbsp;R&gt; = <a class="struct" href="../../nalgebra/core/struct.Matrix.html" title="struct nalgebra::core::Matrix">Matrix</a>&lt;N, R, C, <a class="struct" href="../../nalgebra/core/struct.SliceStorage.html" title="struct nalgebra::core::SliceStorage">SliceStorage</a>&lt;'a, N, R, C, RStride, CStride&gt;&gt;;</pre><div class='docblock'><p>A column-major matrix slice with <code>R</code> rows and <code>C</code> columns.</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, R:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, C:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, RStride:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, CStride:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, R, C, RStride, CStride&gt;</code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#10-56' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new_with_strides_generic_unchecked' class="method"><span id='new_with_strides_generic_unchecked.v' class='invisible'><code>pub unsafe fn <a href='#method.new_with_strides_generic_unchecked' class='fnname'>new_with_strides_generic_unchecked</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;nrows: R, <br>&nbsp;&nbsp;&nbsp;&nbsp;ncols: C, <br>&nbsp;&nbsp;&nbsp;&nbsp;rstride: RStride, <br>&nbsp;&nbsp;&nbsp;&nbsp;cstride: CStride<br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#17-31' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound-checking, a matrix slice from an array and with dimensions and strides specified by generic types instances.</p>
+<p>This method is unsafe because the input data array is not checked to contain enough elements.
+The generic types <code>R</code>, <code>C</code>, <code>RStride</code>, <code>CStride</code> can either be type-level integers or integers wrapped with <code>Dynamic::new()</code>.</p>
+</div><h4 id='method.new_with_strides_generic' class="method"><span id='new_with_strides_generic.v' class='invisible'><code>pub fn <a href='#method.new_with_strides_generic' class='fnname'>new_with_strides_generic</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;nrows: R, <br>&nbsp;&nbsp;&nbsp;&nbsp;ncols: C, <br>&nbsp;&nbsp;&nbsp;&nbsp;rstride: RStride, <br>&nbsp;&nbsp;&nbsp;&nbsp;cstride: CStride<br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#38-55' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a matrix slice from an array and with dimensions and strides specified by generic types instances.</p>
+<p>Panics if the input data array dose not contain enough elements.
+The generic types <code>R</code>, <code>C</code>, <code>RStride</code>, <code>CStride</code> can either be type-level integers or integers wrapped with <code>Dynamic::new()</code>.</p>
+</div></div><h3 id='impl-1' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, R:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>, C:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.Dim.html" title="trait nalgebra::core::dimension::Dim">Dim</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, R, C&gt;</code><a href='#impl-1' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#109-127' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new_generic_unchecked' class="method"><span id='new_generic_unchecked.v' class='invisible'><code>pub unsafe fn <a href='#method.new_generic_unchecked' class='fnname'>new_generic_unchecked</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;nrows: R, <br>&nbsp;&nbsp;&nbsp;&nbsp;ncols: C<br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#115-117' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound-checking, a matrix slice from an array and with dimensions specified by generic types instances.</p>
+<p>This method is unsafe because the input data array is not checked to contain enough elements.
+The generic types <code>R</code> and <code>C</code> can either be type-level integers or integers wrapped with <code>Dynamic::new()</code>.</p>
+</div><h4 id='method.new_generic' class="method"><span id='new_generic.v' class='invisible'><code>pub fn <a href='#method.new_generic' class='fnname'>new_generic</a>(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, nrows: R, ncols: C) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#124-126' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a matrix slice from an array and with dimensions and strides specified by generic types instances.</p>
+<p>Panics if the input data array dose not contain enough elements.
+The generic types <code>R</code> and <code>C</code> can either be type-level integers or integers wrapped with <code>Dynamic::new()</code>.</p>
+</div></div><h3 id='impl-2' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, R:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>, C:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, R, C&gt;</code><a href='#impl-2' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#156-170' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#161-163' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new matrix slice from the given data array.</p>
+<p>Panics if <code>data</code> does not contain enough elements.</p>
+</div><h4 id='method.new_unchecked' class="method"><span id='new_unchecked.v' class='invisible'><code>pub unsafe fn <a href='#method.new_unchecked' class='fnname'>new_unchecked</a>(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#167-169' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound checking, a new matrix slice from the given data array.</p>
+</div></div><h3 id='impl-3' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, R:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>, C:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, R, C, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt;</code><a href='#impl-3' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#172-186' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new_with_strides' class="method"><span id='new_with_strides.v' class='invisible'><code>pub fn <a href='#method.new_with_strides' class='fnname'>new_with_strides</a>(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, rstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, cstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#177-179' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new matrix slice with the specified strides from the given data array.</p>
+<p>Panics if <code>data</code> does not contain enough elements.</p>
+</div><h4 id='method.new_with_strides_unchecked' class="method"><span id='new_with_strides_unchecked.v' class='invisible'><code>pub unsafe fn <a href='#method.new_with_strides_unchecked' class='fnname'>new_with_strides_unchecked</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;rstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;cstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a><br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#183-185' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound checking, a new matrix slice with the specified strides from the given data array.</p>
+</div></div><h3 id='impl-4' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, R:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, R, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt;</code><a href='#impl-4' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#156-170' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new-1' class="method"><span id='new.v-1' class='invisible'><code>pub fn <a href='#method.new-1' class='fnname'>new</a>(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, ncols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#161-163' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new matrix slice from the given data array.</p>
+<p>Panics if <code>data</code> does not contain enough elements.</p>
+</div><h4 id='method.new_unchecked-1' class="method"><span id='new_unchecked.v-1' class='invisible'><code>pub unsafe fn <a href='#method.new_unchecked-1' class='fnname'>new_unchecked</a>(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, ncols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#167-169' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound checking, a new matrix slice from the given data array.</p>
+</div></div><h3 id='impl-5' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, R:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, R, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt;</code><a href='#impl-5' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#172-186' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new_with_strides-1' class="method"><span id='new_with_strides.v-1' class='invisible'><code>pub fn <a href='#method.new_with_strides-1' class='fnname'>new_with_strides</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;ncols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;rstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;cstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a><br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#177-179' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new matrix slice with the specified strides from the given data array.</p>
+<p>Panics if <code>data</code> does not contain enough elements.</p>
+</div><h4 id='method.new_with_strides_unchecked-1' class="method"><span id='new_with_strides_unchecked.v-1' class='invisible'><code>pub unsafe fn <a href='#method.new_with_strides_unchecked-1' class='fnname'>new_with_strides_unchecked</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;ncols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;rstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;cstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a><br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#183-185' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound checking, a new matrix slice with the specified strides from the given data array.</p>
+</div></div><h3 id='impl-6' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, C:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, C&gt;</code><a href='#impl-6' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#156-170' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new-2' class="method"><span id='new.v-2' class='invisible'><code>pub fn <a href='#method.new-2' class='fnname'>new</a>(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, nrows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#161-163' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new matrix slice from the given data array.</p>
+<p>Panics if <code>data</code> does not contain enough elements.</p>
+</div><h4 id='method.new_unchecked-2' class="method"><span id='new_unchecked.v-2' class='invisible'><code>pub unsafe fn <a href='#method.new_unchecked-2' class='fnname'>new_unchecked</a>(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, nrows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#167-169' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound checking, a new matrix slice from the given data array.</p>
+</div></div><h3 id='impl-7' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>, C:&nbsp;<a class="trait" href="../../nalgebra/core/dimension/trait.DimName.html" title="trait nalgebra::core::dimension::DimName">DimName</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, C, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt;</code><a href='#impl-7' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#172-186' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new_with_strides-2' class="method"><span id='new_with_strides.v-2' class='invisible'><code>pub fn <a href='#method.new_with_strides-2' class='fnname'>new_with_strides</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;nrows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;rstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;cstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a><br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#177-179' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new matrix slice with the specified strides from the given data array.</p>
+<p>Panics if <code>data</code> does not contain enough elements.</p>
+</div><h4 id='method.new_with_strides_unchecked-2' class="method"><span id='new_with_strides_unchecked.v-2' class='invisible'><code>pub unsafe fn <a href='#method.new_with_strides_unchecked-2' class='fnname'>new_with_strides_unchecked</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;nrows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;rstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;cstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a><br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#183-185' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound checking, a new matrix slice with the specified strides from the given data array.</p>
+</div></div><h3 id='impl-8' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt;</code><a href='#impl-8' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#156-170' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new-3' class="method"><span id='new.v-3' class='invisible'><code>pub fn <a href='#method.new-3' class='fnname'>new</a>(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, nrows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, ncols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#161-163' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new matrix slice from the given data array.</p>
+<p>Panics if <code>data</code> does not contain enough elements.</p>
+</div><h4 id='method.new_unchecked-3' class="method"><span id='new_unchecked.v-3' class='invisible'><code>pub unsafe fn <a href='#method.new_unchecked-3' class='fnname'>new_unchecked</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;nrows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;ncols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a><br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#167-169' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound checking, a new matrix slice from the given data array.</p>
+</div></div><h3 id='impl-9' class='impl'><span class='in-band'><code>impl&lt;'a, N:&nbsp;<a class="trait" href="../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="type" href="../../nalgebra/core/type.MatrixSliceMN.html" title="type nalgebra::core::MatrixSliceMN">MatrixSliceMN</a>&lt;'a, N, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>, <a class="struct" href="../../nalgebra/core/dimension/struct.Dynamic.html" title="struct nalgebra::core::dimension::Dynamic">Dynamic</a>&gt;</code><a href='#impl-9' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#172-186' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new_with_strides-3' class="method"><span id='new_with_strides.v-3' class='invisible'><code>pub fn <a href='#method.new_with_strides-3' class='fnname'>new_with_strides</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;nrows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;ncols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;rstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;cstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a><br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#177-179' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a new matrix slice with the specified strides from the given data array.</p>
+<p>Panics if <code>data</code> does not contain enough elements.</p>
+</div><h4 id='method.new_with_strides_unchecked-3' class="method"><span id='new_with_strides_unchecked.v-3' class='invisible'><code>pub unsafe fn <a href='#method.new_with_strides_unchecked-3' class='fnname'>new_with_strides_unchecked</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'a [N]</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;start: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;nrows: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;ncols: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;rstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;cstride: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a><br>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/nalgebra/core/construction_slice.rs.html#183-185' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates, without bound checking, a new matrix slice with the specified strides from the given data array.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    </div></div><section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt><kbd>?</kbd></dt>
+                    <dd>Show this help dialog</dd>
+                    <dt><kbd>S</kbd></dt>
+                    <dd>Focus the search field</dd>
+                    <dt><kbd>↑</kbd></dt>
+                    <dd>Move up in search results</dd>
+                    <dt><kbd>↓</kbd></dt>
+                    <dd>Move down in search results</dd>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
+                    <dd>Go to active search result</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "nalgebra";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

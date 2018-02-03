@@ -4,20 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `src/core/matrix_alga.rs`.">
+    <meta name="description" content="Source to the Rust file `src\core\matrix_alga.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>matrix_alga.rs.html -- source</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc source">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc source"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
         
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -416,17 +427,54 @@
 <span id="371">371</span>
 <span id="372">372</span>
 <span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
 </pre><pre class="rust ">
-<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">Zero</span>, <span class="ident">One</span>};
+<span class="kw">use</span> <span class="ident">num</span>::{<span class="ident">One</span>, <span class="ident">Zero</span>};
 
-<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">AbstractMagma</span>, <span class="ident">AbstractGroupAbelian</span>, <span class="ident">AbstractGroup</span>, <span class="ident">AbstractLoop</span>,
-                    <span class="ident">AbstractMonoid</span>, <span class="ident">AbstractQuasigroup</span>, <span class="ident">AbstractSemigroup</span>, <span class="ident">AbstractModule</span>,
-                    <span class="ident">Module</span>, <span class="ident">Field</span>, <span class="ident">RingCommutative</span>, <span class="ident">Real</span>, <span class="ident">Inverse</span>, <span class="ident">Additive</span>, <span class="ident">Multiplicative</span>,
-                    <span class="ident">MeetSemilattice</span>, <span class="ident">JoinSemilattice</span>, <span class="ident">Lattice</span>, <span class="ident">Identity</span>,
-                    <span class="ident">ClosedAdd</span>, <span class="ident">ClosedNeg</span>, <span class="ident">ClosedMul</span>};
-<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::{<span class="ident">VectorSpace</span>, <span class="ident">NormedSpace</span>, <span class="ident">InnerSpace</span>, <span class="ident">FiniteDimVectorSpace</span>, <span class="ident">FiniteDimInnerSpace</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">general</span>::{<span class="ident">AbstractGroup</span>, <span class="ident">AbstractGroupAbelian</span>, <span class="ident">AbstractLoop</span>, <span class="ident">AbstractMagma</span>,
+                    <span class="ident">AbstractModule</span>, <span class="ident">AbstractMonoid</span>, <span class="ident">AbstractQuasigroup</span>, <span class="ident">AbstractSemigroup</span>,
+                    <span class="ident">Additive</span>, <span class="ident">ClosedAdd</span>, <span class="ident">ClosedMul</span>, <span class="ident">ClosedNeg</span>, <span class="ident">Field</span>, <span class="ident">Identity</span>, <span class="ident">Inverse</span>,
+                    <span class="ident">JoinSemilattice</span>, <span class="ident">Lattice</span>, <span class="ident">MeetSemilattice</span>, <span class="ident">Module</span>, <span class="ident">Multiplicative</span>, <span class="ident">Real</span>,
+                    <span class="ident">RingCommutative</span>};
+<span class="kw">use</span> <span class="ident">alga</span>::<span class="ident">linear</span>::{<span class="ident">FiniteDimInnerSpace</span>, <span class="ident">FiniteDimVectorSpace</span>, <span class="ident">InnerSpace</span>, <span class="ident">NormedSpace</span>, <span class="ident">VectorSpace</span>};
 
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">Scalar</span>, <span class="ident">MatrixMN</span>, <span class="ident">MatrixN</span>};
+<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">DefaultAllocator</span>, <span class="ident">MatrixMN</span>, <span class="ident">MatrixN</span>, <span class="ident">Scalar</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">dimension</span>::{<span class="ident">Dim</span>, <span class="ident">DimName</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">storage</span>::{<span class="ident">Storage</span>, <span class="ident">StorageMut</span>};
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">allocator</span>::<span class="ident">Allocator</span>;
@@ -437,8 +485,10 @@
  *
  */</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">Identity</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Zero</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Zero</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>::<span class="ident">from_element</span>(<span class="ident">N</span>::<span class="ident">zero</span>())
@@ -446,8 +496,10 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">AbstractMagma</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">ClosedAdd</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">ClosedAdd</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">operate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span> <span class="op">+</span> <span class="ident">other</span>
@@ -455,8 +507,10 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">Inverse</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">ClosedNeg</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">ClosedNeg</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">inverse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
         <span class="op">-</span><span class="self">self</span>
@@ -477,17 +531,19 @@
 );
 
 <span class="macro">inherit_additive_structure</span><span class="macro">!</span>(
-    <span class="ident">AbstractSemigroup</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>    <span class="op">+</span> <span class="ident">ClosedAdd</span>,
-    <span class="ident">AbstractMonoid</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>       <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">ClosedAdd</span>,
-    <span class="ident">AbstractQuasigroup</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>   <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedNeg</span>,
-    <span class="ident">AbstractLoop</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>         <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedNeg</span>,
-    <span class="ident">AbstractGroup</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span>        <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedNeg</span>,
+    <span class="ident">AbstractSemigroup</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">ClosedAdd</span>,
+    <span class="ident">AbstractMonoid</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">ClosedAdd</span>,
+    <span class="ident">AbstractQuasigroup</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedNeg</span>,
+    <span class="ident">AbstractLoop</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedNeg</span>,
+    <span class="ident">AbstractGroup</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedNeg</span>,
     <span class="ident">AbstractGroupAbelian</span><span class="op">&lt;</span><span class="ident">Additive</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedNeg</span>
 );
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">AbstractModule</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">RingCommutative</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">RingCommutative</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="kw">type</span> <span class="ident">AbstractRing</span> <span class="op">=</span> <span class="ident">N</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -497,20 +553,26 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">Module</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">RingCommutative</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">RingCommutative</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="kw">type</span> <span class="ident">Ring</span> <span class="op">=</span> <span class="ident">N</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">VectorSpace</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Field</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Field</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="kw">type</span> <span class="ident">Field</span> <span class="op">=</span> <span class="ident">N</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">FiniteDimVectorSpace</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Field</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Field</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">dimension</span>() <span class="op">-&gt;</span> <span class="ident">usize</span> {
         <span class="ident">R</span>::<span class="ident">dim</span>() <span class="op">*</span> <span class="ident">C</span>::<span class="ident">dim</span>()
@@ -521,7 +583,9 @@
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i</span> <span class="op">&lt;</span> <span class="self">Self</span>::<span class="ident">dimension</span>(), <span class="string">&quot;Index out of bound.&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">zero</span>();
-        <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">data</span>.<span class="ident">get_unchecked_linear_mut</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">N</span>::<span class="ident">one</span>(); }
+        <span class="kw">unsafe</span> {
+            <span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">data</span>.<span class="ident">get_unchecked_linear_mut</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">N</span>::<span class="ident">one</span>();
+        }
 
         <span class="ident">res</span>
     }
@@ -543,7 +607,9 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">NormedSpace</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">norm_squared</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">N</span> {
         <span class="self">self</span>.<span class="ident">norm_squared</span>()
@@ -576,7 +642,9 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">InnerSpace</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="kw">type</span> <span class="ident">Real</span> <span class="op">=</span> <span class="ident">N</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -595,16 +663,18 @@
 <span class="comment">//   − use `x()` instead of `::canonical_basis_element`</span>
 <span class="comment">//   − use `::new(x, y, z)` instead of `::from_slice`</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>: <span class="ident">Real</span>, <span class="ident">R</span>: <span class="ident">DimName</span>, <span class="ident">C</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">FiniteDimInnerSpace</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">orthonormalize</span>(<span class="ident">vs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>]) <span class="op">-&gt;</span> <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nbasis_elements</span> <span class="op">=</span> <span class="number">0</span>;
 
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">vs</span>.<span class="ident">len</span>() {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">vs</span>.<span class="ident">len</span>() {
             {
-                <span class="kw">let</span> (<span class="ident">elt</span>, <span class="ident">basis</span>) <span class="op">=</span> <span class="ident">vs</span>[.. <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>].<span class="ident">split_last_mut</span>().<span class="ident">unwrap</span>();
+                <span class="kw">let</span> (<span class="ident">elt</span>, <span class="ident">basis</span>) <span class="op">=</span> <span class="ident">vs</span>[..<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>].<span class="ident">split_last_mut</span>().<span class="ident">unwrap</span>();
 
-                <span class="kw">for</span> <span class="ident">basis_element</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">basis</span>[.. <span class="ident">nbasis_elements</span>] {
+                <span class="kw">for</span> <span class="ident">basis_element</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">basis</span>[..<span class="ident">nbasis_elements</span>] {
                     <span class="kw-2">*</span><span class="ident">elt</span> <span class="op">-=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">basis_element</span> <span class="op">*</span> <span class="ident">elt</span>.<span class="ident">dot</span>(<span class="ident">basis_element</span>)
                 }
             }
@@ -627,22 +697,26 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">orthonormal_subspace_basis</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">vs</span>: <span class="kw-2">&amp;</span>[<span class="self">Self</span>], <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>)
-        <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">where</span>
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>,
+    {
         <span class="comment">// FIXME: is this necessary?</span>
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">&lt;=</span> <span class="self">Self</span>::<span class="ident">dimension</span>(), <span class="string">&quot;The given set of vectors has no chance of being a free family.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">&lt;=</span> <span class="self">Self</span>::<span class="ident">dimension</span>(),
+            <span class="string">&quot;The given set of vectors has no chance of being a free family.&quot;</span>
+        );
 
         <span class="kw">match</span> <span class="self">Self</span>::<span class="ident">dimension</span>() {
             <span class="number">1</span> <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> {
                     <span class="kw">let</span> _ <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">0</span>));
                 }
-            },
+            }
             <span class="number">2</span> <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> {
-                    <span class="kw">let</span> _ <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">0</span>)) <span class="op">&amp;&amp;</span>
-                            <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">1</span>));
-                }
-                <span class="kw">else</span> <span class="kw">if</span> <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+                    <span class="kw">let</span> _ <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">0</span>))
+                        <span class="op">&amp;&amp;</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">1</span>));
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
                     <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">vs</span>[<span class="number">0</span>];
                     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_column_slice</span>(<span class="kw-2">&amp;</span>[<span class="op">-</span><span class="ident">v</span>[<span class="number">1</span>], <span class="ident">v</span>[<span class="number">0</span>]]);
 
@@ -650,21 +724,19 @@
                 }
 
                 <span class="comment">// Otherwise, nothing.</span>
-            },
+            }
             <span class="number">3</span> <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span> {
-                    <span class="kw">let</span> _ <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">0</span>)) <span class="op">&amp;&amp;</span>
-                            <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">1</span>)) <span class="op">&amp;&amp;</span>
-                            <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">2</span>));
-                }
-                <span class="kw">else</span> <span class="kw">if</span> <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+                    <span class="kw">let</span> _ <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">0</span>))
+                        <span class="op">&amp;&amp;</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">1</span>))
+                        <span class="op">&amp;&amp;</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="number">2</span>));
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
                     <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">vs</span>[<span class="number">0</span>];
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span>;
 
                     <span class="kw">if</span> <span class="ident">v</span>[<span class="number">0</span>].<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">v</span>[<span class="number">1</span>].<span class="ident">abs</span>() {
                         <span class="ident">a</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_column_slice</span>(<span class="kw-2">&amp;</span>[<span class="ident">v</span>[<span class="number">2</span>], <span class="ident">N</span>::<span class="ident">zero</span>(), <span class="op">-</span><span class="ident">v</span>[<span class="number">0</span>]]);
-                    }
-                    <span class="kw">else</span> {
+                    } <span class="kw">else</span> {
                         <span class="ident">a</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_column_slice</span>(<span class="kw-2">&amp;</span>[<span class="ident">N</span>::<span class="ident">zero</span>(), <span class="op">-</span><span class="ident">v</span>[<span class="number">2</span>], <span class="ident">v</span>[<span class="number">1</span>]]);
                     };
 
@@ -673,11 +745,10 @@
                     <span class="kw">if</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">cross</span>(<span class="ident">v</span>)) {
                         <span class="kw">let</span> _ <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>);
                     }
-                }
-                <span class="kw">else</span> <span class="kw">if</span> <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">vs</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
                     <span class="kw">let</span> _ <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="ident">vs</span>[<span class="number">0</span>].<span class="ident">cross</span>(<span class="kw-2">&amp;</span><span class="ident">vs</span>[<span class="number">1</span>]).<span class="ident">normalize</span>());
                 }
-            },
+            }
             _ <span class="op">=&gt;</span> {
                 <span class="comment">// XXX: use a GenericArray instead.</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">known_basis</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
@@ -686,15 +757,17 @@
                     <span class="ident">known_basis</span>.<span class="ident">push</span>(<span class="ident">v</span>.<span class="ident">normalize</span>())
                 }
 
-                <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="self">Self</span>::<span class="ident">dimension</span>() <span class="op">-</span> <span class="ident">vs</span>.<span class="ident">len</span>() {
+                <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">Self</span>::<span class="ident">dimension</span>() <span class="op">-</span> <span class="ident">vs</span>.<span class="ident">len</span>() {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">elt</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">canonical_basis_element</span>(<span class="ident">i</span>);
 
                     <span class="kw">for</span> <span class="ident">v</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">known_basis</span> {
                         <span class="ident">elt</span> <span class="op">-=</span> <span class="ident">v</span> <span class="op">*</span> <span class="ident">elt</span>.<span class="ident">dot</span>(<span class="ident">v</span>)
-                    };
+                    }
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">subsp_elt</span>) <span class="op">=</span> <span class="ident">elt</span>.<span class="ident">try_normalize</span>(<span class="ident">N</span>::<span class="ident">zero</span>()) {
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="ident">subsp_elt</span>) { <span class="kw">return</span> };
+                        <span class="kw">if</span> <span class="op">!</span><span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="ident">subsp_elt</span>) {
+                            <span class="kw">return</span>;
+                        };
 
                         <span class="ident">known_basis</span>.<span class="ident">push</span>(<span class="ident">subsp_elt</span>);
                     }
@@ -704,7 +777,6 @@
     }
 }
 
-
 <span class="comment">/*
  *
  *
@@ -713,8 +785,10 @@
  *
  */</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">Identity</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">identity</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>::<span class="ident">identity</span>()
@@ -722,8 +796,10 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>: <span class="ident">DimName</span><span class="op">&gt;</span> <span class="ident">AbstractMagma</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MatrixN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedMul</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">ClosedAdd</span> <span class="op">+</span> <span class="ident">ClosedMul</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">D</span>, <span class="ident">D</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">operate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span> <span class="op">*</span> <span class="ident">other</span>
@@ -743,15 +819,16 @@
     <span class="ident">AbstractMonoid</span><span class="op">&lt;</span><span class="ident">Multiplicative</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">One</span>
 );
 
-
 <span class="comment">/*
  *
  * Ordering
  *
  */</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">MeetSemilattice</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">MeetSemilattice</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">MeetSemilattice</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">meet</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">zip_map</span>(<span class="ident">other</span>, <span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">meet</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>))
@@ -759,29 +836,37 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">JoinSemilattice</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">JoinSemilattice</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">JoinSemilattice</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">zip_map</span>(<span class="ident">other</span>, <span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>))
     }
 }
 
-
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>: <span class="ident">Dim</span>, <span class="ident">C</span>: <span class="ident">Dim</span><span class="op">&gt;</span> <span class="ident">Lattice</span> <span class="kw">for</span> <span class="ident">MatrixMN</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Lattice</span>,
-          <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+<span class="kw">where</span>
+    <span class="ident">N</span>: <span class="ident">Scalar</span> <span class="op">+</span> <span class="ident">Lattice</span>,
+    <span class="ident">DefaultAllocator</span>: <span class="ident">Allocator</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">R</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">meet_join</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-&gt;</span> (<span class="self">Self</span>, <span class="self">Self</span>) {
         <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">shape</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">shape</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">data</span>.<span class="ident">shape</span>(), <span class="string">&quot;Matrix meet/join error: mismatched dimensions.&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">shape</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">data</span>.<span class="ident">shape</span>(),
+            <span class="string">&quot;Matrix meet/join error: mismatched dimensions.&quot;</span>
+        );
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mres</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">Self</span>::<span class="ident">new_uninitialized_generic</span>(<span class="ident">shape</span>.<span class="number">0</span>, <span class="ident">shape</span>.<span class="number">1</span>) };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jres</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="self">Self</span>::<span class="ident">new_uninitialized_generic</span>(<span class="ident">shape</span>.<span class="number">0</span>, <span class="ident">shape</span>.<span class="number">1</span>) };
 
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">shape</span>.<span class="number">0</span>.<span class="ident">value</span>() <span class="op">*</span> <span class="ident">shape</span>.<span class="number">1</span>.<span class="ident">value</span>() {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">shape</span>.<span class="number">0</span>.<span class="ident">value</span>() <span class="op">*</span> <span class="ident">shape</span>.<span class="number">1</span>.<span class="ident">value</span>() {
             <span class="kw">unsafe</span> {
-                <span class="kw">let</span> <span class="ident">mj</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">get_unchecked_linear</span>(<span class="ident">i</span>).<span class="ident">meet_join</span>(<span class="ident">other</span>.<span class="ident">data</span>.<span class="ident">get_unchecked_linear</span>(<span class="ident">i</span>));
+                <span class="kw">let</span> <span class="ident">mj</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>
+                    .<span class="ident">get_unchecked_linear</span>(<span class="ident">i</span>)
+                    .<span class="ident">meet_join</span>(<span class="ident">other</span>.<span class="ident">data</span>.<span class="ident">get_unchecked_linear</span>(<span class="ident">i</span>));
                 <span class="kw-2">*</span><span class="ident">mres</span>.<span class="ident">data</span>.<span class="ident">get_unchecked_linear_mut</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">mj</span>.<span class="number">0</span>;
                 <span class="kw-2">*</span><span class="ident">jres</span>.<span class="ident">data</span>.<span class="ident">get_unchecked_linear_mut</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">mj</span>.<span class="number">1</span>;
             }
@@ -804,18 +889,22 @@
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -851,11 +940,4 @@
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>

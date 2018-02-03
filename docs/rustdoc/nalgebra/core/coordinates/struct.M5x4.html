@@ -10,14 +10,17 @@
     <title>nalgebra::core::coordinates::M5x4 - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../../../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css" id="themeStyle">
+    <script src="../../../storage.js"></script>
     
 
     
     
 </head>
-<body class="rustdoc struct">   <div id='nav_placeholder'> </div>   <script src="/jquery.js"></script>   <script>     var the_footer;     $.get("/rustdoc_nalgebra/index.html", function(data) {         /* FIXME: use regexp instead. */         data = data.split("../").join("/");         data = data.split("..").join("/");         var $data = $(data);         $("div#nav_placeholder").prepend($data.find("#common_navbar"));         /* $("#footer").html($data.find("footer").parent()); */     });   </script>
+<body class="rustdoc struct"><div id='nav_placeholder'> </div> <script src="/jquery.js"></script> <script> var the_footer; $.get("/rustdoc_nalgebra/index.html", function(data) { data = data.split("../").join("/"); data = data.split("..").join("/"); var $data = $(data); $("div#nav_placeholder").prepend($data.find("#common_navbar")); }); </script>
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -28,10 +31,18 @@
     
 
     <div class="container"><div id="hide_medium" class="col-md-3"><nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'>Struct M5x4</p><div class="block items"><ul><li><a href="#fields">Fields</a></li><li><a href="#implementations">Trait Implementations</a></li></ul></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>coordinates</a></p><script>window.sidebarCurrent = {name: 'M5x4', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct M5x4</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.m11">m11</a><a href="#structfield.m21">m21</a><a href="#structfield.m31">m31</a><a href="#structfield.m41">m41</a><a href="#structfield.m51">m51</a><a href="#structfield.m12">m12</a><a href="#structfield.m22">m22</a><a href="#structfield.m32">m32</a><a href="#structfield.m42">m42</a><a href="#structfield.m52">m52</a><a href="#structfield.m13">m13</a><a href="#structfield.m23">m23</a><a href="#structfield.m33">m33</a><a href="#structfield.m43">m43</a><a href="#structfield.m53">m53</a><a href="#structfield.m14">m14</a><a href="#structfield.m24">m24</a><a href="#structfield.m34">m34</a><a href="#structfield.m44">m44</a><a href="#structfield.m54">m54</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Eq">Eq</a><a href="#impl-PartialEq">PartialEq</a><a href="#impl-Clone">Clone</a><a href="#impl-Hash">Hash</a><a href="#impl-Debug">Debug</a><a href="#impl-Copy">Copy</a></div></div><p class='location'><a href='../../index.html'>nalgebra</a>::<wbr><a href='../index.html'>core</a>::<wbr><a href='index.html'>coordinates</a></p><script>window.sidebarCurrent = {name: 'M5x4', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
     </nav>
 
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../../theme.js"></script>
     </div><div class="col-md-9"><nav class="sub">
         <form class="search-form js-only">
             <div class="search-container">
@@ -74,90 +85,110 @@
 }</pre><div class='docblock'><p>Data structure used to provide access to matrix and vector coordinates with the dot
 notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.</p>
 </div><h2 id='fields' class='fields small-section-header'>
-                       Fields<a href='#fields' class='anchor'></a></h2><span id='structfield.m11' class="structfield">
-                           <span id='m11.v' class='invisible'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.m11" class="structfield small-section-header">
+                           <a href="#structfield.m11" class="anchor field"></a>
+                           <span id="m11.v" class='invisible'>
                            <code>m11: N</code>
-                           </span></span><span id='structfield.m21' class="structfield">
-                           <span id='m21.v' class='invisible'>
+                           </span></span><span id="structfield.m21" class="structfield small-section-header">
+                           <a href="#structfield.m21" class="anchor field"></a>
+                           <span id="m21.v" class='invisible'>
                            <code>m21: N</code>
-                           </span></span><span id='structfield.m31' class="structfield">
-                           <span id='m31.v' class='invisible'>
+                           </span></span><span id="structfield.m31" class="structfield small-section-header">
+                           <a href="#structfield.m31" class="anchor field"></a>
+                           <span id="m31.v" class='invisible'>
                            <code>m31: N</code>
-                           </span></span><span id='structfield.m41' class="structfield">
-                           <span id='m41.v' class='invisible'>
+                           </span></span><span id="structfield.m41" class="structfield small-section-header">
+                           <a href="#structfield.m41" class="anchor field"></a>
+                           <span id="m41.v" class='invisible'>
                            <code>m41: N</code>
-                           </span></span><span id='structfield.m51' class="structfield">
-                           <span id='m51.v' class='invisible'>
+                           </span></span><span id="structfield.m51" class="structfield small-section-header">
+                           <a href="#structfield.m51" class="anchor field"></a>
+                           <span id="m51.v" class='invisible'>
                            <code>m51: N</code>
-                           </span></span><span id='structfield.m12' class="structfield">
-                           <span id='m12.v' class='invisible'>
+                           </span></span><span id="structfield.m12" class="structfield small-section-header">
+                           <a href="#structfield.m12" class="anchor field"></a>
+                           <span id="m12.v" class='invisible'>
                            <code>m12: N</code>
-                           </span></span><span id='structfield.m22' class="structfield">
-                           <span id='m22.v' class='invisible'>
+                           </span></span><span id="structfield.m22" class="structfield small-section-header">
+                           <a href="#structfield.m22" class="anchor field"></a>
+                           <span id="m22.v" class='invisible'>
                            <code>m22: N</code>
-                           </span></span><span id='structfield.m32' class="structfield">
-                           <span id='m32.v' class='invisible'>
+                           </span></span><span id="structfield.m32" class="structfield small-section-header">
+                           <a href="#structfield.m32" class="anchor field"></a>
+                           <span id="m32.v" class='invisible'>
                            <code>m32: N</code>
-                           </span></span><span id='structfield.m42' class="structfield">
-                           <span id='m42.v' class='invisible'>
+                           </span></span><span id="structfield.m42" class="structfield small-section-header">
+                           <a href="#structfield.m42" class="anchor field"></a>
+                           <span id="m42.v" class='invisible'>
                            <code>m42: N</code>
-                           </span></span><span id='structfield.m52' class="structfield">
-                           <span id='m52.v' class='invisible'>
+                           </span></span><span id="structfield.m52" class="structfield small-section-header">
+                           <a href="#structfield.m52" class="anchor field"></a>
+                           <span id="m52.v" class='invisible'>
                            <code>m52: N</code>
-                           </span></span><span id='structfield.m13' class="structfield">
-                           <span id='m13.v' class='invisible'>
+                           </span></span><span id="structfield.m13" class="structfield small-section-header">
+                           <a href="#structfield.m13" class="anchor field"></a>
+                           <span id="m13.v" class='invisible'>
                            <code>m13: N</code>
-                           </span></span><span id='structfield.m23' class="structfield">
-                           <span id='m23.v' class='invisible'>
+                           </span></span><span id="structfield.m23" class="structfield small-section-header">
+                           <a href="#structfield.m23" class="anchor field"></a>
+                           <span id="m23.v" class='invisible'>
                            <code>m23: N</code>
-                           </span></span><span id='structfield.m33' class="structfield">
-                           <span id='m33.v' class='invisible'>
+                           </span></span><span id="structfield.m33" class="structfield small-section-header">
+                           <a href="#structfield.m33" class="anchor field"></a>
+                           <span id="m33.v" class='invisible'>
                            <code>m33: N</code>
-                           </span></span><span id='structfield.m43' class="structfield">
-                           <span id='m43.v' class='invisible'>
+                           </span></span><span id="structfield.m43" class="structfield small-section-header">
+                           <a href="#structfield.m43" class="anchor field"></a>
+                           <span id="m43.v" class='invisible'>
                            <code>m43: N</code>
-                           </span></span><span id='structfield.m53' class="structfield">
-                           <span id='m53.v' class='invisible'>
+                           </span></span><span id="structfield.m53" class="structfield small-section-header">
+                           <a href="#structfield.m53" class="anchor field"></a>
+                           <span id="m53.v" class='invisible'>
                            <code>m53: N</code>
-                           </span></span><span id='structfield.m14' class="structfield">
-                           <span id='m14.v' class='invisible'>
+                           </span></span><span id="structfield.m14" class="structfield small-section-header">
+                           <a href="#structfield.m14" class="anchor field"></a>
+                           <span id="m14.v" class='invisible'>
                            <code>m14: N</code>
-                           </span></span><span id='structfield.m24' class="structfield">
-                           <span id='m24.v' class='invisible'>
+                           </span></span><span id="structfield.m24" class="structfield small-section-header">
+                           <a href="#structfield.m24" class="anchor field"></a>
+                           <span id="m24.v" class='invisible'>
                            <code>m24: N</code>
-                           </span></span><span id='structfield.m34' class="structfield">
-                           <span id='m34.v' class='invisible'>
+                           </span></span><span id="structfield.m34" class="structfield small-section-header">
+                           <a href="#structfield.m34" class="anchor field"></a>
+                           <span id="m34.v" class='invisible'>
                            <code>m34: N</code>
-                           </span></span><span id='structfield.m44' class="structfield">
-                           <span id='m44.v' class='invisible'>
+                           </span></span><span id="structfield.m44" class="structfield small-section-header">
+                           <a href="#structfield.m44" class="anchor field"></a>
+                           <span id="m44.v" class='invisible'>
                            <code>m44: N</code>
-                           </span></span><span id='structfield.m54' class="structfield">
-                           <span id='m54.v' class='invisible'>
+                           </span></span><span id="structfield.m54" class="structfield small-section-header">
+                           <a href="#structfield.m54" class="anchor field"></a>
+                           <span id="m54.v" class='invisible'>
                            <code>m54: N</code>
                            </span></span>
             <h2 id='implementations' class='small-section-header'>
               Trait Implementations<a href='#implementations' class='anchor'></a>
             </h2>
-        <h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
+        <h3 id='impl-Eq' class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code><a href='#impl-Eq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
 </div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>This method tests for <code>!=</code>.</p>
-</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
+</div></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
-</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#111-113' title='goto source code'>[src]</a></span></h4>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
-</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
+</div></div><h3 id='impl-Hash' class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code><a href='#impl-Hash' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.hash' class="method"><span id='hash.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash' class='fnname'>hash</a>&lt;__HN:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="trait core::hash::Hasher">Hasher</a>&gt;(&amp;self, __arg_0: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>__HN)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Feeds this value into the given [<code>Hasher</code>]. <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash">Read more</a></p>
 </div><h4 id='method.hash_slice' class="method"><span id='hash_slice.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice' class='fnname'>hash_slice</a>&lt;H&gt;(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[Self]</a>, state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>H) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;H: <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="trait core::hash::Hasher">Hasher</a>,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.3.0'>1.3.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/hash/mod.rs.html#202-208' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Feeds a slice of this type into the given [<code>Hasher</code>]. <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice">Read more</a></p>
-</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h4>
-<div class='docblock'><p>Formats the value using the given formatter.</p>
-</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl&lt;N:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="../../../nalgebra/core/trait.Scalar.html" title="trait nalgebra::core::Scalar">Scalar</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../../nalgebra/core/coordinates/struct.M5x4.html" title="struct nalgebra::core::coordinates::M5x4">M5x4</a>&lt;N&gt;</code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/nalgebra/core/coordinates.rs.html#25' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'></div></section>
     <section id='search' class="content hidden"></section>
 
@@ -171,18 +202,22 @@ notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.<
                 <h2>Keyboard Shortcuts</h2>
 
                 <dl>
-                    <dt>?</dt>
+                    <dt><kbd>?</kbd></dt>
                     <dd>Show this help dialog</dd>
-                    <dt>S</dt>
+                    <dt><kbd>S</kbd></dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt><kbd>↑</kbd></dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt><kbd>↓</kbd></dt>
                     <dd>Move down in search results</dd>
-                    <dt>&#9166;</dt>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
                     <dd>Go to active search result</dd>
-                    <dt>+</dt>
-                    <dd>Collapse/expand all sections</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
                 </dl>
             </div>
 
@@ -218,11 +253,4 @@ notation, e.g., <code>v.x</code> is the same as <code>v[0]</code> for a vector.<
     <script src="../../../main.js"></script>
     <script defer src="../../../search-index.js"></script>
 
-
-  <script>var base_url = "../" + window.rootPath;</script>
-  <script src="/js/highlight.pack.js"></script>
-  <script src="/js/bootstrap-3.0.3.min.js"></script>
-  <script src="/js/base.js"></script>
-
-</body>
-</html>
+<script>var base_url = "../" + window.rootPath;</script> <script src="/js/highlight.pack.js"></script> <script src="/js/bootstrap-3.0.3.min.js"></script> <script src="/js/base.js"></script> </body> </html>
