@@ -581,8 +581,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         if new_nrows.value() == nrows {
             let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data) };
+            let mut res =  Matrix::from_data(res);
+            if new_ncols.value() > ncols {
+                res.columns_range_mut(ncols..).fill(val);
+            }
 
-            Matrix::from_data(res)
+            res
         } else {
             let mut res;
 
@@ -609,7 +613,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                     extend_rows(
                         &mut res.data.as_mut_slice(),
                         nrows,
-                        ncols,
+                        new_ncols.value(),
                         nrows,
                         new_nrows.value() - nrows,
                     );
@@ -638,6 +642,11 @@ unsafe fn compress_rows<N: Scalar>(
     nremove: usize,
 ) {
     let new_nrows = nrows - nremove;
+
+    if new_nrows == 0 || ncols == 0 {
+        return; // Nothing to do as the output matrix is empty.
+    }
+
     let ptr_in = data.as_ptr();
     let ptr_out = data.as_mut_ptr();
 
@@ -670,6 +679,11 @@ unsafe fn extend_rows<N: Scalar>(
     ninsert: usize,
 ) {
     let new_nrows = nrows + ninsert;
+
+    if new_nrows == 0 || ncols == 0 {
+        return; // Nothing to do as the output matrix is empty.
+    }
+
     let ptr_in = data.as_ptr();
     let ptr_out = data.as_mut_ptr();
 

@@ -1,8 +1,11 @@
+#![cfg_attr(rustfmt, rustfmt_skip)]
+
 use na::{Matrix,
          DMatrix,
          Matrix3, Matrix4, Matrix5,
          Matrix4x3, Matrix3x4, Matrix5x3, Matrix3x5, Matrix4x5, Matrix5x4};
 use na::{Dynamic, U2, U3, U5};
+
 
 #[test]
 fn upper_lower_triangular() {
@@ -378,6 +381,17 @@ fn insert_columns() {
     assert!(computed.eq(&expected2));
 }
 
+#[test]
+fn insert_columns_to_empty_matrix() {
+    let m1 = DMatrix::repeat(0, 0, 0);
+    let m2 = DMatrix::repeat(3, 0, 0);
+
+    let expected1 = DMatrix::repeat(0, 5, 42);
+    let expected2 = DMatrix::repeat(3, 5, 42);
+
+    assert_eq!(expected1, m1.insert_columns(0, 5, 42));
+    assert_eq!(expected2, m2.insert_columns(0, 5, 42));
+}
 
 #[test]
 fn insert_rows() {
@@ -439,11 +453,43 @@ fn insert_rows() {
 }
 
 #[test]
+fn insert_rows_to_empty_matrix() {
+    let m1 = DMatrix::repeat(0, 0, 0);
+    let m2 = DMatrix::repeat(0, 5, 0);
+
+    let expected1 = DMatrix::repeat(3, 0, 42);
+    let expected2 = DMatrix::repeat(3, 5, 42);
+
+    assert_eq!(expected1, m1.insert_rows(0, 3, 42));
+    assert_eq!(expected2, m2.insert_rows(0, 3, 42));
+}
+
+#[test]
 fn resize() {
     let m = Matrix3x5::new(
         11, 12, 13, 14, 15,
         21, 22, 23, 24, 25,
         31, 32, 33, 34, 35);
+
+    let add_colls = DMatrix::from_row_slice(3, 6, &[
+        11, 12, 13, 14, 15, 42,
+        21, 22, 23, 24, 25, 42,
+        31, 32, 33, 34, 35, 42]);
+        
+    let del_colls = DMatrix::from_row_slice(3, 4, &[
+        11, 12, 13, 14,
+        21, 22, 23, 24,
+        31, 32, 33, 34]);
+
+    let add_rows = DMatrix::from_row_slice(4, 5, &[
+        11, 12, 13, 14, 15,
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35,
+        42, 42, 42, 42, 42]);
+
+    let del_rows = DMatrix::from_row_slice(2, 5, &[
+        11, 12, 13, 14, 15,
+        21, 22, 23, 24, 25]);
 
     let add_add = DMatrix::from_row_slice(5, 6, &[
         11, 12, 13, 14, 15, 42,
@@ -464,8 +510,59 @@ fn resize() {
     let del_add = DMatrix::from_row_slice(1, 8, &[
         11, 12, 13, 14, 15, 42, 42, 42]);
 
+    assert_eq!(add_colls, m.resize(3, 6, 42));
+    assert_eq!(del_colls, m.resize(3, 4, 42));
+    assert_eq!(add_rows, m.resize(4, 5, 42));
+    assert_eq!(del_rows, m.resize(2, 5, 42));
     assert_eq!(del_del, m.resize(1, 2, 42));
     assert_eq!(add_add, m.resize(5, 6, 42));
     assert_eq!(add_del, m.resize(5, 2, 42));
     assert_eq!(del_add, m.resize(1, 8, 42));
+}
+
+#[test]
+fn resize_empty_matrix() {
+    let m1 = DMatrix::repeat(0, 0, 0);
+    let m2 = DMatrix::repeat(1, 0, 0); // Less rows than target size.
+    let m3 = DMatrix::repeat(3, 0, 0); // Same rows as target size.
+    let m4 = DMatrix::repeat(9, 0, 0); // More rows than target size.
+    let m5 = DMatrix::repeat(0, 1, 0); // Less columns than target size.
+    let m6 = DMatrix::repeat(0, 5, 0); // Same columns as target size.
+    let m7 = DMatrix::repeat(0, 9, 0); // More columns than target size.
+
+    let resized = DMatrix::repeat(3, 5, 42);
+    let resized_wo_rows = DMatrix::repeat(0, 5, 42);
+    let resized_wo_cols = DMatrix::repeat(3, 0, 42);
+
+    assert_eq!(resized, m1.clone().resize(3, 5, 42));
+    assert_eq!(resized, m2.clone().resize(3, 5, 42));
+    assert_eq!(resized, m3.clone().resize(3, 5, 42));
+    assert_eq!(resized, m4.clone().resize(3, 5, 42));
+    assert_eq!(resized, m5.clone().resize(3, 5, 42));
+    assert_eq!(resized, m6.clone().resize(3, 5, 42));
+    assert_eq!(resized, m7.clone().resize(3, 5, 42));
+
+    assert_eq!(resized_wo_rows, m1.clone().resize(0, 5, 42));
+    assert_eq!(resized_wo_rows, m2.clone().resize(0, 5, 42));
+    assert_eq!(resized_wo_rows, m3.clone().resize(0, 5, 42));
+    assert_eq!(resized_wo_rows, m4.clone().resize(0, 5, 42));
+    assert_eq!(resized_wo_rows, m5.clone().resize(0, 5, 42));
+    assert_eq!(resized_wo_rows, m6.clone().resize(0, 5, 42));
+    assert_eq!(resized_wo_rows, m7.clone().resize(0, 5, 42));
+
+    assert_eq!(resized_wo_cols, m1.clone().resize(3, 0, 42));
+    assert_eq!(resized_wo_cols, m2.clone().resize(3, 0, 42));
+    assert_eq!(resized_wo_cols, m3.clone().resize(3, 0, 42));
+    assert_eq!(resized_wo_cols, m4.clone().resize(3, 0, 42));
+    assert_eq!(resized_wo_cols, m5.clone().resize(3, 0, 42));
+    assert_eq!(resized_wo_cols, m6.clone().resize(3, 0, 42));
+    assert_eq!(resized_wo_cols, m7.clone().resize(3, 0, 42));
+
+    assert_eq!(m1, m1.clone().resize(0, 0, 42));
+    assert_eq!(m1, m2.resize(0, 0, 42));
+    assert_eq!(m1, m3.resize(0, 0, 42));
+    assert_eq!(m1, m4.resize(0, 0, 42));
+    assert_eq!(m1, m5.resize(0, 0, 42));
+    assert_eq!(m1, m6.resize(0, 0, 42));
+    assert_eq!(m1, m7.resize(0, 0, 42));
 }
