@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt_skip)]
+
 use na::{DMatrix, Matrix3, Matrix4};
 
 
