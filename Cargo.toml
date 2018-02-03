@@ -24,7 +24,7 @@ debug = [ ]
 [dependencies]
 typenum        = "1.7"
 generic-array  = "0.8"
-rand           = "0.3"
+rand           = "0.4"
 num-traits     = "0.1"
 num-complex    = "0.1"
 approx         = "0.1"
