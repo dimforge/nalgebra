@@ -42,12 +42,12 @@ it. Do not hesitate to correct even the smallest, insignificant detail
 website is composed of a set of markdown files located on the
 [gh-pages](https://github.com/sebcrozet/nalgebra/tree/gh-pages) branch of the
 main **nalgebra** repository. It is compiled using
-[MkDocs v0.15.3](http://www.mkdocs.org/). As explained in the next section,
+[MkDocs v0.17.2](http://www.mkdocs.org/). As explained in the next section,
 you need to fork, fix, and create a pull request targeting the **gh-pages**
-branch to make your contribution integrable into our code base. There are no
-specific rules, except that all compilable code to generate illustrations must
-be located on the `src` folder.  Downloadable examples have to be located on
-the `examples` directory of the main project, i.e., on the **master** branch.
+branch to make your contribution ready to integrate into our code base. There
+are no specific rules, except that all compilable code to generate illustrations
+must be located on the `src` folder.  Downloadable examples have to be located
+on the `examples` directory of the main project, i.e., on the **master** branch.
 
 
 #### Working on the library
