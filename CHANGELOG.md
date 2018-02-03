@@ -8,11 +8,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Modified
   * Allow the `Isometry * Unit<Vector>` multiplication.
 ### Added
-  * Add blas-like operations: `.quadform` and `.quadform_tr` to compute respectively
+  * Add blas-like operations: `.quadform(...)` and `.quadform_tr(...)` to compute respectively
     the quadratic forms `self = alpha * A.transpose() * B * A + beta * self` and
     `alpha * A * B * A.transpose() + beta * self`. Here, `A, B` are matrices with
     `B` square, and `alpha, beta` are reals.
-  * Add blas-like operations: `.gemv_tr` that behaves like `.gemv` except that the
+  * Add blas-like operations: `.gemv_tr(...)` that behaves like `.gemv` except that the
     provided matrix is assumed to be transposed.
   * Add blas-like operations: `cmpy, cdpy` for component-wise multiplications and
     division with scalar factors:
@@ -29,12 +29,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     before the dimension numbers, i.e., a 3x5 matrix slice with dimensions known
     at compile-time is called `MatrixSlice3x5`. A vector slice with dimensions
     unknown at compile-time is called `DVectorSlice`.
-  * Add functions for constructing matrix slices from a slice `&[N]`, i.e.,
-    `::new()` and `::new_with_strides()`.
+  * Add functions for constructing matrix slices from a slice `&[N]`, e.g.,
+    `MatrixSlice2::new(...)` and `MatrixSlice2::new_with_strides(...)`.
   * The `::repeat(...)` constructor that is an alternative name to
     `::from_element(...)`.
-  * `UnitQuaternion::scaled_rotation_between_axis` and
-    `UnitQuaternion::rotation_between_axis` that take Unit vectors instead of
+  * `UnitQuaternion::scaled_rotation_between_axis(...)` and
+    `UnitQuaternion::rotation_between_axis(...)` that take Unit vectors instead of
     Vector as arguments.
 
 
