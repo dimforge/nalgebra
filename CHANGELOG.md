@@ -17,7 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Add blas-like operations: `cmpy, cdpy` for component-wise multiplications and
     division with scalar factors:
         - `self <- alpha * self + beta * a * b`
-        - `self <- alpha * self + beta / a * b`
+        - `self <- alpha * self + beta * a / b`
   * `.cross_matrix()` returns the cross-product matrix of a given 3D vector, i.e.,
     the matrix `M` such that for all vector `v` we have
     `M * v == self.cross(&v)`.

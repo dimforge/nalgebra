@@ -136,11 +136,11 @@ macro_rules! component_binop_impl(
 component_binop_impl!(
     component_mul, component_mul_mut, component_mul_assign, cmpy, ClosedMul.mul.mul_assign,
     "Componentwise matrix multiplication.",
-    "Computes componentwise `self[i] = alpha * a[i] * b[i] + beta * self[i]",
+    "Computes componentwise `self[i] = alpha * a[i] * b[i] + beta * self[i]`.",
     "Inplace componentwise matrix multiplication.";
     component_div, component_div_mut, component_div_assign, cdpy, ClosedDiv.div.div_assign,
     "Componentwise matrix division.",
-    "Computes componentwise `self[i] = alpha * a[i] / b[i] + beta * self[i]",    
+    "Computes componentwise `self[i] = alpha * a[i] / b[i] + beta * self[i]`.",    
     "Inplace componentwise matrix division.";
     // FIXME: add other operators like bitshift, etc. ?
 );
