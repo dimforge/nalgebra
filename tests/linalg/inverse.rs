@@ -1,3 +1,5 @@
+#![cfg_attr(rustfmt, rustfmt_skip)]
+
 use na::{Matrix1, Matrix2, Matrix3, Matrix4, Matrix5};
 
 #[test]

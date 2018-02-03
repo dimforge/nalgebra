@@ -14,5 +14,5 @@ extern crate rand;
 extern crate serde_json;
 
 mod core;
-// mod linalg;
-// mod geometry;
+mod linalg;
+mod geometry;

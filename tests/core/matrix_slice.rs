@@ -1,4 +1,5 @@
- #![allow(non_snake_case)]
+#![allow(non_snake_case)]
+#![cfg_attr(rustfmt, rustfmt_skip)]
 
 use na::{U2, U3, U4};
 use na::{DMatrix,
