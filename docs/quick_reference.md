@@ -32,7 +32,7 @@ Serialization with [serde](https://serde.rs) can be enabled by enabling the
 
 `Matrix<...>`                                       <span style="float:right;">Generic matrix type.</span><br/>
 `Matrix1<N> .. Matrix6<N>`, `MatrixN<N, D>`         <span style="float:right;">Statically-sized square matrix.</span><br/>
-`Matrix1x2<N> .. Matrix6x5<N>`, `MatrixNM<N, R, C>` <span style="float:right;">Statically-sized rectangular matrix.</span><br/>
+`Matrix1x2<N> .. Matrix6x5<N>`, `MatrixMN<N, R, C>` <span style="float:right;">Statically-sized rectangular matrix.</span><br/>
 `DMatrix<N>`                                        <span style="float:right;">Dynamically-sized matrix.</span>
 
 <br/>
@@ -49,6 +49,24 @@ Serialization with [serde](https://serde.rs) can be enabled by enabling the
 
 `Unit<T>`                                            <span style="float:right;">Wrapper that ensures the underlying value of type `T` is normalized.</span>
 
+<br/>
+
+`MatrixSlice1<N> .. MatrixSlice6<N>`, `MatrixSliceN<N, D>`         <span style="float:right;">Statically-sized square matrix slice.</span><br/>
+`MatrixSlice1x2<N> .. MatrixSlice6x5<N>`, `MatrixSliceMN<N, R, C>` <span style="float:right;">Statically-sized rectangular matrix slice.</span><br/>
+`MatrixSlice1xX<N> .. MatrixSlice6xX<N>`                           <span style="float:right;">Rectangular matrix slice with a dynamic number of columns.</span><br/>
+`MatrixSliceXx1<N> .. MatrixSliceXx6<N>`                           <span style="float:right;">Rectangular matrix slice with a dynamic number of rows.</span><br/>
+`DMatrixSlice<N>`                                                  <span style="float:right;">Dynamically-sized matrix slice.</span><br/>
+
+Add `Mut` before the dimension numbers for mutable slice types, e.g., `MatrixSliceMut1x2<N>`, `DMatrixSliceMut<N>`.
+
+<br/>
+
+`VectorSlice1<N> .. VectorSlice6<N>`, `VectorSliceN<N, D>` <span style="float:right;">Statically-sized column vector.</span><br/>
+`DVectorSlice<N>`                                          <span style="float:right;">Dynamically-sized column vector.</span><br/>
+
+Add `Mut` before the dimension numbers for mutable slice types, e.g., `VectorSliceMut3<N>`, `DVectorSliceMut<N>`.
+
+<br/>
 
 -----
 
@@ -75,7 +93,8 @@ compile-time of the matrix being created.
 `::new_random(...)`              <span style="float:right;">Matrix filled with random values.</span><br/>
 `::identity(...)`                <span style="float:right;">The identity matrix.</span><br/>
 `::zeros(...)`                   <span style="float:right;">Matrix filled with zeros.</span><br/>
-`::from_element(..., value)`     <span style="float:right;">Matrix filled with the given value.</span><br/>
+`::repeat(..., value)`           <span style="float:right;">Matrix filled with the given value.</span><br/>
+`::from_element(..., value)`     <span style="float:right;">Same as `.from_element`.</span><br/>
 `::from_iterator(..., iterator)` <span style="float:right;">Matrix filled with the content of the given iterator.</span><br/>
 `::from_row_slice(..., array)`   <span style="float:right;">Matrix filled with the content of `array` given in **row-major** order.</span><br/>
 `::from_column_slice(..., array)`         <span style="float:right;">Matrix filled with the content of `array` given in **column-major** order.</span><br/>
@@ -187,7 +206,8 @@ compile-time of the matrix being created.
 Slice are references to sub-matrices. They do not own their data and cannot be
 converted to arrays as their data buffer may not be contiguous in memory.
 Mutable slices are obtained using the same methods suffixed by `_mut`, e.g.,
-`.row_mut(i)`.
+`.row_mut(i)`. They can also be constructed from a data array `&[N]` using the
+constructors of matrix slice type aliases, e.g., `MatrixSlice3::new(data)`.
 
 
 `.row(i)`                             <span style="float:right;">A matrix row.</span><br />
@@ -250,7 +270,7 @@ output[(i, j)]`. Additional rows and columns are filled with `val`.
 
 -----
 
-#### Blas operations
+#### Blas andoperations
 **nalgebra** implements some Blas operations in pure Rust. In the following,
 the variables $\mathbf{v}$ and $\mathbf{V}$ designs the `self` argument.
 
@@ -259,11 +279,19 @@ the variables $\mathbf{v}$ and $\mathbf{V}$ designs the `self` argument.
 `.dot(x)`                  <span style="float:right;">Computes the scalar product $\left<\mathbf{v}, \mathbf{x}\right>$.</span><br />
 `.axpy(alpha, x, beta)`    <span style="float:right;">Computes $\mathbf{v} = \alpha \mathbf{x} + \beta \mathbf{v}$.</span><br />
 `.gemv(alpha, A, x, beta)` <span style="float:right;">Computes $V = \alpha A \mathbf{x} + \beta V$ with a matrix and vector $a$ and $\mathbf{x}$.</span><br />
-`.ger(alpha, x, y, beta)`  <span style="float:right;">Computes $V = \alpha \mathbf{x}^t \mathbf{y} + \beta V$ where $\mathbf{x}$ and $\mathbf{y}$ are vectors.</span><br />
+`.ger(alpha, x, y, beta)`  <span style="float:right;">Computes $V = \alpha \mathbf{x}^T \mathbf{y} + \beta V$ where $\mathbf{x}$ and $\mathbf{y}$ are vectors.</span><br />
 `.gemm(alpha, A, B, beta)` <span style="float:right;">Computes $V = \alpha A B + \beta V$ where $A$ and $B$ are matrices.</span><br />
 `.gemv_symm(...)`          <span style="float:right;">Is the same as `.gemv` except that `self` is assumed symmetric.</span><br />
 `.ger_symm(...)`           <span style="float:right;">Is the same as `.ger` except that `self` is assumed symmetric.</span><br />
+`.gemv_tr(...)`          <span style="float:right;">Is the same as `.gemv` except that the transpose of `A` is considered.</span><br />
 
+Other operations that work like blas operations (i.e., in-place and real coefficients) are implemented:
+
+`.iamax()`                 <span style="float:right;">Returns the index of the vector component with the smallest absolute value.</span><br />
+`.cmpy(alpha, a, b, beta)` <span style="float:right;">Computes the component-wise multiplication: $\mathbf{v}_i = \alpha \mathbf{a}_i * \mathbf{b}_i + \beta \mathbf{v}_i$.</span><br/>
+`.cdpy(alpha, a, b, beta)` <span style="float:right;">Computes the component-wise division: $\mathbf{v}_i = \alpha \mathbf{a}_i / \mathbf{b}_i + \beta \mathbf{v}_i$.</span><br/>
+`.quadform(alpha, M, B, beta)`    <span style="float:right;">Computes the quadratic form $V = \alpha B^TMB + \beta V$.</span><br />
+`.quadform_tr(alpha, A, M, beta)` <span style="float:right;">Computes the quadratic form $V = \alpha AMA^T + \beta V$.</span><br />
 
 -----
 

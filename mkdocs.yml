@@ -16,7 +16,9 @@ pages:
   - '<i class="fa fa-question-circle"></i>&nbsp About':
       - 'Contributing': about.md
       - 'Release notes': changelog.md
-theme_dir: custom_flatly
+theme:
+    name: null
+    custom_dir: 'custom_flatly'
 site_author: 'Sébastion Crozet'
 site_favicon: img/favicon.ico
 site_url: http://nalgebra.org

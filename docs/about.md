@@ -77,6 +77,7 @@ licence](https://github.com/sebcrozet/nalgebra/blob/master/LICENSE)).
 The list of constributors can be found [there](https://github.com/sebcrozet/nalgebra/graphs/contributors). Here are additional contributors, including Patrons:
 
 * 8zu
+* Adam Rzepka
 * Anselm Eickhoff
 * Alexander Atman
 * Camille Viot
@@ -85,6 +86,7 @@ The list of constributors can be found [there](https://github.com/sebcrozet/nalg
 * Jan Nockemann
 * Jason Knight
 * Jeb Brooks
+* Jeff Muizelaar
 * Jeff Parsons
 * J. Ryan Stinnett
 * Kasper Møller Andersen
@@ -95,6 +97,7 @@ The list of constributors can be found [there](https://github.com/sebcrozet/nalg
 * Olivier Saut
 * Rick Richardson
 * Sanghyeon Seo
+* Simon N Heath
 * Trym Nilsen
 * Ty Overby
 * Vikentiy Fesunov

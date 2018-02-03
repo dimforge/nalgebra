@@ -48,11 +48,6 @@ a:hover .user_forum {
   }
 }
 
-.section-header:hover a:after {
-    content: '\00a7';
-    padding-left: .5em;
-}
-
 .navbar_icon {
   height: 1.5em;
   width: 2.5em;
@@ -144,6 +139,9 @@ span.toc_pad {
  * sections of docs content.
  */
 
+ .sidebar {
+     position: relative !important;
+ }
 /* By default it's not affixed in mobile views, so undo that */
 .bs-sidebar.affix {
     position: static;

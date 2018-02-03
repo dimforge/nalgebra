@@ -131,7 +131,8 @@ Method                          | Description
 `::from_rows(...)`             | Creates a matrix filled with the given array of rows. Panics if any two rows provided do not have the same size. |
 `::from_columns(...)`          | Creates a matrix filled with the given array of columns.  Panics if any two columns provided do not have the same size. |
 `::from_diagonal(...)`         | Creates a diagonal matrix with its diagonal equal to the provided vector. All off-diagonal elements are set to `0`. |
-`::from_element(...)`          | Creates a matrix filled with the given element.  |
+`::repeat(...)`                | Creates a matrix filled with the given element (same as `::from_element(...)`).  |
+`::from_element(...)`          | Creates a matrix filled with the given element (same as `::repeat(...)`).  |
 `::from_iterator(...)`         | Creates a matrix filled with the content of the given iterator. The iterator must provide the matrix components in column-major order. |
 `::from_row_slice(...)`        | Creates a matrix filled with the content of the given slice. Elements of the slice are provided in row-major order (which is the usual mathematical notation.) |
 `::from_column_slice(...)`     | Creates a matrix filled with the content of the given slice. Elements of the slice are provided in column-major order.

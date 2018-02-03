@@ -1,4 +1,4 @@
-#! /bin/zsh
+#! /bin/sh
 
 echo "Integrating rust documentation to the website..."
 cssfile=./docs/rustdoc/rustdoc.css
@@ -43,12 +43,10 @@ do
   <script>
     var the_footer;
     $.get("/rustdoc_nalgebra/index.html", function(data) {
-        /* FIXME: use regexp instead. */
         data = data.split("../").join("/");
         data = data.split("..").join("/");
         var $data = $(data);
         $("div#nav_placeholder").prepend($data.find("#common_navbar"));
-        /* $("#footer").html($data.find("footer").parent()); */
     });
   </script>'
 
