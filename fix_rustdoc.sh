@@ -13,7 +13,6 @@ cat custom_flatly/css/font-awesome.min.css >> $tmpcssfile
 sed -i 's/margin-left: 230px;//g' $tmpcssfile
 mv $tmpcssfile $cssfile
 
-#files="./docs/rustdoc/nalgebra/**/*.html"
 files=`find ./docs/rustdoc -name \*.html -printf '%p '`
 sidebar='<nav class="sidebar">'
 sub='<nav class="sub">'
