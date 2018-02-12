@@ -28,7 +28,7 @@
 -----
 
 <p align = "center">
-  <i>Click this button if you which to donate to support the development of</i> <b>nalgebra</b>:
+  <i>Click this button if you wish to donate to support the development of</i> <b>nalgebra</b>:
 </p>
 
 <p align = "center">
