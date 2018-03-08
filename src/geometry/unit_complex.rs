@@ -34,6 +34,22 @@ impl<N: Real> UnitComplex<N> {
         Vector1::new(self.angle())
     }
 
+    /// The rotation axis and angle in ]0, pi] of this complex number.
+    ///
+    /// Returns `None` if the angle is zero.
+    #[inline]
+    pub fn axis_angle(&self) -> Option<(Unit<Vector1<N>>, N)> {
+        let ang = self.angle();
+
+        if ang.is_zero() {
+            None
+        } else if ang.is_sign_negative() {
+            Some((Unit::new_unchecked(Vector1::x()), -ang))
+        } else {
+            Some((Unit::new_unchecked(-Vector1::<N>::x()), ang))
+        }
+    }
+
     /// The underlying complex number.
     ///
     /// Same as `self.as_ref()`.

@@ -4,6 +4,14 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.0] - WIP
+### Modified
+### Added
+  * Add methods `.rotation_between_axis(...)` and `.scaled_rotation_between_axis(...)` to `UnitComplex`
+    to compute the rotation matrix between two 2D **unit** vectors.
+  * Add methods `.axis_angle()` to `UnitComplex` and `UnitQuaternion` in order to retrieve both the
+    unit rotation axis and the rotation angle simultaneously. 
+
 ## [0.14.0]
 ### Modified
   * Allow the `Isometry * Unit<Vector>` multiplication.

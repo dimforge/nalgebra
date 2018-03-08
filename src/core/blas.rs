@@ -462,8 +462,7 @@ where
         let (nrows3, ncols3) = b.shape();
 
         assert_eq!(
-            ncols2,
-            nrows3,
+            ncols2, nrows3,
             "gemm: dimensions mismatch for multiplication."
         );
         assert_eq!(
@@ -564,8 +563,7 @@ where
         let (nrows3, ncols3) = b.shape();
 
         assert_eq!(
-            nrows2,
-            nrows3,
+            nrows2, nrows3,
             "gemm: dimensions mismatch for multiplication."
         );
         assert_eq!(

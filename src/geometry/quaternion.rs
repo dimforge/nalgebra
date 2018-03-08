@@ -491,6 +491,18 @@ impl<N: Real> UnitQuaternion<N> {
         }
     }
 
+    /// The rotation axis and angle in ]0, pi] of this unit quaternion.
+    ///
+    /// Returns `None` if the angle is zero.
+    #[inline]
+    pub fn axis_angle(&self) -> Option<(Unit<Vector3<N>>, N)> {
+        if let Some(axis) = self.axis() {
+            Some((axis, self.angle()))
+        } else {
+            None
+        }
+    }
+
     /// Compute the exponential of a quaternion.
     ///
     /// Note that this function yields a `Quaternion<N>` because it looses the unit property.

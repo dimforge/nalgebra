@@ -7,3 +7,4 @@ target/
 Cargo.lock
 *.orig
 *.swo
+site/

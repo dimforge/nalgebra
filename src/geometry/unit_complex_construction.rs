@@ -6,7 +6,7 @@ use num_complex::Complex;
 use rand::{Rand, Rng};
 
 use alga::general::Real;
-use core::{DefaultAllocator, Vector};
+use core::{DefaultAllocator, Unit, Vector};
 use core::dimension::{U1, U2};
 use core::storage::Storage;
 use core::allocator::Allocator;
@@ -99,14 +99,47 @@ impl<N: Real> UnitComplex<N> {
         SB: Storage<N, U2, U1>,
         SC: Storage<N, U2, U1>,
     {
-        if let (Some(na), Some(nb)) = (a.try_normalize(N::zero()), b.try_normalize(N::zero())) {
-            let sang = na.perp(&nb);
-            let cang = na.dot(&nb);
-
-            Self::from_angle(sang.atan2(cang) * s)
+        // FIXME: code duplication with Rotation.
+        if let (Some(na), Some(nb)) = (
+            Unit::try_new(a.clone_owned(), N::zero()),
+            Unit::try_new(b.clone_owned(), N::zero()),
+        ) {
+            Self::scaled_rotation_between_axis(&na, &nb, s)
         } else {
             Self::identity()
         }
+    }
+
+    /// The unit complex needed to make `a` and `b` be collinear and point toward the same
+    /// direction.
+    #[inline]
+    pub fn rotation_between_axis<SB, SC>(
+        a: &Unit<Vector<N, U2, SB>>,
+        b: &Unit<Vector<N, U2, SC>>,
+    ) -> Self
+    where
+        SB: Storage<N, U2>,
+        SC: Storage<N, U2>,
+    {
+        Self::scaled_rotation_between_axis(a, b, N::one())
+    }
+
+    /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
+    /// direction, raised to the power `s`.
+    #[inline]
+    pub fn scaled_rotation_between_axis<SB, SC>(
+        na: &Unit<Vector<N, U2, SB>>,
+        nb: &Unit<Vector<N, U2, SC>>,
+        s: N,
+    ) -> Self
+    where
+        SB: Storage<N, U2>,
+        SC: Storage<N, U2>,
+    {
+        let sang = na.perp(&nb);
+        let cang = na.dot(&nb);
+
+        Self::from_angle(sang.atan2(cang) * s)
     }
 }
 
