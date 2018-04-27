@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.15.0] - WIP
 ### Modified
+  * Constructors of the `MatrixSlice*` types have been renamed from `new_*` to `from_slice_*`. This was
+    necessary to avoid the `incoherent_fundamental_impls` lint that is going to become a hard error.
 ### Added
   * Add methods `.rotation_between_axis(...)` and `.scaled_rotation_between_axis(...)` to `UnitComplex`
     to compute the rotation matrix between two 2D **unit** vectors.
