@@ -209,13 +209,13 @@ fn new_slice() {
     let expected3x2 = Matrix3x2::from_column_slice(&data);
 
     {
-        let m2   = MatrixSlice2::new(&data);
-        let m3   = MatrixSlice3::new(&data);
-        let m2x3 = MatrixSlice2x3::new(&data);
-        let m3x2 = MatrixSlice3x2::new(&data);
-        let m2xX = MatrixSlice2xX::new(&data, 3);
-        let mXx3 = MatrixSliceXx3::new(&data, 2);
-        let mXxX = DMatrixSlice::new(&data, 2, 3);
+        let m2   = MatrixSlice2::from_slice(&data);
+        let m3   = MatrixSlice3::from_slice(&data);
+        let m2x3 = MatrixSlice2x3::from_slice(&data);
+        let m3x2 = MatrixSlice3x2::from_slice(&data);
+        let m2xX = MatrixSlice2xX::from_slice(&data, 3);
+        let mXx3 = MatrixSliceXx3::from_slice(&data, 2);
+        let mXxX = DMatrixSlice::from_slice(&data, 2, 3);
 
         assert!(m2.eq(&expected2));
         assert!(m3.eq(&expected3));
@@ -246,31 +246,31 @@ fn new_slice_mut() {
                         9.0, 10.0, 11.0, 12.0 ];
 
     let mut data_mut = data.clone();
-    MatrixSliceMut2::new(&mut data_mut).fill(0.0);
+    MatrixSliceMut2::from_slice(&mut data_mut).fill(0.0);
     assert!(data_mut == expected2);
 
     let mut data_mut = data.clone();
-    MatrixSliceMut3::new(&mut data_mut).fill(0.0);
+    MatrixSliceMut3::from_slice(&mut data_mut).fill(0.0);
     assert!(data_mut == expected3);
 
     let mut data_mut = data.clone();
-    MatrixSliceMut2x3::new(&mut data_mut).fill(0.0);
+    MatrixSliceMut2x3::from_slice(&mut data_mut).fill(0.0);
     assert!(data_mut == expected2x3);
 
     let mut data_mut = data.clone();
-    MatrixSliceMut3x2::new(&mut data_mut).fill(0.0);
+    MatrixSliceMut3x2::from_slice(&mut data_mut).fill(0.0);
     assert!(data_mut == expected3x2);
 
     let mut data_mut = data.clone();
-    MatrixSliceMut2xX::new(&mut data_mut, 3).fill(0.0);
+    MatrixSliceMut2xX::from_slice(&mut data_mut, 3).fill(0.0);
     assert!(data_mut == expected2x3);
 
     let mut data_mut = data.clone();
-    MatrixSliceMutXx3::new(&mut data_mut, 2).fill(0.0);
+    MatrixSliceMutXx3::from_slice(&mut data_mut, 2).fill(0.0);
     assert!(data_mut == expected2x3);
 
     let mut data_mut = data.clone();
-    DMatrixSliceMut::new(&mut data_mut, 2, 3).fill(0.0);
+    DMatrixSliceMut::from_slice(&mut data_mut, 2, 3).fill(0.0);
     assert!(data_mut == expected2x3);
 }
 

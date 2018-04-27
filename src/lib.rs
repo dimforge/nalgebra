@@ -82,6 +82,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
 #![deny(missing_docs)]
+#![deny(incoherent_fundamental_impls)]
 #![doc(html_root_url = "http://nalgebra.org/rustdoc")]
 
 #[cfg(feature = "arbitrary")]
@@ -111,22 +112,22 @@ extern crate typenum;
 extern crate alga;
 
 pub mod core;
-pub mod linalg;
-pub mod geometry;
 #[cfg(feature = "debug")]
 pub mod debug;
+pub mod geometry;
+pub mod linalg;
 
 pub use core::*;
-pub use linalg::*;
 pub use geometry::*;
+pub use linalg::*;
 
 use std::cmp::{self, Ordering, PartialOrd};
 
-use num::Signed;
 use alga::general::{Additive, AdditiveGroup, Identity, Inverse, JoinSemilattice, Lattice,
                     MeetSemilattice, Multiplicative, SupersetOf};
 use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace};
+use num::Signed;
 
 pub use alga::general::{Id, Real};
 
