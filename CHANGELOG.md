@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.15.0] - WIP
 ### Modified
+  * Constructors of the `MatrixSlice*` types have been renamed from `new_*` to `from_slice_*`. This was
+    necessary to avoid the `incoherent_fundamental_impls` lint that is going to become a hard error.
 ### Added
   * Add `UnitQuaternion` constructor `::new_eps(...)` and `::from_scaled_axis_eps(...)` that return the
     identity if the magnitude of the input axisangle is smaller than the epsilon provided.
