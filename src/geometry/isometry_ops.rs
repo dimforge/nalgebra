@@ -3,9 +3,9 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
 
-use core::{DefaultAllocator, Unit, VectorN};
-use core::dimension::{DimName, U1, U3, U4};
 use core::allocator::Allocator;
+use core::dimension::{DimName, U1, U3, U4};
+use core::{DefaultAllocator, Unit, VectorN};
 
 use geometry::{Isometry, Point, Rotation, Translation, UnitQuaternion};
 
@@ -281,16 +281,6 @@ isometry_binop_impl_all!(
     [ref ref] => Isometry::from_parts(self * &right.translation, right.rotation.clone());
 );
 
-// Translation × R
-isometry_binop_impl_all!(
-    Mul, mul;
-    self: Translation<N, D>, right: R, Output = Isometry<N, D, R>;
-    [val val] => Isometry::from_parts(self, right);
-    [ref val] => Isometry::from_parts(self.clone(), right);
-    [val ref] => Isometry::from_parts(self, right.clone());
-    [ref ref] => Isometry::from_parts(self.clone(), right.clone());
-);
-
 macro_rules! isometry_from_composition_impl(
     ($Op: ident, $op: ident;
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty) $(for $Dims: ident: $DimsBound: ident),*;
@@ -421,4 +411,26 @@ isometry_from_composition_impl_all!(
     [ref val] => self * right.inverse();
     [val ref] => self * right.inverse();
     [ref ref] => self * right.inverse();
+);
+
+// Translation × Rotation
+isometry_from_composition_impl_all!(
+    Mul, mul;
+    (D, D), (D, U1) for D: DimName;
+    self: Translation<N, D>, right: Rotation<N, D>, Output = Isometry<N, D, Rotation<N, D>>;
+    [val val] => Isometry::from_parts(self, right);
+    [ref val] => Isometry::from_parts(self.clone(), right);
+    [val ref] => Isometry::from_parts(self, right.clone());
+    [ref ref] => Isometry::from_parts(self.clone(), right.clone());
+);
+
+// Translation × UnitQuaternion
+isometry_from_composition_impl_all!(
+    Mul, mul;
+    (U4, U1), (U3, U1);
+    self: Translation<N, U3>, right: UnitQuaternion<N>, Output = Isometry<N, U3, UnitQuaternion<N>>;
+    [val val] => Isometry::from_parts(self, right);
+    [ref val] => Isometry::from_parts(self.clone(), right);
+    [val ref] => Isometry::from_parts(self, right.clone());
+    [ref ref] => Isometry::from_parts(self.clone(), right.clone());
 );

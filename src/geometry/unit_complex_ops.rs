@@ -1,11 +1,11 @@
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use alga::general::Real;
-use core::{DefaultAllocator, Matrix, Unit, Vector, Vector2};
-use core::dimension::{Dim, U1, U2};
-use core::storage::{Storage, StorageMut};
 use core::allocator::Allocator;
 use core::constraint::{DimEq, ShapeConstraint};
+use core::dimension::{Dim, U1, U2};
+use core::storage::{Storage, StorageMut};
+use core::{DefaultAllocator, Matrix, Unit, Vector, Vector2};
 use geometry::{Isometry, Point2, Rotation, Similarity, Translation, UnitComplex};
 
 /*
@@ -286,6 +286,18 @@ complex_op_impl_all!(
     [ref val] => Isometry::from_parts(Translation::from_vector( self *  rhs.vector), self.clone());
     [val ref] => Isometry::from_parts(Translation::from_vector(&self * &rhs.vector), self);
     [ref ref] => Isometry::from_parts(Translation::from_vector( self * &rhs.vector), self.clone());
+);
+
+// Translation × UnitComplex
+complex_op_impl_all!(
+    Mul, mul;
+    (U2, U1);
+    self: Translation<N, U2>, right: UnitComplex<N>,
+    Output = Isometry<N, U2, UnitComplex<N>>;
+    [val val] => Isometry::from_parts(self, right);
+    [ref val] => Isometry::from_parts(self.clone(), right);
+    [val ref] => Isometry::from_parts(self, right.clone());
+    [ref ref] => Isometry::from_parts(self.clone(), right.clone());
 );
 
 // UnitComplex ×= UnitComplex
