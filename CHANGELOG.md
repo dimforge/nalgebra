@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.15.0] - WIP
 ### Modified
 ### Added
+  * Add `UnitQuaternion` constructor `::new_eps(...)` and `::from_scaled_axis_eps(...)` that return the
+    identity if the magnitude of the input axisangle is smaller than the epsilon provided.
   * Add methods `.rotation_between_axis(...)` and `.scaled_rotation_between_axis(...)` to `UnitComplex`
     to compute the rotation matrix between two 2D **unit** vectors.
   * Add methods `.axis_angle()` to `UnitComplex` and `UnitQuaternion` in order to retrieve both the

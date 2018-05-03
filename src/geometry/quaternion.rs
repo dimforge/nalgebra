@@ -201,10 +201,16 @@ impl<N: Real> Quaternion<N> {
     /// Compute the exponential of a quaternion.
     #[inline]
     pub fn exp(&self) -> Quaternion<N> {
+        self.exp_eps(N::default_epsilon())
+    }
+
+    /// Compute the exponential of a quaternion.
+    #[inline]
+    pub fn exp_eps(&self, eps: N) -> Quaternion<N> {
         let v = self.vector();
         let nn = v.norm_squared();
 
-        if relative_eq!(nn, N::zero()) {
+        if nn <= eps * eps {
             Quaternion::identity()
         } else {
             let w_exp = self.scalar().exp();
