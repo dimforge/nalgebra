@@ -97,16 +97,54 @@ where
     }
 }
 
-impl<N, R, C> Copy for MatrixArray<N, R, C>
-where
-    N: Copy,
-    R: DimName,
-    C: DimName,
-    R::Value: Mul<C::Value>,
-    Prod<R::Value, C::Value>: ArrayLength<N>,
-    GenericArray<N, Prod<R::Value, C::Value>>: Copy,
-{
+macro_rules! impl_copy {
+    ($NRows: ty, $NCols: ty) => {
+        impl<N: Copy> Copy for MatrixArray<N, $NRows, $NCols> {}
+    };
 }
+
+use core::dimension::{U2, U3, U4, U5, U6};
+impl_copy!(U1, U1);
+impl_copy!(U1, U2);
+impl_copy!(U1, U3);
+impl_copy!(U1, U4);
+impl_copy!(U1, U5);
+impl_copy!(U1, U6);
+
+impl_copy!(U2, U1);
+impl_copy!(U2, U2);
+impl_copy!(U2, U3);
+impl_copy!(U2, U4);
+impl_copy!(U2, U5);
+impl_copy!(U2, U6);
+
+impl_copy!(U3, U1);
+impl_copy!(U3, U2);
+impl_copy!(U3, U3);
+impl_copy!(U3, U4);
+impl_copy!(U3, U5);
+impl_copy!(U3, U6);
+
+impl_copy!(U4, U1);
+impl_copy!(U4, U2);
+impl_copy!(U4, U3);
+impl_copy!(U4, U4);
+impl_copy!(U4, U5);
+impl_copy!(U4, U6);
+
+impl_copy!(U5, U1);
+impl_copy!(U5, U2);
+impl_copy!(U5, U3);
+impl_copy!(U5, U4);
+impl_copy!(U5, U5);
+impl_copy!(U5, U6);
+
+impl_copy!(U6, U1);
+impl_copy!(U6, U2);
+impl_copy!(U6, U3);
+impl_copy!(U6, U4);
+impl_copy!(U6, U5);
+impl_copy!(U6, U6);
 
 impl<N, R, C> Clone for MatrixArray<N, R, C>
 where
