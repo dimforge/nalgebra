@@ -114,7 +114,7 @@ where
         res
     }
 
-    /// Creates a new indentity matrix.
+    /// Creates a new identity matrix.
     ///
     /// If the matrix is not square, the largest square submatrix starting at index `(0, 0)` is set
     /// to the identity matrix. All other entries are set to zero.
