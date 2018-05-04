@@ -351,7 +351,7 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
     ///
-    /// If `axisangle` has a magnitude smaller than `N::default_epsilon()`, this returns the indentity rotation.
+    /// If `axisangle` has a magnitude smaller than `N::default_epsilon()`, this returns the identity rotation.
     #[inline]
     pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
     where
@@ -364,7 +364,7 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
     ///
-    /// If `axisangle` has a magnitude smaller than `eps`, this returns the indentity rotation.
+    /// If `axisangle` has a magnitude smaller than `eps`, this returns the identity rotation.
     #[inline]
     pub fn new_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
     where
@@ -377,7 +377,7 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
     ///
-    /// If `axisangle` has a magnitude smalle than `N::default_epsilon()`, this returns the indentity rotation.
+    /// If `axisangle` has a magnitude smaller than `N::default_epsilon()`, this returns the identity rotation.
     /// Same as `Self::new(axisangle)`.
     #[inline]
     pub fn from_scaled_axis<SB>(axisangle: Vector<N, U3, SB>) -> Self
@@ -389,7 +389,7 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
     ///
-    /// If `axisangle` has a mangnitude smaller than `eps`, this returns the indentity rotation.
+    /// If `axisangle` has a magnitude smaller than `eps`, this returns the identity rotation.
     /// Same as `Self::new(axisangle)`.
     #[inline]
     pub fn from_scaled_axis_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
