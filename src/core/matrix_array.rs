@@ -20,7 +20,7 @@ use typenum::Prod;
 use generic_array::{ArrayLength, GenericArray};
 
 use core::Scalar;
-use core::dimension::{DimName, U1};
+use core::dimension::{DimName, U1, U2, U3, U4, U5, U6};
 use core::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
 use core::allocator::Allocator;
 use core::default_allocator::DefaultAllocator;
@@ -103,7 +103,6 @@ macro_rules! impl_copy {
     };
 }
 
-use core::dimension::{U2, U3, U4, U5, U6};
 impl_copy!(U1, U1);
 impl_copy!(U1, U2);
 impl_copy!(U1, U3);
