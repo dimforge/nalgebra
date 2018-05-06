@@ -14,6 +14,7 @@ mod scalar;
 mod matrix;
 mod construction;
 mod construction_slice;
+mod construction_slice_deprecated;
 mod properties;
 mod alias;
 mod alias_slice;
