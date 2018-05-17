@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     to compute the rotation matrix between two 2D **unit** vectors.
   * Add methods `.axis_angle()` to `UnitComplex` and `UnitQuaternion` in order to retrieve both the
     unit rotation axis and the rotation angle simultaneously. 
+  * Add functions to construct a random matrix with a user-defined distribution: `::from_distribution(...)`.
 
 ## [0.14.0]
 ### Modified

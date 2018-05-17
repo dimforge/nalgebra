@@ -1,19 +1,19 @@
 #[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
-#[cfg(feature = "arbitrary")]
 use core::storage::Owned;
+#[cfg(feature = "arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
-use std::iter;
 use num::{Bounded, One, Zero};
-use rand::{self, Rand, Rng};
+use rand::{self, distributions::Sample, Rand, Rng};
+use std::iter;
 use typenum::{self, Cmp, Greater};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
-use core::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
 use core::allocator::Allocator;
+use core::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
 use core::storage::Storage;
+use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
 
 /*
  *
@@ -234,6 +234,17 @@ where
     {
         Self::from_fn_generic(nrows, ncols, |_, _| rand::random())
     }
+
+    /// Creates a matrix filled with random values from the given distribution.
+    #[inline]
+    pub fn from_distribution_generic<Distr: Sample<N> + ?Sized, G: Rng>(
+        nrows: R,
+        ncols: C,
+        distribution: &mut Distr,
+        rng: &mut G,
+    ) -> Self {
+        Self::from_fn_generic(nrows, ncols, |_, _| distribution.sample(rng))
+    }
 }
 
 impl<N, D: Dim> MatrixN<N, D>
@@ -355,6 +366,16 @@ macro_rules! impl_constructors(
             pub fn from_partial_diagonal($($args: usize,)* elts: &[N]) -> Self
                 where N: Zero {
                 Self::from_partial_diagonal_generic($($gargs, )* elts)
+            }
+
+            /// Creates a matrix filled with random values from the given distribution.
+            #[inline]
+            pub fn from_distribution<Distr: Sample<N> + ?Sized, G: Rng>(
+                $($args: usize,)*
+                distribution: &mut Distr,
+                rng: &mut G,
+            ) -> Self {
+                Self::from_distribution_generic($($gargs, )* distribution, rng)
             }
         }
 
