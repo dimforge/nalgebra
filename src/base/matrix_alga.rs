@@ -1,16 +1,19 @@
 use num::{One, Zero};
 
-use alga::general::{AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma,
-                    AbstractModule, AbstractMonoid, AbstractQuasigroup, AbstractSemigroup,
-                    Additive, ClosedAdd, ClosedMul, ClosedNeg, Field, Identity, Inverse,
-                    JoinSemilattice, Lattice, MeetSemilattice, Module, Multiplicative, Real,
-                    RingCommutative};
-use alga::linear::{FiniteDimInnerSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace, VectorSpace};
+use alga::general::{
+    AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
+    AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, ClosedAdd, ClosedMul,
+    ClosedNeg, Field, Identity, Inverse, JoinSemilattice, Lattice, MeetSemilattice, Module,
+    Multiplicative, Real, RingCommutative,
+};
+use alga::linear::{
+    FiniteDimInnerSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace, VectorSpace,
+};
 
-use base::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
+use base::allocator::Allocator;
 use base::dimension::{Dim, DimName};
 use base::storage::{Storage, StorageMut};
-use base::allocator::Allocator;
+use base::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
 
 /*
  *
@@ -283,27 +286,35 @@ where
                 }
             }
             _ => {
-                // XXX: use a GenericArray instead.
-                let mut known_basis = Vec::new();
+                #[cfg(any(feature = "std", feature = "alloc"))]
+                {
+                    // XXX: use a GenericArray instead.
+                    let mut known_basis = Vec::new();
 
-                for v in vs.iter() {
-                    known_basis.push(v.normalize())
+                    for v in vs.iter() {
+                        known_basis.push(v.normalize())
+                    }
+
+                    for i in 0..Self::dimension() - vs.len() {
+                        let mut elt = Self::canonical_basis_element(i);
+
+                        for v in &known_basis {
+                            elt -= v * elt.dot(v)
+                        }
+
+                        if let Some(subsp_elt) = elt.try_normalize(N::zero()) {
+                            if !f(&subsp_elt) {
+                                return;
+                            };
+
+                            known_basis.push(subsp_elt);
+                        }
+                    }
                 }
-
-                for i in 0..Self::dimension() - vs.len() {
-                    let mut elt = Self::canonical_basis_element(i);
-
-                    for v in &known_basis {
-                        elt -= v * elt.dot(v)
-                    }
-
-                    if let Some(subsp_elt) = elt.try_normalize(N::zero()) {
-                        if !f(&subsp_elt) {
-                            return;
-                        };
-
-                        known_basis.push(subsp_elt);
-                    }
+                #[cfg(all(not(feature = "std"), not(feature = "alloc")))]
+                {
+                    panic!("Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
+                            if #![no_std] is enabled and the 'alloc' feature is not enabled.")
                 }
             }
         }

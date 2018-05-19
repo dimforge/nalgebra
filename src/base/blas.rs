@@ -459,7 +459,7 @@ where
             + SameNumberOfColumns<C1, C3>
             + AreMultipliable<R2, C2, R3, C3>,
     {
-        let ncols1 = self.shape();
+        let ncols1 = self.ncols();
 
         #[cfg(feature = "std")]
         {

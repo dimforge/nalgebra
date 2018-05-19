@@ -16,6 +16,9 @@ Some feature are no longer available when libstd is not used:
   * Support for dynamically-sized matrices.
   * Support for the `::new_random()` matrix constructor.
   * Support for the `.resize(...)` method since it returns a dynamically-sized matrix.
+  * Entries of matrices displayed using `println!("{}", matrix)` will not be correctly aligned vertically.
+  * The computation of the orthogonormal subspace basis of a vector is limited to vector with dimension up
+    to 3 (we will attempt to lift this restriction in a future release).
 All other feature, including matrix factorizations, will still work on statically-sized matrices!
 ### Modified
   * Rename the `core` module to `base` to avoid conflicts with the `core` crate implicitly imported when
