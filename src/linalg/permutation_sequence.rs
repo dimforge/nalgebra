@@ -56,6 +56,7 @@ where
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl PermutationSequence<Dynamic>
 where
     DefaultAllocator: Allocator<(usize, usize), Dynamic>,

@@ -919,11 +919,17 @@ where
     DefaultAllocator: Allocator<usize, R, C>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        #[cfg(feature = "std")]
         fn val_width<N: Scalar + fmt::Display>(val: N, f: &mut fmt::Formatter) -> usize {
             match f.precision() {
                 Some(precision) => format!("{:.1$}", val, precision).chars().count(),
                 None => format!("{}", val).chars().count(),
             }
+        }
+
+        #[cfg(not(feature = "std"))]
+        fn val_width<N: Scalar + fmt::Display>(val: N, f: &mut fmt::Formatter) -> usize {
+            4
         }
 
         let (nrows, ncols) = self.data.shape();
