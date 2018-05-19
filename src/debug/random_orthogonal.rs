@@ -1,14 +1,14 @@
 #[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
+use base::storage::Owned;
 #[cfg(feature = "arbitrary")]
-use core::storage::Owned;
+use quickcheck::{Arbitrary, Gen};
 
-use num_complex::Complex;
 use alga::general::Real;
-use core::{DefaultAllocator, MatrixN};
-use core::dimension::{Dim, Dynamic, U2};
-use core::allocator::Allocator;
+use base::allocator::Allocator;
+use base::dimension::{Dim, Dynamic, U2};
+use base::{DefaultAllocator, MatrixN};
 use geometry::UnitComplex;
+use num_complex::Complex;
 
 /// A random orthogonal matrix.
 #[derive(Clone, Debug)]

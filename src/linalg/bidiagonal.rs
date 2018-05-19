@@ -2,33 +2,45 @@
 use serde;
 
 use alga::general::Real;
-use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use allocator::Allocator;
+use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use constraint::{DimEq, ShapeConstraint};
 use dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, Dynamic, U1};
 use storage::Storage;
-use allocator::Allocator;
-use constraint::{DimEq, ShapeConstraint};
 
-use linalg::householder;
 use geometry::Reflection;
+use linalg::householder;
 
 /// The bidiagonalization of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DimMinimum<R, C>: DimSub<U1>,
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DimMinimum<R, C>: DimSub<U1>,
          DefaultAllocator: Allocator<N, R, C>             +
                            Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
          MatrixMN<N, R, C>: serde::Serialize,
          VectorN<N, DimMinimum<R, C>>: serde::Serialize,
-         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DimMinimum<R, C>: DimSub<U1>,
+         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DimMinimum<R, C>: DimSub<U1>,
          DefaultAllocator: Allocator<N, R, C>             +
                            Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
          MatrixMN<N, R, C>: serde::Deserialize<'de>,
          VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>,
-         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Deserialize<'de>")))]
+         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct Bidiagonal<N: Real, R: DimMin<C>, C: Dim>
 where

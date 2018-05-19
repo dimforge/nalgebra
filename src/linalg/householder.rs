@@ -1,10 +1,10 @@
 //! Construction of householder elementary reflections.
 
 use alga::general::Real;
-use core::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN};
+use allocator::Allocator;
+use base::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN};
 use dimension::Dim;
 use storage::{Storage, StorageMut};
-use allocator::Allocator;
 
 use geometry::Reflection;
 

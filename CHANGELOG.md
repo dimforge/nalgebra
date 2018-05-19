@@ -5,7 +5,21 @@ documented here.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.15.0] - WIP
+The most notable change of this release is the support for using part of the library without the rust standard
+library (i.e. it supports `#![no_std]`). Use the following in your `Cargo.toml` to work with a version of
+nalgebra that does not rely on libstd:
+```toml
+#[dependencies]
+nalgebra = { version = "0.15", default_features = false }
+```
+Some feature are no longer available when libstd is not used:
+  * Support for dynamically-sized matrices.
+  * Support for the `::new_random()` matrix constructor.
+  * Support for the `.resize(...)` method since it returns a dynamically-sized matrix.
+All other feature, including matrix factorizations, will still work on statically-sized matrices!
 ### Modified
+  * Rename the `core` module to `base` to avoid conflicts with the `core` crate implicitly imported when
+    `#![no_std]` is enabled.
   * Constructors of the `MatrixSlice*` types have been renamed from `new_*` to `from_slice_*`. This was
     necessary to avoid the `incoherent_fundamental_impls` lint that is going to become a hard error.
 ### Added

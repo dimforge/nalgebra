@@ -3,9 +3,9 @@
 use alga::general::Real;
 use num_complex::Complex;
 
-use core::Vector;
-use core::storage::Storage;
-use core::dimension::U2;
+use base::dimension::U2;
+use base::storage::Storage;
+use base::Vector;
 
 use geometry::UnitComplex;
 

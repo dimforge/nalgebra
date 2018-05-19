@@ -1,28 +1,40 @@
 #[cfg(feature = "serde-serialize")]
 use serde;
 
-use std::mem;
 use alga::general::{Field, Real};
-use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar};
-use dimension::{Dim, DimMin, DimMinimum};
-use storage::{Storage, StorageMut};
 use allocator::{Allocator, Reallocator};
+use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar};
 use constraint::{SameNumberOfRows, ShapeConstraint};
+use dimension::{Dim, DimMin, DimMinimum};
+use std::mem;
+use storage::{Storage, StorageMut};
 
 use linalg::PermutationSequence;
 
 /// LU decomposition with partial (row) pivoting.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          MatrixMN<N, R, C>: serde::Serialize,
-         PermutationSequence<DimMinimum<R, C>>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
+         PermutationSequence<DimMinimum<R, C>>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          MatrixMN<N, R, C>: serde::Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: serde::Deserialize<'de>")))]
+         PermutationSequence<DimMinimum<R, C>>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct LU<N: Real, R: DimMin<C>, C: Dim>
 where

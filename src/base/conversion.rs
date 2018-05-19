@@ -1,16 +1,16 @@
-use std::ptr;
-use std::mem;
-use std::convert::{AsMut, AsRef, From, Into};
 use alga::general::{SubsetOf, SupersetOf};
 #[cfg(feature = "mint")]
 use mint;
+use std::convert::{AsMut, AsRef, From, Into};
+use std::mem;
+use std::ptr;
 
-use core::{DefaultAllocator, Matrix, MatrixMN, Scalar};
-use core::dimension::{Dim, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9};
-use core::iter::{MatrixIter, MatrixIterMut};
-use core::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use core::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
-use core::allocator::{Allocator, SameShapeAllocator};
+use base::allocator::{Allocator, SameShapeAllocator};
+use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use base::dimension::{Dim, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9};
+use base::iter::{MatrixIter, MatrixIterMut};
+use base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
+use base::{DefaultAllocator, Matrix, MatrixMN, Scalar};
 
 // FIXME: too bad this won't work allo slice conversions.
 impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>
@@ -21,9 +21,8 @@ where
     C2: Dim,
     N1: Scalar,
     N2: Scalar + SupersetOf<N1>,
-    DefaultAllocator: Allocator<N2, R2, C2>
-        + Allocator<N1, R1, C1>
-        + SameShapeAllocator<N1, R1, C1, R2, C2>,
+    DefaultAllocator:
+        Allocator<N2, R2, C2> + Allocator<N1, R1, C1> + SameShapeAllocator<N1, R1, C1, R2, C2>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
     #[inline]
@@ -75,7 +74,8 @@ impl<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> IntoIterator for &'a Ma
 }
 
 impl<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator
-    for &'a mut Matrix<N, R, C, S> {
+    for &'a mut Matrix<N, R, C, S>
+{
     type Item = &'a mut N;
     type IntoIter = MatrixIterMut<'a, N, R, C, S>;
 

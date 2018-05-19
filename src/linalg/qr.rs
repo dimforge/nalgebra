@@ -2,7 +2,7 @@
 use serde;
 
 use alga::general::Real;
-use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
 use dimension::{Dim, DimMin, DimMinimum, U1};
 use storage::{Storage, StorageMut};
 use allocator::{Allocator, Reallocator};

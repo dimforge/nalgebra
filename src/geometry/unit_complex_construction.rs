@@ -6,10 +6,10 @@ use num_complex::Complex;
 use rand::{Rand, Rng};
 
 use alga::general::Real;
-use core::{DefaultAllocator, Unit, Vector};
-use core::dimension::{U1, U2};
-use core::storage::Storage;
-use core::allocator::Allocator;
+use base::allocator::Allocator;
+use base::dimension::{U1, U2};
+use base::storage::Storage;
+use base::{DefaultAllocator, Unit, Vector};
 use geometry::{Rotation, UnitComplex};
 
 impl<N: Real> UnitComplex<N> {

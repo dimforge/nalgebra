@@ -55,10 +55,10 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, 
 
 use alga::general::Real;
 
-use core::{DefaultAllocator, Unit, Vector, Vector3};
-use core::storage::Storage;
-use core::allocator::Allocator;
-use core::dimension::{U1, U3, U4};
+use base::{DefaultAllocator, Unit, Vector, Vector3};
+use base::storage::Storage;
+use base::allocator::Allocator;
+use base::dimension::{U1, U3, U4};
 
 use geometry::{Point3, Quaternion, Rotation, UnitQuaternion};
 

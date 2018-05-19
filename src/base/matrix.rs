@@ -16,14 +16,14 @@ use abomonation::Abomonation;
 
 use alga::general::{Real, Ring};
 
-use core::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
-use core::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use core::dimension::{Dim, DimAdd, DimSum, U1, U2, U3};
-use core::iter::{MatrixIter, MatrixIterMut};
-use core::storage::{
+use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
+use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use base::dimension::{Dim, DimAdd, DimSum, U1, U2, U3};
+use base::iter::{MatrixIter, MatrixIterMut};
+use base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
-use core::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
+use base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
 
 /// A square matrix.
 pub type SquareMatrix<N, D, S> = Matrix<N, D, D, S>;

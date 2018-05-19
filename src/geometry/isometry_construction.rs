@@ -1,7 +1,7 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "arbitrary")]
-use core::storage::Owned;
+use base::storage::Owned;
 
 use num::One;
 use rand::{Rand, Rng};
@@ -9,9 +9,9 @@ use rand::{Rand, Rng};
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
 
-use core::{DefaultAllocator, Vector2, Vector3};
-use core::dimension::{DimName, U2, U3};
-use core::allocator::Allocator;
+use base::{DefaultAllocator, Vector2, Vector3};
+use base::dimension::{DimName, U2, U3};
+use base::allocator::Allocator;
 
 use geometry::{Isometry, Point, Point3, Rotation, Rotation2, Rotation3, Translation, UnitComplex,
                UnitQuaternion};

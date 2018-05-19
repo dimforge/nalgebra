@@ -5,35 +5,47 @@ use num_complex::Complex;
 use std::ops::MulAssign;
 
 use alga::general::Real;
-use core::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN};
+use allocator::Allocator;
+use base::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN};
+use constraint::{SameNumberOfRows, ShapeConstraint};
 use dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1, U2};
 use storage::Storage;
-use allocator::Allocator;
-use constraint::{SameNumberOfRows, ShapeConstraint};
 
+use geometry::UnitComplex;
 use linalg::givens;
 use linalg::symmetric_eigen;
 use linalg::Bidiagonal;
-use geometry::UnitComplex;
 
 /// Singular Value Decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C>                +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, R, C>                +
                            Allocator<N, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
          MatrixMN<N, R, DimMinimum<R, C>>: serde::Serialize,
          MatrixMN<N, DimMinimum<R, C>, C>: serde::Serialize,
-         VectorN<N, DimMinimum<R, C>>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C>                +
+         VectorN<N, DimMinimum<R, C>>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, R, C>                +
                            Allocator<N, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
          MatrixMN<N, R, DimMinimum<R, C>>: serde::Deserialize<'de>,
          MatrixMN<N, DimMinimum<R, C>, C>: serde::Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>")))]
+         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct SVD<N: Real, R: DimMin<C>, C: Dim>
 where

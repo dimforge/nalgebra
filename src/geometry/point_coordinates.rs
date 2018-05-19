@@ -1,10 +1,10 @@
 use std::mem;
 use std::ops::{Deref, DerefMut};
 
-use core::{DefaultAllocator, Scalar};
-use core::dimension::{U1, U2, U3, U4, U5, U6};
-use core::coordinates::{X, XY, XYZ, XYZW, XYZWA, XYZWAB};
-use core::allocator::Allocator;
+use base::allocator::Allocator;
+use base::coordinates::{X, XY, XYZ, XYZW, XYZWA, XYZWAB};
+use base::dimension::{U1, U2, U3, U4, U5, U6};
+use base::{DefaultAllocator, Scalar};
 
 use geometry::Point;
 

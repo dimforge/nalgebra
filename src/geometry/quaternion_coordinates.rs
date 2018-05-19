@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 
 use alga::general::Real;
 
-use core::coordinates::IJKW;
+use base::coordinates::IJKW;
 
 use geometry::Quaternion;
 

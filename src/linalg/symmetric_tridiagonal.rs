@@ -2,25 +2,37 @@
 use serde;
 
 use alga::general::Real;
-use core::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
+use allocator::Allocator;
+use base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
 use dimension::{DimDiff, DimSub, U1};
 use storage::Storage;
-use allocator::Allocator;
 
 use linalg::householder;
 
 /// Tridiagonalization of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: serde::Serialize,
-         VectorN<N, DimDiff<D, U1>>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
+         VectorN<N, DimDiff<D, U1>>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: serde::Deserialize<'de>,
-         VectorN<N, DimDiff<D, U1>>: serde::Deserialize<'de>")))]
+         VectorN<N, DimDiff<D, U1>>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct SymmetricTridiagonal<N: Real, D: DimSub<U1>>
 where

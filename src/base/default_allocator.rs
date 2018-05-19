@@ -3,20 +3,21 @@
 //! This will use stack-allocated buffers for matrices with dimensions known at compile-time, and
 //! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
 
-use std::mem;
-use std::ptr;
 use std::cmp;
+use std::mem;
 use std::ops::Mul;
+use std::ptr;
 
-use typenum::Prod;
 use generic_array::ArrayLength;
+use typenum::Prod;
 
-use core::Scalar;
-use core::dimension::{Dim, DimName, Dynamic};
-use core::allocator::{Allocator, Reallocator};
-use core::storage::{Storage, StorageMut};
-use core::matrix_array::MatrixArray;
-use core::matrix_vec::MatrixVec;
+use base::allocator::{Allocator, Reallocator};
+use base::dimension::{Dim, DimName, Dynamic};
+use base::matrix_array::MatrixArray;
+#[cfg(any(feature = "std", feature = "alloc"))]
+use base::matrix_vec::MatrixVec;
+use base::storage::{Storage, StorageMut};
+use base::Scalar;
 
 /*
  *
@@ -68,6 +69,7 @@ where
 
 // Dynamic - Static
 // Dynamic - Dynamic
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<N: Scalar, C: Dim> Allocator<N, Dynamic, C> for DefaultAllocator {
     type Buffer = MatrixVec<N, Dynamic, C>;
 
@@ -97,6 +99,7 @@ impl<N: Scalar, C: Dim> Allocator<N, Dynamic, C> for DefaultAllocator {
 }
 
 // Static - Dynamic
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<N: Scalar, R: DimName> Allocator<N, R, Dynamic> for DefaultAllocator {
     type Buffer = MatrixVec<N, R, Dynamic>;
 
@@ -160,6 +163,7 @@ where
 }
 
 // Static × Static -> Dynamic × Any
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<N: Scalar, RFrom, CFrom, CTo> Reallocator<N, RFrom, CFrom, Dynamic, CTo> for DefaultAllocator
 where
     RFrom: DimName,
@@ -187,6 +191,7 @@ where
 }
 
 // Static × Static -> Static × Dynamic
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<N: Scalar, RFrom, CFrom, RTo> Reallocator<N, RFrom, CFrom, RTo, Dynamic> for DefaultAllocator
 where
     RFrom: DimName,
@@ -214,8 +219,10 @@ where
 }
 
 // All conversion from a dynamic buffer to a dynamic buffer.
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<N: Scalar, CFrom: Dim, CTo: Dim> Reallocator<N, Dynamic, CFrom, Dynamic, CTo>
-    for DefaultAllocator {
+    for DefaultAllocator
+{
     #[inline]
     unsafe fn reallocate_copy(
         rto: Dynamic,
@@ -227,8 +234,10 @@ impl<N: Scalar, CFrom: Dim, CTo: Dim> Reallocator<N, Dynamic, CFrom, Dynamic, CT
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<N: Scalar, CFrom: Dim, RTo: DimName> Reallocator<N, Dynamic, CFrom, RTo, Dynamic>
-    for DefaultAllocator {
+    for DefaultAllocator
+{
     #[inline]
     unsafe fn reallocate_copy(
         rto: RTo,
@@ -240,8 +249,10 @@ impl<N: Scalar, CFrom: Dim, RTo: DimName> Reallocator<N, Dynamic, CFrom, RTo, Dy
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<N: Scalar, RFrom: DimName, CTo: Dim> Reallocator<N, RFrom, Dynamic, Dynamic, CTo>
-    for DefaultAllocator {
+    for DefaultAllocator
+{
     #[inline]
     unsafe fn reallocate_copy(
         rto: Dynamic,
@@ -253,8 +264,10 @@ impl<N: Scalar, RFrom: DimName, CTo: Dim> Reallocator<N, RFrom, Dynamic, Dynamic
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<N: Scalar, RFrom: DimName, RTo: DimName> Reallocator<N, RFrom, Dynamic, RTo, Dynamic>
-    for DefaultAllocator {
+    for DefaultAllocator
+{
     #[inline]
     unsafe fn reallocate_copy(
         rto: RTo,

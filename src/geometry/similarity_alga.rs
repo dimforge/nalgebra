@@ -3,9 +3,9 @@ use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
 use alga::linear::{AffineTransformation, ProjectiveTransformation, Rotation, Transformation};
 use alga::linear::Similarity as AlgaSimilarity;
 
-use core::{DefaultAllocator, VectorN};
-use core::dimension::DimName;
-use core::allocator::Allocator;
+use base::{DefaultAllocator, VectorN};
+use base::dimension::DimName;
+use base::allocator::Allocator;
 
 use geometry::{Point, Similarity, Translation};
 

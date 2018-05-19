@@ -5,9 +5,9 @@ use rand::{Rand, Rng};
 use num::{Bounded, One, Zero};
 
 use alga::general::ClosedDiv;
-use core::{DefaultAllocator, Scalar, VectorN};
-use core::allocator::Allocator;
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1, U2, U3, U4, U5, U6};
+use base::{DefaultAllocator, Scalar, VectorN};
+use base::allocator::Allocator;
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1, U2, U3, U4, U5, U6};
 
 use geometry::Point;
 

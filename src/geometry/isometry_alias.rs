@@ -1,4 +1,4 @@
-use core::dimension::{U2, U3};
+use base::dimension::{U2, U3};
 
 use geometry::{Isometry, Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 

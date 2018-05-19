@@ -1,6 +1,6 @@
-use core::dimension::{Dim, DimName, Dynamic, U1};
-use core::matrix_slice::{SliceStorage, SliceStorageMut};
-use core::{MatrixSliceMN, MatrixSliceMutMN, Scalar};
+use base::dimension::{Dim, DimName, Dynamic, U1};
+use base::matrix_slice::{SliceStorage, SliceStorageMut};
+use base::{MatrixSliceMN, MatrixSliceMutMN, Scalar};
 
 /*
  *

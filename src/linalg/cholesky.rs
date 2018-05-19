@@ -3,20 +3,32 @@ use serde;
 
 use alga::general::Real;
 
-use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
-use constraint::{SameNumberOfRows, ShapeConstraint};
-use storage::{Storage, StorageMut};
 use allocator::Allocator;
+use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
+use constraint::{SameNumberOfRows, ShapeConstraint};
 use dimension::{Dim, DimSub, Dynamic};
+use storage::{Storage, StorageMut};
 
 /// The Cholesky decomposion of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: serde::Deserialize<'de>")))]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct Cholesky<N: Real, D: Dim>
 where

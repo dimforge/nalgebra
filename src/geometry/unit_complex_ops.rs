@@ -1,11 +1,11 @@
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use alga::general::Real;
-use core::allocator::Allocator;
-use core::constraint::{DimEq, ShapeConstraint};
-use core::dimension::{Dim, U1, U2};
-use core::storage::{Storage, StorageMut};
-use core::{DefaultAllocator, Matrix, Unit, Vector, Vector2};
+use base::allocator::Allocator;
+use base::constraint::{DimEq, ShapeConstraint};
+use base::dimension::{Dim, U1, U2};
+use base::storage::{Storage, StorageMut};
+use base::{DefaultAllocator, Matrix, Unit, Vector, Vector2};
 use geometry::{Isometry, Point2, Rotation, Similarity, Translation, UnitComplex};
 
 /*

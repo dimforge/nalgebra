@@ -7,11 +7,11 @@
 
 use num::One;
 
-use core::{DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector,
+use base::{DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector,
            Vector3, VectorN};
-use core::dimension::{DimName, DimNameDiff, DimNameSub, U1};
-use core::storage::{Storage, StorageMut};
-use core::allocator::Allocator;
+use base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
+use base::storage::{Storage, StorageMut};
+use base::allocator::Allocator;
 use geometry::{Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2,
                Rotation3};
 

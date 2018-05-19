@@ -1,7 +1,7 @@
 use alga::general::Real;
-use core::{DefaultAllocator, Matrix, Scalar, Unit, Vector};
-use core::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
-use core::allocator::Allocator;
+use base::allocator::Allocator;
+use base::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
+use base::{DefaultAllocator, Matrix, Scalar, Unit, Vector};
 use dimension::{Dim, DimName, U1};
 use storage::{Storage, StorageMut};
 

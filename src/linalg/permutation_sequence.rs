@@ -1,22 +1,34 @@
 #[cfg(feature = "serde-serialize")]
 use serde;
 
-use num::One;
 use alga::general::ClosedNeg;
+use num::One;
 
-use core::{DefaultAllocator, Matrix, Scalar, VectorN};
+use allocator::Allocator;
+use base::{DefaultAllocator, Matrix, Scalar, VectorN};
 use dimension::{Dim, DimName, Dynamic, U1};
 use storage::StorageMut;
-use allocator::Allocator;
 
 /// A sequence of row or column permutations.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
-         VectorN<(usize, usize), D>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
-         VectorN<(usize, usize), D>: serde::Deserialize<'de>")))]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+         VectorN<(usize, usize), D>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+         VectorN<(usize, usize), D>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct PermutationSequence<D: Dim>
 where

@@ -7,10 +7,10 @@ use alga::general::{AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractM
                     RingCommutative};
 use alga::linear::{FiniteDimInnerSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace, VectorSpace};
 
-use core::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
-use core::dimension::{Dim, DimName};
-use core::storage::{Storage, StorageMut};
-use core::allocator::Allocator;
+use base::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
+use base::dimension::{Dim, DimName};
+use base::storage::{Storage, StorageMut};
+use base::allocator::Allocator;
 
 /*
  *

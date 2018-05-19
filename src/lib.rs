@@ -84,6 +84,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(missing_docs)]
 #![warn(incoherent_fundamental_impls)]
 #![doc(html_root_url = "http://nalgebra.org/rustdoc")]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;
@@ -103,6 +104,7 @@ extern crate mint;
 #[macro_use]
 extern crate approx;
 extern crate generic_array;
+#[cfg(feature = "std")]
 extern crate matrixmultiply;
 extern crate num_complex;
 extern crate num_traits as num;
@@ -111,20 +113,30 @@ extern crate typenum;
 
 extern crate alga;
 
-pub mod core;
+#[cfg(not(feature = "std"))]
+extern crate core as std;
+
+pub mod base;
 #[cfg(feature = "debug")]
 pub mod debug;
 pub mod geometry;
 pub mod linalg;
 
-pub use core::*;
+#[cfg(feature = "std")]
+#[deprecated(
+    note = "The 'core' module is being renamed 'based' to avoid conflicts with the 'core' crate."
+)]
+pub use base as core;
+pub use base::*;
 pub use geometry::*;
 pub use linalg::*;
 
 use std::cmp::{self, Ordering, PartialOrd};
 
-use alga::general::{Additive, AdditiveGroup, Identity, Inverse, JoinSemilattice, Lattice,
-                    MeetSemilattice, Multiplicative, SupersetOf};
+use alga::general::{
+    Additive, AdditiveGroup, Identity, Inverse, JoinSemilattice, Lattice, MeetSemilattice,
+    Multiplicative, SupersetOf,
+};
 use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace};
 use num::Signed;

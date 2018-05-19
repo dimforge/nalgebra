@@ -3,9 +3,9 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
 
-use core::allocator::Allocator;
-use core::dimension::{DimName, U1, U3, U4};
-use core::{DefaultAllocator, Unit, VectorN};
+use base::allocator::Allocator;
+use base::dimension::{DimName, U1, U3, U4};
+use base::{DefaultAllocator, Unit, VectorN};
 
 use geometry::{Isometry, Point, Rotation, Translation, UnitQuaternion};
 

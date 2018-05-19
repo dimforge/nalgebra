@@ -10,10 +10,10 @@ use serde;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use core::allocator::Allocator;
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::iter::{MatrixIter, MatrixIterMut};
-use core::{DefaultAllocator, Scalar, VectorN};
+use base::allocator::Allocator;
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::iter::{MatrixIter, MatrixIterMut};
+use base::{DefaultAllocator, Scalar, VectorN};
 
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]

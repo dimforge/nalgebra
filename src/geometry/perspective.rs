@@ -8,10 +8,10 @@ use std::fmt;
 
 use alga::general::Real;
 
-use core::{Matrix4, Scalar, Vector, Vector3};
-use core::dimension::U3;
-use core::storage::Storage;
-use core::helper;
+use base::{Matrix4, Scalar, Vector, Vector3};
+use base::dimension::U3;
+use base::storage::Storage;
+use base::helper;
 
 use geometry::Point3;
 

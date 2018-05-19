@@ -1,45 +1,47 @@
 //! [Reexported at the root of this crate.] Data structures for vector and matrix computations.
 
-pub mod dimension;
-pub mod constraint;
 pub mod allocator;
-pub mod storage;
-pub mod coordinates;
-mod ops;
 mod blas;
-pub mod iter;
+pub mod constraint;
+pub mod coordinates;
 pub mod default_allocator;
+pub mod dimension;
+pub mod iter;
+mod ops;
+pub mod storage;
 
-mod scalar;
-mod matrix;
+mod alias;
+mod alias_slice;
+mod cg;
+mod componentwise;
 mod construction;
 mod construction_slice;
 mod construction_slice_deprecated;
-mod properties;
-mod alias;
-mod alias_slice;
-mod matrix_alga;
 mod conversion;
-mod matrix_slice;
-mod matrix_array;
-mod matrix_vec;
-mod cg;
-mod unit;
-mod componentwise;
 mod edition;
+mod matrix;
+mod matrix_alga;
+mod matrix_array;
+mod matrix_slice;
+#[cfg(any(feature = "std", feature = "alloc"))]
+mod matrix_vec;
+mod properties;
+mod scalar;
+mod unit;
 
 #[doc(hidden)]
 pub mod helper;
 
-pub use self::scalar::*;
 pub use self::matrix::*;
+pub use self::scalar::*;
 pub use self::unit::*;
 
-pub use self::dimension::*;
 pub use self::default_allocator::*;
+pub use self::dimension::*;
 
 pub use self::alias::*;
 pub use self::alias_slice::*;
-pub use self::matrix_slice::*;
 pub use self::matrix_array::*;
+pub use self::matrix_slice::*;
+#[cfg(any(feature = "std", feature = "alloc"))]
 pub use self::matrix_vec::*;

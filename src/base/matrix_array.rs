@@ -19,11 +19,11 @@ use abomonation::Abomonation;
 use typenum::Prod;
 use generic_array::{ArrayLength, GenericArray};
 
-use core::Scalar;
-use core::dimension::{DimName, U1};
-use core::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
-use core::allocator::Allocator;
-use core::default_allocator::DefaultAllocator;
+use base::Scalar;
+use base::dimension::{DimName, U1};
+use base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
+use base::allocator::Allocator;
+use base::default_allocator::DefaultAllocator;
 
 /*
  *

@@ -3,10 +3,10 @@
 use std::fmt::Debug;
 use std::mem;
 
-use core::Scalar;
-use core::default_allocator::DefaultAllocator;
-use core::dimension::{Dim, U1};
-use core::allocator::{Allocator, SameShapeC, SameShapeR};
+use base::Scalar;
+use base::default_allocator::DefaultAllocator;
+use base::dimension::{Dim, U1};
+use base::allocator::{Allocator, SameShapeC, SameShapeR};
 
 /*
  * Aliases for allocation results.

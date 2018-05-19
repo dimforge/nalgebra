@@ -1,16 +1,16 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "arbitrary")]
-use core::storage::Owned;
+use base::storage::Owned;
 
 use std::ops::Neg;
 use num::Zero;
 use rand::{Rand, Rng};
 use alga::general::Real;
 
-use core::{MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
-use core::dimension::{U1, U2, U3};
-use core::storage::Storage;
+use base::{MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
+use base::dimension::{U1, U2, U3};
+use base::storage::Storage;
 
 use geometry::{Rotation2, Rotation3, UnitComplex};
 
