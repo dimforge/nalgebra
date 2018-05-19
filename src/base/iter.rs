@@ -3,9 +3,9 @@
 use std::marker::PhantomData;
 use std::mem;
 
-use core::Scalar;
-use core::dimension::Dim;
-use core::storage::{Storage, StorageMut};
+use base::Scalar;
+use base::dimension::Dim;
+use base::storage::{Storage, StorageMut};
 
 macro_rules! iterator {
     (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {

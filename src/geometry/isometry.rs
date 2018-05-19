@@ -12,10 +12,10 @@ use abomonation::Abomonation;
 use alga::general::{Real, SubsetOf};
 use alga::linear::Rotation;
 
-use core::allocator::Allocator;
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::storage::Owned;
-use core::{DefaultAllocator, MatrixN};
+use base::allocator::Allocator;
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::storage::Owned;
+use base::{DefaultAllocator, MatrixN};
 use geometry::{Point, Translation};
 
 /// A direct isometry, i.e., a rotation followed by a translation.

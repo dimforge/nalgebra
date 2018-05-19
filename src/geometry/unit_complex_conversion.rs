@@ -4,10 +4,12 @@ use num_complex::Complex;
 use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation as AlgaRotation;
 
-use core::Matrix3;
-use core::dimension::U2;
-use geometry::{Isometry, Point2, Rotation2, Similarity, SuperTCategoryOf, TAffine, Transform,
-               Translation, UnitComplex};
+use base::dimension::U2;
+use base::Matrix3;
+use geometry::{
+    Isometry, Point2, Rotation2, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
+    UnitComplex,
+};
 
 /*
  * This file provides the following conversions:

@@ -7,10 +7,10 @@ use serde;
 
 use alga::general::Real;
 
-use core::{DefaultAllocator, MatrixN};
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::storage::Owned;
-use core::allocator::Allocator;
+use base::{DefaultAllocator, MatrixN};
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::storage::Owned;
+use base::allocator::Allocator;
 
 /// Trait implemented by phantom types identifying the projective transformation type.
 ///
@@ -350,7 +350,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::Matrix4;
+    use base::Matrix4;
 
     #[test]
     fn checks_homogeneous_invariants_of_square_identity_matrix() {

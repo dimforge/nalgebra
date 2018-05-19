@@ -1,8 +1,8 @@
 use alga::general::{Real, SubsetOf};
 
-use core::{DefaultAllocator, MatrixN};
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::allocator::Allocator;
+use base::{DefaultAllocator, MatrixN};
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::allocator::Allocator;
 
 use geometry::{SuperTCategoryOf, TCategory, Transform};
 

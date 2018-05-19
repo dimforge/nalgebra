@@ -1,16 +1,16 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "arbitrary")]
-use core::storage::Owned;
+use base::storage::Owned;
 
 use num::{One, Zero};
 use rand::{Rand, Rng};
 
 use alga::general::ClosedAdd;
 
-use core::{DefaultAllocator, Scalar, VectorN};
-use core::dimension::{DimName, U1, U2, U3, U4, U5, U6};
-use core::allocator::Allocator;
+use base::{DefaultAllocator, Scalar, VectorN};
+use base::dimension::{DimName, U1, U2, U3, U4, U5, U6};
+use base::allocator::Allocator;
 
 use geometry::Translation;
 

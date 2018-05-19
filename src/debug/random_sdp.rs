@@ -1,12 +1,12 @@
 #[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
+use base::storage::Owned;
 #[cfg(feature = "arbitrary")]
-use core::storage::Owned;
+use quickcheck::{Arbitrary, Gen};
 
 use alga::general::Real;
-use core::{DefaultAllocator, MatrixN};
-use core::dimension::{Dim, Dynamic};
-use core::allocator::Allocator;
+use base::allocator::Allocator;
+use base::dimension::{Dim, Dynamic};
+use base::{DefaultAllocator, MatrixN};
 
 use debug::RandomOrthogonal;
 

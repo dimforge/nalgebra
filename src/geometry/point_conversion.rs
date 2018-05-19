@@ -1,9 +1,9 @@
 use num::{One, Zero};
 use alga::general::{ClosedDiv, SubsetOf, SupersetOf};
 
-use core::{DefaultAllocator, Matrix, Scalar, VectorN};
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::allocator::Allocator;
+use base::{DefaultAllocator, Matrix, Scalar, VectorN};
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::allocator::Allocator;
 
 use geometry::Point;
 

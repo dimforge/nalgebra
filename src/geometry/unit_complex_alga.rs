@@ -4,9 +4,9 @@ use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
 use alga::linear::{AffineTransformation, DirectIsometry, Isometry, OrthogonalTransformation,
                    ProjectiveTransformation, Rotation, Similarity, Transformation};
 
-use core::{DefaultAllocator, Vector2};
-use core::allocator::Allocator;
-use core::dimension::U2;
+use base::{DefaultAllocator, Vector2};
+use base::allocator::Allocator;
+use base::dimension::U2;
 use geometry::{Point2, UnitComplex};
 
 /*

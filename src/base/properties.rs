@@ -4,10 +4,10 @@ use num::{One, Zero};
 
 use alga::general::{ClosedAdd, ClosedMul, Real};
 
-use core::allocator::Allocator;
-use core::dimension::{Dim, DimMin};
-use core::storage::Storage;
-use core::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
+use base::allocator::Allocator;
+use base::dimension::{Dim, DimMin};
+use base::storage::Storage;
+use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Indicates if this is a square matrix.

@@ -6,9 +6,9 @@ use alga::linear::Rotation as AlgaRotation;
 #[cfg(feature = "mint")]
 use mint;
 
-use core::{DefaultAllocator, MatrixN};
-use core::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
-use core::allocator::Allocator;
+use base::{DefaultAllocator, MatrixN};
+use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
+use base::allocator::Allocator;
 
 use geometry::{Isometry, Point, Rotation, Rotation2, Rotation3, Similarity, SuperTCategoryOf,
                TAffine, Transform, Translation, UnitComplex, UnitQuaternion};

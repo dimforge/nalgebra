@@ -1,14 +1,15 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub,
-               SubAssign};
 use num::{One, Zero};
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+};
 
 use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
-use core::{DefaultAllocator, Matrix, Scalar, Vector, VectorSum};
-use core::dimension::{Dim, DimName, U1};
-use core::constraint::{AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use core::storage::Storage;
-use core::allocator::{Allocator, SameShapeAllocator};
+use base::allocator::{Allocator, SameShapeAllocator};
+use base::constraint::{AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use base::dimension::{Dim, DimName, U1};
+use base::storage::Storage;
+use base::{DefaultAllocator, Matrix, Scalar, Vector, VectorSum};
 
 use geometry::Point;
 

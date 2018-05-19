@@ -5,9 +5,9 @@ use alga::linear::{AffineTransformation, DirectIsometry, Isometry, ProjectiveTra
                    Similarity, Transformation};
 use alga::linear::Translation as AlgaTranslation;
 
-use core::{DefaultAllocator, VectorN};
-use core::dimension::DimName;
-use core::allocator::Allocator;
+use base::{DefaultAllocator, VectorN};
+use base::dimension::DimName;
+use base::allocator::Allocator;
 
 use geometry::{Point, Translation};
 

@@ -6,12 +6,12 @@ use num::{One, Signed, Zero};
 
 use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
-use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar};
-use core::dimension::{Dim, DimMul, DimName, DimProd};
-use core::constraint::{AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows,
+use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar};
+use base::dimension::{Dim, DimMul, DimName, DimProd};
+use base::constraint::{AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows,
                        ShapeConstraint};
-use core::storage::{ContiguousStorageMut, Storage, StorageMut};
-use core::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
+use base::storage::{ContiguousStorageMut, Storage, StorageMut};
+use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 
 /*
  *

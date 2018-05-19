@@ -2,9 +2,9 @@ use num::{One, Zero};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use core::{DefaultAllocator, MatrixN, Scalar};
-use core::dimension::DimName;
-use core::allocator::Allocator;
+use base::{DefaultAllocator, MatrixN, Scalar};
+use base::dimension::DimName;
+use base::allocator::Allocator;
 
 use geometry::Rotation;
 

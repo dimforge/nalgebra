@@ -11,10 +11,10 @@ use abomonation::Abomonation;
 
 use alga::general::{ClosedNeg, Real};
 
-use core::allocator::Allocator;
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::storage::Owned;
-use core::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use base::allocator::Allocator;
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::storage::Owned;
+use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
 /// A translation.
 #[repr(C)]

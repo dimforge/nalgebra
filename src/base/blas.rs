@@ -1,14 +1,16 @@
-use std::mem;
-use num::{One, Signed, Zero};
-use matrixmultiply;
 use alga::general::{ClosedAdd, ClosedMul};
+#[cfg(feature = "std")]
+use matrixmultiply;
+use num::{One, Signed, Zero};
+use std::mem;
 
-use core::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
-use core::dimension::{Dim, Dynamic, U1, U2, U3, U4};
-use core::constraint::{AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows,
-                       ShapeConstraint};
-use core::storage::{Storage, StorageMut};
-use core::allocator::Allocator;
+use base::allocator::Allocator;
+use base::constraint::{
+    AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
+};
+use base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
+use base::storage::{Storage, StorageMut};
+use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
 
 impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// Computes the index of the vector component with the largest absolute value.
@@ -457,85 +459,93 @@ where
             + SameNumberOfColumns<C1, C3>
             + AreMultipliable<R2, C2, R3, C3>,
     {
-        let (nrows1, ncols1) = self.shape();
-        let (nrows2, ncols2) = a.shape();
-        let (nrows3, ncols3) = b.shape();
+        let ncols1 = self.shape();
 
-        assert_eq!(
-            ncols2, nrows3,
-            "gemm: dimensions mismatch for multiplication."
-        );
-        assert_eq!(
-            (nrows1, ncols1),
-            (nrows2, ncols3),
-            "gemm: dimensions mismatch for addition."
-        );
-
-        // We assume large matrices will be Dynamic but small matrices static.
-        // We could use matrixmultiply for large statically-sized matrices but the performance
-        // threshold to activate it would be different from SMALL_DIM because our code optimizes
-        // better for statically-sized matrices.
-        let is_dynamic = R1::is::<Dynamic>() || C1::is::<Dynamic>() || R2::is::<Dynamic>()
-            || C2::is::<Dynamic>() || R3::is::<Dynamic>()
-            || C3::is::<Dynamic>();
-        // Thershold determined ampirically.
-        const SMALL_DIM: usize = 5;
-
-        if is_dynamic && nrows1 > SMALL_DIM && ncols1 > SMALL_DIM && nrows2 > SMALL_DIM
-            && ncols2 > SMALL_DIM
+        #[cfg(feature = "std")]
         {
-            if N::is::<f32>() {
-                let (rsa, csa) = a.strides();
-                let (rsb, csb) = b.strides();
-                let (rsc, csc) = self.strides();
+            // matrixmultiply can be used only if the std feature is available.
+            let nrows1 = self.nrows();
+            let (nrows2, ncols2) = a.shape();
+            let (nrows3, ncols3) = b.shape();
 
-                unsafe {
-                    matrixmultiply::sgemm(
-                        nrows2,
-                        ncols2,
-                        ncols3,
-                        mem::transmute_copy(&alpha),
-                        a.data.ptr() as *const f32,
-                        rsa as isize,
-                        csa as isize,
-                        b.data.ptr() as *const f32,
-                        rsb as isize,
-                        csb as isize,
-                        mem::transmute_copy(&beta),
-                        self.data.ptr_mut() as *mut f32,
-                        rsc as isize,
-                        csc as isize,
-                    );
-                }
-            } else if N::is::<f64>() {
-                let (rsa, csa) = a.strides();
-                let (rsb, csb) = b.strides();
-                let (rsc, csc) = self.strides();
+            assert_eq!(
+                ncols2, nrows3,
+                "gemm: dimensions mismatch for multiplication."
+            );
+            assert_eq!(
+                (nrows1, ncols1),
+                (nrows2, ncols3),
+                "gemm: dimensions mismatch for addition."
+            );
 
-                unsafe {
-                    matrixmultiply::dgemm(
-                        nrows2,
-                        ncols2,
-                        ncols3,
-                        mem::transmute_copy(&alpha),
-                        a.data.ptr() as *const f64,
-                        rsa as isize,
-                        csa as isize,
-                        b.data.ptr() as *const f64,
-                        rsb as isize,
-                        csb as isize,
-                        mem::transmute_copy(&beta),
-                        self.data.ptr_mut() as *mut f64,
-                        rsc as isize,
-                        csc as isize,
-                    );
+            // We assume large matrices will be Dynamic but small matrices static.
+            // We could use matrixmultiply for large statically-sized matrices but the performance
+            // threshold to activate it would be different from SMALL_DIM because our code optimizes
+            // better for statically-sized matrices.
+            let is_dynamic = R1::is::<Dynamic>() || C1::is::<Dynamic>() || R2::is::<Dynamic>()
+                || C2::is::<Dynamic>() || R3::is::<Dynamic>()
+                || C3::is::<Dynamic>();
+            // Thershold determined ampirically.
+            const SMALL_DIM: usize = 5;
+
+            if is_dynamic && nrows1 > SMALL_DIM && ncols1 > SMALL_DIM && nrows2 > SMALL_DIM
+                && ncols2 > SMALL_DIM
+            {
+                if N::is::<f32>() {
+                    let (rsa, csa) = a.strides();
+                    let (rsb, csb) = b.strides();
+                    let (rsc, csc) = self.strides();
+
+                    unsafe {
+                        matrixmultiply::sgemm(
+                            nrows2,
+                            ncols2,
+                            ncols3,
+                            mem::transmute_copy(&alpha),
+                            a.data.ptr() as *const f32,
+                            rsa as isize,
+                            csa as isize,
+                            b.data.ptr() as *const f32,
+                            rsb as isize,
+                            csb as isize,
+                            mem::transmute_copy(&beta),
+                            self.data.ptr_mut() as *mut f32,
+                            rsc as isize,
+                            csc as isize,
+                        );
+                    }
+                } else if N::is::<f64>() {
+                    let (rsa, csa) = a.strides();
+                    let (rsb, csb) = b.strides();
+                    let (rsc, csc) = self.strides();
+
+                    unsafe {
+                        matrixmultiply::dgemm(
+                            nrows2,
+                            ncols2,
+                            ncols3,
+                            mem::transmute_copy(&alpha),
+                            a.data.ptr() as *const f64,
+                            rsa as isize,
+                            csa as isize,
+                            b.data.ptr() as *const f64,
+                            rsb as isize,
+                            csb as isize,
+                            mem::transmute_copy(&beta),
+                            self.data.ptr_mut() as *mut f64,
+                            rsc as isize,
+                            csc as isize,
+                        );
+                    }
                 }
+
+                return;
             }
-        } else {
-            for j1 in 0..ncols1 {
-                // FIXME: avoid bound checks.
-                self.column_mut(j1).gemv(alpha, a, &b.column(j1), beta);
-            }
+        }
+
+        for j1 in 0..ncols1 {
+            // FIXME: avoid bound checks.
+            self.column_mut(j1).gemv(alpha, a, &b.column(j1), beta);
         }
     }
 
@@ -698,10 +708,8 @@ where
         S2: StorageMut<N, D2>,
         S3: Storage<N, D3, D3>,
         S4: Storage<N, R4, C4>,
-        ShapeConstraint: DimEq<D3, R4>
-            + DimEq<D1, C4>
-            + DimEq<D2, D3>
-            + AreMultipliable<C4, R4, D2, U1>,
+        ShapeConstraint:
+            DimEq<D3, R4> + DimEq<D1, C4> + DimEq<D2, D3> + AreMultipliable<C4, R4, D2, U1>,
     {
         work.gemv(N::one(), mid, &rhs.column(0), N::zero());
         self.column_mut(0).gemv_tr(alpha, &rhs, work, beta);

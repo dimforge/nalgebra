@@ -1,6 +1,6 @@
-use core::{MatrixSliceMN, MatrixSliceMutMN, Scalar};
-use core::dimension::{Dim, DimName, Dynamic, U1};
-use core::matrix_slice::{SliceStorage, SliceStorageMut};
+use base::dimension::{Dim, DimName, Dynamic, U1};
+use base::matrix_slice::{SliceStorage, SliceStorageMut};
+use base::{MatrixSliceMN, MatrixSliceMutMN, Scalar};
 
 /*
  *
@@ -15,7 +15,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// This method is unsafe because the input data array is not checked to contain enough elements.
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    #[deprecated(note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_with_strides_generic_unchecked instead.")]
+    #[deprecated(
+        note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_with_strides_generic_unchecked instead."
+    )]
     pub unsafe fn new_with_strides_generic_unchecked(
         data: &'a [N],
         start: usize,
@@ -37,7 +39,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    #[deprecated(note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_with_strides_generic instead.")]
+    #[deprecated(
+        note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_with_strides_generic instead."
+    )]
     pub fn new_with_strides_generic(
         data: &'a [N],
         nrows: R,
@@ -54,7 +58,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
             "Matrix slice: input data buffer to small."
         );
 
-        unsafe { Self::from_slice_with_strides_generic_unchecked(data, 0, nrows, ncols, rstride, cstride) }
+        unsafe {
+            Self::from_slice_with_strides_generic_unchecked(data, 0, nrows, ncols, rstride, cstride)
+        }
     }
 }
 
@@ -66,7 +72,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// This method is unsafe because the input data array is not checked to contain enough elements.
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    #[deprecated(note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_with_strides_generic_unchecked instead.")]
+    #[deprecated(
+        note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_with_strides_generic_unchecked instead."
+    )]
     pub unsafe fn new_with_strides_generic_mut_unchecked(
         data: &'a mut [N],
         start: usize,
@@ -88,7 +96,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    #[deprecated(note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_with_strides_generic instead.")]
+    #[deprecated(
+        note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_with_strides_generic instead."
+    )]
     pub fn new_with_strides_generic_mut(
         data: &'a mut [N],
         nrows: R,
@@ -117,7 +127,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
     /// This method is unsafe because the input data array is not checked to contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    #[deprecated(note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_generic_unchecked instead.")]
+    #[deprecated(
+        note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_generic_unchecked instead."
+    )]
     pub unsafe fn new_generic_unchecked(data: &'a [N], start: usize, nrows: R, ncols: C) -> Self {
         Self::from_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
     }
@@ -127,7 +139,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    #[deprecated(note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_generic instead.")]
+    #[deprecated(
+        note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_generic instead."
+    )]
     pub fn new_generic(data: &'a [N], nrows: R, ncols: C) -> Self {
         Self::from_slice_with_strides_generic(data, nrows, ncols, U1, nrows)
     }
@@ -139,7 +153,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
     /// This method is unsafe because the input data array is not checked to contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    #[deprecated(note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_generic_unchecked instead.")]
+    #[deprecated(
+        note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_generic_unchecked instead."
+    )]
     pub unsafe fn new_generic_mut_unchecked(
         data: &'a mut [N],
         start: usize,
@@ -154,7 +170,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    #[deprecated(note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_generic instead.")]
+    #[deprecated(
+        note = "This constructor is being removed to avoid the incoherent_fundamental_impls lint error. Use ::from_slice_generic instead."
+    )]
     pub fn new_generic_mut(data: &'a mut [N], nrows: R, ncols: C) -> Self {
         Self::from_slice_with_strides_generic(data, nrows, ncols, U1, nrows)
     }

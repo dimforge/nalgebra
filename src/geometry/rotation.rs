@@ -7,16 +7,16 @@ use std::hash;
 use serde;
 
 #[cfg(feature = "serde-serialize")]
-use core::storage::Owned;
+use base::storage::Owned;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use core::allocator::Allocator;
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::{DefaultAllocator, MatrixN, Scalar};
+use base::allocator::Allocator;
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::{DefaultAllocator, MatrixN, Scalar};
 
 /// A rotation matrix.
 #[repr(C)]

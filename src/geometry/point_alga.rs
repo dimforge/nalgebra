@@ -1,9 +1,9 @@
 use alga::general::{Field, JoinSemilattice, Lattice, MeetSemilattice, Real};
 use alga::linear::{AffineSpace, EuclideanSpace};
 
-use core::{DefaultAllocator, Scalar, VectorN};
-use core::dimension::DimName;
-use core::allocator::Allocator;
+use base::{DefaultAllocator, Scalar, VectorN};
+use base::dimension::DimName;
+use base::allocator::Allocator;
 
 use geometry::Point;
 

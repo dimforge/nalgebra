@@ -1,28 +1,40 @@
 #[cfg(feature = "serde-serialize")]
 use serde;
 
-use std::cmp;
-use num_complex::Complex;
 use alga::general::Real;
+use num_complex::Complex;
+use std::cmp;
 
-use core::{DefaultAllocator, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
-use core::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
-use core::storage::Storage;
-use constraint::{DimEq, ShapeConstraint};
 use allocator::Allocator;
+use base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
+use base::storage::Storage;
+use base::{DefaultAllocator, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
+use constraint::{DimEq, ShapeConstraint};
 
+use geometry::{Reflection, UnitComplex};
 use linalg::householder;
 use linalg::Hessenberg;
-use geometry::{Reflection, UnitComplex};
 
 /// Real Schur decomposition of a square matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: serde::Deserialize<'de>")))]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct RealSchur<N: Real, D: Dim>
 where

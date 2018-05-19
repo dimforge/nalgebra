@@ -1,9 +1,9 @@
 use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use core::{DefaultAllocator, MatrixN, Scalar, VectorN};
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use core::allocator::Allocator;
+use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::allocator::Allocator;
 
 use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 

@@ -21,11 +21,11 @@ use num::{One, Zero};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use core::{DefaultAllocator, Matrix, MatrixMN, Scalar};
-use core::dimension::{Dim, DimName, U1};
-use core::constraint::{AreMultipliable, ShapeConstraint};
-use core::storage::Storage;
-use core::allocator::Allocator;
+use base::{DefaultAllocator, Matrix, MatrixMN, Scalar};
+use base::dimension::{Dim, DimName, U1};
+use base::constraint::{AreMultipliable, ShapeConstraint};
+use base::storage::Storage;
+use base::allocator::Allocator;
 
 use geometry::{Point, Rotation};
 

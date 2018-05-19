@@ -5,9 +5,9 @@ use alga::linear::Isometry as AlgaIsometry;
 use alga::linear::{AffineTransformation, DirectIsometry, ProjectiveTransformation, Rotation,
                    Similarity, Transformation};
 
-use core::allocator::Allocator;
-use core::dimension::DimName;
-use core::{DefaultAllocator, VectorN};
+use base::allocator::Allocator;
+use base::dimension::DimName;
+use base::{DefaultAllocator, VectorN};
 
 use geometry::{Isometry, Point, Translation};
 

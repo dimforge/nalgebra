@@ -2,12 +2,15 @@ use num::{One, Zero};
 use std::cmp;
 use std::ptr;
 
-use core::{DMatrix, DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
-use core::dimension::{Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimName, DimSub, DimSum, Dynamic,
-                      U1};
-use core::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use core::allocator::{Allocator, Reallocator};
-use core::storage::{Storage, StorageMut};
+use base::allocator::{Allocator, Reallocator};
+use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use base::dimension::{
+    Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimName, DimSub, DimSum, Dynamic, U1,
+};
+use base::storage::{Storage, StorageMut};
+#[cfg(any(feature = "std", feature = "alloc"))]
+use base::DMatrix;
+use base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
 
 impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
@@ -544,6 +547,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
     /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
+    #[cfg(any(feature = "std", feature = "alloc"))]
     pub fn resize(self, new_nrows: usize, new_ncols: usize, val: N) -> DMatrix<N>
     where
         DefaultAllocator: Reallocator<N, R, C, Dynamic, Dynamic>,
@@ -581,7 +585,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         if new_nrows.value() == nrows {
             let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data) };
-            let mut res =  Matrix::from_data(res);
+            let mut res = Matrix::from_data(res);
             if new_ncols.value() > ncols {
                 res.columns_range_mut(ncols..).fill(val);
             }
@@ -600,15 +604,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                         nrows - new_nrows.value(),
                     );
                     res = Matrix::from_data(DefaultAllocator::reallocate_copy(
-                        new_nrows,
-                        new_ncols,
-                        data,
+                        new_nrows, new_ncols, data,
                     ));
                 } else {
                     res = Matrix::from_data(DefaultAllocator::reallocate_copy(
-                        new_nrows,
-                        new_ncols,
-                        data,
+                        new_nrows, new_ncols, data,
                     ));
                     extend_rows(
                         &mut res.data.as_mut_slice(),

@@ -7,9 +7,9 @@
 use std::mem;
 use std::ops::{Deref, DerefMut};
 
-use core::{Matrix, Scalar};
-use core::dimension::{U1, U2, U3, U4, U5, U6};
-use core::storage::{ContiguousStorage, ContiguousStorageMut};
+use base::{Matrix, Scalar};
+use base::dimension::{U1, U2, U3, U4, U5, U6};
+use base::storage::{ContiguousStorage, ContiguousStorageMut};
 
 /*
  *

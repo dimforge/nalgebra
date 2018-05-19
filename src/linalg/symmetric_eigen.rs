@@ -5,27 +5,39 @@ use num_complex::Complex;
 use std::ops::MulAssign;
 
 use alga::general::Real;
-use core::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
+use allocator::Allocator;
+use base::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
 use dimension::{Dim, DimDiff, DimSub, U1, U2};
 use storage::Storage;
-use allocator::Allocator;
 
+use geometry::UnitComplex;
 use linalg::givens;
 use linalg::SymmetricTridiagonal;
-use geometry::UnitComplex;
 
 /// Eigendecomposition of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: serde::Serialize,
-         MatrixN<N, D>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
+         MatrixN<N, D>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: serde::Deserialize<'de>,
-         MatrixN<N, D>: serde::Deserialize<'de>")))]
+         MatrixN<N, D>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Real, D: Dim>
 where
@@ -336,7 +348,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use core::Matrix2;
+    use base::Matrix2;
 
     fn expected_shift(m: Matrix2<f64>) -> f64 {
         let vals = m.eigenvalues().unwrap();

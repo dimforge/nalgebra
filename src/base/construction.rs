@@ -1,5 +1,5 @@
 #[cfg(feature = "arbitrary")]
-use core::storage::Owned;
+use base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -10,10 +10,10 @@ use typenum::{self, Cmp, Greater};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use core::allocator::Allocator;
-use core::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
-use core::storage::Storage;
-use core::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
+use base::allocator::Allocator;
+use base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
+use base::storage::Storage;
+use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
 
 /*
  *
@@ -228,6 +228,7 @@ where
 
     /// Creates a matrix filled with random values.
     #[inline]
+    #[cfg(feature = "std")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where
         N: Rand,
@@ -384,6 +385,7 @@ macro_rules! impl_constructors(
 
             /// Creates a matrix filled with random values.
             #[inline]
+            #[cfg(feature = "std")]
             pub fn new_random($($args: usize),*) -> Self {
                 Self::new_random_generic($($gargs),*)
             }

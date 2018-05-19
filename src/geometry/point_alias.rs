@@ -1,4 +1,4 @@
-use core::dimension::{U1, U2, U3, U4, U5, U6};
+use base::dimension::{U1, U2, U3, U4, U5, U6};
 
 use geometry::Point;
 

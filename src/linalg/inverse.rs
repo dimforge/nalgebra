@@ -1,9 +1,9 @@
 use alga::general::Real;
 
-use core::{DefaultAllocator, MatrixN, SquareMatrix};
-use core::dimension::Dim;
-use core::storage::{Storage, StorageMut};
-use core::allocator::Allocator;
+use base::{DefaultAllocator, MatrixN, SquareMatrix};
+use base::dimension::Dim;
+use base::storage::{Storage, StorageMut};
+use base::allocator::Allocator;
 
 use linalg::lu;
 

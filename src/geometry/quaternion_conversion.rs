@@ -6,8 +6,8 @@ use alga::linear::Rotation as AlgaRotation;
 #[cfg(feature = "mint")]
 use mint;
 
-use core::{Matrix4, Vector4};
-use core::dimension::U3;
+use base::{Matrix4, Vector4};
+use base::dimension::U3;
 use geometry::{Isometry, Point3, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf,
                TAffine, Transform, Translation, UnitQuaternion};
 

@@ -1,10 +1,10 @@
 use std::ops::Deref;
 
-use core::Scalar;
-use core::dimension::{Dim, DimName, Dynamic, U1};
-use core::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
-use core::allocator::Allocator;
-use core::default_allocator::DefaultAllocator;
+use base::allocator::Allocator;
+use base::default_allocator::DefaultAllocator;
+use base::dimension::{Dim, DimName, Dynamic, U1};
+use base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
+use base::Scalar;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;

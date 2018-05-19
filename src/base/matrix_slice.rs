@@ -2,12 +2,12 @@ use std::marker::PhantomData;
 use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
 use std::slice;
 
-use core::{Matrix, Scalar};
-use core::dimension::{Dim, DimName, Dynamic, U1};
-use core::iter::MatrixIter;
-use core::storage::{Owned, Storage, StorageMut};
-use core::allocator::Allocator;
-use core::default_allocator::DefaultAllocator;
+use base::{Matrix, Scalar};
+use base::dimension::{Dim, DimName, Dynamic, U1};
+use base::iter::MatrixIter;
+use base::storage::{Owned, Storage, StorageMut};
+use base::allocator::Allocator;
+use base::default_allocator::DefaultAllocator;
 
 macro_rules! slice_storage_impl(
     ($doc: expr; $Storage: ident as $SRef: ty; $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {

@@ -2,9 +2,9 @@ use num::One;
 
 use alga::general::Real;
 
-use core::{DefaultAllocator, MatrixN};
-use core::dimension::{DimNameAdd, DimNameSum, U1};
-use core::allocator::Allocator;
+use base::{DefaultAllocator, MatrixN};
+use base::dimension::{DimNameAdd, DimNameSum, U1};
+use base::allocator::Allocator;
 
 use geometry::{TCategory, Transform};
 

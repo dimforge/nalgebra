@@ -4,7 +4,7 @@ use std::fmt;
 use std::hash;
 
 #[cfg(feature = "serde-serialize")]
-use core::storage::Owned;
+use base::storage::Owned;
 #[cfg(feature = "serde-serialize")]
 use serde;
 
@@ -13,9 +13,9 @@ use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use core::dimension::{U1, U3, U4};
-use core::storage::{CStride, RStride};
-use core::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
+use base::dimension::{U1, U3, U4};
+use base::storage::{CStride, RStride};
+use base::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
 
 use geometry::Rotation;
 

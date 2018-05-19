@@ -4,9 +4,9 @@ use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
 use alga::linear::{self, AffineTransformation, DirectIsometry, Isometry, OrthogonalTransformation,
                    ProjectiveTransformation, Similarity, Transformation};
 
-use core::{DefaultAllocator, VectorN};
-use core::dimension::DimName;
-use core::allocator::Allocator;
+use base::{DefaultAllocator, VectorN};
+use base::dimension::DimName;
+use base::allocator::Allocator;
 
 use geometry::{Point, Rotation};
 

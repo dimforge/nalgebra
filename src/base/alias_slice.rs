@@ -1,6 +1,6 @@
-use core::Matrix;
-use core::dimension::{Dynamic, U1, U2, U3, U4, U5, U6};
-use core::matrix_slice::{SliceStorage, SliceStorageMut};
+use base::Matrix;
+use base::dimension::{Dynamic, U1, U2, U3, U4, U5, U6};
+use base::matrix_slice::{SliceStorage, SliceStorageMut};
 
 /*
  *

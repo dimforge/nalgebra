@@ -2,10 +2,10 @@
 
 use std::any::Any;
 
-use core::{DefaultAllocator, Scalar};
-use core::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use core::dimension::{Dim, U1};
-use core::storage::ContiguousStorageMut;
+use base::{DefaultAllocator, Scalar};
+use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use base::dimension::{Dim, U1};
+use base::storage::ContiguousStorageMut;
 
 /// A matrix allocator of a memory buffer that may contain `R::to_usize() * C::to_usize()`
 /// elements of type `N`.

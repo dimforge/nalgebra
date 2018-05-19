@@ -7,7 +7,7 @@ use alga::linear::{AffineTransformation, DirectIsometry, FiniteDimVectorSpace, I
                    NormedSpace, OrthogonalTransformation, ProjectiveTransformation, Rotation,
                    Similarity, Transformation, VectorSpace};
 
-use core::{Vector3, Vector4};
+use base::{Vector3, Vector4};
 use geometry::{Point3, Quaternion, UnitQuaternion};
 
 impl<N: Real> Identity<Multiplicative> for Quaternion<N> {
