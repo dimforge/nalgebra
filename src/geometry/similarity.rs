@@ -1,6 +1,6 @@
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::fmt;
 use std::hash;
-use approx::ApproxEq;
 
 #[cfg(feature = "serde-serialize")]
 use serde;
@@ -11,26 +11,38 @@ use abomonation::Abomonation;
 use alga::general::{Real, SubsetOf};
 use alga::linear::Rotation;
 
-use core::{DefaultAllocator, MatrixN};
+use core::allocator::Allocator;
 use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use core::storage::Owned;
-use core::allocator::Allocator;
+use core::{DefaultAllocator, MatrixN};
 use geometry::{Isometry, Point, Translation};
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
 #[derive(Debug)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "N: serde::Serialize,
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "N: serde::Serialize,
                      R: serde::Serialize,
                      DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "N: serde::Deserialize<'de>,
+                     Owned<N, D>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "N: serde::Deserialize<'de>,
                        R: serde::Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: serde::Deserialize<'de>")))]
+                       Owned<N, D>: serde::Deserialize<'de>"
+        )
+    )
+)]
 pub struct Similarity<N: Real, D: DimName, R>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -276,9 +288,9 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> ApproxEq for Similarity<N, D, R>
+impl<N: Real, D: DimName, R> AbsDiffEq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + ApproxEq<Epsilon = N::Epsilon>,
+    R: Rotation<Point<N, D>> + AbsDiffEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
@@ -290,13 +302,21 @@ where
     }
 
     #[inline]
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.isometry.abs_diff_eq(&other.isometry, epsilon)
+            && self.scaling.abs_diff_eq(&other.scaling, epsilon)
+    }
+}
+
+impl<N: Real, D: DimName, R> RelativeEq for Similarity<N, D, R>
+where
+    R: Rotation<Point<N, D>> + RelativeEq<Epsilon = N::Epsilon>,
+    DefaultAllocator: Allocator<N, D>,
+    N::Epsilon: Copy,
+{
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
     }
 
     #[inline]
@@ -310,6 +330,18 @@ where
             .relative_eq(&other.isometry, epsilon, max_relative)
             && self.scaling
                 .relative_eq(&other.scaling, epsilon, max_relative)
+    }
+}
+
+impl<N: Real, D: DimName, R> UlpsEq for Similarity<N, D, R>
+where
+    R: Rotation<Point<N, D>> + UlpsEq<Epsilon = N::Epsilon>,
+    DefaultAllocator: Allocator<N, D>,
+    N::Epsilon: Copy,
+{
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
     }
 
     #[inline]

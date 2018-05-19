@@ -1,13 +1,13 @@
 // Matrix properties checks.
+use approx::RelativeEq;
 use num::{One, Zero};
-use approx::ApproxEq;
 
 use alga::general::{ClosedAdd, ClosedMul, Real};
 
-use core::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
+use core::allocator::Allocator;
 use core::dimension::{Dim, DimMin};
 use core::storage::Storage;
-use core::allocator::Allocator;
+use core::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Indicates if this is a square matrix.
@@ -24,7 +24,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         nrows == ncols
     }
 
-    // FIXME: ApproxEq prevents us from using those methods on integer matrices…
+    // FIXME: RelativeEq prevents us from using those methods on integer matrices…
     /// Indicated if this is the identity matrix within a relative error of `eps`.
     ///
     /// If the matrix is diagonal, this checks that diagonal elements (i.e. at coordinates `(i, i)`
@@ -32,7 +32,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn is_identity(&self, eps: N::Epsilon) -> bool
     where
-        N: Zero + One + ApproxEq,
+        N: Zero + One + RelativeEq,
         N::Epsilon: Copy,
     {
         let (nrows, ncols) = self.shape();
@@ -90,7 +90,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn is_orthogonal(&self, eps: N::Epsilon) -> bool
     where
-        N: Zero + One + ClosedAdd + ClosedMul + ApproxEq,
+        N: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
         S: Storage<N, R, C>,
         N::Epsilon: Copy,
         DefaultAllocator: Allocator<N, C, C>,

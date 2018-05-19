@@ -1,12 +1,12 @@
 use num::Zero;
 use num_complex::Complex;
 
-use std::cmp::Ordering;
-use std::marker::PhantomData;
-use std::fmt;
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::TypeId;
+use std::cmp::Ordering;
+use std::fmt;
+use std::marker::PhantomData;
 use std::mem;
-use approx::ApproxEq;
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -16,13 +16,14 @@ use abomonation::Abomonation;
 
 use alga::general::{Real, Ring};
 
-use core::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
-use core::dimension::{Dim, DimAdd, DimSum, U1, U2, U3};
-use core::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use core::iter::{MatrixIter, MatrixIterMut};
 use core::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
-use core::storage::{ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage,
-                    StorageMut};
+use core::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use core::dimension::{Dim, DimAdd, DimSum, U1, U2, U3};
+use core::iter::{MatrixIter, MatrixIterMut};
+use core::storage::{
+    ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
+};
+use core::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
 
 /// A square matrix.
 pub type SquareMatrix<N, D, S> = Matrix<N, D, D, S>;
@@ -80,7 +81,8 @@ pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
 
 impl<N: Scalar, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<N, R, C, S> {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        formatter.debug_struct("Matrix")
+        formatter
+            .debug_struct("Matrix")
             .field("data", &self.data)
             .finish()
     }
@@ -224,7 +226,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Tests whether `self` and `rhs` are equal up to a given epsilon.
     ///
-    /// See `relative_eq` from the `ApproxEq` trait for more details.
+    /// See `relative_eq` from the `RelativeEq` trait for more details.
     #[inline]
     pub fn relative_eq<R2, C2, SB>(
         &self,
@@ -233,7 +235,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         max_relative: N::Epsilon,
     ) -> bool
     where
-        N: ApproxEq,
+        N: RelativeEq,
         R2: Dim,
         C2: Dim,
         SB: Storage<N, R2, C2>,
@@ -740,9 +742,9 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     }
 }
 
-impl<N, R: Dim, C: Dim, S> ApproxEq for Matrix<N, R, C, S>
+impl<N, R: Dim, C: Dim, S> AbsDiffEq for Matrix<N, R, C, S>
 where
-    N: Scalar + ApproxEq,
+    N: Scalar + AbsDiffEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -754,13 +756,22 @@ where
     }
 
     #[inline]
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.iter()
+            .zip(other.iter())
+            .all(|(a, b)| a.abs_diff_eq(b, epsilon))
+    }
+}
+
+impl<N, R: Dim, C: Dim, S> RelativeEq for Matrix<N, R, C, S>
+where
+    N: Scalar + RelativeEq,
+    S: Storage<N, R, C>,
+    N::Epsilon: Copy,
+{
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
     }
 
     #[inline]
@@ -771,6 +782,18 @@ where
         max_relative: Self::Epsilon,
     ) -> bool {
         self.relative_eq(other, epsilon, max_relative)
+    }
+}
+
+impl<N, R: Dim, C: Dim, S> UlpsEq for Matrix<N, R, C, S>
+where
+    N: Scalar + UlpsEq,
+    S: Storage<N, R, C>,
+    N::Epsilon: Copy,
+{
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
     }
 
     #[inline]
@@ -1165,9 +1188,9 @@ impl<N: Real, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N, R: Dim, C: Dim, S> ApproxEq for Unit<Matrix<N, R, C, S>>
+impl<N, R: Dim, C: Dim, S> AbsDiffEq for Unit<Matrix<N, R, C, S>>
 where
-    N: Scalar + ApproxEq,
+    N: Scalar + AbsDiffEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1179,13 +1202,20 @@ where
     }
 
     #[inline]
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.as_ref().abs_diff_eq(other.as_ref(), epsilon)
+    }
+}
+
+impl<N, R: Dim, C: Dim, S> RelativeEq for Unit<Matrix<N, R, C, S>>
+where
+    N: Scalar + RelativeEq,
+    S: Storage<N, R, C>,
+    N::Epsilon: Copy,
+{
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
     }
 
     #[inline]
@@ -1197,6 +1227,18 @@ where
     ) -> bool {
         self.as_ref()
             .relative_eq(other.as_ref(), epsilon, max_relative)
+    }
+}
+
+impl<N, R: Dim, C: Dim, S> UlpsEq for Unit<Matrix<N, R, C, S>>
+where
+    N: Scalar + UlpsEq,
+    S: Storage<N, R, C>,
+    N::Epsilon: Copy,
+{
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
     }
 
     #[inline]
