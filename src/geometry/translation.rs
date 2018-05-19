@@ -1,7 +1,7 @@
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
-use std::hash;
 use std::fmt;
-use approx::ApproxEq;
+use std::hash;
 
 #[cfg(feature = "serde-serialize")]
 use serde;
@@ -11,10 +11,10 @@ use abomonation::Abomonation;
 
 use alga::general::{ClosedNeg, Real};
 
-use core::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use core::allocator::Allocator;
 use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use core::storage::Owned;
-use core::allocator::Allocator;
+use core::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
 /// A translation.
 #[repr(C)]
@@ -167,7 +167,7 @@ where
     }
 }
 
-impl<N: Scalar + ApproxEq, D: DimName> ApproxEq for Translation<N, D>
+impl<N: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
@@ -180,13 +180,19 @@ where
     }
 
     #[inline]
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.vector.abs_diff_eq(&other.vector, epsilon)
+    }
+}
+
+impl<N: Scalar + RelativeEq, D: DimName> RelativeEq for Translation<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
+    N::Epsilon: Copy,
+{
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
     }
 
     #[inline]
@@ -198,6 +204,17 @@ where
     ) -> bool {
         self.vector
             .relative_eq(&other.vector, epsilon, max_relative)
+    }
+}
+
+impl<N: Scalar + UlpsEq, D: DimName> UlpsEq for Translation<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
+    N::Epsilon: Copy,
+{
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
     }
 
     #[inline]

@@ -1,8 +1,8 @@
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::One;
-use std::hash;
-use std::fmt;
 use std::cmp::Ordering;
-use approx::ApproxEq;
+use std::fmt;
+use std::hash;
 
 #[cfg(feature = "serde-serialize")]
 use serde;
@@ -10,10 +10,10 @@ use serde;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use core::{DefaultAllocator, Scalar, VectorN};
-use core::iter::{MatrixIter, MatrixIterMut};
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use core::allocator::Allocator;
+use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use core::iter::{MatrixIter, MatrixIterMut};
+use core::{DefaultAllocator, Scalar, VectorN};
 
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]
@@ -183,7 +183,7 @@ where
     }
 }
 
-impl<N: Scalar + ApproxEq, D: DimName> ApproxEq for Point<N, D>
+impl<N: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
@@ -196,13 +196,19 @@ where
     }
 
     #[inline]
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.coords.abs_diff_eq(&other.coords, epsilon)
+    }
+}
+
+impl<N: Scalar + RelativeEq, D: DimName> RelativeEq for Point<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
+    N::Epsilon: Copy,
+{
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
     }
 
     #[inline]
@@ -214,6 +220,17 @@ where
     ) -> bool {
         self.coords
             .relative_eq(&other.coords, epsilon, max_relative)
+    }
+}
+
+impl<N: Scalar + UlpsEq, D: DimName> UlpsEq for Point<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
+    N::Epsilon: Copy,
+{
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
     }
 
     #[inline]

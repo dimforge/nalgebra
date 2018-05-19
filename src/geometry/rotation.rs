@@ -1,7 +1,7 @@
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
-use std::hash;
 use std::fmt;
-use approx::ApproxEq;
+use std::hash;
 
 #[cfg(feature = "serde-serialize")]
 use serde;
@@ -14,9 +14,9 @@ use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use core::{DefaultAllocator, MatrixN, Scalar};
-use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use core::allocator::Allocator;
+use core::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use core::{DefaultAllocator, MatrixN, Scalar};
 
 /// A rotation matrix.
 #[repr(C)]
@@ -201,9 +201,9 @@ where
     }
 }
 
-impl<N, D: DimName> ApproxEq for Rotation<N, D>
+impl<N, D: DimName> AbsDiffEq for Rotation<N, D>
 where
-    N: Scalar + ApproxEq,
+    N: Scalar + AbsDiffEq,
     DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {
@@ -215,13 +215,20 @@ where
     }
 
     #[inline]
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.matrix.abs_diff_eq(&other.matrix, epsilon)
+    }
+}
+
+impl<N, D: DimName> RelativeEq for Rotation<N, D>
+where
+    N: Scalar + RelativeEq,
+    DefaultAllocator: Allocator<N, D, D>,
+    N::Epsilon: Copy,
+{
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
     }
 
     #[inline]
@@ -233,6 +240,18 @@ where
     ) -> bool {
         self.matrix
             .relative_eq(&other.matrix, epsilon, max_relative)
+    }
+}
+
+impl<N, D: DimName> UlpsEq for Rotation<N, D>
+where
+    N: Scalar + UlpsEq,
+    DefaultAllocator: Allocator<N, D, D>,
+    N::Epsilon: Copy,
+{
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
     }
 
     #[inline]

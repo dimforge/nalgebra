@@ -1,21 +1,21 @@
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use num::Zero;
 use std::fmt;
 use std::hash;
-use num::Zero;
-use approx::ApproxEq;
 
 #[cfg(feature = "serde-serialize")]
-use serde;
-#[cfg(feature = "serde-serialize")]
 use core::storage::Owned;
+#[cfg(feature = "serde-serialize")]
+use serde;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use core::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
 use core::dimension::{U1, U3, U4};
 use core::storage::{CStride, RStride};
+use core::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
 
 use geometry::Rotation;
 
@@ -281,7 +281,7 @@ impl<N: Real> Quaternion<N> {
     }
 }
 
-impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for Quaternion<N> {
+impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
     type Epsilon = N;
 
     #[inline]
@@ -290,13 +290,17 @@ impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for Quaternion<N> {
     }
 
     #[inline]
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.as_vector().abs_diff_eq(other.as_vector(), epsilon) ||
+        // Account for the double-covering of S², i.e. q = -q
+       self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-*b, epsilon))
+    }
+}
+
+impl<N: Real + RelativeEq<Epsilon = N>> RelativeEq for Quaternion<N> {
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
     }
 
     #[inline]
@@ -309,6 +313,13 @@ impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for Quaternion<N> {
         self.as_vector().relative_eq(other.as_vector(), epsilon, max_relative) ||
         // Account for the double-covering of S², i.e. q = -q
        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.relative_eq(&-*b, epsilon, max_relative))
+    }
+}
+
+impl<N: Real + UlpsEq<Epsilon = N>> UlpsEq for Quaternion<N> {
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
     }
 
     #[inline]
@@ -613,7 +624,7 @@ impl<N: Real + fmt::Display> fmt::Display for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for UnitQuaternion<N> {
+impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for UnitQuaternion<N> {
     type Epsilon = N;
 
     #[inline]
@@ -622,13 +633,15 @@ impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for UnitQuaternion<N> {
     }
 
     #[inline]
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.as_ref().abs_diff_eq(other.as_ref(), epsilon)
+    }
+}
+
+impl<N: Real + RelativeEq<Epsilon = N>> RelativeEq for UnitQuaternion<N> {
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
     }
 
     #[inline]
@@ -640,6 +653,13 @@ impl<N: Real + ApproxEq<Epsilon = N>> ApproxEq for UnitQuaternion<N> {
     ) -> bool {
         self.as_ref()
             .relative_eq(other.as_ref(), epsilon, max_relative)
+    }
+}
+
+impl<N: Real + UlpsEq<Epsilon = N>> UlpsEq for UnitQuaternion<N> {
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
     }
 
     #[inline]

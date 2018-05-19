@@ -1,6 +1,6 @@
-use std::fmt;
-use approx::ApproxEq;
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num_complex::Complex;
+use std::fmt;
 
 use alga::general::Real;
 use core::{Matrix2, Matrix3, Unit, Vector1};
@@ -129,7 +129,7 @@ impl<N: Real + fmt::Display> fmt::Display for UnitComplex<N> {
     }
 }
 
-impl<N: Real> ApproxEq for UnitComplex<N> {
+impl<N: Real> AbsDiffEq for UnitComplex<N> {
     type Epsilon = N;
 
     #[inline]
@@ -138,13 +138,15 @@ impl<N: Real> ApproxEq for UnitComplex<N> {
     }
 
     #[inline]
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.re.abs_diff_eq(&other.re, epsilon) && self.im.abs_diff_eq(&other.im, epsilon)
+    }
+}
+
+impl<N: Real> RelativeEq for UnitComplex<N> {
+    #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
-    }
-
-    #[inline]
-    fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
     }
 
     #[inline]
@@ -156,6 +158,13 @@ impl<N: Real> ApproxEq for UnitComplex<N> {
     ) -> bool {
         self.re.relative_eq(&other.re, epsilon, max_relative)
             && self.im.relative_eq(&other.im, epsilon, max_relative)
+    }
+}
+
+impl<N: Real> UlpsEq for UnitComplex<N> {
+    #[inline]
+    fn default_max_ulps() -> u32 {
+        N::default_max_ulps()
     }
 
     #[inline]

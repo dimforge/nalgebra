@@ -1,6 +1,6 @@
+use approx::RelativeEq;
 use std::mem;
 use std::ops::{Deref, Neg};
-use approx::ApproxEq;
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -138,7 +138,7 @@ impl<T> AsRef<T> for Unit<T> {
  */
 impl<T: NormedSpace> SubsetOf<T> for Unit<T>
 where
-    T::Field: ApproxEq,
+    T::Field: RelativeEq,
 {
     #[inline]
     fn to_superset(&self) -> T {
@@ -156,7 +156,7 @@ where
     }
 }
 
-// impl<T: ApproxEq> ApproxEq for Unit<T> {
+// impl<T: RelativeEq> RelativeEq for Unit<T> {
 //     type Epsilon = T::Epsilon;
 //
 //     #[inline]
