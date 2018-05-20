@@ -17,7 +17,7 @@ path = "src/lib.rs"
 
 [features]
 default = [ "std" ]
-std = [ "matrixmultiply", "rand/std" ]
+std = [ "matrixmultiply", "rand/std", "alga/std" ]
 arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
 abomonation-serialize = [ "abomonation" ]
