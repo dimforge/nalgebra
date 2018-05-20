@@ -514,6 +514,7 @@ where
                             csc as isize,
                         );
                     }
+                    return;
                 } else if N::is::<f64>() {
                     let (rsa, csa) = a.strides();
                     let (rsb, csb) = b.strides();
@@ -537,9 +538,8 @@ where
                             csc as isize,
                         );
                     }
+                    return;
                 }
-
-                return;
             }
         }
 
