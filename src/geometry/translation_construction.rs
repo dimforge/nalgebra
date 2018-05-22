@@ -1,16 +1,17 @@
 #[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
-#[cfg(feature = "arbitrary")]
 use base::storage::Owned;
+#[cfg(feature = "arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
 use num::{One, Zero};
-use rand::{Rand, Rng};
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
 use alga::general::ClosedAdd;
 
-use base::{DefaultAllocator, Scalar, VectorN};
-use base::dimension::{DimName, U1, U2, U3, U4, U5, U6};
 use base::allocator::Allocator;
+use base::dimension::{DimName, U1, U2, U3, U4, U5, U6};
+use base::{DefaultAllocator, Scalar, VectorN};
 
 use geometry::Translation;
 
@@ -35,13 +36,14 @@ where
     }
 }
 
-impl<N: Scalar + Rand, D: DimName> Rand for Translation<N, D>
+impl<N: Scalar, D: DimName> Distribution<Translation<N, D>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
+    Standard: Distribution<N>,
 {
     #[inline]
-    fn rand<G: Rng>(rng: &mut G) -> Self {
-        Self::from_vector(rng.gen())
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Translation<N, D> {
+        Translation::from_vector(rng.gen::<VectorN<N, D>>())
     }
 }
 

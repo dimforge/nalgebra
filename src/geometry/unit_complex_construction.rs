@@ -3,7 +3,8 @@ use quickcheck::{Arbitrary, Gen};
 
 use num::One;
 use num_complex::Complex;
-use rand::{Rand, Rng};
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
 use alga::general::Real;
 use base::allocator::Allocator;
@@ -150,10 +151,13 @@ impl<N: Real> One for UnitComplex<N> {
     }
 }
 
-impl<N: Real + Rand> Rand for UnitComplex<N> {
+impl<N: Real> Distribution<UnitComplex<N>> for Standard
+where
+    Standard: Distribution<N>,
+{
     #[inline]
-    fn rand<R: Rng>(rng: &mut R) -> Self {
-        UnitComplex::from_angle(N::rand(rng))
+    fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> UnitComplex<N> {
+        UnitComplex::from_angle(rng.gen() * N::two_pi())
     }
 }
 

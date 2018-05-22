@@ -1,20 +1,23 @@
 #[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
-#[cfg(feature = "arbitrary")]
 use base::storage::Owned;
+#[cfg(feature = "arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
 use num::One;
-use rand::{Rand, Rng};
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
 
-use base::{DefaultAllocator, Vector2, Vector3};
-use base::dimension::{DimName, U2, U3};
 use base::allocator::Allocator;
+use base::dimension::{DimName, U2, U3};
+use base::{DefaultAllocator, Vector2, Vector3};
 
-use geometry::{Isometry, Point, Point3, Rotation2, Rotation3, Similarity, Translation,
-               UnitComplex, UnitQuaternion};
+use geometry::{
+    Isometry, Point, Point3, Rotation2, Rotation3, Similarity, Translation, UnitComplex,
+    UnitQuaternion,
+};
 
 impl<N: Real, D: DimName, R> Similarity<N, D, R>
 where
@@ -40,19 +43,20 @@ where
     }
 }
 
-impl<N: Real + Rand, D: DimName, R> Rand for Similarity<N, D, R>
+impl<N: Real, D: DimName, R> Distribution<Similarity<N, D, R>> for Standard
 where
-    R: AlgaRotation<Point<N, D>> + Rand,
+    R: AlgaRotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
+    Standard: Distribution<N> + Distribution<R>,
 {
     #[inline]
-    fn rand<G: Rng>(rng: &mut G) -> Self {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Similarity<N, D, R> {
         let mut s = rng.gen();
         while relative_eq!(s, N::zero()) {
             s = rng.gen()
         }
 
-        Self::from_isometry(rng.gen(), s)
+        Similarity::from_isometry(rng.gen(), s)
     }
 }
 
