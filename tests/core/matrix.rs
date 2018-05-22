@@ -1,10 +1,11 @@
 use num::{One, Zero};
-use num::Float;
 
-use na::{self, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4,
-         Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4,
-         RowVector5, Vector1, Vector2, Vector3, Vector4, Vector5, Vector6};
 use na::dimension::{U15, U8};
+use na::{
+    self, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4,
+    Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, Real, RowVector3, RowVector4, RowVector5,
+    Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
+};
 
 #[test]
 fn iter() {
@@ -304,18 +305,7 @@ fn simple_mul() {
     let a = Matrix2x3::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
 
     let b = Matrix3x4::new(
-        10.0,
-        20.0,
-        30.0,
-        40.0,
-        50.0,
-        60.0,
-        70.0,
-        80.0,
-        90.0,
-        100.0,
-        110.0,
-        120.0,
+        10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0,
     );
 
     let expected = Matrix2x4::new(380.0, 440.0, 500.0, 560.0, 830.0, 980.0, 1130.0, 1280.0);
@@ -333,15 +323,7 @@ fn simple_product() {
     let a = M::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
     let b = M::new(10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0);
     let c = M::new(
-        100.0,
-        200.0,
-        300.0,
-        400.0,
-        500.0,
-        600.0,
-        700.0,
-        800.0,
-        900.0,
+        100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0,
     );
 
     assert_eq!(M::one(), Vec::<M>::new().iter().product());
@@ -387,41 +369,11 @@ fn simple_scalar_conversion() {
 #[test]
 fn apply() {
     let mut a = Matrix4::new(
-        1.1,
-        2.2,
-        3.3,
-        4.4,
-        5.5,
-        6.6,
-        7.7,
-        8.8,
-        9.9,
-        8.8,
-        7.7,
-        6.6,
-        5.5,
-        4.4,
-        3.3,
-        2.2,
+        1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 8.8, 7.7, 6.6, 5.5, 4.4, 3.3, 2.2,
     );
 
     let expected = Matrix4::new(
-        1.0,
-        2.0,
-        3.0,
-        4.0,
-        6.0,
-        7.0,
-        8.0,
-        9.0,
-        10.0,
-        9.0,
-        8.0,
-        7.0,
-        6.0,
-        4.0,
-        3.0,
-        2.0,
+        1.0, 2.0, 3.0, 4.0, 6.0, 7.0, 8.0, 9.0, 10.0, 9.0, 8.0, 7.0, 6.0, 4.0, 3.0, 2.0,
     );
 
     a.apply(|e| e.round());
@@ -432,22 +384,7 @@ fn apply() {
 #[test]
 fn map() {
     let a = Matrix4::new(
-        1.1f64,
-        2.2,
-        3.3,
-        4.4,
-        5.5,
-        6.6,
-        7.7,
-        8.8,
-        9.9,
-        8.8,
-        7.7,
-        6.6,
-        5.5,
-        4.4,
-        3.3,
-        2.2,
+        1.1f64, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 8.8, 7.7, 6.6, 5.5, 4.4, 3.3, 2.2,
     );
 
     let expected = Matrix4::new(1, 2, 3, 4, 6, 7, 8, 9, 10, 9, 8, 7, 6, 4, 3, 2);
@@ -680,26 +617,8 @@ fn kronecker() {
     let a = Matrix2x3::new(11, 12, 13, 21, 22, 23);
 
     let b = Matrix4x5::new(
-        110,
-        120,
-        130,
-        140,
-        150,
-        210,
-        220,
-        230,
-        240,
-        250,
-        310,
-        320,
-        330,
-        340,
-        350,
-        410,
-        420,
-        430,
-        440,
-        450,
+        110, 120, 130, 140, 150, 210, 220, 230, 240, 250, 310, 320, 330, 340, 350, 410, 420, 430,
+        440, 450,
     );
 
     let expected = MatrixMN::<_, U8, U15>::from_row_slice(&[
@@ -733,72 +652,15 @@ fn kronecker() {
 #[test]
 fn set_row_column() {
     let a = Matrix4x5::new(
-        11,
-        12,
-        13,
-        14,
-        15,
-        21,
-        22,
-        23,
-        24,
-        25,
-        31,
-        32,
-        33,
-        34,
-        35,
-        41,
-        42,
-        43,
-        44,
-        45,
+        11, 12, 13, 14, 15, 21, 22, 23, 24, 25, 31, 32, 33, 34, 35, 41, 42, 43, 44, 45,
     );
 
     let expected1 = Matrix4x5::new(
-        11,
-        12,
-        13,
-        14,
-        15,
-        42,
-        43,
-        44,
-        45,
-        46,
-        31,
-        32,
-        33,
-        34,
-        35,
-        41,
-        42,
-        43,
-        44,
-        45,
+        11, 12, 13, 14, 15, 42, 43, 44, 45, 46, 31, 32, 33, 34, 35, 41, 42, 43, 44, 45,
     );
 
     let expected2 = Matrix4x5::new(
-        11,
-        12,
-        100,
-        14,
-        15,
-        42,
-        43,
-        101,
-        45,
-        46,
-        31,
-        32,
-        102,
-        34,
-        35,
-        41,
-        42,
-        103,
-        44,
-        45,
+        11, 12, 100, 14, 15, 42, 43, 101, 45, 46, 31, 32, 102, 34, 35, 41, 42, 103, 44, 45,
     );
 
     let row = RowVector5::new(42, 43, 44, 45, 46);
@@ -951,8 +813,8 @@ mod normalization_tests {
 // FIXME: move this to alga ?
 mod finite_dim_inner_space_tests {
     use super::*;
-    use std::fmt::Display;
     use alga::linear::FiniteDimInnerSpace;
+    use std::fmt::Display;
 
     macro_rules! finite_dim_inner_space_test(
         ($($Vector: ident, $orthonormal_subspace: ident, $orthonormalization: ident);* $(;)*) => {$(
