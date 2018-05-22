@@ -1,20 +1,23 @@
 #[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
-#[cfg(feature = "arbitrary")]
 use base::storage::Owned;
+#[cfg(feature = "arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
 use num::One;
-use rand::{Rand, Rng};
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
 
-use base::{DefaultAllocator, Vector2, Vector3};
-use base::dimension::{DimName, U2, U3};
 use base::allocator::Allocator;
+use base::dimension::{DimName, U2, U3};
+use base::{DefaultAllocator, Vector2, Vector3};
 
-use geometry::{Isometry, Point, Point3, Rotation, Rotation2, Rotation3, Translation, UnitComplex,
-               UnitQuaternion};
+use geometry::{
+    Isometry, Point, Point3, Rotation, Rotation2, Rotation3, Translation, UnitComplex,
+    UnitQuaternion,
+};
 
 impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> Isometry<N, D, R>
 where
@@ -46,14 +49,15 @@ where
     }
 }
 
-impl<N: Real + Rand, D: DimName, R> Rand for Isometry<N, D, R>
+impl<N: Real, D: DimName, R> Distribution<Isometry<N, D, R>> for Standard
 where
-    R: AlgaRotation<Point<N, D>> + Rand,
+    R: AlgaRotation<Point<N, D>>,
+    Standard: Distribution<N> + Distribution<R>,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
-    fn rand<G: Rng>(rng: &mut G) -> Self {
-        Self::from_parts(rng.gen(), rng.gen())
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Isometry<N, D, R> {
+        Isometry::from_parts(rng.gen(), rng.gen())
     }
 }
 

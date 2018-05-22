@@ -1,16 +1,17 @@
 #[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
-#[cfg(feature = "arbitrary")]
 use base::storage::Owned;
+#[cfg(feature = "arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
-use std::ops::Neg;
-use num::Zero;
-use rand::{Rand, Rng};
 use alga::general::Real;
+use num::Zero;
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
+use std::ops::Neg;
 
-use base::{MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
 use base::dimension::{U1, U2, U3};
 use base::storage::Storage;
+use base::{MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
 
 use geometry::{Rotation2, Rotation3, UnitComplex};
 
@@ -97,10 +98,13 @@ impl<N: Real> Rotation2<N> {
     }
 }
 
-impl<N: Real + Rand> Rand for Rotation2<N> {
+impl<N: Real> Distribution<Rotation2<N>> for Standard
+where
+    Standard: Distribution<N>,
+{
     #[inline]
-    fn rand<R: Rng>(rng: &mut R) -> Self {
-        Self::new(rng.gen())
+    fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Rotation2<N> {
+        Rotation2::new(rng.gen())
     }
 }
 
@@ -195,15 +199,19 @@ impl<N: Real> Rotation3<N> {
     pub fn to_euler_angles(&self) -> (N, N, N) {
         // Implementation informed by "Computing Euler angles from a rotation matrix", by Gregory G. Slabaugh
         //  http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.371.6578
-        if self[(2,0)].abs() != N::one() {
-            let yaw   = -self[(2,0)].asin();
-            let roll  = (self[(2,1)] / yaw.cos()).atan2(self[(2,2)] / yaw.cos());
-            let pitch = (self[(1,0)] / yaw.cos()).atan2(self[(0,0)] / yaw.cos());
+        if self[(2, 0)].abs() != N::one() {
+            let yaw = -self[(2, 0)].asin();
+            let roll = (self[(2, 1)] / yaw.cos()).atan2(self[(2, 2)] / yaw.cos());
+            let pitch = (self[(1, 0)] / yaw.cos()).atan2(self[(0, 0)] / yaw.cos());
             (roll, yaw, pitch)
-        } else if self[(2,0)] == -N::one() {
-            (self[(0,1)].atan2(self[(0,2)]), N::frac_pi_2(), N::zero())
+        } else if self[(2, 0)] == -N::one() {
+            (self[(0, 1)].atan2(self[(0, 2)]), N::frac_pi_2(), N::zero())
         } else {
-            (-self[(0,1)].atan2(-self[(0,2)]), -N::frac_pi_2(), N::zero())
+            (
+                -self[(0, 1)].atan2(-self[(0, 2)]),
+                -N::frac_pi_2(),
+                N::zero(),
+            )
         }
     }
 
@@ -228,15 +236,7 @@ impl<N: Real> Rotation3<N> {
         let yaxis = zaxis.cross(&xaxis).normalize();
 
         Self::from_matrix_unchecked(MatrixN::<N, U3>::new(
-            xaxis.x,
-            yaxis.x,
-            zaxis.x,
-            xaxis.y,
-            yaxis.y,
-            zaxis.y,
-            xaxis.z,
-            yaxis.z,
-            zaxis.z,
+            xaxis.x, yaxis.x, zaxis.x, xaxis.y, yaxis.y, zaxis.y, xaxis.z, yaxis.z, zaxis.z,
         ))
     }
 
@@ -382,10 +382,13 @@ impl<N: Real> Rotation3<N> {
     }
 }
 
-impl<N: Real + Rand> Rand for Rotation3<N> {
+impl<N: Real> Distribution<Rotation3<N>> for Standard
+where
+    Standard: Distribution<N>,
+{
     #[inline]
-    fn rand<R: Rng>(rng: &mut R) -> Self {
-        Self::new(VectorN::rand(rng))
+    fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> Rotation3<N> {
+        Rotation3::new(rng.gen::<Vector3<N>>() * N::two_pi())
     }
 }
 

@@ -1,18 +1,19 @@
 #[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
+use base::dimension::U4;
 #[cfg(feature = "arbitrary")]
 use base::storage::Owned;
 #[cfg(feature = "arbitrary")]
-use base::dimension::U4;
+use quickcheck::{Arbitrary, Gen};
 
-use rand::{Rand, Rng};
 use num::{One, Zero};
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
 use alga::general::Real;
 
-use base::{Unit, Vector, Vector3, Vector4};
-use base::storage::Storage;
 use base::dimension::U3;
+use base::storage::Storage;
+use base::{Unit, Vector, Vector3, Vector4};
 
 use geometry::{Quaternion, Rotation, UnitQuaternion};
 
@@ -86,9 +87,12 @@ impl<N: Real> Zero for Quaternion<N> {
     }
 }
 
-impl<N: Real + Rand> Rand for Quaternion<N> {
+impl<N: Real> Distribution<Quaternion<N>> for Standard
+where
+    Standard: Distribution<N>,
+{
     #[inline]
-    fn rand<R: Rng>(rng: &mut R) -> Self {
+    fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Quaternion<N> {
         Quaternion::new(rng.gen(), rng.gen(), rng.gen(), rng.gen())
     }
 }
@@ -407,11 +411,13 @@ impl<N: Real> One for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real + Rand> Rand for UnitQuaternion<N> {
+impl<N: Real> Distribution<UnitQuaternion<N>> for Standard
+where
+    Standard: Distribution<N>,
+{
     #[inline]
-    fn rand<R: Rng>(rng: &mut R) -> Self {
-        let axisangle = Vector3::rand(rng);
-        UnitQuaternion::from_scaled_axis(axisangle)
+    fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> UnitQuaternion<N> {
+        UnitQuaternion::from_scaled_axis(rng.gen::<Vector3<N>>() * N::two_pi())
     }
 }
 

@@ -4,7 +4,8 @@ use base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
-use rand::{self, distributions::Sample, Rand, Rng};
+use rand::distributions::{Distribution, Standard};
+use rand::{self, Rng};
 use std::iter;
 use typenum::{self, Cmp, Greater};
 
@@ -231,14 +232,14 @@ where
     #[cfg(feature = "std")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where
-        N: Rand,
+        Standard: Distribution<N>,
     {
         Self::from_fn_generic(nrows, ncols, |_, _| rand::random())
     }
 
     /// Creates a matrix filled with random values from the given distribution.
     #[inline]
-    pub fn from_distribution_generic<Distr: Sample<N> + ?Sized, G: Rng>(
+    pub fn from_distribution_generic<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
         nrows: R,
         ncols: C,
         distribution: &mut Distr,
@@ -371,7 +372,7 @@ macro_rules! impl_constructors(
 
             /// Creates a matrix filled with random values from the given distribution.
             #[inline]
-            pub fn from_distribution<Distr: Sample<N> + ?Sized, G: Rng>(
+            pub fn from_distribution<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
                 $($args: usize,)*
                 distribution: &mut Distr,
                 rng: &mut G,
@@ -380,8 +381,10 @@ macro_rules! impl_constructors(
             }
         }
 
-        impl<N: Scalar + Rand, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
-            where DefaultAllocator: Allocator<N $(, $Dims)*> {
+        impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
+            where
+            DefaultAllocator: Allocator<N $(, $Dims)*>,
+            Standard: Distribution<N> {
 
             /// Creates a matrix filled with random values.
             #[inline]
@@ -462,18 +465,17 @@ where
     }
 }
 
-impl<N: Scalar + Rand, R: Dim, C: Dim> Rand for MatrixMN<N, R, C>
+impl<N: Scalar, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
 where
     DefaultAllocator: Allocator<N, R, C>,
+    Standard: Distribution<N>,
 {
     #[inline]
-    fn rand<G: Rng>(rng: &mut G) -> Self {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> MatrixMN<N, R, C> {
         let nrows = R::try_to_usize().unwrap_or(rng.gen_range(0, 10));
         let ncols = C::try_to_usize().unwrap_or(rng.gen_range(0, 10));
 
-        Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| {
-            rng.gen()
-        })
+        MatrixMN::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
     }
 }
 

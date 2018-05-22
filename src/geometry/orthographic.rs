@@ -1,16 +1,17 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
-use rand::{Rand, Rng};
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 #[cfg(feature = "serde-serialize")]
 use serde;
 use std::fmt;
 
 use alga::general::Real;
 
-use base::{Matrix4, Vector, Vector3};
 use base::dimension::U3;
-use base::storage::Storage;
 use base::helper;
+use base::storage::Storage;
+use base::{Matrix4, Vector, Vector3};
 
 use geometry::Point3;
 
@@ -310,16 +311,19 @@ impl<N: Real> Orthographic3<N> {
     }
 }
 
-impl<N: Real + Rand> Rand for Orthographic3<N> {
-    fn rand<R: Rng>(r: &mut R) -> Self {
-        let left = Rand::rand(r);
+impl<N: Real> Distribution<Orthographic3<N>> for Standard
+where
+    Standard: Distribution<N>,
+{
+    fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Orthographic3<N> {
+        let left = r.gen();
         let right = helper::reject_rand(r, |x: &N| *x > left);
-        let bottom = Rand::rand(r);
+        let bottom = r.gen();
         let top = helper::reject_rand(r, |x: &N| *x > bottom);
-        let znear = Rand::rand(r);
+        let znear = r.gen();
         let zfar = helper::reject_rand(r, |x: &N| *x > znear);
 
-        Self::new(left, right, bottom, top, znear, zfar)
+        Orthographic3::new(left, right, bottom, top, znear, zfar)
     }
 }
 

@@ -1,6 +1,7 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
-use rand::{Rand, Rng};
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
 #[cfg(feature = "serde-serialize")]
 use serde;
@@ -8,10 +9,10 @@ use std::fmt;
 
 use alga::general::Real;
 
-use base::{Matrix4, Scalar, Vector, Vector3};
 use base::dimension::U3;
-use base::storage::Storage;
 use base::helper;
+use base::storage::Storage;
+use base::{Matrix4, Scalar, Vector, Vector3};
 
 use geometry::Point3;
 
@@ -245,13 +246,16 @@ impl<N: Real> Perspective3<N> {
     }
 }
 
-impl<N: Real + Rand> Rand for Perspective3<N> {
-    fn rand<R: Rng>(r: &mut R) -> Self {
-        let znear = Rand::rand(r);
+impl<N: Real> Distribution<Perspective3<N>> for Standard
+where
+    Standard: Distribution<N>,
+{
+    fn sample<'a, R: Rng + ?Sized>(&self, r: &'a mut R) -> Perspective3<N> {
+        let znear = r.gen();
         let zfar = helper::reject_rand(r, |&x: &N| !(x - znear).is_zero());
         let aspect = helper::reject_rand(r, |&x: &N| !x.is_zero());
 
-        Self::new(aspect, Rand::rand(r), znear, zfar)
+        Perspective3::new(aspect, r.gen(), znear, zfar)
     }
 }
 
