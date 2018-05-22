@@ -16,7 +16,6 @@ mod cg;
 mod componentwise;
 mod construction;
 mod construction_slice;
-mod construction_slice_deprecated;
 mod conversion;
 mod edition;
 mod matrix;
