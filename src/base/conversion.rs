@@ -321,8 +321,8 @@ macro_rules! impl_from_into_mint_2D(
 #[cfg(feature = "mint")]
 impl_from_into_mint_2D!(
     (U2, U2) => ColumnMatrix2{x, y}[2];
-    (U3, U2) => ColumnMatrix3x2{x, y}[3];
+    (U2, U3) => ColumnMatrix2x3{x, y}[2];
     (U3, U3) => ColumnMatrix3{x, y, z}[3];
-    (U4, U3) => ColumnMatrix4x3{x, y, z}[4];
+    (U3, U4) => ColumnMatrix3x4{x, y, z}[3];
     (U4, U4) => ColumnMatrix4{x, y, z, w}[4];
 );
