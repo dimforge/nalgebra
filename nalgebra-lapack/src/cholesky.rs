@@ -4,21 +4,33 @@ use serde;
 use num::Zero;
 use num_complex::Complex;
 
-use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar};
+use na::allocator::Allocator;
 use na::dimension::Dim;
 use na::storage::Storage;
-use na::allocator::Allocator;
+use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar};
 
-use lapack::fortran as interface;
+use lapack;
 
 /// The cholesky decomposion of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: serde::Deserialize<'de>")))]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct Cholesky<N: Scalar, D: Dim>
 where
@@ -195,34 +207,24 @@ macro_rules! cholesky_scalar_impl(
         impl CholeskyScalar for $N {
             #[inline]
             fn xpotrf(uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32) {
-                $xpotrf(uplo, n, a, lda, info)
+                unsafe { $xpotrf(uplo, n, a, lda, info) }
             }
 
             #[inline]
             fn xpotrs(uplo: u8, n: i32, nrhs: i32, a: &[Self], lda: i32,
                       b: &mut [Self], ldb: i32, info: &mut i32) {
-                $xpotrs(uplo, n, nrhs, a, lda, b, ldb, info)
+                unsafe { $xpotrs(uplo, n, nrhs, a, lda, b, ldb, info) }
             }
 
             #[inline]
             fn xpotri(uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32) {
-                $xpotri(uplo, n, a, lda, info)
+                unsafe { $xpotri(uplo, n, a, lda, info) }
             }
         }
     )
 );
 
-cholesky_scalar_impl!(f32, interface::spotrf, interface::spotrs, interface::spotri);
-cholesky_scalar_impl!(f64, interface::dpotrf, interface::dpotrs, interface::dpotri);
-cholesky_scalar_impl!(
-    Complex<f32>,
-    interface::cpotrf,
-    interface::cpotrs,
-    interface::cpotri
-);
-cholesky_scalar_impl!(
-    Complex<f64>,
-    interface::zpotrf,
-    interface::zpotrs,
-    interface::zpotri
-);
+cholesky_scalar_impl!(f32, lapack::spotrf, lapack::spotrs, lapack::spotri);
+cholesky_scalar_impl!(f64, lapack::dpotrf, lapack::dpotrs, lapack::dpotri);
+cholesky_scalar_impl!(Complex<f32>, lapack::cpotrf, lapack::cpotrs, lapack::cpotri);
+cholesky_scalar_impl!(Complex<f64>, lapack::zpotrf, lapack::zpotrs, lapack::zpotri);

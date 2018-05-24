@@ -1,29 +1,41 @@
 #[cfg(feature = "serde-serialize")]
 use serde;
 
-use num_complex::Complex;
 use num::Zero;
+use num_complex::Complex;
 
-use ComplexHelper;
-use na::{DefaultAllocator, Matrix, MatrixMN, Scalar, VectorN};
+use na::allocator::Allocator;
 use na::dimension::{Dim, DimMin, DimMinimum, U1};
 use na::storage::Storage;
-use na::allocator::Allocator;
+use na::{DefaultAllocator, Matrix, MatrixMN, Scalar, VectorN};
+use ComplexHelper;
 
-use lapack::fortran as interface;
+use lapack;
 
 /// The QR decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: serde::Serialize,
-         VectorN<N, DimMinimum<R, C>>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
+         VectorN<N, DimMinimum<R, C>>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: serde::Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>")))]
+         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct QR<N: Scalar, R: DimMin<C>, C: Dim>
 where
@@ -217,7 +229,7 @@ macro_rules! qr_scalar_impl(
             #[inline]
             fn xgeqrf(m: i32, n: i32, a: &mut [Self], lda: i32, tau: &mut [Self],
                       work: &mut [Self], lwork: i32, info: &mut i32) {
-                $xgeqrf(m, n, a, lda, tau, work, lwork, info)
+                unsafe { $xgeqrf(m, n, a, lda, tau, work, lwork, info) }
             }
 
             #[inline]
@@ -226,7 +238,7 @@ macro_rules! qr_scalar_impl(
                 let mut work = [ Zero::zero() ];
                 let lwork = -1 as i32;
 
-                $xgeqrf(m, n, a, lda, tau, &mut work, lwork, info);
+                unsafe { $xgeqrf(m, n, a, lda, tau, &mut work, lwork, info); }
                 ComplexHelper::real_part(work[0]) as i32
             }
         }
@@ -239,7 +251,7 @@ macro_rules! qr_real_impl(
             #[inline]
             fn xorgqr(m: i32, n: i32, k: i32, a: &mut [Self], lda: i32, tau: &[Self],
                       work: &mut [Self], lwork: i32, info: &mut i32) {
-                $xorgqr(m, n, k, a, lda, tau, work, lwork, info)
+                unsafe { $xorgqr(m, n, k, a, lda, tau, work, lwork, info) }
             }
 
             #[inline]
@@ -248,17 +260,17 @@ macro_rules! qr_real_impl(
                 let mut work = [ Zero::zero() ];
                 let lwork = -1 as i32;
 
-                $xorgqr(m, n, k, a, lda, tau, &mut work, lwork, info);
+                unsafe { $xorgqr(m, n, k, a, lda, tau, &mut work, lwork, info); }
                 ComplexHelper::real_part(work[0]) as i32
             }
         }
     )
 );
 
-qr_scalar_impl!(f32, interface::sgeqrf);
-qr_scalar_impl!(f64, interface::dgeqrf);
-qr_scalar_impl!(Complex<f32>, interface::cgeqrf);
-qr_scalar_impl!(Complex<f64>, interface::zgeqrf);
+qr_scalar_impl!(f32, lapack::sgeqrf);
+qr_scalar_impl!(f64, lapack::dgeqrf);
+qr_scalar_impl!(Complex<f32>, lapack::cgeqrf);
+qr_scalar_impl!(Complex<f64>, lapack::zgeqrf);
 
-qr_real_impl!(f32, interface::sorgqr);
-qr_real_impl!(f64, interface::dorgqr);
+qr_real_impl!(f32, lapack::sorgqr);
+qr_real_impl!(f64, lapack::dorgqr);

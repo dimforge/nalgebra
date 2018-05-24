@@ -1,26 +1,38 @@
 use num::Zero;
 use num_complex::Complex;
 
-use ComplexHelper;
-use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
+use na::allocator::Allocator;
 use na::dimension::{DimDiff, DimSub, U1};
 use na::storage::Storage;
-use na::allocator::Allocator;
+use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
+use ComplexHelper;
 
-use lapack::fortran as interface;
+use lapack;
 
 /// The Hessenberg decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: serde::Serialize,
-         VectorN<N, DimDiff<D, U1>>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
+         VectorN<N, DimDiff<D, U1>>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: serde::Deserialize<'de>,
-         VectorN<N, DimDiff<D, U1>>: serde::Deserialize<'de>")))]
+         VectorN<N, DimDiff<D, U1>>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct Hessenberg<N: Scalar, D: DimSub<U1>>
 where
@@ -188,7 +200,7 @@ macro_rules! hessenberg_scalar_impl(
             #[inline]
             fn xgehrd(n: i32, ilo: i32, ihi: i32, a: &mut [Self], lda: i32,
                       tau: &mut [Self], work: &mut [Self], lwork: i32, info: &mut i32) {
-                $xgehrd(n, ilo, ihi, a, lda, tau, work, lwork, info)
+                unsafe { $xgehrd(n, ilo, ihi, a, lda, tau, work, lwork, info) }
             }
 
             #[inline]
@@ -197,7 +209,7 @@ macro_rules! hessenberg_scalar_impl(
                 let mut work = [ Zero::zero() ];
                 let lwork = -1 as i32;
 
-                $xgehrd(n, ilo, ihi, a, lda, tau, &mut work, lwork, info);
+                unsafe { $xgehrd(n, ilo, ihi, a, lda, tau, &mut work, lwork, info) };
                 ComplexHelper::real_part(work[0]) as i32
             }
         }
@@ -210,7 +222,7 @@ macro_rules! hessenberg_real_impl(
             #[inline]
             fn xorghr(n: i32, ilo: i32, ihi: i32, a: &mut [Self], lda: i32, tau: &[Self],
                       work: &mut [Self], lwork: i32, info: &mut i32) {
-                $xorghr(n, ilo, ihi, a, lda, tau, work, lwork, info)
+                unsafe { $xorghr(n, ilo, ihi, a, lda, tau, work, lwork, info) }
             }
 
             #[inline]
@@ -219,17 +231,17 @@ macro_rules! hessenberg_real_impl(
                 let mut work = [ Zero::zero() ];
                 let lwork = -1 as i32;
 
-                $xorghr(n, ilo, ihi, a, lda, tau, &mut work, lwork, info);
+                unsafe { $xorghr(n, ilo, ihi, a, lda, tau, &mut work, lwork, info) };
                 ComplexHelper::real_part(work[0]) as i32
             }
         }
     )
 );
 
-hessenberg_scalar_impl!(f32, interface::sgehrd);
-hessenberg_scalar_impl!(f64, interface::dgehrd);
-hessenberg_scalar_impl!(Complex<f32>, interface::cgehrd);
-hessenberg_scalar_impl!(Complex<f64>, interface::zgehrd);
+hessenberg_scalar_impl!(f32, lapack::sgehrd);
+hessenberg_scalar_impl!(f64, lapack::dgehrd);
+hessenberg_scalar_impl!(Complex<f32>, lapack::cgehrd);
+hessenberg_scalar_impl!(Complex<f64>, lapack::zgehrd);
 
-hessenberg_real_impl!(f32, interface::sorghr);
-hessenberg_real_impl!(f64, interface::dorghr);
+hessenberg_real_impl!(f32, lapack::sorghr);
+hessenberg_real_impl!(f64, lapack::dorghr);

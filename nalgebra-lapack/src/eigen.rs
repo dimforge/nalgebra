@@ -6,24 +6,36 @@ use num_complex::Complex;
 
 use alga::general::Real;
 
-use ComplexHelper;
-use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
+use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
-use na::allocator::Allocator;
+use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
+use ComplexHelper;
 
-use lapack::fortran as interface;
+use lapack;
 
 /// Eigendecomposition of a real square matrix with real eigenvalues.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: serde::Serialize,
-         MatrixN<N, D>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+         MatrixN<N, D>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: serde::Serialize,
-         MatrixN<N, D>: serde::Deserialize<'de>")))]
+         MatrixN<N, D>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct Eigen<N: Scalar, D: Dim>
 where
@@ -350,7 +362,7 @@ macro_rules! real_eigensystem_scalar_impl (
                      wr: &mut [Self], wi: &mut [Self],
                      vl: &mut [Self], ldvl: i32, vr: &mut [Self], ldvr: i32,
                      work: &mut [Self], lwork: i32, info: &mut i32) {
-                $xgeev(jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info)
+                unsafe { $xgeev(jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info) }
             }
 
 
@@ -361,16 +373,16 @@ macro_rules! real_eigensystem_scalar_impl (
                 let mut work = [ Zero::zero() ];
                 let lwork = -1 as i32;
 
-                $xgeev(jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, &mut work, lwork, info);
+                unsafe { $xgeev(jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, &mut work, lwork, info) };
                 ComplexHelper::real_part(work[0]) as i32
             }
         }
     )
 );
 
-real_eigensystem_scalar_impl!(f32, interface::sgeev);
-real_eigensystem_scalar_impl!(f64, interface::dgeev);
+real_eigensystem_scalar_impl!(f32, lapack::sgeev);
+real_eigensystem_scalar_impl!(f64, lapack::dgeev);
 
 //// FIXME: decomposition of complex matrix and matrices with complex eigenvalues.
-// eigensystem_complex_impl!(f32, interface::cgeev);
-// eigensystem_complex_impl!(f64, interface::zgeev);
+// eigensystem_complex_impl!(f32, lapack::cgeev);
+// eigensystem_complex_impl!(f64, lapack::zgeev);

@@ -6,26 +6,38 @@ use std::ops::MulAssign;
 
 use alga::general::Real;
 
-use ComplexHelper;
-use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
+use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
-use na::allocator::Allocator;
+use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
+use ComplexHelper;
 
-use lapack::fortran as interface;
+use lapack;
 
 /// Eigendecomposition of a real square symmetric matrix with real eigenvalues.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: serde::Serialize,
-         MatrixN<N, D>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
+         MatrixN<N, D>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: serde::Deserialize<'de>,
-         MatrixN<N, D>: serde::Deserialize<'de>")))]
+         MatrixN<N, D>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Scalar, D: Dim>
 where
@@ -187,7 +199,7 @@ macro_rules! real_eigensystem_scalar_impl (
             #[inline]
             fn xsyev(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, w: &mut [Self], work: &mut [Self],
                      lwork: i32, info: &mut i32) {
-                $xsyev(jobz, uplo, n, a, lda, w, work, lwork, info)
+                unsafe { $xsyev(jobz, uplo, n, a, lda, w, work, lwork, info) }
             }
 
 
@@ -197,12 +209,12 @@ macro_rules! real_eigensystem_scalar_impl (
                 let mut w    = [ Zero::zero() ];
                 let lwork    = -1 as i32;
 
-                $xsyev(jobz, uplo, n, a, lda, &mut w, &mut work, lwork, info);
+                unsafe { $xsyev(jobz, uplo, n, a, lda, &mut w, &mut work, lwork, info); }
                 ComplexHelper::real_part(work[0]) as i32
             }
         }
     )
 );
 
-real_eigensystem_scalar_impl!(f32, interface::ssyev);
-real_eigensystem_scalar_impl!(f64, interface::dsyev);
+real_eigensystem_scalar_impl!(f32, lapack::ssyev);
+real_eigensystem_scalar_impl!(f64, lapack::dsyev);
