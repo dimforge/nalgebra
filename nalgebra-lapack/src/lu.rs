@@ -1,13 +1,13 @@
 use num::{One, Zero};
 use num_complex::Complex;
 
-use ComplexHelper;
-use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, VectorN};
+use na::allocator::Allocator;
 use na::dimension::{Dim, DimMin, DimMinimum, U1};
 use na::storage::Storage;
-use na::allocator::Allocator;
+use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, VectorN};
+use ComplexHelper;
 
-use lapack::fortran as interface;
+use lapack;
 
 /// LU decomposition with partial pivoting.
 ///
@@ -18,16 +18,28 @@ use lapack::fortran as interface;
 ///
 /// Those are such that `M == P * L * U`.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<i32, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: serde::Serialize,
-         PermutationSequence<DimMinimum<R, C>>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
+         PermutationSequence<DimMinimum<R, C>>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<i32, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: serde::Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: serde::Deserialize<'de>")))]
+         PermutationSequence<DimMinimum<R, C>>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct LU<N: Scalar, R: DimMin<C>, C: Dim>
 where
@@ -344,24 +356,24 @@ macro_rules! lup_scalar_impl(
         impl LUScalar for $N {
             #[inline]
             fn xgetrf(m: i32, n: i32, a: &mut [Self], lda: i32, ipiv: &mut [i32], info: &mut i32) {
-                $xgetrf(m, n, a, lda, ipiv, info)
+                unsafe { $xgetrf(m, n, a, lda, ipiv, info) }
             }
 
             #[inline]
             fn xlaswp(n: i32, a: &mut [Self], lda: i32, k1: i32, k2: i32, ipiv: &[i32], incx: i32) {
-                $xlaswp(n, a, lda, k1, k2, ipiv, incx)
+                unsafe { $xlaswp(n, a, lda, k1, k2, ipiv, incx) }
             }
 
             #[inline]
             fn xgetrs(trans: u8, n: i32, nrhs: i32, a: &[Self], lda: i32, ipiv: &[i32],
                       b: &mut [Self], ldb: i32, info: &mut i32) {
-                $xgetrs(trans, n, nrhs, a, lda, ipiv, b, ldb, info)
+                unsafe { $xgetrs(trans, n, nrhs, a, lda, ipiv, b, ldb, info) }
             }
 
             #[inline]
             fn xgetri(n: i32, a: &mut [Self], lda: i32, ipiv: &[i32],
                       work: &mut [Self], lwork: i32, info: &mut i32) {
-                $xgetri(n, a, lda, ipiv, work, lwork, info)
+                unsafe { $xgetri(n, a, lda, ipiv, work, lwork, info) }
             }
 
             #[inline]
@@ -369,7 +381,7 @@ macro_rules! lup_scalar_impl(
                 let mut work = [ Zero::zero() ];
                 let lwork = -1 as i32;
 
-                $xgetri(n, a, lda, ipiv, &mut work, lwork, info);
+                unsafe { $xgetri(n, a, lda, ipiv, &mut work, lwork, info); }
                 ComplexHelper::real_part(work[0]) as i32
             }
         }
@@ -378,29 +390,29 @@ macro_rules! lup_scalar_impl(
 
 lup_scalar_impl!(
     f32,
-    interface::sgetrf,
-    interface::slaswp,
-    interface::sgetrs,
-    interface::sgetri
+    lapack::sgetrf,
+    lapack::slaswp,
+    lapack::sgetrs,
+    lapack::sgetri
 );
 lup_scalar_impl!(
     f64,
-    interface::dgetrf,
-    interface::dlaswp,
-    interface::dgetrs,
-    interface::dgetri
+    lapack::dgetrf,
+    lapack::dlaswp,
+    lapack::dgetrs,
+    lapack::dgetri
 );
 lup_scalar_impl!(
     Complex<f32>,
-    interface::cgetrf,
-    interface::claswp,
-    interface::cgetrs,
-    interface::cgetri
+    lapack::cgetrf,
+    lapack::claswp,
+    lapack::cgetrs,
+    lapack::cgetri
 );
 lup_scalar_impl!(
     Complex<f64>,
-    interface::zgetrf,
-    interface::zlaswp,
-    interface::zgetrs,
-    interface::zgetri
+    lapack::zgetrf,
+    lapack::zlaswp,
+    lapack::zgetrs,
+    lapack::zgetri
 );

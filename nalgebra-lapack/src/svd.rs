@@ -1,32 +1,44 @@
 #[cfg(feature = "serde-serialize")]
 use serde;
 
-use std::cmp;
 use num::Signed;
+use std::cmp;
 
-use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, VectorN};
+use na::allocator::Allocator;
 use na::dimension::{Dim, DimMin, DimMinimum, U1};
 use na::storage::Storage;
-use na::allocator::Allocator;
+use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, VectorN};
 
-use lapack::fortran as interface;
+use lapack;
 
 /// The SVD decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, R, R> +
                            Allocator<N, C, C>,
          MatrixN<N, R>: serde::Serialize,
          MatrixN<N, C>: serde::Serialize,
-         VectorN<N, DimMinimum<R, C>>: serde::Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
+         VectorN<N, DimMinimum<R, C>>: serde::Serialize"
+        )
+    )
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(
+        bound(
+            serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, R, R> +
                            Allocator<N, C, C>,
          MatrixN<N, R>: serde::Deserialize<'de>,
          MatrixN<N, C>: serde::Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>")))]
+         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>"
+        )
+    )
+)]
 #[derive(Clone, Debug)]
 pub struct SVD<N: Scalar, R: DimMin<C>, C: Dim>
 where
@@ -107,17 +119,22 @@ macro_rules! svd_impl(
                 let mut info  = 0;
                 let mut iwork = unsafe { ::uninitialized_vec(8 * cmp::min(nrows.value(), ncols.value())) };
 
-                $lapack_func(job, nrows.value() as i32, ncols.value() as i32, m.as_mut_slice(),
+                unsafe {
+                    $lapack_func(job, nrows.value() as i32, ncols.value() as i32, m.as_mut_slice(),
                     lda, &mut s.as_mut_slice(), u.as_mut_slice(), ldu as i32, vt.as_mut_slice(),
                     ldvt as i32, &mut work, lwork, &mut iwork, &mut info);
+                }
                 lapack_check!(info);
 
                 lwork = work[0] as i32;
                 let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
 
+                unsafe {
                 $lapack_func(job, nrows.value() as i32, ncols.value() as i32, m.as_mut_slice(),
                     lda, &mut s.as_mut_slice(), u.as_mut_slice(), ldu as i32, vt.as_mut_slice(),
                     ldvt as i32, &mut work, lwork, &mut iwork, &mut info);
+                }
+
                 lapack_check!(info);
 
                 Some(SVD { u: u, singular_values: s, vt: vt })
@@ -274,7 +291,7 @@ macro_rules! svd_complex_impl(
 );
 */
 
-svd_impl!(f32, interface::sgesdd);
-svd_impl!(f64, interface::dgesdd);
-// svd_complex_impl!(lapack_svd_complex_f32, f32, interface::cgesvd);
-// svd_complex_impl!(lapack_svd_complex_f64, f64, interface::zgesvd);
+svd_impl!(f32, lapack::sgesdd);
+svd_impl!(f64, lapack::dgesdd);
+// svd_complex_impl!(lapack_svd_complex_f32, f32, lapack::cgesvd);
+// svd_complex_impl!(lapack_svd_complex_f64, f64, lapack::zgesvd);

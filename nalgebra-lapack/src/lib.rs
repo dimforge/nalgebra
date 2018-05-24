@@ -72,30 +72,32 @@
 
 extern crate alga;
 extern crate lapack;
+extern crate lapack_src;
 extern crate nalgebra as na;
 extern crate num_complex;
 extern crate num_traits as num;
 
 mod lapack_check;
-mod svd;
-mod eigen;
-mod symmetric_eigen;
+
 mod cholesky;
+mod eigen;
+mod hessenberg;
 mod lu;
 mod qr;
-mod hessenberg;
 mod schur;
+mod svd;
+mod symmetric_eigen;
 
 use num_complex::Complex;
 
-pub use self::svd::SVD;
 pub use self::cholesky::{Cholesky, CholeskyScalar};
-pub use self::lu::{LUScalar, LU};
 pub use self::eigen::Eigen;
-pub use self::symmetric_eigen::SymmetricEigen;
-pub use self::qr::QR;
 pub use self::hessenberg::Hessenberg;
+pub use self::lu::{LUScalar, LU};
+pub use self::qr::QR;
 pub use self::schur::RealSchur;
+pub use self::svd::SVD;
+pub use self::symmetric_eigen::SymmetricEigen;
 
 trait ComplexHelper {
     type RealPart;
