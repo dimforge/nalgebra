@@ -1,16 +1,21 @@
 sudo: false
 language: rust
-matrix:
-  include:
-    - rust: nightly
-      env: TEST_SUITE=suite_nightly
-    - rust: beta
-      env: TEST_SUITE=suite_beta
-    - rust: stable
-      env: TEST_SUITE=suite_stable
-  allow_failures:
-    - rust: nightly
-    - rust: beta
+rust:
+  - nightly
+  - beta
+  - stable
+
+env:
+  - CARGO_FEATURES=""
+  - CARGO_FEATURES="arbitrary"
+  - CARGO_FEATURES="mint"
+  - CARGO_FEATURES="alloc"
+  - CARGO_FEATURES="serde-serialize"
+  - CARGO_FEATURES="abomonation-serialize"
+  - CARGO_FEATURES="debug arbitrary mint serde-serialize abomonation-serialize"
+  - NO_STD=1 CARGO_FEATURES=""
+  - NO_STD=1 CARGO_FEATURES="alloc"
+
 addons:
   apt:
     packages:
@@ -20,15 +25,16 @@ addons:
 script:
     - rustc --version
     - cargo --version
-    - cargo build --verbose
-    - cargo build --verbose --features arbitrary
-    - cargo build --verbose --features mint
-    - cargo build --verbose --features serde-serialize
-    - cargo build --verbose --features abomonation-serialize
-    - cargo test --verbose
-    - cargo test --verbose --features "debug arbitrary mint serde-serialize abomonation-serialize"
-    - cd nalgebra-lapack; cargo test --verbose
+    - ./ci/build.sh
+    - ./ci/test.sh
 
-env:
-  matrix:
-    - CARGO_FEATURE_SYSTEM_NETLIB=1 CARGO_FEATURE_EXCLUDE_LAPACKE=1 CARGO_FEATURE_EXCLUDE_CBLAS=1
+matrix:
+  exclude:
+  - rust: stable
+    env: NO_STD=1
+  - rust: beta
+    env: NO_STD=1
+  # - rust: stable
+  #   NO_STD=1 CARGO_FEATURES="alloc"
+  # - rust: beta
+  #   NO_STD=1 CARGO_FEATURES="alloc"
