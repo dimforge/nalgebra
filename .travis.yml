@@ -31,10 +31,10 @@ script:
 matrix:
   exclude:
   - rust: stable
-    env: NO_STD=1
+    env: NO_STD=1 CARGO_FEATURES=""
   - rust: beta
-    env: NO_STD=1
-  # - rust: stable
-  #   NO_STD=1 CARGO_FEATURES="alloc"
-  # - rust: beta
-  #   NO_STD=1 CARGO_FEATURES="alloc"
+    env: NO_STD=1 CARGO_FEATURES=""
+  - rust: stable
+    env: NO_STD=1 CARGO_FEATURES="alloc"
+  - rust: beta
+    env: NO_STD=1 CARGO_FEATURES="alloc"
