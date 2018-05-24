@@ -1,5 +1,8 @@
 use std::ops::Deref;
 
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::Vec;
+
 use base::allocator::Allocator;
 use base::default_allocator::DefaultAllocator;
 use base::dimension::{Dim, DimName, Dynamic, U1};
