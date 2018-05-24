@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -ev
+
 if [ -z "$NO_STD" ]; then
     cargo test --verbose;
     cargo test --verbose "debug arbitrary mint serde-serialize abomonation-serialize";

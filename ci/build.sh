@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -ev
+
 if [ -z "$NO_STD" ]; then
     cargo build --verbose;
     cargo build --verbose --features "arbitrary";
