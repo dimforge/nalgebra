@@ -1,8 +1,5 @@
 use mint;
-use na::{
-    Matrix2, Matrix3, Matrix4, Matrix3x2, Matrix4x3,
-    Quaternion, Vector2, Vector3, Vector4,
-};
+use na::{Matrix2, Matrix2x3, Matrix3, Matrix3x4, Matrix4, Quaternion, Vector2, Vector3, Vector4};
 
 macro_rules! mint_vector_conversion(
     ($($mint_vector_conversion_i: ident, $Vector: ident, $SZ: expr);* $(;)*) => {$(
@@ -66,8 +63,8 @@ macro_rules! mint_matrix_conversion(
 
 mint_matrix_conversion!(
     mint_matrix_conversion_2_2, Matrix2,   ColumnMatrix2,   (2, 2);
-    mint_matrix_conversion_3_2, Matrix3x2, ColumnMatrix3x2, (3, 2);
+    mint_matrix_conversion_2_3, Matrix2x3, ColumnMatrix2x3, (2, 3);
     mint_matrix_conversion_3_3, Matrix3,   ColumnMatrix3,   (3, 3);
-    mint_matrix_conversion_4_3, Matrix4x3, ColumnMatrix4x3, (4, 3);
+    mint_matrix_conversion_3_4, Matrix3x4, ColumnMatrix3x4, (3, 4);
     mint_matrix_conversion_4_4, Matrix4,   ColumnMatrix4,   (4, 4);
 );
