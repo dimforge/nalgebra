@@ -85,6 +85,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![warn(incoherent_fundamental_impls)]
 #![doc(html_root_url = "http://nalgebra.org/rustdoc")]
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;
@@ -112,6 +113,9 @@ extern crate rand;
 extern crate typenum;
 
 extern crate alga;
+
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+extern crate alloc;
 
 #[cfg(not(feature = "std"))]
 extern crate core as std;

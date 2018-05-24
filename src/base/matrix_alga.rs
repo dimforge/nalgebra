@@ -1,3 +1,6 @@
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::Vec;
+
 use num::{One, Zero};
 
 use alga::general::{
