@@ -24,8 +24,8 @@ intel-mkl  = ["lapack-src/intel-mkl"]
 [dependencies]
 nalgebra      = { version = "0.14", path = ".." }
 num-traits    = "0.2"
-num-complex   = { version = "0.2.0-git", git = "https://github.com/rust-num/num-complex", default-features = false }
-alga          = { version = "0.5", git = "https://github.com/sebcrozet/alga.git", branch = "no_std", default-features = false }
+num-complex   = { version = "0.2", default-features = false }
+alga          = { version = "0.6", default-features = false }
 serde         = { version = "1.0", optional = true }
 serde_derive  = { version = "1.0", optional = true }
 lapack        = { version = "0.15", default-features = false }
