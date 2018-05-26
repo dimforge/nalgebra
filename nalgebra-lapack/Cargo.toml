@@ -28,7 +28,7 @@ num-complex   = { version = "0.2", default-features = false }
 alga          = { version = "0.6", default-features = false }
 serde         = { version = "1.0", optional = true }
 serde_derive  = { version = "1.0", optional = true }
-lapack        = { version = "0.15.3", default-features = false }
+lapack        = { version = "0.16", default-features = false }
 lapack-src    = { version = "0.1", default-features = false }
 # clippy = "*"
 
