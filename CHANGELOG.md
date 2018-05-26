@@ -4,22 +4,9 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.15.0] - WIP
+## [0.15.0]
 The most notable change of this release is the support for using part of the library without the rust standard
-library (i.e. it supports `#![no_std]`). Use the following in your `Cargo.toml` to work with a version of
-nalgebra that does not rely on libstd:
-```toml
-#[dependencies]
-nalgebra = { version = "0.15", default_features = false }
-```
-Some feature are no longer available when libstd is not used:
-  * Support for dynamically-sized matrices.
-  * Support for the `::new_random()` matrix constructor.
-  * Support for the `.resize(...)` method since it returns a dynamically-sized matrix.
-  * Entries of matrices displayed using `println!("{}", matrix)` will not be correctly aligned vertically.
-  * The computation of the orthogonormal subspace basis of a vector is limited to vector with dimension up
-    to 3 (we will attempt to lift this restriction in a future release).
-All other feature, including matrix factorizations, will still work on statically-sized matrices!
+library (i.e. it supports `#![no_std]`). See the corresponding [documentation](http://nalgebra.org/wasm_and_embedded_programming/).
 ### Modified
   * Rename the `core` module to `base` to avoid conflicts with the `core` crate implicitly imported when
     `#![no_std]` is enabled.
@@ -31,7 +18,7 @@ All other feature, including matrix factorizations, will still work on staticall
   * Add methods `.rotation_between_axis(...)` and `.scaled_rotation_between_axis(...)` to `UnitComplex`
     to compute the rotation matrix between two 2D **unit** vectors.
   * Add methods `.axis_angle()` to `UnitComplex` and `UnitQuaternion` in order to retrieve both the
-    unit rotation axis and the rotation angle simultaneously. 
+    unit rotation axis and the rotation angle simultaneously.
   * Add functions to construct a random matrix with a user-defined distribution: `::from_distribution(...)`.
 
 ## [0.14.0]
@@ -226,7 +213,7 @@ details. The following free-functions have been added as well:
   * `::dimension::<P>`  -> `::dimension::<P::Vector>`
   * `::angle_between`   -> `::angle`
 
-Componentwise multiplication and division has been replaced by methods: 
+Componentwise multiplication and division has been replaced by methods:
   * multiplication -> `.componentwise_mul`, `.componentwise_mul_mut`.
   * division       -> `.componentwise_div`, `.componentwise_div_mut`.
 
