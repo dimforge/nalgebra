@@ -2,6 +2,7 @@ use alga::general::{ClosedAdd, ClosedMul};
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Signed, Zero};
+#[cfg(feature = "std")]
 use std::mem;
 
 use base::allocator::Allocator;

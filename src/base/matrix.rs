@@ -928,7 +928,7 @@ where
         }
 
         #[cfg(not(feature = "std"))]
-        fn val_width<N: Scalar + fmt::Display>(val: N, f: &mut fmt::Formatter) -> usize {
+        fn val_width<N: Scalar + fmt::Display>(_: N, _: &mut fmt::Formatter) -> usize {
             4
         }
 
