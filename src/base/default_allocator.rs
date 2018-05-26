@@ -15,7 +15,9 @@ use generic_array::ArrayLength;
 use typenum::Prod;
 
 use base::allocator::{Allocator, Reallocator};
-use base::dimension::{Dim, DimName, Dynamic};
+#[cfg(any(feature = "alloc", feature = "std"))]
+use base::dimension::Dynamic;
+use base::dimension::{Dim, DimName};
 use base::matrix_array::MatrixArray;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use base::matrix_vec::MatrixVec;

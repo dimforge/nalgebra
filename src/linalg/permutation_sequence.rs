@@ -6,7 +6,9 @@ use num::One;
 
 use allocator::Allocator;
 use base::{DefaultAllocator, Matrix, Scalar, VectorN};
-use dimension::{Dim, DimName, Dynamic, U1};
+#[cfg(any(feature = "std", feature = "alloc"))]
+use dimension::Dynamic;
+use dimension::{Dim, DimName, U1};
 use storage::StorageMut;
 
 /// A sequence of row or column permutations.

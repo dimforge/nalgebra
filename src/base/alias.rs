@@ -1,4 +1,6 @@
-use base::dimension::{Dynamic, U1, U2, U3, U4, U5, U6};
+#[cfg(any(feature = "alloc", feature = "std"))]
+use base::dimension::Dynamic;
+use base::dimension::{U1, U2, U3, U4, U5, U6};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use base::matrix_vec::MatrixVec;
 use base::storage::Owned;

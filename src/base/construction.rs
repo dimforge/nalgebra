@@ -4,8 +4,10 @@ use base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
+#[cfg(feature = "std")]
+use rand;
 use rand::distributions::{Distribution, Standard};
-use rand::{self, Rng};
+use rand::Rng;
 use std::iter;
 use typenum::{self, Cmp, Greater};
 
