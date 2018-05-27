@@ -128,12 +128,12 @@ componentwise_constructors_impl!(
 
 macro_rules! from_array_impl(
     ($($D: ty, $len: expr);*) => {$(
-      impl <N: Scalar> From <[N; $len]> for Point <N, $D> {
-          fn from (coords : [N; $len]) -> Self {
+      impl <N: Scalar> From<[N; $len]> for Point<N, $D> {
+          fn from (coords: [N; $len]) -> Self {
               Point::from_coordinates(coords.into())
           }
       }
     )*}
 );
 
-from_array_impl!(U1,1; U2,2; U3,3; U4,4; U5,5; U6,6);
+from_array_impl!(U1, 1; U2, 2; U3, 3; U4, 4; U5, 5; U6, 6);
