@@ -10,7 +10,7 @@ use base::storage::Storage;
 use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Indicates if this is a square matrix.
+    /// Indicates if this is an empty matrix.
     #[inline]
     pub fn is_empty(&self) -> bool {
         let (nrows, ncols) = self.shape();
