@@ -14,9 +14,6 @@ use base::dimension::{U2, U3};
 use std::convert::{AsMut, AsRef, From, Into};
 #[cfg(feature = "mint")]
 use base::storage::{Storage, StorageMut};
-#[cfg(feature = "mint")]
-use std::mem;
-
 /*
  * This file provides the following conversions:
  * =============================================
@@ -110,7 +107,7 @@ macro_rules! impl_from_into_mint_1D(
             #[inline]
             fn as_ref(&self) -> &mint::$PT<N> {
                 unsafe {
-                    mem::transmute(self.coords.data.ptr())
+                    &*(self.coords.data.ptr() as *const mint::$PT<N>)
                 }
             }
         }
@@ -120,7 +117,7 @@ macro_rules! impl_from_into_mint_1D(
             #[inline]
             fn as_mut(&mut self) -> &mut mint::$PT<N> {
                 unsafe {
-                    mem::transmute(self.coords.data.ptr_mut())
+                    &mut *(self.coords.data.ptr_mut() as *mut mint::$PT<N>)
                 }
             }
         }
