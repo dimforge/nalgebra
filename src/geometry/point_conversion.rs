@@ -83,8 +83,7 @@ where
 macro_rules! impl_from_into_mint_1D(
     ($($NRows: ident => $PT:ident, $VT:ident [$SZ: expr]);* $(;)*) => {$(
         impl<N> From<mint::$PT<N>> for Point<N, $NRows>
-        where N: Scalar,
-              DefaultAllocator: Allocator<N, $NRows> {
+        where N: Scalar {
             #[inline]
             fn from(p: mint::$PT<N>) -> Self {
                 Self {
