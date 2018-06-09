@@ -16,8 +16,9 @@ name = "nalgebra"
 path = "src/lib.rs"
 
 [features]
-default = [ "std" ]
-std = [ "matrixmultiply", "rand/std", "alga/std" ]
+default         = [ "std" ]
+std             = [ "matrixmultiply", "rand/std", "alga/std" ]
+stdweb          = [ "rand/stdweb" ]
 arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
 abomonation-serialize = [ "abomonation" ]
