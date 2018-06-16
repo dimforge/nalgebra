@@ -192,7 +192,7 @@ fn mat100_from_fn(bench: &mut Bencher) {
     bench.iter(|| {
         DMatrix::from_fn(100, 100, |a, b| {
             a + b
-        });
+        })
     })
 }
 
@@ -201,6 +201,6 @@ fn mat500_from_fn(bench: &mut Bencher) {
     bench.iter(|| {
         DMatrix::from_fn(500, 500, |a, b| {
             a + b
-        });
+        })
     })
 }
