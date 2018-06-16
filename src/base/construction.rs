@@ -108,8 +108,8 @@ where
     {
         let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols) };
 
-        for i in 0..nrows.value() {
-            for j in 0..ncols.value() {
+        for j in 0..ncols.value() {
+            for i in 0..nrows.value() {
                 unsafe { *res.get_unchecked_mut(i, j) = f(i, j) }
             }
         }

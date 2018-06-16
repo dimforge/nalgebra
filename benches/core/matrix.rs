@@ -186,3 +186,21 @@ fn mat_mul_mat(bench: &mut Bencher) {
         test::black_box(a.mul_to(&b, &mut ab));
     })
 }
+
+#[bench]
+fn mat100_from_fn(bench: &mut Bencher) {
+    bench.iter(|| {
+        DMatrix::from_fn(100, 100, |a, b| {
+            a + b
+        });
+    })
+}
+
+#[bench]
+fn mat500_from_fn(bench: &mut Bencher) {
+    bench.iter(|| {
+        DMatrix::from_fn(500, 500, |a, b| {
+            a + b
+        });
+    })
+}
