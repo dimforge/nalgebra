@@ -5,8 +5,11 @@ documented here.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.16.0] - WIP
+## Modified
+  * Adjust `UnitQuaternion`s and `Rotation3`s generated from the `Standard` distribution to be uniformly distributed.
 ### Added
   * Add construction of a `Point` from an array by implementing the `From` trait.
+  * Add support for generating uniformly distributed random unit column vectors using the `Standard` distribution.
 
 ## [0.15.0]
 The most notable change of this release is the support for using part of the library without the rust standard

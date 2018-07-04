@@ -5,7 +5,7 @@ use quickcheck::{Arbitrary, Gen};
 
 use alga::general::Real;
 use num::Zero;
-use rand::distributions::{Distribution, Standard};
+use rand::distributions::{Distribution, Standard, OpenClosed01};
 use rand::Rng;
 use std::ops::Neg;
 
@@ -384,11 +384,34 @@ impl<N: Real> Rotation3<N> {
 
 impl<N: Real> Distribution<Rotation3<N>> for Standard
 where
-    Standard: Distribution<N>,
+    OpenClosed01: Distribution<N>,
 {
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> Rotation3<N> {
-        Rotation3::new(rng.gen::<Vector3<N>>() * N::two_pi())
+        // James Arvo.
+        // Fast random rotation matrices.
+        // In D. Kirk, editor, Graphics Gems III, pages 117-120. Academic, New York, 1992.
+
+        // Compute a random rotation around Z
+        let theta = N::two_pi() * rng.sample(OpenClosed01);
+        let (ts, tc) = theta.sin_cos();
+        let a = MatrixN::<N, U3>::new(
+            tc, ts, N::zero(),
+            -ts, tc, N::zero(),
+            N::zero(), N::zero(), N::one()
+        );
+
+        // Compute a random rotation *of* Z
+        let phi = N::two_pi() * rng.sample(OpenClosed01);
+        let z = rng.sample(OpenClosed01);
+        let (ps, pc) = phi.sin_cos();
+        let sqrt_z = z.sqrt();
+        let v = Vector3::new(pc * sqrt_z, ps * sqrt_z, (N::one() - z).sqrt());
+        let mut b = v * v.transpose();
+        b += b;
+        b -= MatrixN::<N, U3>::identity();
+
+        Rotation3::from_matrix_unchecked(b * a)
     }
 }
 
