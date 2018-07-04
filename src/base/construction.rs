@@ -6,12 +6,12 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "std")]
 use rand;
-use rand::distributions::{Distribution, Standard};
+use rand::distributions::{Distribution, Standard, StandardNormal};
 use rand::Rng;
 use std::iter;
 use typenum::{self, Cmp, Greater};
 
-use alga::general::{ClosedAdd, ClosedMul};
+use alga::general::{ClosedAdd, ClosedMul, Real};
 
 use base::allocator::Allocator;
 use base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
@@ -500,6 +500,19 @@ where
         })
     }
 }
+
+#[cfg(feature = "std")]
+impl<N: Real, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
+where
+    DefaultAllocator: Allocator<N, D>,
+    StandardNormal: Distribution<N>,
+{
+    #[inline]
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Unit<VectorN<N, D>> {
+        Unit::new_normalize(VectorN::from_distribution_generic(D::name(), U1, &mut StandardNormal, rng))
+    }
+}
+
 
 /*
  *

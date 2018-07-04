@@ -6,7 +6,7 @@ use base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{One, Zero};
-use rand::distributions::{Distribution, Standard};
+use rand::distributions::{Distribution, Standard, OpenClosed01};
 use rand::Rng;
 
 use alga::general::Real;
@@ -413,11 +413,25 @@ impl<N: Real> One for UnitQuaternion<N> {
 
 impl<N: Real> Distribution<UnitQuaternion<N>> for Standard
 where
-    Standard: Distribution<N>,
+    OpenClosed01: Distribution<N>,
 {
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> UnitQuaternion<N> {
-        UnitQuaternion::from_scaled_axis(rng.gen::<Vector3<N>>() * N::two_pi())
+        // Ken Shoemake's Subgroup Algorithm
+        // Uniform random rotations.
+        // In D. Kirk, editor, Graphics Gems III, pages 124-132. Academic, New York, 1992.
+        let x0 = rng.sample(OpenClosed01);
+        let x1 = rng.sample(OpenClosed01);
+        let x2 = rng.sample(OpenClosed01);
+        let theta1 = N::two_pi() * x1;
+        let theta2 = N::two_pi() * x2;
+        let s1 = theta1.sin();
+        let c1 = theta1.cos();
+        let s2 = theta2.sin();
+        let c2 = theta2.cos();
+        let r1 = (N::one() - x0).sqrt();
+        let r2 = x0.sqrt();
+        Unit::new_unchecked(Quaternion::new(s1 * r1, c1 * r1, s2 * r2, c2 * r2))
     }
 }
 
@@ -431,5 +445,20 @@ where
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let axisangle = Vector3::arbitrary(g);
         UnitQuaternion::from_scaled_axis(axisangle)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rand::{self, SeedableRng};
+
+    #[test]
+    fn random_unit_quats_are_unit() {
+        let mut rng = rand::prng::XorShiftRng::from_seed([0xAB; 16]);
+        for _ in 0..1000 {
+            let x = rng.gen::<UnitQuaternion<f32>>();
+            assert!(relative_eq!(x.unwrap().norm(), 1.0))
+        }
     }
 }
