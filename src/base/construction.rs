@@ -93,7 +93,7 @@ where
     }
 
     /// Creates a matrix with its elements filled with the components provided by a slice. The
-    /// components must have the same layout as the matrix data storage (i.e. row-major or column-major).
+    /// components must have the same layout as the matrix data storage (i.e. column-major).
     #[inline]
     pub fn from_column_slice_generic(nrows: R, ncols: C, slice: &[N]) -> Self {
         Self::from_iterator_generic(nrows, ncols, slice.iter().cloned())
