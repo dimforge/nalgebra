@@ -100,11 +100,12 @@ impl<N: Real> Rotation2<N> {
 
 impl<N: Real> Distribution<Rotation2<N>> for Standard
 where
-    Standard: Distribution<N>,
+    OpenClosed01: Distribution<N>,
 {
+    /// Generate a uniformly distributed random rotation.
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Rotation2<N> {
-        Rotation2::new(rng.gen())
+        Rotation2::new(rng.sample(OpenClosed01) * N::two_pi())
     }
 }
 
@@ -386,6 +387,7 @@ impl<N: Real> Distribution<Rotation3<N>> for Standard
 where
     OpenClosed01: Distribution<N>,
 {
+    /// Generate a uniformly distributed random rotation.
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> Rotation3<N> {
         // James Arvo.

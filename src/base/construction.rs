@@ -507,6 +507,7 @@ where
     DefaultAllocator: Allocator<N, D>,
     StandardNormal: Distribution<N>,
 {
+    /// Generate a uniformly distributed random unit vector.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Unit<VectorN<N, D>> {
         Unit::new_normalize(VectorN::from_distribution_generic(D::name(), U1, &mut StandardNormal, rng))
