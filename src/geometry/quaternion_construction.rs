@@ -415,6 +415,7 @@ impl<N: Real> Distribution<UnitQuaternion<N>> for Standard
 where
     OpenClosed01: Distribution<N>,
 {
+    /// Generate a uniformly distributed random rotation quaternion.
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> UnitQuaternion<N> {
         // Ken Shoemake's Subgroup Algorithm
