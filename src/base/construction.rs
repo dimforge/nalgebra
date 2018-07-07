@@ -5,8 +5,8 @@ use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
 #[cfg(feature = "std")]
-use rand;
-use rand::distributions::{Distribution, Standard, StandardNormal};
+use rand::{self, StandardNormal};
+use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use std::iter;
 use typenum::{self, Cmp, Greater};
