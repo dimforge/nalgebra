@@ -14,6 +14,27 @@ use base::storage::{Storage, StorageMut};
 use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
 
 impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
+
+    /// Computes the index of the vector component with the largest value.
+    #[inline]
+    pub fn imax(&self) -> usize {
+        assert!(!self.is_empty(), "The input vector must not be empty.");
+
+        let mut the_max = unsafe { self.vget_unchecked(0) };
+        let mut the_i = 0;
+
+        for i in 1..self.nrows() {
+            let val = unsafe { self.vget_unchecked(i) };
+
+            if val > the_max {
+                the_max = val;
+                the_i = i;
+            }
+        }
+
+        the_i
+    }
+
     /// Computes the index of the vector component with the largest absolute value.
     #[inline]
     pub fn iamax(&self) -> usize {
@@ -26,6 +47,26 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
             let val = unsafe { self.vget_unchecked(i).abs() };
 
             if val > the_max {
+                the_max = val;
+                the_i = i;
+            }
+        }
+
+        the_i
+    }
+
+    /// Computes the index of the vector component with the smallest value.
+    #[inline]
+    pub fn imin(&self) -> usize {
+        assert!(!self.is_empty(), "The input vector must not be empty.");
+
+        let mut the_max = unsafe { self.vget_unchecked(0) };
+        let mut the_i = 0;
+
+        for i in 1..self.nrows() {
+            let val = unsafe { self.vget_unchecked(i) };
+
+            if val < the_max {
                 the_max = val;
                 the_i = i;
             }
