@@ -6,14 +6,16 @@ use base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{One, Zero};
-use rand::distributions::{Distribution, Standard, OpenClosed01};
+use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
 use alga::general::Real;
 
 use base::dimension::U3;
 use base::storage::Storage;
-use base::{Unit, Vector, Vector3, Vector4};
+#[cfg(feature = "arbitrary")]
+use base::Vector3;
+use base::{Unit, Vector, Vector4};
 
 use geometry::{Quaternion, Rotation, UnitQuaternion};
 
