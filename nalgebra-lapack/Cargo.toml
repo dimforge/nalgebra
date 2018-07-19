@@ -34,6 +34,6 @@ lapack-src    = { version = "0.2", default-features = false }
 
 [dev-dependencies]
 nalgebra   = { version = "0.15", path = "..", features = [ "arbitrary" ] }
-quickcheck = "0.4"
+quickcheck = "0.6"
 approx     = "0.3"
 rand       = "0.5"
