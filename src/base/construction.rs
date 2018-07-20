@@ -4,14 +4,16 @@ use base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
-#[cfg(feature = "std")]
-use rand::{self, distributions::StandardNormal};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
+#[cfg(feature = "std")]
+use rand::{self, distributions::StandardNormal};
 use std::iter;
 use typenum::{self, Cmp, Greater};
 
-use alga::general::{ClosedAdd, ClosedMul, Real};
+#[cfg(feature = "std")]
+use alga::general::Real;
+use alga::general::{ClosedAdd, ClosedMul};
 
 use base::allocator::Allocator;
 use base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
@@ -510,10 +512,14 @@ where
     /// Generate a uniformly distributed random unit vector.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Unit<VectorN<N, D>> {
-        Unit::new_normalize(VectorN::from_distribution_generic(D::name(), U1, &mut StandardNormal, rng))
+        Unit::new_normalize(VectorN::from_distribution_generic(
+            D::name(),
+            U1,
+            &mut StandardNormal,
+            rng,
+        ))
     }
 }
-
 
 /*
  *

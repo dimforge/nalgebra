@@ -1,5 +1,5 @@
 #[cfg(all(feature = "alloc", not(feature = "std")))]
-use alloc::Vec;
+use alloc::vec::Vec;
 
 use num::{One, Zero};
 
@@ -411,7 +411,8 @@ where
 
         for i in 0..shape.0.value() * shape.1.value() {
             unsafe {
-                let mj = self.data
+                let mj = self
+                    .data
                     .get_unchecked_linear(i)
                     .meet_join(other.data.get_unchecked_linear(i));
                 *mres.data.get_unchecked_linear_mut(i) = mj.0;
