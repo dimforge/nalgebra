@@ -1,6 +1,8 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::fmt;
 use std::hash;
+#[cfg(feature = "abomonation-serialize")]
+use std::io::{Result as IOResult, Write};
 use std::marker::PhantomData;
 
 #[cfg(feature = "serde-serialize")]
@@ -65,14 +67,13 @@ where
     Translation<N, D>: Abomonation,
     DefaultAllocator: Allocator<N, D>,
 {
-    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
-        self.rotation.entomb(writer);
-        self.translation.entomb(writer);
+    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
+        self.rotation.entomb(writer)?;
+        self.translation.entomb(writer)
     }
 
-    unsafe fn embalm(&mut self) {
-        self.rotation.embalm();
-        self.translation.embalm();
+    fn extent(&self) -> usize {
+        self.rotation.extent() + self.translation.extent()
     }
 
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
@@ -253,7 +254,8 @@ where
     ) -> bool {
         self.translation
             .relative_eq(&other.translation, epsilon, max_relative)
-            && self.rotation
+            && self
+                .rotation
                 .relative_eq(&other.rotation, epsilon, max_relative)
     }
 }

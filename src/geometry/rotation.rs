@@ -2,6 +2,8 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::fmt;
 use std::hash;
+#[cfg(feature = "abomonation-serialize")]
+use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
 use serde;
@@ -64,12 +66,12 @@ where
     MatrixN<N, D>: Abomonation,
     DefaultAllocator: Allocator<N, D, D>,
 {
-    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.matrix.entomb(writer)
     }
 
-    unsafe fn embalm(&mut self) {
-        self.matrix.embalm()
+    fn extent(&self) -> usize {
+        self.matrix.extent()
     }
 
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {

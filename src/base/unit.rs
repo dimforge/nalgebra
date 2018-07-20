@@ -1,4 +1,6 @@
 use approx::RelativeEq;
+#[cfg(feature = "abomonation-serialize")]
+use std::io::{Result as IOResult, Write};
 use std::mem;
 use std::ops::{Deref, Neg};
 
@@ -42,12 +44,12 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
 
 #[cfg(feature = "abomonation-serialize")]
 impl<T: Abomonation> Abomonation for Unit<T> {
-    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
-        self.value.entomb(writer);
+    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
+        self.value.entomb(writer)
     }
 
-    unsafe fn embalm(&mut self) {
-        self.value.embalm();
+    fn extent(&self) -> usize {
+        self.value.extent()
     }
 
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {

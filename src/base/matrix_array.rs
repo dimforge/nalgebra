@@ -1,29 +1,31 @@
-use std::ops::{Deref, DerefMut, Mul};
 use std::fmt::{self, Debug, Formatter};
 use std::hash::{Hash, Hasher};
+#[cfg(feature = "abomonation-serialize")]
+use std::io::{Result as IOResult, Write};
+use std::ops::{Deref, DerefMut, Mul};
 
-#[cfg(feature = "serde-serialize")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(feature = "serde-serialize")]
-use serde::ser::SerializeSeq;
 #[cfg(feature = "serde-serialize")]
 use serde::de::{Error, SeqAccess, Visitor};
 #[cfg(feature = "serde-serialize")]
-use std::mem;
+use serde::ser::SerializeSeq;
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde-serialize")]
 use std::marker::PhantomData;
+#[cfg(feature = "serde-serialize")]
+use std::mem;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use typenum::Prod;
 use generic_array::{ArrayLength, GenericArray};
+use typenum::Prod;
 
-use base::Scalar;
-use base::dimension::{DimName, U1};
-use base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
 use base::allocator::Allocator;
 use base::default_allocator::DefaultAllocator;
+use base::dimension::{DimName, U1};
+use base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
+use base::Scalar;
 
 /*
  *
@@ -360,16 +362,12 @@ where
     Prod<R::Value, C::Value>: ArrayLength<N>,
     N: Abomonation,
 {
-    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         for element in self.data.as_slice() {
-            element.entomb(writer);
+            element.entomb(writer)?;
         }
-    }
 
-    unsafe fn embalm(&mut self) {
-        for element in self.data.as_mut_slice() {
-            element.embalm();
-        }
+        Ok(())
     }
 
     unsafe fn exhume<'a, 'b>(&'a mut self, mut bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
@@ -382,5 +380,12 @@ where
             }
         }
         Some(bytes)
+    }
+
+    fn extent(&self) -> usize {
+        self.data
+            .as_slice()
+            .iter()
+            .fold(0, |acc, e| acc + e.extent())
     }
 }

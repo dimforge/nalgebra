@@ -1,6 +1,8 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::fmt;
 use std::hash;
+#[cfg(feature = "abomonation-serialize")]
+use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
 use serde;
@@ -58,12 +60,12 @@ where
     Isometry<N, D, R>: Abomonation,
     DefaultAllocator: Allocator<N, D>,
 {
-    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.isometry.entomb(writer)
     }
 
-    unsafe fn embalm(&mut self) {
-        self.isometry.embalm()
+    fn extent(&self) -> usize {
+        self.isometry.extent()
     }
 
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
@@ -328,7 +330,8 @@ where
     ) -> bool {
         self.isometry
             .relative_eq(&other.isometry, epsilon, max_relative)
-            && self.scaling
+            && self
+                .scaling
                 .relative_eq(&other.scaling, epsilon, max_relative)
     }
 }
