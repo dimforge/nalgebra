@@ -1,5 +1,7 @@
 use num::Zero;
 use num_complex::Complex;
+#[cfg(feature = "abomonation-serialize")]
+use std::io::{Result as IOResult, Write};
 
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::TypeId;
@@ -125,16 +127,16 @@ where
 
 #[cfg(feature = "abomonation-serialize")]
 impl<N: Scalar, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<N, R, C, S> {
-    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.data.entomb(writer)
-    }
-
-    unsafe fn embalm(&mut self) {
-        self.data.embalm()
     }
 
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
         self.data.exhume(bytes)
+    }
+
+    fn extent(&self) -> usize {
+        self.data.extent()
     }
 }
 

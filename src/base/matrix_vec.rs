@@ -1,3 +1,5 @@
+#[cfg(feature = "abomonation-serialize")]
+use std::io::{Result as IOResult, Write};
 use std::ops::Deref;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
@@ -238,16 +240,16 @@ where
 
 #[cfg(feature = "abomonation-serialize")]
 impl<N: Abomonation, R: Dim, C: Dim> Abomonation for MatrixVec<N, R, C> {
-    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.data.entomb(writer)
-    }
-
-    unsafe fn embalm(&mut self) {
-        self.data.embalm()
     }
 
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
         self.data.exhume(bytes)
+    }
+
+    fn extent(&self) -> usize {
+        self.data.extent()
     }
 }
 

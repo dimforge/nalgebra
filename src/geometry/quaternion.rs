@@ -2,6 +2,8 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
 use std::hash;
+#[cfg(feature = "abomonation-serialize")]
+use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
 use base::storage::Owned;
@@ -33,12 +35,12 @@ impl<N: Real> Abomonation for Quaternion<N>
 where
     Vector4<N>: Abomonation,
 {
-    unsafe fn entomb(&self, writer: &mut Vec<u8>) {
+    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.coords.entomb(writer)
     }
 
-    unsafe fn embalm(&mut self) {
-        self.coords.embalm()
+    fn extent(&self) -> usize {
+        self.coords.extent()
     }
 
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
