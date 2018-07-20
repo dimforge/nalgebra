@@ -9,7 +9,7 @@ use std::ops::Mul;
 use std::ptr;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
-use alloc::Vec;
+use alloc::vec::Vec;
 
 use generic_array::ArrayLength;
 use typenum::Prod;

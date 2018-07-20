@@ -3,7 +3,7 @@ use std::io::{Result as IOResult, Write};
 use std::ops::Deref;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
-use alloc::Vec;
+use alloc::vec::Vec;
 
 use base::allocator::Allocator;
 use base::default_allocator::DefaultAllocator;
