@@ -2,12 +2,12 @@ use std::marker::PhantomData;
 use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
 use std::slice;
 
-use base::{Matrix, Scalar};
+use base::allocator::Allocator;
+use base::default_allocator::DefaultAllocator;
 use base::dimension::{Dim, DimName, Dynamic, U1};
 use base::iter::MatrixIter;
 use base::storage::{Owned, Storage, StorageMut};
-use base::allocator::Allocator;
-use base::default_allocator::DefaultAllocator;
+use base::{Matrix, Scalar};
 
 macro_rules! slice_storage_impl(
     ($doc: expr; $Storage: ident as $SRef: ty; $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
@@ -19,6 +19,14 @@ macro_rules! slice_storage_impl(
             strides:   (RStride, CStride),
             _phantoms: PhantomData<$Ref>,
         }
+
+        unsafe impl<'a, N: Scalar + Send, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Send
+            for $T<'a, N, R, C, RStride, CStride>
+        {}
+
+        unsafe impl<'a, N: Scalar + Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Sync
+            for $T<'a, N, R, C, RStride, CStride>
+        {}
 
         impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> $T<'a, N, R, C, RStride, CStride> {
             /// Create a new matrix slice without bound checking and from a raw pointer.
@@ -82,11 +90,12 @@ slice_storage_impl!("A mutable matrix data storage for mutable matrix slice. Onl
 );
 
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
-    for SliceStorage<'a, N, R, C, RStride, CStride> {
-}
+    for SliceStorage<'a, N, R, C, RStride, CStride>
+{}
 
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
-    for SliceStorage<'a, N, R, C, RStride, CStride> {
+    for SliceStorage<'a, N, R, C, RStride, CStride>
+{
     #[inline]
     fn clone(&self) -> Self {
         SliceStorage {
@@ -171,7 +180,8 @@ macro_rules! storage_impl(
 storage_impl!(SliceStorage, SliceStorageMut);
 
 unsafe impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> StorageMut<N, R, C>
-    for SliceStorageMut<'a, N, R, C, RStride, CStride> {
+    for SliceStorageMut<'a, N, R, C, RStride, CStride>
+{
     #[inline]
     fn ptr_mut(&mut self) -> *mut N {
         self.ptr
