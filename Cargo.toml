@@ -8,7 +8,8 @@ documentation = "http://nalgebra.org/rustdoc/nalgebra/index.html"
 homepage = "http://nalgebra.org"
 repository = "https://github.com/sebcrozet/nalgebra"
 readme = "README.md"
-keywords = [ "linear", "algebra", "matrix", "vector" ]
+categories = [ "science" ]
+keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
 license = "BSD-3-Clause"
 
 [lib]
