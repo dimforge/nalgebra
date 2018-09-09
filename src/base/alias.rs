@@ -40,74 +40,74 @@ pub type Matrix5<N> = MatrixN<N, U5>;
 /// A stack-allocated, column-major, 6x6 square matrix.
 pub type Matrix6<N> = MatrixN<N, U6>;
 
-/// A stack-allocated, column-major, 1x2 square matrix.
+/// A stack-allocated, column-major, 1x2 matrix.
 pub type Matrix1x2<N> = MatrixMN<N, U1, U2>;
-/// A stack-allocated, column-major, 1x3 square matrix.
+/// A stack-allocated, column-major, 1x3 matrix.
 pub type Matrix1x3<N> = MatrixMN<N, U1, U3>;
-/// A stack-allocated, column-major, 1x4 square matrix.
+/// A stack-allocated, column-major, 1x4 matrix.
 pub type Matrix1x4<N> = MatrixMN<N, U1, U4>;
-/// A stack-allocated, column-major, 1x5 square matrix.
+/// A stack-allocated, column-major, 1x5 matrix.
 pub type Matrix1x5<N> = MatrixMN<N, U1, U5>;
-/// A stack-allocated, column-major, 1x6 square matrix.
+/// A stack-allocated, column-major, 1x6 matrix.
 pub type Matrix1x6<N> = MatrixMN<N, U1, U6>;
 
-/// A stack-allocated, column-major, 2x3 square matrix.
+/// A stack-allocated, column-major, 2x3 matrix.
 pub type Matrix2x3<N> = MatrixMN<N, U2, U3>;
-/// A stack-allocated, column-major, 2x4 square matrix.
+/// A stack-allocated, column-major, 2x4 matrix.
 pub type Matrix2x4<N> = MatrixMN<N, U2, U4>;
-/// A stack-allocated, column-major, 2x5 square matrix.
+/// A stack-allocated, column-major, 2x5 matrix.
 pub type Matrix2x5<N> = MatrixMN<N, U2, U5>;
-/// A stack-allocated, column-major, 2x6 square matrix.
+/// A stack-allocated, column-major, 2x6 matrix.
 pub type Matrix2x6<N> = MatrixMN<N, U2, U6>;
 
-/// A stack-allocated, column-major, 3x4 square matrix.
+/// A stack-allocated, column-major, 3x4 matrix.
 pub type Matrix3x4<N> = MatrixMN<N, U3, U4>;
-/// A stack-allocated, column-major, 3x5 square matrix.
+/// A stack-allocated, column-major, 3x5 matrix.
 pub type Matrix3x5<N> = MatrixMN<N, U3, U5>;
-/// A stack-allocated, column-major, 3x6 square matrix.
+/// A stack-allocated, column-major, 3x6 matrix.
 pub type Matrix3x6<N> = MatrixMN<N, U3, U6>;
 
-/// A stack-allocated, column-major, 4x5 square matrix.
+/// A stack-allocated, column-major, 4x5 matrix.
 pub type Matrix4x5<N> = MatrixMN<N, U4, U5>;
-/// A stack-allocated, column-major, 4x6 square matrix.
+/// A stack-allocated, column-major, 4x6 matrix.
 pub type Matrix4x6<N> = MatrixMN<N, U4, U6>;
 
-/// A stack-allocated, column-major, 5x6 square matrix.
+/// A stack-allocated, column-major, 5x6 matrix.
 pub type Matrix5x6<N> = MatrixMN<N, U5, U6>;
 
-/// A stack-allocated, column-major, 2x1 square matrix.
+/// A stack-allocated, column-major, 2x1 matrix.
 pub type Matrix2x1<N> = MatrixMN<N, U2, U1>;
-/// A stack-allocated, column-major, 3x1 square matrix.
+/// A stack-allocated, column-major, 3x1 matrix.
 pub type Matrix3x1<N> = MatrixMN<N, U3, U1>;
-/// A stack-allocated, column-major, 4x1 square matrix.
+/// A stack-allocated, column-major, 4x1 matrix.
 pub type Matrix4x1<N> = MatrixMN<N, U4, U1>;
-/// A stack-allocated, column-major, 5x1 square matrix.
+/// A stack-allocated, column-major, 5x1 matrix.
 pub type Matrix5x1<N> = MatrixMN<N, U5, U1>;
-/// A stack-allocated, column-major, 6x1 square matrix.
+/// A stack-allocated, column-major, 6x1 matrix.
 pub type Matrix6x1<N> = MatrixMN<N, U6, U1>;
 
-/// A stack-allocated, column-major, 3x2 square matrix.
+/// A stack-allocated, column-major, 3x2 matrix.
 pub type Matrix3x2<N> = MatrixMN<N, U3, U2>;
-/// A stack-allocated, column-major, 4x2 square matrix.
+/// A stack-allocated, column-major, 4x2 matrix.
 pub type Matrix4x2<N> = MatrixMN<N, U4, U2>;
-/// A stack-allocated, column-major, 5x2 square matrix.
+/// A stack-allocated, column-major, 5x2 matrix.
 pub type Matrix5x2<N> = MatrixMN<N, U5, U2>;
-/// A stack-allocated, column-major, 6x2 square matrix.
+/// A stack-allocated, column-major, 6x2 matrix.
 pub type Matrix6x2<N> = MatrixMN<N, U6, U2>;
 
-/// A stack-allocated, column-major, 4x3 square matrix.
+/// A stack-allocated, column-major, 4x3 matrix.
 pub type Matrix4x3<N> = MatrixMN<N, U4, U3>;
-/// A stack-allocated, column-major, 5x3 square matrix.
+/// A stack-allocated, column-major, 5x3 matrix.
 pub type Matrix5x3<N> = MatrixMN<N, U5, U3>;
-/// A stack-allocated, column-major, 6x3 square matrix.
+/// A stack-allocated, column-major, 6x3 matrix.
 pub type Matrix6x3<N> = MatrixMN<N, U6, U3>;
 
-/// A stack-allocated, column-major, 5x4 square matrix.
+/// A stack-allocated, column-major, 5x4 matrix.
 pub type Matrix5x4<N> = MatrixMN<N, U5, U4>;
-/// A stack-allocated, column-major, 6x4 square matrix.
+/// A stack-allocated, column-major, 6x4 matrix.
 pub type Matrix6x4<N> = MatrixMN<N, U6, U4>;
 
-/// A stack-allocated, column-major, 6x5 square matrix.
+/// A stack-allocated, column-major, 6x5 matrix.
 pub type Matrix6x5<N> = MatrixMN<N, U6, U5>;
 
 /*
