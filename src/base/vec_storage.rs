@@ -1,6 +1,5 @@
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
-use std::ops::Deref;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
@@ -81,14 +80,11 @@ impl<N, R: Dim, C: Dim> VecStorage<N, R, C> {
 
         self.data
     }
-}
 
-impl<N, R: Dim, C: Dim> Deref for VecStorage<N, R, C> {
-    type Target = Vec<N>;
-
+    /// The number of elements on the underlying vector.
     #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.data
+    pub fn len(&self) -> usize {
+        self.data.len()
     }
 }
 
@@ -145,7 +141,7 @@ where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 
     #[inline]
     fn as_slice(&self) -> &[N] {
-        &self[..]
+        &self.data
     }
 }
 
@@ -189,7 +185,7 @@ where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 
     #[inline]
     fn as_slice(&self) -> &[N] {
-        &self[..]
+        &self.data
     }
 }
 

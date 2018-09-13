@@ -35,7 +35,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Implement `Extend<Matrix<...>>` for matrices with dynamic storage. This will concatenate the columns of both matrices.
   * Implement `Into<Vec>` for the `MatrixVec` storage.
   * Implement `Hash` for all matrices.
-  
+  * Add a `.len()` method to retrieve the size of a `MatrixVec`.
+
 ### Modified
   * The orthographic projection no longer require that `bottom < top`, that `left < right`, and that `znear < zfar`. The
   only restriction now ith that they must not be equal (in which case the projection would be singular).
@@ -46,11 +47,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Renamed `.unwrap()` to `.into_inner()` for geometric types that wrap another type.
     This is for the case of `Unit`, `Transform`, `Orthographic3`, `Perspective3`, `Rotation`.
   * Deprecate several functions at the root of the crate (replaced by methods).
-  
+
+### Removed
+    * Remove the `Deref` impl for `MatrixVec` as it could cause hard-to-understand compilation errors.
+
 ### nalgebra-glm
   * Add several alternative projection computations, e.g., `ortho_lh`, `ortho_lh_no`, `perspective_lh`, etc.
   * Add features matching those of nalgebra, in particular: `serde-serialize`, `abmonation-serialize`, std` (enabled by default).
-  
+
 ## [0.16.0]
 All dependencies have been updated to their latest versions.
 
