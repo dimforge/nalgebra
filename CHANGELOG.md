@@ -4,6 +4,11 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.17.0] - WIP
+
+### Added
+  * Add `.copy_from_slice` to copy matrix components from a slice in column-major order.
+
 ## [0.16.0]
 All dependencies have been updated to their latest versions.
 

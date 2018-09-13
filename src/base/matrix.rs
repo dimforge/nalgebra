@@ -475,6 +475,27 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         unsafe { self.swap_unchecked(row_cols1, row_cols2) }
     }
 
+    /// Fills this matrix with the content of a slice. Both must hold the same number of elements.
+    ///
+    /// The components of the slice are assumed to be ordered in column-major order.
+    #[inline]
+    pub fn copy_from_slice(&mut self, slice: &[N]) {
+        let (nrows, ncols) = self.shape();
+
+        assert!(
+            nrows * ncols == slice.len(),
+            "The slice must contain the same number of elements as the matrix."
+        );
+
+        for j in 0..ncols {
+            for i in 0..nrows {
+                unsafe {
+                    *self.get_unchecked_mut(i, j) = *slice.get_unchecked(i + j * nrows);
+                }
+            }
+        }
+    }
+
     /// Fills this matrix with the content of another one. Both must have the same shape.
     #[inline]
     pub fn copy_from<R2, C2, SB>(&mut self, other: &Matrix<N, R2, C2, SB>)
