@@ -240,6 +240,21 @@ fn from_rows_with_different_dimensions() {
 }
 
 #[test]
+fn copy_from_slice() {
+    let mut a = Matrix3::zeros();
+    let data = [ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 ];
+    let expected_a = Matrix3::new(
+        1.0, 4.0, 7.0,
+        2.0, 5.0, 8.0,
+        3.0, 6.0, 9.0
+    );
+
+    a.copy_from_slice(&data);
+
+    assert_eq!(a, expected_a);
+}
+
+#[test]
 fn to_homogeneous() {
     let a = Vector3::new(1.0, 2.0, 3.0);
     let expected_a = Vector4::new(1.0, 2.0, 3.0, 0.0);
