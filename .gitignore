@@ -9,3 +9,4 @@ Cargo.lock
 *.swo
 site/
 .vscode/
+.idea/
