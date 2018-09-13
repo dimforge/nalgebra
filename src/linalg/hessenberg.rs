@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use alga::general::Real;
 use allocator::Allocator;
@@ -18,8 +18,8 @@ use linalg::householder;
         bound(
             serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
-         MatrixN<N, D>: serde::Serialize,
-         VectorN<N, DimDiff<D, U1>>: serde::Serialize"
+         MatrixN<N, D>: Serialize,
+         VectorN<N, DimDiff<D, U1>>: Serialize"
         )
     )
 )]
@@ -29,8 +29,8 @@ use linalg::householder;
         bound(
             deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
-         MatrixN<N, D>: serde::Deserialize<'de>,
-         VectorN<N, DimDiff<D, U1>>: serde::Deserialize<'de>"
+         MatrixN<N, D>: Deserialize<'de>,
+         VectorN<N, DimDiff<D, U1>>: Deserialize<'de>"
         )
     )
 )]

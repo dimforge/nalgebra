@@ -6,7 +6,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -80,28 +80,28 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Scalar, D: DimName> serde::Serialize for Translation<N, D>
+impl<N: Scalar, D: DimName> Serialize for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: serde::Serialize,
+    Owned<N, D>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer,
+        S: Serializer,
     {
         self.vector.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar, D: DimName> serde::Deserialize<'a> for Translation<N, D>
+impl<'a, N: Scalar, D: DimName> Deserialize<'a> for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: serde::Deserialize<'a>,
+    Owned<N, D>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
-        Des: serde::Deserializer<'a>,
+        Des: Deserializer<'a>,
     {
         let matrix = VectorN::<N, D>::deserialize(deserializer)?;
 

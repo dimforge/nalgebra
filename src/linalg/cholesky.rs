@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use alga::general::Real;
 
@@ -16,7 +16,7 @@ use storage::{Storage, StorageMut};
     serde(
         bound(
             serialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: serde::Serialize"
+         MatrixN<N, D>: Serialize"
         )
     )
 )]
@@ -25,7 +25,7 @@ use storage::{Storage, StorageMut};
     serde(
         bound(
             deserialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: serde::Deserialize<'de>"
+         MatrixN<N, D>: Deserialize<'de>"
         )
     )
 )]

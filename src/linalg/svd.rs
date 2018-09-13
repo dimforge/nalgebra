@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use num_complex::Complex;
 use std::ops::MulAssign;
@@ -26,9 +26,9 @@ use linalg::Bidiagonal;
                            Allocator<N, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
-         MatrixMN<N, R, DimMinimum<R, C>>: serde::Serialize,
-         MatrixMN<N, DimMinimum<R, C>, C>: serde::Serialize,
-         VectorN<N, DimMinimum<R, C>>: serde::Serialize"
+         MatrixMN<N, R, DimMinimum<R, C>>: Serialize,
+         MatrixMN<N, DimMinimum<R, C>, C>: Serialize,
+         VectorN<N, DimMinimum<R, C>>: Serialize"
         )
     )
 )]
@@ -40,9 +40,9 @@ use linalg::Bidiagonal;
                            Allocator<N, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
-         MatrixMN<N, R, DimMinimum<R, C>>: serde::Deserialize<'de>,
-         MatrixMN<N, DimMinimum<R, C>, C>: serde::Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>"
+         MatrixMN<N, R, DimMinimum<R, C>>: Deserialize<'de>,
+         MatrixMN<N, DimMinimum<R, C>, C>: Deserialize<'de>,
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
         )
     )
 )]

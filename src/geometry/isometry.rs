@@ -6,7 +6,7 @@ use std::io::{Result as IOResult, Write};
 use std::marker::PhantomData;
 
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -28,9 +28,9 @@ use geometry::{Point, Translation};
     feature = "serde-serialize",
     serde(
         bound(
-            serialize = "R: serde::Serialize,
+            serialize = "R: Serialize,
                      DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: serde::Serialize"
+                     Owned<N, D>: Serialize"
         )
     )
 )]
@@ -38,9 +38,9 @@ use geometry::{Point, Translation};
     feature = "serde-serialize",
     serde(
         bound(
-            deserialize = "R: serde::Deserialize<'de>,
+            deserialize = "R: Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: serde::Deserialize<'de>"
+                       Owned<N, D>: Deserialize<'de>"
         )
     )
 )]

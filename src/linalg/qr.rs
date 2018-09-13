@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use alga::general::Real;
 use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
@@ -16,13 +16,13 @@ use geometry::Reflection;
 #[cfg_attr(feature = "serde-serialize",
            serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: serde::Serialize,
-         VectorN<N, DimMinimum<R, C>>: serde::Serialize")))]
+         MatrixMN<N, R, C>: Serialize,
+         VectorN<N, DimMinimum<R, C>>: Serialize")))]
 #[cfg_attr(feature = "serde-serialize",
            serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: serde::Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>")))]
+         MatrixMN<N, R, C>: Deserialize<'de>,
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>")))]
 #[derive(Clone, Debug)]
 pub struct QR<N: Real, R: DimMin<C>, C: Dim>
 where

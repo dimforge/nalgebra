@@ -5,7 +5,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -27,10 +27,10 @@ use geometry::{Isometry, Point, Translation};
     feature = "serde-serialize",
     serde(
         bound(
-            serialize = "N: serde::Serialize,
-                     R: serde::Serialize,
+            serialize = "N: Serialize,
+                     R: Serialize,
                      DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: serde::Serialize"
+                     Owned<N, D>: Serialize"
         )
     )
 )]
@@ -38,10 +38,10 @@ use geometry::{Isometry, Point, Translation};
     feature = "serde-serialize",
     serde(
         bound(
-            deserialize = "N: serde::Deserialize<'de>,
-                       R: serde::Deserialize<'de>,
+            deserialize = "N: Deserialize<'de>,
+                       R: Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: serde::Deserialize<'de>"
+                       Owned<N, D>: Deserialize<'de>"
         )
     )
 )]

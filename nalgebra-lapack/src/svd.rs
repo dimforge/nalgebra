@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use num::Signed;
 use std::cmp;
@@ -20,9 +20,9 @@ use lapack;
             serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, R, R> +
                            Allocator<N, C, C>,
-         MatrixN<N, R>: serde::Serialize,
-         MatrixN<N, C>: serde::Serialize,
-         VectorN<N, DimMinimum<R, C>>: serde::Serialize"
+         MatrixN<N, R>: Serialize,
+         MatrixN<N, C>: Serialize,
+         VectorN<N, DimMinimum<R, C>>: Serialize"
         )
     )
 )]
@@ -33,9 +33,9 @@ use lapack;
             serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, R, R> +
                            Allocator<N, C, C>,
-         MatrixN<N, R>: serde::Deserialize<'de>,
-         MatrixN<N, C>: serde::Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>"
+         MatrixN<N, R>: Deserialize<'de>,
+         MatrixN<N, C>: Deserialize<'de>,
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
         )
     )
 )]

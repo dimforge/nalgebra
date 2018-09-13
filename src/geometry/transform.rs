@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use std::marker::PhantomData;
 
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
 use alga::general::Real;
 
@@ -191,28 +191,28 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Real, D: DimNameAdd<U1>, C: TCategory> serde::Serialize for Transform<N, D, C>
+impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Serialize for Transform<N, D, C>
 where
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: serde::Serialize,
+    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer,
+        S: Serializer,
     {
         self.matrix.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Real, D: DimNameAdd<U1>, C: TCategory> serde::Deserialize<'a> for Transform<N, D, C>
+impl<'a, N: Real, D: DimNameAdd<U1>, C: TCategory> Deserialize<'a> for Transform<N, D, C>
 where
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: serde::Deserialize<'a>,
+    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
-        Des: serde::Deserializer<'a>,
+        Des: Deserializer<'a>,
     {
         let matrix = MatrixN::<N, DimNameSum<D, U1>>::deserialize(deserializer)?;
 

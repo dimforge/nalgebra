@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use alga::general::Real;
 use num_complex::Complex;
@@ -22,7 +22,7 @@ use linalg::Hessenberg;
     serde(
         bound(
             serialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: serde::Serialize"
+         MatrixN<N, D>: Serialize"
         )
     )
 )]
@@ -31,7 +31,7 @@ use linalg::Hessenberg;
     serde(
         bound(
             deserialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: serde::Deserialize<'de>"
+         MatrixN<N, D>: Deserialize<'de>"
         )
     )
 )]

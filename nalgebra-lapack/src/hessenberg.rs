@@ -17,8 +17,8 @@ use lapack;
         bound(
             serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
-         MatrixN<N, D>: serde::Serialize,
-         VectorN<N, DimDiff<D, U1>>: serde::Serialize"
+         MatrixN<N, D>: Serialize,
+         VectorN<N, DimDiff<D, U1>>: Serialize"
         )
     )
 )]
@@ -28,8 +28,8 @@ use lapack;
         bound(
             deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
-         MatrixN<N, D>: serde::Deserialize<'de>,
-         VectorN<N, DimDiff<D, U1>>: serde::Deserialize<'de>"
+         MatrixN<N, D>: Deserialize<'de>,
+         VectorN<N, DimDiff<D, U1>>: Deserialize<'de>"
         )
     )
 )]

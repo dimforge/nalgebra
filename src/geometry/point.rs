@@ -7,7 +7,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -57,28 +57,28 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Scalar, D: DimName> serde::Serialize for Point<N, D>
+impl<N: Scalar, D: DimName> Serialize for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: serde::Serialize,
+    <DefaultAllocator as Allocator<N, D>>::Buffer: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer,
+        S: Serializer,
     {
         self.coords.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar, D: DimName> serde::Deserialize<'a> for Point<N, D>
+impl<'a, N: Scalar, D: DimName> Deserialize<'a> for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: serde::Deserialize<'a>,
+    <DefaultAllocator as Allocator<N, D>>::Buffer: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
-        Des: serde::Deserializer<'a>,
+        Des: Deserializer<'a>,
     {
         let coords = VectorN::<N, D>::deserialize(deserializer)?;
 

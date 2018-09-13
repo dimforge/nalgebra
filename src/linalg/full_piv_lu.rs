@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use alga::general::Real;
 use allocator::Allocator;
@@ -19,8 +19,8 @@ use linalg::PermutationSequence;
         bound(
             serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: serde::Serialize,
-         PermutationSequence<DimMinimum<R, C>>: serde::Serialize"
+         MatrixMN<N, R, C>: Serialize,
+         PermutationSequence<DimMinimum<R, C>>: Serialize"
         )
     )
 )]
@@ -30,8 +30,8 @@ use linalg::PermutationSequence;
         bound(
             deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: serde::Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: serde::Deserialize<'de>"
+         MatrixMN<N, R, C>: Deserialize<'de>,
+         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"
         )
     )
 )]

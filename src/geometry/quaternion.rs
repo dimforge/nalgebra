@@ -8,7 +8,7 @@ use std::io::{Result as IOResult, Write};
 #[cfg(feature = "serde-serialize")]
 use base::storage::Owned;
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -74,26 +74,26 @@ impl<N: Real> Clone for Quaternion<N> {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Real> serde::Serialize for Quaternion<N>
+impl<N: Real> Serialize for Quaternion<N>
 where
-    Owned<N, U4>: serde::Serialize,
+    Owned<N, U4>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer,
+        S: Serializer,
     {
         self.coords.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Real> serde::Deserialize<'a> for Quaternion<N>
+impl<'a, N: Real> Deserialize<'a> for Quaternion<N>
 where
-    Owned<N, U4>: serde::Deserialize<'a>,
+    Owned<N, U4>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
-        Des: serde::Deserializer<'a>,
+        Des: Deserializer<'a>,
     {
         let coords = Vector4::<N>::deserialize(deserializer)?;
 
