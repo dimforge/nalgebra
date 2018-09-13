@@ -254,6 +254,22 @@ fn copy_from_slice() {
     assert_eq!(a, expected_a);
 }
 
+#[should_panic]
+#[test]
+fn copy_from_slice_too_small() {
+    let mut a = Matrix3::zeros();
+    let data = [ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 ];
+    a.copy_from_slice(&data);
+}
+
+#[should_panic]
+#[test]
+fn copy_from_slice_too_large() {
+    let mut a = Matrix3::zeros();
+    let data = [ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 ];
+    a.copy_from_slice(&data);
+}
+
 #[test]
 fn to_homogeneous() {
     let a = Vector3::new(1.0, 2.0, 3.0);
