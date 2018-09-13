@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use num::Zero;
 use num_complex::Complex;
@@ -21,8 +21,8 @@ use lapack;
     serde(
         bound(
             serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-         VectorN<N, D>: serde::Serialize,
-         MatrixN<N, D>: serde::Serialize"
+         VectorN<N, D>: Serialize,
+         MatrixN<N, D>: Serialize"
         )
     )
 )]
@@ -31,8 +31,8 @@ use lapack;
     serde(
         bound(
             deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-         VectorN<N, D>: serde::Serialize,
-         MatrixN<N, D>: serde::Deserialize<'de>"
+         VectorN<N, D>: Serialize,
+         MatrixN<N, D>: Deserialize<'de>"
         )
     )
 )]

@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use num_complex::Complex;
 use std::ops::MulAssign;
@@ -22,8 +22,8 @@ use linalg::SymmetricTridiagonal;
         bound(
             serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
-         VectorN<N, D>: serde::Serialize,
-         MatrixN<N, D>: serde::Serialize"
+         VectorN<N, D>: Serialize,
+         MatrixN<N, D>: Serialize"
         )
     )
 )]
@@ -33,8 +33,8 @@ use linalg::SymmetricTridiagonal;
         bound(
             deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
-         VectorN<N, D>: serde::Deserialize<'de>,
-         MatrixN<N, D>: serde::Deserialize<'de>"
+         VectorN<N, D>: Deserialize<'de>,
+         MatrixN<N, D>: Deserialize<'de>"
         )
     )
 )]

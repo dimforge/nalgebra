@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use alga::general::ClosedNeg;
 use num::One;
@@ -18,7 +18,7 @@ use storage::StorageMut;
     serde(
         bound(
             serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
-         VectorN<(usize, usize), D>: serde::Serialize"
+         VectorN<(usize, usize), D>: Serialize"
         )
     )
 )]
@@ -27,7 +27,7 @@ use storage::StorageMut;
     serde(
         bound(
             deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
-         VectorN<(usize, usize), D>: serde::Deserialize<'de>"
+         VectorN<(usize, usize), D>: Deserialize<'de>"
         )
     )
 )]

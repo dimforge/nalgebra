@@ -24,8 +24,8 @@ use lapack;
         bound(
             serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<i32, DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: serde::Serialize,
-         PermutationSequence<DimMinimum<R, C>>: serde::Serialize"
+         MatrixMN<N, R, C>: Serialize,
+         PermutationSequence<DimMinimum<R, C>>: Serialize"
         )
     )
 )]
@@ -35,8 +35,8 @@ use lapack;
         bound(
             deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<i32, DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: serde::Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: serde::Deserialize<'de>"
+         MatrixMN<N, R, C>: Deserialize<'de>,
+         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"
         )
     )
 )]

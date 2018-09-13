@@ -3,7 +3,7 @@ use quickcheck::{Arbitrary, Gen};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 use std::fmt;
 
 use alga::general::Real;
@@ -43,20 +43,20 @@ impl<N: Real> PartialEq for Orthographic3<N> {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Real + serde::Serialize> serde::Serialize for Orthographic3<N> {
+impl<N: Real + Serialize> Serialize for Orthographic3<N> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer,
+        S: Serializer,
     {
         self.matrix.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Real + serde::Deserialize<'a>> serde::Deserialize<'a> for Orthographic3<N> {
+impl<'a, N: Real + Deserialize<'a>> Deserialize<'a> for Orthographic3<N> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
-        Des: serde::Deserializer<'a>,
+        Des: Deserializer<'a>,
     {
         let matrix = Matrix4::<N>::deserialize(deserializer)?;
 

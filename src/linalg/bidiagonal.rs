@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize};
 
 use alga::general::Real;
 use allocator::Allocator;
@@ -21,9 +21,9 @@ use linalg::householder;
          DefaultAllocator: Allocator<N, R, C>             +
                            Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
-         MatrixMN<N, R, C>: serde::Serialize,
-         VectorN<N, DimMinimum<R, C>>: serde::Serialize,
-         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Serialize"
+         MatrixMN<N, R, C>: Serialize,
+         VectorN<N, DimMinimum<R, C>>: Serialize,
+         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Serialize"
         )
     )
 )]
@@ -35,9 +35,9 @@ use linalg::householder;
          DefaultAllocator: Allocator<N, R, C>             +
                            Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
-         MatrixMN<N, R, C>: serde::Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: serde::Deserialize<'de>,
-         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: serde::Deserialize<'de>"
+         MatrixMN<N, R, C>: Deserialize<'de>,
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>,
+         VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Deserialize<'de>"
         )
     )
 )]

@@ -6,7 +6,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use serde;
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
 #[cfg(feature = "serde-serialize")]
 use base::storage::Owned;
@@ -80,28 +80,28 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Scalar, D: DimName> serde::Serialize for Rotation<N, D>
+impl<N: Scalar, D: DimName> Serialize for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
-    Owned<N, D, D>: serde::Serialize,
+    Owned<N, D, D>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer,
+        S: Serializer,
     {
         self.matrix.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar, D: DimName> serde::Deserialize<'a> for Rotation<N, D>
+impl<'a, N: Scalar, D: DimName> Deserialize<'a> for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
-    Owned<N, D, D>: serde::Deserialize<'a>,
+    Owned<N, D, D>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
-        Des: serde::Deserializer<'a>,
+        Des: Deserializer<'a>,
     {
         let matrix = MatrixN::<N, D>::deserialize(deserializer)?;
 
