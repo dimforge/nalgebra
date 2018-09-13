@@ -1,4 +1,4 @@
-#![cfg(feature = "arbitrary")]
+#![cfg(all(feature = "arbitrary", feature = "debug"))]
 
 use std::cmp;
 use na::{DMatrix, Matrix4x3, DVector, Vector4};
