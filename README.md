@@ -2,8 +2,8 @@
   <img src="http://nalgebra.org/img/logo_nalgebra.svg" alt="crates.io">
 </p>
 <p align="center">
-    <a href="https://travis-ci.org/sebcrozet/nalgebra">
-        <img src="https://travis-ci.org/sebcrozet/nalgebra.svg?branch=master" alt="Build status">
+    <a href="https://travis-ci.org/rustsim/nalgebra">
+        <img src="https://travis-ci.org/rustsim/nalgebra.svg?branch=master" alt="Build status">
     </a>
     <a href="https://crates.io/crates/nalgebra">
          <img src="http://meritbadge.herokuapp.com/nalgebra?style=flat-square" alt="crates.io">
