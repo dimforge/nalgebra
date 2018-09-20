@@ -1,64 +1,44 @@
-use na::{Scalar, DimName, DefaultAllocator};
+use na::{self, DefaultAllocator};
 
-use traits::Alloc;
+use traits::{Alloc, Number, Dimension};
 use aliases::Vec;
 
-pub fn fmax<N: Scalar, D: DimName>(a: &Vec<N, D>,b: N) -> Vec<N, D>
+pub fn max<N: Number, D: Dimension>(a: &Vec<N, D>, b: N) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    a.map(|a| na::sup(&a, &b))
 }
 
-pub fn fmax2<N: Scalar, D: DimName>(a: &Vec<N, D>, b: &Vec<N, D>) -> Vec<N, D>
+pub fn max2<N: Number, D: Dimension>(a: &Vec<N, D>, b: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    na::sup(a, b)
 }
 
-pub fn fmax3<N: Scalar, D: DimName>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>) -> Vec<N, D>
+pub fn max3<N: Number, D: Dimension>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    max2(&max2(a, b), c)
 }
 
-pub fn fmax4<N: Scalar, D: DimName>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>, d: &Vec<N, D>) -> Vec<N, D>
+pub fn max4<N: Number, D: Dimension>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>, d: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    max2(&max2(a, b), &max2(c, d))
 }
 
-pub fn fmin<N: Scalar, D: DimName>(x: &Vec<N, D>,y: N) -> Vec<N, D>
+pub fn min<N: Number, D: Dimension>(x: &Vec<N, D>,y: N) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    x.map(|x| na::inf(&x, &y))
 }
 
-pub fn fmin2<N: Scalar, D: DimName>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
+pub fn min2<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    na::inf(x, y)
 }
 
-pub fn fmin3<N: Scalar, D: DimName>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>) -> Vec<N, D>
+pub fn min3<N: Number, D: Dimension>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    min2(&min2(a, b), c)
 }
 
-pub fn fmin4<N: Scalar, D: DimName>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>, d: &Vec<N, D>) -> Vec<N, D>
+pub fn min4<N: Number, D: Dimension>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>, d: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
-}
-
-pub fn max3<N: Scalar, D: DimName>(x: &Vec<N, D>, y: &Vec<N, D>, z: &Vec<N, D>) -> Vec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
-}
-
-pub fn max4<N: Scalar, D: DimName>(x: &Vec<N, D>, y: &Vec<N, D>, z: &Vec<N, D>, w: &Vec<N, D>) -> Vec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
-}
-
-pub fn min3<N: Scalar, D: DimName>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>) -> Vec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
-}
-
-pub fn min4<N: Scalar, D: DimName>(a: &Vec<N, D>, b: &Vec<N, D>, c: &Vec<N, D>, d: &Vec<N, D>) -> Vec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    min2(&min2(a, b), &min2(c, d))
 }

@@ -1,14 +1,15 @@
-use na::{Scalar, DimName, DefaultAllocator};
+use na::{Real, DefaultAllocator, Transform, TAffine};
 
-use traits::Alloc;
+use traits::{Alloc, Dimension};
 use aliases::Mat;
 
-pub fn affineInverse<N: Scalar, D: DimName>(m: &Mat<N, D, D>) -> Mat<N, D, D>
+pub fn affine_inverse<N: Real, D: Dimension>(m: Mat<N, D, D>) -> Mat<N, D, D>
     where DefaultAllocator: Alloc<N, D, D> {
-    unimplemented!()
+    // FIXME: this should be optimized.
+    m.try_inverse().unwrap_or(Mat::<_, D, D>::zeros())
 }
 
-pub fn inverseTranspose<N: Scalar, D: DimName>(m: &Mat<N, D, D>) -> Mat<N, D, D>
+pub fn inverse_transpose<N: Real, D: Dimension>(m: Mat<N, D, D>) -> Mat<N, D, D>
     where DefaultAllocator: Alloc<N, D, D> {
-    unimplemented!()
+    m.try_inverse().unwrap_or(Mat::<_, D, D>::zeros()).transpose()
 }

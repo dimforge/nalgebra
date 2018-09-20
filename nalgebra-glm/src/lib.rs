@@ -1,4 +1,6 @@
 extern crate num_traits as num;
+#[macro_use]
+extern crate approx;
 extern crate alga;
 extern crate nalgebra as na;
 
@@ -10,6 +12,8 @@ pub use traits::*;
 pub use trigonometric::*;
 pub use vector_relational::*;
 pub use exponential::*;
+
+pub use ext_vector_relational::*;
 
 mod aliases;
 pub mod constructors;
@@ -30,6 +34,7 @@ pub mod ext_quaternion_common;
 pub mod ext_quaternion_geometric;
 pub mod ext_quaternion_transform;
 pub mod ext_quaternion_trigonometric;
+pub mod ext_quaternion_relational;
 pub mod ext_scalar_common;
 pub mod ext_scalar_constants;
 pub mod ext_vector_common;

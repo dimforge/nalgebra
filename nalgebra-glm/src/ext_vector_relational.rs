@@ -1,24 +1,24 @@
-use na::{Scalar, DimName, DefaultAllocator};
+use na::{DefaultAllocator};
 
-use traits::Alloc;
+use traits::{Alloc, Number, Dimension};
 use aliases::Vec;
 
-pub fn equal<N: Scalar, D: DimName>(x: &Vec<N, D>, y: &Vec<N, D>, epsilon: N) -> Vec<bool, D>
+pub fn equal_eps<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>, epsilon: N) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    x.zip_map(y, |x, y| abs_diff_eq!(x, y))
 }
 
-pub fn equal2<N: Scalar, D: DimName>(x: &Vec<N, D>, y: &Vec<N, D>, epsilon: &Vec<N, D>) -> Vec<bool, D>
+pub fn equal_eps_vec<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>, epsilon: &Vec<N, D>) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    x.zip_zip_map(y, epsilon, |x, y, eps| abs_diff_eq!(x, y, epsilon = eps))
 }
 
-pub fn notEqual<N: Scalar, D: DimName>(x: &Vec<N, D>, y: &Vec<N, D>, epsilon: N) -> Vec<bool, D>
+pub fn not_equal_eps<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>, epsilon: N) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    x.zip_map(y, |x, y| abs_diff_ne!(x, y))
 }
 
-pub fn notEqual2<N: Scalar, D: DimName>(x: &Vec<N, D>, y: &Vec<N, D>, epsilon: &Vec<N, D>) -> Vec<bool, D>
+pub fn not_equal_eps_vec<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>, epsilon: &Vec<N, D>) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
-    unimplemented!()
+    x.zip_zip_map(y, epsilon, |x, y, eps| abs_diff_ne!(x, y, epsilon = eps))
 }

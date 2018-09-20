@@ -1,19 +1,23 @@
-use na::{Real, U3};
+use na::{Real, U3, UnitQuaternion, Unit};
 
 use aliases::{Vec, Qua};
 
 pub fn exp<N: Real>(q: &Qua<N>) -> Qua<N> {
-    unimplemented!()
+    q.exp()
 }
+
 pub fn log<N: Real>(q: &Qua<N>) -> Qua<N> {
-    unimplemented!()
+    q.ln()
 }
+
 pub fn pow<N: Real>(q: &Qua<N>, y: N) -> Qua<N> {
-    unimplemented!()
+    q.powf(y)
 }
+
 pub fn rotate<N: Real>(q: &Qua<N>, angle: N, axis: &Vec<N, U3>) -> Qua<N> {
-    unimplemented!()
+    q * UnitQuaternion::from_axis_angle(&Unit::new_normalize(*axis), angle).unwrap()
 }
+
 pub fn sqrt<N: Real>(q: &Qua<N>) -> Qua<N> {
     unimplemented!()
 }
