@@ -145,7 +145,7 @@ md_impl_all!(
             let n = normalizer.tr_dot(&rhs.coords) + unsafe { *self.matrix().get_unchecked(D::dim(), D::dim()) };
 
             if !n.is_zero() {
-                return transform * (rhs / n) + translation;
+                return (transform * rhs + translation) / n;
             }
         }
 
