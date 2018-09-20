@@ -15,6 +15,8 @@ pub use exponential::*;
 
 pub use ext_vector_relational::*;
 
+pub use gtx_component_wise::*;
+
 mod aliases;
 pub mod constructors;
 mod common;
@@ -39,15 +41,33 @@ pub mod ext_scalar_common;
 pub mod ext_scalar_constants;
 pub mod ext_vector_common;
 pub mod ext_vector_relational;
-pub mod gtc_bitfield;
+//pub mod gtc_bitfield;
 pub mod gtc_constants;
 pub mod gtc_epsilon;
-pub mod gtc_integer;
+//pub mod gtc_integer;
 pub mod gtc_matrix_access;
 pub mod gtc_matrix_inverse;
-pub mod gtc_packing;
+//pub mod gtc_packing;
 pub mod gtc_quaternion;
-pub mod gtc_reciprocal;
-pub mod gtc_round;
+//pub mod gtc_reciprocal;
+//pub mod gtc_round;
 pub mod gtc_type_ptr;
-pub mod gtc_ulp;
+//pub mod gtc_ulp;
+
+pub mod gtx_component_wise;
+//pub mod gtx_euler_angles;
+pub mod gtx_exterior_product;
+pub mod gtx_handed_coordinate_space;
+pub mod gtx_matrix_cross_product;
+pub mod gtx_matrix_operation;
+pub mod gtx_norm;
+pub mod gtx_normal;
+pub mod gtx_normalize_dot;
+//pub mod gtx_quaternion;
+pub mod gtx_rotate_normalized_axis;
+//pub mod gtx_rotate_vector;
+pub mod gtx_transform;
+//pub mod gtx_transform2;
+//pub mod gtx_transform2d;
+//pub mod gtx_vector_angle;
+pub mod gtx_vector_query;

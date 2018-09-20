@@ -1,41 +1,19 @@
-use na::Scalar;
+use na;
 
-pub fn fmax<N: Scalar>(a: N, b: N) -> N {
-    unimplemented!()
+use traits::Number;
+
+pub fn max3<N: Number>(a: N, b: N, c: N) -> N {
+    na::sup(&na::sup(&a, &b), &c)
 }
 
-pub fn fmax3<N: Scalar>(a: N, b: N, C: N) -> N {
-    unimplemented!()
+pub fn max4<N: Number>(a: N, b: N, c: N, d: N) -> N {
+    na::sup(&na::sup(&a, &b), &na::sup(&c, &d))
 }
 
-pub fn fmax4<N: Scalar>(a: N, b: N, C: N, D: N) -> N {
-    unimplemented!()
+pub fn min3<N: Number>(a: N, b: N, c: N) -> N {
+    na::inf(&na::inf(&a, &b), &c)
 }
 
-pub fn fmin<N: Scalar>(a: N, b: N) -> N {
-    unimplemented!()
-}
-
-pub fn fmin3<N: Scalar>(a: N, b: N, c: N) -> N {
-    unimplemented!()
-}
-
-pub fn fmin4<N: Scalar>(a: N, b: N, c: N, d: N) -> N {
-    unimplemented!()
-}
-
-pub fn max3<N: Scalar>(a: N, b: N, c: N) -> N {
-    unimplemented!()
-}
-
-pub fn max4<N: Scalar>(a: N, b: N, c: N, d: N) -> N {
-    unimplemented!()
-}
-
-pub fn min3<N: Scalar>(a: N, b: N, c: N) -> N {
-    unimplemented!()
-}
-
-pub fn min4<N: Scalar>(a: N, b: N, c: N, d: N) -> N {
-    unimplemented!()
+pub fn min4<N: Number>(a: N, b: N, c: N, d: N) -> N {
+    na::inf(&na::inf(&a, &b), &na::inf(&c, &d))
 }
