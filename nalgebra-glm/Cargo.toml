@@ -1,0 +1,9 @@
+[package]
+name = "nalgebra-glm"
+version = "0.1.0"
+authors = ["sebcrozet <developer@crozet.re>"]
+
+[dependencies]
+num-traits = { version = "0.2", default-features = false }
+alga = "0.7"
+nalgebra = { path =  ".." }

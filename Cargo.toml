@@ -45,4 +45,4 @@ quickcheck     = { version = "0.6", optional = true }
 serde_json = "1.0"
 
 [workspace]
-members = [ "nalgebra-lapack" ]
+members = [ "nalgebra-lapack", "nalgebra-glm" ]
