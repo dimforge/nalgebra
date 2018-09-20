@@ -1,0 +1,5 @@
+pub fn mat< 3, 3, T, Q > 	rotate (mat< 3, 3, T, Q > const &m, T angle)
+pub fn mat< 3, 3, T, Q > 	scale (mat< 3, 3, T, Q > const &m, vec< 2, T, Q > const &v)
+pub fn mat< 3, 3, T, Q > 	shearX (mat< 3, 3, T, Q > const &m, T y)
+pub fn mat< 3, 3, T, Q > 	shearY (mat< 3, 3, T, Q > const &m, T x)
+pub fn mat< 3, 3, T, Q > 	translate (mat< 3, 3, T, Q > const &m, vec< 2, T, Q > const &v)

@@ -1,5 +1,5 @@
 use std::cmp::{PartialOrd, PartialEq};
-use num::Signed;
+use num::{Signed, FromPrimitive, Bounded};
 use approx::AbsDiffEq;
 
 use alga::general::{Ring, Lattice};
@@ -10,10 +10,10 @@ pub trait Dimension: DimName + DimMin<Self, Output = Self> {}
 impl<D: DimName + DimMin<D, Output = Self>> Dimension for D {}
 
 
-pub trait Number: Scalar + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed {
+pub trait Number: Scalar + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + FromPrimitive + Bounded {
 }
 
-impl<T: Scalar + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed> Number for T {
+impl<T: Scalar + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + FromPrimitive + Bounded> Number for T {
 }
 
 #[doc(hidden)]

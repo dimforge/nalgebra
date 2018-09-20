@@ -26,9 +26,9 @@ pub fn rotate<N: Real>(m: &Mat<N, U4, U4>, angle: N, axis: &Vec<N, U3>) -> Mat<N
 }
 
 pub fn scale<N: Number>(m: &Mat<N, U4, U4>, v: &Vec<N, U3>) -> Mat<N, U4, U4> {
-    m.append_nonuniform_scaling(v)
+    m.prepend_nonuniform_scaling(v)
 }
 
 pub fn translate<N: Number>(m: &Mat<N, U4, U4>, v: &Vec<N, U3>) -> Mat<N, U4, U4> {
-    m.append_translation(v)
+    m.prepend_translation(v)
 }

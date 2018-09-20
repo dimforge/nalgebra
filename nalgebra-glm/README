@@ -4,3 +4,6 @@
 * equal overload with epsilon -> equal_epsilon
 * ortho(l, r, b, t) -> infinite_ortho
 * tweaked_infinite_perspective(fovy, aspect, near, ep) -> tweaked_infinite_perspective_ep
+* Function overload: the vec version is suffixed by _vec
+* Function overload: the methods taking an epsilon as suffixed by _eps
+* L1Norm and L2Norm between two vectors have been renamed: l1_distance, l2_distance
