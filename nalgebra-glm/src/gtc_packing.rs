@@ -1,6 +1,6 @@
-use na::{Scalar, Real, DimName, DefaultAllocator, U3, U4};
+use na::{Scalar, Real, DefaultAllocator, U3, U4};
 
-use traits::Alloc;
+use traits::{Alloc, Dimension};
 use aliases::*;
 
 
@@ -12,7 +12,7 @@ pub fn packF3x9_E1x5(v: &Vec3) -> i32 {
     unimplemented!()
 }
 
-pub fn packHalf<D: DimName>(v: &Vec<f32, D>) -> Vec<u16, D>
+pub fn packHalf<D: Dimension>(v: &Vec<f32, D>) -> Vec<u16, D>
     where DefaultAllocator: Alloc<u16, D> {
     unimplemented!()
 }
@@ -53,7 +53,7 @@ pub fn packRGBM<N: Scalar>(rgb: &Vec<N, U3>) -> Vec<N, U4> {
     unimplemented!()
 }
 
-pub fn packSnorm<I: Scalar, N: Real, D: DimName>(v: Vec<N, D>) -> Vec<I, D>
+pub fn packSnorm<I: Scalar, N: Real, D: Dimension>(v: Vec<N, D>) -> Vec<I, D>
     where DefaultAllocator: Alloc<N, D> + Alloc<I, D> {
     unimplemented!()
 }
@@ -102,7 +102,7 @@ pub fn packUint4x8(v: &U8Vec4) -> i32 {
     unimplemented!()
 }
 
-pub fn packUnorm<UI: Scalar, N: Real, D: DimName>(v: &Vec<N, D>) -> Vec<UI, D>
+pub fn packUnorm<UI: Scalar, N: Real, D: Dimension>(v: &Vec<N, D>) -> Vec<UI, D>
     where DefaultAllocator: Alloc<N, D> + Alloc<UI, D> {
     unimplemented!()
 }
@@ -155,7 +155,7 @@ pub fn unpackF3x9_E1x5(p: i32) -> Vec3 {
     unimplemented!()
 }
 
-pub fn unpackHalf<N: Scalar, D: DimName>(p: Vec<i16, D>) -> Vec<N, D>
+pub fn unpackHalf<N: Scalar, D: Dimension>(p: Vec<i16, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -196,7 +196,7 @@ pub fn unpackRGBM<N: Scalar>(rgbm: &Vec<N, U4>) -> Vec<N, U3> {
     unimplemented!()
 }
 
-pub fn unpackSnorm<I: Scalar, N: Real, D: DimName>(v: &Vec<I, D>) -> Vec<N, D>
+pub fn unpackSnorm<I: Scalar, N: Real, D: Dimension>(v: &Vec<I, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> + Alloc<I, D> {
     unimplemented!()
 }
@@ -245,7 +245,7 @@ pub fn unpackUint4x8(p: i32) -> U8Vec4 {
     unimplemented!()
 }
 
-pub fn unpackUnorm<UI: Scalar, N: Real, D: DimName>(v: &Vec<UI, D>) -> Vec<N, D>
+pub fn unpackUnorm<UI: Scalar, N: Real, D: Dimension>(v: &Vec<UI, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> + Alloc<UI, D> {
     unimplemented!()
 }

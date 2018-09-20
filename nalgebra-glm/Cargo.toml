@@ -5,5 +5,6 @@ authors = ["sebcrozet <developer@crozet.re>"]
 
 [dependencies]
 num-traits = { version = "0.2", default-features = false }
+approx = { version = "0.3", default-features = false }
 alga = "0.7"
 nalgebra = { path =  ".." }

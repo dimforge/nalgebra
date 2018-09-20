@@ -1,6 +1,6 @@
-use na::{Scalar, DimName, DefaultAllocator};
+use na::{Scalar, DefaultAllocator};
 
-use traits::Alloc;
+use traits::{Alloc, Dimension};
 use aliases::*;
 
 pub fn bitfieldDeinterleave(x: u16) -> U8Vec2 {
@@ -19,7 +19,7 @@ pub fn bitfieldFillOne<IU>(Value: IU, FirstBit: i32, BitCount: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldFillOne2<N: Scalar, D: DimName>(Value: &Vec<N, D>, FirstBit: i32, BitCount: i32) -> Vec<N, D>
+pub fn bitfieldFillOne2<N: Scalar, D: Dimension>(Value: &Vec<N, D>, FirstBit: i32, BitCount: i32) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -28,7 +28,7 @@ pub fn bitfieldFillZero<IU>(Value: IU, FirstBit: i32, BitCount: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldFillZero2<N: Scalar, D: DimName>(Value: &Vec<N, D>, FirstBit: i32, BitCount: i32) -> Vec<N, D>
+pub fn bitfieldFillZero2<N: Scalar, D: Dimension>(Value: &Vec<N, D>, FirstBit: i32, BitCount: i32) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -113,7 +113,7 @@ pub fn bitfieldRotateLeft<IU>(In: IU, Shift: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldRotateLeft2<N: Scalar, D: DimName>(In: &Vec<N, D>, Shift: i32) -> Vec<N, D>
+pub fn bitfieldRotateLeft2<N: Scalar, D: Dimension>(In: &Vec<N, D>, Shift: i32) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -122,7 +122,7 @@ pub fn bitfieldRotateRight<IU>(In: IU, Shift: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldRotateRight2<N: Scalar, D: DimName>(In: &Vec<N, D>, Shift: i32) -> Vec<N, D>
+pub fn bitfieldRotateRight2<N: Scalar, D: Dimension>(In: &Vec<N, D>, Shift: i32) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -131,7 +131,7 @@ pub fn mask<IU>(Bits: IU) -> IU {
     unimplemented!()
 }
 
-pub fn mask2<N: Scalar, D: DimName>(v: &Vec<N, D>) -> Vec<N, D>
+pub fn mask2<N: Scalar, D: Dimension>(v: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
