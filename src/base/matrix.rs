@@ -1166,6 +1166,26 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.norm_squared().sqrt()
     }
 
+    /// A synonym for the norm of this matrix.
+    ///
+    /// Aka the length.
+    ///
+    /// This function is simply implemented as a call to `norm()`
+    #[inline]
+    pub fn magnitude(&self) -> N {
+        self.norm()
+    }
+
+    /// A synonym for the squared norm of this matrix.
+    ///
+    /// Aka the squared length.
+    ///
+    /// This function is simply implemented as a call to `norm_squared()`
+    #[inline]
+    pub fn magnitude_squared(&self) -> N {
+        self.norm_squared()
+    }
+
     /// Returns a normalized version of this matrix.
     #[inline]
     pub fn normalize(&self) -> MatrixMN<N, R, C>

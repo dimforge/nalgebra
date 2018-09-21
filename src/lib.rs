@@ -418,6 +418,18 @@ pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
     v.norm_squared()
 }
 
+/// A synonym function for `norm()` aka length.
+#[inline]
+pub fn magnitude<V: NormedSpace>(v: &V) -> V::Field {
+    v.norm()
+}
+
+/// A synonym function for `norm_squared()` aka length squared.
+#[inline]
+pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::Field {
+    v.norm_squared()
+}
+
 /// Computes the normalized version of the vector `v`.
 #[inline]
 pub fn normalize<V: NormedSpace>(v: &V) -> V {
