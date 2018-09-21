@@ -176,6 +176,26 @@ impl<N: Real> Quaternion<N> {
         self.coords.norm()
     }
 
+    /// A synonym for the norm of this quaternion.
+    ///
+    /// Aka the length.
+    ///
+    /// This function is simply implemented as a call to `norm()`
+    #[inline]
+    pub fn magnitude(&self) -> N {
+        self.norm()
+    }
+
+    /// A synonym for the squared norm of this quaternion.
+    ///
+    /// Aka the squared length.
+    ///
+    /// This function is simply implemented as a call to `norm_squared()`
+    #[inline]
+    pub fn magnitude_squared(&self) -> N {
+        self.norm_squared()
+    }
+
     /// The squared norm of this quaternion.
     #[inline]
     pub fn norm_squared(&self) -> N {
