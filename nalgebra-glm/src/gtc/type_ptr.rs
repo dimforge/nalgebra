@@ -70,65 +70,49 @@ pub fn make_quat<N: Real>(ptr: &[N]) -> Qua<N> {
     Quaternion::from_vector(Vector4::from_column_slice(ptr))
 }
 
-/// Creates a 1D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
+/// Creates a 1D vector from a slice.
 pub fn make_vec1<N: Scalar>(v: &Vec<N, U1>) -> Vec<N, U1> {
     *v
 }
 
 /// Creates a 1D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
-pub fn make_vec1_2<N: Scalar>(v: &Vec<N, U2>) -> Vec<N, U1> {
+pub fn vec2_to_vec1<N: Scalar>(v: &Vec<N, U2>) -> Vec<N, U1> {
     Vector1::new(v.x)
 }
 
 /// Creates a 1D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
-pub fn make_vec1_3<N: Scalar>(v: &Vec<N, U3>) -> Vec<N, U1> {
+pub fn vec3_to_vec1<N: Scalar>(v: &Vec<N, U3>) -> Vec<N, U1> {
     Vector1::new(v.x)
 }
 
 /// Creates a 1D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
-pub fn make_vec1_4<N: Scalar>(v: &Vec<N, U4>) -> Vec<N, U1> {
+pub fn vec4_to_vec1<N: Scalar>(v: &Vec<N, U4>) -> Vec<N, U1> {
     Vector1::new(v.x)
 }
 
 /// Creates a 2D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
-pub fn make_vec2_1<N: Number>(v: &Vec<N, U1>) -> Vec<N, U2> {
+pub fn vec1_to_vec2<N: Number>(v: &Vec<N, U1>) -> Vec<N, U2> {
     Vector2::new(v.x, N::zero())
 }
 
 /// Creates a 2D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
-pub fn make_vec2_2<N: Scalar>(v: &Vec<N, U2>) -> Vec<N, U2> {
+pub fn vec2_to_vec2<N: Scalar>(v: &Vec<N, U2>) -> Vec<N, U2> {
     *v
 }
 
 /// Creates a 2D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
-pub fn make_vec2_3<N: Scalar>(v: &Vec<N, U3>) -> Vec<N, U2> {
+pub fn vec3_to_vec2<N: Scalar>(v: &Vec<N, U3>) -> Vec<N, U2> {
     Vector2::new(v.x, v.y)
 }
 
 /// Creates a 2D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
-pub fn make_vec2_4<N: Scalar>(v: &Vec<N, U4>) -> Vec<N, U2> {
+pub fn vec4_to_vec2<N: Scalar>(v: &Vec<N, U4>) -> Vec<N, U2> {
     Vector2::new(v.x, v.y)
 }
 
-/// Creates a 2D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
+/// Creates a 2D vector from a slice.
 pub fn make_vec2<N: Scalar>(ptr: &[N]) -> Vec<N, U2> {
     Vector2::from_column_slice(ptr)
 }
@@ -136,34 +120,28 @@ pub fn make_vec2<N: Scalar>(ptr: &[N]) -> Vec<N, U2> {
 /// Creates a 3D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
-pub fn make_vec3_1<N: Number>(v: &Vec<N, U1>) -> Vec<N, U3> {
+pub fn vec1_to_vec3<N: Number>(v: &Vec<N, U1>) -> Vec<N, U3> {
     Vector3::new(v.x, N::zero(), N::zero())
 }
 
 /// Creates a 3D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
-pub fn make_vec3_2<N: Number>(v: &Vec<N, U2>) -> Vec<N, U3> {
+pub fn vec2_to_vec3<N: Number>(v: &Vec<N, U2>) -> Vec<N, U3> {
     Vector3::new(v.x, v.y, N::zero())
 }
 
 /// Creates a 3D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
-pub fn make_vec3_3<N: Scalar>(v: &Vec<N, U3>) -> Vec<N, U3> {
+pub fn vec3_to_vec3<N: Scalar>(v: &Vec<N, U3>) -> Vec<N, U3> {
     *v
 }
 
 /// Creates a 3D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
-pub fn make_vec3_4<N: Scalar>(v: &Vec<N, U4>) -> Vec<N, U3> {
+pub fn vec4_to_vec3<N: Scalar>(v: &Vec<N, U4>) -> Vec<N, U3> {
     Vector3::new(v.x, v.y, v.z)
 }
 
 /// Creates a 3D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
 pub fn make_vec3<N: Scalar>(ptr: &[N]) -> Vec<N, U3> {
     Vector3::from_column_slice(ptr)
 }
@@ -171,34 +149,30 @@ pub fn make_vec3<N: Scalar>(ptr: &[N]) -> Vec<N, U3> {
 /// Creates a 4D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
-pub fn make_vec4_1<N: Number>(v: &Vec<N, U1>) -> Vec<N, U4> {
+pub fn vec1_to_vec4<N: Number>(v: &Vec<N, U1>) -> Vec<N, U4> {
     Vector4::new(v.x, N::zero(), N::zero(), N::zero())
 }
 
 /// Creates a 4D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
-pub fn make_vec4_2<N: Number>(v: &Vec<N, U2>) -> Vec<N, U4> {
+pub fn vec2_to_vec4<N: Number>(v: &Vec<N, U2>) -> Vec<N, U4> {
     Vector4::new(v.x, v.y, N::zero(), N::zero())
 }
 
 /// Creates a 4D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
-pub fn make_vec4_3<N: Number>(v: &Vec<N, U3>) -> Vec<N, U4> {
+pub fn vec3_to_vec4<N: Number>(v: &Vec<N, U3>) -> Vec<N, U4> {
     Vector4::new(v.x, v.y, v.z, N::zero())
 }
 
 /// Creates a 4D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
-pub fn make_vec4_4<N: Scalar>(v: &Vec<N, U4>) -> Vec<N, U4> {
+pub fn vec4_to_vec4<N: Scalar>(v: &Vec<N, U4>) -> Vec<N, U4> {
     *v
 }
 
 /// Creates a 4D vector from another vector.
-///
-/// Missing components, if any, are set to 0.
 pub fn make_vec4<N: Scalar>(ptr: &[N]) -> Vec<N, U4> {
     Vector4::from_column_slice(ptr)
 }

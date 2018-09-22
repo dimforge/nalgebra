@@ -1,3 +1,6 @@
+// NOTE those are actually duplicates of vector_relational.rs
+
+/*
 use approx::AbsDiffEq;
 use na::DefaultAllocator;
 
@@ -25,3 +28,4 @@ pub fn epsilon_not_equal<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>, 
 pub fn epsilon_not_equal2<N: AbsDiffEq<Epsilon = N>>(x: N, y: N, epsilon: N) -> bool {
     abs_diff_ne!(x, y, epsilon = epsilon)
 }
+*/

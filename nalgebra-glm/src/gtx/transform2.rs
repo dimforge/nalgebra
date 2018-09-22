@@ -4,7 +4,7 @@ use traits::Number;
 use aliases::{Mat, Vec};
 
 /// Build planar projection matrix along normal axis and right-multiply it to `m`.
-pub fn proj2<N: Number>(m: &Mat<N, U3, U3>, normal: &Vec<N, U2>) -> Mat<N, U3, U3> {
+pub fn proj2d<N: Number>(m: &Mat<N, U3, U3>, normal: &Vec<N, U2>) -> Mat<N, U3, U3> {
     let mut res = Matrix3::identity();
 
     {
@@ -16,7 +16,7 @@ pub fn proj2<N: Number>(m: &Mat<N, U3, U3>, normal: &Vec<N, U2>) -> Mat<N, U3, U
 }
 
 /// Build planar projection matrix along normal axis, and right-multiply it to `m`.
-pub fn proj3<N: Number>(m: &Mat<N, U4, U4>, normal: &Vec<N, U3>) -> Mat<N, U4, U4> {
+pub fn proj<N: Number>(m: &Mat<N, U4, U4>, normal: &Vec<N, U3>) -> Mat<N, U4, U4> {
     let mut res = Matrix4::identity();
 
     {
@@ -28,7 +28,7 @@ pub fn proj3<N: Number>(m: &Mat<N, U4, U4>, normal: &Vec<N, U3>) -> Mat<N, U4, U
 }
 
 /// Builds a reflection matrix and right-multiply it to `m`.
-pub fn reflect2<N: Number>(m: &Mat<N, U3, U3>, normal: &Vec<N, U2>) -> Mat<N, U3, U3> {
+pub fn reflect2d<N: Number>(m: &Mat<N, U3, U3>, normal: &Vec<N, U2>) -> Mat<N, U3, U3> {
     let mut res = Matrix3::identity();
 
     {
@@ -40,7 +40,7 @@ pub fn reflect2<N: Number>(m: &Mat<N, U3, U3>, normal: &Vec<N, U2>) -> Mat<N, U3
 }
 
 /// Builds a reflection matrix, and right-multiply it to `m`.
-pub fn reflect3<N: Number>(m: &Mat<N, U4, U4>, normal: &Vec<N, U3>) -> Mat<N, U4, U4> {
+pub fn reflect<N: Number>(m: &Mat<N, U4, U4>, normal: &Vec<N, U3>) -> Mat<N, U4, U4> {
     let mut res = Matrix4::identity();
 
     {
@@ -52,7 +52,7 @@ pub fn reflect3<N: Number>(m: &Mat<N, U4, U4>, normal: &Vec<N, U3>) -> Mat<N, U4
 }
 
 /// Builds a scale-bias matrix.
-pub fn scale_bias<N: Number>(scale: N, bias: N) -> Mat<N, U4, U4> {
+pub fn scale_bias_matrix<N: Number>(scale: N, bias: N) -> Mat<N, U4, U4> {
     let _0 = N::zero();
     let _1 = N::one();
 
@@ -65,12 +65,12 @@ pub fn scale_bias<N: Number>(scale: N, bias: N) -> Mat<N, U4, U4> {
 }
 
 /// Builds a scale-bias matrix, and right-multiply it to `m`.
-pub fn scale_bias2<N: Number>(m: &Mat<N, U4, U4>, scale: N, bias: N) -> Mat<N, U4, U4> {
-    m * scale_bias(scale, bias)
+pub fn scale_bias<N: Number>(m: &Mat<N, U4, U4>, scale: N, bias: N) -> Mat<N, U4, U4> {
+    m * scale_bias_matrix(scale, bias)
 }
 
 /// Transforms a matrix with a shearing on X axis.
-pub fn shear_x2<N: Number>(m: &Mat<N, U3, U3>, y: N) -> Mat<N, U3, U3> {
+pub fn shear2d_x<N: Number>(m: &Mat<N, U3, U3>, y: N) -> Mat<N, U3, U3> {
     let _0 = N::zero();
     let _1 = N::one();
 
@@ -83,7 +83,7 @@ pub fn shear_x2<N: Number>(m: &Mat<N, U3, U3>, y: N) -> Mat<N, U3, U3> {
 }
 
 /// Transforms a matrix with a shearing on Y axis.
-pub fn shear_x3<N: Number>(m: &Mat<N, U4, U4>, y: N, z: N) -> Mat<N, U4, U4> {
+pub fn shear_x<N: Number>(m: &Mat<N, U4, U4>, y: N, z: N) -> Mat<N, U4, U4> {
     let _0 = N::zero();
     let _1 = N::one();
     let shear = Matrix4::new(
@@ -97,7 +97,7 @@ pub fn shear_x3<N: Number>(m: &Mat<N, U4, U4>, y: N, z: N) -> Mat<N, U4, U4> {
 }
 
 /// Transforms a matrix with a shearing on Y axis.
-pub fn shear_y2<N: Number>(m: &Mat<N, U3, U3>, x: N) -> Mat<N, U3, U3> {
+pub fn shear_y_mat3<N: Number>(m: &Mat<N, U3, U3>, x: N) -> Mat<N, U3, U3> {
     let _0 = N::zero();
     let _1 = N::one();
 
@@ -110,7 +110,7 @@ pub fn shear_y2<N: Number>(m: &Mat<N, U3, U3>, x: N) -> Mat<N, U3, U3> {
 }
 
 /// Transforms a matrix with a shearing on Y axis.
-pub fn shear_y3<N: Number>(m: &Mat<N, U4, U4>, x: N, z: N) -> Mat<N, U4, U4> {
+pub fn shear_y<N: Number>(m: &Mat<N, U4, U4>, x: N, z: N) -> Mat<N, U4, U4> {
     let _0 = N::zero();
     let _1 = N::one();
     let shear = Matrix4::new(
@@ -124,7 +124,7 @@ pub fn shear_y3<N: Number>(m: &Mat<N, U4, U4>, x: N, z: N) -> Mat<N, U4, U4> {
 }
 
 /// Transforms a matrix with a shearing on Z axis.
-pub fn shear_z3d<N: Number>(m: &Mat<N, U4, U4>, x: N, y: N) -> Mat<N, U4, U4> {
+pub fn shear_z<N: Number>(m: &Mat<N, U4, U4>, x: N, y: N) -> Mat<N, U4, U4> {
     let _0 = N::zero();
     let _1 = N::one();
     let shear = Matrix4::new(

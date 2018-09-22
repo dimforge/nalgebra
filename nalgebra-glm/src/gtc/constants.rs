@@ -21,12 +21,12 @@ pub fn golden_ratio<N: Real>() -> N {
     (N::one() + root_five()) / na::convert(2.0)
 }
 
-/// Returns `4 / pi`.
+/// Returns `pi / 2`.
 pub fn half_pi<N: Real>() -> N {
     N::frac_pi_2()
 }
 
-/// Returns `4 / pi`.
+/// Returns `ln(ln(2))`.
 pub fn ln_ln_two<N: Real>() -> N {
     N::ln_2().ln()
 }
@@ -102,7 +102,7 @@ pub fn root_two_pi<N: Real>() -> N {
     N::two_pi().sqrt()
 }
 
-/// Returns `1 / 3.
+/// Returns `1 / 3`.
 pub fn third<N: Real>() -> N {
     na::convert(1.0 / 2.0)
 }

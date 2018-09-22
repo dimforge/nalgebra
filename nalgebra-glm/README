@@ -9,3 +9,6 @@
 * L1Norm and L2Norm between two vectors have been renamed: l1_distance, l2_distance
 * Matrix columnwise comparisons suffixed by _columns, e.g., `equal` -> `equal_columns`
 * All quaternion functions are prefixed by quat_
+* min(Vec, Vec) -> min_vec
+* 2D cross is namepd perp
+* quat_cross(vec, quat) -> quat_inv_cross

@@ -130,36 +130,26 @@ pub fn int_bits_to_float_vec<D: Dimension>(v: &Vec<i32, D>) -> Vec<f32, D>
 //    x * (exp).exp2()
 //}
 
-/// The maximum between two numbers.
-pub fn max<N: Number>(x: N, y: N) -> N {
-    na::sup(&x, &y)
-}
-
 /// The maximum between each component of `x` and `y`.
-pub fn max2<N: Number, D: Dimension>(x: &Vec<N, D>, y: N) -> Vec<N, D>
+pub fn max<N: Number, D: Dimension>(x: &Vec<N, D>, y: N) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     x.map(|x| na::sup(&x, &y))
 }
 
 /// Component-wise maximum between `x` and `y`.
-pub fn max3<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
+pub fn max_vec<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     na::sup(x, y)
 }
 
-/// The minimum between two numbers.
-pub fn min<N: Number>(x: N, y: N) -> N {
-    na::inf(&x, &y)
-}
-
 /// The minimum between each component of `x` and `y`.
-pub fn min2<N: Number, D: Dimension>(x: &Vec<N, D>,y: N) -> Vec<N, D>
+pub fn min<N: Number, D: Dimension>(x: &Vec<N, D>, y: N) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     x.map(|x| na::inf(&x, &y))
 }
 
 /// Component-wise minimum between `x` and `y`.
-pub fn min3<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
+pub fn min_vec<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     na::inf(x, y)
 }
@@ -174,7 +164,7 @@ pub fn mix<N: Number>(x: N, y: N, a: N) -> N {
 /// Component-wise modulus.
 ///
 /// Returns `x - y * floor(x / y)` for each component in `x` using the corresponding component of `y`.
-pub fn mod_<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
+pub fn modf_vec<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x % y)
 }
@@ -216,23 +206,24 @@ pub fn smoothstep<N: Number>(edge0: N, edge1: N, x: N) -> N {
 }
 
 /// Returns 0.0 if `x < edge`, otherwise it returns 1.0.
-pub fn step<N: Number>(edge: N, x: N) -> N {
+pub fn step_scalar<N: Number>(edge: N, x: N) -> N {
     if edge > x {
         N::zero()
     } else {
         N::one()
     }
 }
+
 /// Returns 0.0 if `x[i] < edge`, otherwise it returns 1.0.
-pub fn step2<N: Number, D: Dimension>(edge: N, x: &Vec<N, D>) -> Vec<N, D>
+pub fn step<N: Number, D: Dimension>(edge: N, x: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    x.map(|x| step(edge, x))
+    x.map(|x| step_scalar(edge, x))
 }
 
 /// Returns 0.0 if `x[i] < edge[i]`, otherwise it returns 1.0.
-pub fn step3<N: Number, D: Dimension>(edge: &Vec<N, D>, x: &Vec<N, D>) -> Vec<N, D>
+pub fn step_vec<N: Number, D: Dimension>(edge: &Vec<N, D>, x: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    edge.zip_map(x, |edge, x| step(edge, x))
+    edge.zip_map(x, |edge, x| step_scalar(edge, x))
 }
 
 /// Returns a value equal to the nearest integer to `x` whose absolute value is not larger than the absolute value of `x`.
@@ -244,7 +235,7 @@ pub fn trunc<N: Real, D: Dimension>(x: &Vec<N, D>) -> Vec<N, D>
 /// Returns a floating-point value corresponding to a unsigned integer encoding of a floating-point value.
 ///
 /// If an `inf` or `NaN` is passed in, it will not signal, and the resulting floating point value is unspecified. Otherwise, the bit-level representation is preserved.
-pub fn uint_bits_to_float(v: u32) -> f32 {
+pub fn uint_bits_to_float_scalar(v: u32) -> f32 {
     unsafe { mem::transmute(v) }
 
 }
@@ -252,7 +243,7 @@ pub fn uint_bits_to_float(v: u32) -> f32 {
 /// For each component of `v`, returns a floating-point value corresponding to a unsigned integer encoding of a floating-point value.
 ///
 /// If an inf or NaN is passed in, it will not signal, and the resulting floating point value is unspecified. Otherwise, the bit-level representation is preserved.
-pub fn uint_bits_to_float_vec<D: Dimension>(v: &Vec<u32, D>) -> Vec<f32, D>
+pub fn uint_bits_to_float<D: Dimension>(v: &Vec<u32, D>) -> Vec<f32, D>
     where DefaultAllocator: Alloc<f32, D> {
-    v.map(|v| uint_bits_to_float(v))
+    v.map(|v| uint_bits_to_float_scalar(v))
 }

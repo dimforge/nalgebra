@@ -39,7 +39,7 @@ pub fn look_at_rh<N: Real>(eye: &Vec<N, U3>, center: &Vec<N, U3>, up: &Vec<N, U3
     Mat::look_at_rh(&Point3::from_coordinates(*eye), &Point3::from_coordinates(*center), up)
 }
 
-/// Builds a rotation 4 * 4 matrix created from an axis vector and an angle.
+/// Builds a rotation 4 * 4 matrix created from an axis vector and an angle and right-multiply it to `m`.
 ///
 /// # Parameters
 ///    * m − Input matrix multiplied by this rotation matrix.
@@ -49,7 +49,7 @@ pub fn rotate<N: Real>(m: &Mat<N, U4, U4>, angle: N, axis: &Vec<N, U3>) -> Mat<N
     m * Rotation3::from_axis_angle(&Unit::new_normalize(*axis), angle).to_homogeneous()
 }
 
-/// Builds a scale 4 * 4 matrix created from 3 scalars.
+/// Builds a scale 4 * 4 matrix created from 3 scalars and right-multiply it to `m`.
 ///
 /// # Parameters
 ///    * m − Input matrix multiplied by this scale matrix.
@@ -58,7 +58,7 @@ pub fn scale<N: Number>(m: &Mat<N, U4, U4>, v: &Vec<N, U3>) -> Mat<N, U4, U4> {
     m.prepend_nonuniform_scaling(v)
 }
 
-/// Builds a translation 4 * 4 matrix created from a vector of 3 components.
+/// Builds a translation 4 * 4 matrix created from a vector of 3 components and right-multiply it to `m`.
 ///
 /// # Parameters
 ///    * m − Input matrix multiplied by this translation matrix.
