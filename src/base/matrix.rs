@@ -393,6 +393,42 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
+    /// Returns a matrix containing the result of `f` applied to each entries of `self` and
+    /// `b`, and `c`.
+    #[inline]
+    pub fn zip_zip_map<N2, N3, N4, S2, S3, F>(&self, b: &Matrix<N2, R, C, S2>, c: &Matrix<N3, R, C, S3>, mut f: F) -> MatrixMN<N4, R, C>
+        where
+            N2: Scalar,
+            N3: Scalar,
+            N4: Scalar,
+            S2: Storage<N2, R, C>,
+            S3: Storage<N3, R, C>,
+            F: FnMut(N, N2, N3) -> N4,
+            DefaultAllocator: Allocator<N4, R, C>,
+    {
+        let (nrows, ncols) = self.data.shape();
+
+        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
+
+        assert!(
+            (nrows.value(), ncols.value()) == b.shape() && (nrows.value(), ncols.value()) == c.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
+
+        for j in 0..ncols.value() {
+            for i in 0..nrows.value() {
+                unsafe {
+                    let a = *self.data.get_unchecked(i, j);
+                    let b = *b.data.get_unchecked(i, j);
+                    let c = *c.data.get_unchecked(i, j);
+                    *res.data.get_unchecked_mut(i, j) = f(a, b, c)
+                }
+            }
+        }
+
+        res
+    }
+
     /// Transposes `self` and store the result into `out`.
     #[inline]
     pub fn transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
