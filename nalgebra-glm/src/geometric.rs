@@ -49,14 +49,14 @@ pub fn normalize<N: Real, D: Dimension>(x: &Vec<N, D>) -> Vec<N, D>
 }
 
 /// For the incident vector `i` and surface orientation `n`, returns the reflection direction : `result = i - 2.0 * dot(n, i) * n`.
-pub fn reflect<N: Number, D: Dimension>(i: &Vec<N, D>, n: &Vec<N, D>) -> Vec<N, D>
+pub fn reflect_vec<N: Number, D: Dimension>(i: &Vec<N, D>, n: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     let _2 = N::one() + N::one();
     i - n * (n.dot(i) * _2)
 }
 
 /// For the incident vector `i` and surface normal `n`, and the ratio of indices of refraction `eta`, return the refraction vector.
-pub fn refract<N: Real, D: Dimension>(i: &Vec<N, D>, n: &Vec<N, D>, eta: N) -> Vec<N, D>
+pub fn refract_vec<N: Real, D: Dimension>(i: &Vec<N, D>, n: &Vec<N, D>, eta: N) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
 
     let ni = n.dot(i);

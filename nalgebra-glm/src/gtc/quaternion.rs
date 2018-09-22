@@ -1,4 +1,4 @@
-use na::{Real, U3, U4, UnitQuaternion, Vector3, Rotation3};
+use na::{Real, U3, U4, UnitQuaternion, Vector3};
 
 use aliases::{Qua, Vec, Mat};
 
@@ -34,13 +34,6 @@ pub fn quat_less_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
 pub fn quat_cast<N: Real>(x: &Qua<N>) -> Mat<N, U4, U4> {
     ::quat_to_mat4(x)
 }
-
-/// Convert a rotation matrix to a quaternion.
-pub fn quat_to_mat3<N: Real>(x: &Mat<N, U3, U3>) -> Qua<N> {
-    let rot = Rotation3::from_matrix_unchecked(x);
-    UnitQuaternion::from_rotation_matrix(&rot).unwrap()
-}
-
 /// Computes a right-handed look-at quaternion (equivalent to a right-handed look-at matrix).
 pub fn quat_look_at<N: Real>(direction: &Vec<N, U3>, up: &Vec<N, U3>) -> Qua<N> {
     quat_look_at_rh(direction, up)

@@ -1,4 +1,4 @@
-use na::{Real, U2, U3, UnitComplex, Matrix3};
+use na::{Real, U2, U3, UnitComplex};
 
 use traits::Number;
 use aliases::{Mat, Vec};

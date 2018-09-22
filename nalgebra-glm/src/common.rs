@@ -130,30 +130,6 @@ pub fn int_bits_to_float_vec<D: Dimension>(v: &Vec<i32, D>) -> Vec<f32, D>
 //    x * (exp).exp2()
 //}
 
-/// The maximum between each component of `x` and `y`.
-pub fn max<N: Number, D: Dimension>(x: &Vec<N, D>, y: N) -> Vec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
-    x.map(|x| na::sup(&x, &y))
-}
-
-/// Component-wise maximum between `x` and `y`.
-pub fn max_vec<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
-    na::sup(x, y)
-}
-
-/// The minimum between each component of `x` and `y`.
-pub fn min<N: Number, D: Dimension>(x: &Vec<N, D>, y: N) -> Vec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
-    x.map(|x| na::inf(&x, &y))
-}
-
-/// Component-wise minimum between `x` and `y`.
-pub fn min_vec<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
-    na::inf(x, y)
-}
-
 /// Returns `x * (1.0 - a) + y * a`, i.e., the linear blend of x and y using the floating-point value a.
 ///
 /// The value for a is not restricted to the range `[0, 1]`.
