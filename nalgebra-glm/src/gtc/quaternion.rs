@@ -30,28 +30,15 @@ pub fn quat_less_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
     ::less_than_equal(&x.coords, &y.coords)
 }
 
-
-/// Convert a quaternion to a rotation matrix.
-pub fn quat_mat3_cast<N: Real>(x: Qua<N>) -> Mat<N, U3, U3> {
-    let q = UnitQuaternion::new_unchecked(x);
-    q.to_rotation_matrix().unwrap()
-}
-
 /// Convert a quaternion to a rotation matrix in homogeneous coordinates.
-pub fn quat_mat4_cast<N: Real>(x: Qua<N>) -> Mat<N, U4, U4> {
-    let q = UnitQuaternion::new_unchecked(x);
-    q.to_homogeneous()
+pub fn quat_cast<N: Real>(x: &Qua<N>) -> Mat<N, U4, U4> {
+    ::quat_to_mat4(x)
 }
 
 /// Convert a rotation matrix to a quaternion.
-pub fn quat_cast<N: Real>(x: Mat<N, U3, U3>) -> Qua<N> {
+pub fn quat_to_mat3<N: Real>(x: &Mat<N, U3, U3>) -> Qua<N> {
     let rot = Rotation3::from_matrix_unchecked(x);
     UnitQuaternion::from_rotation_matrix(&rot).unwrap()
-}
-
-/// Convert a rotation matrix in homogeneous coordinates to a quaternion.
-pub fn quat_cast2<N: Real>(x: Mat<N, U4, U4>) -> Qua<N> {
-    quat_cast(x.fixed_slice::<U3, U3>(0, 0).into_owned())
 }
 
 /// Computes a right-handed look-at quaternion (equivalent to a right-handed look-at matrix).

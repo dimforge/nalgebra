@@ -9,7 +9,7 @@ pub fn are_collinear<N: Number>(v0: &Vec<N, U3>, v1: &Vec<N, U3>, epsilon: N) ->
 }
 
 /// Returns `true` if two 2D vectors are collinear (up to an epsilon).
-pub fn are_collinear2<N: Number>(v0: &Vec<N, U2>, v1: &Vec<N, U2>, epsilon: N) -> bool {
+pub fn are_collinear2d<N: Number>(v0: &Vec<N, U2>, v1: &Vec<N, U2>, epsilon: N) -> bool {
     abs_diff_eq!(v0.perp(v1), N::zero(), epsilon = epsilon)
 }
 
