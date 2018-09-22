@@ -4,8 +4,8 @@
     **nalgebra-glm** draws inspiration from GLM to define a nice and easy-to-use API for simple graphics application.
 
     ## Getting started
-    First of all, you shoult start by taking a look at the official [GLM API documentation](http://glm.g-truc.net/0.9.9/api/index.html)
-    since **nalgebra-glm** implements a wide subset of it. To use **nalgebra-glm** to your project, you
+    First of all, you should start by taking a look at the official [GLM API documentation](http://glm.g-truc.net/0.9.9/api/index.html)
+    since **nalgebra-glm** implements a large subset of it. To use **nalgebra-glm** to your project, you
     should add it as a dependency to your `Crates.toml`:
 
     ```toml
@@ -13,8 +13,8 @@
     nalgebra-glm = "0.1"
     ```
 
-    Then, you should add an `extern crate` statement to your `lib.rs` or `main.rs` file. It is strongly
-    recommended to add a crate alias to `glm` as well so that you will be able to call functions of
+    Then, you should add an `extern crate` statement to your `lib.rs` or `main.rs` file. It is **strongly
+    recommended** to add a crate alias to `glm` as well so that you will be able to call functions of
     **nalgebra-glm** using the module prefix `glm::`. For example you will write `glm::rotate(...)` instead
     of the more verbose `nalgebra_glm::rotate(...)`:
 
@@ -23,10 +23,60 @@
     ```
 
     ## Features overview
-    ### Differences compared to GLM
+    ### Main differences compared to GLM
+    While **nalgebra-glm** follows the feature line of the C++ GLM library, quite a few differences
+    remain and they are mostly syntactic. The main ones are:
+    * All function names use `snake_case` while the C++ GLM library uses `camelCase`.
+    * All function arguments, except for scalars, are all passed by-reference.
+    * Some feature are not yet implemented and should be added in the future. In particular, no packing
+    functions are available.
+    * A few features are not implemented and will never be. This includes functions related to color
+    spaces, and closest points computations. Other crates should be used for those. For example, closest
+    points computation can be handled by the [ncollide](https://ncollide.org) project.
+
+    In addition, because Rust does not allows function overloading, all functions must be given a unique name.
+    Here are a few rules chosen arbitrarily for **nalgebra-glm**:
+    * Functions operating in 2d will usually end with the `2d` suffix, e.g., `glm::rotade2d` is for 2D while `glm::rotate` is for 3D.
+    * Functions operating on vector will often end with the `_vec` suffix, possibly followed by the dimension of vector, e.g., `glm::rotate_vec2`.
+    * Every function related to quaternions start with the `quat_` prefix, e.g., `glm::quat_dot(q1, q2)`.
+    * All the conversion functions have unique names as described [bellow](#conversions).
     ### Vector and matrix construction
+    Vectors, matrices, and quaternions can be constructed using several approaches:
+    * Using functions with the same name as their type in lower-case. For example `glm::vec3(x, y, z)` will create a 3D vector.
+    * Using the `::new` constructor. For example `Vec3::new(x, y, z)` will create a 3D vector.
+    * Using the functions prefixed by `make_` to build a vector a matrix from a slice. For example `glm::make_vec3(&[x, y, z])` will create a 3D vector.
+    Keep in mind that constructing a matrix using this type of funcitons require its components to be arrange in column-major order on the slice.
+    * Using a geometric construction function. For example `glm::rotation(angle, axis)` will build a 4x4 homogeneous rotation matrix from an angle (in radians) and an axis.
+    * Using swizzling and conversions as described in the next sections.
     ### Swizzling
+    Vector swizzling is a native feature of **nalgebra** itself. Therefore, you can use it with all
+    the vectors of **nalgebra-glm** as well. Swizzling is supported as methods and works only up to
+    dimension 3, i.e., you can only refer to the components `x`, `y` and `z` and can only create a
+    2D or 3D vector using this technique. Here is some examples, assuming `v` is a vector with float
+    components here:
+    * `v.xx()` is equivalent to `glm::vec2(v.x, v.x)` as well as `Vec2::new(v.x, v.x)`.
+    * `v.zx()` is equivalent to `glm::vec2(v.z, v.x)` as well as `Vec2::new(v.z, v.x)`.
+    * `v.yxz()` is equivalent to `glm::vec3(v.y, v.x, v.z)` as well as `Vec3::new(v.y, v.x, v.z)`.
+    * `v.zzy()` is equivalent to `glm::vec3(v.z, v.z, v.y)` as well as `Vec3::new(v.z, v.z, v.y)`.
+    Any combination of two or three components picked among `x`, `y`, and `z` will work.
     ### Conversions
+    It is often useful to convert one algebraic type to another. There are two main approaches for converting
+    between types in `nalgebra-glm`:
+    * Using function with the form `type1_to_type2` in order to convert an instance of `type1` into an instance of `type2`.
+    For example `glm::mat3_to_mat4(m)` will convert the 3x3 matrix `m` to a 4x4 matrix by appending one column on the right
+    and one row on the left. Those now row and columns are filled with 0 except for the diagonal element which is set to 1.
+    * Using one of the `convert`, `try_convert`, or `convert_unchecked` functions.
+    These functions are directly re-exported from nalgebra and are extremely versatile:
+        1. The `convert` function can convert any type (especially geometric types from nalgebra like `Isometry3`) into another algebraic type which equivalent but more general. For example,
+    `let sim: Similarity3<_> = na::convert(isometry)` will convert an `Isometry3` into a `Similarity3`.
+    In addition, `let mat: Mat4 = glm::convert(isometry)` will convert an `Isometry3` to a 4x4 matrix. This will also convert the scalar types,
+    therefore: `let mat: DMat4 = glm::convert(m)` where `m: Mat4` will work. However, conversion will not work the other way round: you
+    can't convert a `Matrix4` to an `Isometry3` using `glm::convert` because that could cause unexpected results if the matrix does
+    not complies to the requirements of the isometry.
+        2. If you need this kind of conversions anyway, you can use `try_convert` which will test if the object being converted complies with the algebraic requirements of the target type.
+        This will return `None` if the requirements are not satisfied.
+        3. The `convert_unchecked` will ignore those tests and always perform the conversion, even if that breaks the invariants of the target type.
+        This must be used with care!
  */
 
 extern crate num_traits as num;
