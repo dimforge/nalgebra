@@ -1,4 +1,3 @@
-use std::cmp::{PartialOrd, PartialEq};
 use num::{Signed, FromPrimitive, Bounded};
 use approx::AbsDiffEq;
 
@@ -6,10 +5,12 @@ use alga::general::{Ring, Lattice};
 use na::{Scalar, DimName, DimMin, U1};
 use na::allocator::Allocator;
 
+/// A type-level number representing a vector, matrix row, or matrix column, dimension.
 pub trait Dimension: DimName + DimMin<Self, Output = Self> {}
 impl<D: DimName + DimMin<D, Output = Self>> Dimension for D {}
 
 
+/// A number that can either be an integer or a float.
 pub trait Number: Scalar + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + FromPrimitive + Bounded {
 }
 
