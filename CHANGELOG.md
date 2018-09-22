@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
   * Add `.copy_from_slice` to copy matrix components from a slice in column-major order.
+  * Add `.dot` to quaternions.
+  * Add `.zip_zip_map` for iterating on three matrices simultaneously, and applying a closure to them.
+  * Add `.slerp` and `.try_slerp` to unit vectors.
 
 ## [0.16.0]
 All dependencies have been updated to their latest versions.
