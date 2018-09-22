@@ -8,7 +8,7 @@ extern crate nalgebra as na;
 
 pub use aliases::*;
 pub use constructors::*;
-pub use common::{abs, ceil, clamp, clamp2, clamp3, float_bits_to_int, float_bits_to_int_vec, float_bits_to_uint, float_bits_to_uint_vec, floor, fract, fract2, int_bits_to_float, int_bits_to_float_vec, mix, modf, modf_vec, round, sign, smoothstep, step, step_scalar, step_vec, trunc, uint_bits_to_float, uint_bits_to_float_scalar};
+pub use common::{abs, ceil, clamp, clamp2, clamp3, float_bits_to_int, float_bits_to_int_vec, float_bits_to_uint, float_bits_to_uint_vec, floor, fract, int_bits_to_float, int_bits_to_float_vec, mix, modf, modf_vec, round, sign, smoothstep, step, step_scalar, step_vec, trunc, uint_bits_to_float, uint_bits_to_float_scalar};
 pub use geometric::{reflect_vec, cross, distance, dot, faceforward, length, magnitude, normalize, refract_vec};
 pub use matrix::{transpose, determinant, inverse, matrix_comp_mult, outer_product};
 pub use traits::{Dimension, Number, Alloc};
