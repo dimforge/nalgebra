@@ -202,6 +202,12 @@ impl<N: Real> Quaternion<N> {
         self.coords.norm_squared()
     }
 
+    /// The dot product of two quaternions.
+    #[inline]
+    pub fn dot(&self, rhs: &Self) -> N {
+        self.coords.dot(&rhs.coords)
+    }
+
     /// The polar decomposition of this quaternion.
     ///
     /// Returns, from left to right: the quaternion norm, the half rotation angle, the rotation
