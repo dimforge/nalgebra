@@ -26,7 +26,7 @@ pub use gtx::{
     triangle_normal,
     fast_normalize_dot, normalize_dot,
     quat_rotate_normalized_axis, rotate_normalized_axis,
-    orientation, rotate_vec2, rotate_vec3, rotate_vec4, rotate_x, rotate_x_vec3, rotate_y, rotate_y_vec3, rotate_z, rotate_z_vec3, slerp,
+    orientation, rotate_vec2, rotate_vec3, rotate_vec4, rotate_x_vec4, rotate_x_vec3, rotate_y_vec4, rotate_y_vec3, rotate_z_vec4, rotate_z_vec3, slerp,
     rotation, scaling, translation,
     proj, proj2d, reflect, reflect2d, scale_bias, scale_bias_matrix, shear2d_x, shear_x, shear_y, shear_y_mat3, shear_z,
     rotate2d, scale2d, translate2d,
@@ -45,7 +45,7 @@ pub use ext::{
     ortho, perspective,
     pick_matrix, project, project_no, project_zo, unproject, unproject_no, unproject_zo,
     equal_columns, equal_columns_eps, equal_columns_eps_vec, not_equal_columns, not_equal_columns_eps, not_equal_columns_eps_vec,
-    identity, look_at, look_at_lh, rotate, scale, look_at_rh, translate,
+    identity, look_at, look_at_lh, rotate, scale, look_at_rh, translate, rotate_x, rotate_y, rotate_z,
     max3_scalar, max4_scalar, min3_scalar, min4_scalar,
     epsilon, pi,
     max, max2, max3, max4, min, min2, min3, min4,
@@ -56,6 +56,8 @@ pub use ext::{
     quat_exp, quat_log, quat_pow, quat_rotate,
     quat_angle, quat_angle_axis, quat_axis
 };
+
+pub use na::{convert, convert_ref, convert_unchecked, convert_ref_unchecked, try_convert, try_convert_ref};
 
 mod aliases;
 mod constructors;

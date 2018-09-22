@@ -49,6 +49,33 @@ pub fn rotate<N: Real>(m: &Mat<N, U4, U4>, angle: N, axis: &Vec<N, U3>) -> Mat<N
     m * Rotation3::from_axis_angle(&Unit::new_normalize(*axis), angle).to_homogeneous()
 }
 
+/// Builds a rotation 4 * 4 matrix around the X axis and right-multiply it to `m`.
+///
+/// # Parameters
+///    * m − Input matrix multiplied by this rotation matrix.
+///    * angle − Rotation angle expressed in radians.
+pub fn rotate_x<N: Real>(m: &Mat<N, U4, U4>, angle: N) -> Mat<N, U4, U4> {
+    rotate(m, angle, &Vec::x())
+}
+
+/// Builds a rotation 4 * 4 matrix around the Y axis and right-multiply it to `m`.
+///
+/// # Parameters
+///    * m − Input matrix multiplied by this rotation matrix.
+///    * angle − Rotation angle expressed in radians.
+pub fn rotate_y<N: Real>(m: &Mat<N, U4, U4>, angle: N) -> Mat<N, U4, U4> {
+    rotate(m, angle, &Vec::y())
+}
+
+/// Builds a rotation 4 * 4 matrix around the Z axis and right-multiply it to `m`.
+///
+/// # Parameters
+///    * m − Input matrix multiplied by this rotation matrix.
+///    * angle − Rotation angle expressed in radians.
+pub fn rotate_z<N: Real>(m: &Mat<N, U4, U4>, angle: N) -> Mat<N, U4, U4> {
+    rotate(m, angle, &Vec::z())
+}
+
 /// Builds a scale 4 * 4 matrix created from 3 scalars and right-multiply it to `m`.
 ///
 /// # Parameters

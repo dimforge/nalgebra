@@ -32,7 +32,7 @@ pub fn rotate_x_vec3<N: Real>(v: &Vec<N, U3>, angle: N) -> Vec<N, U3> {
 }
 
 /// Rotate a three dimensional vector in homogeneous coordinates around the `X` axis.
-pub fn rotate_x<N: Real>(v: &Vec<N, U4>, angle: N) -> Vec<N, U4> {
+pub fn rotate_x_vec4<N: Real>(v: &Vec<N, U4>, angle: N) -> Vec<N, U4> {
     Rotation3::from_axis_angle(&Vector3::x_axis(), angle).to_homogeneous() * v
 }
 
@@ -42,7 +42,7 @@ pub fn rotate_y_vec3<N: Real>(v: &Vec<N, U3>, angle: N) -> Vec<N, U3> {
 }
 
 /// Rotate a three dimensional vector in homogeneous coordinates around the `Y` axis.
-pub fn rotate_y<N: Real>(v: &Vec<N, U4>, angle: N) -> Vec<N, U4> {
+pub fn rotate_y_vec4<N: Real>(v: &Vec<N, U4>, angle: N) -> Vec<N, U4> {
     Rotation3::from_axis_angle(&Vector3::y_axis(), angle).to_homogeneous() * v
 }
 
@@ -52,7 +52,7 @@ pub fn rotate_z_vec3<N: Real>(v: &Vec<N, U3>, angle: N) -> Vec<N, U3> {
 }
 
 /// Rotate a three dimensional vector in homogeneous coordinates around the `Z` axis.
-pub fn rotate_z<N: Real>(v: &Vec<N, U4>, angle: N) -> Vec<N, U4> {
+pub fn rotate_z_vec4<N: Real>(v: &Vec<N, U4>, angle: N) -> Vec<N, U4> {
     Rotation3::from_axis_angle(&Vector3::z_axis(), angle).to_homogeneous() * v
 }
 

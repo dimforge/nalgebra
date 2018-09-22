@@ -11,7 +11,7 @@ pub use self::norm::{distance2, l1_distance, l1_norm, l2_distance, l2_norm, leng
 pub use self::normal::{triangle_normal};
 pub use self::normalize_dot::{fast_normalize_dot, normalize_dot};
 pub use self::rotate_normalized_axis::{quat_rotate_normalized_axis, rotate_normalized_axis};
-pub use self::rotate_vector::{orientation, rotate_vec2, rotate_vec3, rotate_vec4, rotate_x, rotate_x_vec3, rotate_y, rotate_y_vec3, rotate_z, rotate_z_vec3, slerp};
+pub use self::rotate_vector::{orientation, rotate_vec2, rotate_vec3, rotate_vec4, rotate_x_vec4, rotate_x_vec3, rotate_y_vec4, rotate_y_vec3, rotate_z_vec4, rotate_z_vec3, slerp};
 pub use self::transform::{rotation, scaling, translation};
 pub use self::transform2::{proj, proj2d, reflect, reflect2d, scale_bias, scale_bias_matrix, shear2d_x, shear_x, shear_y, shear_y_mat3, shear_z};
 pub use self::transform2d::{rotate2d, scale2d, translate2d};
