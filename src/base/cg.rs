@@ -15,12 +15,12 @@ use base::allocator::Allocator;
 use geometry::{Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2,
                Rotation3};
 
-use alga::general::{Field, Real};
+use alga::general::{Ring, Real};
 use alga::linear::Transformation;
 
 impl<N, D: DimName> MatrixN<N, D>
 where
-    N: Scalar + Field,
+    N: Scalar + Ring,
     DefaultAllocator: Allocator<N, D, D>,
 {
     /// Creates a new homogeneous matrix that applies the same scaling factor on each dimension.
@@ -144,7 +144,7 @@ impl<N: Real> Matrix4<N> {
     }
 }
 
-impl<N: Scalar + Field, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: Scalar + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
     pub fn append_scaling(&self, scaling: N) -> MatrixN<N, D>
@@ -231,7 +231,7 @@ impl<N: Scalar + Field, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: Scalar + Field, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes in-place the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
     pub fn append_scaling_mut(&mut self, scaling: N)
