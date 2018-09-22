@@ -15,7 +15,7 @@ pub fn inverse<N: Real, D: Dimension>(m: &Mat<N, D, D>) -> Mat<N, D, D>
     m.clone().try_inverse().unwrap_or(Mat::<N, D, D>::zeros())
 }
 
-/// Componentwise multiplication of two matrices.
+/// Component-wise multiplication of two matrices.
 pub fn matrix_comp_mult<N: Number, R: Dimension, C: Dimension>(x: &Mat<N, R, C>, y: &Mat<N, R, C>) -> Mat<N, R, C>
     where DefaultAllocator: Alloc<N, R, C> {
     x.component_mul(y)

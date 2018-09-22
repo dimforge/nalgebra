@@ -141,7 +141,7 @@ pub fn max2<N: Number, D: Dimension>(x: &Vec<N, D>, y: N) -> Vec<N, D>
     x.map(|x| na::sup(&x, &y))
 }
 
-/// Componentwise maximum between `x` and `y`.
+/// Component-wise maximum between `x` and `y`.
 pub fn max3<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     na::sup(x, y)
@@ -158,7 +158,7 @@ pub fn min2<N: Number, D: Dimension>(x: &Vec<N, D>,y: N) -> Vec<N, D>
     x.map(|x| na::inf(&x, &y))
 }
 
-/// Componentwise minimum between `x` and `y`.
+/// Component-wise minimum between `x` and `y`.
 pub fn min3<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     na::inf(x, y)
@@ -171,7 +171,7 @@ pub fn mix<N: Number>(x: N, y: N, a: N) -> N {
     x * (N::one() - a) + y * a
 }
 
-/// Componentwise modulus.
+/// Component-wise modulus.
 ///
 /// Returns `x - y * floor(x / y)` for each component in `x` using the corresponding component of `y`.
 pub fn mod_<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<N, D>
@@ -184,7 +184,7 @@ pub fn modf<N: Number>(x: N, i: N) -> N {
     x % i
 }
 
-/// Componentwise rounding.
+/// Component-wise rounding.
 ///
 /// Values equal to `0.5` are rounded away from `0.0`.
 pub fn round<N: Real, D: Dimension>(x: &Vec<N, D>) -> Vec<N, D>

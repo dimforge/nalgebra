@@ -15,43 +15,43 @@ pub fn any<D: Dimension>(v: &Vec<bool, D>) -> bool
     v.iter().any(|x| *x)
 }
 
-/// Componentwise equality comparison.
+/// Component-wise equality comparison.
 pub fn equal<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x == y)
 }
 
-/// Componentwise `>` comparison.
+/// Component-wise `>` comparison.
 pub fn greater_than<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x > y)
 }
 
-/// Componentwise `>=` comparison.
+/// Component-wise `>=` comparison.
 pub fn greater_than_equal<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x >= y)
 }
 
-/// Componentwise `<` comparison.
+/// Component-wise `<` comparison.
 pub fn less_than<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x < y)
 }
 
-/// Componentwise `>=` comparison.
+/// Component-wise `>=` comparison.
 pub fn less_than_equal<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x <= y)
 }
 
-/// Componentwise not `!`.
+/// Component-wise not `!`.
 pub fn not<D: Dimension>(v: &Vec<bool, D>) -> Vec<bool, D>
     where DefaultAllocator: Alloc<bool, D> {
     v.map(|x| !x)
 }
 
-/// Componentwise not-equality `!=`.
+/// Component-wise not-equality `!=`.
 pub fn not_equal<N: Number, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> Vec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x != y)
