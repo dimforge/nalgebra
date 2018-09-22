@@ -77,13 +77,8 @@ pub fn floor<N: Real, D: Dimension>(x: &Vec<N, D>) -> Vec<N, D>
 //    a * b + c
 //}
 
-/// Returns the fractional part of `x`.
-pub fn fract<N: Real>(x: N) -> N {
-    x.fract()
-}
-
 /// Returns the fractional part of each component of `x`.
-pub fn fract2<N: Real, D: Dimension>(x: &Vec<N, D>) -> Vec<N, D>
+pub fn fract<N: Real, D: Dimension>(x: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     x.map(|x| x.fract())
 }
