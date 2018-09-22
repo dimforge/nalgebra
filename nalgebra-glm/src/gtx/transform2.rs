@@ -97,7 +97,7 @@ pub fn shear_x<N: Number>(m: &Mat<N, U4, U4>, y: N, z: N) -> Mat<N, U4, U4> {
 }
 
 /// Transforms a matrix with a shearing on Y axis.
-pub fn shear_y_mat3<N: Number>(m: &Mat<N, U3, U3>, x: N) -> Mat<N, U3, U3> {
+pub fn shear2d_y<N: Number>(m: &Mat<N, U3, U3>, x: N) -> Mat<N, U3, U3> {
     let _0 = N::zero();
     let _1 = N::one();
 

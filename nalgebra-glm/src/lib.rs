@@ -1,4 +1,33 @@
+/*! # nalgebra-glm − nalgebra in _easy mode_
+    **nalgebra-glm** is a GLM-like interface for the **nalgebra** general-purpose linear algebra library.
+    [GLM](https://glm.g-truc.net) itself is a popular C++ linear algebra library essentially targeting computer graphics. Therefore
+    **nalgebra-glm** draws inspiration from GLM to define a nice and easy-to-use API for simple graphics application.
 
+    ## Getting started
+    First of all, you shoult start by taking a look at the official [GLM API documentation](http://glm.g-truc.net/0.9.9/api/index.html)
+    since **nalgebra-glm** implements a wide subset of it. To use **nalgebra-glm** to your project, you
+    should add it as a dependency to your `Crates.toml`:
+
+    ```toml
+    [dependencies]
+    nalgebra-glm = "0.1"
+    ```
+
+    Then, you should add an `extern crate` statement to your `lib.rs` or `main.rs` file. It is strongly
+    recommended to add a crate alias to `glm` as well so that you will be able to call functions of
+    **nalgebra-glm** using the module prefix `glm::`. For example you will write `glm::rotate(...)` instead
+    of the more verbose `nalgebra_glm::rotate(...)`:
+
+    ```rust
+    extern crate nalgebra_glm as glm;
+    ```
+
+    ## Features overview
+    ### Differences compared to GLM
+    ### Vector and matrix construction
+    ### Swizzling
+    ### Conversions
+ */
 
 extern crate num_traits as num;
 #[macro_use]
@@ -27,8 +56,8 @@ pub use gtx::{
     fast_normalize_dot, normalize_dot,
     quat_rotate_normalized_axis, rotate_normalized_axis,
     orientation, rotate_vec2, rotate_vec3, rotate_vec4, rotate_x_vec4, rotate_x_vec3, rotate_y_vec4, rotate_y_vec3, rotate_z_vec4, rotate_z_vec3, slerp,
-    rotation, scaling, translation,
-    proj, proj2d, reflect, reflect2d, scale_bias, scale_bias_matrix, shear2d_x, shear_x, shear_y, shear_y_mat3, shear_z,
+    rotation, scaling, translation, rotation2d, scaling2d, translation2d,
+    proj, proj2d, reflect, reflect2d, scale_bias, scale_bias_matrix, shear2d_x, shear_x, shear_y, shear2d_y, shear_z,
     rotate2d, scale2d, translate2d,
     angle,
     are_collinear, are_collinear2d, are_orthogonal, is_comp_null, is_normalized, is_null,
@@ -38,7 +67,7 @@ pub use gtc::{
     e, two_pi, euler, four_over_pi, golden_ratio, half_pi, ln_ln_two, ln_ten, ln_two, one, one_over_pi, one_over_root_two, one_over_two_pi, quarter_pi, root_five, root_half_pi, root_ln_four, root_pi, root_three, root_two, root_two_pi, third, three_over_two_pi, two_over_pi, two_over_root_pi, two_thirds, zero,
     column, row, set_column, set_row,
     affine_inverse, inverse_transpose,
-    make_mat2, make_mat2x2, make_mat2x3, make_mat2x4, make_mat3, make_mat3x2, make_mat3x3, make_mat3x4, make_mat4, make_mat4x2, make_mat4x3, make_mat4x4, make_quat, make_vec1, make_vec2, make_vec3, make_vec4, value_ptr, value_ptr_mut, vec1_to_vec2, vec1_to_vec3, vec1_to_vec4, vec2_to_vec1, vec2_to_vec2, vec2_to_vec3, vec2_to_vec4, vec3_to_vec1, vec3_to_vec2, vec3_to_vec3, vec3_to_vec4, vec4_to_vec1, vec4_to_vec2, vec4_to_vec3, vec4_to_vec4,
+    make_mat2, make_mat2x2, make_mat2x3, make_mat2x4, make_mat3, make_mat3x2, make_mat3x3, make_mat3x4, make_mat4, make_mat4x2, make_mat4x3, make_mat4x4, make_quat, make_vec1, make_vec2, make_vec3, make_vec4, value_ptr, value_ptr_mut, vec1_to_vec2, vec1_to_vec3, vec1_to_vec4, vec2_to_vec1, vec2_to_vec2, vec2_to_vec3, vec2_to_vec4, vec3_to_vec1, vec3_to_vec2, vec3_to_vec3, vec3_to_vec4, vec4_to_vec1, vec4_to_vec2, vec4_to_vec3, vec4_to_vec4, mat2_to_mat3, mat2_to_mat4, mat3_to_mat2, mat3_to_mat4, mat4_to_mat2, mat4_to_mat3,
     quat_cast, quat_euler_angles, quat_greater_than, quat_greater_than_equal, quat_less_than, quat_less_than_equal, quat_look_at, quat_look_at_lh, quat_look_at_rh, quat_pitch, quat_roll, quat_yaw
 };
 pub use ext::{
