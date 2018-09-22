@@ -17,6 +17,7 @@ pub use self::transform2::*;
 pub use self::transform2d::*;
 pub use self::vector_angle::*;
 pub use self::vector_query::*;
+pub use self::quaternion::*;
 
 
 
@@ -36,3 +37,4 @@ mod transform2;
 mod transform2d;
 mod vector_angle;
 mod vector_query;
+mod quaternion;

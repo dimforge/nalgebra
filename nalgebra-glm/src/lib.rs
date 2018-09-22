@@ -38,4 +38,3 @@ mod exponential;
 pub mod ext;
 pub mod gtc;
 pub mod gtx;
-pub mod quat;
