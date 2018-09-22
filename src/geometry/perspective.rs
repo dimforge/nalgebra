@@ -6,6 +6,7 @@ use rand::Rng;
 #[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
 use std::fmt;
+use std::mem;
 
 use alga::general::Real;
 
@@ -14,7 +15,7 @@ use base::helper;
 use base::storage::Storage;
 use base::{Matrix4, Scalar, Vector, Vector3};
 
-use geometry::Point3;
+use geometry::{Projective3, Point3};
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
 pub struct Perspective3<N: Scalar> {
@@ -128,6 +129,18 @@ impl<N: Real> Perspective3<N> {
     #[inline]
     pub fn as_matrix(&self) -> &Matrix4<N> {
         &self.matrix
+    }
+
+    /// A reference to this transformation seen as a `Projective3`.
+    #[inline]
+    pub fn as_projective(&self) -> &Projective3<N> {
+        unsafe { mem::transmute(self) }
+    }
+
+    /// This transformation seen as a `Projective3`.
+    #[inline]
+    pub fn to_projective(&self) -> Projective3<N> {
+        Projective3::from_matrix_unchecked(self.matrix)
     }
 
     /// Retrieves the underlying homogeneous matrix.
