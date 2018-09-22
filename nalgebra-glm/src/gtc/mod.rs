@@ -11,6 +11,7 @@ pub use self::matrix_inverse::*;
 //pub use self::round::*;
 pub use self::type_ptr::*;
 //pub use self::ulp::*;
+pub use self::quaternion::*;
 
 
 //mod bitfield;
@@ -24,3 +25,4 @@ mod matrix_inverse;
 //mod round;
 mod type_ptr;
 //mod ulp;
+mod quaternion;

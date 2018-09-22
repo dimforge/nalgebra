@@ -4,41 +4,41 @@ use aliases::{Qua, Vec, Mat};
 
 
 /// Euler angles of the quaternion `q` as (pitch, yaw, roll).
-pub fn euler_angles<N: Real>(x: &Qua<N>) -> Vec<N, U3> {
+pub fn quat_euler_angles<N: Real>(x: &Qua<N>) -> Vec<N, U3> {
     let q = UnitQuaternion::new_unchecked(*x);
     let a = q.to_euler_angles();
     Vector3::new(a.2, a.1, a.0)
 }
 
 /// Component-wise `>` comparison between two quaternions.
-pub fn greater_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
+pub fn quat_greater_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
     ::greater_than(&x.coords, &y.coords)
 }
 
 /// Component-wise `>=` comparison between two quaternions.
-pub fn greater_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
+pub fn quat_greater_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
     ::greater_than_equal(&x.coords, &y.coords)
 }
 
 /// Component-wise `<` comparison between two quaternions.
-pub fn less_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
+pub fn quat_less_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
     ::less_than(&x.coords, &y.coords)
 }
 
 /// Component-wise `<=` comparison between two quaternions.
-pub fn less_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
+pub fn quat_less_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
     ::less_than_equal(&x.coords, &y.coords)
 }
 
 
 /// Convert a quaternion to a rotation matrix.
-pub fn mat3_cast<N: Real>(x: Qua<N>) -> Mat<N, U3, U3> {
+pub fn quat_mat3_cast<N: Real>(x: Qua<N>) -> Mat<N, U3, U3> {
     let q = UnitQuaternion::new_unchecked(x);
     q.to_rotation_matrix().unwrap()
 }
 
 /// Convert a quaternion to a rotation matrix in homogeneous coordinates.
-pub fn mat4_cast<N: Real>(x: Qua<N>) -> Mat<N, U4, U4> {
+pub fn quat_mat4_cast<N: Real>(x: Qua<N>) -> Mat<N, U4, U4> {
     let q = UnitQuaternion::new_unchecked(x);
     q.to_homogeneous()
 }
@@ -70,19 +70,19 @@ pub fn quat_look_at_rh<N: Real>(direction: &Vec<N, U3>, up: &Vec<N, U3>) -> Qua<
 }
 
 /// The "roll" euler angle of the quaternion `x` assumed to be normalized.
-pub fn roll<N: Real>(x: &Qua<N>) -> N {
+pub fn quat_roll<N: Real>(x: &Qua<N>) -> N {
     // FIXME: optimize this.
-    euler_angles(x).z
+    quat_euler_angles(x).z
 }
 
 /// The "yaw" euler angle of the quaternion `x` assumed to be normalized.
-pub fn yaw<N: Real>(x: &Qua<N>) -> N {
+pub fn quat_yaw<N: Real>(x: &Qua<N>) -> N {
     // FIXME: optimize this.
-    euler_angles(x).y
+    quat_euler_angles(x).y
 }
 
 /// The "pitch" euler angle of the quaternion `x` assumed to be normalized.
-pub fn pitch<N: Real>(x: &Qua<N>) -> N {
+pub fn quat_pitch<N: Real>(x: &Qua<N>) -> N {
     // FIXME: optimize this.
-    euler_angles(x).x
+    quat_euler_angles(x).x
 }
