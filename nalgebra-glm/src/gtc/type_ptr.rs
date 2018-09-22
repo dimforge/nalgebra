@@ -65,6 +65,69 @@ pub fn make_mat4x4<N: Scalar>(ptr: &[N]) -> Mat<N, U4, U4> {
     Matrix4::from_column_slice(ptr)
 }
 
+/// Converts a 2x2 matrix to a 3x3 matrix.
+pub fn mat2_to_mat3<N: Number>(m: &Mat<N, U2, U2>) -> Mat<N, U3, U3> {
+    let _0 = N::zero();
+    let _1 = N::one();
+
+    Matrix3::new(
+        m.m11, m.m12, _0,
+        m.m21, m.m22, _0,
+        _0, _0, _1
+    )
+}
+
+/// Converts a 3x3 matrix to a 2x2 matrix.
+pub fn mat3_to_mat2<N: Scalar>(m: &Mat<N, U3, U3>) -> Mat<N, U2, U2> {
+    Matrix2::new(
+        m.m11, m.m12,
+        m.m21, m.m22
+    )
+}
+
+/// Converts a 3x3 matrix to a 4x4 matrix.
+pub fn mat3_to_mat4<N: Number>(m: &Mat<N, U3, U3>) -> Mat<N, U4, U4> {
+    let _0 = N::zero();
+    let _1 = N::one();
+
+    Matrix4::new(
+        m.m11, m.m12, m.m13, _0,
+        m.m21, m.m22, m.m23, _0,
+        m.m31, m.m32, m.m33, _0,
+        _0, _0, _0, _1,
+    )
+}
+
+/// Converts a 4x4 matrix to a 3x3 matrix.
+pub fn mat4_to_mat3<N: Scalar>(m: &Mat<N, U4, U4>) -> Mat<N, U3, U3> {
+    Matrix3::new(
+        m.m11, m.m12, m.m13,
+        m.m21, m.m22, m.m23,
+        m.m31, m.m32, m.m33,
+    )
+}
+
+/// Converts a 2x2 matrix to a 4x4 matrix.
+pub fn mat2_to_mat4<N: Number>(m: &Mat<N, U2, U2>) -> Mat<N, U4, U4> {
+    let _0 = N::zero();
+    let _1 = N::one();
+
+    Matrix4::new(
+        m.m11, m.m12, _0, _0,
+        m.m21, m.m22, _0, _0,
+        _0, _0, _1, _0,
+        _0, _0, _0, _1,
+    )
+}
+
+/// Converts a 4x4 matrix to a 2x2 matrix.
+pub fn mat4_to_mat2<N: Scalar>(m: &Mat<N, U4, U4>) -> Mat<N, U2, U2> {
+    Matrix2::new(
+        m.m11, m.m12,
+        m.m21, m.m22,
+    )
+}
+
 /// Creates a quaternion from a slice arranged as `[x, y, z, w]`.
 pub fn make_quat<N: Real>(ptr: &[N]) -> Qua<N> {
     Quaternion::from_vector(Vector4::from_column_slice(ptr))
