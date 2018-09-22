@@ -12,6 +12,7 @@ pub mod storage;
 
 mod alias;
 mod alias_slice;
+mod swizzle;
 mod cg;
 mod componentwise;
 mod construction;
