@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.17.0] - WIP
 
 ### Added
+  * Add swizzling up to dimension 3. For example, you can do `v.zxy()` as an equivalent to `Vector3::new(v.z, v.x, v.w)`.
   * Add `.copy_from_slice` to copy matrix components from a slice in column-major order.
   * Add `.dot` to quaternions.
   * Add `.zip_zip_map` for iterating on three matrices simultaneously, and applying a closure to them.
