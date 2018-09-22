@@ -1247,6 +1247,45 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
+impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
+    /// Computes the spherical linear interpolation between two unit vectors.
+    pub fn slerp<S2: Storage<N, D>>(&self, rhs: &Unit<Vector<N, D, S2>>, t: N) -> Unit<VectorN<N, D>>
+        where
+            DefaultAllocator: Allocator<N, D> {
+        // FIXME: the result is wrong when self and rhs are collinear with opposite direction.
+        self.try_slerp(rhs, t, N::default_epsilon()).unwrap_or(Unit::new_unchecked(self.clone_owned()))
+    }
+
+    /// Computes the spherical linear interpolation between two unit vectors.
+    ///
+    /// Returns `None` if the two vectors are almost collinear and with opposite direction
+    /// (in this case, there is an infinity of possible results).
+    pub fn try_slerp<S2: Storage<N, D>>(&self, rhs: &Unit<Vector<N, D, S2>>, t: N, epsilon: N) -> Option<Unit<VectorN<N, D>>>
+    where
+        DefaultAllocator: Allocator<N, D> {
+        let c_hang = self.dot(rhs);
+
+        // self == other
+        if c_hang.abs() >= N::one() {
+            return Some(Unit::new_unchecked(self.clone_owned()));
+        }
+
+        let hang = c_hang.acos();
+        let s_hang = (N::one() - c_hang * c_hang).sqrt();
+
+        // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
+        if relative_eq!(s_hang, N::zero(), epsilon = epsilon) {
+            None
+        } else {
+            let ta = ((N::one() - t) * hang).sin() / s_hang;
+            let tb = (t * hang).sin() / s_hang;
+            let res = &**self * ta + &**rhs * tb;
+
+            Some(Unit::new_unchecked(res))
+        }
+    }
+}
+
 impl<N: Real, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Normalizes this matrix in-place and returns its norm.
     #[inline]

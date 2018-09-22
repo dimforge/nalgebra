@@ -451,9 +451,8 @@ impl<N: Real> UnitQuaternion<N> {
     /// is not well-defined).
     #[inline]
     pub fn slerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
-        self.try_slerp(other, t, N::zero()).expect(
-            "Unable to perform a spherical quaternion interpolation when they \
-             are 180 degree apart (the result is not unique).",
+        Unit::new_unchecked(
+            Quaternion::from_vector(Unit::new_unchecked(self.coords).slerp(&Unit::new_unchecked(other.coords), t).unwrap())
         )
     }
 
@@ -474,26 +473,8 @@ impl<N: Real> UnitQuaternion<N> {
         t: N,
         epsilon: N,
     ) -> Option<UnitQuaternion<N>> {
-        let c_hang = self.coords.dot(&other.coords);
-
-        // self == other
-        if c_hang.abs() >= N::one() {
-            return Some(*self);
-        }
-
-        let hang = c_hang.acos();
-        let s_hang = (N::one() - c_hang * c_hang).sqrt();
-
-        // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
-        if relative_eq!(s_hang, N::zero(), epsilon = epsilon) {
-            None
-        } else {
-            let ta = ((N::one() - t) * hang).sin() / s_hang;
-            let tb = (t * hang).sin() / s_hang;
-            let res = self.as_ref() * ta + other.as_ref() * tb;
-
-            Some(UnitQuaternion::new_unchecked(res))
-        }
+        Unit::new_unchecked(self.coords).try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
+            .map(|q| Unit::new_unchecked(Quaternion::from_vector(q.unwrap())))
     }
 
     /// Compute the conjugate of this unit quaternion in-place.
