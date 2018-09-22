@@ -7,3 +7,4 @@
 * Function overload: the vec version is suffixed by _vec
 * Function overload: the methods taking an epsilon as suffixed by _eps
 * L1Norm and L2Norm between two vectors have been renamed: l1_distance, l2_distance
+* Matrix columnwise comparisons suffixed by _columns, e.g., `equal` -> `equal_columns`
