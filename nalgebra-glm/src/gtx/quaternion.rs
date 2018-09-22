@@ -3,12 +3,12 @@ use na::{Real, Unit, Rotation3, Vector4, UnitQuaternion, U3, U4};
 use aliases::{Qua, Vec, Mat};
 
 /// Rotate the vector `v` by the quaternion `q` assumed to be normalized.
-pub fn quat_cross<N: Real>(q: &Qua<N>, v: &Vec<N, U3>) -> Vec<N, U3> {
+pub fn quat_cross_vec<N: Real>(q: &Qua<N>, v: &Vec<N, U3>) -> Vec<N, U3> {
     UnitQuaternion::new_unchecked(*q) * v
 }
 
 /// Rotate the vector `v` by the inverse of the quaternion `q` assumed to be normalized.
-pub fn quat_inv_cross<N: Real>(v: &Vec<N, U3>, q: &Qua<N>) -> Vec<N, U3> {
+pub fn quat_inv_cross_vec<N: Real>(v: &Vec<N, U3>, q: &Qua<N>) -> Vec<N, U3> {
     UnitQuaternion::new_unchecked(*q).inverse() * v
 }
 
@@ -37,7 +37,7 @@ pub fn quat_magnitude2<N: Real>(q: &Qua<N>) -> N {
 }
 
 /// The quaternion representing the identity rotation.
-pub fn quat_quat_identity<N: Real>() -> Qua<N> {
+pub fn quat_identity<N: Real>() -> Qua<N> {
     UnitQuaternion::identity().unwrap()
 }
 
@@ -47,7 +47,7 @@ pub fn quat_rotate_vec3<N: Real>(q: &Qua<N>, v: &Vec<N, U3>) -> Vec<N, U3> {
 }
 
 /// Rotates a vector in homogeneous coordinates by a quaternion assumed to be normalized.
-pub fn quat_rotate<N: Real>(q: &Qua<N>, v: &Vec<N, U4>) -> Vec<N, U4> {
+pub fn quat_rotate_vec<N: Real>(q: &Qua<N>, v: &Vec<N, U4>) -> Vec<N, U4> {
 //    UnitQuaternion::new_unchecked(*q) * v
     let rotated = Unit::new_unchecked(*q) * v.fixed_rows::<U3>(0);
     Vector4::new(rotated.x, rotated.y, rotated.z, v.w)
@@ -86,6 +86,6 @@ pub fn mat3_to_quat<N: Real>(x: &Mat<N, U3, U3>) -> Qua<N> {
 /// Converts a rotation matrix in homogeneous coordinates to a quaternion.
 pub fn to_quat<N: Real>(x: &Mat<N, U4, U4>) -> Qua<N> {
     let rot = x.fixed_slice::<U3, U3>(0, 0).into_owned();
-    to_quat(&rot)
+    mat3_to_quat(&rot)
 }
 
