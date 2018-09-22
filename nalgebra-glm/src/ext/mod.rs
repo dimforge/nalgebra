@@ -3,7 +3,7 @@
 pub use self::matrix_clip_space::{ortho, perspective};
 pub use self::matrix_projection::{pick_matrix, project, project_no, project_zo, unproject, unproject_no, unproject_zo};
 pub use self::matrix_relationnal::{equal_columns, equal_columns_eps, equal_columns_eps_vec, not_equal_columns, not_equal_columns_eps, not_equal_columns_eps_vec};
-pub use self::matrix_transform::{identity, look_at, look_at_lh, rotate, scale, look_at_rh, translate};
+pub use self::matrix_transform::{identity, look_at, look_at_lh, rotate, scale, look_at_rh, translate, rotate_x, rotate_y, rotate_z};
 pub use self::scalar_common::{max3_scalar, max4_scalar, min3_scalar, min4_scalar};
 pub use self::scalar_constants::{epsilon, pi};
 pub use self::vector_common::{max, max2, max3, max4, min, min2, min3, min4};

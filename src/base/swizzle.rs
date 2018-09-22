@@ -1,4 +1,4 @@
-use base::{Scalar, Vector, DimName, U0, U1, U2, U3, U4, Vector2, Vector3};
+use base::{Scalar, Vector, DimName, U0, U1, U2, Vector2, Vector3};
 use storage::Storage;
 use typenum::{Cmp, Greater};
 
@@ -7,6 +7,7 @@ macro_rules! impl_swizzle {
     ($(where $BaseDim: ty: $name: ident() -> $Result: ident[$($i: expr),*]);*) => {
         $(
             impl<N: Scalar, D: DimName, S: Storage<N, D>> Vector<N, D, S> {
+                /// Builds a new vector from components of `self`.
                 #[inline]
                 pub fn $name(&self) -> $Result<N>
                     where D::Value: Cmp<$BaseDim, Output=Greater> {
