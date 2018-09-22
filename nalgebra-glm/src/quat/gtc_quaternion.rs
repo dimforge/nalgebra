@@ -10,22 +10,22 @@ pub fn euler_angles<N: Real>(x: &Qua<N>) -> Vec<N, U3> {
     Vector3::new(a.2, a.1, a.0)
 }
 
-/// Componentwise `>` comparison between two quaternions.
+/// Component-wise `>` comparison between two quaternions.
 pub fn greater_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
     ::greater_than(&x.coords, &y.coords)
 }
 
-/// Componentwise `>=` comparison between two quaternions.
+/// Component-wise `>=` comparison between two quaternions.
 pub fn greater_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
     ::greater_than_equal(&x.coords, &y.coords)
 }
 
-/// Componentwise `<` comparison between two quaternions.
+/// Component-wise `<` comparison between two quaternions.
 pub fn less_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
     ::less_than(&x.coords, &y.coords)
 }
 
-/// Componentwise `<=` comparison between two quaternions.
+/// Component-wise `<=` comparison between two quaternions.
 pub fn less_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
     ::less_than_equal(&x.coords, &y.coords)
 }
