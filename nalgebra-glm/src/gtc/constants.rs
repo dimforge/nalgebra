@@ -78,7 +78,7 @@ pub fn root_half_pi<N: Real>() -> N {
 
 /// Returns `sqrt(ln(4))`.
 pub fn root_ln_four<N: Real>() -> N {
-    na::convert::<_, N>(4.0).sqrt()
+    na::convert::<_, N>(4.0).ln().sqrt()
 }
 
 /// Returns the square root of pi.
@@ -104,7 +104,7 @@ pub fn root_two_pi<N: Real>() -> N {
 
 /// Returns `1 / 3`.
 pub fn third<N: Real>() -> N {
-    na::convert(1.0 / 2.0)
+    na::convert(1.0 / 3.0)
 }
 
 /// Returns `3 / (2pi)`.
@@ -119,7 +119,7 @@ pub fn two_over_pi<N: Real>() -> N {
 
 /// Returns `2 / sqrt(pi)`.
 pub fn two_over_root_pi<N: Real>() -> N {
-    N::frac_2_pi()
+    N::frac_2_sqrt_pi()
 }
 
 /// Returns `2pi`.

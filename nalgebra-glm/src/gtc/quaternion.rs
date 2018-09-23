@@ -34,6 +34,7 @@ pub fn quat_less_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> TVec<bool, U4> {
 pub fn quat_cast<N: Real>(x: &Qua<N>) -> TMat4<N> {
     ::quat_to_mat4(x)
 }
+
 /// Computes a right-handed look-at quaternion (equivalent to a right-handed look-at matrix).
 pub fn quat_look_at<N: Real>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua<N> {
     quat_look_at_rh(direction, up)

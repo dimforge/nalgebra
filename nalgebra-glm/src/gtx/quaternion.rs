@@ -48,7 +48,6 @@ pub fn quat_rotate_vec3<N: Real>(q: &Qua<N>, v: &TVec3<N>) -> TVec3<N> {
 
 /// Rotates a vector in homogeneous coordinates by a quaternion assumed to be normalized.
 pub fn quat_rotate_vec<N: Real>(q: &Qua<N>, v: &TVec4<N>) -> TVec4<N> {
-//    UnitQuaternion::new_unchecked(*q) * v
     let rotated = Unit::new_unchecked(*q) * v.fixed_rows::<U3>(0);
     TVec4::new(rotated.x, rotated.y, rotated.z, v.w)
 }

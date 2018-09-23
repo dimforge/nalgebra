@@ -12,7 +12,7 @@ pub fn distance2<N: Real, D: Dimension>(p0: &TVec<N, D>, p1: &TVec<N, D>) -> N
 /// The l1-norm of `x - y`.
 pub fn l1_distance<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
     where DefaultAllocator: Alloc<N, D> {
-    l1_norm(&(x - y))
+    l1_norm(&(y - x))
 }
 
 /// The l1-norm of `v`.
