@@ -17,7 +17,7 @@ pub fn diagonal2x4<N: Number>(v: &TVec2<N>) -> TMat2x4<N> {
 }
 
 /// Builds a 3x2 diagonal matrix.
-pub fn diagonal3x2<N: Number>(v: &TVec3<N>) -> TMat3x2<N> {
+pub fn diagonal3x2<N: Number>(v: &TVec2<N>) -> TMat3x2<N> {
     TMat3x2::from_partial_diagonal(v.as_slice())
 }
 
@@ -32,12 +32,12 @@ pub fn diagonal3x4<N: Number>(v: &TVec3<N>) -> TMat3x4<N> {
 }
 
 /// Builds a 4x2 diagonal matrix.
-pub fn diagonal4x2<N: Number>(v: &TVec4<N>) -> TMat4x2<N> {
+pub fn diagonal4x2<N: Number>(v: &TVec2<N>) -> TMat4x2<N> {
     TMat4x2::from_partial_diagonal(v.as_slice())
 }
 
 /// Builds a 4x3 diagonal matrix.
-pub fn diagonal4x3<N: Number>(v: &TVec4<N>) -> TMat4x3<N> {
+pub fn diagonal4x3<N: Number>(v: &TVec3<N>) -> TMat4x3<N> {
     TMat4x3::from_partial_diagonal(v.as_slice())
 }
 

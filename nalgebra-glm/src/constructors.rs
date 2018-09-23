@@ -134,5 +134,5 @@ pub fn mat4<N: Scalar>(m11: N, m12: N, m13: N, m14: N, m21: N, m22: N, m23: N, m
 
 /// Creates a new quaternion.
 pub fn quat<N: Real>(x: N, y: N, z: N, w: N) -> Qua<N> {
-    Qua::new(x, y, z, w)
+    Qua::new(w, x, y, z)
 }
