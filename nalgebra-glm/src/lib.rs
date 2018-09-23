@@ -38,6 +38,7 @@
     * All function names use `snake_case`, which is the Rust convention.
     * All type names use `CamelCase`, which is the Rust convention.
     * All function arguments, except for scalars, are all passed by-reference.
+    * The most generic vector and matrix types are `TMat` and `TVec` instead of `mat` and `vec`.
     * Some feature are not yet implemented and should be added in the future. In particular, no packing
     functions are available.
     * A few features are not implemented and will never be. This includes functions related to color
