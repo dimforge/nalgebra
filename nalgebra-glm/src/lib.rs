@@ -167,6 +167,7 @@ pub use ext::{
 };
 
 pub use na::{convert, convert_ref, convert_unchecked, convert_ref_unchecked, try_convert, try_convert_ref};
+pub use na::{Scalar, Real, DefaultAllocator, U1, U2, U3, U4};
 
 mod aliases;
 mod constructors;
