@@ -25,7 +25,7 @@ pub fn equal_columns_eps<N: Number, R: Dimension, C: Dimension>(x: &Mat<N, R, C>
     equal_columns_eps_vec(x, y, &Vec::<_, C>::repeat(epsilon))
 }
 
-/// Returns the component-wise comparison of `|x - y| < epsilon`.
+/// Returns the component-wise comparison on each matrix column `|x - y| < epsilon`.
 ///
 /// True if this expression is satisfied.
 pub fn equal_columns_eps_vec<N: Number, R: Dimension, C: Dimension>(x: &Mat<N, R, C>, y: &Mat<N, R, C>, epsilon: &Vec<N, C>) -> Vec<bool, C>
