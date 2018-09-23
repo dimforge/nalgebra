@@ -1,6 +1,6 @@
-use na::{Real, U3, Unit, UnitQuaternion, Vector3};
+use na::{Real, Unit, UnitQuaternion};
 
-use aliases::{Vec, Qua};
+use aliases::{Qua, TVec3};
 
 /// The rotation angle of this quaternion assumed to be normalized.
 pub fn quat_angle<N: Real>(x: &Qua<N>) -> N {
@@ -8,15 +8,15 @@ pub fn quat_angle<N: Real>(x: &Qua<N>) -> N {
 }
 
 /// Creates a quaternion from an axis and an angle.
-pub fn quat_angle_axis<N: Real>(angle: N, axis: &Vec<N, U3>) -> Qua<N> {
+pub fn quat_angle_axis<N: Real>(angle: N, axis: &TVec3<N>) -> Qua<N> {
     UnitQuaternion::from_axis_angle(&Unit::new_normalize(*axis), angle).unwrap()
 }
 
 /// The rotation axis of a quaternion assumed to be normalized.
-pub fn quat_axis<N: Real>(x: &Qua<N>) -> Vec<N, U3> {
+pub fn quat_axis<N: Real>(x: &Qua<N>) -> TVec3<N> {
     if let Some(a) = UnitQuaternion::from_quaternion(*x).axis() {
         a.unwrap()
     } else {
-        Vector3::zeros()
+        TVec3::zeros()
     }
 }

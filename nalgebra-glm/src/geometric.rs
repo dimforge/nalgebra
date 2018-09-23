@@ -1,10 +1,10 @@
-use na::{Real, U3, DefaultAllocator};
+use na::{Real, DefaultAllocator};
 
 use traits::{Number, Alloc, Dimension};
-use aliases::Vec;
+use aliases::{Vec, TVec3};
 
 /// The cross product of two vectors.
-pub fn cross<N: Number, D: Dimension>(x: &Vec<N, U3>, y: &Vec<N, U3>) -> Vec<N, U3> {
+pub fn cross<N: Number, D: Dimension>(x: &TVec3<N>, y: &TVec3<N>) -> TVec3<N> {
     x.cross(y)
 }
 

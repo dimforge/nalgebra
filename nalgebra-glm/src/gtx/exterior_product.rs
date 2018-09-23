@@ -1,9 +1,7 @@
-use na::U2;
-
 use traits::Number;
-use aliases::Vec;
+use aliases::TVec2;
 
 /// The 2D perpendicular product between two vectors.
-pub fn cross2d<N: Number>(v: &Vec<N, U2>, u: &Vec<N, U2>) -> N {
+pub fn cross2d<N: Number>(v: &TVec2<N>, u: &TVec2<N>) -> N {
     v.perp(u)
 }

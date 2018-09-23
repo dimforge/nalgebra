@@ -1,14 +1,12 @@
-use na::U3;
-
 use traits::Number;
-use aliases::Vec;
+use aliases::TVec3;
 
 /// Returns `true` if `{a, b, c}` forms a left-handed trihedron.
-pub fn left_handed<N: Number>(a: &Vec<N, U3>, b: &Vec<N, U3>, c: &Vec<N, U3>) -> bool {
+pub fn left_handed<N: Number>(a: &TVec3<N>, b: &TVec3<N>, c: &TVec3<N>) -> bool {
     a.cross(b).dot(c) < N::zero()
 }
 
 /// Returns `true` if `{a, b, c}` forms a right-handed trihedron.
-pub fn right_handed<N: Number>(a: &Vec<N, U3>, b: &Vec<N, U3>, c: &Vec<N, U3>) -> bool {
+pub fn right_handed<N: Number>(a: &TVec3<N>, b: &TVec3<N>, c: &TVec3<N>) -> bool {
     a.cross(b).dot(c) > N::zero()
 }

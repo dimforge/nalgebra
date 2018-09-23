@@ -1,6 +1,6 @@
-use na::{Real, U3, UnitQuaternion, Unit};
+use na::{Real, UnitQuaternion, Unit};
 
-use aliases::{Vec, Qua};
+use aliases::{Qua, TVec3};
 
 /// Computes the quaternion exponential.
 pub fn quat_exp<N: Real>(q: &Qua<N>) -> Qua<N> {
@@ -18,7 +18,7 @@ pub fn quat_pow<N: Real>(q: &Qua<N>, y: N) -> Qua<N> {
 }
 
 /// Builds a quaternion from an axis and an angle, and right-multiply it to the quaternion `q`.
-pub fn quat_rotate<N: Real>(q: &Qua<N>, angle: N, axis: &Vec<N, U3>) -> Qua<N> {
+pub fn quat_rotate<N: Real>(q: &Qua<N>, angle: N, axis: &TVec3<N>) -> Qua<N> {
     q * UnitQuaternion::from_axis_angle(&Unit::new_normalize(*axis), angle).unwrap()
 }
 

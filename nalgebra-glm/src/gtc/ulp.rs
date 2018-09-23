@@ -7,7 +7,7 @@ pub fn float_distance<T>(x: T, y: T) -> u64 {
     unimplemented!()
 }
 
-pub fn float_distance2<N: Scalar>(x: &Vec<N, U2>, y: &Vec<N, U2>) -> Vec<u64, U2> {
+pub fn float_distance2<N: Scalar>(x: &TVec2<N>, y: &TVec2<N>) -> Vec<u64, U2> {
     unimplemented!()
 }
 

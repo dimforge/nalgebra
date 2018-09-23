@@ -1,7 +1,7 @@
-use na::{DefaultAllocator, Real, U3, U4, Unit, Rotation3, Point3};
+use na::{DefaultAllocator, Real, Unit, Rotation3, Point3};
 
 use traits::{Dimension, Number, Alloc};
-use aliases::{Mat, Vec};
+use aliases::{Mat, Vec, TVec3, TMat4};
 
 /// The identity matrix.
 pub fn identity<N: Number, D: Dimension>() -> Mat<N, D, D>
@@ -15,7 +15,7 @@ pub fn identity<N: Number, D: Dimension>() -> Mat<N, D, D>
 ///    * `eye`   − Position of the camera
 ///    * `center` − Position where the camera is looking at
 ///    * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`
-pub fn look_at<N: Real>(eye: &Vec<N, U3>, center: &Vec<N, U3>, up: &Vec<N, U3>) -> Mat<N, U4, U4> {
+pub fn look_at<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
     look_at_rh(eye, center, up)
 }
 
@@ -25,7 +25,7 @@ pub fn look_at<N: Real>(eye: &Vec<N, U3>, center: &Vec<N, U3>, up: &Vec<N, U3>) 
 ///    * `eye`   − Position of the camera
 ///    * `center` − Position where the camera is looking at
 ///    * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`
-pub fn look_at_lh<N: Real>(eye: &Vec<N, U3>, center: &Vec<N, U3>, up: &Vec<N, U3>) -> Mat<N, U4, U4> {
+pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
     Mat::look_at_lh(&Point3::from_coordinates(*eye), &Point3::from_coordinates(*center), up)
 }
 
@@ -35,7 +35,7 @@ pub fn look_at_lh<N: Real>(eye: &Vec<N, U3>, center: &Vec<N, U3>, up: &Vec<N, U3
 ///    * `eye`   − Position of the camera
 ///    * `center` − Position where the camera is looking at
 ///    * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`
-pub fn look_at_rh<N: Real>(eye: &Vec<N, U3>, center: &Vec<N, U3>, up: &Vec<N, U3>) -> Mat<N, U4, U4> {
+pub fn look_at_rh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
     Mat::look_at_rh(&Point3::from_coordinates(*eye), &Point3::from_coordinates(*center), up)
 }
 
@@ -45,7 +45,7 @@ pub fn look_at_rh<N: Real>(eye: &Vec<N, U3>, center: &Vec<N, U3>, up: &Vec<N, U3
 ///    * m − Input matrix multiplied by this rotation matrix.
 ///    * angle − Rotation angle expressed in radians.
 ///    * axis  − Rotation axis, recommended to be normalized.
-pub fn rotate<N: Real>(m: &Mat<N, U4, U4>, angle: N, axis: &Vec<N, U3>) -> Mat<N, U4, U4> {
+pub fn rotate<N: Real>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) -> TMat4<N> {
     m * Rotation3::from_axis_angle(&Unit::new_normalize(*axis), angle).to_homogeneous()
 }
 
@@ -54,7 +54,7 @@ pub fn rotate<N: Real>(m: &Mat<N, U4, U4>, angle: N, axis: &Vec<N, U3>) -> Mat<N
 /// # Parameters
 ///    * m − Input matrix multiplied by this rotation matrix.
 ///    * angle − Rotation angle expressed in radians.
-pub fn rotate_x<N: Real>(m: &Mat<N, U4, U4>, angle: N) -> Mat<N, U4, U4> {
+pub fn rotate_x<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
     rotate(m, angle, &Vec::x())
 }
 
@@ -63,7 +63,7 @@ pub fn rotate_x<N: Real>(m: &Mat<N, U4, U4>, angle: N) -> Mat<N, U4, U4> {
 /// # Parameters
 ///    * m − Input matrix multiplied by this rotation matrix.
 ///    * angle − Rotation angle expressed in radians.
-pub fn rotate_y<N: Real>(m: &Mat<N, U4, U4>, angle: N) -> Mat<N, U4, U4> {
+pub fn rotate_y<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
     rotate(m, angle, &Vec::y())
 }
 
@@ -72,7 +72,7 @@ pub fn rotate_y<N: Real>(m: &Mat<N, U4, U4>, angle: N) -> Mat<N, U4, U4> {
 /// # Parameters
 ///    * m − Input matrix multiplied by this rotation matrix.
 ///    * angle − Rotation angle expressed in radians.
-pub fn rotate_z<N: Real>(m: &Mat<N, U4, U4>, angle: N) -> Mat<N, U4, U4> {
+pub fn rotate_z<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
     rotate(m, angle, &Vec::z())
 }
 
@@ -81,7 +81,7 @@ pub fn rotate_z<N: Real>(m: &Mat<N, U4, U4>, angle: N) -> Mat<N, U4, U4> {
 /// # Parameters
 ///    * m − Input matrix multiplied by this scale matrix.
 ///    * v − Ratio of scaling for each axis.
-pub fn scale<N: Number>(m: &Mat<N, U4, U4>, v: &Vec<N, U3>) -> Mat<N, U4, U4> {
+pub fn scale<N: Number>(m: &TMat4<N>, v: &TVec3<N>) -> TMat4<N> {
     m.prepend_nonuniform_scaling(v)
 }
 
@@ -90,6 +90,6 @@ pub fn scale<N: Number>(m: &Mat<N, U4, U4>, v: &Vec<N, U3>) -> Mat<N, U4, U4> {
 /// # Parameters
 ///    * m − Input matrix multiplied by this translation matrix.
 ///    * v − Coordinates of a translation vector.
-pub fn translate<N: Number>(m: &Mat<N, U4, U4>, v: &Vec<N, U3>) -> Mat<N, U4, U4> {
+pub fn translate<N: Number>(m: &TMat4<N>, v: &TVec3<N>) -> TMat4<N> {
     m.prepend_translation(v)
 }
