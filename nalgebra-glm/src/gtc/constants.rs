@@ -1,5 +1,4 @@
 use na::{self, Real};
-use traits::Number;
 
 /// The euler constant.
 pub fn e<N: Real>() -> N {
@@ -42,9 +41,7 @@ pub fn ln_two<N: Real>() -> N {
 }
 
 /// Returns `1`.
-pub fn one<N: Number>() -> N {
-    N::one()
-}
+pub use na::one;
 
 /// Returns `1 / pi`.
 pub fn one_over_pi<N: Real>() -> N {
@@ -133,6 +130,4 @@ pub fn two_thirds<N: Real>() -> N {
 }
 
 /// Returns `0`.
-pub fn zero<N: Number>() -> N {
-    N::zero()
-}
+pub use na::zero;
