@@ -49,7 +49,7 @@ pub fn packInt4x8(v: &I8Vec4) -> i32 {
     unimplemented!()
 }
 
-pub fn packRGBM<N: Scalar>(rgb: &Vec<N, U3>) -> Vec<N, U4> {
+pub fn packRGBM<N: Scalar>(rgb: &TVec3<N>) -> TVec4<N> {
     unimplemented!()
 }
 
@@ -192,7 +192,7 @@ pub fn unpackInt4x8(p: i32) -> I8Vec4 {
     unimplemented!()
 }
 
-pub fn unpackRGBM<N: Scalar>(rgbm: &Vec<N, U4>) -> Vec<N, U3> {
+pub fn unpackRGBM<N: Scalar>(rgbm: &TVec4<N>) -> TVec3<N> {
     unimplemented!()
 }
 

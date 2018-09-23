@@ -11,6 +11,14 @@ pub type Vec<N, R> = VectorN<N, R>;
 /// A quaternion with components of type `N`.
 pub type Qua<N> = Quaternion<N>;
 
+/// A 1D vector with components of type `N`.
+pub type TVec1<N> = Vector1<N>;
+/// A 2D vector with components of type `N`.
+pub type TVec2<N> = Vector2<N>;
+/// A 3D vector with components of type `N`.
+pub type TVec3<N> = Vector3<N>;
+/// A 4D vector with components of type `N`.
+pub type TVec4<N> = Vector4<N>;
 /// A 1D vector with boolean components.
 pub type BVec1 = Vector1<bool>;
 /// A 2D vector with boolean components.
@@ -121,7 +129,31 @@ pub type I8Vec3 = Vector3<i8>;
 pub type I8Vec4 = Vector4<i8>;
 
 
-/// A 2x2 matrix with `f64` components.
+/// A 2x2 matrix with components of type `N`.
+pub type TMat2<N> = Matrix2<N>;
+/// A 2x2 matrix with components of type `N`.
+pub type TMat2x2<N> = Matrix2<N>;
+/// A 2x3 matrix with components of type `N`.
+pub type TMat2x3<N> = Matrix2x3<N>;
+/// A 2x4 matrix with components of type `N`.
+pub type TMat2x4<N> = Matrix2x4<N>;
+/// A 3x3 matrix with components of type `N`.
+pub type TMat3<N> = Matrix3<N>;
+/// A 3x2 matrix with components of type `N`.
+pub type TMat3x2<N> = Matrix3x2<N>;
+/// A 3x3 matrix with components of type `N`.
+pub type TMat3x3<N> = Matrix3<N>;
+/// A 3x4 matrix with components of type `N`.
+pub type TMat3x4<N> = Matrix3x4<N>;
+/// A 4x4 matrix with components of type `N`.
+pub type TMat4<N> = Matrix4<N>;
+/// A 4x2 matrix with components of type `N`.
+pub type TMat4x2<N> = Matrix4x2<N>;
+/// A 4x3 matrix with components of type `N`.
+pub type TMat4x3<N> = Matrix4x3<N>;
+/// A 4x4 matrix with components of type `N`.
+pub type TMat4x4<N> = Matrix4<N>;
+/// A 2x2 matrix with components of type `N`.
 pub type DMat2 = Matrix2<f64>;
 /// A 2x2 matrix with `f64` components.
 pub type DMat2x2 = Matrix2<f64>;
