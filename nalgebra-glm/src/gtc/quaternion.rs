@@ -1,6 +1,6 @@
 use na::{Real, U4, UnitQuaternion};
 
-use aliases::{Qua, Vec, TVec3, TMat4};
+use aliases::{Qua, TVec, TVec3, TMat4};
 
 
 /// Euler angles of the quaternion `q` as (pitch, yaw, roll).
@@ -11,22 +11,22 @@ pub fn quat_euler_angles<N: Real>(x: &Qua<N>) -> TVec3<N> {
 }
 
 /// Component-wise `>` comparison between two quaternions.
-pub fn quat_greater_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
+pub fn quat_greater_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> TVec<bool, U4> {
     ::greater_than(&x.coords, &y.coords)
 }
 
 /// Component-wise `>=` comparison between two quaternions.
-pub fn quat_greater_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
+pub fn quat_greater_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> TVec<bool, U4> {
     ::greater_than_equal(&x.coords, &y.coords)
 }
 
 /// Component-wise `<` comparison between two quaternions.
-pub fn quat_less_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
+pub fn quat_less_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> TVec<bool, U4> {
     ::less_than(&x.coords, &y.coords)
 }
 
 /// Component-wise `<=` comparison between two quaternions.
-pub fn quat_less_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> Vec<bool, U4> {
+pub fn quat_less_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> TVec<bool, U4> {
     ::less_than_equal(&x.coords, &y.coords)
 }
 

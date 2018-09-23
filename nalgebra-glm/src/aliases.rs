@@ -5,9 +5,9 @@ use na::{MatrixMN, VectorN, Vector1, Vector2, Vector3, Vector4,
          Quaternion};
 
 /// A matrix with components of type `N`. It has `R` rows, and `C` columns.
-pub type Mat<N, R, C> = MatrixMN<N, R, C>;
+pub type TMat<N, R, C> = MatrixMN<N, R, C>;
 /// A column vector with components of type `N`. It has `D` rows (and one column).
-pub type Vec<N, R> = VectorN<N, R>;
+pub type TVec<N, R> = VectorN<N, R>;
 /// A quaternion with components of type `N`.
 pub type Qua<N> = Quaternion<N>;
 

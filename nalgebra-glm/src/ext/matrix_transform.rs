@@ -1,12 +1,12 @@
 use na::{DefaultAllocator, Real, Unit, Rotation3, Point3};
 
 use traits::{Dimension, Number, Alloc};
-use aliases::{Mat, Vec, TVec3, TMat4};
+use aliases::{TMat, TVec, TVec3, TMat4};
 
 /// The identity matrix.
-pub fn identity<N: Number, D: Dimension>() -> Mat<N, D, D>
+pub fn identity<N: Number, D: Dimension>() -> TMat<N, D, D>
     where DefaultAllocator: Alloc<N, D, D> {
-    Mat::<N, D, D>::identity()
+    TMat::<N, D, D>::identity()
 }
 
 /// Build a look at view matrix based on the right handedness.
@@ -26,7 +26,7 @@ pub fn look_at<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMa
 ///    * `center` − Position where the camera is looking at
 ///    * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`
 pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
-    Mat::look_at_lh(&Point3::from_coordinates(*eye), &Point3::from_coordinates(*center), up)
+    TMat::look_at_lh(&Point3::from_coordinates(*eye), &Point3::from_coordinates(*center), up)
 }
 
 /// Build a right handed look at view matrix.
@@ -36,7 +36,7 @@ pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> 
 ///    * `center` − Position where the camera is looking at
 ///    * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`
 pub fn look_at_rh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
-    Mat::look_at_rh(&Point3::from_coordinates(*eye), &Point3::from_coordinates(*center), up)
+    TMat::look_at_rh(&Point3::from_coordinates(*eye), &Point3::from_coordinates(*center), up)
 }
 
 /// Builds a rotation 4 * 4 matrix created from an axis vector and an angle and right-multiply it to `m`.
@@ -55,7 +55,7 @@ pub fn rotate<N: Real>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) -> TMat4<N> {
 ///    * m − Input matrix multiplied by this rotation matrix.
 ///    * angle − Rotation angle expressed in radians.
 pub fn rotate_x<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
-    rotate(m, angle, &Vec::x())
+    rotate(m, angle, &TVec::x())
 }
 
 /// Builds a rotation 4 * 4 matrix around the Y axis and right-multiply it to `m`.
@@ -64,7 +64,7 @@ pub fn rotate_x<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 ///    * m − Input matrix multiplied by this rotation matrix.
 ///    * angle − Rotation angle expressed in radians.
 pub fn rotate_y<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
-    rotate(m, angle, &Vec::y())
+    rotate(m, angle, &TVec::y())
 }
 
 /// Builds a rotation 4 * 4 matrix around the Z axis and right-multiply it to `m`.
@@ -73,7 +73,7 @@ pub fn rotate_y<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 ///    * m − Input matrix multiplied by this rotation matrix.
 ///    * angle − Rotation angle expressed in radians.
 pub fn rotate_z<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
-    rotate(m, angle, &Vec::z())
+    rotate(m, angle, &TVec::z())
 }
 
 /// Builds a scale 4 * 4 matrix created from 3 scalars and right-multiply it to `m`.
