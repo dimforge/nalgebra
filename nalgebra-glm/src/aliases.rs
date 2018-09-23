@@ -199,7 +199,7 @@ pub type Mat4x2 = Matrix4x2<f32>;
 pub type Mat4x3 = Matrix4x3<f32>;
 /// A 4x4 matrix with `f32` components.
 pub type Mat4x4 = Matrix4<f32>;
-/// A 4x3 matrix with `f32` components.
+/// A 4x4 matrix with `f32` components.
 pub type Mat4 = Matrix4<f32>;
 
 /// A quaternion with f32 components.
