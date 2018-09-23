@@ -19,18 +19,18 @@ pub fn ceil<N: Real, D: Dimension>(x: &Vec<N, D>) -> Vec<N, D>
 
 
 /// Returns `min(max(x, min_val), max_val)`.
-pub fn clamp<N: Number>(x: N, min_val: N, max_val: N) -> N {
+pub fn clamp_scalar<N: Number>(x: N, min_val: N, max_val: N) -> N {
     na::clamp(x, min_val, max_val)
 }
 
-/// Returns `min(max(x, min_val), max_val)` for each component in `x` using the floating-point values `min_val and `max_val`.
-pub fn clamp2<N: Number, D: Dimension>(x: &Vec<N, D>, min_val: N, max_val: N) -> Vec<N, D>
+/// Returns `min(max(x[i], min_val), max_val)` for each component in `x` using the floating-point values `min_val and `max_val`.
+pub fn clamp<N: Number, D: Dimension>(x: &Vec<N, D>, min_val: N, max_val: N) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     x.map(|x| na::clamp(x, min_val, max_val))
 }
 
-/// Returns `min(max(x, min_val), max_val)` for each component in `x` using the components of `min_val` and `max_val` as bounds.
-pub fn clamp3<N: Number, D: Dimension>(x: &Vec<N, D>, min_val: &Vec<N, D>, max_val: &Vec<N, D>) -> Vec<N, D>
+/// Returns `min(max(x[i], min_val[i]), max_val[i])` for each component in `x` using the components of `min_val` and `max_val` as bounds.
+pub fn clamp_vec<N: Number, D: Dimension>(x: &Vec<N, D>, min_val: &Vec<N, D>, max_val: &Vec<N, D>) -> Vec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     na::clamp(x.clone(), min_val.clone(), max_val.clone())
 }
