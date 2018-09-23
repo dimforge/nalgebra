@@ -1,6 +1,6 @@
 use na::{Real, U3, U4};
 
-use aliases::{Vec, Mat};
+use aliases::{TVec, TMat};
 
 pub fn derivedEulerAngleX<N: Real>(angleX: N, angularVelocityX: N) -> TMat4<N> {
     unimplemented!()

@@ -1,11 +1,11 @@
 use na::{DefaultAllocator, Real};
 
 use traits::{Dimension, Alloc};
-use aliases::Vec;
+use aliases::TVec;
 
 
 /// The angle between two vectors.
-pub fn angle<N: Real, D: Dimension>(x: &Vec<N, D>, y: &Vec<N, D>) -> N
+pub fn angle<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
     where DefaultAllocator: Alloc<N, D> {
     x.angle(y)
 }

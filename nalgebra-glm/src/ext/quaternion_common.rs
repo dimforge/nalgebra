@@ -12,11 +12,11 @@ pub fn quat_inverse<N: Real>(q: &Qua<N>) -> Qua<N> {
     q.try_inverse().unwrap_or(na::zero())
 }
 
-//pub fn quat_isinf<N: Real>(x: &Qua<N>) -> Vec<bool, U4> {
+//pub fn quat_isinf<N: Real>(x: &Qua<N>) -> TVec<bool, U4> {
 //    x.coords.map(|e| e.is_inf())
 //}
 
-//pub fn quat_isnan<N: Real>(x: &Qua<N>) -> Vec<bool, U4> {
+//pub fn quat_isnan<N: Real>(x: &Qua<N>) -> TVec<bool, U4> {
 //    x.coords.map(|e| e.is_nan())
 //}
 
