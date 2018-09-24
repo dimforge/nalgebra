@@ -706,6 +706,16 @@ fn set_row_column() {
     assert_eq!(expected2, computed);
 }
 
+#[test]
+fn partial_clamp() {
+    // NOTE: from #401.
+    let n = Vector2::new(1.5, 0.0);
+    let min = Vector2::new(-75.0, -0.0);
+    let max = Vector2::new(75.0, 0.0);
+    let inter = na::partial_clamp(&n, &min, &max);
+    assert_eq!(*inter.unwrap(), n);
+}
+
 #[cfg(feature = "arbitrary")]
 mod transposition_tests {
     use super::*;
