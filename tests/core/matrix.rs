@@ -716,6 +716,61 @@ fn partial_clamp() {
     assert_eq!(*inter.unwrap(), n);
 }
 
+fn swizzle() {
+    let a = Vector2::new(1.0f32, 2.0);
+    let b = Vector3::new(1.0f32, 2.0, 3.0);
+    let c = Vector4::new(1.0f32, 2.0, 3.0, 4.0);
+
+    assert_eq!(a.xy(), Vector2::new(1.0, 2.0));
+    assert_eq!(a.yx(), Vector2::new(2.0, 1.0));
+    assert_eq!(a.xx(), Vector2::new(1.0, 1.0));
+    assert_eq!(a.yy(), Vector2::new(2.0, 2.0));
+
+    assert_eq!(a.xxx(), Vector3::new(1.0, 1.0, 1.0));
+    assert_eq!(a.yyy(), Vector3::new(2.0, 2.0, 2.0));
+    assert_eq!(a.xyx(), Vector3::new(1.0, 2.0, 1.0));
+    assert_eq!(a.yxy(), Vector3::new(2.0, 1.0, 2.0));
+
+    assert_eq!(b.xy(), Vector2::new(1.0, 2.0));
+    assert_eq!(b.yx(), Vector2::new(2.0, 1.0));
+    assert_eq!(b.xx(), Vector2::new(1.0, 1.0));
+    assert_eq!(b.yy(), Vector2::new(2.0, 2.0));
+
+    assert_eq!(b.xz(), Vector2::new(1.0, 3.0));
+    assert_eq!(b.zx(), Vector2::new(3.0, 1.0));
+    assert_eq!(b.yz(), Vector2::new(2.0, 3.0));
+    assert_eq!(b.zy(), Vector2::new(3.0, 2.0));
+    assert_eq!(b.zz(), Vector2::new(3.0, 3.0));
+
+    assert_eq!(b.xyz(), Vector3::new(1.0, 2.0, 3.0));
+    assert_eq!(b.xxx(), Vector3::new(1.0, 1.0, 1.0));
+    assert_eq!(b.yyy(), Vector3::new(2.0, 2.0, 2.0));
+    assert_eq!(b.zzz(), Vector3::new(3.0, 3.0, 3.0));
+    assert_eq!(b.zxy(), Vector3::new(3.0, 1.0, 2.0));
+    assert_eq!(b.zxz(), Vector3::new(3.0, 1.0, 3.0));
+    assert_eq!(b.zyz(), Vector3::new(3.0, 2.0, 3.0));
+
+
+    assert_eq!(c.xy(), Vector2::new(1.0, 2.0));
+    assert_eq!(c.yx(), Vector2::new(2.0, 1.0));
+    assert_eq!(c.xx(), Vector2::new(1.0, 1.0));
+    assert_eq!(c.yy(), Vector2::new(2.0, 2.0));
+
+    assert_eq!(c.xz(), Vector2::new(1.0, 3.0));
+    assert_eq!(c.zx(), Vector2::new(3.0, 1.0));
+    assert_eq!(c.yz(), Vector2::new(2.0, 3.0));
+    assert_eq!(c.zy(), Vector2::new(3.0, 2.0));
+    assert_eq!(c.zz(), Vector2::new(3.0, 3.0));
+
+    assert_eq!(c.xyz(), Vector3::new(1.0, 2.0, 3.0));
+    assert_eq!(c.xxx(), Vector3::new(1.0, 1.0, 1.0));
+    assert_eq!(c.yyy(), Vector3::new(2.0, 2.0, 2.0));
+    assert_eq!(c.zzz(), Vector3::new(3.0, 3.0, 3.0));
+    assert_eq!(c.zxy(), Vector3::new(3.0, 1.0, 2.0));
+    assert_eq!(c.zxz(), Vector3::new(3.0, 1.0, 3.0));
+    assert_eq!(c.zyz(), Vector3::new(3.0, 2.0, 3.0));
+}
+
 #[cfg(feature = "arbitrary")]
 mod transposition_tests {
     use super::*;
