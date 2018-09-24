@@ -10,6 +10,7 @@
  * Matrix   × Rotation
  * Matrix   ÷ Rotation
  * Rotation × Point
+ * Rotation × Unit<Vector>
  *
  *
  * Rotation ×= Rotation
@@ -21,7 +22,7 @@ use num::{One, Zero};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use base::{DefaultAllocator, Matrix, MatrixMN, Scalar};
+use base::{DefaultAllocator, Matrix, MatrixMN, Scalar, Unit, Vector, VectorN};
 use base::dimension::{Dim, DimName, U1};
 use base::constraint::{AreMultipliable, ShapeConstraint};
 use base::storage::Storage;
@@ -116,6 +117,19 @@ md_impl_all!(
     [ref val] => self.matrix() * right;
     [val ref] => self.unwrap() * right;
     [ref ref] => self.matrix() * right;
+);
+
+// Rotation × Unit<Vector>
+md_impl_all!(
+    Mul, mul;
+    (D, D), (D, U1) for D: DimName, S: Storage<N, D>
+    where DefaultAllocator: Allocator<N, D>
+    where ShapeConstraint:  AreMultipliable<D, D, D, U1>;
+    self: Rotation<N, D>, right: Unit<Vector<N, D, S>>, Output = Unit<VectorN<N, D>>;
+    [val val] => Unit::new_unchecked(self.unwrap() * right.unwrap());
+    [ref val] => Unit::new_unchecked(self.matrix() * right.unwrap());
+    [val ref] => Unit::new_unchecked(self.unwrap() * right.as_ref());
+    [ref ref] => Unit::new_unchecked(self.matrix() * right.as_ref());
 );
 
 // Rotation ×= Rotation
