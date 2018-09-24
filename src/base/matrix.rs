@@ -909,7 +909,7 @@ where
             }
         }
 
-        None
+        first_ord
     }
 
     #[inline]
