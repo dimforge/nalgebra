@@ -256,7 +256,7 @@ where
         self.matrix
     }
 
-    /// A reference to the underlynig matrix.
+    /// A reference to the underlying matrix.
     #[inline]
     pub fn matrix(&self) -> &MatrixN<N, DimNameSum<D, U1>> {
         &self.matrix

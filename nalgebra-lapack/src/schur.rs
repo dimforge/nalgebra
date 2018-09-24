@@ -59,14 +59,14 @@ impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
-    /// Computes the eigenvalues and real Schur foorm of the matrix `m`.
+    /// Computes the eigenvalues and real Schur form of the matrix `m`.
     ///
     /// Panics if the method did not converge.
     pub fn new(m: MatrixN<N, D>) -> Self {
         Self::try_new(m).expect("RealSchur decomposition: convergence failed.")
     }
 
-    /// Computes the eigenvalues and real Schur foorm of the matrix `m`.
+    /// Computes the eigenvalues and real Schur form of the matrix `m`.
     ///
     /// Returns `None` if the method did not converge.
     pub fn try_new(mut m: MatrixN<N, D>) -> Option<Self> {

@@ -56,7 +56,7 @@ pub fn rotate_z_vec4<N: Real>(v: &TVec4<N>, angle: N) -> TVec4<N> {
     Rotation3::from_axis_angle(&TVec3::z_axis(), angle).to_homogeneous() * v
 }
 
-/// Computes a spehical linear interpolation between the vectors `x` and `y` assumed to be normalized.
+/// Computes a spherical linear interpolation between the vectors `x` and `y` assumed to be normalized.
 pub fn slerp<N: Real>(x: &TVec3<N>, y: &TVec3<N>, a: N) -> TVec3<N> {
     Unit::new_unchecked(*x).slerp(&Unit::new_unchecked(*y), a).unwrap()
 }

@@ -244,7 +244,7 @@ where
 
     /// Solves in-place the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
-    /// Retuns `false` if no solution was found (the decomposed matrix is singular).
+    /// Returns `false` if no solution was found (the decomposed matrix is singular).
     pub fn solve_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
     where
         DefaultAllocator: Allocator<N, R2, C2> + Allocator<i32, R2>,
@@ -255,7 +255,7 @@ where
     /// Solves in-place the linear system `self.transpose() * x = b`, where `x` is the unknown to be
     /// determined.
     ///
-    /// Retuns `false` if no solution was found (the decomposed matrix is singular).
+    /// Returns `false` if no solution was found (the decomposed matrix is singular).
     pub fn solve_transpose_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
     where
         DefaultAllocator: Allocator<N, R2, C2> + Allocator<i32, R2>,
@@ -266,7 +266,7 @@ where
     /// Solves in-place the linear system `self.conjugate_transpose() * x = b`, where `x` is the unknown to
     /// be determined.
     ///
-    /// Retuns `false` if no solution was found (the decomposed matrix is singular).
+    /// Returns `false` if no solution was found (the decomposed matrix is singular).
     pub fn solve_conjugate_transpose_mut<R2: Dim, C2: Dim>(
         &self,
         b: &mut MatrixMN<N, R2, C2>,

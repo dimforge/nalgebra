@@ -8,7 +8,7 @@ use base::{DefaultAllocator, Matrix, MatrixMN, SquareMatrix, Vector};
 
 impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only
-    /// the lower-triangular part of `self` (including the diagonal) is concidered not-zero.
+    /// the lower-triangular part of `self` (including the diagonal) is considered not-zero.
     #[inline]
     pub fn solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -28,7 +28,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only
-    /// the upper-triangular part of `self` (including the diagonal) is concidered not-zero.
+    /// the upper-triangular part of `self` (including the diagonal) is considered not-zero.
     #[inline]
     pub fn solve_upper_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -48,7 +48,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 
     /// Solves the linear system `self . x = b` where `x` is the unknown and only the
-    /// lower-triangular part of `self` (including the diagonal) is concidered not-zero.
+    /// lower-triangular part of `self` (including the diagonal) is considered not-zero.
     pub fn solve_lower_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
@@ -98,7 +98,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
     // FIXME: add the same but for solving upper-triangular.
     /// Solves the linear system `self . x = b` where `x` is the unknown and only the
-    /// lower-triangular part of `self` is concidered not-zero. The diagonal is never read as it is
+    /// lower-triangular part of `self` is considered not-zero. The diagonal is never read as it is
     /// assumed to be equal to `diag`. Returns `false` and does not modify its inputs if `diag` is zero.
     pub fn solve_lower_triangular_with_diag_mut<R2: Dim, C2: Dim, S2>(
         &self,
@@ -130,7 +130,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 
     /// Solves the linear system `self . x = b` where `x` is the unknown and only the
-    /// upper-triangular part of `self` (including the diagonal) is concidered not-zero.
+    /// upper-triangular part of `self` (including the diagonal) is considered not-zero.
     pub fn solve_upper_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
@@ -185,7 +185,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
      */
 
     /// Computes the solution of the linear system `self.transpose() . x = b` where `x` is the unknown and only
-    /// the lower-triangular part of `self` (including the diagonal) is concidered not-zero.
+    /// the lower-triangular part of `self` (including the diagonal) is considered not-zero.
     #[inline]
     pub fn tr_solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -205,7 +205,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 
     /// Computes the solution of the linear system `self.transpose() . x = b` where `x` is the unknown and only
-    /// the upper-triangular part of `self` (including the diagonal) is concidered not-zero.
+    /// the upper-triangular part of `self` (including the diagonal) is considered not-zero.
     #[inline]
     pub fn tr_solve_upper_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -225,7 +225,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 
     /// Solves the linear system `self.transpose() . x = b` where `x` is the unknown and only the
-    /// lower-triangular part of `self` (including the diagonal) is concidered not-zero.
+    /// lower-triangular part of `self` (including the diagonal) is considered not-zero.
     pub fn tr_solve_lower_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
@@ -272,7 +272,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 
     /// Solves the linear system `self.transpose() . x = b` where `x` is the unknown and only the
-    /// upper-triangular part of `self` (including the diagonal) is concidered not-zero.
+    /// upper-triangular part of `self` (including the diagonal) is considered not-zero.
     pub fn tr_solve_upper_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
         b: &mut Matrix<N, R2, C2, S2>,

@@ -676,8 +676,8 @@ pub trait SliceRange<D: Dim> {
 
     /// The start index of the range.
     fn begin(&self, shape: D) -> usize;
-    // NOTE: this is the index immediatly after the last index.
-    /// The index immediatly after the last index inside of the range.
+    // NOTE: this is the index immediately after the last index.
+    /// The index immediately after the last index inside of the range.
     fn end(&self, shape: D) -> usize;
     /// The number of elements of the range, i.e., `self.end - self.begin`.
     fn size(&self, shape: D) -> Self::Size;

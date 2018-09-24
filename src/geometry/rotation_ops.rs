@@ -53,7 +53,7 @@ md_impl_all!(
 );
 
 // Rotation ÷ Rotation
-// FIXME: instead of calling inverse explicitely, could we just add a `mul_tr` or `mul_inv` method?
+// FIXME: instead of calling inverse explicitly, could we just add a `mul_tr` or `mul_inv` method?
 md_impl_all!(
     Div, div;
     (D, D), (D, D) for D: DimName;

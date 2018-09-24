@@ -107,7 +107,7 @@ where
         let (nrows, ncols) = self.qr.data.shape();
 
         // NOTE: we could build the identity matrix and call q_mul on it.
-        // Instead we don't so that we take in accout the matrix sparcity.
+        // Instead we don't so that we take in account the matrix sparseness.
         let mut res = Matrix::identity_generic(nrows, nrows.min(ncols));
         let dim = self.diag.len();
 

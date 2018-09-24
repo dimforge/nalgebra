@@ -180,7 +180,7 @@ where
         let mut res = N::zero();
 
         // We have to define them outside of the loop (and not inside at first assignment)
-        // otherwize vectorization won't kick in for some reason.
+        // otherwise vectorization won't kick in for some reason.
         let mut acc0;
         let mut acc1;
         let mut acc2;
@@ -527,7 +527,7 @@ where
             let is_dynamic = R1::is::<Dynamic>() || C1::is::<Dynamic>() || R2::is::<Dynamic>()
                 || C2::is::<Dynamic>() || R3::is::<Dynamic>()
                 || C3::is::<Dynamic>();
-            // Thershold determined ampirically.
+            // Threshold determined empirically.
             const SMALL_DIM: usize = 5;
 
             if is_dynamic && nrows1 > SMALL_DIM && ncols1 > SMALL_DIM && nrows2 > SMALL_DIM

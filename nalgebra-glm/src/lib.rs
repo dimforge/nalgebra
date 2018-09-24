@@ -50,13 +50,13 @@
     * Functions operating in 2d will usually end with the `2d` suffix, e.g., `glm::rotade2d` is for 2D while `glm::rotate` is for 3D.
     * Functions operating on vector will often end with the `_vec` suffix, possibly followed by the dimension of vector, e.g., `glm::rotate_vec2`.
     * Every function related to quaternions start with the `quat_` prefix, e.g., `glm::quat_dot(q1, q2)`.
-    * All the conversion functions have unique names as described [bellow](#conversions).
+    * All the conversion functions have unique names as described [below](#conversions).
     ### Vector and matrix construction
     Vectors, matrices, and quaternions can be constructed using several approaches:
     * Using functions with the same name as their type in lower-case. For example `glm::vec3(x, y, z)` will create a 3D vector.
     * Using the `::new` constructor. For example `Vec3::new(x, y, z)` will create a 3D vector.
     * Using the functions prefixed by `make_` to build a vector a matrix from a slice. For example `glm::make_vec3(&[x, y, z])` will create a 3D vector.
-    Keep in mind that constructing a matrix using this type of funcitons require its components to be arrange in column-major order on the slice.
+    Keep in mind that constructing a matrix using this type of functions require its components to be arrange in column-major order on the slice.
     * Using a geometric construction function. For example `glm::rotation(angle, axis)` will build a 4x4 homogeneous rotation matrix from an angle (in radians) and an axis.
     * Using swizzling and conversions as described in the next sections.
     ### Swizzling

@@ -50,7 +50,7 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     /// element of any dimension. Must be equal to `Self::dimension()` if it is not `None`.
     fn shape(&self) -> (R, C);
 
-    /// The spacing between concecutive row elements and consecutive column elements.
+    /// The spacing between consecutive row elements and consecutive column elements.
     ///
     /// For example this returns `(1, 5)` for a row-major matrix with 5 columns.
     fn strides(&self) -> (Self::RStride, Self::CStride);

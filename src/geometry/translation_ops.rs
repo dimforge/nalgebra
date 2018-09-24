@@ -31,7 +31,7 @@ add_sub_impl!(Mul, mul, ClosedAdd;
     Translation::from_vector(self.vector + right.vector); );
 
 // Translation ÷ Translation
-// FIXME: instead of calling inverse explicitely, could we just add a `mul_tr` or `mul_inv` method?
+// FIXME: instead of calling inverse explicitly, could we just add a `mul_tr` or `mul_inv` method?
 add_sub_impl!(Div, div, ClosedSub;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: &'a Translation<N, D>, right: &'b Translation<N, D>, Output = Translation<N, D>;

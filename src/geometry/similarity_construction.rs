@@ -65,7 +65,7 @@ where
     R: AlgaRotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
 {
-    /// The similarity that applies tha scaling factor `scaling`, followed by the rotation `r` with
+    /// The similarity that applies the scaling factor `scaling`, followed by the rotation `r` with
     /// its axis passing through the point `p`.
     #[inline]
     pub fn rotation_wrt_point(r: R, p: Point<N, D>, scaling: N) -> Self {
@@ -135,7 +135,7 @@ macro_rules! similarity_construction_impl(
                 Self::from_isometry(Isometry::<_, U3, $Rot>::new(translation, axisangle), scaling)
             }
 
-            /// Creates an similarity that corresponds to the a scaling factor and a local frame of
+            /// Creates an similarity that corresponds to a scaling factor and a local frame of
             /// an observer standing at the point `eye` and looking toward `target`.
             ///
             /// It maps the view direction `target - eye` to the positive `z` axis and the origin to the

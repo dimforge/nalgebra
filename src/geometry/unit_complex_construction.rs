@@ -35,7 +35,7 @@ impl<N: Real> UnitComplex<N> {
         Self::new(angle)
     }
 
-    /// Builds the unit complex number frow the sinus and cosinus of the rotation angle.
+    /// Builds the unit complex number from the sinus and cosinus of the rotation angle.
     ///
     /// The input values are not checked.
     #[inline]

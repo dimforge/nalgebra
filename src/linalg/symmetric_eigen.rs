@@ -214,7 +214,7 @@ where
                 end -= 1;
             }
 
-            // Re-delimit the suproblem in case some decoupling occured.
+            // Re-delimit the subproblem in case some decoupling occurred.
             let sub = Self::delimit_subproblem(&diag, &mut off_diag, end, eps);
 
             start = sub.0;
@@ -297,7 +297,7 @@ where
 pub fn wilkinson_shift<N: Real>(tmm: N, tnn: N, tmn: N) -> N {
     let sq_tmn = tmn * tmn;
     if !sq_tmn.is_zero() {
-        // We have the guarantee thet the denominator won't be zero.
+        // We have the guarantee that the denominator won't be zero.
         let d = (tmm - tnn) * ::convert(0.5);
         tnn - sq_tmn / (d + d.signum() * (d * d + sq_tmn).sqrt())
     } else {

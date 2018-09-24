@@ -90,7 +90,7 @@ pub fn ortho<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -
 //    unimplemented!()
 //}
 
-/// Creates a matrix for a symetric perspective-view frustum based on the right handedness and OpenGL near and far clip planes definition.
+/// Creates a matrix for a symmetric perspective-view frustum based on the right handedness and OpenGL near and far clip planes definition.
 pub fn perspective<N: Real>(fovy: N, aspect: N, near: N, far: N) -> TMat4<N> {
     Perspective3::new(fovy, aspect, near, far).unwrap()
 }

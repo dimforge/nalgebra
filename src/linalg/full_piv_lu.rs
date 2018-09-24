@@ -174,7 +174,7 @@ where
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
-    /// Retuns `None` if the decomposed matrix is not invertible.
+    /// Returns `None` if the decomposed matrix is not invertible.
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<N, R2, C2, S2>,

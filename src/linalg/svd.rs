@@ -94,7 +94,7 @@ where
     ///
     /// * `compute_u` − set this to `true` to enable the computation of left-singular vectors.
     /// * `compute_v` − set this to `true` to enable the computation of left-singular vectors.
-    /// * `eps`       − tolerence used to determine when a value converged to 0.
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
@@ -251,7 +251,7 @@ where
                 end -= 1;
             }
 
-            // Re-delimit the suproblem in case some decoupling occured.
+            // Re-delimit the subproblem in case some decoupling occurred.
             let sub = Self::delimit_subproblem(&mut b, &mut u, &mut v_t, end, eps);
             start = sub.0;
             end = sub.1;
@@ -593,7 +593,7 @@ where
     ///
     /// * `compute_u` − set this to `true` to enable the computation of left-singular vectors.
     /// * `compute_v` − set this to `true` to enable the computation of left-singular vectors.
-    /// * `eps`       − tolerence used to determine when a value converged to 0.
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
