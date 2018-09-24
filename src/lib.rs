@@ -233,8 +233,8 @@ where
 ///
 /// In particular:
 ///     * If `min < val < max`, this returns `val`.
-///     * If `val <= min`, this retuns `min`.
-///     * If `val >= max`, this retuns `max`.
+///     * If `val <= min`, this returns `min`.
+///     * If `val >= max`, this returns `max`.
 #[inline]
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {

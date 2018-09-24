@@ -58,10 +58,10 @@ impl<N, R: Dim, C: Dim> MatrixVec<N, R, C> {
         &mut self.data
     }
 
-    /// Resizes the undelying mutable data storage and unrwaps it.
+    /// Resizes the underlying mutable data storage and unwraps it.
     ///
     /// If `sz` is larger than the current size, additional elements are uninitialized.
-    /// If `sz` is smaller than the current size, additional elements are trucated.
+    /// If `sz` is smaller than the current size, additional elements are truncated.
     #[inline]
     pub unsafe fn resize(mut self, sz: usize) -> Vec<N> {
         let len = self.len();

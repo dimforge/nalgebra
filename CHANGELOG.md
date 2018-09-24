@@ -130,7 +130,7 @@ This adds support for serialization using the
 
 Pure Rust implementation of some Blas operations:
 
-  * `.iamax()` retuns the index of the maximum value of a vector.
+  * `.iamax()` returns the index of the maximum value of a vector.
   * `.axpy(...)` computes `self = a * x + b * self`.
   * `.gemv(...)` computes `self = alpha * a * x + beta * self` with a matrix and vector `a` and `x`.
   * `.ger(...)` computes `self = alpha * x^t * y + beta * self` where `x` and `y` are vectors.
@@ -367,7 +367,7 @@ crate for vectors, rotations and points. To enable them, activate the
 
 ## [0.7.0]
 ### Added
-  * Added implementation of assignement operators (+=, -=, etc.) for
+  * Added implementation of assignment operators (+=, -=, etc.) for
     everything.
 ### Modified
   * Points and vectors are now linked to each other with associated types

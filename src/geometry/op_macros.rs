@@ -5,7 +5,7 @@
 /// Macro for the implementation of multiplication and division.
 macro_rules! md_impl(
     (
-    // Operator, operator method, and calar bounds.
+    // Operator, operator method, and scalar bounds.
      $Op: ident, $op: ident $(where N: $($ScalarBounds: ident),*)*;
      // Storage dimensions, and dimension bounds.
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty) for $($Dims: ident: $DimsBound: ident $(<$($BoundParam: ty),*>)*),+
@@ -13,7 +13,7 @@ macro_rules! md_impl(
      $(where $ConstraintType: ty: $ConstraintBound: ident<$($ConstraintBoundParams: ty $( = $EqBound: ty )*),*> )*;
      // Argument identifiers and types + output.
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
-     // Operator actual mplementation.
+     // Operator actual implementation.
      $action: expr;
      // Lifetime.
      $($lives: tt),*) => {
@@ -38,7 +38,7 @@ macro_rules! md_impl(
 /// Implements all the argument reference combinations.
 macro_rules! md_impl_all(
     (
-     // Operator, operator method, and calar bounds.
+     // Operator, operator method, and scalar bounds.
      $Op: ident, $op: ident $(where N: $($ScalarBounds: ident),*)*;
      // Storage dimensions, and dimension bounds.
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty) for $($Dims: ident: $DimsBound: ident $(<$($BoundParam: ty),*>)*),+
@@ -82,7 +82,7 @@ macro_rules! md_impl_all(
     }
 );
 
-/// Macro for the implementation of assignement-multiplication and assignement-division.
+/// Macro for the implementation of assignment-multiplication and assignment-division.
 macro_rules! md_assign_impl(
     (
      // Operator, operator method, and scalar bounds.
@@ -109,7 +109,7 @@ macro_rules! md_assign_impl(
     }
 );
 
-/// Macro for the implementation of assignement-multiplication and assignement-division with and
+/// Macro for the implementation of assignment-multiplication and assignment-division with and
 /// without reference to the right-hand-side.
 macro_rules! md_assign_impl_all(
     (
@@ -165,7 +165,7 @@ macro_rules! add_sub_impl(
 );
 
 // FIXME: merge with `md_assign_impl`.
-/// Macro for the implementation of assignement-addition and assignement-subtraction.
+/// Macro for the implementation of assignment-addition and assignment-subtraction.
 macro_rules! add_sub_assign_impl(
     ($Op: ident, $op: ident, $bound: ident;
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty) for $($Dims: ident: $DimsBound: ident),+;

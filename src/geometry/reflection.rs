@@ -44,7 +44,7 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         &self.axis
     }
 
-    // FIXME: naming convension: reflect_to, reflect_assign ?
+    // FIXME: naming convention: reflect_to, reflect_assign ?
     /// Applies the reflection to the columns of `rhs`.
     pub fn reflect<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
     where

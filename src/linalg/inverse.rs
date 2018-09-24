@@ -118,7 +118,7 @@ impl<N: Real, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-// NOTE: this is an extremely efficient, loop-unrolled matrix inverse from MESA (MIT licenced).
+// NOTE: this is an extremely efficient, loop-unrolled matrix inverse from MESA (MIT licensed).
 fn do_inverse4<N: Real, D: Dim, S: StorageMut<N, D, D>>(
     m: &MatrixN<N, D>,
     out: &mut SquareMatrix<N, D, S>,

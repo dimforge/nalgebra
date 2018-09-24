@@ -171,7 +171,7 @@ where
  * Lapack functions dispatch.
  *
  */
-/// Trait implemented by scalar types for which Lapack funtion exist to compute the
+/// Trait implemented by scalar types for which Lapack function exist to compute the
 /// QR decomposition.
 pub trait QRScalar: Scalar {
     fn xgeqrf(
@@ -195,7 +195,7 @@ pub trait QRScalar: Scalar {
     ) -> i32;
 }
 
-/// Trait implemented by reals for which Lapack funtion exist to compute the
+/// Trait implemented by reals for which Lapack function exist to compute the
 /// QR decomposition.
 pub trait QRReal: QRScalar {
     #[allow(missing_docs)]

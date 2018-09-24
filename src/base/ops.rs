@@ -124,7 +124,7 @@ where
 
 /*
  *
- * Addition & Substraction
+ * Addition & Subtraction
  *
  */
 
@@ -415,7 +415,7 @@ macro_rules! componentwise_scalarop_impl(
 
                 // XXX: optimize our iterator!
                 //
-                // Using our own iterator prevents loop unrolling, wich breaks some optimization
+                // Using our own iterator prevents loop unrolling, which breaks some optimization
                 // (like SIMD). On the other hand, using the slice iterator is 4x faster.
 
                 // for left in res.iter_mut() {
@@ -469,7 +469,7 @@ macro_rules! left_scalar_mul_impl(
 
                 // XXX: optimize our iterator!
                 //
-                // Using our own iterator prevents loop unrolling, wich breaks some optimization
+                // Using our own iterator prevents loop unrolling, which breaks some optimization
                 // (like SIMD). On the other hand, using the slice iterator is 4x faster.
 
                 // for rhs in res.iter_mut() {

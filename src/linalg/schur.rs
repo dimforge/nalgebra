@@ -72,7 +72,7 @@ where
     ///
     /// # Arguments
     ///
-    /// * `eps`       − tolerence used to determine when a value converged to 0.
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
@@ -519,7 +519,7 @@ where
     ///
     /// # Arguments
     ///
-    /// * `eps`       − tolerence used to determine when a value converged to 0.
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
@@ -536,7 +536,7 @@ where
 
         let mut work = unsafe { VectorN::new_uninitialized_generic(self.data.shape().0, U1) };
 
-        // Special case for 2x2 natrices.
+        // Special case for 2x2 matrices.
         if self.nrows() == 2 {
             // FIXME: can we avoid this slicing
             // (which is needed here just to transform D to U2)?

@@ -149,19 +149,19 @@ impl<N: Real> Perspective3<N> {
         self.matrix
     }
 
-    /// Gets the `width / height` aspect ratio of the view frustrum.
+    /// Gets the `width / height` aspect ratio of the view frustum.
     #[inline]
     pub fn aspect(&self) -> N {
         self.matrix[(1, 1)] / self.matrix[(0, 0)]
     }
 
-    /// Gets the y field of view of the view frustrum.
+    /// Gets the y field of view of the view frustum.
     #[inline]
     pub fn fovy(&self) -> N {
         (N::one() / self.matrix[(1, 1)]).atan() * ::convert(2.0)
     }
 
-    /// Gets the near plane offset of the view frustrum.
+    /// Gets the near plane offset of the view frustum.
     #[inline]
     pub fn znear(&self) -> N {
         let ratio = (-self.matrix[(2, 2)] + N::one()) / (-self.matrix[(2, 2)] - N::one());
@@ -169,7 +169,7 @@ impl<N: Real> Perspective3<N> {
         self.matrix[(2, 3)] / (ratio * ::convert(2.0)) - self.matrix[(2, 3)] / ::convert(2.0)
     }
 
-    /// Gets the far plane offset of the view frustrum.
+    /// Gets the far plane offset of the view frustum.
     #[inline]
     pub fn zfar(&self) -> N {
         let ratio = (-self.matrix[(2, 2)] + N::one()) / (-self.matrix[(2, 2)] - N::one());
@@ -219,7 +219,7 @@ impl<N: Real> Perspective3<N> {
     }
 
     /// Updates this perspective matrix with a new `width / height` aspect ratio of the view
-    /// frustrum.
+    /// frustum.
     #[inline]
     pub fn set_aspect(&mut self, aspect: N) {
         assert!(
@@ -229,7 +229,7 @@ impl<N: Real> Perspective3<N> {
         self.matrix[(0, 0)] = self.matrix[(1, 1)] / aspect;
     }
 
-    /// Updates this perspective with a new y field of view of the view frustrum.
+    /// Updates this perspective with a new y field of view of the view frustum.
     #[inline]
     pub fn set_fovy(&mut self, fovy: N) {
         let old_m22 = self.matrix[(1, 1)];
@@ -237,21 +237,21 @@ impl<N: Real> Perspective3<N> {
         self.matrix[(0, 0)] = self.matrix[(0, 0)] * (self.matrix[(1, 1)] / old_m22);
     }
 
-    /// Updates this perspective matrix with a new near plane offset of the view frustrum.
+    /// Updates this perspective matrix with a new near plane offset of the view frustum.
     #[inline]
     pub fn set_znear(&mut self, znear: N) {
         let zfar = self.zfar();
         self.set_znear_and_zfar(znear, zfar);
     }
 
-    /// Updates this perspective matrix with a new far plane offset of the view frustrum.
+    /// Updates this perspective matrix with a new far plane offset of the view frustum.
     #[inline]
     pub fn set_zfar(&mut self, zfar: N) {
         let znear = self.znear();
         self.set_znear_and_zfar(znear, zfar);
     }
 
-    /// Updates this perspective matrix with new near and far plane offsets of the view frustrum.
+    /// Updates this perspective matrix with new near and far plane offsets of the view frustum.
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
         self.matrix[(2, 2)] = (zfar + znear) / (znear - zfar);

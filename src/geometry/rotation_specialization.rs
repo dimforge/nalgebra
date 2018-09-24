@@ -35,7 +35,7 @@ impl<N: Real> Rotation2<N> {
         Self::new(axisangle[0])
     }
 
-    /// The rotation matrix required to align `a` and `b` but with its angl.
+    /// The rotation matrix required to align `a` and `b` but with its angle.
     ///
     /// This is the rotation `R` such that `(R * a).angle(b) == 0 && (R * a).dot(b).is_positive()`.
     #[inline]
@@ -279,7 +279,7 @@ impl<N: Real> Rotation3<N> {
         Self::new_observer_frame(dir, up).inverse()
     }
 
-    /// The rotation matrix required to align `a` and `b` but with its angl.
+    /// The rotation matrix required to align `a` and `b` but with its angle.
     ///
     /// This is the rotation `R` such that `(R * a).angle(b) == 0 && (R * a).dot(b).is_positive()`.
     #[inline]

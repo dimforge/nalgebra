@@ -13,9 +13,9 @@ use abomonation::Abomonation;
 use alga::general::SubsetOf;
 use alga::linear::NormedSpace;
 
-/// A wrapper that ensures the undelying algebraic entity has a unit norm.
+/// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
-/// Use `.as_ref()` or `.unwrap()` to obtain the undelying value by-reference or by-move.
+/// Use `.as_ref()` or `.unwrap()` to obtain the underlying value by-reference or by-move.
 #[repr(C)]
 #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Unit<T> {
@@ -187,7 +187,7 @@ where
 //     }
 // }
 
-// FIXME:re-enable this impl when spacialization is possible.
+// FIXME:re-enable this impl when specialization is possible.
 // Currently, it is disabled so that we can have a nice output for the `UnitQuaternion` display.
 /*
 impl<T: fmt::Display> fmt::Display for Unit<T> {

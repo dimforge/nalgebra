@@ -246,8 +246,8 @@ where
     }
 }
 
-// NOTE: we don't require `R: Rotation<...>` here becaus this is not useful for the implementation
-// and makes it harde to use it, e.g., for Transform × Isometry implementation.
+// NOTE: we don't require `R: Rotation<...>` here because this is not useful for the implementation
+// and makes it harder to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the private scaling factor).
 impl<N: Real, D: DimName, R> Similarity<N, D, R>

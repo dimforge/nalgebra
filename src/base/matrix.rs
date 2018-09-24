@@ -58,7 +58,7 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 /// components.
 ///
 /// The matrix dimensions parameters `R` and `C` can either be:
-/// - type-level unsigned integer contants (e.g. `U1`, `U124`) from the `nalgebra::` root module.
+/// - type-level unsigned integer constants (e.g. `U1`, `U124`) from the `nalgebra::` root module.
 /// All numbers from 0 to 127 are defined that way.
 /// - type-level unsigned integer constants (e.g. `U1024`, `U10000`) from the `typenum::` crate.
 /// Using those, you will not get error messages as nice as for numbers smaller than 128 defined on
@@ -1298,7 +1298,7 @@ impl<N: Real, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
 
     /// Normalizes this matrix in-place or does nothing if its norm is smaller or equal to `eps`.
     ///
-    /// If the normalization succeded, returns the old normal of this matrix.
+    /// If the normalization succeeded, returns the old normal of this matrix.
     #[inline]
     pub fn try_normalize_mut(&mut self, min_norm: N) -> Option<N> {
         let n = self.norm();

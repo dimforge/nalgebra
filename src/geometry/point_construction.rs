@@ -53,7 +53,7 @@ where
 
 /*
  *
- * Traits that buid points.
+ * Traits that build points.
  *
  */
 impl<N: Scalar + Bounded, D: DimName> Bounded for Point<N, D>

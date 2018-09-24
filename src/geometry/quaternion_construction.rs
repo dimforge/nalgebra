@@ -278,7 +278,7 @@ impl<N: Real> UnitQuaternion<N> {
         if let Some(axis) = Unit::try_new(c, N::default_epsilon()) {
             let cos = na.dot(&nb);
 
-            // The cosinus may be out of [-1, 1] because of innacuracies.
+            // The cosinus may be out of [-1, 1] because of inaccuracies.
             if cos <= -N::one() {
                 return None;
             } else if cos >= N::one() {

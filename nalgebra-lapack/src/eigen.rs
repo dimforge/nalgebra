@@ -317,7 +317,7 @@ where
  * Lapack functions dispatch.
  *
  */
-/// Trait implemented by scalar type for which Lapack funtion exist to compute the
+/// Trait implemented by scalar type for which Lapack function exist to compute the
 /// eigendecomposition.
 pub trait EigenScalar: Scalar {
     #[allow(missing_docs)]

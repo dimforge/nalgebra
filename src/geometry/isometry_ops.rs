@@ -378,7 +378,7 @@ isometry_from_composition_impl_all!(
     (D, D), (D, U1) for D: DimName;
     self: Rotation<N, D>, right: Isometry<N, D, Rotation<N, D>>,
     Output = Isometry<N, D, Rotation<N, D>>;
-    // FIXME: don't call iverse explicitly?
+    // FIXME: don't call inverse explicitly?
     [val val] => self * right.inverse();
     [ref val] => self * right.inverse();
     [val ref] => self * right.inverse();

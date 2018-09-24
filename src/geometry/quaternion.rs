@@ -391,7 +391,7 @@ impl<N: Real> UnitQuaternion<N> {
     pub fn angle(&self) -> N {
         let w = self.quaternion().scalar().abs();
 
-        // Handle innacuracies that make break `.acos`.
+        // Handle inaccuracies that make break `.acos`.
         if w >= N::one() {
             N::zero()
         } else {
@@ -507,7 +507,7 @@ impl<N: Real> UnitQuaternion<N> {
         Unit::try_new(v, N::zero())
     }
 
-    /// The rotation axis of this unit quaternion multiplied by the rotation agle.
+    /// The rotation axis of this unit quaternion multiplied by the rotation angle.
     #[inline]
     pub fn scaled_axis(&self) -> Vector3<N> {
         if let Some(axis) = self.axis() {

@@ -64,7 +64,7 @@ pub fn project_zo<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vi
     )
 }
 
-/// Map the specified window coordinates (win.x, win.y, win.z) into object coordinates using OpengGL near and far clip planes definition.
+/// Map the specified window coordinates (win.x, win.y, win.z) into object coordinates using OpenGL near and far clip planes definition.
 ///
 /// # Parameters
 ///     * `obj`: Specify the window coordinates to be mapped.

@@ -9,7 +9,7 @@ use constraint::{SameNumberOfRows, ShapeConstraint};
 use dimension::{Dim, DimSub, Dynamic};
 use storage::{Storage, StorageMut};
 
-/// The Cholesky decomposion of a symmetric-definite-positive matrix.
+/// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -50,7 +50,7 @@ where
 {
     /// Attempts to compute the Cholesky decomposition of `matrix`.
     ///
-    /// Returns `None` if the input matrix is not definite-positive. The intput matrix is assumed
+    /// Returns `None` if the input matrix is not definite-positive. The input matrix is assumed
     /// to be symmetric and only the lower-triangular part is read.
     pub fn new(mut matrix: MatrixN<N, D>) -> Option<Self> {
         assert!(matrix.is_square(), "The input matrix must be square.");
@@ -157,7 +157,7 @@ where
 {
     /// Attempts to compute the Cholesky decomposition of this matrix.
     ///
-    /// Returns `None` if the input matrix is not definite-positive. The intput matrix is assumed
+    /// Returns `None` if the input matrix is not definite-positive. The input matrix is assumed
     /// to be symmetric and only the lower-triangular part is read.
     pub fn cholesky(self) -> Option<Cholesky<N, D>> {
         Cholesky::new(self.into_owned())

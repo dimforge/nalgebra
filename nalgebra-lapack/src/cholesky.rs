@@ -11,7 +11,7 @@ use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar};
 
 use lapack;
 
-/// The cholesky decomposion of a symmetric-definite-positive matrix.
+/// The cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -50,7 +50,7 @@ impl<N: CholeskyScalar + Zero, D: Dim> Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
 {
-    /// Complutes the cholesky decomposition of the given symmetric-definite-positive square
+    /// Computes the cholesky decomposition of the given symmetric-definite-positive square
     /// matrix.
     ///
     /// Only the lower-triangular part of the input matrix is considered.
@@ -183,7 +183,7 @@ where
  *
  */
 /// Trait implemented by floats (`f32`, `f64`) and complex floats (`Complex<f32>`, `Complex<f64>`)
-/// supported by the cholesky decompotition.
+/// supported by the cholesky decomposition.
 pub trait CholeskyScalar: Scalar {
     #[allow(missing_docs)]
     fn xpotrf(uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32);

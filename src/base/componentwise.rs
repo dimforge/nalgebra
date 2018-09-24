@@ -1,4 +1,4 @@
-// Non-convensional componentwise operators.
+// Non-conventional componentwise operators.
 
 use num::{Signed, Zero};
 use std::ops::{Add, Mul};
