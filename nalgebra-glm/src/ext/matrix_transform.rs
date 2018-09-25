@@ -42,9 +42,9 @@ pub fn look_at_rh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> 
 /// Builds a rotation 4 * 4 matrix created from an axis vector and an angle and right-multiply it to `m`.
 ///
 /// # Parameters
-///    * m − Input matrix multiplied by this rotation matrix.
-///    * angle − Rotation angle expressed in radians.
-///    * axis  − Rotation axis, recommended to be normalized.
+///    * `m` − Input matrix multiplied by this rotation matrix.
+///    * `angle` − Rotation angle expressed in radians.
+///    * `axis`  − Rotation axis, recommended to be normalized.
 pub fn rotate<N: Real>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) -> TMat4<N> {
     m * Rotation3::from_axis_angle(&Unit::new_normalize(*axis), angle).to_homogeneous()
 }
@@ -52,8 +52,8 @@ pub fn rotate<N: Real>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) -> TMat4<N> {
 /// Builds a rotation 4 * 4 matrix around the X axis and right-multiply it to `m`.
 ///
 /// # Parameters
-///    * m − Input matrix multiplied by this rotation matrix.
-///    * angle − Rotation angle expressed in radians.
+///    * `m` − Input matrix multiplied by this rotation matrix.
+///    * `angle` − Rotation angle expressed in radians.
 pub fn rotate_x<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
     rotate(m, angle, &TVec::x())
 }
@@ -61,8 +61,8 @@ pub fn rotate_x<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 /// Builds a rotation 4 * 4 matrix around the Y axis and right-multiply it to `m`.
 ///
 /// # Parameters
-///    * m − Input matrix multiplied by this rotation matrix.
-///    * angle − Rotation angle expressed in radians.
+///    * `m` − Input matrix multiplied by this rotation matrix.
+///    * `angle` − Rotation angle expressed in radians.
 pub fn rotate_y<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
     rotate(m, angle, &TVec::y())
 }
@@ -70,8 +70,8 @@ pub fn rotate_y<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 /// Builds a rotation 4 * 4 matrix around the Z axis and right-multiply it to `m`.
 ///
 /// # Parameters
-///    * m − Input matrix multiplied by this rotation matrix.
-///    * angle − Rotation angle expressed in radians.
+///    * `m` − Input matrix multiplied by this rotation matrix.
+///    * `angle` − Rotation angle expressed in radians.
 pub fn rotate_z<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
     rotate(m, angle, &TVec::z())
 }
@@ -79,8 +79,8 @@ pub fn rotate_z<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 /// Builds a scale 4 * 4 matrix created from 3 scalars and right-multiply it to `m`.
 ///
 /// # Parameters
-///    * m − Input matrix multiplied by this scale matrix.
-///    * v − Ratio of scaling for each axis.
+///    * `m` − Input matrix multiplied by this scale matrix.
+///    * `v` − Ratio of scaling for each axis.
 pub fn scale<N: Number>(m: &TMat4<N>, v: &TVec3<N>) -> TMat4<N> {
     m.prepend_nonuniform_scaling(v)
 }
@@ -88,8 +88,8 @@ pub fn scale<N: Number>(m: &TMat4<N>, v: &TVec3<N>) -> TMat4<N> {
 /// Builds a translation 4 * 4 matrix created from a vector of 3 components and right-multiply it to `m`.
 ///
 /// # Parameters
-///    * m − Input matrix multiplied by this translation matrix.
-///    * v − Coordinates of a translation vector.
+///    * `m` − Input matrix multiplied by this translation matrix.
+///    * `v` − Coordinates of a translation vector.
 pub fn translate<N: Number>(m: &TMat4<N>, v: &TVec3<N>) -> TMat4<N> {
     m.prepend_translation(v)
 }
