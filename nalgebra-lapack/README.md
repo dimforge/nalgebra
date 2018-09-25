@@ -38,9 +38,9 @@ CBLAS:
     export CARGO_FEATURES="--no-default-features --features netlib"
     cargo build ${CARGO_FEATURES}
 
-### Mac OS X
+### macOS
 
-On Mac OS X, do this to use Apple's Accelerate framework:
+On macOS, do this to use Apple's Accelerate framework:
 
     export CARGO_FEATURES="--no-default-features --features accelerate"
     cargo build ${CARGO_FEATURES}
