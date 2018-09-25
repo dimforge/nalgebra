@@ -35,14 +35,14 @@ CBLAS:
     export CARGO_FEATURE_EXCLUDE_LAPACKE=1
     export CARGO_FEATURE_EXCLUDE_CBLAS=1
 
-    export CARGO_FEATURES='--no-default-features --features netlib'
+    export CARGO_FEATURES="--no-default-features --features netlib"
     cargo build ${CARGO_FEATURES}
 
 ### Mac OS X
 
 On Mac OS X, do this to use Apple's Accelerate framework:
 
-    export CARGO_FEATURES='--no-default-features --features accelerate'
+    export CARGO_FEATURES="--no-default-features --features accelerate"
     cargo build ${CARGO_FEATURES}
 
 [version-img]: https://img.shields.io/crates/v/nalgebra-lapack.svg
