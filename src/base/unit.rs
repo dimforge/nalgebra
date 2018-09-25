@@ -16,7 +16,7 @@ use alga::linear::NormedSpace;
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
 /// Use `.as_ref()` or `.unwrap()` to obtain the underlying value by-reference or by-move.
-#[repr(C)]
+#[repr(transparent)]
 #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Unit<T> {
     value: T,
@@ -104,11 +104,15 @@ impl<T: NormedSpace> Unit<T> {
 
 impl<T> Unit<T> {
     /// Wraps the given value, assuming it is already normalized.
-    ///
-    /// This function is not safe because `value` is not verified to be actually normalized.
     #[inline]
     pub fn new_unchecked(value: T) -> Self {
         Unit { value: value }
+    }
+
+    /// Wraps the given reference, assuming it is already normalized.
+    #[inline]
+    pub fn from_ref_unchecked<'a>(value: &'a T) -> &'a Self {
+        unsafe { mem::transmute(value) }
     }
 
     /// Retrieves the underlying value.
