@@ -5,9 +5,9 @@ use aliases::{TVec2, TVec3, TVec4, TMat4};
 /// Define a picking region.
 ///
 /// # Parameters
-///   * `center`: Specify the center of a picking region in window coordinates.
-///   * `delta`: Specify the width and height, respectively, of the picking region in window coordinates.
-///   * `viewport`: Rendering viewport
+///   * `center` - Specify the center of a picking region in window coordinates.
+///   * `delta` - Specify the width and height, respectively, of the picking region in window coordinates.
+///   * `viewport` - Rendering viewport
 pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec4<N>) -> TMat4<N> {
     let shift = TVec3::new(
         (viewport.z - (center.x - viewport.x) * na::convert(2.0)) / delta.x,
@@ -22,10 +22,10 @@ pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec
 /// Map the specified object coordinates `(obj.x, obj.y, obj.z)` into window coordinates using OpenGL near and far clip planes definition.
 ///
 /// # Parameters
-///   * `obj`: Specify the object coordinates.
-///   * `model`: Specifies the current modelview matrix.
-///   * `proj`: Specifies the current projection matrix.
-///   * `viewport`: Specifies the current viewport.
+///   * `obj` - Specify the object coordinates.
+///   * `model` - Specifies the current modelview matrix.
+///   * `proj` - Specifies the current projection matrix.
+///   * `viewport` - Specifies the current viewport.
 pub fn project<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     project_no(obj, model, proj, viewport)
 }
@@ -35,10 +35,10 @@ pub fn project<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewp
 /// The near and far clip planes correspond to z normalized device coordinates of -1 and +1 respectively. (OpenGL clip volume definition)
 ///
 /// # Parameters
-///   * `obj`: Specify the object coordinates.
-///   * `model`: Specifies the current modelview matrix.
-///   * `proj`: Specifies the current projection matrix.
-///   * `viewport`: Specifies the current viewport.
+///   * `obj` - Specify the object coordinates.
+///   * `model` - Specifies the current modelview matrix.
+///   * `proj` - Specifies the current projection matrix.
+///   * `viewport` - Specifies the current viewport.
 pub fn project_no<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let proj = project_zo(obj, model, proj, viewport);
     TVec3::new(proj.x, proj.y, proj.z * na::convert(0.5) + na::convert(0.5))
@@ -49,10 +49,10 @@ pub fn project_no<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vi
 /// The near and far clip planes correspond to z normalized device coordinates of 0 and +1 respectively. (Direct3D clip volume definition)
 ///
 /// # Parameters
-///   * `obj`: Specify the object coordinates.
-///   * `model`: Specifies the current modelview matrix.
-///   * `proj`: Specifies the current projection matrix.
-///   * `viewport`: Specifies the current viewport.
+///   * `obj` - Specify the object coordinates.
+///   * `model` - Specifies the current modelview matrix.
+///   * `proj` - Specifies the current projection matrix.
+///   * `viewport` - Specifies the current viewport.
 pub fn project_zo<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let normalized = proj * model * TVec4::new(obj.x, obj.y, obj.z, N::one());
     let scale = N::one() / normalized.w;
@@ -67,10 +67,10 @@ pub fn project_zo<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vi
 /// Map the specified window coordinates (win.x, win.y, win.z) into object coordinates using OpenGL near and far clip planes definition.
 ///
 /// # Parameters
-///   * `obj`: Specify the window coordinates to be mapped.
-///   * `model`: Specifies the current modelview matrix.
-///   * `proj`: Specifies the current projection matrix.
-///   * `viewport`: Specifies the current viewport.
+///   * `obj` - Specify the window coordinates to be mapped.
+///   * `model` - Specifies the current modelview matrix.
+///   * `proj` - Specifies the current projection matrix.
+///   * `viewport` - Specifies the current viewport.
 pub fn unproject<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     unproject_no(win, model, proj, viewport)
 }
@@ -80,10 +80,10 @@ pub fn unproject<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vie
 /// The near and far clip planes correspond to z normalized device coordinates of -1 and +1 respectively. (OpenGL clip volume definition)
 ///
 /// # Parameters
-///   * `obj`: Specify the window coordinates to be mapped.
-///   * `model`: Specifies the current modelview matrix.
-///   * `proj`: Specifies the current projection matrix.
-///   * `viewport`: Specifies the current viewport.
+///   * `obj` - Specify the window coordinates to be mapped.
+///   * `model` - Specifies the current modelview matrix.
+///   * `proj` - Specifies the current projection matrix.
+///   * `viewport` - Specifies the current viewport.
 pub fn unproject_no<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or(TMat4::zeros());
@@ -103,10 +103,10 @@ pub fn unproject_no<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, 
 /// The near and far clip planes correspond to z normalized device coordinates of 0 and +1 respectively. (Direct3D clip volume definition)
 ///
 /// # Parameters
-///   * `obj`: Specify the window coordinates to be mapped.
-///   * `model`: Specifies the current modelview matrix.
-///   * `proj`: Specifies the current projection matrix.
-///   * `viewport`: Specifies the current viewport.
+///   * `obj` - Specify the window coordinates to be mapped.
+///   * `model` - Specifies the current modelview matrix.
+///   * `proj` - Specifies the current projection matrix.
+///   * `viewport` - Specifies the current viewport.
 pub fn unproject_zo<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or(TMat4::zeros());
