@@ -426,6 +426,17 @@ fn map() {
 }
 
 #[test]
+fn map_with_location() {
+    let a = Matrix4::new(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4);
+
+    let expected = Matrix4::new(1, 2, 3, 4, 3, 4, 5, 6, 5, 6, 7, 8, 7, 8, 9, 10);
+
+    let computed = a.map_with_location(|i, j, e| e + i + j);
+
+    assert_eq!(computed, expected);
+}
+
+#[test]
 fn zip_map() {
     let a = Matrix3::new(11i32, 12, 13, 21, 22, 23, 31, 32, 33);
 
