@@ -38,7 +38,7 @@
     * All function names use `snake_case`, which is the Rust convention.
     * All type names use `CamelCase`, which is the Rust convention.
     * All function arguments, except for scalars, are all passed by-reference.
-    * The most generic vector and matrix types are `TMat` and `TVec` instead of `mat` and `vec`.
+    * The most generic vector and matrix types are [`TMat`](type.TMat.html) and [`TVec`](type.TVec.html) instead of `mat` and `vec`.
     * Some feature are not yet implemented and should be added in the future. In particular, no packing
     functions are available.
     * A few features are not implemented and will never be. This includes functions related to color
@@ -47,17 +47,17 @@
 
     In addition, because Rust does not allows function overloading, all functions must be given a unique name.
     Here are a few rules chosen arbitrarily for **nalgebra-glm**:
-    * Functions operating in 2d will usually end with the `2d` suffix, e.g., `glm::rotade2d` is for 2D while `glm::rotate` is for 3D.
-    * Functions operating on vector will often end with the `_vec` suffix, possibly followed by the dimension of vector, e.g., `glm::rotate_vec2`.
-    * Every function related to quaternions start with the `quat_` prefix, e.g., `glm::quat_dot(q1, q2)`.
+    * Functions operating in 2d will usually end with the `2d` suffix, e.g., [`glm::rotate2d`](fn.rotate2d.html) is for 2D while [`glm::rotate`](fn.rotate.html) is for 3D.
+    * Functions operating on vectors will often end with the `_vec` suffix, possibly followed by the dimension of vector, e.g., [`glm::rotate_vec2`](fn.rotate_vec2.html).
+    * Every function related to quaternions start with the `quat_` prefix, e.g., [`glm::quat_dot(q1, q2)`](fn.quat_dot.html).
     * All the conversion functions have unique names as described [below](#conversions).
     ### Vector and matrix construction
     Vectors, matrices, and quaternions can be constructed using several approaches:
-    * Using functions with the same name as their type in lower-case. For example `glm::vec3(x, y, z)` will create a 3D vector.
-    * Using the `::new` constructor. For example `Vec3::new(x, y, z)` will create a 3D vector.
-    * Using the functions prefixed by `make_` to build a vector a matrix from a slice. For example `glm::make_vec3(&[x, y, z])` will create a 3D vector.
-    Keep in mind that constructing a matrix using this type of functions require its components to be arrange in column-major order on the slice.
-    * Using a geometric construction function. For example `glm::rotation(angle, axis)` will build a 4x4 homogeneous rotation matrix from an angle (in radians) and an axis.
+    * Using functions with the same name as their type in lower-case. For example [`glm::vec3(x, y, z)`](fn.vec3.html) will create a 3D vector.
+    * Using the `::new` constructor. For example [`Vec3::new(x, y, z)`](../nalgebra/base/type.MatrixMN.html#method.new-27) will create a 3D vector.
+    * Using the functions prefixed by `make_` to build a vector a matrix from a slice. For example [`glm::make_vec3(&[x, y, z])`](fn.make_vec3.html) will create a 3D vector.
+    Keep in mind that constructing a matrix using this type of functions require its components to be arranged in column-major order on the slice.
+    * Using a geometric construction function. For example [`glm::rotation(angle, axis)`](fn.rotation.html) will build a 4x4 homogeneous rotation matrix from an angle (in radians) and an axis.
     * Using swizzling and conversions as described in the next sections.
     ### Swizzling
     Vector swizzling is a native feature of **nalgebra** itself. Therefore, you can use it with all
@@ -75,11 +75,11 @@
     It is often useful to convert one algebraic type to another. There are two main approaches for converting
     between types in `nalgebra-glm`:
     * Using function with the form `type1_to_type2` in order to convert an instance of `type1` into an instance of `type2`.
-    For example `glm::mat3_to_mat4(m)` will convert the 3x3 matrix `m` to a 4x4 matrix by appending one column on the right
+    For example [`glm::mat3_to_mat4(m)`](fn.mat3_to_mat4.html) will convert the 3x3 matrix `m` to a 4x4 matrix by appending one column on the right
     and one row on the left. Those now row and columns are filled with 0 except for the diagonal element which is set to 1.
-    * Using one of the `convert`, `try_convert`, or `convert_unchecked` functions.
+    * Using one of the [`convert`](fn.convert.html), [`try_convert`](fn.try_convert.html), or [`convert_unchecked`](fn.convert_unchecked.html) functions.
     These functions are directly re-exported from nalgebra and are extremely versatile:
-        1. The `convert` function can convert any type (especially geometric types from nalgebra like `Isometry3`) into another algebraic type which equivalent but more general. For example,
+        1. The `convert` function can convert any type (especially geometric types from nalgebra like `Isometry3`) into another algebraic type which is equivalent but more general. For example,
     `let sim: Similarity3<_> = na::convert(isometry)` will convert an `Isometry3` into a `Similarity3`.
     In addition, `let mat: Mat4 = glm::convert(isometry)` will convert an `Isometry3` to a 4x4 matrix. This will also convert the scalar types,
     therefore: `let mat: DMat4 = glm::convert(m)` where `m: Mat4` will work. However, conversion will not work the other way round: you

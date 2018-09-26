@@ -9,6 +9,10 @@ pub fn cross<N: Number, D: Dimension>(x: &TVec3<N>, y: &TVec3<N>) -> TVec3<N> {
 }
 
 /// The distance between two points.
+///
+/// # See also:
+///
+/// * [`distance2`](fn.distance2.html)
 pub fn distance<N: Real, D: Dimension>(p0: &TVec<N, D>, p1: &TVec<N, D>) -> N
     where DefaultAllocator: Alloc<N, D> {
    (p1 - p0).norm()
@@ -31,12 +35,28 @@ pub fn faceforward<N: Number, D: Dimension>(n: &TVec<N, D>, i: &TVec<N, D>, nref
 }
 
 /// The magnitude of a vector.
+///
+/// A synonym for [`magnitude`](fn.magnitude.html).
+///
+/// # See also:
+///
+/// * [`length2`](fn.length2.html)
+/// * [`magnitude`](fn.magnitude.html)
+/// * [`magnitude2`](fn.magnitude2.html)
 pub fn length<N: Real, D: Dimension>(x: &TVec<N, D>) -> N
     where DefaultAllocator: Alloc<N, D> {
     x.norm()
 }
 
 /// The magnitude of a vector.
+///
+/// A wrapper around [`nalgebra::norm`](../nalgebra/fn.norm.html).
+///
+/// # See also:
+///
+/// * [`length`](fn.length.html)
+/// * [`magnitude2`](fn.magnitude2.html)
+/// * [`nalgebra::norm`](../nalgebra/fn.norm.html)
 pub fn magnitude<N: Real, D: Dimension>(x: &TVec<N, D>) -> N
     where DefaultAllocator: Alloc<N, D> {
     x.norm()

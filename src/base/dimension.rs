@@ -209,6 +209,7 @@ pub trait NamedDim: Sized + Any + Unsigned {
     type Name: DimName<Value = Self>;
 }
 
+/// A type level dimension with a value of `1`.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct U1;
@@ -246,6 +247,7 @@ impl NamedDim for typenum::U1 {
 
 macro_rules! named_dimension(
     ($($D: ident),* $(,)*) => {$(
+        /// A type level dimension.
         #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
         #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
         pub struct $D;
