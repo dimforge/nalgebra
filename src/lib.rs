@@ -128,7 +128,7 @@ pub mod linalg;
 
 #[cfg(feature = "std")]
 #[deprecated(
-    note = "The 'core' module is being renamed 'based' to avoid conflicts with the 'core' crate."
+    note = "The 'core' module is being renamed to 'base' to avoid conflicts with the 'core' crate."
 )]
 pub use base as core;
 pub use base::*;
