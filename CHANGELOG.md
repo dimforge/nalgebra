@@ -95,7 +95,7 @@ This adds support for serialization using the
     example, a step of, say, 3 on previous versions should now bet set to 2.
 
 ### Modified
-  * The trait `Axpy` has been replaced by a metod `.axpy`.
+  * The trait `Axpy` has been replaced by a method `.axpy`.
   * The alias `MatrixNM` is now deprecated. Use `MatrixMN` instead (we
     reordered M and N to be in alphabetical order).
   * In-place componentwise multiplication and division
@@ -160,7 +160,7 @@ Matrix edition:
   * `.set_diagonal(...)` sets the matrix diagonal.
   * `.set_row(...)` sets a selected row.
   * `.set_column(...)` sets a selected column.
-  * `.fill_lower_triangle(...)` fills some sub-diagonals bellow the main diagonal with a value.
+  * `.fill_lower_triangle(...)` fills some sub-diagonals below the main diagonal with a value.
   * `.fill_upper_triangle(...)` fills some sub-diagonals above the main diagonal with a value.
   * `.swap_rows(...)` swaps two rows.
   * `.swap_columns(...)` swaps two columns.
