@@ -161,18 +161,33 @@ pub fn id() -> Id {
 }
 
 /// Gets the multiplicative identity element.
+///
+/// # See also:
+///
+/// * [`origin`](../nalgebra/fn.origin.html)
+/// * [`zero`](fn.zero.html)
 #[inline]
 pub fn one<T: Identity<Multiplicative>>() -> T {
     T::identity()
 }
 
 /// Gets the additive identity element.
+///
+/// # See also:
+///
+/// * [`one`](fn.one.html)
+/// * [`origin`](../nalgebra/fn.origin.html)
 #[inline]
 pub fn zero<T: Identity<Additive>>() -> T {
     T::identity()
 }
 
 /// Gets the origin of the given point.
+///
+/// # See also:
+///
+/// * [`one`](fn.one.html)
+/// * [`zero`](fn.zero.html)
 #[inline]
 pub fn origin<P: EuclideanSpace>() -> P {
     P::origin()
@@ -375,12 +390,20 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
  */
 
 /// Tries to gets an inverted copy of a square matrix.
+///
+/// # See also:
+///
+/// * [`inverse`](fn.inverse.html)
 #[inline]
 pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
     m.try_inverse()
 }
 
 /// Computes the multiplicative inverse of an (always invertible) algebraic entity.
+///
+/// # See also:
+///
+/// * [`try_inverse`](fn.try_inverse.html)
 #[inline]
 pub fn inverse<M: Inverse<Multiplicative>>(m: &M) -> M {
     m.inverse()
@@ -407,24 +430,49 @@ pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
  */
 
 /// Computes the L2 (euclidean) norm of a vector.
+///
+/// # See also:
+///
+/// * [`magnitude`](fn.magnitude.html)
+/// * [`magnitude_squared`](fn.magnitude_squared.html)
+/// * [`norm_squared`](fn.norm_squared.html)
 #[inline]
 pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
     v.norm()
 }
 
 /// Computes the squared L2 (euclidean) norm of the vector `v`.
+///
+/// # See also:
+///
+/// * [`magnitude`](fn.magnitude.html)
+/// * [`magnitude_squared`](fn.magnitude_squared.html)
+/// * [`norm`](fn.norm.html)
 #[inline]
 pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
     v.norm_squared()
 }
 
-/// A synonym function for `norm()` aka length.
+/// A synonym for [`norm`](fn.norm.html), aka length.
+///
+/// # See also:
+///
+/// * [`magnitude_squared`](fn.magnitude_squared.html)
+/// * [`norm`](fn.norm.html)
+/// * [`norm_squared`](fn.norm_squared.html)
 #[inline]
 pub fn magnitude<V: NormedSpace>(v: &V) -> V::Field {
     v.norm()
 }
 
-/// A synonym function for `norm_squared()` aka length squared.
+/// A synonym for [`norm_squared`](fn.norm_squared.html),
+///  aka length squared.
+///
+/// # See also:
+///
+/// * [`magnitude`](fn.magnitude.html)
+/// * [`norm`](fn.norm.html)
+/// * [`norm_squared`](fn.norm_squared.html)
 #[inline]
 pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::Field {
     v.norm_squared()
@@ -448,18 +496,33 @@ pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::Field) -> Option<V> {
  *
  */
 /// The center of two points.
+///
+/// # See also:
+///
+/// * [distance](fn.distance.html)
+/// * [distance_squared](fn.distance_squared.html)
 #[inline]
 pub fn center<P: EuclideanSpace>(p1: &P, p2: &P) -> P {
     P::from_coordinates((p1.coordinates() + p2.coordinates()) * convert(0.5))
 }
 
 /// The distance between two points.
+///
+/// # See also:
+///
+/// * [center](fn.center.html)
+/// * [distance_squared](fn.distance_squared.html)
 #[inline]
 pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
     (p2.coordinates() - p1.coordinates()).norm()
 }
 
 /// The squared distance between two points.
+///
+/// # See also:
+///
+/// * [center](fn.center.html)
+/// * [distance](fn.distance.html)
 #[inline]
 pub fn distance_squared<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
     (p2.coordinates() - p1.coordinates()).norm_squared()
@@ -470,7 +533,15 @@ pub fn distance_squared<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
  */
 /// Converts an object from one type to an equivalent or more general one.
 ///
-/// See also `::try_convert` for conversion to more specific types.
+/// See also [`try_convert`](fn.try_convert.html) for conversion to more specific types.
+///
+/// # See also:
+///
+/// * [convert_ref](fn.convert_ref.html)
+/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
+/// * [is_convertible](../nalgebra/fn.is_convertible.html)
+/// * [try_convert](fn.try_convert.html)
+/// * [try_convert_ref](fn.try_convert_ref.html)
 #[inline]
 pub fn convert<From, To: SupersetOf<From>>(t: From) -> To {
     To::from_subset(&t)
@@ -478,37 +549,89 @@ pub fn convert<From, To: SupersetOf<From>>(t: From) -> To {
 
 /// Attempts to convert an object to a more specific one.
 ///
-/// See also `::convert` for conversion to more general types.
+/// See also [`convert`](fn.convert.html) for conversion to more general types.
+///
+/// # See also:
+///
+/// * [convert](fn.convert.html)
+/// * [convert_ref](fn.convert_ref.html)
+/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
+/// * [is_convertible](../nalgebra/fn.is_convertible.html)
+/// * [try_convert_ref](fn.try_convert_ref.html)
 #[inline]
 pub fn try_convert<From: SupersetOf<To>, To>(t: From) -> Option<To> {
     t.to_subset()
 }
 
-/// Indicates if `::try_convert` will succeed without actually performing the conversion.
+/// Indicates if [`try_convert`](fn.try_convert.html) will succeed without
+/// actually performing the conversion.
+///
+/// # See also:
+///
+/// * [convert](fn.convert.html)
+/// * [convert_ref](fn.convert_ref.html)
+/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
+/// * [try_convert](fn.try_convert.html)
+/// * [try_convert_ref](fn.try_convert_ref.html)
 #[inline]
 pub fn is_convertible<From: SupersetOf<To>, To>(t: &From) -> bool {
     t.is_in_subset()
 }
 
-/// Use with care! Same as `try_convert` but without any property checks.
+/// Use with care! Same as [`try_convert`](fn.try_convert.html) but
+/// without any property checks.
+///
+/// # See also:
+///
+/// * [convert](fn.convert.html)
+/// * [convert_ref](fn.convert_ref.html)
+/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
+/// * [is_convertible](../nalgebra/fn.is_convertible.html)
+/// * [try_convert](fn.try_convert.html)
+/// * [try_convert_ref](fn.try_convert_ref.html)
 #[inline]
 pub unsafe fn convert_unchecked<From: SupersetOf<To>, To>(t: From) -> To {
     t.to_subset_unchecked()
 }
 
 /// Converts an object from one type to an equivalent or more general one.
+///
+/// # See also:
+///
+/// * [convert](fn.convert.html)
+/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
+/// * [is_convertible](../nalgebra/fn.is_convertible.html)
+/// * [try_convert](fn.try_convert.html)
+/// * [try_convert_ref](fn.try_convert_ref.html)
 #[inline]
 pub fn convert_ref<From, To: SupersetOf<From>>(t: &From) -> To {
     To::from_subset(t)
 }
 
 /// Attempts to convert an object to a more specific one.
+///
+/// # See also:
+///
+/// * [convert](fn.convert.html)
+/// * [convert_ref](fn.convert_ref.html)
+/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
+/// * [is_convertible](../nalgebra/fn.is_convertible.html)
+/// * [try_convert](fn.try_convert.html)
 #[inline]
 pub fn try_convert_ref<From: SupersetOf<To>, To>(t: &From) -> Option<To> {
     t.to_subset()
 }
 
-/// Use with care! Same as `try_convert` but without any property checks.
+/// Use with care! Same as [`try_convert`](fn.try_convert.html) but
+/// without any property checks.
+///
+/// # See also:
+///
+/// * [convert](fn.convert.html)
+/// * [convert_ref](fn.convert_ref.html)
+/// * [is_convertible](../nalgebra/fn.is_convertible.html)
+/// * [try_convert](fn.try_convert.html)
+/// * [try_convert_ref](fn.try_convert_ref.html)
 #[inline]
 pub unsafe fn convert_ref_unchecked<From: SupersetOf<To>, To>(t: &From) -> To {
     t.to_subset_unchecked()
