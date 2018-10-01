@@ -343,12 +343,12 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
 {
-    fn from(matrix_slice: MatrixSlice<'a, N, R, C, RStride, CStride>) -> Self
-    {
+    fn from(matrix_slice: MatrixSlice<'a, N, R, C, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, C, RStride, CStride> From<MatrixSlice<'a, N, Dynamic, C, RStride, CStride>>
     for Matrix<N, Dynamic, C, MatrixVec<N, Dynamic, C>>
 where
@@ -357,12 +357,12 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSlice<'a, N, Dynamic, C, RStride, CStride>) -> Self
-    {
+    fn from(matrix_slice: MatrixSlice<'a, N, Dynamic, C, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, R, RStride, CStride> From<MatrixSlice<'a, N, R, Dynamic, RStride, CStride>>
     for Matrix<N, R, Dynamic, MatrixVec<N, R, Dynamic>>
 where
@@ -371,8 +371,7 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSlice<'a, N, R, Dynamic, RStride, CStride>) -> Self
-    {
+    fn from(matrix_slice: MatrixSlice<'a, N, R, Dynamic, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }
@@ -388,12 +387,12 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
 {
-    fn from(matrix_slice: MatrixSliceMut<'a, N, R, C, RStride, CStride>) -> Self
-    {
+    fn from(matrix_slice: MatrixSliceMut<'a, N, R, C, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, C, RStride, CStride> From<MatrixSliceMut<'a, N, Dynamic, C, RStride, CStride>>
     for Matrix<N, Dynamic, C, MatrixVec<N, Dynamic, C>>
 where
@@ -408,6 +407,7 @@ where
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, R, RStride, CStride> From<MatrixSliceMut<'a, N, R, Dynamic, RStride, CStride>>
     for Matrix<N, R, Dynamic, MatrixVec<N, R, Dynamic>>
 where
@@ -416,8 +416,7 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSliceMut<'a, N, R, Dynamic, RStride, CStride>) -> Self
-    {
+    fn from(matrix_slice: MatrixSliceMut<'a, N, R, Dynamic, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }
