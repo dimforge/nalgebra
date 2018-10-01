@@ -14,7 +14,9 @@ use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use base::dimension::{Dim, DimName, Dynamic, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9};
 use base::iter::{MatrixIter, MatrixIterMut};
 use base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixArray, MatrixSlice, MatrixSliceMut, MatrixVec, Scalar};
+use base::{DefaultAllocator, Matrix, MatrixMN, MatrixArray, MatrixSlice, MatrixSliceMut, Scalar};
+#[cfg(any(feature = "std", feature = "alloc"))]
+use base::MatrixVec;
 
 // FIXME: too bad this won't work allo slice conversions.
 impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>
