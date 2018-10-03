@@ -4,12 +4,20 @@ use aliases::TVec;
 use traits::{Number, Alloc, Dimension};
 
 /// Checks that all the vector components are `true`.
+///
+/// # See also:
+///
+/// * [`any`](fn.any.html)
 pub fn all<D: Dimension>(v: &TVec<bool, D>) -> bool
     where DefaultAllocator: Alloc<bool, D> {
     v.iter().all(|x| *x)
 }
 
 /// Checks that at least one of the vector components is `true`.
+///
+/// # See also:
+///
+/// * [`all`](fn.all.html)
 pub fn any<D: Dimension>(v: &TVec<bool, D>) -> bool
     where DefaultAllocator: Alloc<bool, D> {
     v.iter().any(|x| *x)
