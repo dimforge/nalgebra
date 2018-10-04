@@ -1,8 +1,9 @@
-use na::{MatrixMN, VectorN, Vector1, Vector2, Vector3, Vector4,
+use na::{MatrixMN, VectorN,
          Matrix2, Matrix3, Matrix4,
          Matrix2x3, Matrix3x2, Matrix4x2,
          Matrix2x4, Matrix3x4, Matrix4x3,
-         Quaternion};
+         Quaternion,
+         U1, U2, U3, U4};
 
 /// A matrix with components of type `N`. It has `R` rows, and `C` columns.
 ///
@@ -61,7 +62,7 @@ pub type Qua<N> = Quaternion<N>;
 /// * [`U64Vec1`](type.U64Vec1.html)
 /// * [`U8Vec1`](type.U8Vec1.html)
 /// * [`Vec1`](type.Vec1.html)
-pub type TVec1<N> = Vector1<N>;
+pub type TVec1<N> = TVec<N, U1>;
 /// A 2D vector with components of type `N`.
 ///
 /// # See also:
@@ -91,7 +92,7 @@ pub type TVec1<N> = Vector1<N>;
 /// * [`U64Vec2`](type.U64Vec2.html)
 /// * [`U8Vec2`](type.U8Vec2.html)
 /// * [`Vec2`](type.Vec2.html)
-pub type TVec2<N> = Vector2<N>;
+pub type TVec2<N> = TVec<N, U2>;
 /// A 3D vector with components of type `N`.
 ///
 /// # See also:
@@ -121,7 +122,7 @@ pub type TVec2<N> = Vector2<N>;
 /// * [`U64Vec3`](type.U64Vec3.html)
 /// * [`U8Vec3`](type.U8Vec3.html)
 /// * [`Vec3`](type.Vec3.html)
-pub type TVec3<N> = Vector3<N>;
+pub type TVec3<N> = TVec<N, U3>;
 /// A 4D vector with components of type `N`.
 ///
 /// # See also:
@@ -150,115 +151,115 @@ pub type TVec3<N> = Vector3<N>;
 /// * [`U64Vec4`](type.U64Vec4.html)
 /// * [`U8Vec4`](type.U8Vec4.html)
 /// * [`Vec4`](type.Vec4.html)
-pub type TVec4<N> = Vector4<N>;
+pub type TVec4<N> = TVec<N, U4>;
 /// A 1D vector with boolean components.
-pub type BVec1 = Vector1<bool>;
+pub type BVec1 = TVec1<bool>;
 /// A 2D vector with boolean components.
-pub type BVec2 = Vector2<bool>;
+pub type BVec2 = TVec2<bool>;
 /// A 3D vector with boolean components.
-pub type BVec3 = Vector3<bool>;
+pub type BVec3 = TVec3<bool>;
 /// A 4D vector with boolean components.
-pub type BVec4 = Vector4<bool>;
+pub type BVec4 = TVec4<bool>;
 /// A 1D vector with `f64` components.
-pub type DVec1 = Vector1<f64>;
+pub type DVec1 = TVec1<f64>;
 /// A 2D vector with `f64` components.
-pub type DVec2 = Vector2<f64>;
+pub type DVec2 = TVec2<f64>;
 /// A 3D vector with `f64` components.
-pub type DVec3 = Vector3<f64>;
+pub type DVec3 = TVec3<f64>;
 /// A 4D vector with `f64` components.
-pub type DVec4 = Vector4<f64>;
+pub type DVec4 = TVec4<f64>;
 /// A 1D vector with `i32` components.
-pub type IVec1 = Vector1<i32>;
+pub type IVec1 = TVec1<i32>;
 /// A 2D vector with `i32` components.
-pub type IVec2 = Vector2<i32>;
+pub type IVec2 = TVec2<i32>;
 /// A 3D vector with `i32` components.
-pub type IVec3 = Vector3<i32>;
+pub type IVec3 = TVec3<i32>;
 /// A 4D vector with `i32` components.
-pub type IVec4 = Vector4<i32>;
+pub type IVec4 = TVec4<i32>;
 /// A 1D vector with `u32` components.
-pub type UVec1 = Vector1<u32>;
+pub type UVec1 = TVec1<u32>;
 /// A 2D vector with `u32` components.
-pub type UVec2 = Vector2<u32>;
+pub type UVec2 = TVec2<u32>;
 /// A 3D vector with `u32` components.
-pub type UVec3 = Vector3<u32>;
+pub type UVec3 = TVec3<u32>;
 /// A 4D vector with `u32` components.
-pub type UVec4 = Vector4<u32>;
+pub type UVec4 = TVec4<u32>;
 /// A 1D vector with `f32` components.
-pub type Vec1  = Vector1<f32>;
+pub type Vec1  = TVec1<f32>;
 /// A 2D vector with `f32` components.
-pub type Vec2  = Vector2<f32>;
+pub type Vec2  = TVec2<f32>;
 /// A 3D vector with `f32` components.
-pub type Vec3  = Vector3<f32>;
+pub type Vec3  = TVec3<f32>;
 /// A 4D vector with `f32` components.
-pub type Vec4  = Vector4<f32>;
+pub type Vec4  = TVec4<f32>;
 
 /// A 1D vector with `u64` components.
-pub type U64Vec1 = Vector1<u64>;
+pub type U64Vec1 = TVec1<u64>;
 /// A 2D vector with `u64` components.
-pub type U64Vec2 = Vector2<u64>;
+pub type U64Vec2 = TVec2<u64>;
 /// A 3D vector with `u64` components.
-pub type U64Vec3 = Vector3<u64>;
+pub type U64Vec3 = TVec3<u64>;
 /// A 4D vector with `u64` components.
-pub type U64Vec4 = Vector4<u64>;
+pub type U64Vec4 = TVec4<u64>;
 /// A 1D vector with `i64` components.
-pub type I64Vec1 = Vector1<i64>;
+pub type I64Vec1 = TVec1<i64>;
 /// A 2D vector with `i64` components.
-pub type I64Vec2 = Vector2<i64>;
+pub type I64Vec2 = TVec2<i64>;
 /// A 3D vector with `i64` components.
-pub type I64Vec3 = Vector3<i64>;
+pub type I64Vec3 = TVec3<i64>;
 /// A 4D vector with `i64` components.
-pub type I64Vec4 = Vector4<i64>;
+pub type I64Vec4 = TVec4<i64>;
 
 /// A 1D vector with `u32` components.
-pub type U32Vec1 = Vector1<u32>;
+pub type U32Vec1 = TVec1<u32>;
 /// A 2D vector with `u32` components.
-pub type U32Vec2 = Vector2<u32>;
+pub type U32Vec2 = TVec2<u32>;
 /// A 3D vector with `u32` components.
-pub type U32Vec3 = Vector3<u32>;
+pub type U32Vec3 = TVec3<u32>;
 /// A 4D vector with `u32` components.
-pub type U32Vec4 = Vector4<u32>;
+pub type U32Vec4 = TVec4<u32>;
 /// A 1D vector with `i32` components.
-pub type I32Vec1 = Vector1<i32>;
+pub type I32Vec1 = TVec1<i32>;
 /// A 2D vector with `i32` components.
-pub type I32Vec2 = Vector2<i32>;
+pub type I32Vec2 = TVec2<i32>;
 /// A 3D vector with `i32` components.
-pub type I32Vec3 = Vector3<i32>;
+pub type I32Vec3 = TVec3<i32>;
 /// A 4D vector with `i32` components.
-pub type I32Vec4 = Vector4<i32>;
+pub type I32Vec4 = TVec4<i32>;
 
 /// A 1D vector with `u16` components.
-pub type U16Vec1 = Vector1<u16>;
+pub type U16Vec1 = TVec1<u16>;
 /// A 2D vector with `u16` components.
-pub type U16Vec2 = Vector2<u16>;
+pub type U16Vec2 = TVec2<u16>;
 /// A 3D vector with `u16` components.
-pub type U16Vec3 = Vector3<u16>;
+pub type U16Vec3 = TVec3<u16>;
 /// A 4D vector with `u16` components.
-pub type U16Vec4 = Vector4<u16>;
+pub type U16Vec4 = TVec4<u16>;
 /// A 1D vector with `i16` components.
-pub type I16Vec1 = Vector1<i16>;
+pub type I16Vec1 = TVec1<i16>;
 /// A 2D vector with `i16` components.
-pub type I16Vec2 = Vector2<i16>;
+pub type I16Vec2 = TVec2<i16>;
 /// A 3D vector with `i16` components.
-pub type I16Vec3 = Vector3<i16>;
+pub type I16Vec3 = TVec3<i16>;
 /// A 4D vector with `i16` components.
-pub type I16Vec4 = Vector4<i16>;
+pub type I16Vec4 = TVec4<i16>;
 
 /// A 1D vector with `u8` components.
-pub type U8Vec1 = Vector1<u8>;
+pub type U8Vec1 = TVec1<u8>;
 /// A 2D vector with `u8` components.
-pub type U8Vec2 = Vector2<u8>;
+pub type U8Vec2 = TVec2<u8>;
 /// A 3D vector with `u8` components.
-pub type U8Vec3 = Vector3<u8>;
+pub type U8Vec3 = TVec3<u8>;
 /// A 4D vector with `u8` components.
-pub type U8Vec4 = Vector4<u8>;
+pub type U8Vec4 = TVec4<u8>;
 /// A 1D vector with `i8` components.
-pub type I8Vec1 = Vector1<i8>;
+pub type I8Vec1 = TVec1<i8>;
 /// A 2D vector with `i8` components.
-pub type I8Vec2 = Vector2<i8>;
+pub type I8Vec2 = TVec2<i8>;
 /// A 3D vector with `i8` components.
-pub type I8Vec3 = Vector3<i8>;
+pub type I8Vec3 = TVec3<i8>;
 /// A 4D vector with `i8` components.
-pub type I8Vec4 = Vector4<i8>;
+pub type I8Vec4 = TVec4<i8>;
 
 
 /// A 2x2 matrix with components of type `N`.
@@ -335,6 +336,6 @@ pub type Mat4x4 = Matrix4<f32>;
 pub type Mat4 = Matrix4<f32>;
 
 /// A quaternion with f32 components.
-pub type Quat = Quaternion<f32>;
+pub type Quat = Qua<f32>;
 /// A quaternion with f64 components.
-pub type DQuat = Quaternion<f64>;
+pub type DQuat = Qua<f64>;
