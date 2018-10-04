@@ -317,10 +317,32 @@ pub fn round<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 //        unimplemented!()
 //}
 
-/// Returns 1 if `x > 0`, 0 if `x == 0`, or -1 if `x < 0`.
+/// For each matrix or vector component `x`:  1 if `x > 0`, 0 if `x == 0`, or -1 if `x < 0`.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let vec = glm::vec3(-2.0, 0.0, -0.0, 2.0);
+/// assert_eq!(glm::vec3(-1.0, 0.0, 0.0, 1.0), glm::sign(&vec));
+///
+/// let mat = glm::mat2(-0.0, 5.0, -3.0, 2.0);
+/// assert_eq!(glm::mat2(0.0, 1.0, -1.0, 1.0), glm::sign(&mat));
+/// ```
+///
+/// # See also:
+///
+/// * [`abs`](fn.abs.html)
+///
 pub fn sign<N: Number, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    x.map(|x| x.signum())
+    x.map(|x| {
+        if x.is_zero() {
+            N::zero()
+        } else {
+            x.signum()
+        }
+    })
 }
 
 /// Returns 0.0 if `x <= edge0` and `1.0 if x >= edge1` and performs smooth Hermite interpolation between 0 and 1 when `edge0 < x < edge1`.
