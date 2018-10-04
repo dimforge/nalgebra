@@ -5,6 +5,17 @@ use aliases::TMat;
 
 /// The sum of every component of the given matrix or vector.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let vec = glm::vec2(3.0, 4.0);
+/// assert_eq!(7.0, glm::comp_add(&vec));
+///
+/// let mat = glm::mat2(0.0, 1.0, -3.0, 3.0);
+/// assert_eq!(1.0, glm::comp_add(&mat));
+/// ```
+///
 /// # See also:
 ///
 /// * [`comp_max`](fn.comp_max.html)
@@ -16,6 +27,17 @@ pub fn comp_add<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
 }
 
 /// The maximum of every component of the given matrix or vector.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let vec = glm::vec2(3.0, 4.0);
+/// assert_eq!(4.0, glm::comp_max(&vec));
+///
+/// let mat = glm::mat2(0.0, 1.0, -3.0, 3.0);
+/// assert_eq!(3.0, glm::comp_max(&mat));
+/// ```
 ///
 /// # See also:
 ///
@@ -33,6 +55,17 @@ pub fn comp_max<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
 
 /// The minimum of every component of the given matrix or vector.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let vec = glm::vec2(3.0, 4.0);
+/// assert_eq!(3.0, glm::comp_min(&vec));
+///
+/// let mat = glm::mat2(0.0, 1.0, -3.0, 3.0);
+/// assert_eq!(-3.0, glm::comp_min(&mat));
+/// ```
+///
 /// # See also:
 ///
 /// * [`comp_add`](fn.comp_add.html)
@@ -48,6 +81,17 @@ pub fn comp_min<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
 }
 
 /// The product of every component of the given matrix or vector.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let vec = glm::vec2(3.0, 4.0);
+/// assert_eq!(12.0, glm::comp_mul(&vec));
+///
+/// let mat = glm::mat2(1.0, 1.0, -3.0, 3.0);
+/// assert_eq!(-9.0, glm::comp_mul(&mat));
+/// ```
 ///
 /// # See also:
 ///

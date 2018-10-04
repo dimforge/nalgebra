@@ -4,6 +4,15 @@ use aliases::{TMat, Qua, TVec1, TVec2, TVec3, TVec4, TMat2, TMat2x3, TMat2x4, TM
 
 
 /// Creates a new 1D vector.
+///
+/// # Examples:
+///
+/// Construct a vector of `bool`s:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let v = glm::vec1(true);
+/// ```
 pub fn vec1<N: Scalar>(x: N) -> TVec1<N> {
     TVec1::new(x)
 }
