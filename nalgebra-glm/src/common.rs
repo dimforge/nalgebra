@@ -220,7 +220,7 @@ pub fn fract<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 /// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
 /// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
 pub fn int_bits_to_float(v: i32) -> f32 {
-    unsafe { mem::transmute(v) }
+    f32::from_bits(v as u32)
 
 }
 
@@ -409,7 +409,7 @@ pub fn trunc<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 /// * [`int_bits_to_float_vec`](fn.int_bits_to_float_vec.html)
 /// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
 pub fn uint_bits_to_float_scalar(v: u32) -> f32 {
-    unsafe { mem::transmute(v) }
+    f32::from_bits(v)
 
 }
 
