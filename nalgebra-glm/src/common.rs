@@ -317,7 +317,7 @@ pub fn round<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 //        unimplemented!()
 //}
 
-/// For each matrix or vector component `x`:  1 if `x > 0`, 0 if `x == 0`, or -1 if `x < 0`.
+/// For each vector component `x`:  1 if `x > 0`, 0 if `x == 0`, or -1 if `x < 0`.
 ///
 /// # Examples:
 ///
@@ -325,9 +325,6 @@ pub fn round<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 /// # use nalgebra_glm as glm;
 /// let vec = glm::vec3(-2.0, 0.0, -0.0, 2.0);
 /// assert_eq!(glm::vec3(-1.0, 0.0, 0.0, 1.0), glm::sign(&vec));
-///
-/// let mat = glm::mat2(-0.0, 5.0, -3.0, 2.0);
-/// assert_eq!(glm::mat2(0.0, 1.0, -1.0, 1.0), glm::sign(&mat));
 /// ```
 ///
 /// # See also:
