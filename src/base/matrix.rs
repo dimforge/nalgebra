@@ -1033,7 +1033,7 @@ where
 
         let max_length_with_space = max_length + 1;
 
-        try!(writeln!(f, ""));
+        try!(writeln!(f));
         try!(writeln!(
             f,
             "  ┌ {:>width$} ┐",
@@ -1061,7 +1061,7 @@ where
             "",
             width = max_length_with_space * ncols - 1
         ));
-        writeln!(f, "")
+        writeln!(f)
     }
 }
 
