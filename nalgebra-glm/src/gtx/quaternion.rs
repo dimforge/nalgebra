@@ -54,7 +54,7 @@ pub fn quat_rotate_vec<N: Real>(q: &Qua<N>, v: &TVec4<N>) -> TVec4<N> {
 
 /// The rotation required to align `orig` to `dest`.
 pub fn quat_rotation<N: Real>(orig: &TVec3<N>, dest: &TVec3<N>) -> Qua<N> {
-    UnitQuaternion::rotation_between(orig, dest).unwrap_or(UnitQuaternion::identity()).unwrap()
+    UnitQuaternion::rotation_between(orig, dest).unwrap_or_else(UnitQuaternion::identity).unwrap()
 }
 
 /// The spherical linear interpolation between two quaternions.

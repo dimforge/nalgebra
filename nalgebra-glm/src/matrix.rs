@@ -12,7 +12,7 @@ pub fn determinant<N: Real, D: Dimension>(m: &TMat<N, D, D>) -> N
 /// The inverse of the matrix `m`.
 pub fn inverse<N: Real, D: Dimension>(m: &TMat<N, D, D>) -> TMat<N, D, D>
     where DefaultAllocator: Alloc<N, D, D> {
-    m.clone().try_inverse().unwrap_or(TMat::<N, D, D>::zeros())
+    m.clone().try_inverse().unwrap_or_else(TMat::<N, D, D>::zeros)
 }
 
 /// Component-wise multiplication of two matrices.

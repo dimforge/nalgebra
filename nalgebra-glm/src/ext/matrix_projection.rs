@@ -86,7 +86,7 @@ pub fn unproject<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vie
 ///   * `viewport` - Specifies the current viewport.
 pub fn unproject_no<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let _2: N = na::convert(2.0);
-    let transform = (proj * model).try_inverse().unwrap_or(TMat4::zeros());
+    let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
     let pt = TVec4::new(
         _2 * (win.x - viewport.x) / viewport.z - N::one(),
         _2 * (win.y - viewport.y) / viewport.w - N::one(),
@@ -109,7 +109,7 @@ pub fn unproject_no<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, 
 ///   * `viewport` - Specifies the current viewport.
 pub fn unproject_zo<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let _2: N = na::convert(2.0);
-    let transform = (proj * model).try_inverse().unwrap_or(TMat4::zeros());
+    let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
     let pt = TVec4::new(
         _2 * (win.x - viewport.x) / viewport.z - N::one(),
         _2 * (win.y - viewport.y) / viewport.w - N::one(),

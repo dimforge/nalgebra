@@ -9,7 +9,7 @@ pub fn quat_conjugate<N: Real>(q: &Qua<N>) -> Qua<N> {
 
 /// The inverse of `q`.
 pub fn quat_inverse<N: Real>(q: &Qua<N>) -> Qua<N> {
-    q.try_inverse().unwrap_or(na::zero())
+    q.try_inverse().unwrap_or_else(na::zero)
 }
 
 //pub fn quat_isinf<N: Real>(x: &Qua<N>) -> TVec<bool, U4> {
