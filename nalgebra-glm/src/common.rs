@@ -112,7 +112,7 @@ pub fn float_bits_to_int(v: f32) -> i32 {
 /// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
 pub fn float_bits_to_int_vec<D: Dimension>(v: &TVec<f32, D>) -> TVec<i32, D>
     where DefaultAllocator: Alloc<f32, D> {
-    v.map(|v| float_bits_to_int(v))
+    v.map(float_bits_to_int)
 }
 
 /// Returns an unsigned integer value representing the encoding of a floating-point value.
@@ -147,7 +147,7 @@ pub fn float_bits_to_uint(v: f32) -> u32 {
 /// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
 pub fn float_bits_to_uint_vec<D: Dimension>(v: &TVec<f32, D>) -> TVec<u32, D>
     where DefaultAllocator: Alloc<f32, D> {
-    v.map(|v| float_bits_to_uint(v))
+    v.map(float_bits_to_uint)
 }
 
 /// Returns componentwise a value equal to the nearest integer that is less then or equal to `x`.
@@ -239,7 +239,7 @@ pub fn int_bits_to_float(v: i32) -> f32 {
 /// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
 pub fn int_bits_to_float_vec<D: Dimension>(v: &TVec<i32, D>) -> TVec<f32, D>
     where DefaultAllocator: Alloc<f32, D> {
-    v.map(|v| int_bits_to_float(v))
+    v.map(int_bits_to_float)
 }
 
 //pub fn isinf<N: Scalar, D: Dimension>(x: &TVec<N, D>) -> TVec<bool, D>
@@ -371,7 +371,7 @@ pub fn step<N: Number, D: Dimension>(edge: N, x: &TVec<N, D>) -> TVec<N, D>
 /// Returns 0.0 if `x[i] < edge[i]`, otherwise it returns 1.0.
 pub fn step_vec<N: Number, D: Dimension>(edge: &TVec<N, D>, x: &TVec<N, D>) -> TVec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    edge.zip_map(x, |edge, x| step_scalar(edge, x))
+    edge.zip_map(x, step_scalar)
 }
 
 /// Returns a value equal to the nearest integer to `x` whose absolute value is not larger than the absolute value of `x`.
@@ -428,5 +428,5 @@ pub fn uint_bits_to_float_scalar(v: u32) -> f32 {
 /// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
 pub fn uint_bits_to_float<D: Dimension>(v: &TVec<u32, D>) -> TVec<f32, D>
     where DefaultAllocator: Alloc<f32, D> {
-    v.map(|v| uint_bits_to_float_scalar(v))
+    v.map(uint_bits_to_float_scalar)
 }
