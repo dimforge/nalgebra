@@ -20,7 +20,7 @@ use base::storage::Owned;
 use base::{DefaultAllocator, MatrixN};
 use geometry::{Point, Translation};
 
-/// A direct isometry, i.e., a rotation followed by a translation.
+/// A direct isometry, i.e., a rotation followed by a translation, aka. a rigid-body motion, aka. an element of a Special Euclidean (SE) group.
 #[repr(C)]
 #[derive(Debug)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
