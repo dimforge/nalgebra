@@ -7,6 +7,10 @@ use na::{MatrixMN, VectorN,
 
 /// A matrix with components of type `N`. It has `R` rows, and `C` columns.
 ///
+/// In this library, vectors, represented as [`TVec`](type.TVec.html) and
+/// friends, are also matrices. Operations that operate on a matrix will
+/// also work on a vector.
+///
 /// # See also:
 ///
 /// * [`TMat2`](type.TMat2.html)
@@ -21,11 +25,16 @@ use na::{MatrixMN, VectorN,
 /// * [`TMat4x2`](type.TMat4x2.html)
 /// * [`TMat4x3`](type.TMat4x3.html)
 /// * [`TMat4x4`](type.TMat4x4.html)
+/// * [`TVec`](type.TVec.html)
 pub type TMat<N, R, C> = MatrixMN<N, R, C>;
 /// A column vector with components of type `N`. It has `D` rows (and one column).
 ///
+/// In this library, vectors are represented as a single column matrix, so
+/// operations on [`TMat`](type.TMat.html) are also valid on vectors.
+///
 /// # See also:
 ///
+/// * [`TMat`](type.TMat.html)
 /// * [`TVec1`](type.TVec1.html)
 /// * [`TVec2`](type.TVec2.html)
 /// * [`TVec3`](type.TVec3.html)
