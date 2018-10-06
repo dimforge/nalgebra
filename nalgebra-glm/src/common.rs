@@ -323,8 +323,8 @@ pub fn round<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 ///
 /// ```
 /// # use nalgebra_glm as glm;
-/// let vec = glm::vec3(-2.0, 0.0, -0.0, 2.0);
-/// assert_eq!(glm::vec3(-1.0, 0.0, 0.0, 1.0), glm::sign(&vec));
+/// let vec = glm::vec4(-2.0, 0.0, -0.0, 2.0);
+/// assert_eq!(glm::vec4(-1.0, 0.0, 0.0, 1.0), glm::sign(&vec));
 /// ```
 ///
 /// # See also:
