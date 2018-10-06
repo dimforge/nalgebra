@@ -50,6 +50,21 @@ pub fn ceil<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 
 /// Returns `min(max(x, min_val), max_val)`.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// // Works with integers:
+/// assert_eq!(3, glm::clamp_scalar(1, 3, 5));
+/// assert_eq!(4, glm::clamp_scalar(4, 3, 5));
+/// assert_eq!(5, glm::clamp_scalar(7, 3, 5));
+///
+/// // And it works with floats:
+/// assert_eq!(3.25, glm::clamp_scalar(1.3, 3.25, 5.5));
+/// assert_eq!(4.5, glm::clamp_scalar(4.5, 3.25, 5.5));
+/// assert_eq!(5.5, glm::clamp_scalar(7.8, 3.25, 5.5));
+/// ```
+///
 /// # See also:
 ///
 /// * [`clamp`](fn.clamp.html)
@@ -58,7 +73,21 @@ pub fn clamp_scalar<N: Number>(x: N, min_val: N, max_val: N) -> N {
     na::clamp(x, min_val, max_val)
 }
 
-/// Returns `min(max(x[i], min_val), max_val)` for each component in `x` using the floating-point values `min_val and `max_val`.
+/// Returns `min(max(x[i], min_val), max_val)` for each component in `x`
+/// using the values `min_val and `max_val` as bounds.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// // Works with integers:
+/// assert_eq!(glm::vec3(3, 4, 5),
+///            glm::clamp(&glm::vec3(1, 4, 7), 3, 5));
+///
+/// // And it works with floats:
+/// assert_eq!(glm::vec3(3.25, 4.5, 5.5),
+///            glm::clamp(&glm::vec3(1.3, 4.5, 7.8), 3.25, 5.5));
+/// ```
 ///
 /// # See also:
 ///
@@ -69,7 +98,8 @@ pub fn clamp<N: Number, D: Dimension>(x: &TVec<N, D>, min_val: N, max_val: N) ->
     x.map(|x| na::clamp(x, min_val, max_val))
 }
 
-/// Returns `min(max(x[i], min_val[i]), max_val[i])` for each component in `x` using the components of `min_val` and `max_val` as bounds.
+/// Returns `min(max(x[i], min_val[i]), max_val[i])` for each component in `x`
+/// using the components of `min_val` and `max_val` as bounds.
 ///
 /// # See also:
 ///
