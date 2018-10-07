@@ -1,6 +1,6 @@
 [package]
 name = "nalgebra-glm"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["sebcrozet <developer@crozet.re>"]
 
 description = "A computer-graphics oriented API for nalgebra, inspired by the C++ GLM library."
