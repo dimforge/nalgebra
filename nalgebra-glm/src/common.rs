@@ -101,13 +101,33 @@ pub fn clamp<N: Number, D: Dimension>(x: &TVec<N, D>, min_val: N, max_val: N) ->
 /// Returns `min(max(x[i], min_val[i]), max_val[i])` for each component in `x`
 /// using the components of `min_val` and `max_val` as bounds.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let min_bounds = glm::vec2(1.0, 3.0);
+/// let max_bounds = glm::vec2(5.0, 6.0);
+/// assert_eq!(glm::vec2(1.0, 6.0),
+///            glm::clamp_vec(&glm::vec2(0.0, 7.0),
+///                           &min_bounds,
+///                           &max_bounds));
+/// assert_eq!(glm::vec2(2.0, 6.0),
+///            glm::clamp_vec(&glm::vec2(2.0, 7.0),
+///                           &min_bounds,
+///                           &max_bounds));
+/// assert_eq!(glm::vec2(1.0, 4.0),
+///            glm::clamp_vec(&glm::vec2(0.0, 4.0),
+///                           &min_bounds,
+///                           &max_bounds));
+/// ```
+///
 /// # See also:
 ///
 /// * [`clamp_scalar`](fn.clamp_scalar.html)
 /// * [`clamp`](fn.clamp.html)
 pub fn clamp_vec<N: Number, D: Dimension>(x: &TVec<N, D>, min_val: &TVec<N, D>, max_val: &TVec<N, D>) -> TVec<N, D>
     where DefaultAllocator: Alloc<N, D> {
-    na::clamp(x.clone(), min_val.clone(), max_val.clone())
+    x.zip_zip_map(min_val, max_val, |a, min, max| na::clamp(a, min, max))
 }
 
 /// Returns a signed integer value representing the encoding of a floating-point value.
