@@ -52,7 +52,7 @@ pub fn any<D: Dimension>(v: &TVec<bool, D>) -> bool
 
 /// Component-wise equality comparison.
 ///
-/// See also:
+/// # See also:
 ///
 /// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
@@ -68,7 +68,7 @@ pub fn equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bo
 
 /// Component-wise `>` comparison.
 ///
-/// See also:
+/// # See also:
 ///
 /// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
@@ -84,7 +84,7 @@ pub fn greater_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> 
 
 /// Component-wise `>=` comparison.
 ///
-/// See also:
+/// # See also:
 ///
 /// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
@@ -100,7 +100,7 @@ pub fn greater_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D
 
 /// Component-wise `<` comparison.
 ///
-/// See also:
+/// # See also:
 ///
 /// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
@@ -116,7 +116,7 @@ pub fn less_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVe
 
 /// Component-wise `>=` comparison.
 ///
-/// See also:
+/// # See also:
 ///
 /// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
@@ -140,7 +140,7 @@ pub fn less_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) 
 /// assert_eq!(glm::vec2(false, true), glm::not(&vec));
 /// ```
 ///
-/// See also:
+/// # See also:
 ///
 /// * [`all`](fn.all.html)
 /// * [`any`](fn.any.html)
@@ -158,7 +158,7 @@ pub fn not<D: Dimension>(v: &TVec<bool, D>) -> TVec<bool, D>
 
 /// Component-wise not-equality `!=`.
 ///
-/// See also:
+/// # See also:
 ///
 /// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
