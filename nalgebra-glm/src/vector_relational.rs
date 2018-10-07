@@ -52,9 +52,17 @@ pub fn any<D: Dimension>(v: &TVec<bool, D>) -> bool
 
 /// Component-wise equality comparison.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(glm::vec2(true, false),
+///            glm::equal(&glm::vec2(1.0, 3.0),
+///                       &glm::vec2(1.0, 2.0)));
+/// ```
+///
 /// # See also:
 ///
-/// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
 /// * [`greater_than_equal`](fn.greater_than_equal.html)
 /// * [`less_than`](fn.less_than.html)
@@ -68,10 +76,18 @@ pub fn equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bo
 
 /// Component-wise `>` comparison.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(glm::vec2(false, true),
+///            glm::greater_than(&glm::vec2(1.0, 3.0),
+///                              &glm::vec2(1.0, 2.0)));
+/// ```
+///
 /// # See also:
 ///
 /// * [`equal`](fn.equal.html)
-/// * [`greater_than`](fn.greater_than.html)
 /// * [`greater_than_equal`](fn.greater_than_equal.html)
 /// * [`less_than`](fn.less_than.html)
 /// * [`less_than_equal`](fn.less_than_equal.html)
@@ -84,11 +100,19 @@ pub fn greater_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> 
 
 /// Component-wise `>=` comparison.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(glm::vec3(true, true, false),
+///            glm::greater_than_equal(&glm::vec3(1.0, 3.0, 4.0),
+///                                    &glm::vec3(1.0, 2.0, 5.0)));
+/// ```
+///
 /// # See also:
 ///
 /// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
-/// * [`greater_than_equal`](fn.greater_than_equal.html)
 /// * [`less_than`](fn.less_than.html)
 /// * [`less_than_equal`](fn.less_than_equal.html)
 /// * [`not`](fn.not.html)
@@ -100,12 +124,20 @@ pub fn greater_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D
 
 /// Component-wise `<` comparison.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(glm::vec3(false, false, true),
+///            glm::less_than(&glm::vec3(1.0, 3.0, 4.0),
+///                           &glm::vec3(1.0, 2.0, 5.0)));
+/// ```
+///
 /// # See also:
 ///
 /// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
 /// * [`greater_than_equal`](fn.greater_than_equal.html)
-/// * [`less_than`](fn.less_than.html)
 /// * [`less_than_equal`](fn.less_than_equal.html)
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
@@ -116,13 +148,21 @@ pub fn less_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVe
 
 /// Component-wise `>=` comparison.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(glm::vec3(true, false, true),
+///            glm::less_than_equal(&glm::vec3(1.0, 3.0, 4.0),
+///                                 &glm::vec3(1.0, 2.0, 5.0)));
+/// ```
+///
 /// # See also:
 ///
 /// * [`equal`](fn.equal.html)
 /// * [`greater_than`](fn.greater_than.html)
 /// * [`greater_than_equal`](fn.greater_than_equal.html)
 /// * [`less_than`](fn.less_than.html)
-/// * [`less_than_equal`](fn.less_than_equal.html)
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn less_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
@@ -149,7 +189,6 @@ pub fn less_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) 
 /// * [`greater_than_equal`](fn.greater_than_equal.html)
 /// * [`less_than`](fn.less_than.html)
 /// * [`less_than_equal`](fn.less_than_equal.html)
-/// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn not<D: Dimension>(v: &TVec<bool, D>) -> TVec<bool, D>
     where DefaultAllocator: Alloc<bool, D> {
@@ -158,6 +197,15 @@ pub fn not<D: Dimension>(v: &TVec<bool, D>) -> TVec<bool, D>
 
 /// Component-wise not-equality `!=`.
 ///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(glm::vec2(false, true),
+///            glm::not_equal(&glm::vec2(1.0, 3.0),
+///                           &glm::vec2(1.0, 2.0)));
+/// ```
+///
 /// # See also:
 ///
 /// * [`equal`](fn.equal.html)
@@ -165,7 +213,7 @@ pub fn not<D: Dimension>(v: &TVec<bool, D>) -> TVec<bool, D>
 /// * [`greater_than_equal`](fn.greater_than_equal.html)
 /// * [`less_than`](fn.less_than.html)
 /// * [`less_than_equal`](fn.less_than_equal.html)
-/// * [`not_equal`](fn.not_equal.html)
+/// * [`not`](fn.not.html)
 pub fn not_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
     where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x != y)
