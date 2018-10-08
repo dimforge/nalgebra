@@ -485,89 +485,97 @@ where
 
     /// Rebuild the original matrix.
     ///
-    /// This is useful if some of the singular values have been manually modified.  Panics if the
-    /// right- and left- singular vectors have not been computed at construction-time.
-    pub fn recompose(self) -> MatrixMN<N, R, C> {
-        let mut u = self.u.expect("SVD recomposition: U has not been computed.");
-        let v_t = self.v_t
-            .expect("SVD recomposition: V^t has not been computed.");
+    /// This is useful if some of the singular values have been manually modified.
+    /// Returns `Err` if the right- and left- singular vectors have not been
+    /// computed at construction-time.
+    pub fn recompose(self) -> Result<MatrixMN<N, R, C>, &'static str> {
+        match (self.u, self.v_t) {
+            (Some(_u), Some(_v_t)) => {
+                let mut u = _u;
+                let v_t = _v_t;
 
-        for i in 0..self.singular_values.len() {
-            let val = self.singular_values[i];
-            u.column_mut(i).mul_assign(val);
+                for i in 0..self.singular_values.len() {
+                    let val = self.singular_values[i];
+                    u.column_mut(i).mul_assign(val);
+                }
+                Ok(u * v_t)
+            }
+            (None, None) => Err("SVD recomposition: U and V^t have not been computed."),
+            (None, _) => Err("SVD recomposition: U has not been computed."),
+            (_, None) => Err("SVD recomposition: V^t has not been computed.")
         }
-
-        u * v_t
     }
 
     /// Computes the pseudo-inverse of the decomposed matrix.
     ///
     /// Any singular value smaller than `eps` is assumed to be zero.
-    /// Panics if the right- and left- singular vectors have not been computed at
-    /// construction-time.
-    pub fn pseudo_inverse(mut self, eps: N) -> MatrixMN<N, C, R>
+    /// Returns `Err` if the right- and left- singular vectors have not
+    /// been computed at construction-time.
+    pub fn pseudo_inverse(mut self, eps: N) -> Result<MatrixMN<N, C, R>, &'static str>
     where
         DefaultAllocator: Allocator<N, C, R>,
     {
-        assert!(
-            eps >= N::zero(),
-            "SVD pseudo inverse: the epsilon must be non-negative."
-        );
-        for i in 0..self.singular_values.len() {
-            let val = self.singular_values[i];
-
-            if val > eps {
-                self.singular_values[i] = N::one() / val;
-            } else {
-                self.singular_values[i] = N::zero();
-            }
+        if eps < N::zero() {
+            Err("SVD pseudo inverse: the epsilon must be non-negative.")
         }
+        else {
+            for i in 0..self.singular_values.len() {
+                let val = self.singular_values[i];
 
-        self.recompose().transpose()
+                if val > eps {
+                    self.singular_values[i] = N::one() / val;
+                } else {
+                    self.singular_values[i] = N::zero();
+                }
+            }
+
+            self.recompose().map(|m| m.transpose())
+        }
     }
 
     /// Solves the system `self * x = b` where `self` is the decomposed matrix and `x` the unknown.
     ///
     /// Any singular value smaller than `eps` is assumed to be zero.
-    /// Returns `None` if the singular vectors `U` and `V` have not been computed.
+    /// Returns `Err` if the singular vectors `U` and `V` have not been computed.
     // FIXME: make this more generic wrt the storage types and the dimensions for `b`.
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<N, R2, C2, S2>,
         eps: N,
-    ) -> MatrixMN<N, C, C2>
+    ) -> Result<MatrixMN<N, C, C2>, &'static str>
     where
         S2: Storage<N, R2, C2>,
         DefaultAllocator: Allocator<N, C, C2> + Allocator<N, DimMinimum<R, C>, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2>,
     {
-        assert!(
-            eps >= N::zero(),
-            "SVD solve: the epsilon must be non-negative."
-        );
-        let u = self.u
-            .as_ref()
-            .expect("SVD solve: U has not been computed.");
-        let v_t = self.v_t
-            .as_ref()
-            .expect("SVD solve: V^t has not been computed.");
+        if eps < N::zero() {
+            Err("SVD solve: the epsilon must be non-negative.")
+        }
+        else {
+            match (&self.u, &self.v_t) {
+                (Some(u), Some(v_t)) => {
+                    let mut ut_b = u.tr_mul(b);
 
-        let mut ut_b = u.tr_mul(b);
+                    for j in 0..ut_b.ncols() {
+                        let mut col = ut_b.column_mut(j);
 
-        for j in 0..ut_b.ncols() {
-            let mut col = ut_b.column_mut(j);
+                        for i in 0..self.singular_values.len() {
+                            let val = self.singular_values[i];
+                            if val > eps {
+                                col[i] /= val;
+                            } else {
+                                col[i] = N::zero();
+                            }
+                        }
+                    }
 
-            for i in 0..self.singular_values.len() {
-                let val = self.singular_values[i];
-                if val > eps {
-                    col[i] /= val;
-                } else {
-                    col[i] = N::zero();
+                    Ok(v_t.tr_mul(&ut_b))
                 }
+                (None, None) => Err("SVD solve: U and V^t have not been computed."),
+                (None, _) => Err("SVD solve: U has not been computed."),
+                (_, None) => Err("SVD solve: V^t has not been computed.")
             }
         }
-
-        v_t.tr_mul(&ut_b)
     }
 }
 
@@ -623,7 +631,7 @@ where
     /// Computes the pseudo-inverse of this matrix.
     ///
     /// All singular values below `eps` are considered equal to 0.
-    pub fn pseudo_inverse(self, eps: N) -> MatrixMN<N, C, R>
+    pub fn pseudo_inverse(self, eps: N) -> Result<MatrixMN<N, C, R>, &'static str>
     where
         DefaultAllocator: Allocator<N, C, R>,
     {
