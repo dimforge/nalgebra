@@ -11,10 +11,11 @@ pub fn identity<N: Number, D: Dimension>() -> TMat<N, D, D>
 
 /// Build a look at view matrix based on the right handedness.
 ///
-/// # Parameters
-///    * `eye`   − Position of the camera
-///    * `center` − Position where the camera is looking at
-///    * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`
+/// # Parameters:
+///
+/// * `eye` − Position of the camera.
+/// * `center` − Position where the camera is looking at.
+/// * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`.
 ///
 /// # See also:
 ///
@@ -26,10 +27,11 @@ pub fn look_at<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMa
 
 /// Build a left handed look at view matrix.
 ///
-/// # Parameters
-///    * `eye`   − Position of the camera
-///    * `center` − Position where the camera is looking at
-///    * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`
+/// # Parameters:
+///
+/// * `eye` − Position of the camera.
+/// * `center` − Position where the camera is looking at.
+/// * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`.
 ///
 /// # See also:
 ///
@@ -41,10 +43,11 @@ pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> 
 
 /// Build a right handed look at view matrix.
 ///
-/// # Parameters
-///    * `eye`   − Position of the camera
-///    * `center` − Position where the camera is looking at
-///    * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`
+/// # Parameters:
+///
+/// * `eye` − Position of the camera.
+/// * `center` − Position where the camera is looking at.
+/// * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`.
 ///
 /// # See also:
 ///
@@ -56,10 +59,11 @@ pub fn look_at_rh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> 
 
 /// Builds a rotation 4 * 4 matrix created from an axis vector and an angle and right-multiply it to `m`.
 ///
-/// # Parameters
-///    * `m` − Input matrix multiplied by this rotation matrix.
-///    * `angle` − Rotation angle expressed in radians.
-///    * `axis`  − Rotation axis, recommended to be normalized.
+/// # Parameters:
+///
+/// * `m` − Input matrix multiplied by this rotation matrix.
+/// * `angle` − Rotation angle expressed in radians.
+/// * `axis` − Rotation axis, recommended to be normalized.
 ///
 /// # See also:
 ///
@@ -74,9 +78,10 @@ pub fn rotate<N: Real>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) -> TMat4<N> {
 
 /// Builds a rotation 4 * 4 matrix around the X axis and right-multiply it to `m`.
 ///
-/// # Parameters
-///    * `m` − Input matrix multiplied by this rotation matrix.
-///    * `angle` − Rotation angle expressed in radians.
+/// # Parameters:
+///
+/// * `m` − Input matrix multiplied by this rotation matrix.
+/// * `angle` − Rotation angle expressed in radians.
 ///
 /// # See also:
 ///
@@ -91,9 +96,10 @@ pub fn rotate_x<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 
 /// Builds a rotation 4 * 4 matrix around the Y axis and right-multiply it to `m`.
 ///
-/// # Parameters
-///    * `m` − Input matrix multiplied by this rotation matrix.
-///    * `angle` − Rotation angle expressed in radians.
+/// # Parameters:
+///
+/// * `m` − Input matrix multiplied by this rotation matrix.
+/// * `angle` − Rotation angle expressed in radians.
 ///
 /// # See also:
 ///
@@ -108,9 +114,10 @@ pub fn rotate_y<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 
 /// Builds a rotation 4 * 4 matrix around the Z axis and right-multiply it to `m`.
 ///
-/// # Parameters
-///    * `m` − Input matrix multiplied by this rotation matrix.
-///    * `angle` − Rotation angle expressed in radians.
+/// # Parameters:
+///
+/// * `m` − Input matrix multiplied by this rotation matrix.
+/// * `angle` − Rotation angle expressed in radians.
 ///
 /// # See also:
 ///
@@ -125,9 +132,10 @@ pub fn rotate_z<N: Real>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 
 /// Builds a scale 4 * 4 matrix created from 3 scalars and right-multiply it to `m`.
 ///
-/// # Parameters
-///    * `m` − Input matrix multiplied by this scale matrix.
-///    * `v` − Ratio of scaling for each axis.
+/// # Parameters:
+///
+/// * `m` − Input matrix multiplied by this scale matrix.
+/// * `v` − Ratio of scaling for each axis.
 ///
 /// # See also:
 ///
@@ -142,9 +150,10 @@ pub fn scale<N: Number>(m: &TMat4<N>, v: &TVec3<N>) -> TMat4<N> {
 
 /// Builds a translation 4 * 4 matrix created from a vector of 3 components and right-multiply it to `m`.
 ///
-/// # Parameters
-///    * `m` − Input matrix multiplied by this translation matrix.
-///    * `v` − Coordinates of a translation vector.
+/// # Parameters:
+///
+/// * `m` − Input matrix multiplied by this translation matrix.
+/// * `v` − Coordinates of a translation vector.
 ///
 /// # See also:
 ///
