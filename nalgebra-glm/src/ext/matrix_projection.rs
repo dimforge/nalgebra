@@ -26,6 +26,14 @@ pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec
 ///   * `model` - Specifies the current modelview matrix.
 ///   * `proj` - Specifies the current projection matrix.
 ///   * `viewport` - Specifies the current viewport.
+///
+/// # See also:
+///
+/// * [`project_no`](fn.project_no.html)
+/// * [`project_zo`](fn.project_zo.html)
+/// * [`unproject`](fn.unproject.html)
+/// * [`unproject_no`](fn.unproject_no.html)
+/// * [`unproject_zo`](fn.unproject_zo.html)
 pub fn project<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     project_no(obj, model, proj, viewport)
 }
@@ -39,6 +47,14 @@ pub fn project<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewp
 ///   * `model` - Specifies the current modelview matrix.
 ///   * `proj` - Specifies the current projection matrix.
 ///   * `viewport` - Specifies the current viewport.
+///
+/// # See also:
+///
+/// * [`project`](fn.project.html)
+/// * [`project_zo`](fn.project_zo.html)
+/// * [`unproject`](fn.unproject.html)
+/// * [`unproject_no`](fn.unproject_no.html)
+/// * [`unproject_zo`](fn.unproject_zo.html)
 pub fn project_no<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let proj = project_zo(obj, model, proj, viewport);
     TVec3::new(proj.x, proj.y, proj.z * na::convert(0.5) + na::convert(0.5))
@@ -53,6 +69,14 @@ pub fn project_no<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vi
 ///   * `model` - Specifies the current modelview matrix.
 ///   * `proj` - Specifies the current projection matrix.
 ///   * `viewport` - Specifies the current viewport.
+///
+/// # See also:
+///
+/// * [`project`](fn.project.html)
+/// * [`project_no`](fn.project_no.html)
+/// * [`unproject`](fn.unproject.html)
+/// * [`unproject_no`](fn.unproject_no.html)
+/// * [`unproject_zo`](fn.unproject_zo.html)
 pub fn project_zo<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let normalized = proj * model * TVec4::new(obj.x, obj.y, obj.z, N::one());
     let scale = N::one() / normalized.w;
@@ -71,6 +95,14 @@ pub fn project_zo<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vi
 ///   * `model` - Specifies the current modelview matrix.
 ///   * `proj` - Specifies the current projection matrix.
 ///   * `viewport` - Specifies the current viewport.
+///
+/// # See also:
+///
+/// * [`project`](fn.project.html)
+/// * [`project_no`](fn.project_no.html)
+/// * [`project_zo`](fn.project_zo.html)
+/// * [`unproject_no`](fn.unproject_no.html)
+/// * [`unproject_zo`](fn.unproject_zo.html)
 pub fn unproject<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     unproject_no(win, model, proj, viewport)
 }
@@ -84,6 +116,14 @@ pub fn unproject<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vie
 ///   * `model` - Specifies the current modelview matrix.
 ///   * `proj` - Specifies the current projection matrix.
 ///   * `viewport` - Specifies the current viewport.
+///
+/// # See also:
+///
+/// * [`project`](fn.project.html)
+/// * [`project_no`](fn.project_no.html)
+/// * [`project_zo`](fn.project_zo.html)
+/// * [`unproject`](fn.unproject.html)
+/// * [`unproject_zo`](fn.unproject_zo.html)
 pub fn unproject_no<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
@@ -107,6 +147,14 @@ pub fn unproject_no<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, 
 ///   * `model` - Specifies the current modelview matrix.
 ///   * `proj` - Specifies the current projection matrix.
 ///   * `viewport` - Specifies the current viewport.
+///
+/// # See also:
+///
+/// * [`project`](fn.project.html)
+/// * [`project_no`](fn.project_no.html)
+/// * [`project_zo`](fn.project_zo.html)
+/// * [`unproject`](fn.unproject.html)
+/// * [`unproject_no`](fn.unproject_no.html)
 pub fn unproject_zo<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
