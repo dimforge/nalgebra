@@ -4,11 +4,19 @@ use traits::{Number, Dimension, Alloc};
 use aliases::{TVec, TVec2, TVec3};
 
 /// Returns `true` if two vectors are collinear (up to an epsilon).
+///
+/// # See also:
+///
+/// * [`are_collinear2d`](fn.are_collinear2d.html)
 pub fn are_collinear<N: Number>(v0: &TVec3<N>, v1: &TVec3<N>, epsilon: N) -> bool {
     is_null(&v0.cross(v1), epsilon)
 }
 
 /// Returns `true` if two 2D vectors are collinear (up to an epsilon).
+///
+/// # See also:
+///
+/// * [`are_collinear`](fn.are_collinear.html)
 pub fn are_collinear2d<N: Number>(v0: &TVec2<N>, v1: &TVec2<N>, epsilon: N) -> bool {
     abs_diff_eq!(v0.perp(v1), N::zero(), epsilon = epsilon)
 }
