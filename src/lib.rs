@@ -429,7 +429,7 @@ pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
  * Normed space
  */
 
-/// Computes the L2 (euclidean) norm of a vector.
+/// Computes the L2 (Euclidean) norm of a vector.
 ///
 /// # See also:
 ///
@@ -441,7 +441,7 @@ pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
     v.norm()
 }
 
-/// Computes the squared L2 (euclidean) norm of the vector `v`.
+/// Computes the squared L2 (Euclidean) norm of the vector `v`.
 ///
 /// # See also:
 ///
