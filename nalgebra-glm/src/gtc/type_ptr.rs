@@ -133,21 +133,54 @@ pub fn make_quat<N: Real>(ptr: &[N]) -> Qua<N> {
 }
 
 /// Creates a 1D vector from a slice.
+///
+/// # See also:
+///
+/// * [`make_vec2`](fn.make_vec2.html)
+/// * [`make_vec3`](fn.make_vec3.html)
+/// * [`make_vec4`](fn.make_vec4.html)
 pub fn make_vec1<N: Scalar>(v: &TVec1<N>) -> TVec1<N> {
     *v
 }
 
 /// Creates a 1D vector from another vector.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec1`](fn.vec1_to_vec1.html)
+/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
+/// * [`vec4_to_vec1`](fn.vec4_to_vec1.html)
+/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
+/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
+/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
 pub fn vec2_to_vec1<N: Scalar>(v: &TVec2<N>) -> TVec1<N> {
     TVec1::new(v.x)
 }
 
 /// Creates a 1D vector from another vector.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec1`](fn.vec1_to_vec1.html)
+/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
+/// * [`vec4_to_vec1`](fn.vec4_to_vec1.html)
+/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
+/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
+/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
 pub fn vec3_to_vec1<N: Scalar>(v: &TVec3<N>) -> TVec1<N> {
     TVec1::new(v.x)
 }
 
 /// Creates a 1D vector from another vector.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec1`](fn.vec1_to_vec1.html)
+/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
+/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
+/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
+/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
+/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
 pub fn vec4_to_vec1<N: Scalar>(v: &TVec4<N>) -> TVec1<N> {
     TVec1::new(v.x)
 }
@@ -155,26 +188,69 @@ pub fn vec4_to_vec1<N: Scalar>(v: &TVec4<N>) -> TVec1<N> {
 /// Creates a 2D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
+///
+/// # See also:
+///
+/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
+/// * [`vec4_to_vec2`](fn.vec4_to_vec2.html)
+/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
+/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
+/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
+/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
 pub fn vec1_to_vec2<N: Number>(v: &TVec1<N>) -> TVec2<N> {
     TVec2::new(v.x, N::zero())
 }
 
 /// Creates a 2D vector from another vector.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
+/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
+/// * [`vec4_to_vec2`](fn.vec4_to_vec2.html)
+/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
+/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
+/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
+/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
 pub fn vec2_to_vec2<N: Scalar>(v: &TVec2<N>) -> TVec2<N> {
     *v
 }
 
 /// Creates a 2D vector from another vector.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
+/// * [`vec4_to_vec2`](fn.vec4_to_vec2.html)
+/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
+/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
+/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
+/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
 pub fn vec3_to_vec2<N: Scalar>(v: &TVec3<N>) -> TVec2<N> {
     TVec2::new(v.x, v.y)
 }
 
 /// Creates a 2D vector from another vector.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
+/// * [`vec3_to_vec2`](fn.vec4_to_vec2.html)
+/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
+/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
+/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
+/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
 pub fn vec4_to_vec2<N: Scalar>(v: &TVec4<N>) -> TVec2<N> {
     TVec2::new(v.x, v.y)
 }
 
 /// Creates a 2D vector from a slice.
+///
+/// # See also:
+///
+/// * [`make_vec1`](fn.make_vec1.html)
+/// * [`make_vec3`](fn.make_vec3.html)
+/// * [`make_vec4`](fn.make_vec4.html)
 pub fn make_vec2<N: Scalar>(ptr: &[N]) -> TVec2<N> {
     TVec2::from_column_slice(ptr)
 }
@@ -182,6 +258,14 @@ pub fn make_vec2<N: Scalar>(ptr: &[N]) -> TVec2<N> {
 /// Creates a 3D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
+///
+/// # See also:
+///
+/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
+/// * [`vec3_to_vec3`](fn.vec3_to_vec3.html)
+/// * [`vec4_to_vec3`](fn.vec4_to_vec3.html)
+/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
+/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
 pub fn vec1_to_vec3<N: Number>(v: &TVec1<N>) -> TVec3<N> {
     TVec3::new(v.x, N::zero(), N::zero())
 }
@@ -189,21 +273,54 @@ pub fn vec1_to_vec3<N: Number>(v: &TVec1<N>) -> TVec3<N> {
 /// Creates a 3D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
+/// * [`vec3_to_vec3`](fn.vec3_to_vec3.html)
+/// * [`vec4_to_vec3`](fn.vec4_to_vec3.html)
+/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
+/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
+/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
 pub fn vec2_to_vec3<N: Number>(v: &TVec2<N>) -> TVec3<N> {
     TVec3::new(v.x, v.y, N::zero())
 }
 
 /// Creates a 3D vector from another vector.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
+/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
+/// * [`vec4_to_vec3`](fn.vec4_to_vec3.html)
+/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
+/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
+/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
 pub fn vec3_to_vec3<N: Scalar>(v: &TVec3<N>) -> TVec3<N> {
     *v
 }
 
 /// Creates a 3D vector from another vector.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
+/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
+/// * [`vec3_to_vec3`](fn.vec3_to_vec3.html)
+/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
+/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
+/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
 pub fn vec4_to_vec3<N: Scalar>(v: &TVec4<N>) -> TVec3<N> {
     TVec3::new(v.x, v.y, v.z)
 }
 
 /// Creates a 3D vector from another vector.
+///
+/// # See also:
+///
+/// * [`make_vec1`](fn.make_vec1.html)
+/// * [`make_vec2`](fn.make_vec2.html)
+/// * [`make_vec4`](fn.make_vec4.html)
 pub fn make_vec3<N: Scalar>(ptr: &[N]) -> TVec3<N> {
     TVec3::from_column_slice(ptr)
 }
@@ -211,6 +328,15 @@ pub fn make_vec3<N: Scalar>(ptr: &[N]) -> TVec3<N> {
 /// Creates a 4D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
+///
+/// # See also:
+///
+/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
+/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
+/// * [`vec4_to_vec4`](fn.vec4_to_vec4.html)
+/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
+/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
+/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
 pub fn vec1_to_vec4<N: Number>(v: &TVec1<N>) -> TVec4<N> {
     TVec4::new(v.x, N::zero(), N::zero(), N::zero())
 }
@@ -218,6 +344,15 @@ pub fn vec1_to_vec4<N: Number>(v: &TVec1<N>) -> TVec4<N> {
 /// Creates a 4D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
+/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
+/// * [`vec4_to_vec4`](fn.vec4_to_vec4.html)
+/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
+/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
+/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
 pub fn vec2_to_vec4<N: Number>(v: &TVec2<N>) -> TVec4<N> {
     TVec4::new(v.x, v.y, N::zero(), N::zero())
 }
@@ -225,16 +360,40 @@ pub fn vec2_to_vec4<N: Number>(v: &TVec2<N>) -> TVec4<N> {
 /// Creates a 4D vector from another vector.
 ///
 /// Missing components, if any, are set to 0.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
+/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
+/// * [`vec4_to_vec4`](fn.vec4_to_vec4.html)
+/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
+/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
+/// * [`vec3_to_vec3`](fn.vec3_to_vec3.html)
 pub fn vec3_to_vec4<N: Number>(v: &TVec3<N>) -> TVec4<N> {
     TVec4::new(v.x, v.y, v.z, N::zero())
 }
 
 /// Creates a 4D vector from another vector.
+///
+/// # See also:
+///
+/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
+/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
+/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
+/// * [`vec4_to_vec1`](fn.vec4_to_vec1.html)
+/// * [`vec4_to_vec2`](fn.vec4_to_vec2.html)
+/// * [`vec4_to_vec3`](fn.vec4_to_vec3.html)
 pub fn vec4_to_vec4<N: Scalar>(v: &TVec4<N>) -> TVec4<N> {
     *v
 }
 
 /// Creates a 4D vector from another vector.
+///
+/// # See also:
+///
+/// * [`make_vec1`](fn.make_vec1.html)
+/// * [`make_vec2`](fn.make_vec2.html)
+/// * [`make_vec3`](fn.make_vec3.html)
 pub fn make_vec4<N: Scalar>(ptr: &[N]) -> TVec4<N> {
     TVec4::from_column_slice(ptr)
 }
