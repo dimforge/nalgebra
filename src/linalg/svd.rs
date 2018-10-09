@@ -490,10 +490,7 @@ where
     /// computed at construction-time.
     pub fn recompose(self) -> Result<MatrixMN<N, R, C>, &'static str> {
         match (self.u, self.v_t) {
-            (Some(_u), Some(_v_t)) => {
-                let mut u = _u;
-                let v_t = _v_t;
-
+            (Some(mut u), Some(v_t)) => {
                 for i in 0..self.singular_values.len() {
                     let val = self.singular_values[i];
                     u.column_mut(i).mul_assign(val);
