@@ -894,18 +894,17 @@ where
 {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        assert!(
-            self.shape() == other.shape(),
-            "Matrix comparison error: dimensions mismatch."
-        );
+        if self.shape() != other.shape() || self.nrows() == 0 || self.ncols() == 0 {
+            return None;
+        }
 
-        let first_ord = unsafe {
+        let mut first_ord = unsafe {
             self.data
                 .get_unchecked_linear(0)
                 .partial_cmp(other.data.get_unchecked_linear(0))
         };
 
-        if let Some(mut first_ord) = first_ord {
+        if let Some(first_ord) = first_ord.as_mut() {
             let mut it = self.iter().zip(other.iter());
             let _ = it.next(); // Drop the first elements (we already tested it).
 
@@ -914,16 +913,16 @@ where
                     match ord {
                         Ordering::Equal => { /* Does not change anything. */ }
                         Ordering::Less => {
-                            if first_ord == Ordering::Greater {
+                            if *first_ord == Ordering::Greater {
                                 return None;
                             }
-                            first_ord = ord
+                            *first_ord = ord
                         }
                         Ordering::Greater => {
-                            if first_ord == Ordering::Less {
+                            if *first_ord == Ordering::Less {
                                 return None;
                             }
-                            first_ord = ord
+                            *first_ord = ord
                         }
                     }
                 } else {
@@ -976,8 +975,7 @@ impl<N, R: Dim, C: Dim, S> Eq for Matrix<N, R, C, S>
 where
     N: Scalar + Eq,
     S: Storage<N, R, C>,
-{
-}
+{}
 
 impl<N, R: Dim, C: Dim, S> PartialEq for Matrix<N, R, C, S>
 where
