@@ -726,7 +726,6 @@ fn partial_clamp() {
 
 #[test]
 fn partial_cmp() {
-    // NOTE: from #401.
     let a = Vector2::new(1.0, 6.0);
     let b = Vector2::new(1.0, 3.0);
     let c = Vector2::new(2.0, 7.0);
