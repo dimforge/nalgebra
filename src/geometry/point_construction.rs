@@ -31,6 +31,12 @@ where
         Self::from_coordinates(VectorN::from_element(N::zero()))
     }
 
+    /// Creates a new point from a slice.
+    #[inline]
+    pub fn from_slice(components: &[N]) -> Self {
+        Self::from_coordinates(VectorN::from_row_slice(components))
+    }
+
     /// Creates a new point from its homogeneous vector representation.
     ///
     /// In practice, this builds a D-dimensional points with the same first D component as `v`
