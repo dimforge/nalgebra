@@ -4,7 +4,7 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::mem;
 
@@ -15,7 +15,7 @@ use base::helper;
 use base::storage::Storage;
 use base::{Matrix4, Scalar, Vector, Vector3};
 
-use geometry::{Projective3, Point3};
+use geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
 pub struct Perspective3<N: Scalar> {
@@ -280,5 +280,12 @@ impl<N: Real + Arbitrary> Arbitrary for Perspective3<N> {
         let aspect = helper::reject(g, |&x: &N| !x.is_zero());
 
         Self::new(aspect, Arbitrary::arbitrary(g), znear, zfar)
+    }
+}
+
+impl<N: Real> From<Perspective3<N>> for Matrix4<N> {
+    #[inline]
+    fn from(orth: Perspective3<N>) -> Self {
+        orth.unwrap()
     }
 }

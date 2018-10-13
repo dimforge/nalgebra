@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Add `.slerp` and `.try_slerp` to unit vectors.
   * Add `.to_projective` and `.as_projective` to `Perspective3` and `Orthographic3` in order to
   use them as `Projective3` structures.
+  * Add impl for `From/Into` to allow the conversion of any transformation type to a matrix.
+
 
 ## [0.16.0]
 All dependencies have been updated to their latest versions.

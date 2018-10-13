@@ -1,8 +1,8 @@
 use alga::general::{Real, SubsetOf};
 
-use base::{DefaultAllocator, MatrixN};
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use base::allocator::Allocator;
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::{DefaultAllocator, MatrixN};
 
 use geometry::{SuperTCategoryOf, TCategory, Transform};
 
@@ -58,5 +58,17 @@ where
     #[inline]
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         Transform::from_matrix_unchecked(::convert_ref_unchecked(m))
+    }
+}
+
+impl<N: Real, D: DimName, C> From<Transform<N, D, C>> for MatrixN<N, DimNameSum<D, U1>>
+where
+    D: DimNameAdd<U1>,
+    C: TCategory,
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
+    #[inline]
+    fn from(t: Transform<N, D, C>) -> Self {
+        t.to_homogeneous()
     }
 }

@@ -1,26 +1,26 @@
-use num::{One, Zero};
 use alga::general::{ClosedDiv, SubsetOf, SupersetOf};
+use num::{One, Zero};
 
-use base::{DefaultAllocator, Matrix, Scalar, VectorN};
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use base::allocator::Allocator;
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::{DefaultAllocator, Matrix, Scalar, VectorN};
 
+#[cfg(feature = "mint")]
+use base::dimension::{U2, U3};
+#[cfg(feature = "mint")]
+use base::storage::{Storage, StorageMut};
 use geometry::Point;
 #[cfg(feature = "mint")]
 use mint;
 #[cfg(feature = "mint")]
-use base::dimension::{U2, U3};
-#[cfg(feature = "mint")]
 use std::convert::{AsMut, AsRef, From, Into};
-#[cfg(feature = "mint")]
-use base::storage::{Storage, StorageMut};
 /*
  * This file provides the following conversions:
  * =============================================
  *
  * Point -> Point
  * Point -> Vector (homogeneous)
- * 
+ *
  * mint::Point <-> Point
  */
 
@@ -77,8 +77,6 @@ where
     }
 }
 
-
-
 #[cfg(feature = "mint")]
 macro_rules! impl_from_into_mint_1D(
     ($($NRows: ident => $PT:ident, $VT:ident [$SZ: expr]);* $(;)*) => {$(
@@ -129,3 +127,14 @@ impl_from_into_mint_1D!(
     U2 => Point2, Vector2[2];
     U3 => Point3, Vector3[3];
 );
+
+impl<N: Scalar + Zero + One, D: DimName> From<Point<N, D>> for VectorN<N, DimNameSum<D, U1>>
+where
+    D: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N, D> + Allocator<N, DimNameSum<D, U1>>,
+{
+    #[inline]
+    fn from(t: Point<N, D>) -> Self {
+        t.to_homogeneous()
+    }
+}

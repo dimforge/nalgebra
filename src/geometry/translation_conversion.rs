@@ -1,9 +1,11 @@
+use num::{One, Zero};
+
 use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use base::allocator::Allocator;
+use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
 use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
@@ -144,5 +146,16 @@ where
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim());
         Self::from_vector(::convert_unchecked(t.into_owned()))
+    }
+}
+
+impl<N: Scalar + Zero + One, D: DimName> From<Translation<N, D>> for MatrixN<N, DimNameSum<D, U1>>
+where
+    D: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N, D> + Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
+    #[inline]
+    fn from(t: Translation<N, D>) -> Self {
+        t.to_homogeneous()
     }
 }

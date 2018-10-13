@@ -5,18 +5,20 @@ use std::convert::{AsMut, AsRef, From, Into};
 use std::mem;
 use std::ptr;
 
+use generic_array::ArrayLength;
 use std::ops::Mul;
 use typenum::Prod;
-use generic_array::ArrayLength;
 
 use base::allocator::{Allocator, SameShapeAllocator};
 use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use base::dimension::{Dim, DimName, Dynamic, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9};
+use base::dimension::{
+    Dim, DimName, Dynamic, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
+};
 use base::iter::{MatrixIter, MatrixIterMut};
 use base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixArray, MatrixSlice, MatrixSliceMut, Scalar};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use base::MatrixVec;
+use base::{DefaultAllocator, Matrix, MatrixArray, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
 
 // FIXME: too bad this won't work allo slice conversions.
 impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>
@@ -333,7 +335,6 @@ impl_from_into_mint_2D!(
     (U4, U4) => ColumnMatrix4{x, y, z, w}[4];
 );
 
-
 impl<'a, N, R, C, RStride, CStride> From<MatrixSlice<'a, N, R, C, RStride, CStride>>
     for Matrix<N, R, C, MatrixArray<N, R, C>>
 where
@@ -403,8 +404,7 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSliceMut<'a, N, Dynamic, C, RStride, CStride>) -> Self
-    {
+    fn from(matrix_slice: MatrixSliceMut<'a, N, Dynamic, C, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }

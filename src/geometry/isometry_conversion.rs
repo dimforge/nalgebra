@@ -1,9 +1,9 @@
 use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use base::{DefaultAllocator, MatrixN};
-use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
 use base::allocator::Allocator;
+use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
+use base::{DefaultAllocator, MatrixN};
 
 use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
@@ -144,5 +144,17 @@ where
         let t = Translation::from_vector(::convert_unchecked(t));
 
         Self::from_parts(t, ::convert_unchecked(m.clone_owned()))
+    }
+}
+
+impl<N: Real, D: DimName, R> From<Isometry<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
+where
+    D: DimNameAdd<U1>,
+    R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> + Allocator<N, D>,
+{
+    #[inline]
+    fn from(iso: Isometry<N, D, R>) -> Self {
+        iso.to_homogeneous()
     }
 }
