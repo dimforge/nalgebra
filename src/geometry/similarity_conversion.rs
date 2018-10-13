@@ -1,9 +1,9 @@
 use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use base::{DefaultAllocator, MatrixN};
-use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
 use base::allocator::Allocator;
+use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
+use base::{DefaultAllocator, MatrixN};
 
 use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
@@ -103,13 +103,16 @@ where
     #[inline]
     fn is_in_subset(m: &MatrixN<N2, DimNameSum<D, U1>>) -> bool {
         let mut rot = m.fixed_slice::<D, D>(0, 0).clone_owned();
-        if rot.fixed_columns_mut::<U1>(0)
+        if rot
+            .fixed_columns_mut::<U1>(0)
             .try_normalize_mut(N2::zero())
             .is_some()
-            && rot.fixed_columns_mut::<U1>(1)
+            && rot
+                .fixed_columns_mut::<U1>(1)
                 .try_normalize_mut(N2::zero())
                 .is_some()
-            && rot.fixed_columns_mut::<U1>(2)
+            && rot
+                .fixed_columns_mut::<U1>(2)
                 .try_normalize_mut(N2::zero())
                 .is_some()
         {
@@ -155,5 +158,17 @@ where
         let t = Translation::from_vector(::convert_unchecked(t));
 
         Self::from_parts(t, ::convert_unchecked(mm), ::convert_unchecked(scale))
+    }
+}
+
+impl<N: Real, D: DimName, R> From<Similarity<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
+where
+    D: DimNameAdd<U1>,
+    R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,
+    DefaultAllocator: Allocator<N, D> + Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+{
+    #[inline]
+    fn from(sim: Similarity<N, D, R>) -> Self {
+        sim.to_homogeneous()
     }
 }

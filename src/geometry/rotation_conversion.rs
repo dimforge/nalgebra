@@ -6,12 +6,14 @@ use alga::linear::Rotation as AlgaRotation;
 #[cfg(feature = "mint")]
 use mint;
 
-use base::{DefaultAllocator, MatrixN};
-use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
 use base::allocator::Allocator;
+use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
+use base::{DefaultAllocator, Matrix2, Matrix3, Matrix4, MatrixN};
 
-use geometry::{Isometry, Point, Rotation, Rotation2, Rotation3, Similarity, SuperTCategoryOf,
-               TAffine, Transform, Translation, UnitComplex, UnitQuaternion};
+use geometry::{
+    Isometry, Point, Rotation, Rotation2, Rotation3, Similarity, SuperTCategoryOf, TAffine,
+    Transform, Translation, UnitComplex, UnitQuaternion,
+};
 
 /*
  * This file provides the following conversions:
@@ -212,5 +214,33 @@ where
 impl<N: Real> From<mint::EulerAngles<N, mint::IntraXYZ>> for Rotation3<N> {
     fn from(euler: mint::EulerAngles<N, mint::IntraXYZ>) -> Self {
         Self::from_euler_angles(euler.a, euler.b, euler.c)
+    }
+}
+
+impl<N: Real> From<Rotation2<N>> for Matrix3<N> {
+    #[inline]
+    fn from(q: Rotation2<N>) -> Matrix3<N> {
+        q.to_homogeneous()
+    }
+}
+
+impl<N: Real> From<Rotation2<N>> for Matrix2<N> {
+    #[inline]
+    fn from(q: Rotation2<N>) -> Matrix2<N> {
+        q.unwrap()
+    }
+}
+
+impl<N: Real> From<Rotation3<N>> for Matrix4<N> {
+    #[inline]
+    fn from(q: Rotation3<N>) -> Matrix4<N> {
+        q.to_homogeneous()
+    }
+}
+
+impl<N: Real> From<Rotation3<N>> for Matrix3<N> {
+    #[inline]
+    fn from(q: Rotation3<N>) -> Matrix3<N> {
+        q.unwrap()
     }
 }

@@ -3,7 +3,7 @@ use quickcheck::{Arbitrary, Gen};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::mem;
 
@@ -14,7 +14,7 @@ use base::helper;
 use base::storage::Storage;
 use base::{Matrix4, Vector, Vector3};
 
-use geometry::{Projective3, Point3};
+use geometry::{Point3, Projective3};
 
 /// A 3D orthographic projection stored as an homogeneous 4x4 matrix.
 pub struct Orthographic3<N: Real> {
@@ -150,7 +150,7 @@ impl<N: Real> Orthographic3<N> {
     /// Computes the corresponding homogeneous matrix.
     #[inline]
     pub fn to_homogeneous(&self) -> Matrix4<N> {
-        self.matrix.clone_owned()
+        self.matrix
     }
 
     /// A reference to the underlying homogeneous transformation matrix.
@@ -354,5 +354,12 @@ where
         let zfar = helper::reject(g, |x: &N| *x > znear);
 
         Self::new(left, right, bottom, top, znear, zfar)
+    }
+}
+
+impl<N: Real> From<Orthographic3<N>> for Matrix4<N> {
+    #[inline]
+    fn from(orth: Orthographic3<N>) -> Self {
+        orth.unwrap()
     }
 }

@@ -6,10 +6,12 @@ use alga::linear::Rotation as AlgaRotation;
 #[cfg(feature = "mint")]
 use mint;
 
-use base::{Matrix4, Vector4};
 use base::dimension::U3;
-use geometry::{Isometry, Point3, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf,
-               TAffine, Transform, Translation, UnitQuaternion};
+use base::{Matrix3, Matrix4, Vector4};
+use geometry::{
+    Isometry, Point3, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf, TAffine,
+    Transform, Translation, UnitQuaternion,
+};
 
 /*
  * This file provides the following conversions:
@@ -211,5 +213,19 @@ impl<N: Real> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
             },
             s: self[3],
         }
+    }
+}
+
+impl<N: Real> From<UnitQuaternion<N>> for Matrix4<N> {
+    #[inline]
+    fn from(q: UnitQuaternion<N>) -> Matrix4<N> {
+        q.to_homogeneous()
+    }
+}
+
+impl<N: Real> From<UnitQuaternion<N>> for Matrix3<N> {
+    #[inline]
+    fn from(q: UnitQuaternion<N>) -> Matrix3<N> {
+        q.to_rotation_matrix().unwrap()
     }
 }

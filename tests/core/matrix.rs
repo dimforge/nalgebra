@@ -242,12 +242,8 @@ fn from_rows_with_different_dimensions() {
 #[test]
 fn copy_from_slice() {
     let mut a = Matrix3::zeros();
-    let data = [ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 ];
-    let expected_a = Matrix3::new(
-        1.0, 4.0, 7.0,
-        2.0, 5.0, 8.0,
-        3.0, 6.0, 9.0
-    );
+    let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+    let expected_a = Matrix3::new(1.0, 4.0, 7.0, 2.0, 5.0, 8.0, 3.0, 6.0, 9.0);
 
     a.copy_from_slice(&data);
 
@@ -258,7 +254,7 @@ fn copy_from_slice() {
 #[test]
 fn copy_from_slice_too_small() {
     let mut a = Matrix3::zeros();
-    let data = [ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 ];
+    let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
     a.copy_from_slice(&data);
 }
 
@@ -266,7 +262,7 @@ fn copy_from_slice_too_small() {
 #[test]
 fn copy_from_slice_too_large() {
     let mut a = Matrix3::zeros();
-    let data = [ 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 ];
+    let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
     a.copy_from_slice(&data);
 }
 
@@ -727,6 +723,7 @@ fn partial_clamp() {
     assert_eq!(*inter.unwrap(), n);
 }
 
+#[test]
 fn swizzle() {
     let a = Vector2::new(1.0f32, 2.0);
     let b = Vector3::new(1.0f32, 2.0, 3.0);
@@ -760,7 +757,6 @@ fn swizzle() {
     assert_eq!(b.zxy(), Vector3::new(3.0, 1.0, 2.0));
     assert_eq!(b.zxz(), Vector3::new(3.0, 1.0, 3.0));
     assert_eq!(b.zyz(), Vector3::new(3.0, 2.0, 3.0));
-
 
     assert_eq!(c.xy(), Vector2::new(1.0, 2.0));
     assert_eq!(c.yx(), Vector2::new(2.0, 1.0));
