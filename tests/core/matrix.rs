@@ -1,4 +1,5 @@
 use num::{One, Zero};
+use std::cmp::Ordering;
 
 use na::dimension::{U15, U8};
 use na::{
@@ -721,6 +722,19 @@ fn partial_clamp() {
     let max = Vector2::new(75.0, 0.0);
     let inter = na::partial_clamp(&n, &min, &max);
     assert_eq!(*inter.unwrap(), n);
+}
+
+#[test]
+fn partial_cmp() {
+    // NOTE: from #401.
+    let a = Vector2::new(1.0, 6.0);
+    let b = Vector2::new(1.0, 3.0);
+    let c = Vector2::new(2.0, 7.0);
+    let d = Vector2::new(0.0, 7.0);
+    assert_eq!(a.partial_cmp(&a), Some(Ordering::Equal));
+    assert_eq!(a.partial_cmp(&b), Some(Ordering::Greater));
+    assert_eq!(a.partial_cmp(&c), Some(Ordering::Less));
+    assert_eq!(a.partial_cmp(&d), None);
 }
 
 #[test]
