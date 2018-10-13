@@ -894,8 +894,12 @@ where
 {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        if self.shape() != other.shape() || self.nrows() == 0 || self.ncols() == 0 {
+        if self.shape() != other.shape() {
             return None;
+        }
+
+        if self.nrows() == 0 || self.ncols() == 0 {
+            return Some(Ordering::Equal);
         }
 
         let mut first_ord = unsafe {
