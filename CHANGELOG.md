@@ -14,8 +14,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Add `.slerp` and `.try_slerp` to unit vectors.
   * Add `.to_projective` and `.as_projective` to `Perspective3` and `Orthographic3` in order to
   use them as `Projective3` structures.
-  * Add impl for `From/Into` to allow the conversion of any transformation type to a matrix.
-
+  * Add `From/Into` impls to allow the conversion of any transformation type to a matrix.
+  * Add `Into` impls to convert a matrix slice into an owned matrix.
+  * Add `Point*::from_slice` to create a point from a slice.
+  * Add `.map_with_location` to matrices to apply a map which passes the component indices to the user-defined closure alongide
+  the component itself.
 
 ## [0.16.0]
 All dependencies have been updated to their latest versions.
