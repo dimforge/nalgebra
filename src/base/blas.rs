@@ -16,6 +16,14 @@ use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
 impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
 
     /// Computes the index of the vector component with the largest value.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let vec = Vector3::new(11, -15, 13);
+    /// assert_eq!(vec.imax(), 2);
+    /// ```
     #[inline]
     pub fn imax(&self) -> usize {
         assert!(!self.is_empty(), "The input vector must not be empty.");
@@ -36,6 +44,14 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
     }
 
     /// Computes the index of the vector component with the largest absolute value.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let vec = Vector3::new(11, -15, 13);
+    /// assert_eq!(vec.iamax(), 1);
+    /// ```
     #[inline]
     pub fn iamax(&self) -> usize {
         assert!(!self.is_empty(), "The input vector must not be empty.");
@@ -56,6 +72,14 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
     }
 
     /// Computes the index of the vector component with the smallest value.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let vec = Vector3::new(11, -15, 13);
+    /// assert_eq!(vec.imin(), 1);
+    /// ```
     #[inline]
     pub fn imin(&self) -> usize {
         assert!(!self.is_empty(), "The input vector must not be empty.");
@@ -76,6 +100,14 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
     }
 
     /// Computes the index of the vector component with the smallest absolute value.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let vec = Vector3::new(11, -15, 13);
+    /// assert_eq!(vec.iamin(), 0);
+    /// ```
     #[inline]
     pub fn iamin(&self) -> usize {
         assert!(!self.is_empty(), "The input vector must not be empty.");
@@ -98,6 +130,15 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
 
 impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Computes the index of the matrix component with the largest absolute value.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mat = Matrix2x3::new(11, -12, 13,
+    ///                          21, 22, -23);
+    /// assert_eq!(mat.iamax_full(), (1, 2));
+    /// ```
     #[inline]
     pub fn iamax_full(&self) -> (usize, usize) {
         assert!(!self.is_empty(), "The input matrix must not be empty.");
@@ -124,10 +165,26 @@ impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where
     N: Scalar + Zero + ClosedAdd + ClosedMul,
 {
-    /// The dot product between two matrices (seen as vectors).
+    /// The dot product between two vectors or matrices (seen as vectors).
     ///
     /// Note that this is **not** the matrix multiplication as in, e.g., numpy. For matrix
     /// multiplication, use one of: `.gemm`, `mul_to`, `.mul`, `*`.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Vector3, Matrix2x3};
+    ///
+    /// let vec1 = Vector3::new(1.0, 2.0, 3.0);
+    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
+    /// assert_eq!(vec1.dot(&vec2), 1.4);
+    ///
+    /// let mat1 = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                           4.0, 5.0, 6.0);
+    /// let mat2 = Matrix2x3::new(0.1, 0.2, 0.3,
+    ///                           0.4, 0.5, 0.6);
+    /// assert_eq!(mat1.dot(&mat2), 9.1);
+    /// ```
     #[inline]
     pub fn dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
     where
@@ -228,6 +285,23 @@ where
     }
 
     /// The dot product between the transpose of `self` and `rhs`.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Vector3, RowVector3, Matrix2x3, Matrix3x2};
+    ///
+    /// let vec1 = Vector3::new(1.0, 2.0, 3.0);
+    /// let vec2 = RowVector3::new(0.1, 0.2, 0.3);
+    /// assert_eq!(vec1.tr_dot(&vec2), 1.4);
+    ///
+    /// let mat1 = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                           4.0, 5.0, 6.0);
+    /// let mat2 = Matrix3x2::new(0.1, 0.4,
+    ///                           0.2, 0.5,
+    ///                           0.3, 0.6);
+    /// assert_eq!(mat1.tr_dot(&mat2), 9.1);
+    /// ```
     #[inline]
     pub fn tr_dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
     where
@@ -283,6 +357,17 @@ where
     /// Computes `self = a * x + b * self`.
     ///
     /// If be is zero, `self` is never read from.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    ///
+    /// let mut vec1 = Vector3::new(1.0, 2.0, 3.0);
+    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
+    /// vec1.axpy(10.0, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector3::new(6.0, 12.0, 18.0));
+    /// ```
     #[inline]
     pub fn axpy<D2: Dim, SB>(&mut self, a: N, x: &Vector<N, D2, SB>, b: N)
     where

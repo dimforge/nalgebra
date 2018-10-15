@@ -160,6 +160,13 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The total number of elements of this matrix.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3x4;
+    /// let mat = Matrix3x4::<f32>::zeros();
+    /// assert_eq!(mat.len(), 12);
     #[inline]
     pub fn len(&self) -> usize {
         let (nrows, ncols) = self.shape();
@@ -167,6 +174,13 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The shape of this matrix returned as the tuple (number of rows, number of columns).
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3x4;
+    /// let mat = Matrix3x4::<f32>::zeros();
+    /// assert_eq!(mat.shape(), (3, 4));
     #[inline]
     pub fn shape(&self) -> (usize, usize) {
         let (nrows, ncols) = self.data.shape();
@@ -174,25 +188,63 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The number of rows of this matrix.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3x4;
+    /// let mat = Matrix3x4::<f32>::zeros();
+    /// assert_eq!(mat.nrows(), 3);
     #[inline]
     pub fn nrows(&self) -> usize {
         self.shape().0
     }
 
     /// The number of columns of this matrix.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3x4;
+    /// let mat = Matrix3x4::<f32>::zeros();
+    /// assert_eq!(mat.ncols(), 4);
     #[inline]
     pub fn ncols(&self) -> usize {
         self.shape().1
     }
 
     /// The strides (row stride, column stride) of this matrix.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::DMatrix;
+    /// let mat = DMatrix::<f32>::zeros(10, 10);
+    /// let slice = mat.slice_with_steps((0, 0), (5, 3), (1, 2));
+    /// // The column strides is the number of steps (here 2) multiplied by the corresponding dimension.
+    /// assert_eq!(mat.strides(), (1, 10));
     #[inline]
     pub fn strides(&self) -> (usize, usize) {
         let (srows, scols) = self.data.strides();
         (srows.value(), scols.value())
     }
 
-    /// Iterates through this matrix coordinates.
+    /// Iterates through this matrix coordinates in column-major order.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mat = Matrix2x3::new(11, 12, 13,
+    ///                          21, 22, 23);
+    /// let mut it = mat.iter();
+    /// assert_eq!(*it.next().unwrap(), 11);
+    /// assert_eq!(*it.next().unwrap(), 21);
+    /// assert_eq!(*it.next().unwrap(), 12);
+    /// assert_eq!(*it.next().unwrap(), 22);
+    /// assert_eq!(*it.next().unwrap(), 13);
+    /// assert_eq!(*it.next().unwrap(), 23);
+    /// assert!(it.next().is_none());
     #[inline]
     pub fn iter(&self) -> MatrixIter<N, R, C, S> {
         MatrixIter::new(&self.data)
@@ -363,7 +415,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries. Unlike `map`,
     /// `f` also gets passed the row and column index, i.e. `f(value, row, col)`.
     #[inline]
-    pub fn map_with_location<N2: Scalar, F: FnMut(usize, usize, N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
+    pub fn map_with_location<N2: Scalar, F: FnMut(usize, usize, N) -> N2>(
+        &self,
+        mut f: F,
+    ) -> MatrixMN<N2, R, C>
     where
         DefaultAllocator: Allocator<N2, R, C>,
     {
@@ -419,22 +474,28 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each entries of `self` and
     /// `b`, and `c`.
     #[inline]
-    pub fn zip_zip_map<N2, N3, N4, S2, S3, F>(&self, b: &Matrix<N2, R, C, S2>, c: &Matrix<N3, R, C, S3>, mut f: F) -> MatrixMN<N4, R, C>
-        where
-            N2: Scalar,
-            N3: Scalar,
-            N4: Scalar,
-            S2: Storage<N2, R, C>,
-            S3: Storage<N3, R, C>,
-            F: FnMut(N, N2, N3) -> N4,
-            DefaultAllocator: Allocator<N4, R, C>,
+    pub fn zip_zip_map<N2, N3, N4, S2, S3, F>(
+        &self,
+        b: &Matrix<N2, R, C, S2>,
+        c: &Matrix<N3, R, C, S3>,
+        mut f: F,
+    ) -> MatrixMN<N4, R, C>
+    where
+        N2: Scalar,
+        N3: Scalar,
+        N4: Scalar,
+        S2: Storage<N2, R, C>,
+        S3: Storage<N3, R, C>,
+        F: FnMut(N, N2, N3) -> N4,
+        DefaultAllocator: Allocator<N4, R, C>,
     {
         let (nrows, ncols) = self.data.shape();
 
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
 
         assert!(
-            (nrows.value(), ncols.value()) == b.shape() && (nrows.value(), ncols.value()) == c.shape(),
+            (nrows.value(), ncols.value()) == b.shape()
+                && (nrows.value(), ncols.value()) == c.shape(),
             "Matrix simultaneous traversal error: dimension mismatch."
         );
 
@@ -1274,20 +1335,32 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
 impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     /// Computes the spherical linear interpolation between two unit vectors.
-    pub fn slerp<S2: Storage<N, D>>(&self, rhs: &Unit<Vector<N, D, S2>>, t: N) -> Unit<VectorN<N, D>>
-        where
-            DefaultAllocator: Allocator<N, D> {
+    pub fn slerp<S2: Storage<N, D>>(
+        &self,
+        rhs: &Unit<Vector<N, D, S2>>,
+        t: N,
+    ) -> Unit<VectorN<N, D>>
+    where
+        DefaultAllocator: Allocator<N, D>,
+    {
         // FIXME: the result is wrong when self and rhs are collinear with opposite direction.
-        self.try_slerp(rhs, t, N::default_epsilon()).unwrap_or(Unit::new_unchecked(self.clone_owned()))
+        self.try_slerp(rhs, t, N::default_epsilon())
+            .unwrap_or(Unit::new_unchecked(self.clone_owned()))
     }
 
     /// Computes the spherical linear interpolation between two unit vectors.
     ///
     /// Returns `None` if the two vectors are almost collinear and with opposite direction
     /// (in this case, there is an infinity of possible results).
-    pub fn try_slerp<S2: Storage<N, D>>(&self, rhs: &Unit<Vector<N, D, S2>>, t: N, epsilon: N) -> Option<Unit<VectorN<N, D>>>
+    pub fn try_slerp<S2: Storage<N, D>>(
+        &self,
+        rhs: &Unit<Vector<N, D, S2>>,
+        t: N,
+        epsilon: N,
+    ) -> Option<Unit<VectorN<N, D>>>
     where
-        DefaultAllocator: Allocator<N, D> {
+        DefaultAllocator: Allocator<N, D>,
+    {
         let c_hang = self.dot(rhs);
 
         // self == other
