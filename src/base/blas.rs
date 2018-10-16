@@ -174,7 +174,6 @@ where
     ///
     /// ```
     /// # use nalgebra::{Vector3, Matrix2x3};
-    ///
     /// let vec1 = Vector3::new(1.0, 2.0, 3.0);
     /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
     /// assert_eq!(vec1.dot(&vec2), 1.4);
@@ -290,7 +289,6 @@ where
     ///
     /// ```
     /// # use nalgebra::{Vector3, RowVector3, Matrix2x3, Matrix3x2};
-    ///
     /// let vec1 = Vector3::new(1.0, 2.0, 3.0);
     /// let vec2 = RowVector3::new(0.1, 0.2, 0.3);
     /// assert_eq!(vec1.tr_dot(&vec2), 1.4);
@@ -362,7 +360,6 @@ where
     ///
     /// ```
     /// # use nalgebra::Vector3;
-    ///
     /// let mut vec1 = Vector3::new(1.0, 2.0, 3.0);
     /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
     /// vec1.axpy(10.0, &vec2, 5.0);
@@ -393,6 +390,18 @@ where
     /// `alpha, beta` two scalars.
     ///
     /// If `beta` is zero, `self` is never read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2};
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector2::new(0.1, 0.2);
+    /// let mat = Matrix2::new(1.0, 2.0,
+    ///                        3.0, 4.0);
+    /// vec1.gemv(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector2::new(10.0, 21.0));
+    /// ```
     #[inline]
     pub fn gemv<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
         &mut self,
@@ -437,6 +446,28 @@ where
     ///
     /// If `beta` is zero, `self` is never read. If `self` is read, only its lower-triangular part
     /// (including the diagonal) is actually read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2};
+    /// let mat = Matrix2::new(1.0, 2.0,
+    ///                        2.0, 4.0);
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector2::new(0.1, 0.2);
+    /// vec1.gemv_symm(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    ///
+    ///
+    /// // The matrix upper-triangular elements can be garbage because it is never
+    /// // read by this method. Therefore, it is not necessary for the caller to
+    /// // fill the matrix struct upper-triangle.
+    /// let mat = Matrix2::new(1.0, 9999999.9999999,
+    ///                        2.0, 4.0);
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// vec1.gemv_symm(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    /// ```
     #[inline]
     pub fn gemv_symm<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
@@ -491,6 +522,20 @@ where
     /// `alpha, beta` two scalars.
     ///
     /// If `beta` is zero, `self` is never read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2};
+    /// let mat = Matrix2::new(1.0, 3.0,
+    ///                        2.0, 4.0);
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector2::new(0.1, 0.2);
+    /// let expected = mat.transpose() * vec2 * 10.0 + vec1 * 5.0;
+    ///
+    /// vec1.gemv_tr(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, expected);
+    /// ```
     #[inline]
     pub fn gemv_tr<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
         &mut self,
@@ -538,6 +583,19 @@ where
     /// Computes `self = alpha * x * y.transpose() + beta * self`.
     ///
     /// If `beta` is zero, `self` is never read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector2, Vector3};
+    /// let mut mat = Matrix2x3::repeat(4.0);
+    /// let vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
+    /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
+    ///
+    /// mat.ger(10.0, &vec1, &vec2, 5.0);
+    /// assert_eq!(mat, expected);
+    /// ```
     #[inline]
     pub fn ger<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
@@ -571,6 +629,24 @@ where
     /// `alpha` and `beta` are scalar.
     ///
     /// If `beta` is zero, `self` is never read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Matrix2x3, Matrix3x4, Matrix2x4};
+    /// let mut mat1 = Matrix2x4::identity();
+    /// let mat2 = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                           4.0, 5.0, 6.0);
+    /// let mat3 = Matrix3x4::new(0.1, 0.2, 0.3, 0.4,
+    ///                           0.5, 0.6, 0.7, 0.8,
+    ///                           0.9, 1.0, 1.1, 1.2);
+    /// let expected = mat2 * mat3 * 10.0 + mat1 * 5.0;
+    ///
+    /// mat1.gemm(10.0, &mat2, &mat3, 5.0);
+    /// assert_relative_eq!(mat1, expected);
+    /// ```
     #[inline]
     pub fn gemm<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(
         &mut self,
@@ -680,6 +756,25 @@ where
     /// `alpha` and `beta` are scalar.
     ///
     /// If `beta` is zero, `self` is never read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Matrix3x2, Matrix3x4, Matrix2x4};
+    /// let mut mat1 = Matrix2x4::identity();
+    /// let mat2 = Matrix3x2::new(1.0, 4.0,
+    ///                           2.0, 5.0,
+    ///                           3.0, 6.0);
+    /// let mat3 = Matrix3x4::new(0.1, 0.2, 0.3, 0.4,
+    ///                           0.5, 0.6, 0.7, 0.8,
+    ///                           0.9, 1.0, 1.1, 1.2);
+    /// let expected = mat2.transpose() * mat3 * 10.0 + mat1 * 5.0;
+    ///
+    /// mat1.gemm_tr(10.0, &mat2, &mat3, 5.0);
+    /// assert_relative_eq!(mat1, expected);
+    /// ```
     #[inline]
     pub fn gemm_tr<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(
         &mut self,
@@ -725,6 +820,20 @@ where
     ///
     /// If `beta` is zero, `self` is never read. The result is symmetric. Only the lower-triangular
     /// (including the diagonal) part of `self` is read/written.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2};
+    /// let mut mat = Matrix2::identity();
+    /// let vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector2::new(0.1, 0.2);
+    /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
+    /// mat.m12 = 99999.99999; // This component is on the upper-triangular part and will not be read/written.
+    ///
+    /// mat.ger_symm(10.0, &vec1, &vec2, 5.0);
+    /// assert_eq!(mat.lower_triangle(), expected.lower_triangle());
+    /// assert_eq!(mat.m12, 99999.99999); // This was untouched.
     #[inline]
     pub fn ger_symm<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
@@ -768,6 +877,30 @@ where
     /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
     ///
     /// This uses the provided workspace `work` to avoid allocations for intermediate results.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{DMatrix, DVector};
+    /// // Note that all those would also work with statically-sized matrices.
+    /// // We use DMatrix/DVector since that's the only case where pre-allocating the
+    /// // workspace is actually useful (assuming the same workspace is re-used for
+    /// // several computations) because it avoids repeated dynamic allocations.
+    /// let mut mat = DMatrix::identity(2, 2);
+    /// let lhs = DMatrix::from_row_slice(2, 3, &[1.0, 2.0, 3.0,
+    ///                                           4.0, 5.0, 6.0]);
+    /// let mid = DMatrix::from_row_slice(3, 3, &[0.1, 0.2, 0.3,
+    ///                                           0.5, 0.6, 0.7,
+    ///                                           0.9, 1.0, 1.1]);
+    /// // The random shows that values on the workspace do not
+    /// // matter as they will be overwritten.
+    /// let mut workspace = DVector::new_random(2);
+    /// let expected = &lhs * &mid * lhs.transpose() * 10.0 + &mat * 5.0;
+    ///
+    /// mat.quadform_tr_with_workspace(&mut workspace, 10.0, &lhs, &mid, 5.0);
+    /// assert_relative_eq!(mat, expected);
     pub fn quadform_tr_with_workspace<D2, S2, R3, C3, S3, D4, S4>(
         &mut self,
         work: &mut Vector<N, D2, S2>,
@@ -797,7 +930,25 @@ where
     /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
     ///
     /// This allocates a workspace vector of dimension D1 for intermediate results.
+    /// If `D1` is a type-level integer, then the allocation is performed on the stack.
     /// Use `.quadform_tr_with_workspace(...)` instead to avoid allocations.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Matrix2, Matrix3, Matrix2x3, Vector2};
+    /// let mut mat = Matrix2::identity();
+    /// let lhs = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                          4.0, 5.0, 6.0);
+    /// let mid = Matrix3::new(0.1, 0.2, 0.3,
+    ///                        0.5, 0.6, 0.7,
+    ///                        0.9, 1.0, 1.1);
+    /// let expected = lhs * mid * lhs.transpose() * 10.0 + mat * 5.0;
+    ///
+    /// mat.quadform_tr(10.0, &lhs, &mid, 5.0);
+    /// assert_relative_eq!(mat, expected);
     pub fn quadform_tr<R3, C3, S3, D4, S4>(
         &mut self,
         alpha: N,
@@ -820,6 +971,29 @@ where
     /// Computes the quadratic form `self = alpha * rhs.transpose() * mid * rhs + beta * self`.
     ///
     /// This uses the provided workspace `work` to avoid allocations for intermediate results.
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{DMatrix, DVector};
+    /// // Note that all those would also work with statically-sized matrices.
+    /// // We use DMatrix/DVector since that's the only case where pre-allocating the
+    /// // workspace is actually useful (assuming the same workspace is re-used for
+    /// // several computations) because it avoids repeated dynamic allocations.
+    /// let mut mat = DMatrix::identity(2, 2);
+    /// let rhs = DMatrix::from_row_slice(3, 2, &[1.0, 2.0,
+    ///                                           3.0, 4.0,
+    ///                                           5.0, 6.0]);
+    /// let mid = DMatrix::from_row_slice(3, 3, &[0.1, 0.2, 0.3,
+    ///                                           0.5, 0.6, 0.7,
+    ///                                           0.9, 1.0, 1.1]);
+    /// // The random shows that values on the workspace do not
+    /// // matter as they will be overwritten.
+    /// let mut workspace = DVector::new_random(3);
+    /// let expected = rhs.transpose() * &mid * &rhs * 10.0 + &mat * 5.0;
+    ///
+    /// mat.quadform_with_workspace(&mut workspace, 10.0, &mid, &rhs, 5.0);
+    /// assert_relative_eq!(mat, expected);
     pub fn quadform_with_workspace<D2, S2, D3, S3, R4, C4, S4>(
         &mut self,
         work: &mut Vector<N, D2, S2>,
@@ -850,7 +1024,24 @@ where
     /// Computes the quadratic form `self = alpha * rhs.transpose() * mid * rhs + beta * self`.
     ///
     /// This allocates a workspace vector of dimension D2 for intermediate results.
+    /// If `D2` is a type-level integer, then the allocation is performed on the stack.
     /// Use `.quadform_with_workspace(...)` instead to avoid allocations.
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Matrix2, Matrix3x2, Matrix3};
+    /// let mut mat = Matrix2::identity();
+    /// let rhs = Matrix3x2::new(1.0, 2.0,
+    ///                          3.0, 4.0,
+    ///                          5.0, 6.0);
+    /// let mid = Matrix3::new(0.1, 0.2, 0.3,
+    ///                        0.5, 0.6, 0.7,
+    ///                        0.9, 1.0, 1.1);
+    /// let expected = rhs.transpose() * mid * rhs * 10.0 + mat * 5.0;
+    ///
+    /// mat.quadform(10.0, &mid, &rhs, 5.0);
+    /// assert_relative_eq!(mat, expected);
     pub fn quadform<D2, S2, R3, C3, S3>(
         &mut self,
         alpha: N,
