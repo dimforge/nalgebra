@@ -168,7 +168,7 @@ where
     /// The dot product between two vectors or matrices (seen as vectors).
     ///
     /// Note that this is **not** the matrix multiplication as in, e.g., numpy. For matrix
-    /// multiplication, use one of: `.gemm`, `mul_to`, `.mul`, `*`.
+    /// multiplication, use one of: `.gemm`, `.mul_to`, `.mul`, the `*` operator.
     ///
     /// # Examples:
     ///

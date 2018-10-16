@@ -120,7 +120,7 @@ macro_rules! component_binop_impl(
 
             #[doc = $desc_mut]
             #[inline]
-            #[deprecated(note = "This is renamed using the `_assign` sufix instead of the `_mut` suffix.")]
+            #[deprecated(note = "This is renamed using the `_assign` suffix instead of the `_mut` suffix.")]
             pub fn $binop_mut<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
                 where N: $Trait,
                       R2: Dim,
