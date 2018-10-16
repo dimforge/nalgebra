@@ -50,19 +50,19 @@ pub fn quat_look_at_rh<N: Real>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua<N> {
     UnitQuaternion::look_at_rh(direction, up).unwrap()
 }
 
-/// The "roll" euler angle of the quaternion `x` assumed to be normalized.
+/// The "roll" Euler angle of the quaternion `x` assumed to be normalized.
 pub fn quat_roll<N: Real>(x: &Qua<N>) -> N {
     // FIXME: optimize this.
     quat_euler_angles(x).z
 }
 
-/// The "yaw" euler angle of the quaternion `x` assumed to be normalized.
+/// The "yaw" Euler angle of the quaternion `x` assumed to be normalized.
 pub fn quat_yaw<N: Real>(x: &Qua<N>) -> N {
     // FIXME: optimize this.
     quat_euler_angles(x).y
 }
 
-/// The "pitch" euler angle of the quaternion `x` assumed to be normalized.
+/// The "pitch" Euler angle of the quaternion `x` assumed to be normalized.
 pub fn quat_pitch<N: Real>(x: &Qua<N>) -> N {
     // FIXME: optimize this.
     quat_euler_angles(x).x
