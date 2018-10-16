@@ -83,7 +83,8 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(unused_results)]
 #![deny(missing_docs)]
 #![warn(incoherent_fundamental_impls)]
-#![doc(html_root_url = "http://nalgebra.org/rustdoc")]
+#![doc(html_favicon_url = "http://nalgebra.org/img/favicon.ico",
+       html_root_url = "http://nalgebra.org/rustdoc")]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 
