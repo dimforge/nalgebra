@@ -1,11 +1,13 @@
 use na::{self, Real};
 
-/// The euler constant.
+/// The Euler constant.
+///
+/// This is a shorthand alias for [`euler`](fn.euler.html).
 pub fn e<N: Real>() -> N {
     N::e()
 }
 
-/// The euler constant.
+/// The Euler constant.
 pub fn euler<N: Real>() -> N {
     N::e()
 }
