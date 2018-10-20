@@ -247,8 +247,7 @@ impl<N: Real> Rotation3<N> {
     /// graphics community.
     ///
     /// # Arguments
-    ///   * eye - The eye position.
-    ///   * target - The target position.
+    ///   * dir - The direction toward which the camera looks.
     ///   * up - A vector approximately aligned with required the vertical axis. The only
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
@@ -266,8 +265,7 @@ impl<N: Real> Rotation3<N> {
     /// graphics community.
     ///
     /// # Arguments
-    ///   * eye - The eye position.
-    ///   * target - The target position.
+    ///   * dir - The direction toward which the camera looks.
     ///   * up - A vector approximately aligned with required the vertical axis. The only
     ///   requirement of this parameter is to not be collinear to `target - eye`.
     #[inline]
