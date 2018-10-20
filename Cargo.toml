@@ -23,6 +23,7 @@ stdweb          = [ "rand/stdweb" ]
 arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
 abomonation-serialize = [ "abomonation" ]
+sparse = [ ]
 debug = [ ]
 alloc = [ ]
 

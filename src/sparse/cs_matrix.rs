@@ -103,7 +103,7 @@ pub struct CsMatrix<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C> = CsVecStor
     _phantoms: PhantomData<(N, R, C)>,
 }
 
-pub type CsVector<N, R, S> = CsMatrix<N, R, U1, S>;
+pub type CsVector<N, R, S = CsVecStorage<N, R, U1>> = CsMatrix<N, R, U1, S>;
 
 impl<N: Scalar, R: Dim, C: Dim> CsMatrix<N, R, C>
 where
@@ -277,11 +277,14 @@ impl<N: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vect
                 }
             }
         } else {
+            // Needed to be sure even components not present on `x` are multiplied.
+            *self *= beta;
+
             for i in 0..x.nvalues() {
                 unsafe {
                     let k = x.data.row_index_unchecked(i);
                     let y = self.vget_unchecked_mut(k);
-                    *y = alpha * *x.data.get_value_unchecked(i) + beta * *y;
+                    *y += alpha * *x.data.get_value_unchecked(i);
                 }
             }
         }
