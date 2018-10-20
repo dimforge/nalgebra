@@ -1,8 +1,8 @@
 #![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
-use alga::linear::{Transformation, ProjectiveTransformation};
-use na::{Vector3, Point3, Similarity3, Translation3, Isometry3, UnitQuaternion};
+use alga::linear::{ProjectiveTransformation, Transformation};
+use na::{Isometry3, Point3, Similarity3, Translation3, UnitQuaternion, Vector3};
 
 quickcheck!(
     fn inverse_is_identity(i: Similarity3<f64>, p: Point3<f64>, v: Vector3<f64>) -> bool {

@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use alga::general::Real;
 use num_complex::Complex;
@@ -19,21 +19,17 @@ use linalg::Hessenberg;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<N, D, D>,
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, D, D>,
          MatrixN<N, D>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<N, D, D>,
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, D, D>,
          MatrixN<N, D>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct RealSchur<N: Real, D: Dim>
@@ -48,8 +44,7 @@ impl<N: Real, D: Dim> Copy for RealSchur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: Dim> RealSchur<N, D>
 where
@@ -180,10 +175,10 @@ where
                         {
                             let krows = cmp::min(k + 4, end + 1);
                             let mut work = work.rows_mut(0, krows);
-                            refl.reflect(&mut t.generic_slice_mut(
-                                (k, k),
-                                (U3, Dynamic::new(dim.value() - k)),
-                            ));
+                            refl.reflect(
+                                &mut t
+                                    .generic_slice_mut((k, k), (U3, Dynamic::new(dim.value() - k))),
+                            );
                             refl.reflect_rows(
                                 &mut t.generic_slice_mut((0, k), (Dynamic::new(krows), U3)),
                                 &mut work,
@@ -214,10 +209,9 @@ where
 
                     {
                         let mut work = work.rows_mut(0, end + 1);
-                        refl.reflect(&mut t.generic_slice_mut(
-                            (m, m),
-                            (U2, Dynamic::new(dim.value() - m)),
-                        ));
+                        refl.reflect(
+                            &mut t.generic_slice_mut((m, m), (U2, Dynamic::new(dim.value() - m))),
+                        );
                         refl.reflect_rows(
                             &mut t.generic_slice_mut((0, m), (Dynamic::new(end + 1), U2)),
                             &mut work,
@@ -236,10 +230,9 @@ where
                         (start, start),
                         (U2, Dynamic::new(dim.value() - start)),
                     ));
-                    rot.rotate_rows(&mut t.generic_slice_mut(
-                        (0, start),
-                        (Dynamic::new(end + 1), U2),
-                    ));
+                    rot.rotate_rows(
+                        &mut t.generic_slice_mut((0, start), (Dynamic::new(end + 1), U2)),
+                    );
                     t[(end, start)] = N::zero();
 
                     if let Some(ref mut q) = q {
@@ -433,9 +426,11 @@ where
                 ));
             }
         }
-        None => if compute_q {
-            q = Some(MatrixN::identity_generic(dim, dim));
-        },
+        None => {
+            if compute_q {
+                q = Some(MatrixN::identity_generic(dim, dim));
+            }
+        }
     };
 
     Some((q, m))
@@ -558,7 +553,8 @@ where
             N::default_epsilon(),
             0,
             false,
-        ).unwrap();
+        )
+        .unwrap();
         if RealSchur::do_eigenvalues(&schur.1, &mut work) {
             Some(work)
         } else {
@@ -581,7 +577,8 @@ where
             N::default_epsilon(),
             0,
             false,
-        ).unwrap();
+        )
+        .unwrap();
         let mut eig = unsafe { VectorN::new_uninitialized_generic(dim, U1) };
         RealSchur::do_complex_eigenvalues(&schur.1, &mut eig);
         eig

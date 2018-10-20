@@ -1,28 +1,36 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use alga::general::Real;
+use allocator::{Allocator, Reallocator};
 use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use constraint::{SameNumberOfRows, ShapeConstraint};
 use dimension::{Dim, DimMin, DimMinimum, U1};
 use storage::{Storage, StorageMut};
-use allocator::{Allocator, Reallocator};
-use constraint::{SameNumberOfRows, ShapeConstraint};
 
-use linalg::householder;
 use geometry::Reflection;
+use linalg::householder;
 
 /// The QR decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
+         VectorN<N, DimMinimum<R, C>>: Serialize"
+    ))
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>")))]
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
+    ))
+)]
 #[derive(Clone, Debug)]
 pub struct QR<N: Real, R: DimMin<C>, C: Dim>
 where
@@ -37,8 +45,7 @@ where
     DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     VectorN<N, DimMinimum<R, C>>: Copy,
-{
-}
+{}
 
 impl<N: Real, R: DimMin<C>, C: Dim> QR<N, R, C>
 where
@@ -132,8 +139,8 @@ where
     )
     where
         DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
-        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>
-            + Reallocator<N, R, C, DimMinimum<R, C>, C>,
+        DefaultAllocator:
+            Allocator<N, R, DimMinimum<R, C>> + Reallocator<N, R, C, DimMinimum<R, C>, C>,
     {
         (self.q(), self.unpack_r())
     }

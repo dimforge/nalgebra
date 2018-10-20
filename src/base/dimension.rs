@@ -7,7 +7,7 @@ use std::cmp;
 use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
 use typenum::{
-    self, B1, Bit, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, UInt, UTerm, Unsigned,
+    self, Bit, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, UInt, UTerm, Unsigned, B1,
 };
 
 #[cfg(feature = "serde-serialize")]

@@ -2,10 +2,10 @@
 
 use std::any::Any;
 
-use base::{DefaultAllocator, Scalar};
 use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use base::dimension::{Dim, U1};
 use base::storage::ContiguousStorageMut;
+use base::{DefaultAllocator, Scalar};
 
 /// A matrix allocator of a memory buffer that may contain `R::to_usize() * C::to_usize()`
 /// elements of type `N`.
@@ -33,8 +33,9 @@ pub trait Allocator<N: Scalar, R: Dim, C: Dim = U1>: Any + Sized {
 
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
 /// CFrom) elements to a smaller or larger size (RTo, CTo).
-pub trait Reallocator<N: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>
-    : Allocator<N, RFrom, CFrom> + Allocator<N, RTo, CTo> {
+pub trait Reallocator<N: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
+    Allocator<N, RFrom, CFrom> + Allocator<N, RTo, CTo>
+{
     /// Reallocates a buffer of shape `(RTo, CTo)`, possibly reusing a previously allocated buffer
     /// `buf`. Data stored by `buf` are linearly copied to the output:
     ///
@@ -57,8 +58,8 @@ pub type SameShapeC<C1, C2> = <ShapeConstraint as SameNumberOfColumns<C1, C2>>::
 
 // FIXME: Bad name.
 /// Restricts the given number of rows and columns to be respectively the same.
-pub trait SameShapeAllocator<N, R1, C1, R2, C2>
-    : Allocator<N, R1, C1> + Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>
+pub trait SameShapeAllocator<N, R1, C1, R2, C2>:
+    Allocator<N, R1, C1> + Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>
 where
     R1: Dim,
     R2: Dim,
@@ -78,13 +79,12 @@ where
     N: Scalar,
     DefaultAllocator: Allocator<N, R1, C1> + Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
-{
-}
+{}
 
 // XXX: Bad name.
 /// Restricts the given number of rows to be equal.
-pub trait SameShapeVectorAllocator<N, R1, R2>
-    : Allocator<N, R1> + Allocator<N, SameShapeR<R1, R2>> + SameShapeAllocator<N, R1, U1, R2, U1>
+pub trait SameShapeVectorAllocator<N, R1, R2>:
+    Allocator<N, R1> + Allocator<N, SameShapeR<R1, R2>> + SameShapeAllocator<N, R1, U1, R2, U1>
 where
     R1: Dim,
     R2: Dim,
@@ -100,5 +100,4 @@ where
     N: Scalar,
     DefaultAllocator: Allocator<N, R1, U1> + Allocator<N, SameShapeR<R1, R2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2>,
-{
-}
+{}

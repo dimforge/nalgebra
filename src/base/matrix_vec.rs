@@ -211,17 +211,13 @@ where
     }
 }
 
-unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
-where
-    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
-{
-}
+unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for MatrixVec<N, Dynamic, C> where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+{}
 
-unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
-where
-    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
-{
-}
+unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for MatrixVec<N, Dynamic, C> where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+{}
 
 unsafe impl<N: Scalar, R: DimName> StorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
 where
@@ -253,14 +249,10 @@ impl<N: Abomonation, R: Dim, C: Dim> Abomonation for MatrixVec<N, R, C> {
     }
 }
 
-unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
-where
-    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
-{
-}
+unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for MatrixVec<N, R, Dynamic> where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+{}
 
-unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
-where
-    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
-{
-}
+unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic> where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+{}

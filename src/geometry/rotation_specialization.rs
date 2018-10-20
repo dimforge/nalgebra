@@ -5,7 +5,7 @@ use quickcheck::{Arbitrary, Gen};
 
 use alga::general::Real;
 use num::Zero;
-use rand::distributions::{Distribution, Standard, OpenClosed01};
+use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 use std::ops::Neg;
 
@@ -329,7 +329,7 @@ impl<N: Real> Rotation3<N> {
     pub fn angle(&self) -> N {
         ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - N::one())
             / ::convert(2.0))
-            .acos()
+        .acos()
     }
 
     /// The rotation axis. Returns `None` if the rotation angle is zero or PI.
@@ -398,9 +398,15 @@ where
         let theta = N::two_pi() * rng.sample(OpenClosed01);
         let (ts, tc) = theta.sin_cos();
         let a = MatrixN::<N, U3>::new(
-            tc, ts, N::zero(),
-            -ts, tc, N::zero(),
-            N::zero(), N::zero(), N::one()
+            tc,
+            ts,
+            N::zero(),
+            -ts,
+            tc,
+            N::zero(),
+            N::zero(),
+            N::zero(),
+            N::one(),
         );
 
         // Compute a random rotation *of* Z

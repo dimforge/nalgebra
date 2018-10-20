@@ -1,12 +1,15 @@
-use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
-                    AbstractQuasigroup, AbstractSemigroup, Id, Identity, Inverse, Multiplicative,
-                    Real};
-use alga::linear::{AffineTransformation, DirectIsometry, Isometry, OrthogonalTransformation,
-                   ProjectiveTransformation, Rotation, Similarity, Transformation};
+use alga::general::{
+    AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
+    AbstractSemigroup, Id, Identity, Inverse, Multiplicative, Real,
+};
+use alga::linear::{
+    AffineTransformation, DirectIsometry, Isometry, OrthogonalTransformation,
+    ProjectiveTransformation, Rotation, Similarity, Transformation,
+};
 
-use base::{DefaultAllocator, Vector2};
 use base::allocator::Allocator;
 use base::dimension::U2;
+use base::{DefaultAllocator, Vector2};
 use geometry::{Point2, UnitComplex};
 
 /*

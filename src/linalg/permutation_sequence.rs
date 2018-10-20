@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use alga::general::ClosedNeg;
 use num::One;
@@ -15,21 +15,17 @@ use storage::StorageMut;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
          VectorN<(usize, usize), D>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
          VectorN<(usize, usize), D>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct PermutationSequence<D: Dim>
@@ -44,8 +40,7 @@ impl<D: Dim> Copy for PermutationSequence<D>
 where
     DefaultAllocator: Allocator<(usize, usize), D>,
     VectorN<(usize, usize), D>: Copy,
-{
-}
+{}
 
 impl<D: DimName> PermutationSequence<D>
 where

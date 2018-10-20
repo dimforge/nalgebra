@@ -6,7 +6,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "serde-serialize")]
 use base::storage::Owned;
@@ -44,8 +44,7 @@ impl<N: Scalar, D: DimName> Copy for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     <DefaultAllocator as Allocator<N, D, D>>::Buffer: Copy,
-{
-}
+{}
 
 impl<N: Scalar, D: DimName> Clone for Rotation<N, D>
 where
@@ -187,11 +186,7 @@ where
     }
 }
 
-impl<N: Scalar + Eq, D: DimName> Eq for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
-{
-}
+impl<N: Scalar + Eq, D: DimName> Eq for Rotation<N, D> where DefaultAllocator: Allocator<N, D, D> {}
 
 impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
 where

@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use alga::general::Real;
 use allocator::Allocator;
@@ -15,31 +15,27 @@ use linalg::householder;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DimMinimum<R, C>: DimSub<U1>,
+    serde(bound(
+        serialize = "DimMinimum<R, C>: DimSub<U1>,
          DefaultAllocator: Allocator<N, R, C>             +
                            Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
          MatrixMN<N, R, C>: Serialize,
          VectorN<N, DimMinimum<R, C>>: Serialize,
          VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DimMinimum<R, C>: DimSub<U1>,
+    serde(bound(
+        deserialize = "DimMinimum<R, C>: DimSub<U1>,
          DefaultAllocator: Allocator<N, R, C>             +
                            Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
          VectorN<N, DimMinimum<R, C>>: Deserialize<'de>,
          VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct Bidiagonal<N: Real, R: DimMin<C>, C: Dim>
@@ -68,8 +64,7 @@ where
     MatrixMN<N, R, C>: Copy,
     VectorN<N, DimMinimum<R, C>>: Copy,
     VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Copy,
-{
-}
+{}
 
 impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
 where

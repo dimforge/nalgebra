@@ -3,7 +3,7 @@ use quickcheck::{Arbitrary, Gen};
 
 use num::One;
 use num_complex::Complex;
-use rand::distributions::{Distribution, Standard, OpenClosed01};
+use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
 use alga::general::Real;

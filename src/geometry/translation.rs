@@ -6,7 +6,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -44,8 +44,7 @@ impl<N: Scalar, D: DimName> Copy for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{
-}
+{}
 
 impl<N: Scalar, D: DimName> Clone for Translation<N, D>
 where
@@ -153,11 +152,7 @@ where
     }
 }
 
-impl<N: Scalar + Eq, D: DimName> Eq for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
-}
+impl<N: Scalar + Eq, D: DimName> Eq for Translation<N, D> where DefaultAllocator: Allocator<N, D> {}
 
 impl<N: Scalar + PartialEq, D: DimName> PartialEq for Translation<N, D>
 where

@@ -285,7 +285,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             let copied_value_start = i + nremove.value();
 
             unsafe {
-                let ptr_in = m.data
+                let ptr_in = m
+                    .data
                     .ptr()
                     .offset((copied_value_start * nrows.value()) as isize);
                 let ptr_out = m.data.ptr_mut().offset((i * nrows.value()) as isize);
@@ -448,7 +449,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         if ninsert.value() != 0 && i != ncols.value() {
             let ptr_in = res.data.ptr().offset((i * nrows.value()) as isize);
-            let ptr_out = res.data
+            let ptr_out = res
+                .data
                 .ptr_mut()
                 .offset(((i + ninsert.value()) * nrows.value()) as isize);
 

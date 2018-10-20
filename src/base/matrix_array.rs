@@ -107,8 +107,7 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
     GenericArray<N, Prod<R::Value, C::Value>>: Copy,
-{
-}
+{}
 
 impl<N, R, C> Clone for MatrixArray<N, R, C>
 where
@@ -133,8 +132,7 @@ where
     C: DimName,
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
-{
-}
+{}
 
 impl<N, R, C> PartialEq for MatrixArray<N, R, C>
 where
@@ -234,8 +232,7 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
     DefaultAllocator: Allocator<N, R, C, Buffer = Self>,
-{
-}
+{}
 
 unsafe impl<N, R, C> ContiguousStorageMut<N, R, C> for MatrixArray<N, R, C>
 where
@@ -245,8 +242,7 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
     DefaultAllocator: Allocator<N, R, C, Buffer = Self>,
-{
-}
+{}
 
 /*
  *

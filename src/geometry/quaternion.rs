@@ -8,7 +8,7 @@ use std::io::{Result as IOResult, Write};
 #[cfg(feature = "serde-serialize")]
 use base::storage::Owned;
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -457,9 +457,11 @@ impl<N: Real> UnitQuaternion<N> {
     /// is not well-defined).
     #[inline]
     pub fn slerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
-        Unit::new_unchecked(
-            Quaternion::from_vector(Unit::new_unchecked(self.coords).slerp(&Unit::new_unchecked(other.coords), t).unwrap())
-        )
+        Unit::new_unchecked(Quaternion::from_vector(
+            Unit::new_unchecked(self.coords)
+                .slerp(&Unit::new_unchecked(other.coords), t)
+                .unwrap(),
+        ))
     }
 
     /// Computes the spherical linear interpolation between two unit quaternions or returns `None`
@@ -479,7 +481,8 @@ impl<N: Real> UnitQuaternion<N> {
         t: N,
         epsilon: N,
     ) -> Option<UnitQuaternion<N>> {
-        Unit::new_unchecked(self.coords).try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
+        Unit::new_unchecked(self.coords)
+            .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
             .map(|q| Unit::new_unchecked(Quaternion::from_vector(q.unwrap())))
     }
 

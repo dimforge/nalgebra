@@ -3,14 +3,14 @@ use std::fmt::Debug;
 use std::marker::PhantomData;
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use alga::general::Real;
 
-use base::{DefaultAllocator, MatrixN};
+use base::allocator::Allocator;
 use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use base::storage::Owned;
-use base::allocator::Allocator;
+use base::{DefaultAllocator, MatrixN};
 
 /// Trait implemented by phantom types identifying the projective transformation type.
 ///
@@ -56,18 +56,15 @@ where
 
 /// Tag representing the most general (not necessarily inversible) `Transform` type.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum TGeneral {
-}
+pub enum TGeneral {}
 
 /// Tag representing the most general inversible `Transform` type.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum TProjective {
-}
+pub enum TProjective {}
 
 /// Tag representing an affine `Transform`. Its bottom-row is equal to `(0, 0 ... 0, 1)`.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum TAffine {
-}
+pub enum TAffine {}
 
 impl TCategory for TGeneral {
     #[inline]
@@ -104,7 +101,8 @@ impl TCategory for TAffine {
         DefaultAllocator: Allocator<N, D, D>,
     {
         let last = D::dim() - 1;
-        mat.is_invertible() && mat[(last, last)] == N::one()
+        mat.is_invertible()
+            && mat[(last, last)] == N::one()
             && (0..last).all(|i| mat[(last, i)].is_zero())
     }
 }
@@ -177,8 +175,7 @@ impl<N: Real, D: DimNameAdd<U1> + Copy, C: TCategory> Copy for Transform<N, D, C
 where
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
     Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Clone for Transform<N, D, C>
 where
@@ -220,11 +217,9 @@ where
     }
 }
 
-impl<N: Real + Eq, D: DimNameAdd<U1>, C: TCategory> Eq for Transform<N, D, C>
-where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-{
-}
+impl<N: Real + Eq, D: DimNameAdd<U1>, C: TCategory> Eq for Transform<N, D, C> where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+{}
 
 impl<N: Real, D: DimNameAdd<U1>, C: TCategory> PartialEq for Transform<N, D, C>
 where

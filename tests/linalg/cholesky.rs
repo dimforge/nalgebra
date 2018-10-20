@@ -1,9 +1,9 @@
 #![cfg(all(feature = "arbitrary", feature = "debug"))]
 
-use std::cmp;
-use na::{DMatrix, Matrix4x3, DVector, Vector4};
-use na::dimension::U4;
 use na::debug::RandomSDP;
+use na::dimension::U4;
+use na::{DMatrix, DVector, Matrix4x3, Vector4};
+use std::cmp;
 
 quickcheck! {
     fn cholesky(m: RandomSDP<f64>) -> bool {

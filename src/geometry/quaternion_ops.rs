@@ -50,15 +50,16 @@
  *
  */
 
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub,
-               SubAssign};
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+};
 
 use alga::general::Real;
 
-use base::{DefaultAllocator, Unit, Vector, Vector3};
-use base::storage::Storage;
 use base::allocator::Allocator;
 use base::dimension::{U1, U3, U4};
+use base::storage::Storage;
+use base::{DefaultAllocator, Unit, Vector, Vector3};
 
 use geometry::{Point3, Quaternion, Rotation, UnitQuaternion};
 

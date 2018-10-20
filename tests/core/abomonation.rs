@@ -1,9 +1,9 @@
-use rand::random;
-use abomonation::{Abomonation, encode, decode};
+use abomonation::{decode, encode, Abomonation};
 use na::{
-    DMatrix, Matrix3x4, Point3, Translation3, Rotation3, Isometry3, Quaternion,
-    IsometryMatrix3, Similarity3, SimilarityMatrix3
+    DMatrix, Isometry3, IsometryMatrix3, Matrix3x4, Point3, Quaternion, Rotation3, Similarity3,
+    SimilarityMatrix3, Translation3,
 };
+use rand::random;
 
 #[test]
 fn abomonate_dmatrix() {
@@ -39,7 +39,9 @@ fn assert_encode_and_decode<T: Abomonation + PartialEq + Clone>(original_data: T
 
     // Encode
     let mut bytes = Vec::new();
-    unsafe { encode(&original_data, &mut bytes); }
+    unsafe {
+        encode(&original_data, &mut bytes);
+    }
 
     // Drop the original, so that dangling pointers are revealed by the test
     drop(original_data);

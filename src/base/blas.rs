@@ -14,7 +14,6 @@ use base::storage::{Storage, StorageMut};
 use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
 
 impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
-
     /// Computes the index of the vector component with the largest value.
     ///
     /// # Examples:
@@ -685,13 +684,19 @@ where
             // We could use matrixmultiply for large statically-sized matrices but the performance
             // threshold to activate it would be different from SMALL_DIM because our code optimizes
             // better for statically-sized matrices.
-            let is_dynamic = R1::is::<Dynamic>() || C1::is::<Dynamic>() || R2::is::<Dynamic>()
-                || C2::is::<Dynamic>() || R3::is::<Dynamic>()
+            let is_dynamic = R1::is::<Dynamic>()
+                || C1::is::<Dynamic>()
+                || R2::is::<Dynamic>()
+                || C2::is::<Dynamic>()
+                || R3::is::<Dynamic>()
                 || C3::is::<Dynamic>();
             // Threshold determined empirically.
             const SMALL_DIM: usize = 5;
 
-            if is_dynamic && nrows1 > SMALL_DIM && ncols1 > SMALL_DIM && nrows2 > SMALL_DIM
+            if is_dynamic
+                && nrows1 > SMALL_DIM
+                && ncols1 > SMALL_DIM
+                && nrows2 > SMALL_DIM
                 && ncols2 > SMALL_DIM
             {
                 if N::is::<f32>() {

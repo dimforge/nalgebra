@@ -18,9 +18,9 @@ fn angle_3() {
 
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
-    use std::f64;
     use alga::general::Real;
-    use na::{self, Vector2, Vector3, Rotation2, Rotation3, Unit};
+    use na::{self, Rotation2, Rotation3, Unit, Vector2, Vector3};
+    use std::f64;
 
     quickcheck! {
         /*

@@ -3,10 +3,10 @@
 use std::fmt::Debug;
 use std::mem;
 
-use base::Scalar;
+use base::allocator::{Allocator, SameShapeC, SameShapeR};
 use base::default_allocator::DefaultAllocator;
 use base::dimension::{Dim, U1};
-use base::allocator::{Allocator, SameShapeC, SameShapeR};
+use base::Scalar;
 
 /*
  * Aliases for allocation results.
@@ -177,8 +177,9 @@ pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> {
 /// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
-pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>
-    : Storage<N, R, C> {
+pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>:
+    Storage<N, R, C>
+{
 }
 
 /// A mutable matrix storage that is stored contiguously in memory.
@@ -186,6 +187,7 @@ pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>
 /// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
-pub unsafe trait ContiguousStorageMut<N: Scalar, R: Dim, C: Dim = U1>
-    : ContiguousStorage<N, R, C> + StorageMut<N, R, C> {
+pub unsafe trait ContiguousStorageMut<N: Scalar, R: Dim, C: Dim = U1>:
+    ContiguousStorage<N, R, C> + StorageMut<N, R, C>
+{
 }

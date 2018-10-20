@@ -6,7 +6,7 @@ use std::io::{Result as IOResult, Write};
 use std::marker::PhantomData;
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -26,23 +26,19 @@ use geometry::{Point, Translation};
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "R: Serialize,
+    serde(bound(
+        serialize = "R: Serialize,
                      DefaultAllocator: Allocator<N, D>,
                      Owned<N, D>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "R: Deserialize<'de>,
+    serde(bound(
+        deserialize = "R: Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
                        Owned<N, D>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 pub struct Isometry<N: Real, D: DimName, R>
 where
@@ -54,7 +50,10 @@ where
     pub translation: Translation<N, D>,
 
     // One dummy private field just to prevent explicit construction.
-    #[cfg_attr(feature = "serde-serialize", serde(skip_serializing, skip_deserializing))]
+    #[cfg_attr(
+        feature = "serde-serialize",
+        serde(skip_serializing, skip_deserializing)
+    )]
     _noconstruct: PhantomData<N>,
 }
 
@@ -98,8 +97,7 @@ impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Isome
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Isometry<N, D, R>
 where
@@ -200,8 +198,7 @@ impl<N: Real, D: DimName, R> Eq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + Eq,
     DefaultAllocator: Allocator<N, D>,
-{
-}
+{}
 
 impl<N: Real, D: DimName, R> PartialEq for Isometry<N, D, R>
 where

@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use alga::general::Real;
 use allocator::Allocator;
@@ -13,25 +13,21 @@ use linalg::householder;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: Serialize,
          VectorN<N, DimDiff<D, U1>>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: Deserialize<'de>,
          VectorN<N, DimDiff<D, U1>>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricTridiagonal<N: Real, D: DimSub<U1>>
@@ -47,8 +43,7 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
     VectorN<N, DimDiff<D, U1>>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
 where

@@ -7,7 +7,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -42,8 +42,7 @@ impl<N: Scalar, D: DimName> Copy for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,
-{
-}
+{}
 
 impl<N: Scalar, D: DimName> Clone for Point<N, D>
 where
@@ -241,11 +240,7 @@ where
     }
 }
 
-impl<N: Scalar + Eq, D: DimName> Eq for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
-}
+impl<N: Scalar + Eq, D: DimName> Eq for Point<N, D> where DefaultAllocator: Allocator<N, D> {}
 
 impl<N: Scalar, D: DimName> PartialEq for Point<N, D>
 where

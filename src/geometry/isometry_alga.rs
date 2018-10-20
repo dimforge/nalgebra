@@ -1,9 +1,12 @@
-use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
-                    AbstractQuasigroup, AbstractSemigroup, Id, Identity, Inverse, Multiplicative,
-                    Real};
+use alga::general::{
+    AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
+    AbstractSemigroup, Id, Identity, Inverse, Multiplicative, Real,
+};
 use alga::linear::Isometry as AlgaIsometry;
-use alga::linear::{AffineTransformation, DirectIsometry, ProjectiveTransformation, Rotation,
-                   Similarity, Transformation};
+use alga::linear::{
+    AffineTransformation, DirectIsometry, ProjectiveTransformation, Rotation, Similarity,
+    Transformation,
+};
 
 use base::allocator::Allocator;
 use base::dimension::DimName;

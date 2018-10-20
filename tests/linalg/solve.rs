@@ -3,7 +3,7 @@
 use na::{Matrix4, Matrix4x5};
 
 fn unzero_diagonal(a: &mut Matrix4<f64>) {
-    for i in 0 .. 4 {
+    for i in 0..4 {
         if a[(i, i)] < 1.0e-7 {
             a[(i, i)] = 1.0;
         }

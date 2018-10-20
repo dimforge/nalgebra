@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use num_complex::Complex;
 use std::ops::MulAssign;
@@ -18,25 +18,21 @@ use linalg::SymmetricTridiagonal;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: Serialize,
          MatrixN<N, D>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: Deserialize<'de>,
          MatrixN<N, D>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Real, D: Dim>
@@ -55,8 +51,7 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,
     VectorN<N, D>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: Dim> SymmetricEigen<N, D>
 where
