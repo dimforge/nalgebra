@@ -1,6 +1,5 @@
 use na::{Real, U4};
 
-
 use aliases::{Qua, TVec};
 
 /// Component-wise equality comparison between two quaternions.

@@ -1,7 +1,7 @@
-use na::{Real, Unit, Rotation2, Rotation3};
+use na::{Real, Rotation2, Rotation3, Unit};
 
+use aliases::{TMat3, TMat4, TVec2, TVec3};
 use traits::Number;
-use aliases::{TVec3, TVec2, TMat3, TMat4};
 
 /// A rotation 4 * 4 matrix created from an axis of 3 scalars and an angle expressed in radians.
 ///
@@ -41,7 +41,6 @@ pub fn scaling<N: Number>(v: &TVec3<N>) -> TMat4<N> {
 pub fn translation<N: Number>(v: &TVec3<N>) -> TMat4<N> {
     TMat4::new_translation(v)
 }
-
 
 /// A rotation 3 * 3 matrix created from an angle expressed in radians.
 ///

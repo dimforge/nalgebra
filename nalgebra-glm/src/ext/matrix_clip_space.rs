@@ -1,5 +1,5 @@
-use na::{Real, Orthographic3, Perspective3};
 use aliases::TMat4;
+use na::{Orthographic3, Perspective3, Real};
 
 //pub fn frustum<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
 //    unimplemented!()
@@ -89,7 +89,6 @@ pub fn ortho<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -
 //pub fn ortho_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
 //    unimplemented!()
 //}
-
 
 /// Creates a matrix for a perspective-view frustum based on the right handedness and OpenGL near and far clip planes definition.
 ///
