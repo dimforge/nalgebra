@@ -1,8 +1,10 @@
-use na::{Scalar, Real, DefaultAllocator, Quaternion};
+use na::{DefaultAllocator, Quaternion, Real, Scalar};
 
-use traits::{Number, Alloc, Dimension};
-use aliases::{Qua, TMat, TMat2, TMat3, TMat4, TVec1, TVec2, TVec3, TVec4,
-              TMat2x3, TMat2x4, TMat3x2, TMat3x4, TMat4x2, TMat4x3};
+use aliases::{
+    Qua, TMat, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3, TVec1,
+    TVec2, TVec3, TVec4,
+};
+use traits::{Alloc, Dimension, Number};
 
 /// Creates a 2x2 matrix from a slice arranged in column-major order.
 pub fn make_mat2<N: Scalar>(ptr: &[N]) -> TMat2<N> {
@@ -69,19 +71,12 @@ pub fn mat2_to_mat3<N: Number>(m: &TMat2<N>) -> TMat3<N> {
     let _0 = N::zero();
     let _1 = N::one();
 
-    TMat3::new(
-        m.m11, m.m12, _0,
-        m.m21, m.m22, _0,
-        _0, _0, _1
-    )
+    TMat3::new(m.m11, m.m12, _0, m.m21, m.m22, _0, _0, _0, _1)
 }
 
 /// Converts a 3x3 matrix to a 2x2 matrix.
 pub fn mat3_to_mat2<N: Scalar>(m: &TMat3<N>) -> TMat2<N> {
-    TMat2::new(
-        m.m11, m.m12,
-        m.m21, m.m22
-    )
+    TMat2::new(m.m11, m.m12, m.m21, m.m22)
 }
 
 /// Converts a 3x3 matrix to a 4x4 matrix.
@@ -90,19 +85,14 @@ pub fn mat3_to_mat4<N: Number>(m: &TMat3<N>) -> TMat4<N> {
     let _1 = N::one();
 
     TMat4::new(
-        m.m11, m.m12, m.m13, _0,
-        m.m21, m.m22, m.m23, _0,
-        m.m31, m.m32, m.m33, _0,
-        _0, _0, _0, _1,
+        m.m11, m.m12, m.m13, _0, m.m21, m.m22, m.m23, _0, m.m31, m.m32, m.m33, _0, _0, _0, _0, _1,
     )
 }
 
 /// Converts a 4x4 matrix to a 3x3 matrix.
 pub fn mat4_to_mat3<N: Scalar>(m: &TMat4<N>) -> TMat3<N> {
     TMat3::new(
-        m.m11, m.m12, m.m13,
-        m.m21, m.m22, m.m23,
-        m.m31, m.m32, m.m33,
+        m.m11, m.m12, m.m13, m.m21, m.m22, m.m23, m.m31, m.m32, m.m33,
     )
 }
 
@@ -112,19 +102,13 @@ pub fn mat2_to_mat4<N: Number>(m: &TMat2<N>) -> TMat4<N> {
     let _1 = N::one();
 
     TMat4::new(
-        m.m11, m.m12, _0, _0,
-        m.m21, m.m22, _0, _0,
-        _0, _0, _1, _0,
-        _0, _0, _0, _1,
+        m.m11, m.m12, _0, _0, m.m21, m.m22, _0, _0, _0, _0, _1, _0, _0, _0, _0, _1,
     )
 }
 
 /// Converts a 4x4 matrix to a 2x2 matrix.
 pub fn mat4_to_mat2<N: Scalar>(m: &TMat4<N>) -> TMat2<N> {
-    TMat2::new(
-        m.m11, m.m12,
-        m.m21, m.m22,
-    )
+    TMat2::new(m.m11, m.m12, m.m21, m.m22)
 }
 
 /// Creates a quaternion from a slice arranged as `[x, y, z, w]`.
@@ -400,13 +384,16 @@ pub fn make_vec4<N: Scalar>(ptr: &[N]) -> TVec4<N> {
 
 /// Converts a matrix or vector to a slice arranged in column-major order.
 pub fn value_ptr<N: Scalar, R: Dimension, C: Dimension>(x: &TMat<N, R, C>) -> &[N]
-    where DefaultAllocator: Alloc<N, R, C> {
+where
+    DefaultAllocator: Alloc<N, R, C>,
+{
     x.as_slice()
 }
 
 /// Converts a matrix or vector to a mutable slice arranged in column-major order.
 pub fn value_ptr_mut<N: Scalar, R: Dimension, C: Dimension>(x: &mut TMat<N, R, C>) -> &mut [N]
-    where DefaultAllocator: Alloc<N, R, C> {
+where
+    DefaultAllocator: Alloc<N, R, C>,
+{
     x.as_mut_slice()
 }
-

@@ -1,7 +1,7 @@
 use na::{self, DefaultAllocator};
 
-use traits::{Alloc, Number, Dimension};
 use aliases::TVec;
+use traits::{Alloc, Dimension, Number};
 
 /// Component-wise maximum between a vector and a scalar.
 ///
@@ -17,7 +17,9 @@ use aliases::TVec;
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn max<N: Number, D: Dimension>(a: &TVec<N, D>, b: N) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     a.map(|a| na::sup(&a, &b))
 }
 
@@ -35,7 +37,9 @@ pub fn max<N: Number, D: Dimension>(a: &TVec<N, D>, b: N) -> TVec<N, D>
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn max2<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     na::sup(a, b)
 }
 
@@ -53,7 +57,9 @@ pub fn max2<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>) -> TVec<N, 
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn max3<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>, c: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     max2(&max2(a, b), c)
 }
 
@@ -70,8 +76,15 @@ pub fn max3<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>, c: &TVec<N,
 /// * [`min2`](fn.min2.html)
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
-pub fn max4<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>, c: &TVec<N, D>, d: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+pub fn max4<N: Number, D: Dimension>(
+    a: &TVec<N, D>,
+    b: &TVec<N, D>,
+    c: &TVec<N, D>,
+    d: &TVec<N, D>,
+) -> TVec<N, D>
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     max2(&max2(a, b), &max2(c, d))
 }
 
@@ -89,7 +102,9 @@ pub fn max4<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>, c: &TVec<N,
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn min<N: Number, D: Dimension>(x: &TVec<N, D>, y: N) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.map(|x| na::inf(&x, &y))
 }
 
@@ -107,7 +122,9 @@ pub fn min<N: Number, D: Dimension>(x: &TVec<N, D>, y: N) -> TVec<N, D>
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn min2<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     na::inf(x, y)
 }
 
@@ -125,7 +142,9 @@ pub fn min2<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<N, 
 /// * [`min2`](fn.min2.html)
 /// * [`min4`](fn.min4.html)
 pub fn min3<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>, c: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     min2(&min2(a, b), c)
 }
 
@@ -142,7 +161,14 @@ pub fn min3<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>, c: &TVec<N,
 /// * [`min`](fn.min.html)
 /// * [`min2`](fn.min2.html)
 /// * [`min3`](fn.min3.html)
-pub fn min4<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>, c: &TVec<N, D>, d: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+pub fn min4<N: Number, D: Dimension>(
+    a: &TVec<N, D>,
+    b: &TVec<N, D>,
+    c: &TVec<N, D>,
+    d: &TVec<N, D>,
+) -> TVec<N, D>
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     min2(&min2(a, b), &min2(c, d))
 }

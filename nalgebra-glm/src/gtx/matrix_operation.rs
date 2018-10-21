@@ -1,5 +1,7 @@
+use aliases::{
+    TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3, TVec2, TVec3, TVec4,
+};
 use traits::Number;
-use aliases::{TVec2, TVec3, TVec4, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3};
 
 /// Builds a 2x2 diagonal matrix.
 ///
