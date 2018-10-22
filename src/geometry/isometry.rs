@@ -111,6 +111,20 @@ impl<N: Real, D: DimName, R: Rotation<Point<N, D>>> Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new isometry from its rotational and translational parts.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3, Point3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::PI);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// assert_relative_eq!(iso * Point3::new(1.0, 2.0, 3.0), Point3::new(-1.0, 2.0, 0.0), epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn from_parts(translation: Translation<N, D>, rotation: R) -> Isometry<N, D, R> {
         Isometry {
@@ -121,6 +135,18 @@ where DefaultAllocator: Allocator<N, D>
     }
 
     /// Inverts `self`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Point2, Vector2};
+    /// let iso = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2);
+    /// let inv = iso.inverse();
+    /// let pt = Point2::new(1.0, 2.0);
+    ///
+    /// assert_eq!(inv * (iso * pt), pt);
+    /// ```
     #[inline]
     pub fn inverse(&self) -> Isometry<N, D, R> {
         let mut res = self.clone();
@@ -128,7 +154,20 @@ where DefaultAllocator: Allocator<N, D>
         res
     }
 
-    /// Inverts `self`.
+    /// Inverts `self` in-place.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Point2, Vector2};
+    /// let mut iso = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2);
+    /// let pt = Point2::new(1.0, 2.0);
+    /// let transformed_pt = iso * pt;
+    /// iso.inverse_mut();
+    ///
+    /// assert_eq!(iso * transformed_pt, pt);
+    /// ```
     #[inline]
     pub fn inverse_mut(&mut self) {
         self.rotation.inverse_mut();
@@ -137,12 +176,40 @@ where DefaultAllocator: Allocator<N, D>
     }
 
     /// Appends to `self` the given translation in-place.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Translation2, Vector2};
+    /// let mut iso = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2);
+    /// let tra = Translation2::new(3.0, 4.0);
+    /// // Same as `iso = tra * iso`.
+    /// iso.append_translation_mut(&tra);
+    ///
+    /// assert_eq!(iso.translation, Translation2::new(4.0, 6.0));
+    /// ```
     #[inline]
     pub fn append_translation_mut(&mut self, t: &Translation<N, D>) {
         self.translation.vector += &t.vector
     }
 
     /// Appends to `self` the given rotation in-place.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Translation2, UnitComplex, Vector2};
+    /// let mut iso = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::PI / 6.0);
+    /// let rot = UnitComplex::new(f32::consts::PI / 2.0);
+    /// // Same as `iso = rot * iso`.
+    /// iso.append_rotation_mut(&rot);
+    ///
+    /// assert_relative_eq!(iso, Isometry2::new(Vector2::new(-2.0, 1.0), f32::consts::PI * 2.0 / 3.0), epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn append_rotation_mut(&mut self, r: &R) {
         self.rotation = self.rotation.append_rotation(&r);
@@ -151,6 +218,21 @@ where DefaultAllocator: Allocator<N, D>
 
     /// Appends in-place to `self` a rotation centered at the point `p`, i.e., the rotation that
     /// lets `p` invariant.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Translation2, UnitComplex, Vector2, Point2};
+    /// let mut iso = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2);
+    /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
+    /// let pt = Point2::new(1.0, 0.0);
+    /// iso.append_rotation_wrt_point_mut(&rot, &pt);
+    ///
+    /// assert_relative_eq!(iso * pt, Point2::new(-2.0, 0.0), epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn append_rotation_wrt_point_mut(&mut self, r: &R, p: &Point<N, D>) {
         self.translation.vector -= &p.coords;
@@ -160,10 +242,23 @@ where DefaultAllocator: Allocator<N, D>
 
     /// Appends in-place to `self` a rotation centered at the point with coordinates
     /// `self.translation`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Translation2, UnitComplex, Vector2, Point2};
+    /// let mut iso = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2);
+    /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
+    /// iso.append_rotation_wrt_center_mut(&rot);
+    ///
+    /// // The translation part should not have changed.
+    /// assert_eq!(iso.translation.vector, Vector2::new(1.0, 2.0));
+    /// assert_eq!(iso.rotation, UnitComplex::new(f32::consts::PI));
+    /// ```
     #[inline]
     pub fn append_rotation_wrt_center_mut(&mut self, r: &R) {
-        let center = Point::from_coordinates(self.translation.vector.clone());
-        self.append_rotation_wrt_point_mut(r, &center)
+        self.rotation = self.rotation.append_rotation(r);
     }
 }
 
@@ -175,6 +270,22 @@ impl<N: Real, D: DimName, R> Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this isometry into its equivalent homogeneous transformation matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Vector2, Matrix3};
+    /// let iso = Isometry2::new(Vector2::new(10.0, 20.0), f32::consts::FRAC_PI_6);
+    /// let expected = Matrix3::new(0.8660254, -0.5,      10.0,
+    ///                             0.5,       0.8660254, 20.0,
+    ///                             0.0,       0.0,       1.0);
+    ///
+    /// // The translation part should not have changed.
+    /// assert_relative_eq!(iso.to_homogeneous(), expected, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
     where
