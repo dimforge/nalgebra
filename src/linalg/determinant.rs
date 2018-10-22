@@ -13,9 +13,7 @@ impl<N: Real, D: DimMin<D, Output = D>, S: Storage<N, D, D>> SquareMatrix<N, D, 
     /// If the matrix has a dimension larger than 3, an LU decomposition is used.
     #[inline]
     pub fn determinant(&self) -> N
-    where
-        DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>,
-    {
+    where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D> {
         assert!(
             self.is_square(),
             "Unable to compute the determinant of a non-square matrix."

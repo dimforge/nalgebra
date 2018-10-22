@@ -20,8 +20,7 @@ use geometry::{
 };
 
 impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> Isometry<N, D, R>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new identity isometry.
     #[inline]
@@ -39,8 +38,7 @@ where
 }
 
 impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> One for Isometry<N, D, R>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new identity isometry.
     #[inline]

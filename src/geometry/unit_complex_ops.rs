@@ -332,8 +332,7 @@ impl<'b, N: Real> DivAssign<&'b UnitComplex<N>> for UnitComplex<N> {
 
 // UnitComplex ×= Rotation
 impl<N: Real> MulAssign<Rotation<N, U2>> for UnitComplex<N>
-where
-    DefaultAllocator: Allocator<N, U2, U2>,
+where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
     fn mul_assign(&mut self, rhs: Rotation<N, U2>) {
@@ -342,8 +341,7 @@ where
 }
 
 impl<'b, N: Real> MulAssign<&'b Rotation<N, U2>> for UnitComplex<N>
-where
-    DefaultAllocator: Allocator<N, U2, U2>,
+where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b Rotation<N, U2>) {
@@ -353,8 +351,7 @@ where
 
 // UnitComplex ÷= Rotation
 impl<N: Real> DivAssign<Rotation<N, U2>> for UnitComplex<N>
-where
-    DefaultAllocator: Allocator<N, U2, U2>,
+where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
     fn div_assign(&mut self, rhs: Rotation<N, U2>) {
@@ -363,8 +360,7 @@ where
 }
 
 impl<'b, N: Real> DivAssign<&'b Rotation<N, U2>> for UnitComplex<N>
-where
-    DefaultAllocator: Allocator<N, U2, U2>,
+where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
     fn div_assign(&mut self, rhs: &'b Rotation<N, U2>) {
@@ -374,8 +370,7 @@ where
 
 // Rotation ×= UnitComplex
 impl<N: Real> MulAssign<UnitComplex<N>> for Rotation<N, U2>
-where
-    DefaultAllocator: Allocator<N, U2, U2>,
+where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
     fn mul_assign(&mut self, rhs: UnitComplex<N>) {
@@ -384,8 +379,7 @@ where
 }
 
 impl<'b, N: Real> MulAssign<&'b UnitComplex<N>> for Rotation<N, U2>
-where
-    DefaultAllocator: Allocator<N, U2, U2>,
+where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b UnitComplex<N>) {
@@ -395,8 +389,7 @@ where
 
 // Rotation ÷= UnitComplex
 impl<N: Real> DivAssign<UnitComplex<N>> for Rotation<N, U2>
-where
-    DefaultAllocator: Allocator<N, U2, U2>,
+where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
     fn div_assign(&mut self, rhs: UnitComplex<N>) {
@@ -405,8 +398,7 @@ where
 }
 
 impl<'b, N: Real> DivAssign<&'b UnitComplex<N>> for Rotation<N, U2>
-where
-    DefaultAllocator: Allocator<N, U2, U2>,
+where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
     fn div_assign(&mut self, rhs: &'b UnitComplex<N>) {

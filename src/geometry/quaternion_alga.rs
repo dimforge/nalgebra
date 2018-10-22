@@ -1,11 +1,15 @@
 use num::Zero;
 
-use alga::general::{AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma,
-                    AbstractModule, AbstractMonoid, AbstractQuasigroup, AbstractSemigroup,
-                    Additive, Id, Identity, Inverse, Module, Multiplicative, Real};
-use alga::linear::{AffineTransformation, DirectIsometry, FiniteDimVectorSpace, Isometry,
-                   NormedSpace, OrthogonalTransformation, ProjectiveTransformation, Rotation,
-                   Similarity, Transformation, VectorSpace};
+use alga::general::{
+    AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
+    AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, Id, Identity, Inverse, Module,
+    Multiplicative, Real,
+};
+use alga::linear::{
+    AffineTransformation, DirectIsometry, FiniteDimVectorSpace, Isometry, NormedSpace,
+    OrthogonalTransformation, ProjectiveTransformation, Rotation, Similarity, Transformation,
+    VectorSpace,
+};
 
 use base::{Vector3, Vector4};
 use geometry::{Point3, Quaternion, UnitQuaternion};

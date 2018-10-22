@@ -9,9 +9,7 @@ use na::{Id, Isometry3, Point3, Vector3};
  * intermediate value.
  */
 fn complicated_algorithm<T>(v: &Vector3<f32>, t: &T, n: usize) -> Vector3<f32>
-where
-    T: Transformation<Point3<f32>>,
-{
+where T: Transformation<Point3<f32>> {
     let mut result = *v;
 
     // Do lots of operations involving t.

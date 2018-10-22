@@ -1,5 +1,5 @@
-use test::Bencher;
 use na::{DMatrix, DVector};
+use test::Bencher;
 
 #[bench]
 fn solve_l_triangular_100x100(bh: &mut Bencher) {

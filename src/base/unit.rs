@@ -25,9 +25,7 @@ pub struct Unit<T> {
 #[cfg(feature = "serde-serialize")]
 impl<T: Serialize> Serialize for Unit<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
+    where S: Serializer {
         self.value.serialize(serializer)
     }
 }
@@ -35,9 +33,7 @@ impl<T: Serialize> Serialize for Unit<T> {
 #[cfg(feature = "serde-serialize")]
 impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
+    where D: Deserializer<'de> {
         T::deserialize(deserializer).map(|x| Unit { value: x })
     }
 }
@@ -143,8 +139,7 @@ impl<T> AsRef<T> for Unit<T> {
  *
  */
 impl<T: NormedSpace> SubsetOf<T> for Unit<T>
-where
-    T::Field: RelativeEq,
+where T::Field: RelativeEq
 {
     #[inline]
     fn to_superset(&self) -> T {

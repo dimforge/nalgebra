@@ -45,7 +45,8 @@ pub fn project<N: Real>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N> {
+) -> TVec3<N>
+{
     project_no(obj, model, proj, viewport)
 }
 
@@ -72,7 +73,8 @@ pub fn project_no<N: Real>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N> {
+) -> TVec3<N>
+{
     let proj = project_zo(obj, model, proj, viewport);
     TVec3::new(proj.x, proj.y, proj.z * na::convert(0.5) + na::convert(0.5))
 }
@@ -100,7 +102,8 @@ pub fn project_zo<N: Real>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N> {
+) -> TVec3<N>
+{
     let normalized = proj * model * TVec4::new(obj.x, obj.y, obj.z, N::one());
     let scale = N::one() / normalized.w;
 
@@ -132,7 +135,8 @@ pub fn unproject<N: Real>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N> {
+) -> TVec3<N>
+{
     unproject_no(win, model, proj, viewport)
 }
 
@@ -159,7 +163,8 @@ pub fn unproject_no<N: Real>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N> {
+) -> TVec3<N>
+{
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
     let pt = TVec4::new(
@@ -196,7 +201,8 @@ pub fn unproject_zo<N: Real>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N> {
+) -> TVec3<N>
+{
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
     let pt = TVec4::new(

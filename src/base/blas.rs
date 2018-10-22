@@ -14,7 +14,6 @@ use base::storage::{Storage, StorageMut};
 use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
 
 impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
-
     /// Computes the index of the vector component with the largest value.
     ///
     /// # Examples:
@@ -162,8 +161,7 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
 }
 
 impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
+where N: Scalar + Zero + ClosedAdd + ClosedMul
 {
     /// The dot product between two vectors or matrices (seen as vectors).
     ///
@@ -325,9 +323,7 @@ where
 }
 
 fn array_axpy<N>(y: &mut [N], a: N, x: &[N], beta: N, stride1: usize, stride2: usize, len: usize)
-where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
-{
+where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
             let y = y.get_unchecked_mut(i * stride1);
@@ -337,9 +333,7 @@ where
 }
 
 fn array_ax<N>(y: &mut [N], a: N, x: &[N], stride1: usize, stride2: usize, len: usize)
-where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
-{
+where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
             *y.get_unchecked_mut(i * stride1) = a * *x.get_unchecked(i * stride2);
@@ -577,8 +571,7 @@ where
 }
 
 impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
-where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
+where N: Scalar + Zero + ClosedAdd + ClosedMul
 {
     /// Computes `self = alpha * x * y.transpose() + beta * self`.
     ///
@@ -685,13 +678,19 @@ where
             // We could use matrixmultiply for large statically-sized matrices but the performance
             // threshold to activate it would be different from SMALL_DIM because our code optimizes
             // better for statically-sized matrices.
-            let is_dynamic = R1::is::<Dynamic>() || C1::is::<Dynamic>() || R2::is::<Dynamic>()
-                || C2::is::<Dynamic>() || R3::is::<Dynamic>()
+            let is_dynamic = R1::is::<Dynamic>()
+                || C1::is::<Dynamic>()
+                || R2::is::<Dynamic>()
+                || C2::is::<Dynamic>()
+                || R3::is::<Dynamic>()
                 || C3::is::<Dynamic>();
             // Threshold determined empirically.
             const SMALL_DIM: usize = 5;
 
-            if is_dynamic && nrows1 > SMALL_DIM && ncols1 > SMALL_DIM && nrows2 > SMALL_DIM
+            if is_dynamic
+                && nrows1 > SMALL_DIM
+                && ncols1 > SMALL_DIM
+                && nrows2 > SMALL_DIM
                 && ncols2 > SMALL_DIM
             {
                 if N::is::<f32>() {
@@ -812,8 +811,7 @@ where
 }
 
 impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
-where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
+where N: Scalar + Zero + ClosedAdd + ClosedMul
 {
     /// Computes `self = alpha * x * y.transpose() + beta * self`, where `self` is a **symmetric**
     /// matrix.
@@ -871,8 +869,7 @@ where
 }
 
 impl<N, D1: Dim, S: StorageMut<N, D1, D1>> SquareMatrix<N, D1, S>
-where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+where N: Scalar + Zero + One + ClosedAdd + ClosedMul
 {
     /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
     ///

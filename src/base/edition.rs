@@ -16,9 +16,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
     #[inline]
     pub fn upper_triangle(&self) -> MatrixMN<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         let mut res = self.clone_owned();
         res.fill_lower_triangle(N::zero(), 1);
 
@@ -28,9 +26,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
     #[inline]
     pub fn lower_triangle(&self) -> MatrixMN<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         let mut res = self.clone_owned();
         res.fill_upper_triangle(N::zero(), 1);
 
@@ -50,9 +46,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Fills `self` with the identity matrix.
     #[inline]
     pub fn fill_with_identity(&mut self)
-    where
-        N: Zero + One,
-    {
+    where N: Zero + One {
         self.fill(N::zero());
         self.fill_diagonal(N::one());
     }
@@ -285,7 +279,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             let copied_value_start = i + nremove.value();
 
             unsafe {
-                let ptr_in = m.data
+                let ptr_in = m
+                    .data
                     .ptr()
                     .offset((copied_value_start * nrows.value()) as isize);
                 let ptr_out = m.data.ptr_mut().offset((i * nrows.value()) as isize);
@@ -448,7 +443,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         if ninsert.value() != 0 && i != ncols.value() {
             let ptr_in = res.data.ptr().offset((i * nrows.value()) as isize);
-            let ptr_out = res.data
+            let ptr_out = res
+                .data
                 .ptr_mut()
                 .offset(((i + ninsert.value()) * nrows.value()) as isize);
 
@@ -549,9 +545,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
     #[cfg(any(feature = "std", feature = "alloc"))]
     pub fn resize(self, new_nrows: usize, new_ncols: usize, val: N) -> DMatrix<N>
-    where
-        DefaultAllocator: Reallocator<N, R, C, Dynamic, Dynamic>,
-    {
+    where DefaultAllocator: Reallocator<N, R, C, Dynamic, Dynamic> {
         self.resize_generic(Dynamic::new(new_nrows), Dynamic::new(new_ncols), val)
     }
 
@@ -560,9 +554,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
     /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
     pub fn fixed_resize<R2: DimName, C2: DimName>(self, val: N) -> MatrixMN<N, R2, C2>
-    where
-        DefaultAllocator: Reallocator<N, R, C, R2, C2>,
-    {
+    where DefaultAllocator: Reallocator<N, R, C, R2, C2> {
         self.resize_generic(R2::name(), C2::name(), val)
     }
 
@@ -640,7 +632,8 @@ unsafe fn compress_rows<N: Scalar>(
     ncols: usize,
     i: usize,
     nremove: usize,
-) {
+)
+{
     let new_nrows = nrows - nremove;
 
     if new_nrows == 0 || ncols == 0 {
@@ -679,7 +672,8 @@ unsafe fn extend_rows<N: Scalar>(
     ncols: usize,
     i: usize,
     ninsert: usize,
-) {
+)
+{
     let new_nrows = nrows + ninsert;
 
     if new_nrows == 0 || ncols == 0 {

@@ -1,5 +1,5 @@
-use test::{self, Bencher};
 use na::{DMatrix, DVector, Matrix4, QR};
+use test::{self, Bencher};
 
 #[path = "../common/macros.rs"]
 mod macros;

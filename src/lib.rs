@@ -218,9 +218,7 @@ pub fn dimension<V: FiniteDimVectorSpace>() -> usize {
 /// The range must not be empty.
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
-where
-    T: Copy + PartialOrd + AdditiveGroup,
-{
+where T: Copy + PartialOrd + AdditiveGroup {
     assert!(min < max, "Invalid wrapping bounds.");
     let width = max - min;
 

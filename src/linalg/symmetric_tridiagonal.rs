@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use alga::general::Real;
 use allocator::Allocator;
@@ -13,30 +13,25 @@ use linalg::householder;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: Serialize,
          VectorN<N, DimDiff<D, U1>>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: Deserialize<'de>,
          VectorN<N, DimDiff<D, U1>>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricTridiagonal<N: Real, D: DimSub<U1>>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     tri: MatrixN<N, D>,
     off_diagonal: VectorN<N, DimDiff<D, U1>>,
@@ -47,12 +42,10 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
     VectorN<N, DimDiff<D, U1>>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the tridiagonalization of the symmetric matrix `m`.
     ///
@@ -105,9 +98,7 @@ where
     /// Retrieve the orthogonal transformation, diagonal, and off diagonal elements of this
     /// decomposition.
     pub fn unpack(self) -> (MatrixN<N, D>, VectorN<N, D>, VectorN<N, DimDiff<D, U1>>)
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    where DefaultAllocator: Allocator<N, D> {
         let diag = self.diagonal();
         let q = self.q();
 
@@ -116,9 +107,7 @@ where
 
     /// Retrieve the diagonal, and off diagonal elements of this decomposition.
     pub fn unpack_tridiagonal(self) -> (VectorN<N, D>, VectorN<N, DimDiff<D, U1>>)
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    where DefaultAllocator: Allocator<N, D> {
         let diag = self.diagonal();
 
         (diag, self.off_diagonal)
@@ -126,17 +115,13 @@ where
 
     /// The diagonal components of this decomposition.
     pub fn diagonal(&self) -> VectorN<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    where DefaultAllocator: Allocator<N, D> {
         self.tri.diagonal()
     }
 
     /// The off-diagonal components of this decomposition.
     pub fn off_diagonal(&self) -> &VectorN<N, DimDiff<D, U1>>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    where DefaultAllocator: Allocator<N, D> {
         &self.off_diagonal
     }
 
@@ -161,8 +146,7 @@ where
 }
 
 impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the tridiagonalization of this symmetric matrix.
     ///

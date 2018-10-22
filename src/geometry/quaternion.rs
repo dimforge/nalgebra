@@ -8,7 +8,7 @@ use std::io::{Result as IOResult, Write};
 #[cfg(feature = "serde-serialize")]
 use base::storage::Owned;
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -32,8 +32,7 @@ pub struct Quaternion<N: Real> {
 
 #[cfg(feature = "abomonation-serialize")]
 impl<N: Real> Abomonation for Quaternion<N>
-where
-    Vector4<N>: Abomonation,
+where Vector4<N>: Abomonation
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.coords.entomb(writer)
@@ -75,26 +74,20 @@ impl<N: Real> Clone for Quaternion<N> {
 
 #[cfg(feature = "serde-serialize")]
 impl<N: Real> Serialize for Quaternion<N>
-where
-    Owned<N, U4>: Serialize,
+where Owned<N, U4>: Serialize
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
+    where S: Serializer {
         self.coords.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Real> Deserialize<'a> for Quaternion<N>
-where
-    Owned<N, U4>: Deserialize<'a>,
+where Owned<N, U4>: Deserialize<'a>
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where
-        Des: Deserializer<'a>,
-    {
+    where Des: Deserializer<'a> {
         let coords = Vector4::<N>::deserialize(deserializer)?;
 
         Ok(Quaternion::from_vector(coords))
@@ -337,7 +330,8 @@ impl<N: Real + RelativeEq<Epsilon = N>> RelativeEq for Quaternion<N> {
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool {
+    ) -> bool
+    {
         self.as_vector().relative_eq(other.as_vector(), epsilon, max_relative) ||
         // Account for the double-covering of S², i.e. q = -q
        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.relative_eq(&-*b, epsilon, max_relative))
@@ -457,9 +451,11 @@ impl<N: Real> UnitQuaternion<N> {
     /// is not well-defined).
     #[inline]
     pub fn slerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
-        Unit::new_unchecked(
-            Quaternion::from_vector(Unit::new_unchecked(self.coords).slerp(&Unit::new_unchecked(other.coords), t).unwrap())
-        )
+        Unit::new_unchecked(Quaternion::from_vector(
+            Unit::new_unchecked(self.coords)
+                .slerp(&Unit::new_unchecked(other.coords), t)
+                .unwrap(),
+        ))
     }
 
     /// Computes the spherical linear interpolation between two unit quaternions or returns `None`
@@ -478,8 +474,10 @@ impl<N: Real> UnitQuaternion<N> {
         other: &UnitQuaternion<N>,
         t: N,
         epsilon: N,
-    ) -> Option<UnitQuaternion<N>> {
-        Unit::new_unchecked(self.coords).try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
+    ) -> Option<UnitQuaternion<N>>
+    {
+        Unit::new_unchecked(self.coords)
+            .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
             .map(|q| Unit::new_unchecked(Quaternion::from_vector(q.unwrap())))
     }
 
@@ -659,7 +657,8 @@ impl<N: Real + RelativeEq<Epsilon = N>> RelativeEq for UnitQuaternion<N> {
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool {
+    ) -> bool
+    {
         self.as_ref()
             .relative_eq(other.as_ref(), epsilon, max_relative)
     }

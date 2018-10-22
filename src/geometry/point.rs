@@ -7,7 +7,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -21,8 +21,7 @@ use base::{DefaultAllocator, Scalar, VectorN};
 #[repr(C)]
 #[derive(Debug)]
 pub struct Point<N: Scalar, D: DimName>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: VectorN<N, D>,
@@ -42,8 +41,7 @@ impl<N: Scalar, D: DimName> Copy for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,
-{
-}
+{}
 
 impl<N: Scalar, D: DimName> Clone for Point<N, D>
 where
@@ -63,9 +61,7 @@ where
     <DefaultAllocator as Allocator<N, D>>::Buffer: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
+    where S: Serializer {
         self.coords.serialize(serializer)
     }
 }
@@ -77,9 +73,7 @@ where
     <DefaultAllocator as Allocator<N, D>>::Buffer: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where
-        Des: Deserializer<'a>,
-    {
+    where Des: Deserializer<'a> {
         let coords = VectorN::<N, D>::deserialize(deserializer)?;
 
         Ok(Point::from_coordinates(coords))
@@ -108,8 +102,7 @@ where
 }
 
 impl<N: Scalar, D: DimName> Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// Clones this point into one that owns its data.
     #[inline]
@@ -219,7 +212,8 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool {
+    ) -> bool
+    {
         self.coords
             .relative_eq(&other.coords, epsilon, max_relative)
     }
@@ -241,15 +235,10 @@ where
     }
 }
 
-impl<N: Scalar + Eq, D: DimName> Eq for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
-}
+impl<N: Scalar + Eq, D: DimName> Eq for Point<N, D> where DefaultAllocator: Allocator<N, D> {}
 
 impl<N: Scalar, D: DimName> PartialEq for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -258,8 +247,7 @@ where
 }
 
 impl<N: Scalar + PartialOrd, D: DimName> PartialOrd for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
@@ -293,8 +281,7 @@ where
  *
  */
 impl<N: Scalar + fmt::Display, D: DimName> fmt::Display for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         try!(write!(f, "{{"));

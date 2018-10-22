@@ -9,9 +9,7 @@ use traits::{Alloc, Dimension};
 ///
 /// * [`distance`](fn.distance.html)
 pub fn distance2<N: Real, D: Dimension>(p0: &TVec<N, D>, p1: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+where DefaultAllocator: Alloc<N, D> {
     (p1 - p0).norm_squared()
 }
 
@@ -23,9 +21,7 @@ where
 /// * [`l2_distance`](fn.l2_distance.html)
 /// * [`l2_norm`](fn.l2_norm.html)
 pub fn l1_distance<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+where DefaultAllocator: Alloc<N, D> {
     l1_norm(&(y - x))
 }
 
@@ -40,9 +36,7 @@ where
 /// * [`l2_distance`](fn.l2_distance.html)
 /// * [`l2_norm`](fn.l2_norm.html)
 pub fn l1_norm<N: Real, D: Dimension>(v: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+where DefaultAllocator: Alloc<N, D> {
     ::comp_add(&v.abs())
 }
 
@@ -61,9 +55,7 @@ where
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
 pub fn l2_distance<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+where DefaultAllocator: Alloc<N, D> {
     l2_norm(&(y - x))
 }
 
@@ -84,9 +76,7 @@ where
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
 pub fn l2_norm<N: Real, D: Dimension>(x: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+where DefaultAllocator: Alloc<N, D> {
     x.norm()
 }
 
@@ -102,9 +92,7 @@ where
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
 pub fn length2<N: Real, D: Dimension>(x: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+where DefaultAllocator: Alloc<N, D> {
     x.norm_squared()
 }
 
@@ -120,9 +108,7 @@ where
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`nalgebra::norm_squared`](../nalgebra/fn.norm_squared.html)
 pub fn magnitude2<N: Real, D: Dimension>(x: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+where DefaultAllocator: Alloc<N, D> {
     x.norm_squared()
 }
 

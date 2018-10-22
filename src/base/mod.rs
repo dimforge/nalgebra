@@ -12,7 +12,6 @@ pub mod storage;
 
 mod alias;
 mod alias_slice;
-mod swizzle;
 mod cg;
 mod componentwise;
 mod construction;
@@ -27,6 +26,7 @@ mod matrix_slice;
 mod matrix_vec;
 mod properties;
 mod scalar;
+mod swizzle;
 mod unit;
 
 #[doc(hidden)]

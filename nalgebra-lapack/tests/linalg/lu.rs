@@ -1,7 +1,7 @@
 use std::cmp;
 
-use nl::LU;
 use na::{DMatrix, DVector, Matrix3x4, Matrix4, Matrix4x3, Vector4};
+use nl::LU;
 
 quickcheck!{
     fn lup(m: DMatrix<f64>) -> bool {

@@ -1,5 +1,5 @@
-use test::{self, Bencher};
 use na::{DMatrix, DVector, FullPivLU};
+use test::{self, Bencher};
 
 // Without unpack.
 #[bench]

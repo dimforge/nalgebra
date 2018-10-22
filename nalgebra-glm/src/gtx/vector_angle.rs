@@ -5,9 +5,7 @@ use traits::{Alloc, Dimension};
 
 /// The angle between two vectors.
 pub fn angle<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+where DefaultAllocator: Alloc<N, D> {
     x.angle(y)
 }
 

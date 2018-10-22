@@ -1,5 +1,5 @@
-use test::{self, Bencher};
 use na::{Bidiagonal, DMatrix, Matrix4};
+use test::{self, Bencher};
 
 #[path = "../common/macros.rs"]
 mod macros;

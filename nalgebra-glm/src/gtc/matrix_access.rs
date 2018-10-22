@@ -10,7 +10,10 @@ use traits::{Alloc, Dimension};
 /// * [`row`](fn.row.html)
 /// * [`set_column`](fn.set_column.html)
 /// * [`set_row`](fn.set_row.html)
-pub fn column<N: Scalar, R: Dimension, C: Dimension>(m: &TMat<N, R, C>, index: usize) -> TVec<N, R>
+pub fn column<N: Scalar, R: Dimension, C: Dimension>(
+    m: &TMat<N, R, C>,
+    index: usize,
+) -> TVec<N, R>
 where
     DefaultAllocator: Alloc<N, R, C>,
 {
@@ -45,9 +48,7 @@ where
 /// * [`set_column`](fn.set_column.html)
 /// * [`set_row`](fn.set_row.html)
 pub fn row<N: Scalar, R: Dimension, C: Dimension>(m: &TMat<N, R, C>, index: usize) -> TVec<N, C>
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
+where DefaultAllocator: Alloc<N, R, C> {
     m.row(index).into_owned().transpose()
 }
 

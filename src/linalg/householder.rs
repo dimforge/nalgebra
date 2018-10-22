@@ -105,9 +105,7 @@ pub fn clear_row_unchecked<N: Real, R: Dim, C: Dim>(
 /// matrices.
 #[doc(hidden)]
 pub fn assemble_q<N: Real, D: Dim>(m: &MatrixN<N, D>) -> MatrixN<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
-{
+where DefaultAllocator: Allocator<N, D, D> {
     assert!(m.is_square());
     let dim = m.data.shape().0;
 

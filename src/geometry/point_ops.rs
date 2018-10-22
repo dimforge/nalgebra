@@ -19,8 +19,7 @@ use geometry::Point;
  *
  */
 impl<N: Scalar, D: DimName> Index<usize> for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     type Output = N;
 
@@ -31,8 +30,7 @@ where
 }
 
 impl<N: Scalar, D: DimName> IndexMut<usize> for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut Self::Output {
@@ -46,8 +44,7 @@ where
  *
  */
 impl<N: Scalar + ClosedNeg, D: DimName> Neg for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     type Output = Point<N, D>;
 
@@ -58,8 +55,7 @@ where
 }
 
 impl<'a, N: Scalar + ClosedNeg, D: DimName> Neg for &'a Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     type Output = Point<N, D>;
 

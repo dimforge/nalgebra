@@ -99,9 +99,7 @@ where
     S: Serialize,
 {
     fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-    where
-        T: Serializer,
-    {
+    where T: Serializer {
         self.data.serialize(serializer)
     }
 }
@@ -115,9 +113,7 @@ where
     S: Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
+    where D: Deserializer<'de> {
         S::deserialize(deserializer).map(|x| Matrix {
             data: x,
             _phantoms: PhantomData,
@@ -319,9 +315,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Moves this matrix into one that owns its data.
     #[inline]
     pub fn into_owned(self) -> MatrixMN<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         Matrix::from_data(self.data.into_owned())
     }
 
@@ -355,9 +349,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Clones this matrix to one that owns its data.
     #[inline]
     pub fn clone_owned(&self) -> MatrixMN<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         Matrix::from_data(self.data.clone_owned())
     }
 
@@ -393,9 +385,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
     pub fn map<N2: Scalar, F: FnMut(N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
-    where
-        DefaultAllocator: Allocator<N2, R, C>,
-    {
+    where DefaultAllocator: Allocator<N2, R, C> {
         let (nrows, ncols) = self.data.shape();
 
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
@@ -541,9 +531,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Transposes `self`.
     #[inline]
     pub fn transpose(&self) -> MatrixMN<N, C, R>
-    where
-        DefaultAllocator: Allocator<N, C, R>,
-    {
+    where DefaultAllocator: Allocator<N, C, R> {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
@@ -666,9 +654,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Replaces each component of `self` by the result of a closure `f` applied on it.
     #[inline]
     pub fn apply<F: FnMut(N) -> N>(&mut self, mut f: F)
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         let (nrows, ncols) = self.shape();
 
         for j in 0..ncols {
@@ -765,9 +751,7 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<Complex<N>, R, C>> Matrix<Complex<N>, R
     /// The conjugate transposition of `self`.
     #[inline]
     pub fn conjugate_transpose(&self) -> MatrixMN<Complex<N>, C, R>
-    where
-        DefaultAllocator: Allocator<Complex<N>, C, R>,
-    {
+    where DefaultAllocator: Allocator<Complex<N>, C, R> {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
@@ -808,9 +792,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     #[inline]
     pub fn diagonal(&self) -> VectorN<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    where DefaultAllocator: Allocator<N, D> {
         assert!(
             self.is_square(),
             "Unable to get the diagonal of a non-square matrix."
@@ -831,9 +813,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes a trace of a square matrix, i.e., the sum of its diagonal elements.
     #[inline]
     pub fn trace(&self) -> N
-    where
-        N: Ring,
-    {
+    where N: Ring {
         assert!(
             self.is_square(),
             "Cannot compute the trace of non-square matrix."
@@ -855,9 +835,7 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// coordinates.
     #[inline]
     pub fn to_homogeneous(&self) -> VectorN<N, DimSum<D, U1>>
-    where
-        DefaultAllocator: Allocator<N, DimSum<D, U1>>,
-    {
+    where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
         let len = self.len();
         let hnrows = DimSum::<D, U1>::from_usize(len + 1);
         let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
@@ -923,7 +901,8 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool {
+    ) -> bool
+    {
         self.relative_eq(other, epsilon, max_relative)
     }
 }
@@ -1220,8 +1199,7 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 impl<N: Real, S: Storage<N, U3>> Vector<N, U3, S>
-where
-    DefaultAllocator: Allocator<N, U3>,
+where DefaultAllocator: Allocator<N, U3>
 {
     /// Computes the matrix `M` such that for all vector `v` we have `M * v == self.cross(&v)`.
     #[inline]
@@ -1311,18 +1289,14 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a normalized version of this matrix.
     #[inline]
     pub fn normalize(&self) -> MatrixMN<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         self / self.norm()
     }
 
     /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
     #[inline]
     pub fn try_normalize(&self, min_norm: N) -> Option<MatrixMN<N, R, C>>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         let n = self.norm();
 
         if n <= min_norm {
@@ -1446,7 +1420,8 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool {
+    ) -> bool
+    {
         self.as_ref()
             .relative_eq(other.as_ref(), epsilon, max_relative)
     }

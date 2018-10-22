@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use alga::general::Real;
 use allocator::Allocator;
@@ -14,30 +14,25 @@ use linalg::householder;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: Serialize,
          VectorN<N, DimDiff<D, U1>>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: Deserialize<'de>,
          VectorN<N, DimDiff<D, U1>>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct Hessenberg<N: Real, D: DimSub<U1>>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     hess: MatrixN<N, D>,
     subdiag: VectorN<N, DimDiff<D, U1>>,
@@ -48,12 +43,10 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
     VectorN<N, DimDiff<D, U1>>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: DimSub<U1>> Hessenberg<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the Hessenberg decomposition using householder reflections.
     pub fn new(hess: MatrixN<N, D>) -> Self {
@@ -100,9 +93,7 @@ where
     /// hessenberg matrix.
     #[inline]
     pub fn unpack(self) -> (MatrixN<N, D>, MatrixN<N, D>)
-    where
-        ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>,
-    {
+    where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {
         let q = self.q();
 
         (q, self.unpack_h())
@@ -111,9 +102,7 @@ where
     /// Retrieves the upper trapezoidal submatrix `H` of this decomposition.
     #[inline]
     pub fn unpack_h(mut self) -> MatrixN<N, D>
-    where
-        ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>,
-    {
+    where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {
         let dim = self.hess.nrows();
         self.hess.fill_lower_triangle(N::zero(), 2);
         self.hess
@@ -128,9 +117,7 @@ where
     /// This is less efficient than `.unpack_h()` as it allocates a new matrix.
     #[inline]
     pub fn h(&self) -> MatrixN<N, D>
-    where
-        ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>,
-    {
+    where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {
         let dim = self.hess.nrows();
         let mut res = self.hess.clone();
         res.fill_lower_triangle(N::zero(), 2);
@@ -151,8 +138,7 @@ where
 }
 
 impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the Hessenberg decomposition of this matrix using householder reflections.
     pub fn hessenberg(self) -> Hessenberg<N, D> {

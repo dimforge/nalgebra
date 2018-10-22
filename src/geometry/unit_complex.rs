@@ -155,7 +155,8 @@ impl<N: Real> RelativeEq for UnitComplex<N> {
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool {
+    ) -> bool
+    {
         self.re.relative_eq(&other.re, epsilon, max_relative)
             && self.im.relative_eq(&other.im, epsilon, max_relative)
     }

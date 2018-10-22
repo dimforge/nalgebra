@@ -1,11 +1,13 @@
-use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
-                    AbstractQuasigroup, AbstractSemigroup, Identity, Inverse, Multiplicative, Real};
-use alga::linear::{AffineTransformation, ProjectiveTransformation, Rotation, Transformation};
+use alga::general::{
+    AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
+    AbstractSemigroup, Identity, Inverse, Multiplicative, Real,
+};
 use alga::linear::Similarity as AlgaSimilarity;
+use alga::linear::{AffineTransformation, ProjectiveTransformation, Rotation, Transformation};
 
-use base::{DefaultAllocator, VectorN};
-use base::dimension::DimName;
 use base::allocator::Allocator;
+use base::dimension::DimName;
+use base::{DefaultAllocator, VectorN};
 
 use geometry::{Point, Similarity, Translation};
 

@@ -3,7 +3,7 @@ use quickcheck::{Arbitrary, Gen};
 
 use num::One;
 use num_complex::Complex;
-use rand::distributions::{Distribution, Standard, OpenClosed01};
+use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
 use alga::general::Real;
@@ -71,9 +71,7 @@ impl<N: Real> UnitComplex<N> {
     /// Builds the unit complex number from the corresponding 2D rotation matrix.
     #[inline]
     pub fn from_rotation_matrix(rotmat: &Rotation<N, U2>) -> Self
-    where
-        DefaultAllocator: Allocator<N, U2, U2>,
-    {
+    where DefaultAllocator: Allocator<N, U2, U2> {
         Self::new_unchecked(Complex::new(rotmat[(0, 0)], rotmat[(1, 0)]))
     }
 
@@ -152,8 +150,7 @@ impl<N: Real> One for UnitComplex<N> {
 }
 
 impl<N: Real> Distribution<UnitComplex<N>> for Standard
-where
-    OpenClosed01: Distribution<N>,
+where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random `UnitComplex`.
     #[inline]

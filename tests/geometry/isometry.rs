@@ -1,10 +1,10 @@
 #![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
-use alga::linear::{Transformation, ProjectiveTransformation};
+use alga::linear::{ProjectiveTransformation, Transformation};
 use na::{
-    Vector3, Point3, Rotation3, Isometry3, Translation3, UnitQuaternion,
-    Vector2, Point2, Rotation2, Isometry2, Translation2, UnitComplex
+    Isometry2, Isometry3, Point2, Point3, Rotation2, Rotation3, Translation2, Translation3,
+    UnitComplex, UnitQuaternion, Vector2, Vector3,
 };
 
 quickcheck!(

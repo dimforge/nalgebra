@@ -1,7 +1,7 @@
-use rand::{IsaacRng, Rng};
-use test::{self, Bencher};
 use na::{Quaternion, UnitQuaternion, Vector3};
+use rand::{IsaacRng, Rng};
 use std::ops::{Add, Div, Mul, Sub};
+use test::{self, Bencher};
 
 #[path = "../common/macros.rs"]
 mod macros;
