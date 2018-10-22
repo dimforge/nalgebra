@@ -1,18 +1,13 @@
 #![cfg(feature = "arbitrary")]
 use alga::linear::Transformation;
 use na::{
-    self,
+    self, Affine3, Isometry3, Matrix2, Matrix2x3, Matrix2x4, Matrix2x5, Matrix2x6, Matrix3,
+    Matrix3x2, Matrix3x4, Matrix3x5, Matrix3x6, Matrix4, Matrix4x2, Matrix4x3, Matrix4x5,
+    Matrix4x6, Matrix5, Matrix5x2, Matrix5x3, Matrix5x4, Matrix5x6, Matrix6, Matrix6x2, Matrix6x3,
+    Matrix6x4, Matrix6x5, Point3, Projective3, Rotation3, RowVector1, RowVector2, RowVector3,
+    RowVector4, RowVector5, RowVector6, Similarity3, Transform3, Translation3, UnitQuaternion,
     Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
-    RowVector1, RowVector2, RowVector3, RowVector4, RowVector5, RowVector6,
-    Matrix2, Matrix3, Matrix4, Matrix5, Matrix6,
-    Matrix2x3, Matrix2x4, Matrix2x5, Matrix2x6,
-    Matrix3x2, Matrix3x4, Matrix3x5, Matrix3x6,
-    Matrix4x2, Matrix4x3, Matrix4x5, Matrix4x6,
-    Matrix5x2, Matrix5x3, Matrix5x4, Matrix5x6,
-    Matrix6x2, Matrix6x3, Matrix6x4, Matrix6x5,
-    Point3, Translation3, Isometry3, Similarity3, Affine3,
-    Projective3, Transform3, Rotation3, UnitQuaternion};
-
+};
 
 quickcheck!{
     fn translation_conversion(t: Translation3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {

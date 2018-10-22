@@ -3,13 +3,14 @@ use std::ops::{Div, DivAssign, Index, IndexMut, Mul, MulAssign};
 
 use alga::general::{ClosedAdd, ClosedMul, Real, SubsetOf};
 
-use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 use base::allocator::Allocator;
 use base::dimension::{DimName, DimNameAdd, DimNameSum, U1, U3, U4};
+use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
-use geometry::{Isometry, Point, Rotation, Similarity, SubTCategoryOf, SuperTCategoryOf, TAffine,
-               TCategory, TCategoryMul, TGeneral, TProjective, Transform, Translation,
-               UnitQuaternion};
+use geometry::{
+    Isometry, Point, Rotation, Similarity, SubTCategoryOf, SuperTCategoryOf, TAffine, TCategory,
+    TCategoryMul, TGeneral, TProjective, Transform, Translation, UnitQuaternion,
+};
 
 /*
  *

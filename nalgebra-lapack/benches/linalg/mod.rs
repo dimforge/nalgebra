@@ -1,3 +1,3 @@
-mod qr;
-mod lu;
 mod hessenberg;
+mod lu;
+mod qr;

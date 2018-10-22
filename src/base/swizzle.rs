@@ -1,7 +1,6 @@
-use base::{Scalar, Vector, DimName, Vector2, Vector3};
+use base::{DimName, Scalar, Vector, Vector2, Vector3};
 use storage::Storage;
 use typenum::{self, Cmp, Greater};
-
 
 macro_rules! impl_swizzle {
     ($(where $BaseDim: ident: $name: ident() -> $Result: ident[$($i: expr),*]);*) => {

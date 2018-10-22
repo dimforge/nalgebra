@@ -1,7 +1,7 @@
-mod real_eigensystem;
-mod symmetric_eigen;
 mod cholesky;
 mod lu;
 mod qr;
-mod svd;
+mod real_eigensystem;
 mod real_schur;
+mod svd;
+mod symmetric_eigen;

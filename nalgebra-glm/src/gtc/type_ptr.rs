@@ -384,16 +384,12 @@ pub fn make_vec4<N: Scalar>(ptr: &[N]) -> TVec4<N> {
 
 /// Converts a matrix or vector to a slice arranged in column-major order.
 pub fn value_ptr<N: Scalar, R: Dimension, C: Dimension>(x: &TMat<N, R, C>) -> &[N]
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
+where DefaultAllocator: Alloc<N, R, C> {
     x.as_slice()
 }
 
 /// Converts a matrix or vector to a mutable slice arranged in column-major order.
 pub fn value_ptr_mut<N: Scalar, R: Dimension, C: Dimension>(x: &mut TMat<N, R, C>) -> &mut [N]
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
+where DefaultAllocator: Alloc<N, R, C> {
     x.as_mut_slice()
 }

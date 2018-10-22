@@ -1,10 +1,12 @@
-use alga::general::{AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid,
-                    AbstractQuasigroup, AbstractSemigroup, Identity, Inverse, Multiplicative, Real};
+use alga::general::{
+    AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
+    AbstractSemigroup, Identity, Inverse, Multiplicative, Real,
+};
 use alga::linear::{ProjectiveTransformation, Transformation};
 
-use base::{DefaultAllocator, VectorN};
-use base::dimension::{DimNameAdd, DimNameSum, U1};
 use base::allocator::Allocator;
+use base::dimension::{DimNameAdd, DimNameSum, U1};
+use base::{DefaultAllocator, VectorN};
 
 use geometry::{Point, SubTCategoryOf, TCategory, TProjective, Transform};
 

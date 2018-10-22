@@ -1,7 +1,7 @@
+use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, MatrixN, Vector2, Vector3, Vector4, U10};
 use rand::{IsaacRng, Rng};
-use test::{self, Bencher};
-use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, MatrixN, U10, Vector2, Vector3, Vector4};
 use std::ops::{Add, Div, Mul, Sub};
+use test::{self, Bencher};
 
 #[path = "../common/macros.rs"]
 mod macros;
@@ -189,18 +189,10 @@ fn mat_mul_mat(bench: &mut Bencher) {
 
 #[bench]
 fn mat100_from_fn(bench: &mut Bencher) {
-    bench.iter(|| {
-        DMatrix::from_fn(100, 100, |a, b| {
-            a + b
-        })
-    })
+    bench.iter(|| DMatrix::from_fn(100, 100, |a, b| a + b))
 }
 
 #[bench]
 fn mat500_from_fn(bench: &mut Bencher) {
-    bench.iter(|| {
-        DMatrix::from_fn(500, 500, |a, b| {
-            a + b
-        })
-    })
+    bench.iter(|| DMatrix::from_fn(500, 500, |a, b| a + b))
 }

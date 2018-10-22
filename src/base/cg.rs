@@ -7,15 +7,18 @@
 
 use num::One;
 
-use base::{DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector,
-           Vector3, VectorN};
+use base::allocator::Allocator;
 use base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
 use base::storage::{Storage, StorageMut};
-use base::allocator::Allocator;
-use geometry::{Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2,
-               Rotation3};
+use base::{
+    DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector3,
+    VectorN,
+};
+use geometry::{
+    Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2, Rotation3,
+};
 
-use alga::general::{Ring, Real};
+use alga::general::{Real, Ring};
 use alga::linear::Transformation;
 
 impl<N, D: DimName> MatrixN<N, D>
@@ -235,9 +238,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     /// Computes in-place the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
     pub fn append_scaling_mut(&mut self, scaling: N)
-    where
-        D: DimNameSub<U1>,
-    {
+    where D: DimNameSub<U1> {
         let mut to_scale = self.fixed_rows_mut::<DimNameDiff<D, U1>>(0);
         to_scale *= scaling;
     }
@@ -245,9 +246,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     /// Computes in-place the transformation equal to an uniform scaling factor followed by `self`.
     #[inline]
     pub fn prepend_scaling_mut(&mut self, scaling: N)
-    where
-        D: DimNameSub<U1>,
-    {
+    where D: DimNameSub<U1> {
         let mut to_scale = self.fixed_columns_mut::<DimNameDiff<D, U1>>(0);
         to_scale *= scaling;
     }
@@ -302,7 +301,8 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
         SB: Storage<N, DimNameDiff<D, U1>>,
         DefaultAllocator: Allocator<N, DimNameDiff<D, U1>>,
     {
-        let scale = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0)
+        let scale = self
+            .fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0)
             .tr_dot(&shift);
         let post_translation =
             self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0) * shift;
@@ -315,16 +315,16 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
 }
 
 impl<N: Real, D: DimNameSub<U1>> Transformation<Point<N, DimNameDiff<D, U1>>> for MatrixN<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>
+where DefaultAllocator: Allocator<N, D, D>
         + Allocator<N, DimNameDiff<D, U1>>
-        + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>,
+        + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>
 {
     #[inline]
     fn transform_vector(
         &self,
         v: &VectorN<N, DimNameDiff<D, U1>>,
-    ) -> VectorN<N, DimNameDiff<D, U1>> {
+    ) -> VectorN<N, DimNameDiff<D, U1>>
+    {
         let transform = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
         let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
         let n = normalizer.tr_dot(&v);
@@ -341,9 +341,8 @@ where
         let transform = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
         let translation = self.fixed_slice::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1);
         let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
-        let n = normalizer.tr_dot(&pt.coords) + unsafe {
-            *self.get_unchecked(D::dim() - 1, D::dim() - 1)
-        };
+        let n = normalizer.tr_dot(&pt.coords)
+            + unsafe { *self.get_unchecked(D::dim() - 1, D::dim() - 1) };
 
         if !n.is_zero() {
             return transform * (pt / n) + translation;

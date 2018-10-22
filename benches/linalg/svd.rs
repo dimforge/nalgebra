@@ -1,5 +1,5 @@
-use test::{self, Bencher};
 use na::{Matrix4, SVD};
+use test::{self, Bencher};
 
 #[bench]
 fn svd_decompose_4x4(bh: &mut Bencher) {

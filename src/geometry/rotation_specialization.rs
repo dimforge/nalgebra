@@ -5,7 +5,7 @@ use quickcheck::{Arbitrary, Gen};
 
 use alga::general::Real;
 use num::Zero;
-use rand::distributions::{Distribution, Standard, OpenClosed01};
+use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 use std::ops::Neg;
 
@@ -99,8 +99,7 @@ impl<N: Real> Rotation2<N> {
 }
 
 impl<N: Real> Distribution<Rotation2<N>> for Standard
-where
-    OpenClosed01: Distribution<N>,
+where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
@@ -111,8 +110,7 @@ where
 
 #[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for Rotation2<N>
-where
-    Owned<N, U2, U2>: Send,
+where Owned<N, U2, U2>: Send
 {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
@@ -144,9 +142,7 @@ impl<N: Real> Rotation3<N> {
 
     /// Builds a 3D rotation matrix from an axis and a rotation angle.
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         if angle.is_zero() {
             Self::identity()
         } else {
@@ -327,7 +323,7 @@ impl<N: Real> Rotation3<N> {
     pub fn angle(&self) -> N {
         ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - N::one())
             / ::convert(2.0))
-            .acos()
+        .acos()
     }
 
     /// The rotation axis. Returns `None` if the rotation angle is zero or PI.
@@ -382,8 +378,7 @@ impl<N: Real> Rotation3<N> {
 }
 
 impl<N: Real> Distribution<Rotation3<N>> for Standard
-where
-    OpenClosed01: Distribution<N>,
+where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
@@ -396,9 +391,15 @@ where
         let theta = N::two_pi() * rng.sample(OpenClosed01);
         let (ts, tc) = theta.sin_cos();
         let a = MatrixN::<N, U3>::new(
-            tc, ts, N::zero(),
-            -ts, tc, N::zero(),
-            N::zero(), N::zero(), N::one()
+            tc,
+            ts,
+            N::zero(),
+            -ts,
+            tc,
+            N::zero(),
+            N::zero(),
+            N::zero(),
+            N::one(),
         );
 
         // Compute a random rotation *of* Z

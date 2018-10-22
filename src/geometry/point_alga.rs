@@ -1,9 +1,9 @@
 use alga::general::{Field, JoinSemilattice, Lattice, MeetSemilattice, Real};
 use alga::linear::{AffineSpace, EuclideanSpace};
 
-use base::{DefaultAllocator, Scalar, VectorN};
-use base::dimension::DimName;
 use base::allocator::Allocator;
+use base::dimension::DimName;
+use base::{DefaultAllocator, Scalar, VectorN};
 
 use geometry::Point;
 
@@ -16,8 +16,7 @@ where
 }
 
 impl<N: Real, D: DimName> EuclideanSpace for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     type Coordinates = VectorN<N, D>;
     type Real = N;

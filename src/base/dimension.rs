@@ -7,7 +7,7 @@ use std::cmp;
 use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
 use typenum::{
-    self, B1, Bit, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, UInt, UTerm, Unsigned,
+    self, Bit, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, UInt, UTerm, Unsigned, B1,
 };
 
 #[cfg(feature = "serde-serialize")]
@@ -30,9 +30,7 @@ impl Dynamic {
 #[cfg(feature = "serde-serialize")]
 impl Serialize for Dynamic {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
+    where S: Serializer {
         self.value.serialize(serializer)
     }
 }
@@ -40,9 +38,7 @@ impl Serialize for Dynamic {
 #[cfg(feature = "serde-serialize")]
 impl<'de> Deserialize<'de> for Dynamic {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
+    where D: Deserializer<'de> {
         usize::deserialize(deserializer).map(|x| Dynamic { value: x })
     }
 }

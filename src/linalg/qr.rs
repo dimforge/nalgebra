@@ -1,32 +1,39 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use alga::general::Real;
+use allocator::{Allocator, Reallocator};
 use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use constraint::{SameNumberOfRows, ShapeConstraint};
 use dimension::{Dim, DimMin, DimMinimum, U1};
 use storage::{Storage, StorageMut};
-use allocator::{Allocator, Reallocator};
-use constraint::{SameNumberOfRows, ShapeConstraint};
 
-use linalg::householder;
 use geometry::Reflection;
+use linalg::householder;
 
 /// The QR decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize")))]
-#[cfg_attr(feature = "serde-serialize",
-           serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
+         VectorN<N, DimMinimum<R, C>>: Serialize"
+    ))
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>")))]
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
+    ))
+)]
 #[derive(Clone, Debug)]
 pub struct QR<N: Real, R: DimMin<C>, C: Dim>
-where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
+where DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>
 {
     qr: MatrixMN<N, R, C>,
     diag: VectorN<N, DimMinimum<R, C>>,
@@ -37,12 +44,10 @@ where
     DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     VectorN<N, DimMinimum<R, C>>: Copy,
-{
-}
+{}
 
 impl<N: Real, R: DimMin<C>, C: Dim> QR<N, R, C>
-where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>,
+where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>
 {
     /// Computes the QR decomposition using householder reflections.
     pub fn new(mut matrix: MatrixMN<N, R, C>) -> Self {
@@ -101,9 +106,7 @@ where
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
     pub fn q(&self) -> MatrixMN<N, R, DimMinimum<R, C>>
-    where
-        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>,
-    {
+    where DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> {
         let (nrows, ncols) = self.qr.data.shape();
 
         // NOTE: we could build the identity matrix and call q_mul on it.
@@ -132,8 +135,8 @@ where
     )
     where
         DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
-        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>
-            + Reallocator<N, R, C, DimMinimum<R, C>, C>,
+        DefaultAllocator:
+            Allocator<N, R, DimMinimum<R, C>> + Reallocator<N, R, C, DimMinimum<R, C>, C>,
     {
         (self.q(), self.unpack_r())
     }
@@ -146,9 +149,7 @@ where
     /// Multiplies the provided matrix by the transpose of the `Q` matrix of this decomposition.
     pub fn q_tr_mul<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
     // FIXME: do we need a static constraint on the number of rows of rhs?
-    where
-        S2: StorageMut<N, R2, C2>,
-    {
+    where S2: StorageMut<N, R2, C2> {
         let dim = self.diag.len();
 
         for i in 0..dim {
@@ -162,8 +163,7 @@ where
 }
 
 impl<N: Real, D: DimMin<D, Output = D>> QR<N, D, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
@@ -295,8 +295,7 @@ where
 }
 
 impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>,
+where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>
 {
     /// Computes the QR decomposition of this matrix.
     pub fn qr(self) -> QR<N, R, C> {

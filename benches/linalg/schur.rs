@@ -1,5 +1,5 @@
-use test::{self, Bencher};
 use na::{Matrix4, RealSchur};
+use test::{self, Bencher};
 
 #[bench]
 fn schur_decompose_4x4(bh: &mut Bencher) {

@@ -1,17 +1,19 @@
-use std::iter;
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub,
-               SubAssign};
-use std::cmp::PartialOrd;
 use num::{One, Signed, Zero};
+use std::cmp::PartialOrd;
+use std::iter;
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+};
 
 use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar};
-use base::dimension::{Dim, DimMul, DimName, DimProd};
-use base::constraint::{AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows,
-                       ShapeConstraint};
-use base::storage::{ContiguousStorageMut, Storage, StorageMut};
 use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
+use base::constraint::{
+    AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
+};
+use base::dimension::{Dim, DimMul, DimName, DimProd};
+use base::storage::{ContiguousStorageMut, Storage, StorageMut};
+use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar};
 
 /*
  *
@@ -722,9 +724,7 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     /// Adds a scalar to `self`.
     #[inline]
     pub fn add_scalar(&self, rhs: N) -> MatrixMN<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         let mut res = self.clone_owned();
         res.add_scalar_mut(rhs);
         res
@@ -733,9 +733,7 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     /// Adds a scalar to `self` in-place.
     #[inline]
     pub fn add_scalar_mut(&mut self, rhs: N)
-    where
-        S: StorageMut<N, R, C>,
-    {
+    where S: StorageMut<N, R, C> {
         for e in self.iter_mut() {
             *e += rhs
         }
@@ -783,7 +781,8 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
     #[inline]
     pub fn amin(&self) -> N {
         let mut it = self.iter();
-        let mut min = it.next()
+        let mut min = it
+            .next()
             .expect("amin: empty matrices not supported.")
             .abs();
 

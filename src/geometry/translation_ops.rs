@@ -2,10 +2,10 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use alga::general::{ClosedAdd, ClosedSub};
 
-use base::{DefaultAllocator, Scalar};
-use base::dimension::{DimName, U1};
-use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use base::allocator::{Allocator, SameShapeAllocator};
+use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use base::dimension::{DimName, U1};
+use base::{DefaultAllocator, Scalar};
 
 use geometry::{Point, Translation};
 

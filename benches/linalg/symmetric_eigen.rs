@@ -1,5 +1,5 @@
-use test::{self, Bencher};
 use na::{Matrix4, SymmetricEigen};
+use test::{self, Bencher};
 
 #[bench]
 fn symmetric_eigen_decompose_4x4(bh: &mut Bencher) {

@@ -146,8 +146,7 @@ where
 }
 
 impl<N: Real, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
-where
-    DefaultAllocator: Allocator<N, R, C>,
+where DefaultAllocator: Allocator<N, R, C>
 {
     #[inline]
     fn norm_squared(&self) -> N {
@@ -181,8 +180,7 @@ where
 }
 
 impl<N: Real, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
-where
-    DefaultAllocator: Allocator<N, R, C>,
+where DefaultAllocator: Allocator<N, R, C>
 {
     type Real = N;
 
@@ -202,8 +200,7 @@ where
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
 impl<N: Real, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
-where
-    DefaultAllocator: Allocator<N, R, C>,
+where DefaultAllocator: Allocator<N, R, C>
 {
     #[inline]
     fn orthonormalize(vs: &mut [MatrixMN<N, R, C>]) -> usize {
@@ -236,9 +233,7 @@ where
 
     #[inline]
     fn orthonormal_subspace_basis<F>(vs: &[Self], mut f: F)
-    where
-        F: FnMut(&Self) -> bool,
-    {
+    where F: FnMut(&Self) -> bool {
         // FIXME: is this necessary?
         assert!(
             vs.len() <= Self::dimension(),

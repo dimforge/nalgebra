@@ -17,22 +17,21 @@
  * Matrix   ×= Rotation
  */
 
-use std::ops::{Div, DivAssign, Index, Mul, MulAssign};
 use num::{One, Zero};
+use std::ops::{Div, DivAssign, Index, Mul, MulAssign};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use base::{DefaultAllocator, Matrix, MatrixMN, Scalar, Unit, Vector, VectorN};
-use base::dimension::{Dim, DimName, U1};
-use base::constraint::{AreMultipliable, ShapeConstraint};
-use base::storage::Storage;
 use base::allocator::Allocator;
+use base::constraint::{AreMultipliable, ShapeConstraint};
+use base::dimension::{Dim, DimName, U1};
+use base::storage::Storage;
+use base::{DefaultAllocator, Matrix, MatrixMN, Scalar, Unit, Vector, VectorN};
 
 use geometry::{Point, Rotation};
 
 impl<N: Scalar, D: DimName> Index<(usize, usize)> for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D, D>
 {
     type Output = N;
 

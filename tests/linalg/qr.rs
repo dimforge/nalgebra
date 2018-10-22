@@ -1,8 +1,7 @@
 #![cfg(feature = "arbitrary")]
 
+use na::{DMatrix, DVector, Matrix3x5, Matrix4, Matrix4x3, Matrix5x3, Vector4};
 use std::cmp;
-use na::{DMatrix, Matrix4, Matrix4x3, Matrix5x3, Matrix3x5,
-         DVector, Vector4};
 
 quickcheck! {
     fn qr(m: DMatrix<f64>) -> bool {

@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use alga::general::ClosedNeg;
 use num::One;
@@ -15,26 +15,21 @@ use storage::StorageMut;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
          VectorN<(usize, usize), D>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
          VectorN<(usize, usize), D>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct PermutationSequence<D: Dim>
-where
-    DefaultAllocator: Allocator<(usize, usize), D>,
+where DefaultAllocator: Allocator<(usize, usize), D>
 {
     len: usize,
     ipiv: VectorN<(usize, usize), D>,
@@ -44,12 +39,10 @@ impl<D: Dim> Copy for PermutationSequence<D>
 where
     DefaultAllocator: Allocator<(usize, usize), D>,
     VectorN<(usize, usize), D>: Copy,
-{
-}
+{}
 
 impl<D: DimName> PermutationSequence<D>
-where
-    DefaultAllocator: Allocator<(usize, usize), D>,
+where DefaultAllocator: Allocator<(usize, usize), D>
 {
     /// Creates a new statically-allocated sequence of `D` identity permutations.
     #[inline]
@@ -60,8 +53,7 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl PermutationSequence<Dynamic>
-where
-    DefaultAllocator: Allocator<(usize, usize), Dynamic>,
+where DefaultAllocator: Allocator<(usize, usize), Dynamic>
 {
     /// Creates a new dynamically-allocated sequence of `n` identity permutations.
     #[inline]
@@ -71,8 +63,7 @@ where
 }
 
 impl<D: Dim> PermutationSequence<D>
-where
-    DefaultAllocator: Allocator<(usize, usize), D>,
+where DefaultAllocator: Allocator<(usize, usize), D>
 {
     /// Creates a new sequence of D identity permutations.
     #[inline]
@@ -102,9 +93,7 @@ where
     /// Applies this sequence of permutations to the rows of `rhs`.
     #[inline]
     pub fn permute_rows<N: Scalar, R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
-    where
-        S2: StorageMut<N, R2, C2>,
-    {
+    where S2: StorageMut<N, R2, C2> {
         for i in self.ipiv.rows_range(..self.len).iter() {
             rhs.swap_rows(i.0, i.1)
         }
@@ -112,8 +101,10 @@ where
 
     /// Applies this sequence of permutations in reverse to the rows of `rhs`.
     #[inline]
-    pub fn inv_permute_rows<N: Scalar, R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
-    where
+    pub fn inv_permute_rows<N: Scalar, R2: Dim, C2: Dim, S2>(
+        &self,
+        rhs: &mut Matrix<N, R2, C2, S2>,
+    ) where
         S2: StorageMut<N, R2, C2>,
     {
         for i in 0..self.len {
@@ -124,8 +115,10 @@ where
 
     /// Applies this sequence of permutations to the columns of `rhs`.
     #[inline]
-    pub fn permute_columns<N: Scalar, R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
-    where
+    pub fn permute_columns<N: Scalar, R2: Dim, C2: Dim, S2>(
+        &self,
+        rhs: &mut Matrix<N, R2, C2, S2>,
+    ) where
         S2: StorageMut<N, R2, C2>,
     {
         for i in self.ipiv.rows_range(..self.len).iter() {

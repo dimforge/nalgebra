@@ -1,11 +1,11 @@
-mod solve;
-mod cholesky;
-mod qr;
-mod hessenberg;
 mod bidiagonal;
-mod lu;
+mod cholesky;
 mod full_piv_lu;
-mod svd;
+mod hessenberg;
+mod lu;
+mod qr;
 mod schur;
+mod solve;
+mod svd;
 mod symmetric_eigen;
 // mod eigen;

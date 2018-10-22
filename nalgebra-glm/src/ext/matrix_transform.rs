@@ -5,9 +5,7 @@ use traits::{Alloc, Dimension, Number};
 
 /// The identity matrix.
 pub fn identity<N: Number, D: Dimension>() -> TMat<N, D, D>
-where
-    DefaultAllocator: Alloc<N, D, D>,
-{
+where DefaultAllocator: Alloc<N, D, D> {
     TMat::<N, D, D>::identity()
 }
 

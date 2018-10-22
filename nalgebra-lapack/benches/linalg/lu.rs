@@ -1,6 +1,6 @@
-use test::{self, Bencher};
 use na::{DMatrix, Matrix4};
 use nl::LU;
+use test::{self, Bencher};
 
 #[bench]
 fn lu_decompose_100x100(bh: &mut Bencher) {

@@ -22,7 +22,8 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self {
+    ) -> Self
+    {
         let data = SliceStorage::from_raw_parts(
             data.as_ptr().offset(start as isize),
             (nrows, ncols),
@@ -42,7 +43,8 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self {
+    ) -> Self
+    {
         // NOTE: The assertion implements the following formula, but without subtractions to avoid
         // underflow panics:
         //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
@@ -73,7 +75,8 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self {
+    ) -> Self
+    {
         let data = SliceStorageMut::from_raw_parts(
             data.as_mut_ptr().offset(start as isize),
             (nrows, ncols),
@@ -93,7 +96,8 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self {
+    ) -> Self
+    {
         // NOTE: The assertion implements the following formula, but without subtractions to avoid
         // underflow panics:
         //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
@@ -120,7 +124,8 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
         start: usize,
         nrows: R,
         ncols: C,
-    ) -> Self {
+    ) -> Self
+    {
         Self::from_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
     }
 
@@ -145,7 +150,8 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
         start: usize,
         nrows: R,
         ncols: C,
-    ) -> Self {
+    ) -> Self
+    {
         Self::from_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
     }
 

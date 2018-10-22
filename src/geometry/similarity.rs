@@ -5,7 +5,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -25,29 +25,24 @@ use geometry::{Isometry, Point, Translation};
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "N: Serialize,
+    serde(bound(
+        serialize = "N: Serialize,
                      R: Serialize,
                      DefaultAllocator: Allocator<N, D>,
                      Owned<N, D>: Serialize"
-        )
-    )
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "N: Deserialize<'de>,
+    serde(bound(
+        deserialize = "N: Deserialize<'de>,
                        R: Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
                        Owned<N, D>: Deserialize<'de>"
-        )
-    )
+    ))
 )]
 pub struct Similarity<N: Real, D: DimName, R>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<N, D, R>,
@@ -89,12 +84,10 @@ impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Simil
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Similarity<N, D, R>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -113,7 +106,8 @@ where
         translation: Translation<N, D>,
         rotation: R,
         scaling: N,
-    ) -> Similarity<N, D, R> {
+    ) -> Similarity<N, D, R>
+    {
         Similarity::from_isometry(Isometry::from_parts(translation, rotation), scaling)
     }
 
@@ -251,8 +245,7 @@ where
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the private scaling factor).
 impl<N: Real, D: DimName, R> Similarity<N, D, R>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this similarity into its equivalent homogeneous transformation matrix.
     #[inline]
@@ -276,8 +269,7 @@ impl<N: Real, D: DimName, R> Eq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + Eq,
     DefaultAllocator: Allocator<N, D>,
-{
-}
+{}
 
 impl<N: Real, D: DimName, R> PartialEq for Similarity<N, D, R>
 where
@@ -327,7 +319,8 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool {
+    ) -> bool
+    {
         self.isometry
             .relative_eq(&other.isometry, epsilon, max_relative)
             && self

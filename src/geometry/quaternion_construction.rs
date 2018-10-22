@@ -44,9 +44,7 @@ impl<N: Real> Quaternion<N> {
     #[inline]
     // FIXME: take a reference to `vector`?
     pub fn from_parts<SB>(scalar: N, vector: Vector<N, U3, SB>) -> Self
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         Self::new(scalar, vector[0], vector[1], vector[2])
     }
 
@@ -55,9 +53,7 @@ impl<N: Real> Quaternion<N> {
     /// Note that `axis` is assumed to be a unit vector.
     // FIXME: take a reference to `axis`?
     pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * ::convert(2.0f64));
 
         rot.unwrap() * scale
@@ -90,8 +86,7 @@ impl<N: Real> Zero for Quaternion<N> {
 }
 
 impl<N: Real> Distribution<Quaternion<N>> for Standard
-where
-    Standard: Distribution<N>,
+where Standard: Distribution<N>
 {
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Quaternion<N> {
@@ -101,8 +96,7 @@ where
 
 #[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for Quaternion<N>
-where
-    Owned<N, U4>: Send,
+where Owned<N, U4>: Send
 {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
@@ -126,9 +120,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// (the rotation angle).
     #[inline]
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         let (sang, cang) = (angle / ::convert(2.0f64)).sin_cos();
 
         let q = Quaternion::from_parts(cang, axis.as_ref() * sang);
@@ -360,9 +352,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// If `axisangle` has a magnitude smaller than `N::default_epsilon()`, this returns the identity rotation.
     #[inline]
     pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         let two: N = ::convert(2.0f64);
         let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp();
         Self::new_unchecked(q)
@@ -373,9 +363,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// If `axisangle` has a magnitude smaller than `eps`, this returns the identity rotation.
     #[inline]
     pub fn new_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         let two: N = ::convert(2.0f64);
         let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp_eps(eps);
         Self::new_unchecked(q)
@@ -387,9 +375,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// Same as `Self::new(axisangle)`.
     #[inline]
     pub fn from_scaled_axis<SB>(axisangle: Vector<N, U3, SB>) -> Self
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         Self::new(axisangle)
     }
 
@@ -399,9 +385,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// Same as `Self::new(axisangle)`.
     #[inline]
     pub fn from_scaled_axis_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         Self::new_eps(axisangle, eps)
     }
 }
@@ -414,8 +398,7 @@ impl<N: Real> One for UnitQuaternion<N> {
 }
 
 impl<N: Real> Distribution<UnitQuaternion<N>> for Standard
-where
-    OpenClosed01: Distribution<N>,
+where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random rotation quaternion.
     #[inline]

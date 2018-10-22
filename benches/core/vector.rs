@@ -1,8 +1,8 @@
+use na::{DVector, Vector2, Vector3, Vector4, VectorN};
 use rand::{IsaacRng, Rng};
+use std::ops::{Add, Div, Mul, Sub};
 use test::{self, Bencher};
 use typenum::U10000;
-use na::{DVector, Vector2, Vector3, Vector4, VectorN};
-use std::ops::{Add, Div, Mul, Sub};
 
 #[path = "../common/macros.rs"]
 mod macros;

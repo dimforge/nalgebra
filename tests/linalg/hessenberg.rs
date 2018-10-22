@@ -1,12 +1,11 @@
 #![cfg(feature = "arbitrary")]
 
-use std::cmp;
 use na::{DMatrix, Matrix2, Matrix4};
+use std::cmp;
 
 #[test]
 fn hessenberg_simple() {
-    let m = Matrix2::new(1.0, 0.0,
-                         1.0, 3.0);
+    let m = Matrix2::new(1.0, 0.0, 1.0, 3.0);
     let hess = m.hessenberg();
     let (p, h) = hess.unpack();
     assert!(relative_eq!(m, p * h * p.transpose(), epsilon = 1.0e-7))

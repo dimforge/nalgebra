@@ -110,8 +110,6 @@
    and keep in mind it is possible to convert, e.g., an `Isometry3` to a `Mat4` and vice-versa (see the [conversions section](#conversions)).
 */
 
-#![doc(html_favicon_url = "http://nalgebra.org/img/favicon.ico")]
-
 extern crate num_traits as num;
 #[macro_use]
 extern crate approx;
@@ -122,9 +120,8 @@ pub use aliases::*;
 pub use common::{
     abs, ceil, clamp, clamp_scalar, clamp_vec, float_bits_to_int, float_bits_to_int_vec,
     float_bits_to_uint, float_bits_to_uint_vec, floor, fract, int_bits_to_float,
-    int_bits_to_float_vec, lerp, lerp_scalar, lerp_vec, mix, mix_scalar, mix_vec, modf, modf_vec,
-    round, sign, smoothstep, step, step_scalar, step_vec, trunc, uint_bits_to_float,
-    uint_bits_to_float_scalar,
+    int_bits_to_float_vec, mix, modf, modf_vec, round, sign, smoothstep, step, step_scalar,
+    step_vec, trunc, uint_bits_to_float, uint_bits_to_float_scalar,
 };
 pub use constructors::*;
 pub use exponential::{exp, exp2, inversesqrt, log, log2, pow, sqrt};
