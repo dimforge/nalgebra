@@ -18,20 +18,20 @@ where DefaultAllocator: Allocator<N, D>
     /// Creates a new point with uninitialized coordinates.
     #[inline]
     pub unsafe fn new_uninitialized() -> Self {
-        Self::from_coordinates(VectorN::new_uninitialized())
+        Self::from(VectorN::new_uninitialized())
     }
 
     /// Creates a new point with all coordinates equal to zero.
     #[inline]
     pub fn origin() -> Self
     where N: Zero {
-        Self::from_coordinates(VectorN::from_element(N::zero()))
+        Self::from(VectorN::from_element(N::zero()))
     }
 
     /// Creates a new point from a slice.
     #[inline]
     pub fn from_slice(components: &[N]) -> Self {
-        Self::from_coordinates(VectorN::from_row_slice(components))
+        Self::from(VectorN::from_row_slice(components))
     }
 
     /// Creates a new point from its homogeneous vector representation.
@@ -47,7 +47,7 @@ where DefaultAllocator: Allocator<N, D>
     {
         if !v[D::dim()].is_zero() {
             let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()];
-            Some(Self::from_coordinates(coords))
+            Some(Self::from(coords))
         } else {
             None
         }
@@ -64,12 +64,12 @@ where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn max_value() -> Self {
-        Self::from_coordinates(VectorN::max_value())
+        Self::from(VectorN::max_value())
     }
 
     #[inline]
     fn min_value() -> Self {
-        Self::from_coordinates(VectorN::min_value())
+        Self::from(VectorN::min_value())
     }
 }
 
@@ -80,7 +80,7 @@ where
 {
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Point<N, D> {
-        Point::from_coordinates(rng.gen::<VectorN<N, D>>())
+        Point::from(rng.gen::<VectorN<N, D>>())
     }
 }
 
@@ -92,7 +92,7 @@ where
 {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        Point::from_coordinates(VectorN::arbitrary(g))
+        Point::from(VectorN::arbitrary(g))
     }
 }
 
@@ -132,7 +132,9 @@ macro_rules! from_array_impl(
     ($($D: ty, $len: expr);*) => {$(
       impl <N: Scalar> From<[N; $len]> for Point<N, $D> {
           fn from (coords: [N; $len]) -> Self {
-              Point::from_coordinates(coords.into())
+              Point {
+                coords: coords.into()
+              }
           }
       }
     )*}

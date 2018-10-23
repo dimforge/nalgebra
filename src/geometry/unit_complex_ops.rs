@@ -220,7 +220,7 @@ complex_op_impl_all!(
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
-    [ref ref] => Point2::from_coordinates(self * &rhs.coords);
+    [ref ref] => Point2::from(self * &rhs.coords);
 );
 
 // UnitComplex × Vector

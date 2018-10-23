@@ -166,17 +166,19 @@ macro_rules! isometry_construction_impl(
             /// # use nalgebra::{Isometry3, IsometryMatrix3, Point3, Vector3};
             /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
             /// let translation = Vector3::new(1.0, 2.0, 3.0);
+            /// // Point and vector being transformed in the tests.
+            /// let pt = Point3::new(4.0, 5.0, 6.0);
+            /// let vec = Vector3::new(4.0, 5.0, 6.0);
             ///
             /// // Isometry with its rotation part represented as a UnitQuaternion
             /// let iso = Isometry3::new(translation, axisangle);
-            /// assert_relative_eq!(iso * Point3::new(4.0, 5.0, 6.0), Point3::new(7.0, 7.0, -1.0), epsilon = 1.0e-6);
-            /// assert_relative_eq!(iso * Vector3::new(4.0, 5.0, 6.0), Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
-            /// ```
+            /// assert_relative_eq!(iso * pt, Point3::new(7.0, 7.0, -1.0), epsilon = 1.0e-6);
+            /// assert_relative_eq!(iso * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
             ///
             /// // Isometry with its rotation part represented as a Rotation3 (a 3x3 rotation matrix).
             /// let iso = IsometryMatrix3::new(translation, axisangle);
-            /// assert_relative_eq!(iso * Point3::new(4.0, 5.0, 6.0), Point3::new(7.0, 7.0, -1.0), epsilon = 1.0e-6);
-            /// assert_relative_eq!(iso * Vector3::new(4.0, 5.0, 6.0), Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+            /// assert_relative_eq!(iso * pt, Point3::new(7.0, 7.0, -1.0), epsilon = 1.0e-6);
+            /// assert_relative_eq!(iso * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
             /// ```
             #[inline]
             pub fn new(translation: Vector3<N>, axisangle: Vector3<N>) -> Self {

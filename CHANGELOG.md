@@ -19,6 +19,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Add `Point*::from_slice` to create a point from a slice.
   * Add `.map_with_location` to matrices to apply a map which passes the component indices to the user-defined closure alongide
   the component itself.
+  * Add `From<Vector>` impl for `Point`.
+  
+### Modified
+  * The `Point::from_coordinates` methods is deprecated. Use `Point::from` instead.
 
 ## [0.16.0]
 All dependencies have been updated to their latest versions.
