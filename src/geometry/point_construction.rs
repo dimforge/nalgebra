@@ -22,6 +22,20 @@ where DefaultAllocator: Allocator<N, D>
     }
 
     /// Creates a new point with all coordinates equal to zero.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Point2, Point3};
+    /// // This works in any dimension.
+    /// // The explicit ::<f32> type annotation may not always be needed,
+    /// // depending on the context of type inference.
+    /// let pt = Point2::<f32>::origin();
+    /// assert!(pt.x == 0.0 && pt.y == 0.0);
+    ///
+    /// let pt = Point3::<f32>::origin();
+    /// assert!(pt.x == 0.0 && pt.y == 0.0 && pt.z == 0.0);
+    /// ```
     #[inline]
     pub fn origin() -> Self
     where N: Zero {
@@ -29,6 +43,19 @@ where DefaultAllocator: Allocator<N, D>
     }
 
     /// Creates a new point from a slice.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Point2, Point3};
+    /// let data = [ 1.0, 2.0, 3.0 ];
+    ///
+    /// let pt = Point2::from_slice(&data[..2]);
+    /// assert_eq!(pt, Point2::new(1.0, 2.0));
+    ///
+    /// let pt = Point3::from_slice(&data);
+    /// assert_eq!(pt, Point3::new(1.0, 2.0, 3.0));
+    /// ```
     #[inline]
     pub fn from_slice(components: &[N]) -> Self {
         Self::from(VectorN::from_row_slice(components))
@@ -38,6 +65,32 @@ where DefaultAllocator: Allocator<N, D>
     ///
     /// In practice, this builds a D-dimensional points with the same first D component as `v`
     /// divided by the last component of `v`. Returns `None` if this divisor is zero.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Point2, Point3, Vector3, Vector4};
+    ///
+    /// let coords = Vector4::new(1.0, 2.0, 3.0, 1.0);
+    /// let pt = Point3::from_homogeneous(coords);
+    /// assert_eq!(pt, Some(Point3::new(1.0, 2.0, 3.0)));
+    ///
+    /// // All component of the result will be divided by the
+    /// // last component of the vector, here 2.0.
+    /// let coords = Vector4::new(1.0, 2.0, 3.0, 2.0);
+    /// let pt = Point3::from_homogeneous(coords);
+    /// assert_eq!(pt, Some(Point3::new(0.5, 1.0, 1.5)));
+    ///
+    /// // Fails because the last component is zero.
+    /// let coords = Vector4::new(1.0, 2.0, 3.0, 0.0);
+    /// let pt = Point3::from_homogeneous(coords);
+    /// assert!(pt.is_none());
+    ///
+    /// // Works also in other dimensions.
+    /// let coords = Vector3::new(1.0, 2.0, 1.0);
+    /// let pt = Point2::from_homogeneous(coords);
+    /// assert_eq!(pt, Some(Point2::new(1.0, 2.0)));
+    /// ```
     #[inline]
     pub fn from_homogeneous(v: VectorN<N, DimNameSum<D, U1>>) -> Option<Self>
     where
