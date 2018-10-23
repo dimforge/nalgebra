@@ -8,7 +8,7 @@ fn main() {
 
     // Build from a coordinates vector.
     let coords = Vector3::new(2.0, 3.0, 4.0);
-    let p1 = Point3::from_coordinates(coords);
+    let p1 = Point3::from(coords);
 
     // Build by translating the origin.
     let translation = Vector3::new(2.0, 3.0, 4.0);

@@ -50,7 +50,7 @@ where
 {
     #[inline]
     fn clone(&self) -> Self {
-        Point::from_coordinates(self.coords.clone())
+        Point::from(self.coords.clone())
     }
 }
 
@@ -76,7 +76,7 @@ where
     where Des: Deserializer<'a> {
         let coords = VectorN::<N, D>::deserialize(deserializer)?;
 
-        Ok(Point::from_coordinates(coords))
+        Ok(Point::from(coords))
     }
 }
 
@@ -107,7 +107,7 @@ where DefaultAllocator: Allocator<N, D>
     /// Clones this point into one that owns its data.
     #[inline]
     pub fn clone(&self) -> Point<N, D> {
-        Point::from_coordinates(self.coords.clone_owned())
+        Point::from(self.coords.clone_owned())
     }
 
     /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
@@ -127,6 +127,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 
     /// Creates a new point with the given coordinates.
+    #[deprecated(note = "Use Point::from(vector) instead.")]
     #[inline]
     pub fn from_coordinates(coords: VectorN<N, D>) -> Point<N, D> {
         Point { coords: coords }

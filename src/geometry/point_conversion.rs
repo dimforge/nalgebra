@@ -33,7 +33,7 @@ where
 {
     #[inline]
     fn to_superset(&self) -> Point<N2, D> {
-        Point::from_coordinates(self.coords.to_superset())
+        Point::from(self.coords.to_superset())
     }
 
     #[inline]
@@ -45,7 +45,7 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(m: &Point<N2, D>) -> Self {
-        Point::from_coordinates(Matrix::from_superset_unchecked(&m.coords))
+        Point::from(Matrix::from_superset_unchecked(&m.coords))
     }
 }
 
@@ -73,7 +73,9 @@ where
     #[inline]
     unsafe fn from_superset_unchecked(v: &VectorN<N2, DimNameSum<D, U1>>) -> Self {
         let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()];
-        Self::from_coordinates(::convert_unchecked(coords))
+        Self {
+            coords: ::convert_unchecked(coords)
+        }
     }
 }
 
@@ -136,5 +138,17 @@ where
     #[inline]
     fn from(t: Point<N, D>) -> Self {
         t.to_homogeneous()
+    }
+}
+
+impl<N: Scalar, D: DimName> From<VectorN<N, D>> for Point<N, D>
+    where
+        DefaultAllocator: Allocator<N, D>,
+{
+    #[inline]
+    fn from(coords: VectorN<N, D>) -> Self {
+        Point {
+            coords
+        }
     }
 }

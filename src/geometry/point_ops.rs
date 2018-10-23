@@ -50,7 +50,7 @@ where DefaultAllocator: Allocator<N, D>
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Point::from_coordinates(-self.coords)
+        Point::from(-self.coords)
     }
 }
 
@@ -61,7 +61,7 @@ where DefaultAllocator: Allocator<N, D>
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Point::from_coordinates(-&self.coords)
+        Point::from(-&self.coords)
     }
 }
 
@@ -96,43 +96,43 @@ add_sub_impl!(Sub, sub, ClosedSub;
 add_sub_impl!(Sub, sub, ClosedSub;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: &'b Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from_coordinates(&self.coords - right); 'a, 'b);
+    Self::Output::from(&self.coords - right); 'a, 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from_coordinates(&self.coords - &right); 'a); // FIXME: should not be a ref to `right`.
+    Self::Output::from(&self.coords - &right); 'a); // FIXME: should not be a ref to `right`.
 
 add_sub_impl!(Sub, sub, ClosedSub;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: Point<N, D1>, right: &'b Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from_coordinates(self.coords - right); 'b);
+    Self::Output::from(self.coords - right); 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from_coordinates(self.coords - right); );
+    Self::Output::from(self.coords - right); );
 
 // Point + Vector
 add_sub_impl!(Add, add, ClosedAdd;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: &'b Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from_coordinates(&self.coords + right); 'a, 'b);
+    Self::Output::from(&self.coords + right); 'a, 'b);
 
 add_sub_impl!(Add, add, ClosedAdd;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from_coordinates(&self.coords + &right); 'a); // FIXME: should not be a ref to `right`.
+    Self::Output::from(&self.coords + &right); 'a); // FIXME: should not be a ref to `right`.
 
 add_sub_impl!(Add, add, ClosedAdd;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: Point<N, D1>, right: &'b Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from_coordinates(self.coords + right); 'b);
+    Self::Output::from(self.coords + right); 'b);
 
 add_sub_impl!(Add, add, ClosedAdd;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from_coordinates(self.coords + right); );
+    Self::Output::from(self.coords + right); );
 
 // XXX: replace by the shared macro: add_sub_assign_impl
 macro_rules! op_assign_impl(
@@ -178,10 +178,10 @@ md_impl_all!(
     (R1, C1), (D2, U1) for R1: DimName, C1: Dim, D2: DimName, SA: Storage<N, R1, C1>
     where ShapeConstraint: AreMultipliable<R1, C1, D2, U1>;
     self: Matrix<N, R1, C1, SA>, right: Point<N, D2>, Output = Point<N, R1>;
-    [val val] => Point::from_coordinates(self * right.coords);
-    [ref val] => Point::from_coordinates(self * right.coords);
-    [val ref] => Point::from_coordinates(self * &right.coords);
-    [ref ref] => Point::from_coordinates(self * &right.coords);
+    [val val] => Point::from(self * right.coords);
+    [ref val] => Point::from(self * right.coords);
+    [val ref] => Point::from(self * &right.coords);
+    [ref ref] => Point::from(self * &right.coords);
 );
 
 /*
@@ -198,7 +198,7 @@ macro_rules! componentwise_scalarop_impl(
 
             #[inline]
             fn $method(self, right: N) -> Self::Output {
-                Point::from_coordinates(self.coords.$method(right))
+                Point::from(self.coords.$method(right))
             }
         }
 
@@ -208,7 +208,7 @@ macro_rules! componentwise_scalarop_impl(
 
             #[inline]
             fn $method(self, right: N) -> Self::Output {
-                Point::from_coordinates((&self.coords).$method(right))
+                Point::from((&self.coords).$method(right))
             }
         }
 
@@ -233,7 +233,7 @@ macro_rules! left_scalar_mul_impl(
 
             #[inline]
             fn mul(self, right: Point<$T, D>) -> Self::Output {
-                Point::from_coordinates(self * right.coords)
+                Point::from(self * right.coords)
             }
         }
 
@@ -243,7 +243,7 @@ macro_rules! left_scalar_mul_impl(
 
             #[inline]
             fn mul(self, right: &'b Point<$T, D>) -> Self::Output {
-                Point::from_coordinates(self * &right.coords)
+                Point::from(self * &right.coords)
             }
         }
     )*}

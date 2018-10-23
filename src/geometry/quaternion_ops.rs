@@ -428,7 +428,7 @@ quaternion_op_impl!(
     (U4, U1), (U3, U1);
     self: &'a UnitQuaternion<N>, rhs: &'b Point3<N>,
     Output = Point3<N> => U3, U4;
-    Point3::from_coordinates(self * &rhs.coords);
+    Point3::from(self * &rhs.coords);
     'a, 'b);
 
 quaternion_op_impl!(
@@ -436,7 +436,7 @@ quaternion_op_impl!(
     (U4, U1), (U3, U1);
     self: &'a UnitQuaternion<N>, rhs: Point3<N>,
     Output = Point3<N> => U3, U4;
-    Point3::from_coordinates(self * rhs.coords);
+    Point3::from(self * rhs.coords);
     'a);
 
 quaternion_op_impl!(
@@ -444,7 +444,7 @@ quaternion_op_impl!(
     (U4, U1), (U3, U1);
     self: UnitQuaternion<N>, rhs: &'b Point3<N>,
     Output = Point3<N> => U3, U4;
-    Point3::from_coordinates(self * &rhs.coords);
+    Point3::from(self * &rhs.coords);
     'b);
 
 quaternion_op_impl!(
@@ -452,7 +452,7 @@ quaternion_op_impl!(
     (U4, U1), (U3, U1);
     self: UnitQuaternion<N>, rhs: Point3<N>,
     Output = Point3<N> => U3, U4;
-    Point3::from_coordinates(self * rhs.coords);
+    Point3::from(self * rhs.coords);
     );
 
 // UnitQuaternion × Unit<Vector>

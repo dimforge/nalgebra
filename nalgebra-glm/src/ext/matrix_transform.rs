@@ -39,8 +39,8 @@ pub fn look_at<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMa
 /// * [`look_at_rh`](fn.look_at_rh.html)
 pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
     TMat::look_at_lh(
-        &Point3::from_coordinates(*eye),
-        &Point3::from_coordinates(*center),
+        &Point3::from(*eye),
+        &Point3::from(*center),
         up,
     )
 }
@@ -59,8 +59,8 @@ pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> 
 /// * [`look_at_lh`](fn.look_at_lh.html)
 pub fn look_at_rh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
     TMat::look_at_rh(
-        &Point3::from_coordinates(*eye),
-        &Point3::from_coordinates(*center),
+        &Point3::from(*eye),
+        &Point3::from(*center),
         up,
     )
 }
