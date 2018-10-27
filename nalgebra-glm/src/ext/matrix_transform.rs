@@ -38,11 +38,7 @@ pub fn look_at<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMa
 /// * [`look_at`](fn.look_at.html)
 /// * [`look_at_rh`](fn.look_at_rh.html)
 pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
-    TMat::look_at_lh(
-        &Point3::from(*eye),
-        &Point3::from(*center),
-        up,
-    )
+    TMat::look_at_lh(&Point3::from(*eye), &Point3::from(*center), up)
 }
 
 /// Build a right handed look at view matrix.
@@ -58,11 +54,7 @@ pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> 
 /// * [`look_at`](fn.look_at.html)
 /// * [`look_at_lh`](fn.look_at_lh.html)
 pub fn look_at_rh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
-    TMat::look_at_rh(
-        &Point3::from(*eye),
-        &Point3::from(*center),
-        up,
-    )
+    TMat::look_at_rh(&Point3::from(*eye), &Point3::from(*center), up)
 }
 
 /// Builds a rotation 4 * 4 matrix created from an axis vector and an angle and right-multiply it to `m`.
