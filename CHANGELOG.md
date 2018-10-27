@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Add `.dot` to quaternions.
   * Add `.zip_zip_map` for iterating on three matrices simultaneously, and applying a closure to them.
   * Add `.slerp` and `.try_slerp` to unit vectors.
+  * Add `.lerp` to vectors.
   * Add `.to_projective` and `.as_projective` to `Perspective3` and `Orthographic3` in order to
   use them as `Projective3` structures.
   * Add `From/Into` impls to allow the conversion of any transformation type to a matrix.
