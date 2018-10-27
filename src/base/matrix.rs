@@ -1,4 +1,4 @@
-use num::Zero;
+use num::{One, Zero};
 use num_complex::Complex;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
@@ -16,7 +16,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{Real, Ring};
+use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring};
 
 use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
@@ -1304,6 +1304,29 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         } else {
             Some(self / n)
         }
+    }
+}
+
+impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<N, D>>
+    Vector<N, D, S>
+{
+    /// Returns `self * (1.0 - t) + rhs * t`, i.e., the linear blend of the vectors x and y using the scalar value a.
+    ///
+    /// The value for a is not restricted to the range `[0, 1]`.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let x = Vector3::new(1.0, 2.0, 3.0);
+    /// let y = Vector3::new(10.0, 20.0, 30.0);
+    /// assert_eq!(x.lerp(&y, 0.1), Vector3::new(1.9, 3.8, 5.7));
+    /// ```
+    pub fn lerp<S2: Storage<N, D>>(&self, rhs: &Vector<N, D, S2>, t: N) -> VectorN<N, D>
+    where DefaultAllocator: Allocator<N, D> {
+        let mut res = self.clone_owned();
+        res.axpy(t, rhs, N::one() - t);
+        res
     }
 }
 
