@@ -110,12 +110,30 @@ impl<N: Real> Quaternion<N> {
     }
 
     /// Normalizes this quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let q_normalized = q.normalize();
+    /// relative_eq!(q_normalized.norm(), 1.0);
+    /// ```
     #[inline]
     pub fn normalize(&self) -> Quaternion<N> {
         Quaternion::from_vector(self.coords.normalize())
     }
 
-    /// Compute the conjugate of this quaternion.
+    /// The conjugate of this quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let conj = q.conjugate();
+    /// assert!(conj.i == -2.0 && conj.j == -3.0 && conj.k == -4.0 && conj.w == 1.0);
+    /// ```
     #[inline]
     pub fn conjugate(&self) -> Quaternion<N> {
         let v = Vector4::new(
@@ -128,6 +146,24 @@ impl<N: Real> Quaternion<N> {
     }
 
     /// Inverts this quaternion if it is not zero.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let inv_q = q.try_inverse();
+    ///
+    /// assert!(inv_q.is_some());
+    /// assert_relative_eq!(inv_q.unwrap() * q, Quaternion::identity());
+    ///
+    /// //Non-invertible case
+    /// let q = Quaternion::new(0.0, 0.0, 0.0, 0.0);
+    /// let inv_q = q.try_inverse();
+    ///
+    /// assert!(inv_q.is_none());
+    /// ```
     #[inline]
     pub fn try_inverse(&self) -> Option<Quaternion<N>> {
         let mut res = Quaternion::from_vector(self.coords.clone_owned());
@@ -140,30 +176,75 @@ impl<N: Real> Quaternion<N> {
     }
 
     /// Linear interpolation between two quaternion.
+    ///
+    /// Computes `self * (1 - t) + other * t`.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let q1 = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let q2 = Quaternion::new(10.0, 20.0, 30.0, 40.0);
+    ///
+    /// assert_eq!(q1.lerp(&q2, 0.1), Quaternion::new(1.9, 3.8, 5.7, 7.6));
+    /// ```
     #[inline]
     pub fn lerp(&self, other: &Quaternion<N>, t: N) -> Quaternion<N> {
         self * (N::one() - t) + other * t
     }
 
     /// The vector part `(i, j, k)` of this quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_eq!(q.vector()[0], 2.0);
+    /// assert_eq!(q.vector()[1], 3.0);
+    /// assert_eq!(q.vector()[2], 4.0);
+    /// ```
     #[inline]
     pub fn vector(&self) -> MatrixSlice<N, U3, U1, RStride<N, U4, U1>, CStride<N, U4, U1>> {
         self.coords.fixed_rows::<U3>(0)
     }
 
     /// The scalar part `w` of this quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_eq!(q.scalar(), 1.0);
+    /// ```
     #[inline]
     pub fn scalar(&self) -> N {
         self.coords[3]
     }
 
     /// Reinterprets this quaternion as a 4D vector.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Vector4, Quaternion};
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// // Recall that the quaternion is stored internally as (i, j, k, w)
+    /// // while the ::new constructor takes the arguments as (w, i, j, k).
+    /// assert_eq!(*q.as_vector(), Vector4::new(2.0, 3.0, 4.0, 1.0));
+    /// ```
     #[inline]
     pub fn as_vector(&self) -> &Vector4<N> {
         &self.coords
     }
 
     /// The norm of this quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_relative_eq!(q.norm(), 5.47722557, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn norm(&self) -> N {
         self.coords.norm()
@@ -172,30 +253,59 @@ impl<N: Real> Quaternion<N> {
     /// A synonym for the norm of this quaternion.
     ///
     /// Aka the length.
+    /// This is the same as `.norm()`
     ///
-    /// This function is simply implemented as a call to `norm()`
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_relative_eq!(q.magnitude(), 5.47722557, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn magnitude(&self) -> N {
         self.norm()
     }
 
-    /// A synonym for the squared norm of this quaternion.
-    ///
-    /// Aka the squared length.
-    ///
-    /// This function is simply implemented as a call to `norm_squared()`
-    #[inline]
-    pub fn magnitude_squared(&self) -> N {
-        self.norm_squared()
-    }
-
     /// The squared norm of this quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_eq!(q.magnitude_squared(), 30.0);
+    /// ```
     #[inline]
     pub fn norm_squared(&self) -> N {
         self.coords.norm_squared()
     }
 
+    /// A synonym for the squared norm of this quaternion.
+    ///
+    /// Aka the squared length.
+    /// This is the same as `.norm_squared()`
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_eq!(q.magnitude_squared(), 30.0);
+    /// ```
+    #[inline]
+    pub fn magnitude_squared(&self) -> N {
+        self.norm_squared()
+    }
+
     /// The dot product of two quaternions.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let q1 = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let q2 = Quaternion::new(5.0, 6.0, 7.0, 8.0);
+    /// assert_eq!(q1.dot(&q2), 70.0);
+    /// ```
     #[inline]
     pub fn dot(&self, rhs: &Self) -> N {
         self.coords.dot(&rhs.coords)
@@ -205,6 +315,17 @@ impl<N: Real> Quaternion<N> {
     ///
     /// Returns, from left to right: the quaternion norm, the half rotation angle, the rotation
     /// axis. If the rotation angle is zero, the rotation axis is set to `None`.
+    ///
+    /// # Example
+    /// ```
+    /// # use std::f32;
+    /// # use nalgebra::{Vector3, Quaternion};
+    /// let q = Quaternion::new(0.0, 5.0, 0.0, 0.0);
+    /// let (norm, half_ang, axis) = q.polar_decomposition();
+    /// assert_eq!(norm, 5.0);
+    /// assert_eq!(half_ang, f32::consts::FRAC_PI_2);
+    /// assert_eq!(axis, Some(Vector3::x_axis()));
+    /// ```
     pub fn polar_decomposition(&self) -> (N, N, Option<Unit<Vector3<N>>>) {
         if let Some((q, n)) = Unit::try_new_and_get(*self, N::zero()) {
             if let Some(axis) = Unit::try_new(self.vector().clone_owned(), N::zero()) {
@@ -219,13 +340,55 @@ impl<N: Real> Quaternion<N> {
         }
     }
 
+    /// Compute the natural logarithm of a quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(2.0, 5.0, 0.0, 0.0);
+    /// assert_relative_eq!(q.ln(), Quaternion::new(1.683647, 1.190289, 0.0, 0.0), epsilon = 1.0e-6)
+    /// ```
+    #[inline]
+    pub fn ln(&self) -> Quaternion<N> {
+        let n = self.norm();
+        let v = self.vector();
+        let s = self.scalar();
+
+        Quaternion::from_parts(n.ln(), v.normalize() * (s / n).acos())
+    }
+
     /// Compute the exponential of a quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.683647, 1.190289, 0.0, 0.0);
+    /// assert_relative_eq!(q.exp(), Quaternion::new(2.0, 5.0, 0.0, 0.0), epsilon = 1.0e-5)
+    /// ```
     #[inline]
     pub fn exp(&self) -> Quaternion<N> {
         self.exp_eps(N::default_epsilon())
     }
 
-    /// Compute the exponential of a quaternion.
+    /// Compute the exponential of a quaternion. Returns the identity if the vector part of this quaternion
+    /// has a norm smaller than `eps`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.683647, 1.190289, 0.0, 0.0);
+    /// assert_relative_eq!(q.exp_eps(1.0e-6), Quaternion::new(2.0, 5.0, 0.0, 0.0), epsilon = 1.0e-5);
+    ///
+    /// // Singular case.
+    /// let q = Quaternion::new(0.0000001, 0.0, 0.0, 0.0);
+    /// assert_eq!(q.exp_eps(1.0e-6), Quaternion::identity());
+    /// ```
     #[inline]
     pub fn exp_eps(&self, eps: N) -> Quaternion<N> {
         let v = self.vector();
@@ -238,33 +401,54 @@ impl<N: Real> Quaternion<N> {
             let n = nn.sqrt();
             let nv = v * (w_exp * n.sin() / n);
 
-            Quaternion::from_parts(n.cos(), nv)
+            Quaternion::from_parts(w_exp * n.cos(), nv)
         }
     }
 
-    /// Compute the natural logarithm of a quaternion.
-    #[inline]
-    pub fn ln(&self) -> Quaternion<N> {
-        let n = self.norm();
-        let v = self.vector();
-        let s = self.scalar();
-
-        Quaternion::from_parts(n.ln(), v.normalize() * (s / n).acos())
-    }
 
     /// Raise the quaternion to a given floating power.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// assert_relative_eq!(q.powf(1.5), Quaternion::new( -6.2576659, 4.1549037, 6.2323556, 8.3098075), epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn powf(&self, n: N) -> Quaternion<N> {
         (self.ln() * n).exp()
     }
 
     /// Transforms this quaternion into its 4D vector form (Vector part, Scalar part).
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Quaternion, Vector4};
+    /// let mut q = Quaternion::identity();
+    /// *q.as_vector_mut() = Vector4::new(1.0, 2.0, 3.0, 4.0);
+    /// assert!(q.i == 1.0 && q.j == 2.0 && q.k == 3.0 && q.w == 4.0);
+    /// ```
     #[inline]
     pub fn as_vector_mut(&mut self) -> &mut Vector4<N> {
         &mut self.coords
     }
 
     /// The mutable vector part `(i, j, k)` of this quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Quaternion, Vector4};
+    /// let mut q = Quaternion::identity();
+    /// {
+    ///     let mut v = q.vector_mut();
+    ///     v[0] = 2.0;
+    ///     v[1] = 3.0;
+    ///     v[2] = 4.0;
+    /// }
+    /// assert!(q.i == 2.0 && q.j == 3.0 && q.k == 4.0 && q.w == 1.0);
+    /// ```
     #[inline]
     pub fn vector_mut(
         &mut self,
@@ -273,6 +457,14 @@ impl<N: Real> Quaternion<N> {
     }
 
     /// Replaces this quaternion by its conjugate.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let mut q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// q.conjugate_mut();
+    /// assert!(q.i == -2.0 && q.j == -3.0 && q.k == -4.0 && q.w == 1.0);
+    /// ```
     #[inline]
     pub fn conjugate_mut(&mut self) {
         self.coords[0] = -self.coords[0];
@@ -281,6 +473,21 @@ impl<N: Real> Quaternion<N> {
     }
 
     /// Inverts this quaternion in-place if it is not zero.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let mut q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    ///
+    /// assert!(q.try_inverse_mut());
+    /// assert_relative_eq!(q * Quaternion::new(1.0, 2.0, 3.0, 4.0), Quaternion::identity());
+    ///
+    /// //Non-invertible case
+    /// let mut q = Quaternion::new(0.0, 0.0, 0.0, 0.0);
+    /// assert!(!q.try_inverse_mut());
+    /// ```
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool {
         let norm_squared = self.norm_squared();
@@ -296,6 +503,16 @@ impl<N: Real> Quaternion<N> {
     }
 
     /// Normalizes this quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::Quaternion;
+    /// let mut q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// q.normalize_mut();
+    /// assert_relative_eq!(q.norm(), 1.0);
+    /// ```
     #[inline]
     pub fn normalize_mut(&mut self) -> N {
         self.coords.normalize_mut()
@@ -368,19 +585,27 @@ pub type UnitQuaternion<N> = Unit<Quaternion<N>>;
 impl<N: Real> UnitQuaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
-    #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
+    #[deprecated(note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead.")]
     pub fn into_owned(self) -> UnitQuaternion<N> {
         self
     }
 
     /// Clones this unit quaternion into one that owns its data.
     #[inline]
-    #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
+    #[deprecated(note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead.")]
     pub fn clone_owned(&self) -> UnitQuaternion<N> {
         *self
     }
 
     /// The rotation angle in [0; pi] of this unit quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Unit, UnitQuaternion, Vector3};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let rot = UnitQuaternion::from_axis_angle(&axis, 1.78);
+    /// assert_eq!(rot.angle(), 1.78);
+    /// ```
     #[inline]
     pub fn angle(&self) -> N {
         let w = self.quaternion().scalar().abs();
@@ -396,24 +621,60 @@ impl<N: Real> UnitQuaternion<N> {
     /// The underlying quaternion.
     ///
     /// Same as `self.as_ref()`.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{UnitQuaternion, Quaternion};
+    /// let axis = UnitQuaternion::identity();
+    /// assert_eq!(*axis.quaternion(), Quaternion::new(1.0, 0.0, 0.0, 0.0));
+    /// ```
     #[inline]
     pub fn quaternion(&self) -> &Quaternion<N> {
         self.as_ref()
     }
 
     /// Compute the conjugate of this unit quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Unit, UnitQuaternion, Vector3};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let rot = UnitQuaternion::from_axis_angle(&axis, 1.78);
+    /// let conj = rot.conjugate();
+    /// assert_eq!(conj, UnitQuaternion::from_axis_angle(&-axis, 1.78));
+    /// ```
     #[inline]
     pub fn conjugate(&self) -> UnitQuaternion<N> {
         UnitQuaternion::new_unchecked(self.as_ref().conjugate())
     }
 
     /// Inverts this quaternion if it is not zero.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Unit, UnitQuaternion, Vector3};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let rot = UnitQuaternion::from_axis_angle(&axis, 1.78);
+    /// let inv = rot.inverse();
+    /// assert_eq!(rot * inv, UnitQuaternion::identity());
+    /// assert_eq!(inv * rot, UnitQuaternion::identity());
+    /// ```
     #[inline]
     pub fn inverse(&self) -> UnitQuaternion<N> {
         self.conjugate()
     }
 
     /// The rotation angle needed to make `self` and `other` coincide.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// let rot1 = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 1.0);
+    /// let rot2 = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), 0.1);
+    /// assert_relative_eq!(rot1.angle_to(&rot2), 1.0045657, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn angle_to(&self, other: &UnitQuaternion<N>) -> N {
         let delta = self.rotation_to(other);
@@ -423,6 +684,17 @@ impl<N: Real> UnitQuaternion<N> {
     /// The unit quaternion needed to make `self` and `other` coincide.
     ///
     /// The result is such that: `self.rotation_to(other) * self == other`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// let rot1 = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 1.0);
+    /// let rot2 = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), 0.1);
+    /// let rot_to = rot1.rotation_to(&rot2);
+    /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn rotation_to(&self, other: &UnitQuaternion<N>) -> UnitQuaternion<N> {
         other / self
@@ -437,6 +709,8 @@ impl<N: Real> UnitQuaternion<N> {
     }
 
     /// Normalized linear interpolation between two unit quaternions.
+    ///
+    /// This is the same as `self.lerp` except that the result is normalized.
     #[inline]
     pub fn nlerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
         let mut res = self.lerp(other, t);

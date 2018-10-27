@@ -155,10 +155,13 @@ where
  *
  */
 macro_rules! componentwise_constructors_impl(
-    ($($D: ty, $($args: ident:$irow: expr),*);* $(;)*) => {$(
+    ($($doc: expr; $D: ty, $($args: ident:$irow: expr),*);* $(;)*) => {$(
         impl<N: Scalar> Point<N, $D>
             where DefaultAllocator: Allocator<N, $D> {
-            /// Initializes this matrix from its components.
+            #[doc = "Initializes this matrix from its components."]
+            #[doc = "# Example\n```"]
+            #[doc = $doc]
+            #[doc = "```"]
             #[inline]
             pub fn new($($args: N),*) -> Point<N, $D> {
                 unsafe {
@@ -173,11 +176,17 @@ macro_rules! componentwise_constructors_impl(
 );
 
 componentwise_constructors_impl!(
+    "# use nalgebra::Point1;\nlet p = Point1::new(1.0);\nassert!(p.x == 1.0);";
     U1, x:0;
+    "# use nalgebra::Point2;\nlet p = Point2::new(1.0, 2.0);\nassert!(p.x == 1.0 && p.y == 2.0);";
     U2, x:0, y:1;
+    "# use nalgebra::Point3;\nlet p = Point3::new(1.0, 2.0, 3.0);\nassert!(p.x == 1.0 && p.y == 2.0 && p.z == 3.0);";
     U3, x:0, y:1, z:2;
+    "# use nalgebra::Point4;\nlet p = Point4::new(1.0, 2.0, 3.0, 4.0);\nassert!(p.x == 1.0 && p.y == 2.0 && p.z == 3.0 && p.w == 4.0);";
     U4, x:0, y:1, z:2, w:3;
+    "# use nalgebra::Point5;\nlet p = Point5::new(1.0, 2.0, 3.0, 4.0, 5.0);\nassert!(p.x == 1.0 && p.y == 2.0 && p.z == 3.0 && p.w == 4.0 && p.a == 5.0);";
     U5, x:0, y:1, z:2, w:3, a:4;
+    "# use nalgebra::Point6;\nlet p = Point6::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);\nassert!(p.x == 1.0 && p.y == 2.0 && p.z == 3.0 && p.w == 4.0 && p.a == 5.0 && p.b == 6.0);";
     U6, x:0, y:1, z:2, w:3, a:4, b:5;
 );
 
