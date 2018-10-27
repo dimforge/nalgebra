@@ -703,6 +703,14 @@ impl<N: Real> UnitQuaternion<N> {
     /// Linear interpolation between two unit quaternions.
     ///
     /// The result is not normalized.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{UnitQuaternion, Quaternion};
+    /// let q1 = UnitQuaternion::new_normalize(Quaternion::new(1.0, 0.0, 0.0, 0.0));
+    /// let q2 = UnitQuaternion::new_normalize(Quaternion::new(0.0, 1.0, 0.0, 0.0));
+    /// assert_eq!(q1.lerp(&q2, 0.1), Quaternion::new(0.9, 0.1, 0.0, 0.0));
+    /// ```
     #[inline]
     pub fn lerp(&self, other: &UnitQuaternion<N>, t: N) -> Quaternion<N> {
         self.as_ref().lerp(other.as_ref(), t)
@@ -711,6 +719,14 @@ impl<N: Real> UnitQuaternion<N> {
     /// Normalized linear interpolation between two unit quaternions.
     ///
     /// This is the same as `self.lerp` except that the result is normalized.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{UnitQuaternion, Quaternion};
+    /// let q1 = UnitQuaternion::new_normalize(Quaternion::new(1.0, 0.0, 0.0, 0.0));
+    /// let q2 = UnitQuaternion::new_normalize(Quaternion::new(0.0, 1.0, 0.0, 0.0));
+    /// assert_eq!(q1.nlerp(&q2, 0.1), UnitQuaternion::new_normalize(Quaternion::new(0.9, 0.1, 0.0, 0.0)));
+    /// ```
     #[inline]
     pub fn nlerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
         let mut res = self.lerp(other, t);
@@ -722,7 +738,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// Spherical linear interpolation between two unit quaternions.
     ///
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
-    /// is not well-defined).
+    /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
     #[inline]
     pub fn slerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
         Unit::new_unchecked(Quaternion::from_vector(
@@ -762,12 +778,37 @@ impl<N: Real> UnitQuaternion<N> {
     }
 
     /// Inverts this quaternion if it is not zero.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
+    /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
+    /// let mut rot = UnitQuaternion::new(axisangle);
+    /// rot.inverse_mut();
+    /// assert_relative_eq!(rot * UnitQuaternion::new(axisangle), UnitQuaternion::identity());
+    /// assert_relative_eq!(UnitQuaternion::new(axisangle) * rot, UnitQuaternion::identity());
+    /// ```
     #[inline]
     pub fn inverse_mut(&mut self) {
         self.as_mut_unchecked().conjugate_mut()
     }
 
     /// The rotation axis of this unit quaternion or `None` if the rotation is zero.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let angle = 1.2;
+    /// let rot = UnitQuaternion::from_axis_angle(&axis, angle);
+    /// assert_eq!(rot.axis(), Some(axis));
+    ///
+    /// // Case with a zero angle.
+    /// let rot = UnitQuaternion::from_axis_angle(&axis, 0.0);
+    /// assert!(rot.axis().is_none());
+    /// ```
     #[inline]
     pub fn axis(&self) -> Option<Unit<Vector3<N>>> {
         let v = if self.quaternion().scalar() >= N::zero() {
@@ -780,6 +821,16 @@ impl<N: Real> UnitQuaternion<N> {
     }
 
     /// The rotation axis of this unit quaternion multiplied by the rotation angle.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
+    /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
+    /// let rot = UnitQuaternion::new(axisangle);
+    /// assert_relative_eq!(rot.scaled_axis(), axisangle, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn scaled_axis(&self) -> Vector3<N> {
         if let Some(axis) = self.axis() {
@@ -792,6 +843,19 @@ impl<N: Real> UnitQuaternion<N> {
     /// The rotation axis and angle in ]0, pi] of this unit quaternion.
     ///
     /// Returns `None` if the angle is zero.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let angle = 1.2;
+    /// let rot = UnitQuaternion::from_axis_angle(&axis, angle);
+    /// assert_eq!(rot.axis_angle(), Some((axis, angle)));
+    ///
+    /// // Case with a zero angle.
+    /// let rot = UnitQuaternion::from_axis_angle(&axis, 0.0);
+    /// assert!(rot.axis_angle().is_none());
+    /// ```
     #[inline]
     pub fn axis_angle(&self) -> Option<(Unit<Vector3<N>>, N)> {
         if let Some(axis) = self.axis() {
@@ -814,6 +878,16 @@ impl<N: Real> UnitQuaternion<N> {
     /// Note that this function yields a `Quaternion<N>` because it looses the unit property.
     /// The vector part of the return value corresponds to the axis-angle representation (divided
     /// by 2.0) of this unit quaternion.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Vector3, UnitQuaternion};
+    /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
+    /// let q = UnitQuaternion::new(axisangle);
+    /// assert_relative_eq!(q.ln().vector().into_owned(), axisangle, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn ln(&self) -> Quaternion<N> {
         if let Some(v) = self.axis() {
@@ -827,6 +901,19 @@ impl<N: Real> UnitQuaternion<N> {
     ///
     /// This returns the unit quaternion that identifies a rotation with axis `self.axis()` and
     /// angle `self.angle() × n`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let angle = 1.2;
+    /// let rot = UnitQuaternion::from_axis_angle(&axis, angle);
+    /// let pow = rot.powf(2.0);
+    /// assert_relative_eq!(pow.axis().unwrap(), axis, epsilon = 1.0e-6);
+    /// assert_eq!(pow.angle(), 2.4);
+    /// ```
     #[inline]
     pub fn powf(&self, n: N) -> UnitQuaternion<N> {
         if let Some(v) = self.axis() {
@@ -837,6 +924,23 @@ impl<N: Real> UnitQuaternion<N> {
     }
 
     /// Builds a rotation matrix from this unit quaternion.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3, Matrix3};
+    /// let q = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_6);
+    /// let rot = q.to_rotation_matrix();
+    /// let expected = Matrix3::new(0.8660254, -0.5,      0.0,
+    ///                             0.5,       0.8660254, 0.0,
+    ///                             0.0,       0.0,       1.0);
+    ///
+    /// // The translation part should not have changed.
+    /// assert_relative_eq!(*rot.matrix(), expected, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn to_rotation_matrix(&self) -> Rotation<N, U3> {
         let i = self.as_ref()[0];
@@ -870,13 +974,64 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Converts this unit quaternion into its equivalent Euler angles.
     ///
-    /// The angles are produced in the form (roll, yaw, pitch).
+    /// The angles are produced in the form (roll, pitch, yaw).
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::UnitQuaternion;
+    /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
+    /// let euler = rot.to_euler_angles();
+    /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
+    /// ```
     #[inline]
+    #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
     pub fn to_euler_angles(&self) -> (N, N, N) {
         self.to_rotation_matrix().to_euler_angles()
     }
 
+
+    /// Retrieves the euler angles corresponding to this unit quaternion.
+    ///
+    /// The angles are produced in the form (roll, pitch, yaw).
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::UnitQuaternion;
+    /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
+    /// let euler = rot.euler_angles();
+    /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn euler_angles(&self) -> (N, N, N) {
+        self.to_rotation_matrix().to_euler_angles()
+    }
+
     /// Converts this unit quaternion into its equivalent homogeneous transformation matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3, Matrix4};
+    /// let rot = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_6);
+    /// let expected = Matrix4::new(0.8660254, -0.5,      0.0, 0.0,
+    ///                             0.5,       0.8660254, 0.0, 0.0,
+    ///                             0.0,       0.0,       1.0, 0.0,
+    ///                             0.0,       0.0,       0.0, 1.0);
+    ///
+    /// // The translation part should not have changed.
+    /// assert_relative_eq!(rot.to_homogeneous(), expected, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn to_homogeneous(&self) -> MatrixN<N, U4> {
         self.to_rotation_matrix().to_homogeneous()
