@@ -23,6 +23,7 @@ impl<N: Real> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]
+    #[deprecated(note = "Use `::from` instead.")]
     pub fn from_vector(vector: Vector4<N>) -> Self {
         Quaternion { coords: vector }
     }
@@ -34,7 +35,7 @@ impl<N: Real> Quaternion<N> {
     #[inline]
     pub fn new(w: N, x: N, y: N, z: N) -> Self {
         let v = Vector4::<N>::new(x, y, z, w);
-        Self::from_vector(v)
+        Self::from(v)
     }
 
     /// Creates a new quaternion from its scalar and vector parts. Note that the arguments order does

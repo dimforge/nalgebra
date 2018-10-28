@@ -68,7 +68,7 @@ impl<N: Real> Copy for Quaternion<N> {}
 impl<N: Real> Clone for Quaternion<N> {
     #[inline]
     fn clone(&self) -> Self {
-        Quaternion::from_vector(self.coords.clone())
+        Quaternion::from(self.coords.clone())
     }
 }
 
@@ -90,7 +90,7 @@ where Owned<N, U4>: Deserialize<'a>
     where Des: Deserializer<'a> {
         let coords = Vector4::<N>::deserialize(deserializer)?;
 
-        Ok(Quaternion::from_vector(coords))
+        Ok(Quaternion::from(coords))
     }
 }
 
@@ -106,7 +106,7 @@ impl<N: Real> Quaternion<N> {
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
     pub fn clone_owned(&self) -> Quaternion<N> {
-        Quaternion::from_vector(self.coords.clone_owned())
+        Quaternion::from(self.coords.clone_owned())
     }
 
     /// Normalizes this quaternion.
@@ -122,7 +122,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn normalize(&self) -> Quaternion<N> {
-        Quaternion::from_vector(self.coords.normalize())
+        Quaternion::from(self.coords.normalize())
     }
 
     /// The conjugate of this quaternion.
@@ -142,7 +142,7 @@ impl<N: Real> Quaternion<N> {
             -self.coords[2],
             self.coords[3],
         );
-        Quaternion::from_vector(v)
+        Quaternion::from(v)
     }
 
     /// Inverts this quaternion if it is not zero.
@@ -166,7 +166,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn try_inverse(&self) -> Option<Quaternion<N>> {
-        let mut res = Quaternion::from_vector(self.coords.clone_owned());
+        let mut res = Quaternion::from(self.coords.clone_owned());
 
         if res.try_inverse_mut() {
             Some(res)
@@ -405,7 +405,6 @@ impl<N: Real> Quaternion<N> {
         }
     }
 
-
     /// Raise the quaternion to a given floating power.
     ///
     /// # Example
@@ -585,14 +584,18 @@ pub type UnitQuaternion<N> = Unit<Quaternion<N>>;
 impl<N: Real> UnitQuaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
-    #[deprecated(note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead.")]
+    #[deprecated(
+        note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead."
+    )]
     pub fn into_owned(self) -> UnitQuaternion<N> {
         self
     }
 
     /// Clones this unit quaternion into one that owns its data.
     #[inline]
-    #[deprecated(note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead.")]
+    #[deprecated(
+        note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead."
+    )]
     pub fn clone_owned(&self) -> UnitQuaternion<N> {
         *self
     }
@@ -741,7 +744,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
     #[inline]
     pub fn slerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
-        Unit::new_unchecked(Quaternion::from_vector(
+        Unit::new_unchecked(Quaternion::from(
             Unit::new_unchecked(self.coords)
                 .slerp(&Unit::new_unchecked(other.coords), t)
                 .unwrap(),
@@ -768,7 +771,7 @@ impl<N: Real> UnitQuaternion<N> {
     {
         Unit::new_unchecked(self.coords)
             .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
-            .map(|q| Unit::new_unchecked(Quaternion::from_vector(q.unwrap())))
+            .map(|q| Unit::new_unchecked(Quaternion::from(q.unwrap())))
     }
 
     /// Compute the conjugate of this unit quaternion in-place.
@@ -992,7 +995,6 @@ impl<N: Real> UnitQuaternion<N> {
     pub fn to_euler_angles(&self) -> (N, N, N) {
         self.to_rotation_matrix().to_euler_angles()
     }
-
 
     /// Retrieves the euler angles corresponding to this unit quaternion.
     ///

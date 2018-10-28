@@ -158,7 +158,7 @@ macro_rules! componentwise_constructors_impl(
     ($($doc: expr; $D: ty, $($args: ident:$irow: expr),*);* $(;)*) => {$(
         impl<N: Scalar> Point<N, $D>
             where DefaultAllocator: Allocator<N, $D> {
-            #[doc = "Initializes this matrix from its components."]
+            #[doc = "Initializes this point from its components."]
             #[doc = "# Example\n```"]
             #[doc = $doc]
             #[doc = "```"]

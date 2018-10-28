@@ -143,10 +143,7 @@ where
     #[inline]
     fn append_rotation(&self, r: &Self::Rotation) -> Self {
         let shift = r.transform_vector(&self.translation.vector);
-        Isometry::from_parts(
-            Translation::from_vector(shift),
-            r.clone() * self.rotation.clone(),
-        )
+        Isometry::from_parts(Translation::from(shift), r.clone() * self.rotation.clone())
     }
 
     #[inline]

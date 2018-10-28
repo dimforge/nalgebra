@@ -70,7 +70,7 @@ where
     #[inline]
     pub fn rotation_wrt_point(r: R, p: Point<N, D>, scaling: N) -> Self {
         let shift = r.transform_vector(&-&p.coords);
-        Self::from_parts(Translation::from_vector(shift + p.coords), r, scaling)
+        Self::from_parts(Translation::from(shift + p.coords), r, scaling)
     }
 }
 
@@ -105,7 +105,7 @@ impl<N: Real> Similarity<N, U2, Rotation2<N>> {
     #[inline]
     pub fn new(translation: Vector2<N>, angle: N, scaling: N) -> Self {
         Self::from_parts(
-            Translation::from_vector(translation),
+            Translation::from(translation),
             Rotation2::new(angle),
             scaling,
         )
@@ -117,7 +117,7 @@ impl<N: Real> Similarity<N, U2, UnitComplex<N>> {
     #[inline]
     pub fn new(translation: Vector2<N>, angle: N, scaling: N) -> Self {
         Self::from_parts(
-            Translation::from_vector(translation),
+            Translation::from(translation),
             UnitComplex::new(angle),
             scaling,
         )
