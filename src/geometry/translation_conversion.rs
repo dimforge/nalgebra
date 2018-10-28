@@ -28,7 +28,7 @@ where
 {
     #[inline]
     fn to_superset(&self) -> Translation<N2, D> {
-        Translation::from_vector(self.vector.to_superset())
+        Translation::from(self.vector.to_superset())
     }
 
     #[inline]
@@ -38,7 +38,9 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(rot: &Translation<N2, D>) -> Self {
-        Translation::from_vector(rot.vector.to_subset_unchecked())
+        Translation {
+            vector: rot.vector.to_subset_unchecked(),
+        }
     }
 }
 
@@ -145,7 +147,9 @@ where
     #[inline]
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim());
-        Self::from_vector(::convert_unchecked(t.into_owned()))
+        Self {
+            vector: ::convert_unchecked(t.into_owned()),
+        }
     }
 }
 
@@ -157,5 +161,14 @@ where
     #[inline]
     fn from(t: Translation<N, D>) -> Self {
         t.to_homogeneous()
+    }
+}
+
+impl<N: Scalar, D: DimName> From<VectorN<N, D>> for Translation<N, D>
+where DefaultAllocator: Allocator<N, D>
+{
+    #[inline]
+    fn from(vector: VectorN<N, D>) -> Self {
+        Translation { vector }
     }
 }
