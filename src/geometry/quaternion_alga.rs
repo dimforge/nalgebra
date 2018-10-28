@@ -98,7 +98,7 @@ impl<N: Real> FiniteDimVectorSpace for Quaternion<N> {
 
     #[inline]
     fn canonical_basis_element(i: usize) -> Self {
-        Self::from_vector(Vector4::canonical_basis_element(i))
+        Self::from(Vector4::canonical_basis_element(i))
     }
 
     #[inline]
@@ -131,7 +131,7 @@ impl<N: Real> NormedSpace for Quaternion<N> {
     #[inline]
     fn normalize(&self) -> Self {
         let v = self.coords.normalize();
-        Self::from_vector(v)
+        Self::from(v)
     }
 
     #[inline]
@@ -142,7 +142,7 @@ impl<N: Real> NormedSpace for Quaternion<N> {
     #[inline]
     fn try_normalize(&self, min_norm: N) -> Option<Self> {
         if let Some(v) = self.coords.try_normalize(min_norm) {
-            Some(Self::from_vector(v))
+            Some(Self::from(v))
         } else {
             None
         }

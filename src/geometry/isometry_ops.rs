@@ -142,7 +142,7 @@ isometry_binop_impl_all!(
     [ref ref] => {
         let shift = self.rotation.transform_vector(&rhs.translation.vector);
 
-        Isometry::from_parts(Translation::from_vector(&self.translation.vector + shift),
+        Isometry::from_parts(Translation::from(&self.translation.vector + shift),
                              self.rotation.clone() * rhs.rotation.clone()) // FIXME: too bad we have to clone.
     };
 );
@@ -267,7 +267,7 @@ isometry_binop_impl_all!(
     [val ref] => &self * right;
     [ref ref] => {
         let new_tr = &self.translation.vector + self.rotation.transform_vector(&right.vector);
-        Isometry::from_parts(Translation::from_vector(new_tr), self.rotation.clone())
+        Isometry::from_parts(Translation::from(new_tr), self.rotation.clone())
     };
 );
 
@@ -339,10 +339,10 @@ isometry_from_composition_impl_all!(
     Mul, mul;
     (D, D), (D, U1) for D: DimName;
     self: Rotation<N, D>, right: Translation<N, D>, Output = Isometry<N, D, Rotation<N, D>>;
-    [val val] => Isometry::from_parts(Translation::from_vector(&self * right.vector),  self);
-    [ref val] => Isometry::from_parts(Translation::from_vector(self * right.vector),   self.clone());
-    [val ref] => Isometry::from_parts(Translation::from_vector(&self * &right.vector), self);
-    [ref ref] => Isometry::from_parts(Translation::from_vector(self * &right.vector),  self.clone());
+    [val val] => Isometry::from_parts(Translation::from(&self * right.vector),  self);
+    [ref val] => Isometry::from_parts(Translation::from(self * right.vector),   self.clone());
+    [val ref] => Isometry::from_parts(Translation::from(&self * &right.vector), self);
+    [ref ref] => Isometry::from_parts(Translation::from(self * &right.vector),  self.clone());
 );
 
 // UnitQuaternion × Translation
@@ -351,10 +351,10 @@ isometry_from_composition_impl_all!(
     (U4, U1), (U3, U1);
     self: UnitQuaternion<N>, right: Translation<N, U3>,
     Output = Isometry<N, U3, UnitQuaternion<N>>;
-    [val val] => Isometry::from_parts(Translation::from_vector(&self *  right.vector), self);
-    [ref val] => Isometry::from_parts(Translation::from_vector( self *  right.vector), self.clone());
-    [val ref] => Isometry::from_parts(Translation::from_vector(&self * &right.vector), self);
-    [ref ref] => Isometry::from_parts(Translation::from_vector( self * &right.vector), self.clone());
+    [val val] => Isometry::from_parts(Translation::from(&self *  right.vector), self);
+    [ref val] => Isometry::from_parts(Translation::from( self *  right.vector), self.clone());
+    [val ref] => Isometry::from_parts(Translation::from(&self * &right.vector), self);
+    [ref ref] => Isometry::from_parts(Translation::from( self * &right.vector), self.clone());
 );
 
 // Rotation × Isometry
@@ -368,7 +368,7 @@ isometry_from_composition_impl_all!(
     [val ref] => &self * right;
     [ref ref] => {
         let shift = self * &right.translation.vector;
-        Isometry::from_parts(Translation::from_vector(shift), self * &right.rotation)
+        Isometry::from_parts(Translation::from(shift), self * &right.rotation)
     };
 );
 
@@ -396,7 +396,7 @@ isometry_from_composition_impl_all!(
     [val ref] => &self * right;
     [ref ref] => {
         let shift = self * &right.translation.vector;
-        Isometry::from_parts(Translation::from_vector(shift), self * &right.rotation)
+        Isometry::from_parts(Translation::from(shift), self * &right.rotation)
     };
 );
 

@@ -58,7 +58,7 @@ where DefaultAllocator: Allocator<N, D>
     #[inline]
     pub fn rotation_wrt_point(r: R, p: Point<N, D>) -> Self {
         let shift = r.transform_vector(&-&p.coords);
-        Self::from_parts(Translation::from_vector(shift + p.coords), r)
+        Self::from_parts(Translation::from(shift + p.coords), r)
     }
 }
 
@@ -122,7 +122,7 @@ impl<N: Real> Isometry<N, U2, Rotation2<N>> {
     #[inline]
     pub fn new(translation: Vector2<N>, angle: N) -> Self {
         Self::from_parts(
-            Translation::from_vector(translation),
+            Translation::from(translation),
             Rotation::<N, U2>::new(angle),
         )
     }
@@ -145,7 +145,7 @@ impl<N: Real> Isometry<N, U2, UnitComplex<N>> {
     #[inline]
     pub fn new(translation: Vector2<N>, angle: N) -> Self {
         Self::from_parts(
-            Translation::from_vector(translation),
+            Translation::from(translation),
             UnitComplex::from_angle(angle),
         )
     }
@@ -183,7 +183,7 @@ macro_rules! isometry_construction_impl(
             #[inline]
             pub fn new(translation: Vector3<N>, axisangle: Vector3<N>) -> Self {
                 Self::from_parts(
-                    Translation::from_vector(translation),
+                    Translation::from(translation),
                     $RotId::<$($RotParams),*>::from_scaled_axis(axisangle))
             }
 
@@ -225,7 +225,7 @@ macro_rules! isometry_construction_impl(
                                       up:     &Vector3<N>)
                                       -> Self {
                 Self::from_parts(
-                    Translation::from_vector(eye.coords.clone()),
+                    Translation::from(eye.coords.clone()),
                     $RotId::new_observer_frame(&(target - eye), up))
             }
 
@@ -270,7 +270,7 @@ macro_rules! isometry_construction_impl(
                 let rotation = $RotId::look_at_rh(&(target - eye), up);
                 let trans    = &rotation * (-eye);
 
-                Self::from_parts(Translation::from_vector(trans.coords), rotation)
+                Self::from_parts(Translation::from(trans.coords), rotation)
             }
 
             /// Builds a left-handed look-at view matrix.
@@ -314,7 +314,7 @@ macro_rules! isometry_construction_impl(
                 let rotation = $RotId::look_at_lh(&(target - eye), up);
                 let trans    = &rotation * (-eye);
 
-                Self::from_parts(Translation::from_vector(trans.coords), rotation)
+                Self::from_parts(Translation::from(trans.coords), rotation)
             }
         }
     }

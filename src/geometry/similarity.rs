@@ -184,7 +184,7 @@ where
         );
 
         Self::from_parts(
-            Translation::from_vector(&self.isometry.translation.vector * scaling),
+            Translation::from(&self.isometry.translation.vector * scaling),
             self.isometry.rotation.clone(),
             self.scaling * scaling,
         )

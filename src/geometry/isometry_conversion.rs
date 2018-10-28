@@ -141,7 +141,9 @@ where
     #[inline]
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim()).into_owned();
-        let t = Translation::from_vector(::convert_unchecked(t));
+        let t = Translation {
+            vector: ::convert_unchecked(t),
+        };
 
         Self::from_parts(t, ::convert_unchecked(m.clone_owned()))
     }
