@@ -319,7 +319,7 @@ where DefaultAllocator: Allocator<N, D, D>
         + Allocator<N, DimNameDiff<D, U1>>
         + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>
 {
-    /// Transforms the given vector, assuming the matirx `self` uses homogeneous coordinates.
+    /// Transforms the given vector, assuming the matrix `self` uses homogeneous coordinates.
     #[inline]
     fn transform_vector(
         &self,
