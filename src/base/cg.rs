@@ -314,11 +314,12 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     }
 }
 
-impl<N: Real, D: DimNameSub<U1>> Transformation<Point<N, DimNameDiff<D, U1>>> for MatrixN<N, D>
+impl<N: Real, D: DimNameSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D>
         + Allocator<N, DimNameDiff<D, U1>>
         + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>
 {
+    /// Transforms the given vector, assuming the matirx `self` uses homogeneous coordinates.
     #[inline]
     fn transform_vector(
         &self,
@@ -336,6 +337,7 @@ where DefaultAllocator: Allocator<N, D, D>
         transform * v
     }
 
+    /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
     #[inline]
     fn transform_point(&self, pt: &Point<N, DimNameDiff<D, U1>>) -> Point<N, DimNameDiff<D, U1>> {
         let transform = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
@@ -349,5 +351,25 @@ where DefaultAllocator: Allocator<N, D, D>
         }
 
         transform * pt + translation
+    }
+}
+
+impl<N: Real, D: DimNameSub<U1>> Transformation<Point<N, DimNameDiff<D, U1>>> for MatrixN<N, D>
+where DefaultAllocator: Allocator<N, D, D>
+        + Allocator<N, DimNameDiff<D, U1>>
+        + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>
+{
+    #[inline]
+    fn transform_vector(
+        &self,
+        v: &VectorN<N, DimNameDiff<D, U1>>,
+    ) -> VectorN<N, DimNameDiff<D, U1>>
+    {
+        self.transform_vector(v)
+    }
+
+    #[inline]
+    fn transform_point(&self, pt: &Point<N, DimNameDiff<D, U1>>) -> Point<N, DimNameDiff<D, U1>> {
+        self.transform_point(pt)
     }
 }
