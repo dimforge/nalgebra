@@ -24,7 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   
 ### Modified
   * The `Point::from_coordinates` methods is deprecated. Use `Point::from` instead.
-  * The `.transform_point` and `.transform_vector` methods are now inherent methods too so that the user does not have to
+  * The `.transform_point` and `.transform_vector` methods are now inherent methods for matrices so that the user does not have to
   explicitly import the `Transform` trait from the alga crate.
 
 ## [0.16.0]
