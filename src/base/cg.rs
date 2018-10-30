@@ -321,7 +321,7 @@ where DefaultAllocator: Allocator<N, D, D>
 {
     /// Transforms the given vector, assuming the matrix `self` uses homogeneous coordinates.
     #[inline]
-    fn transform_vector(
+    pub fn transform_vector(
         &self,
         v: &VectorN<N, DimNameDiff<D, U1>>,
     ) -> VectorN<N, DimNameDiff<D, U1>>
@@ -339,7 +339,11 @@ where DefaultAllocator: Allocator<N, D, D>
 
     /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
     #[inline]
-    fn transform_point(&self, pt: &Point<N, DimNameDiff<D, U1>>) -> Point<N, DimNameDiff<D, U1>> {
+    pub fn transform_point(
+        &self,
+        pt: &Point<N, DimNameDiff<D, U1>>,
+    ) -> Point<N, DimNameDiff<D, U1>>
+    {
         let transform = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
         let translation = self.fixed_slice::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1);
         let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
