@@ -19,7 +19,7 @@ use base::{DefaultAllocator, Scalar, VectorN};
 
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Point<N: Scalar, D: DimName>
 where DefaultAllocator: Allocator<N, D>
 {
@@ -41,17 +41,7 @@ impl<N: Scalar, D: DimName> Copy for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,
-{}
-
-impl<N: Scalar, D: DimName> Clone for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: Clone,
 {
-    #[inline]
-    fn clone(&self) -> Self {
-        Point::from(self.coords.clone())
-    }
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -104,13 +94,6 @@ where
 impl<N: Scalar, D: DimName> Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
-    /// Clones this point into one that owns its data.
-    #[inline]
-    #[deprecated(note = "This will be removed. Use the `.clone()` method from the `Clone` trait instead.")]
-    pub fn clone(&self) -> Point<N, D> {
-        Point::from(self.coords.clone_owned())
-    }
-
     /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
     /// end of it.
     ///

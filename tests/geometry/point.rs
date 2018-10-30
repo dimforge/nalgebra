@@ -1,6 +1,12 @@
-#![cfg(feature = "arbitrary")]
 use na::{Point3, Vector3, Vector4};
 use num::Zero;
+
+#[test]
+fn point_clone() {
+    let p = Point3::new(1.0, 2.0, 3.0);
+    let p2 = p.clone();
+    assert_eq!(p, p2);
+}
 
 #[test]
 fn point_ops() {
@@ -87,7 +93,10 @@ fn to_homogeneous() {
     assert_eq!(a.to_homogeneous(), expected);
 }
 
-quickcheck!(fn point_sub(pt1: Point3<f64>, pt2: Point3<f64>) -> bool {
-    let dpt = &pt2 - &pt1;
-    relative_eq!(pt2, pt1 + dpt, epsilon = 1.0e-7)
-});
+#[cfg(feature = "arbitrary")]
+quickcheck!(
+    fn point_sub(pt1: Point3<f64>, pt2: Point3<f64>) -> bool {
+        let dpt = &pt2 - &pt1;
+        relative_eq!(pt2, pt1 + dpt, epsilon = 1.0e-7)
+    }
+);
