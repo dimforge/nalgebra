@@ -52,6 +52,15 @@ where
     pub(crate) vals: Vec<N>,
 }
 
+impl<N: Scalar, R: Dim, C: Dim> CsVecStorage<N, R, C>
+where
+    DefaultAllocator: Allocator<usize, C>,
+{
+    pub fn values(&self) -> &[N] {
+        &self.vals
+    }
+}
+
 impl<N: Scalar, R: Dim, C: Dim> CsVecStorage<N, R, C> where DefaultAllocator: Allocator<usize, C> {}
 
 impl<'a, N: Scalar, R: Dim, C: Dim> CsStorageIter<'a, N, R, C> for CsVecStorage<N, R, C>
@@ -187,8 +196,33 @@ where
 }
 
 impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
+    pub fn from_data(data: S) -> Self {
+        CsMatrix {
+            data,
+            _phantoms: PhantomData,
+        }
+    }
+
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+
+    pub fn nrows(&self) -> usize {
+        self.data.shape().0.value()
+    }
+
+    pub fn ncols(&self) -> usize {
+        self.data.shape().1.value()
+    }
+
+    pub fn shape(&self) -> (usize, usize) {
+        let (nrows, ncols) = self.data.shape();
+        (nrows.value(), ncols.value())
+    }
+
+    pub fn is_square(&self) -> bool {
+        let (nrows, ncols) = self.data.shape();
+        nrows.value() == ncols.value()
     }
 
     pub fn transpose(&self) -> CsMatrix<N, C, R>
