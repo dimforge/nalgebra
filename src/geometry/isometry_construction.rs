@@ -190,7 +190,7 @@ macro_rules! isometry_construction_impl(
             /// Creates an isometry that corresponds to the local frame of an observer standing at the
             /// point `eye` and looking toward `target`.
             ///
-            /// It maps the `z` axis to the view direction `target - eye`and the origin to teh `eye`.
+            /// It maps the `z` axis to the view direction `target - eye`and the origin to the `eye`.
             ///
             /// # Arguments
             ///   * eye - The observer position.

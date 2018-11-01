@@ -31,10 +31,19 @@ impl<N: Real> Quaternion<N> {
     /// Creates a new quaternion from its individual components. Note that the arguments order does
     /// **not** follow the storage order.
     ///
-    /// The storage order is `[ x, y, z, w ]`.
+    /// The storage order is `[ i, j, k, w ]` while the arguments for this functions are in the
+    /// order `(w, i, j, k)`.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Quaternion, Vector4};
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// assert!(q.i == 2.0 && q.j == 3.0 && q.k == 4.0 && q.w == 1.0);
+    /// assert_eq!(*q.as_vector(), Vector4::new(2.0, 3.0, 4.0, 1.0));
+    /// ```
     #[inline]
-    pub fn new(w: N, x: N, y: N, z: N) -> Self {
-        let v = Vector4::<N>::new(x, y, z, w);
+    pub fn new(w: N, i: N, j: N, k: N) -> Self {
+        let v = Vector4::<N>::new(i, j, k, w);
         Self::from(v)
     }
 
@@ -42,6 +51,16 @@ impl<N: Real> Quaternion<N> {
     /// **not** follow the storage order.
     ///
     /// The storage order is [ vector, scalar ].
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Quaternion, Vector3, Vector4};
+    /// let w = 1.0;
+    /// let ijk = Vector3::new(2.0, 3.0, 4.0);
+    /// let q = Quaternion::from_parts(w, ijk);
+    /// assert!(q.i == 2.0 && q.j == 3.0 && q.k == 4.0 && q.w == 1.0);
+    /// assert_eq!(*q.as_vector(), Vector4::new(2.0, 3.0, 4.0, 1.0));
+    /// ```
     #[inline]
     // FIXME: take a reference to `vector`?
     pub fn from_parts<SB>(scalar: N, vector: Vector<N, U3, SB>) -> Self
@@ -61,6 +80,16 @@ impl<N: Real> Quaternion<N> {
     }
 
     /// The quaternion multiplicative identity.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::identity();
+    /// let q2 = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    ///
+    /// assert_eq!(q * q2, q2);
+    /// assert_eq!(q2 * q, q2);
+    /// ```
     #[inline]
     pub fn identity() -> Self {
         Self::new(N::one(), N::zero(), N::zero(), N::zero())
@@ -111,7 +140,21 @@ where Owned<N, U4>: Send
 }
 
 impl<N: Real> UnitQuaternion<N> {
-    /// The quaternion multiplicative identity.
+    /// The rotation identity.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{UnitQuaternion, Vector3, Point3};
+    /// let q = UnitQuaternion::identity();
+    /// let q2 = UnitQuaternion::new(Vector3::new(1.0, 2.0, 3.0));
+    /// let v = Vector3::new_random();
+    /// let p = Point3::from(v);
+    ///
+    /// assert_eq!(q * q2, q2);
+    /// assert_eq!(q2 * q, q2);
+    /// assert_eq!(q * v, v);
+    /// assert_eq!(q * p, p);
+    /// ```
     #[inline]
     pub fn identity() -> Self {
         Self::new_unchecked(Quaternion::identity())
@@ -119,6 +162,28 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Creates a new quaternion from a unit vector (the rotation axis) and an angle
     /// (the rotation angle).
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
+    /// let axis = Vector3::y_axis();
+    /// let angle = f32::consts::FRAC_PI_2;
+    /// // Point and vector being transformed in the tests.
+    /// let pt = Point3::new(4.0, 5.0, 6.0);
+    /// let vec = Vector3::new(4.0, 5.0, 6.0);
+    /// let q = UnitQuaternion::from_axis_angle(&axis, angle);
+    ///
+    /// assert_eq!(q.axis().unwrap(), axis);
+    /// assert_eq!(q.angle(), angle);
+    /// assert_relative_eq!(q * pt, Point3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    /// assert_relative_eq!(q * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    ///
+    /// // A zero vector yields an identity.
+    /// assert_eq!(UnitQuaternion::from_scaled_axis(Vector3::<f32>::zeros()), UnitQuaternion::identity());
+    /// ```
     #[inline]
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
     where SB: Storage<N, U3> {
@@ -131,6 +196,18 @@ impl<N: Real> UnitQuaternion<N> {
     /// Creates a new unit quaternion from a quaternion.
     ///
     /// The input quaternion will be normalized.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::UnitQuaternion;
+    /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
+    /// let euler = rot.euler_angles();
+    /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn from_quaternion(q: Quaternion<N>) -> Self {
         Self::new_normalize(q)
@@ -156,6 +233,20 @@ impl<N: Real> UnitQuaternion<N> {
     }
 
     /// Builds an unit quaternion from a rotation matrix.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Rotation3, UnitQuaternion, Vector3};
+    /// let axis = Vector3::y_axis();
+    /// let angle = 0.1;
+    /// let rot = Rotation3::from_axis_angle(&axis, angle);
+    /// let q = UnitQuaternion::from_rotation_matrix(&rot);
+    /// assert_relative_eq!(q.to_rotation_matrix(), rot, epsilon = 1.0e-6);
+    /// assert_relative_eq!(q.axis().unwrap(), rot.axis().unwrap(), epsilon = 1.0e-6);
+    /// assert_relative_eq!(q.angle(), rot.angle(), epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn from_rotation_matrix(rotmat: &Rotation<N, U3>) -> Self {
         // Robust matrix to quaternion transformation.
@@ -207,6 +298,18 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
     /// direction.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Vector3, UnitQuaternion};
+    /// let a = Vector3::new(1.0, 2.0, 3.0);
+    /// let b = Vector3::new(3.0, 1.0, 2.0);
+    /// let q = UnitQuaternion::rotation_between(&a, &b).unwrap();
+    /// assert_relative_eq!(q * a, b);
+    /// assert_relative_eq!(q.inverse() * b, a);
+    /// ```
     #[inline]
     pub fn rotation_between<SB, SC>(a: &Vector<N, U3, SB>, b: &Vector<N, U3, SC>) -> Option<Self>
     where
@@ -218,6 +321,19 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Vector3, UnitQuaternion};
+    /// let a = Vector3::new(1.0, 2.0, 3.0);
+    /// let b = Vector3::new(3.0, 1.0, 2.0);
+    /// let q2 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.2).unwrap();
+    /// let q5 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.5).unwrap();
+    /// assert_relative_eq!(q2 * q2 * q2 * q2 * q2 * a, b, epsilon = 1.0e-6);
+    /// assert_relative_eq!(q5 * q5 * a, b, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn scaled_rotation_between<SB, SC>(
         a: &Vector<N, U3, SB>,
@@ -241,6 +357,18 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
     /// direction.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Unit, Vector3, UnitQuaternion};
+    /// let a = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let b = Unit::new_normalize(Vector3::new(3.0, 1.0, 2.0));
+    /// let q = UnitQuaternion::rotation_between(&a, &b).unwrap();
+    /// assert_relative_eq!(q * a, b);
+    /// assert_relative_eq!(q.inverse() * b, a);
+    /// ```
     #[inline]
     pub fn rotation_between_axis<SB, SC>(
         a: &Unit<Vector<N, U3, SB>>,
@@ -255,6 +383,19 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Unit, Vector3, UnitQuaternion};
+    /// let a = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let b = Unit::new_normalize(Vector3::new(3.0, 1.0, 2.0));
+    /// let q2 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.2).unwrap();
+    /// let q5 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.5).unwrap();
+    /// assert_relative_eq!(q2 * q2 * q2 * q2 * q2 * a, b, epsilon = 1.0e-6);
+    /// assert_relative_eq!(q5 * q5 * a, b, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn scaled_rotation_between_axis<SB, SC>(
         na: &Unit<Vector<N, U3, SB>>,
@@ -294,13 +435,26 @@ impl<N: Real> UnitQuaternion<N> {
     /// Creates an unit quaternion that corresponds to the local frame of an observer standing at the
     /// origin and looking toward `dir`.
     ///
-    /// It maps the view direction `dir` to the positive `z` axis.
+    /// It maps the `z` axis to the view direction `dir`.
     ///
     /// # Arguments
-    ///   * dir - The look direction, that is, direction the matrix `z` axis will be aligned with.
-    ///   * up - The vertical direction. The only requirement of this parameter is to not be
-    ///   collinear
-    ///   to `dir`. Non-collinearity is not checked.
+    ///   * dir - The look direction. It does not need to be normalized.
+    ///   * up - The vertical direction. It does not need to be normalized.
+    ///   The only requirement of this parameter is to not be collinear to `dir`. Non-collinearity
+    ///   is not checked.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// let dir = Vector3::new(1.0, 2.0, 3.0);
+    /// let up = Vector3::y();
+    ///
+    /// let q = UnitQuaternion::new_observer_frame(&dir, &up);
+    /// assert_relative_eq!(q * Vector3::z(), dir.normalize());
+    /// ```
     #[inline]
     pub fn new_observer_frame<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
@@ -312,14 +466,27 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Builds a right-handed look-at view matrix without translation.
     ///
+    /// It maps the view direction `dir` to the **negative** `z` axis.
     /// This conforms to the common notion of right handed look-at matrix from the computer
     /// graphics community.
     ///
     /// # Arguments
-    ///   * eye - The eye position.
-    ///   * target - The target position.
-    ///   * up - A vector approximately aligned with required the vertical axis. The only
-    ///   requirement of this parameter is to not be collinear to `target - eye`.
+    ///   * dir − The view direction. It does not need to be normalized.
+    ///   * up - A vector approximately aligned with required the vertical axis. It does not need
+    ///   to be normalized. The only requirement of this parameter is to not be collinear to `dir`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// let dir = Vector3::new(1.0, 2.0, 3.0);
+    /// let up = Vector3::y();
+    ///
+    /// let q = UnitQuaternion::look_at_rh(&dir, &up);
+    /// assert_relative_eq!(q * dir.normalize(), -Vector3::z());
+    /// ```
     #[inline]
     pub fn look_at_rh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
@@ -331,14 +498,27 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Builds a left-handed look-at view matrix without translation.
     ///
+    /// It maps the view direction `dir` to the **positive** `z` axis.
     /// This conforms to the common notion of left handed look-at matrix from the computer
     /// graphics community.
     ///
     /// # Arguments
-    ///   * eye - The eye position.
-    ///   * target - The target position.
+    ///   * dir − The view direction. It does not need to be normalized.
     ///   * up - A vector approximately aligned with required the vertical axis. The only
-    ///   requirement of this parameter is to not be collinear to `target - eye`.
+    ///   requirement of this parameter is to not be collinear to `dir`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// let dir = Vector3::new(1.0, 2.0, 3.0);
+    /// let up = Vector3::y();
+    ///
+    /// let q = UnitQuaternion::look_at_lh(&dir, &up);
+    /// assert_relative_eq!(q * dir.normalize(), Vector3::z());
+    /// ```
     #[inline]
     pub fn look_at_lh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
@@ -351,6 +531,25 @@ impl<N: Real> UnitQuaternion<N> {
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
     ///
     /// If `axisangle` has a magnitude smaller than `N::default_epsilon()`, this returns the identity rotation.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// // Point and vector being transformed in the tests.
+    /// let pt = Point3::new(4.0, 5.0, 6.0);
+    /// let vec = Vector3::new(4.0, 5.0, 6.0);
+    /// let q = UnitQuaternion::new(axisangle);
+    ///
+    /// assert_relative_eq!(q * pt, Point3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    /// assert_relative_eq!(q * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    ///
+    /// // A zero vector yields an identity.
+    /// assert_eq!(UnitQuaternion::new(Vector3::<f32>::zeros()), UnitQuaternion::identity());
+    /// ```
     #[inline]
     pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
     where SB: Storage<N, U3> {
@@ -362,6 +561,25 @@ impl<N: Real> UnitQuaternion<N> {
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
     ///
     /// If `axisangle` has a magnitude smaller than `eps`, this returns the identity rotation.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// // Point and vector being transformed in the tests.
+    /// let pt = Point3::new(4.0, 5.0, 6.0);
+    /// let vec = Vector3::new(4.0, 5.0, 6.0);
+    /// let q = UnitQuaternion::new_eps(axisangle, 1.0e-6);
+    ///
+    /// assert_relative_eq!(q * pt, Point3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    /// assert_relative_eq!(q * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    ///
+    /// // An almost zero vector yields an identity.
+    /// assert_eq!(UnitQuaternion::new_eps(Vector3::new(1.0e-8, 1.0e-9, 1.0e-7), 1.0e-6), UnitQuaternion::identity());
+    /// ```
     #[inline]
     pub fn new_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
     where SB: Storage<N, U3> {
@@ -374,6 +592,25 @@ impl<N: Real> UnitQuaternion<N> {
     ///
     /// If `axisangle` has a magnitude smaller than `N::default_epsilon()`, this returns the identity rotation.
     /// Same as `Self::new(axisangle)`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// // Point and vector being transformed in the tests.
+    /// let pt = Point3::new(4.0, 5.0, 6.0);
+    /// let vec = Vector3::new(4.0, 5.0, 6.0);
+    /// let q = UnitQuaternion::from_scaled_axis(axisangle);
+    ///
+    /// assert_relative_eq!(q * pt, Point3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    /// assert_relative_eq!(q * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    ///
+    /// // A zero vector yields an identity.
+    /// assert_eq!(UnitQuaternion::from_scaled_axis(Vector3::<f32>::zeros()), UnitQuaternion::identity());
+    /// ```
     #[inline]
     pub fn from_scaled_axis<SB>(axisangle: Vector<N, U3, SB>) -> Self
     where SB: Storage<N, U3> {
@@ -383,7 +620,26 @@ impl<N: Real> UnitQuaternion<N> {
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
     ///
     /// If `axisangle` has a magnitude smaller than `eps`, this returns the identity rotation.
-    /// Same as `Self::new(axisangle)`.
+    /// Same as `Self::new_eps(axisangle, eps)`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// // Point and vector being transformed in the tests.
+    /// let pt = Point3::new(4.0, 5.0, 6.0);
+    /// let vec = Vector3::new(4.0, 5.0, 6.0);
+    /// let q = UnitQuaternion::from_scaled_axis_eps(axisangle, 1.0e-6);
+    ///
+    /// assert_relative_eq!(q * pt, Point3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    /// assert_relative_eq!(q * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    ///
+    /// // An almost zero vector yields an identity.
+    /// assert_eq!(UnitQuaternion::from_scaled_axis_eps(Vector3::new(1.0e-8, 1.0e-9, 1.0e-7), 1.0e-6), UnitQuaternion::identity());
+    /// ```
     #[inline]
     pub fn from_scaled_axis_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
     where SB: Storage<N, U3> {
