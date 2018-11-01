@@ -978,18 +978,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// Converts this unit quaternion into its equivalent Euler angles.
     ///
     /// The angles are produced in the form (roll, pitch, yaw).
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
-    /// # use nalgebra::UnitQuaternion;
-    /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
-    /// let euler = rot.to_euler_angles();
-    /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
-    /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
-    /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
-    /// ```
     #[inline]
     #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
     pub fn to_euler_angles(&self) -> (N, N, N) {
