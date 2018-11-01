@@ -11,7 +11,7 @@
     <a href="https://opensource.org/licenses/BSD-3-Clause">
         <img src="https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat">
     </a>
-    <a href="https://img.shields.io/discord/507548572338880513.svg">
+    <a href="https://discord.gg/vt9DJSW">
         <img src="https://img.shields.io/discord/507548572338880513.svg">
     </a>
 </p>
