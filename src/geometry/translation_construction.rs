@@ -66,7 +66,8 @@ where
 {
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
-        Self::from(Arbitrary::arbitrary(rng))
+        let v: VectorN<N, D> = Arbitrary::arbitrary(rng);
+        Self::from(v)
     }
 }
 
