@@ -2,6 +2,9 @@
   <img src="http://nalgebra.org/img/logo_nalgebra.svg" alt="crates.io">
 </p>
 <p align="center">
+    <a href="https://discord.gg/vt9DJSW">
+        <img src="https://img.shields.io/discord/507548572338880513.svg?logo=discord&colorB=7289DA">
+    </a>
     <a href="https://travis-ci.org/rustsim/nalgebra">
         <img src="https://travis-ci.org/rustsim/nalgebra.svg?branch=master" alt="Build status">
     </a>
