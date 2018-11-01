@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.16.7"
+version = "0.16.8"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "Linear algebra library with transformations and statically-sized or dynamically-sized matrices."
