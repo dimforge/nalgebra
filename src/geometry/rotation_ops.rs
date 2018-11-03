@@ -138,16 +138,16 @@ md_assign_impl_all!(
     MulAssign, mul_assign;
     (D, D), (D, D) for D: DimName;
     self: Rotation<N, D>, right: Rotation<N, D>;
-    [val] => unsafe { self.matrix_mut().mul_assign(right.unwrap()) };
-    [ref] => unsafe { self.matrix_mut().mul_assign(right.matrix()) };
+    [val] => self.matrix_mut_unchecked().mul_assign(right.unwrap());
+    [ref] => self.matrix_mut_unchecked().mul_assign(right.matrix());
 );
 
 md_assign_impl_all!(
     DivAssign, div_assign;
     (D, D), (D, D) for D: DimName;
     self: Rotation<N, D>, right: Rotation<N, D>;
-    [val] => unsafe { self.matrix_mut().mul_assign(right.inverse().unwrap()) };
-    [ref] => unsafe { self.matrix_mut().mul_assign(right.inverse().matrix()) };
+    [val] => self.matrix_mut_unchecked().mul_assign(right.inverse().unwrap());
+    [ref] => self.matrix_mut_unchecked().mul_assign(right.inverse().matrix());
 );
 
 // Matrix *= Rotation
