@@ -941,7 +941,6 @@ impl<N: Real> UnitQuaternion<N> {
     ///                             0.5,       0.8660254, 0.0,
     ///                             0.0,       0.0,       1.0);
     ///
-    /// // The translation part should not have changed.
     /// assert_relative_eq!(*rot.matrix(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
@@ -1019,7 +1018,6 @@ impl<N: Real> UnitQuaternion<N> {
     ///                             0.0,       0.0,       1.0, 0.0,
     ///                             0.0,       0.0,       0.0, 1.0);
     ///
-    /// // The translation part should not have changed.
     /// assert_relative_eq!(rot.to_homogeneous(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]

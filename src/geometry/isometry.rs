@@ -26,19 +26,15 @@ use geometry::{Point, Translation};
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "R: Serialize,
+    serde(bound(serialize = "R: Serialize,
                      DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: Serialize"
-    ))
+                     Owned<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "R: Deserialize<'de>,
+    serde(bound(deserialize = "R: Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: Deserialize<'de>"
-    ))
+                       Owned<N, D>: Deserialize<'de>"))
 )]
 pub struct Isometry<N: Real, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
@@ -96,7 +92,8 @@ impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Isome
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{}
+{
+}
 
 impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
@@ -283,7 +280,6 @@ where DefaultAllocator: Allocator<N, D>
     ///                             0.5,       0.8660254, 20.0,
     ///                             0.0,       0.0,       1.0);
     ///
-    /// // The translation part should not have changed.
     /// assert_relative_eq!(iso.to_homogeneous(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
@@ -305,7 +301,8 @@ impl<N: Real, D: DimName, R> Eq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + Eq,
     DefaultAllocator: Allocator<N, D>,
-{}
+{
+}
 
 impl<N: Real, D: DimName, R> PartialEq for Isometry<N, D, R>
 where
