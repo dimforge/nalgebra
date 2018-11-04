@@ -20,6 +20,12 @@ pub trait CsStorageIter<'a, N, R, C = U1> {
     fn column_entries(&'a self, j: usize) -> Self::ColumnEntries;
 }
 
+pub trait CsStorageIterMut<'a, N: 'a, R, C = U1> {
+    type ColumnEntriesMut: Iterator<Item = (usize, &'a mut N)>;
+
+    fn column_entries_mut(&'a mut self, j: usize) -> Self::ColumnEntriesMut;
+}
+
 pub trait CsStorage<N, R, C = U1>: for<'a> CsStorageIter<'a, N, R, C> {
     fn shape(&self) -> (R, C);
     unsafe fn row_index_unchecked(&self, i: usize) -> usize;
@@ -30,15 +36,9 @@ pub trait CsStorage<N, R, C = U1>: for<'a> CsStorageIter<'a, N, R, C> {
     fn len(&self) -> usize;
 }
 
-pub trait CsStorageMut<N, R, C = U1>: CsStorage<N, R, C> {
-    /*
-    /// Sets the length of this column without initializing its values and row indices.
-    ///
-    /// If the given length is larger than the current one, uninitialized entries are
-    /// added at the end of the column `i`. This will effectively shift all the matrix entries
-    /// of the columns at indices `j` with `j > i`.
-    fn set_column_len(&mut self, i: usize, len: usize);
-    */
+pub trait CsStorageMut<N, R, C = U1>:
+    CsStorage<N, R, C> + for<'a> CsStorageIterMut<'a, N, R, C>
+{
 }
 
 #[derive(Clone, Debug)]
@@ -131,6 +131,27 @@ where
 
         self.p[j]..end
     }
+}
+
+impl<'a, N: Scalar, R: Dim, C: Dim> CsStorageIterMut<'a, N, R, C> for CsVecStorage<N, R, C>
+where
+    DefaultAllocator: Allocator<usize, C>,
+{
+    type ColumnEntriesMut = iter::Zip<iter::Cloned<slice::Iter<'a, usize>>, slice::IterMut<'a, N>>;
+
+    #[inline]
+    fn column_entries_mut(&'a mut self, j: usize) -> Self::ColumnEntriesMut {
+        let rng = self.column_range(j);
+        self.i[rng.clone()]
+            .iter()
+            .cloned()
+            .zip(self.vals[rng].iter_mut())
+    }
+}
+
+impl<N: Scalar, R: Dim, C: Dim> CsStorageMut<N, R, C> for CsVecStorage<N, R, C> where
+    DefaultAllocator: Allocator<usize, C>
+{
 }
 
 /*

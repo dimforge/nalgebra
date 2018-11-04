@@ -8,7 +8,7 @@ use std::slice;
 
 use allocator::Allocator;
 use constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
-use sparse::{CsMatrix, CsStorage, CsStorageIter, CsVecStorage, CsVector};
+use sparse::{CsMatrix, CsStorage, CsStorageIter, CsStorageIterMut, CsVecStorage, CsVector};
 use storage::{Storage, StorageMut};
 use {DefaultAllocator, Dim, Matrix, MatrixMN, Real, Scalar, Vector, VectorN, U1};
 
@@ -39,7 +39,7 @@ where
     /// Computes the cholesky decomposition of the sparse matrix `m`.
     pub fn new(m: &CsMatrix<N, D, D>) -> Self {
         let mut me = Self::new_symbolic(m);
-        let _ = me.decompose(&m.data.vals);
+        let _ = me.decompose_left_looking(&m.data.vals);
         me
     }
     /// Perform symbolic analysis for the given matrix.
@@ -84,6 +84,74 @@ where
         } else {
             None
         }
+    }
+
+    pub fn decompose_left_looking(&mut self, values: &[N]) -> bool {
+        assert!(
+            values.len() >= self.original_i.len(),
+            "The set of values is too small."
+        );
+
+        let n = self.l.nrows();
+
+        // Reset `work_c` to the column pointers of `l`.
+        self.work_c.copy_from(&self.l.data.p);
+
+        unsafe {
+            for k in 0..n {
+                // Scatter the k-th column of the original matrix with the values provided.
+                let range_k =
+                    *self.original_p.get_unchecked(k)..*self.original_p.get_unchecked(k + 1);
+
+                *self.work_x.vget_unchecked_mut(k) = N::zero();
+                for p in range_k.clone() {
+                    let irow = *self.original_i.get_unchecked(p);
+
+                    if irow >= k {
+                        *self.work_x.vget_unchecked_mut(irow) = *values.get_unchecked(p);
+                    }
+                }
+
+                for j in self.u.data.column_row_indices(k) {
+                    let factor = -*self
+                        .l
+                        .data
+                        .vals
+                        .get_unchecked(*self.work_c.vget_unchecked(j));
+                    *self.work_c.vget_unchecked_mut(j) += 1;
+
+                    if j < k {
+                        for (z, val) in self.l.data.column_entries(j) {
+                            if z >= k {
+                                *self.work_x.vget_unchecked_mut(z) += val * factor;
+                            }
+                        }
+                    }
+                }
+
+                let diag = *self.work_x.vget_unchecked(k);
+
+                if diag > N::zero() {
+                    let denom = diag.sqrt();
+                    *self
+                        .l
+                        .data
+                        .vals
+                        .get_unchecked_mut(*self.l.data.p.vget_unchecked(k)) = denom;
+
+                    for (p, val) in self.l.data.column_entries_mut(k) {
+                        *val = *self.work_x.vget_unchecked(p) / denom;
+                        *self.work_x.vget_unchecked_mut(p) = N::zero();
+                    }
+                } else {
+                    self.ok = false;
+                    return false;
+                }
+            }
+        }
+
+        self.ok = true;
+        true
     }
 
     // Performs the numerical Cholesky decomposition given the set of numerical values.

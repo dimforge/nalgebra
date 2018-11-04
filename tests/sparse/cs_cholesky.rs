@@ -51,5 +51,5 @@ fn test_cholesky(a: Matrix5<f32>) {
     println!("{}", l);
     println!("{}", cs_l);
 
-    assert_eq!(l, cs_l);
+    assert_relative_eq!(l, cs_l);
 }

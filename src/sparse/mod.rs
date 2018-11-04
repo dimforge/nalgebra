@@ -1,5 +1,5 @@
 pub use self::cs_matrix::{
-    CsMatrix, CsStorage, CsStorageIter, CsStorageMut, CsVecStorage, CsVector,
+    CsMatrix, CsStorage, CsStorageIter, CsStorageIterMut, CsStorageMut, CsVecStorage, CsVector,
 };
 pub use self::cs_matrix_cholesky::CsCholesky;
 
