@@ -980,7 +980,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
     pub fn to_euler_angles(&self) -> (N, N, N) {
-        self.to_rotation_matrix().to_euler_angles()
+        self.euler_angles()
     }
 
     /// Retrieves the euler angles corresponding to this unit quaternion.
@@ -1000,7 +1000,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn euler_angles(&self) -> (N, N, N) {
-        self.to_rotation_matrix().to_euler_angles()
+        self.to_rotation_matrix().euler_angles()
     }
 
     /// Converts this unit quaternion into its equivalent homogeneous transformation matrix.

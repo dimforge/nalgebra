@@ -196,6 +196,14 @@ impl<N: Real> UnitQuaternion<N> {
     /// Creates a new unit quaternion from a quaternion.
     ///
     /// The input quaternion will be normalized.
+    #[inline]
+    pub fn from_quaternion(q: Quaternion<N>) -> Self {
+        Self::new_normalize(q)
+    }
+
+    /// Creates a new unit quaternion from Euler angles.
+    ///
+    /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
     ///
     /// # Example
     /// ```
@@ -208,14 +216,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
     /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
     /// ```
-    #[inline]
-    pub fn from_quaternion(q: Quaternion<N>) -> Self {
-        Self::new_normalize(q)
-    }
-
-    /// Creates a new unit quaternion from Euler angles.
-    ///
-    /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
     #[inline]
     pub fn from_euler_angles(roll: N, pitch: N, yaw: N) -> Self {
         let (sr, cr) = (roll * ::convert(0.5f64)).sin_cos();
@@ -435,7 +435,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// Creates an unit quaternion that corresponds to the local frame of an observer standing at the
     /// origin and looking toward `dir`.
     ///
-    /// It maps the `z` axis to the view direction `dir`.
+    /// It maps the `z` axis to the direction `dir`.
     ///
     /// # Arguments
     ///   * dir - The look direction. It does not need to be normalized.
