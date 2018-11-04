@@ -240,12 +240,32 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 
     /// Transposes `self`.
+    ///
+    /// Same as `.inverse()` because the inverse of a rotation matrix is its transform.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Rotation2, Rotation3, Vector3};
+    /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
+    /// let tr_rot = rot.transpose();
+    /// assert_relative_eq!(rot * tr_rot, Rotation3::identity(), epsilon = 1.0e-6);
+    /// assert_relative_eq!(tr_rot * rot, Rotation3::identity(), epsilon = 1.0e-6);
+    ///
+    /// let rot = Rotation2::new(1.2);
+    /// let tr_rot = rot.transpose();
+    /// assert_relative_eq!(rot * tr_rot, Rotation2::identity(), epsilon = 1.0e-6);
+    /// assert_relative_eq!(tr_rot * rot, Rotation2::identity(), epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn transpose(&self) -> Rotation<N, D> {
         Rotation::from_matrix_unchecked(self.matrix.transpose())
     }
 
     /// Inverts `self`.
+    ///
+    /// Same as `.transpose()` because the inverse of a rotation matrix is its transform.
     ///
     /// # Example
     /// ```
@@ -268,12 +288,56 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 
     /// Transposes `self` in-place.
+    ///
+    /// Same as `.inverse_mut()` because the inverse of a rotation matrix is its transform.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Rotation2, Rotation3, Vector3};
+    /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
+    /// let mut tr_rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
+    /// tr_rot.transpose_mut();
+    ///
+    /// assert_relative_eq!(rot * tr_rot, Rotation3::identity(), epsilon = 1.0e-6);
+    /// assert_relative_eq!(tr_rot * rot, Rotation3::identity(), epsilon = 1.0e-6);
+    ///
+    /// let rot = Rotation2::new(1.2);
+    /// let mut tr_rot = Rotation2::new(1.2);
+    /// tr_rot.transpose_mut();
+    ///
+    /// assert_relative_eq!(rot * tr_rot, Rotation2::identity(), epsilon = 1.0e-6);
+    /// assert_relative_eq!(tr_rot * rot, Rotation2::identity(), epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn transpose_mut(&mut self) {
         self.matrix.transpose_mut()
     }
 
     /// Inverts `self` in-place.
+    ///
+    /// Same as `.transpose_mut()` because the inverse of a rotation matrix is its transform.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
+    /// # use nalgebra::{Rotation2, Rotation3, Vector3};
+    /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
+    /// let mut inv = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
+    /// inv.inverse_mut();
+    ///
+    /// assert_relative_eq!(rot * inv, Rotation3::identity(), epsilon = 1.0e-6);
+    /// assert_relative_eq!(inv * rot, Rotation3::identity(), epsilon = 1.0e-6);
+    ///
+    /// let rot = Rotation2::new(1.2);
+    /// let mut inv = Rotation2::new(1.2);
+    /// inv.inverse_mut();
+    ///
+    /// assert_relative_eq!(rot * inv, Rotation2::identity(), epsilon = 1.0e-6);
+    /// assert_relative_eq!(inv * rot, Rotation2::identity(), epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn inverse_mut(&mut self) {
         self.transpose_mut()
