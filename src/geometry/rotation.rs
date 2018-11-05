@@ -178,7 +178,7 @@ where DefaultAllocator: Allocator<N, D, D>
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Rotation2, Rotation3, Vector3, Matrix2, Matrix3, Matrix4};
+    /// # use nalgebra::{Rotation2, Rotation3, Vector3, Matrix3, Matrix4};
     /// # use std::f32;
     /// let rot = Rotation3::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_6);
     /// let expected = Matrix4::new(0.8660254, -0.5,      0.0, 0.0,
