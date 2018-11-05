@@ -126,6 +126,7 @@ impl<N: Real> Rotation2<N> {
     /// let rot1 = Rotation2::new(0.1);
     /// let rot2 = Rotation2::new(1.7);
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
+    /// ```
     #[inline]
     pub fn angle_to(&self, other: &Rotation2<N>) -> N {
         self.rotation_to(other).angle()
@@ -160,7 +161,7 @@ impl<N: Real> Rotation2<N> {
     /// # use nalgebra::Rotation2;
     /// let rot = Rotation2::new(0.78);
     /// let pow = rot.powf(2.0);
-    /// assert_eq!(pow.angle(), 1.56);
+    /// assert_eq!(pow.angle(), 2.0 * 0.78);
     /// ```
     #[inline]
     pub fn powf(&self, n: N) -> Rotation2<N> {
