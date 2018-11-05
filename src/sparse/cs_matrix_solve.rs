@@ -145,7 +145,10 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         ShapeConstraint: SameNumberOfRows<D, D2>,
     {
         let mut reach = Vec::new();
+        // We don't compute a postordered reach here because it will be sorted after anyway.
         self.lower_triangular_reach(b, &mut reach);
+        // We sort the reach so the result matrix has sorted indices.
+        reach.sort();
         let mut workspace = unsafe { VectorN::new_uninitialized_generic(b.data.shape().0, U1) };
 
         for i in reach.iter().cloned() {
@@ -156,7 +159,7 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
             workspace[i] = val;
         }
 
-        for j in reach.iter().cloned().rev() {
+        for j in reach.iter().cloned() {
             let mut column = self.data.column_entries(j);
             let mut diag_found = false;
 
@@ -192,8 +195,12 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         Some(result)
     }
 
-    fn lower_triangular_reach<D2: Dim, S2>(&self, b: &CsVector<N, D2, S2>, xi: &mut Vec<usize>)
-    where
+    // Computes the reachable, post-ordered, nodes from `b`.
+    fn lower_triangular_reach_postordered<D2: Dim, S2>(
+        &self,
+        b: &CsVector<N, D2, S2>,
+        xi: &mut Vec<usize>,
+    ) where
         S2: CsStorage<N, D2>,
         DefaultAllocator: Allocator<bool, D>,
     {
@@ -230,6 +237,45 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
             }
 
             xi.push(j)
+        }
+    }
+
+    // Computes the nodes reachable from `b` in an arbitrary order.
+    fn lower_triangular_reach<D2: Dim, S2>(&self, b: &CsVector<N, D2, S2>, xi: &mut Vec<usize>)
+    where
+        S2: CsStorage<N, D2>,
+        DefaultAllocator: Allocator<bool, D>,
+    {
+        let mut visited = VectorN::repeat_generic(self.data.shape().1, U1, false);
+        let mut stack = Vec::new();
+
+        for irow in b.data.column_row_indices(0) {
+            self.lower_triangular_bfs(irow, visited.as_mut_slice(), &mut stack, xi);
+        }
+    }
+
+    fn lower_triangular_bfs(
+        &self,
+        start: usize,
+        visited: &mut [bool],
+        stack: &mut Vec<usize>,
+        xi: &mut Vec<usize>,
+    ) {
+        if !visited[start] {
+            stack.clear();
+            stack.push(start);
+            xi.push(start);
+            visited[start] = true;
+
+            while let Some(j) = stack.pop() {
+                for irow in self.data.column_row_indices(j) {
+                    if irow > j && !visited[irow] {
+                        stack.push(irow);
+                        xi.push(irow);
+                        visited[irow] = true;
+                    }
+                }
+            }
         }
     }
 }

@@ -246,6 +246,32 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
         nrows.value() == ncols.value()
     }
 
+    /// Should always return `true`.
+    ///
+    /// This method is generally used for debugging and should typically not be called in user code.
+    /// This checks that the row inner indices of this matrix are sorted. It takes `O(n)` time,
+    /// where n` is `self.len()`.
+    /// All operations of CSC matrices on nalgebra assume, and will return, sorted indices.
+    /// If at any time this `is_sorted` method returns `false`, then, something went wrong
+    /// and an issue should be open on the nalgebra repository with details on how to reproduce
+    /// this.
+    pub fn is_sorted(&self) -> bool {
+        for j in 0..self.ncols() {
+            let mut curr = None;
+            for idx in self.data.column_row_indices(j) {
+                if let Some(curr) = curr {
+                    if idx <= curr {
+                        return false;
+                    }
+                }
+
+                curr = Some(idx);
+            }
+        }
+
+        true
+    }
+
     pub fn transpose(&self) -> CsMatrix<N, C, R>
     where
         DefaultAllocator: Allocator<usize, R>,
@@ -276,5 +302,43 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
         }
 
         res
+    }
+}
+
+impl<N: Scalar, R: Dim, C: Dim> CsMatrix<N, R, C>
+where
+    DefaultAllocator: Allocator<usize, C>,
+{
+    pub(crate) fn sort(&mut self)
+    where
+        DefaultAllocator: Allocator<N, R>,
+    {
+        // Size = R
+        let nrows = self.data.shape().0;
+        let mut workspace = unsafe { VectorN::new_uninitialized_generic(nrows, U1) };
+        self.sort_with_workspace(workspace.as_mut_slice());
+    }
+
+    pub(crate) fn sort_with_workspace(&mut self, workspace: &mut [N]) {
+        assert!(
+            workspace.len() >= self.nrows(),
+            "Workspace must be able to hold at least self.nrows() elements."
+        );
+
+        for j in 0..self.ncols() {
+            // Scatter the row in the workspace.
+            for (irow, val) in self.data.column_entries(j) {
+                workspace[irow] = val;
+            }
+
+            // Sort the index vector.
+            let range = self.data.column_range(j);
+            self.data.i[range.clone()].sort();
+
+            // Permute the values too.
+            for (i, irow) in range.clone().zip(self.data.i[range].iter().cloned()) {
+                self.data.vals[i] = workspace[irow];
+            }
+        }
     }
 }

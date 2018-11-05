@@ -79,15 +79,15 @@ fn cs_lower_triangular_solve_cs() {
     let cs_b8: CsVector<_, _> = Vector5::w().into();
     let cs_b9: CsVector<_, _> = Vector5::a().into();
 
-    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b1).map(|v| v.into()), a.solve_lower_triangular(&b1));
-    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b5).map(|v| v.into()), a.solve_lower_triangular(&b5));
-    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b6).map(|v| v.into()), a.solve_lower_triangular(&b6));
-    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b7).map(|v| v.into()), a.solve_lower_triangular(&b7));
-    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b8).map(|v| v.into()), a.solve_lower_triangular(&b8));
-    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b9).map(|v| v.into()), a.solve_lower_triangular(&b9));
-    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b2).map(|v| v.into()), a.solve_lower_triangular(&b2));
-    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b3).map(|v| v.into()), a.solve_lower_triangular(&b3));
-    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b4).map(|v| v.into()), a.solve_lower_triangular(&b4));
+    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b1).map(|v| { assert!(v.is_sorted()); v.into() }), a.solve_lower_triangular(&b1));
+    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b5).map(|v| { assert!(v.is_sorted()); v.into() }), a.solve_lower_triangular(&b5));
+    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b6).map(|v| { assert!(v.is_sorted()); v.into() }), a.solve_lower_triangular(&b6));
+    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b7).map(|v| { assert!(v.is_sorted()); v.into() }), a.solve_lower_triangular(&b7));
+    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b8).map(|v| { assert!(v.is_sorted()); v.into() }), a.solve_lower_triangular(&b8));
+    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b9).map(|v| { assert!(v.is_sorted()); v.into() }), a.solve_lower_triangular(&b9));
+    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b2).map(|v| { assert!(v.is_sorted()); v.into() }), a.solve_lower_triangular(&b2));
+    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b3).map(|v| { assert!(v.is_sorted()); v.into() }), a.solve_lower_triangular(&b3));
+    assert_eq!(cs_a.solve_lower_triangular_cs(&cs_b4).map(|v| { assert!(v.is_sorted()); v.into() }), a.solve_lower_triangular(&b4));
 
 
     // Singular case.

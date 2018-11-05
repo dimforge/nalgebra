@@ -12,7 +12,8 @@ fn cs_from_to_matrix() {
     );
 
     let cs: CsMatrix<_, _, _> = m.into();
-    let m2: Matrix4x5<_> = cs.into();
+    assert!(cs.is_sorted());
 
+    let m2: Matrix4x5<_> = cs.into();
     assert_eq!(m2, m);
 }

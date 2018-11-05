@@ -155,7 +155,7 @@ where
     }
 
     // Performs the numerical Cholesky decomposition given the set of numerical values.
-    pub fn decompose(&mut self, values: &[N]) -> bool {
+    pub fn decompose_up_looking(&mut self, values: &[N]) -> bool {
         assert!(
             values.len() >= self.original_i.len(),
             "The set of values is too small."

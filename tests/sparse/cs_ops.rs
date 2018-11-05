@@ -12,6 +12,7 @@ fn axpy_cs() {
     let cs: CsVector<_, _> = v2.into();
     v1.axpy_cs(5.0, &cs, 10.0);
 
+    assert!(cs.is_sorted());
     assert_eq!(v1, expected)
 }
 
@@ -36,6 +37,9 @@ fn cs_mat_mul() {
 
     let mul = &sm1 * &sm2;
 
+    assert!(sm1.is_sorted());
+    assert!(sm2.is_sorted());
+    assert!(mul.is_sorted());
     assert_eq!(Matrix3x5::from(mul), m1 * m2);
 }
 
@@ -59,7 +63,10 @@ fn cs_mat_add() {
     let sm1: CsMatrix<_, _, _> = m1.into();
     let sm2: CsMatrix<_, _, _> = m2.into();
 
-    let mul = &sm1 + &sm2;
+    let sum = &sm1 + &sm2;
 
-    assert_eq!(Matrix4x5::from(mul), m1 + m2);
+    assert!(sm1.is_sorted());
+    assert!(sm2.is_sorted());
+    assert!(sum.is_sorted());
+    assert_eq!(Matrix4x5::from(sum), m1 + m2);
 }

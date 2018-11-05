@@ -12,7 +12,11 @@ fn cs_transpose() {
     );
 
     let cs: CsMatrix<_, _, _> = m.into();
-    let cs_transposed: Matrix5x4<_> = cs.transpose().into();
+    assert!(cs.is_sorted());
 
-    assert_eq!(cs_transposed, m.transpose())
+    let cs_transposed = cs.transpose();
+    assert!(cs_transposed.is_sorted());
+
+    let cs_transposed_mat: Matrix5x4<_> = cs_transposed.into();
+    assert_eq!(cs_transposed_mat, m.transpose())
 }

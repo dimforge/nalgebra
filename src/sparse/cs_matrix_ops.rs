@@ -172,7 +172,11 @@ where
                 );
             }
 
-            for p in res.data.p[j]..nz {
+            // Keep the output sorted.
+            let range = res.data.p[j]..nz;
+            res.data.i[range.clone()].sort();
+
+            for p in range {
                 res.data.vals[p] = workspace[res.data.i[p]]
             }
         }
