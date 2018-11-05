@@ -29,7 +29,7 @@ impl<N: Real> Rotation2<N> {
     /// # #[macro_use] extern crate approx;
     /// # extern crate nalgebra;
     /// # use std::f32;
-    /// # use nalgebra::{Rotation2, Vector2, Point2};
+    /// # use nalgebra::{Rotation2, Point2};
     /// let rot = Rotation2::new(f32::consts::FRAC_PI_2);
     ///
     /// assert_relative_eq!(rot * Point2::new(3.0, 4.0), Point2::new(-4.0, 3.0));
