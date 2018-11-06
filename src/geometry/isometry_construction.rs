@@ -27,10 +27,14 @@ where DefaultAllocator: Allocator<N, D>
     /// # Example
     ///
     /// ```
-    /// # use nalgebra::{Isometry2, Point2};
+    /// # use nalgebra::{Isometry2, Point2, Isometry3, Point3};
+    ///
     /// let iso = Isometry2::identity();
     /// let pt = Point2::new(1.0, 2.0);
+    /// assert_eq!(iso * pt, pt);
     ///
+    /// let iso = Isometry3::identity();
+    /// let pt = Point3::new(1.0, 2.0, 3.0);
     /// assert_eq!(iso * pt, pt);
     /// ```
     #[inline]
