@@ -251,7 +251,7 @@ where DefaultAllocator: Allocator<N, R, C>
     pub fn from_distribution_generic<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
         nrows: R,
         ncols: C,
-        distribution: &mut Distr,
+        distribution: &Distr,
         rng: &mut G,
     ) -> Self
     {
@@ -584,7 +584,7 @@ macro_rules! impl_constructors(
             #[inline]
             pub fn from_distribution<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
                 $($args: usize,)*
-                distribution: &mut Distr,
+                distribution: &Distr,
                 rng: &mut G,
             ) -> Self {
                 Self::from_distribution_generic($($gargs, )* distribution, rng)
@@ -721,7 +721,7 @@ where
         Unit::new_normalize(VectorN::from_distribution_generic(
             D::name(),
             U1,
-            &mut StandardNormal,
+            &StandardNormal,
             rng,
         ))
     }
