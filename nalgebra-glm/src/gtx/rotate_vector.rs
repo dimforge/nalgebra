@@ -1,6 +1,6 @@
 use na::{Real, Rotation3, Unit, UnitComplex};
 
-use aliases::{TVec2, TVec3, TVec4, TMat4};
+use aliases::{TMat4, TVec2, TVec3, TVec4};
 
 /// Build the rotation matrix needed to align `normal` and `up`.
 pub fn orientation<N: Real>(normal: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
@@ -58,5 +58,7 @@ pub fn rotate_z_vec4<N: Real>(v: &TVec4<N>, angle: N) -> TVec4<N> {
 
 /// Computes a spherical linear interpolation between the vectors `x` and `y` assumed to be normalized.
 pub fn slerp<N: Real>(x: &TVec3<N>, y: &TVec3<N>, a: N) -> TVec3<N> {
-    Unit::new_unchecked(*x).slerp(&Unit::new_unchecked(*y), a).unwrap()
+    Unit::new_unchecked(*x)
+        .slerp(&Unit::new_unchecked(*y), a)
+        .unwrap()
 }

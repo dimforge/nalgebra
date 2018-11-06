@@ -16,8 +16,7 @@ use base::{DefaultAllocator, Scalar, VectorN};
 use geometry::Translation;
 
 impl<N: Scalar + Zero, D: DimName> Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new square identity rotation of the given `dimension`.
     #[inline]
@@ -27,8 +26,7 @@ where
 }
 
 impl<N: Scalar + Zero + ClosedAdd, D: DimName> One for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn one() -> Self {

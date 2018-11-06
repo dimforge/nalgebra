@@ -1,7 +1,7 @@
-use na::{DefaultAllocator};
+use na::DefaultAllocator;
 
 use aliases::TVec;
-use traits::{Number, Alloc, Dimension};
+use traits::{Alloc, Dimension, Number};
 
 /// Checks that all the vector components are `true`.
 ///
@@ -21,7 +21,7 @@ use traits::{Number, Alloc, Dimension};
 /// * [`any`](fn.any.html)
 /// * [`not`](fn.not.html)
 pub fn all<D: Dimension>(v: &TVec<bool, D>) -> bool
-    where DefaultAllocator: Alloc<bool, D> {
+where DefaultAllocator: Alloc<bool, D> {
     v.iter().all(|x| *x)
 }
 
@@ -46,7 +46,7 @@ pub fn all<D: Dimension>(v: &TVec<bool, D>) -> bool
 /// * [`all`](fn.all.html)
 /// * [`not`](fn.not.html)
 pub fn any<D: Dimension>(v: &TVec<bool, D>) -> bool
-    where DefaultAllocator: Alloc<bool, D> {
+where DefaultAllocator: Alloc<bool, D> {
     v.iter().any(|x| *x)
 }
 
@@ -70,7 +70,7 @@ pub fn any<D: Dimension>(v: &TVec<bool, D>) -> bool
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x == y)
 }
 
@@ -94,7 +94,7 @@ pub fn equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bo
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn greater_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x > y)
 }
 
@@ -117,8 +117,13 @@ pub fn greater_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> 
 /// * [`less_than_equal`](fn.less_than_equal.html)
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
-pub fn greater_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-    where DefaultAllocator: Alloc<N, D> {
+pub fn greater_than_equal<N: Number, D: Dimension>(
+    x: &TVec<N, D>,
+    y: &TVec<N, D>,
+) -> TVec<bool, D>
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.zip_map(y, |x, y| x >= y)
 }
 
@@ -142,7 +147,7 @@ pub fn greater_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn less_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x < y)
 }
 
@@ -166,7 +171,7 @@ pub fn less_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVe
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn less_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x <= y)
 }
 
@@ -191,7 +196,7 @@ pub fn less_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) 
 /// * [`less_than_equal`](fn.less_than_equal.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn not<D: Dimension>(v: &TVec<bool, D>) -> TVec<bool, D>
-    where DefaultAllocator: Alloc<bool, D> {
+where DefaultAllocator: Alloc<bool, D> {
     v.map(|x| !x)
 }
 
@@ -215,6 +220,6 @@ pub fn not<D: Dimension>(v: &TVec<bool, D>) -> TVec<bool, D>
 /// * [`less_than_equal`](fn.less_than_equal.html)
 /// * [`not`](fn.not.html)
 pub fn not_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     x.zip_map(y, |x, y| x != y)
 }

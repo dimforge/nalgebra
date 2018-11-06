@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use num::Zero;
 use num_complex::Complex;
@@ -16,30 +16,21 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize"
-        )
-    )
+         VectorN<N, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
-        )
-    )
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct QR<N: Scalar, R: DimMin<C>, C: Dim>
-where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
+where DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>
 {
     qr: MatrixMN<N, R, C>,
     tau: VectorN<N, DimMinimum<R, C>>,
@@ -54,11 +45,10 @@ where
 }
 
 impl<N: QRScalar + Zero, R: DimMin<C>, C: Dim> QR<N, R, C>
-where
-    DefaultAllocator: Allocator<N, R, C>
+where DefaultAllocator: Allocator<N, R, C>
         + Allocator<N, R, DimMinimum<R, C>>
         + Allocator<N, DimMinimum<R, C>, C>
-        + Allocator<N, DimMinimum<R, C>>,
+        + Allocator<N, DimMinimum<R, C>>
 {
     /// Computes the QR decomposition of the matrix `m`.
     pub fn new(mut m: MatrixMN<N, R, C>) -> QR<N, R, C> {
@@ -105,11 +95,10 @@ where
 }
 
 impl<N: QRReal + Zero, R: DimMin<C>, C: Dim> QR<N, R, C>
-where
-    DefaultAllocator: Allocator<N, R, C>
+where DefaultAllocator: Allocator<N, R, C>
         + Allocator<N, R, DimMinimum<R, C>>
         + Allocator<N, DimMinimum<R, C>, C>
-        + Allocator<N, DimMinimum<R, C>>,
+        + Allocator<N, DimMinimum<R, C>>
 {
     /// Retrieves the matrices `(Q, R)` of this decompositions.
     pub fn unpack(
@@ -131,7 +120,8 @@ where
             return MatrixMN::from_element_generic(nrows, min_nrows_ncols, N::zero());
         }
 
-        let mut q = self.qr
+        let mut q = self
+            .qr
             .generic_slice((0, 0), (nrows, min_nrows_ncols))
             .into_owned();
 

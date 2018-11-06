@@ -1,7 +1,7 @@
 use na::{self, DefaultAllocator};
 
-use traits::{Number, Alloc, Dimension};
 use aliases::TMat;
+use traits::{Alloc, Dimension, Number};
 
 /// The sum of every component of the given matrix or vector.
 ///
@@ -22,7 +22,7 @@ use aliases::TMat;
 /// * [`comp_min`](fn.comp_min.html)
 /// * [`comp_mul`](fn.comp_mul.html)
 pub fn comp_add<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
-    where DefaultAllocator: Alloc<N, R, C> {
+where DefaultAllocator: Alloc<N, R, C> {
     m.iter().fold(N::zero(), |x, y| x + *y)
 }
 
@@ -49,7 +49,7 @@ pub fn comp_add<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
 /// * [`max3`](fn.max3.html)
 /// * [`max4`](fn.max4.html)
 pub fn comp_max<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
-    where DefaultAllocator: Alloc<N, R, C> {
+where DefaultAllocator: Alloc<N, R, C> {
     m.iter().fold(N::min_value(), |x, y| na::sup(&x, y))
 }
 
@@ -76,7 +76,7 @@ pub fn comp_max<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn comp_min<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
-    where DefaultAllocator: Alloc<N, R, C> {
+where DefaultAllocator: Alloc<N, R, C> {
     m.iter().fold(N::max_value(), |x, y| na::inf(&x, y))
 }
 
@@ -99,7 +99,7 @@ pub fn comp_min<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
 /// * [`comp_max`](fn.comp_max.html)
 /// * [`comp_min`](fn.comp_min.html)
 pub fn comp_mul<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
-    where DefaultAllocator: Alloc<N, R, C> {
+where DefaultAllocator: Alloc<N, R, C> {
     m.iter().fold(N::one(), |x, y| x * *y)
 }
 

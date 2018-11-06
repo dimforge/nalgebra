@@ -18,26 +18,21 @@ use linalg::SymmetricTridiagonal;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize"
-    ))
+         MatrixN<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: Deserialize<'de>,
-         MatrixN<N, D>: Deserialize<'de>"
-    ))
+         MatrixN<N, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Real, D: Dim>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
@@ -51,11 +46,11 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,
     VectorN<N, D>: Copy,
-{}
+{
+}
 
 impl<N: Real, D: Dim> SymmetricEigen<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Computes the eigendecomposition of the given symmetric matrix.
     ///
@@ -306,8 +301,7 @@ pub fn wilkinson_shift<N: Real>(tmm: N, tnn: N, tmn: N) -> N {
  *
  */
 impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the eigendecomposition of this symmetric matrix.
     ///

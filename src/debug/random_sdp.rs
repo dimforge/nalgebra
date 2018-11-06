@@ -13,15 +13,13 @@ use debug::RandomOrthogonal;
 /// A random, well-conditioned, symmetric definite-positive matrix.
 #[derive(Clone, Debug)]
 pub struct RandomSDP<N: Real, D: Dim = Dynamic>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D, D>
 {
     m: MatrixN<N, D>,
 }
 
 impl<N: Real, D: Dim> RandomSDP<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D, D>
 {
     /// Retrieve the generated matrix.
     pub fn unwrap(self) -> MatrixN<N, D> {

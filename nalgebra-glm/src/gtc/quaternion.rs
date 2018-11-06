@@ -1,7 +1,6 @@
-use na::{Real, U4, UnitQuaternion};
+use na::{Real, UnitQuaternion, U4};
 
-use aliases::{Qua, TVec, TVec3, TMat4};
-
+use aliases::{Qua, TMat4, TVec, TVec3};
 
 /// Euler angles of the quaternion `q` as (pitch, yaw, roll).
 pub fn quat_euler_angles<N: Real>(x: &Qua<N>) -> TVec3<N> {

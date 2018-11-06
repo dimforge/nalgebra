@@ -16,8 +16,7 @@ where
 }
 
 impl<N: Real, D: DimName> EuclideanSpace for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     type Coordinates = VectorN<N, D>;
     type Real = N;

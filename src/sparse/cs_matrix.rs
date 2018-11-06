@@ -81,8 +81,7 @@ pub trait CsStorageMut<N, R, C = U1>:
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct CsVecStorage<N: Scalar, R: Dim, C: Dim>
-where
-    DefaultAllocator: Allocator<usize, C>,
+where DefaultAllocator: Allocator<usize, C>
 {
     pub(crate) shape: (R, C),
     pub(crate) p: VectorN<usize, C>,
@@ -91,8 +90,7 @@ where
 }
 
 impl<N: Scalar, R: Dim, C: Dim> CsVecStorage<N, R, C>
-where
-    DefaultAllocator: Allocator<usize, C>,
+where DefaultAllocator: Allocator<usize, C>
 {
     pub fn values(&self) -> &[N] {
         &self.vals
@@ -108,8 +106,7 @@ where
 impl<N: Scalar, R: Dim, C: Dim> CsVecStorage<N, R, C> where DefaultAllocator: Allocator<usize, C> {}
 
 impl<'a, N: Scalar, R: Dim, C: Dim> CsStorageIter<'a, N, R, C> for CsVecStorage<N, R, C>
-where
-    DefaultAllocator: Allocator<usize, C>,
+where DefaultAllocator: Allocator<usize, C>
 {
     type ColumnEntries = ColumnEntries<'a, N>;
     type ColumnRowIndices = iter::Cloned<slice::Iter<'a, usize>>;
@@ -128,8 +125,7 @@ where
 }
 
 impl<N: Scalar, R: Dim, C: Dim> CsStorage<N, R, C> for CsVecStorage<N, R, C>
-where
-    DefaultAllocator: Allocator<usize, C>,
+where DefaultAllocator: Allocator<usize, C>
 {
     #[inline]
     fn shape(&self) -> (R, C) {
@@ -174,8 +170,7 @@ where
 }
 
 impl<'a, N: Scalar, R: Dim, C: Dim> CsStorageIterMut<'a, N, R, C> for CsVecStorage<N, R, C>
-where
-    DefaultAllocator: Allocator<usize, C>,
+where DefaultAllocator: Allocator<usize, C>
 {
     type ValuesMut = slice::IterMut<'a, N>;
     type ColumnEntriesMut = iter::Zip<iter::Cloned<slice::Iter<'a, usize>>, slice::IterMut<'a, N>>;
@@ -195,10 +190,8 @@ where
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim> CsStorageMut<N, R, C> for CsVecStorage<N, R, C> where
-    DefaultAllocator: Allocator<usize, C>
-{
-}
+impl<N: Scalar, R: Dim, C: Dim> CsStorageMut<N, R, C> for CsVecStorage<N, R, C> where DefaultAllocator: Allocator<usize, C>
+{}
 
 /*
 pub struct CsSliceStorage<'a, N: Scalar, R: Dim, C: DimAdd<U1>> {
@@ -223,8 +216,7 @@ pub struct CsMatrix<
 pub type CsVector<N, R = Dynamic, S = CsVecStorage<N, R, U1>> = CsMatrix<N, R, U1, S>;
 
 impl<N: Scalar, R: Dim, C: Dim> CsMatrix<N, R, C>
-where
-    DefaultAllocator: Allocator<usize, C>,
+where DefaultAllocator: Allocator<usize, C>
 {
     pub fn new_uninitialized_generic(nrows: R, ncols: C, nvals: usize) -> Self {
         let mut i = Vec::with_capacity(nvals);
@@ -303,7 +295,8 @@ impl<N: Scalar + Zero + ClosedAdd> CsMatrix<N> {
         p: Vec<usize>,
         i: Vec<usize>,
         vals: Vec<N>,
-    ) -> Self {
+    ) -> Self
+    {
         let nrows = Dynamic::new(nrows);
         let ncols = Dynamic::new(ncols);
         let p = DVector::from_data(MatrixVec::new(ncols, U1, p));
@@ -368,9 +361,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
     }
 
     pub fn transpose(&self) -> CsMatrix<N, C, R>
-    where
-        DefaultAllocator: Allocator<usize, R>,
-    {
+    where DefaultAllocator: Allocator<usize, R> {
         let (nrows, ncols) = self.data.shape();
 
         let nvals = self.len();
@@ -408,13 +399,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorageMut<N, R, C>> CsMatrix<N, R, C, S> {
 }
 
 impl<N: Scalar, R: Dim, C: Dim> CsMatrix<N, R, C>
-where
-    DefaultAllocator: Allocator<usize, C>,
+where DefaultAllocator: Allocator<usize, C>
 {
     pub(crate) fn sort(&mut self)
-    where
-        DefaultAllocator: Allocator<N, R>,
-    {
+    where DefaultAllocator: Allocator<N, R> {
         // Size = R
         let nrows = self.data.shape().0;
         let mut workspace = unsafe { VectorN::new_uninitialized_generic(nrows, U1) };
@@ -446,9 +434,7 @@ where
 
     // Remove dupliate entries on a sorted CsMatrix.
     pub(crate) fn dedup(&mut self)
-    where
-        N: Zero + ClosedAdd,
-    {
+    where N: Zero + ClosedAdd {
         let mut curr_i = 0;
 
         for j in 0..self.ncols() {

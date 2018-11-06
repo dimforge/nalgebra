@@ -1,4 +1,4 @@
-use na::{Real, UnitQuaternion, Unit};
+use na::{Real, Unit, UnitQuaternion};
 
 use aliases::{Qua, TVec3};
 

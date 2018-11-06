@@ -79,7 +79,8 @@ where
     N: Scalar,
     DefaultAllocator: Allocator<N, R1, C1> + Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
-{}
+{
+}
 
 // XXX: Bad name.
 /// Restricts the given number of rows to be equal.
@@ -100,4 +101,5 @@ where
     N: Scalar,
     DefaultAllocator: Allocator<N, R1, U1> + Allocator<N, SameShapeR<R1, R2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2>,
-{}
+{
+}

@@ -1,11 +1,11 @@
-use na::{DefaultAllocator, Real, Unit, Rotation3, Point3};
+use na::{DefaultAllocator, Point3, Real, Rotation3, Unit};
 
-use traits::{Dimension, Number, Alloc};
-use aliases::{TMat, TVec, TVec3, TMat4};
+use aliases::{TMat, TMat4, TVec, TVec3};
+use traits::{Alloc, Dimension, Number};
 
 /// The identity matrix.
 pub fn identity<N: Number, D: Dimension>() -> TMat<N, D, D>
-    where DefaultAllocator: Alloc<N, D, D> {
+where DefaultAllocator: Alloc<N, D, D> {
     TMat::<N, D, D>::identity()
 }
 
@@ -38,7 +38,11 @@ pub fn look_at<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMa
 /// * [`look_at`](fn.look_at.html)
 /// * [`look_at_rh`](fn.look_at_rh.html)
 pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
-    TMat::look_at_lh(&Point3::from_coordinates(*eye), &Point3::from_coordinates(*center), up)
+    TMat::look_at_lh(
+        &Point3::from_coordinates(*eye),
+        &Point3::from_coordinates(*center),
+        up,
+    )
 }
 
 /// Build a right handed look at view matrix.
@@ -54,7 +58,11 @@ pub fn look_at_lh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> 
 /// * [`look_at`](fn.look_at.html)
 /// * [`look_at_lh`](fn.look_at_lh.html)
 pub fn look_at_rh<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
-    TMat::look_at_rh(&Point3::from_coordinates(*eye), &Point3::from_coordinates(*center), up)
+    TMat::look_at_rh(
+        &Point3::from_coordinates(*eye),
+        &Point3::from_coordinates(*center),
+        up,
+    )
 }
 
 /// Builds a rotation 4 * 4 matrix created from an axis vector and an angle and right-multiply it to `m`.

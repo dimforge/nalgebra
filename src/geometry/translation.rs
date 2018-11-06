@@ -22,8 +22,7 @@ use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 #[repr(C)]
 #[derive(Debug)]
 pub struct Translation<N: Scalar, D: DimName>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
@@ -44,7 +43,8 @@ impl<N: Scalar, D: DimName> Copy for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{}
+{
+}
 
 impl<N: Scalar, D: DimName> Clone for Translation<N, D>
 where
@@ -85,9 +85,7 @@ where
     Owned<N, D>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
+    where S: Serializer {
         self.vector.serialize(serializer)
     }
 }
@@ -99,9 +97,7 @@ where
     Owned<N, D>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where
-        Des: Deserializer<'a>,
-    {
+    where Des: Deserializer<'a> {
         let matrix = VectorN::<N, D>::deserialize(deserializer)?;
 
         Ok(Translation::from_vector(matrix))
@@ -109,8 +105,7 @@ where
 }
 
 impl<N: Scalar, D: DimName> Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new translation from the given vector.
     #[inline]
@@ -121,9 +116,7 @@ where
     /// Inverts `self`.
     #[inline]
     pub fn inverse(&self) -> Translation<N, D>
-    where
-        N: ClosedNeg,
-    {
+    where N: ClosedNeg {
         Translation::from_vector(-&self.vector)
     }
 
@@ -145,9 +138,7 @@ where
     /// Inverts `self` in-place.
     #[inline]
     pub fn inverse_mut(&mut self)
-    where
-        N: ClosedNeg,
-    {
+    where N: ClosedNeg {
         self.vector.neg_mut()
     }
 }
@@ -155,8 +146,7 @@ where
 impl<N: Scalar + Eq, D: DimName> Eq for Translation<N, D> where DefaultAllocator: Allocator<N, D> {}
 
 impl<N: Scalar + PartialEq, D: DimName> PartialEq for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn eq(&self, right: &Translation<N, D>) -> bool {
@@ -198,7 +188,8 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool {
+    ) -> bool
+    {
         self.vector
             .relative_eq(&other.vector, epsilon, max_relative)
     }
@@ -226,8 +217,7 @@ where
  *
  */
 impl<N: Real + fmt::Display, D: DimName> fmt::Display for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
+where DefaultAllocator: Allocator<N, D> + Allocator<usize, D>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);

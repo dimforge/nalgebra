@@ -91,7 +91,8 @@ slice_storage_impl!("A mutable matrix data storage for mutable matrix slice. Onl
 
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
     for SliceStorage<'a, N, R, C, RStride, CStride>
-{}
+{
+}
 
 impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
     for SliceStorage<'a, N, R, C, RStride, CStride>
@@ -206,7 +207,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         start: (usize, usize),
         shape: (usize, usize),
         steps: (usize, usize),
-    ) {
+    )
+    {
         let my_shape = self.shape();
         // NOTE: we don't do any subtraction to avoid underflow for zero-sized matrices.
         //
@@ -803,7 +805,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     pub fn rows_range<RowRange: SliceRange<R>>(
         &self,
         rows: RowRange,
-    ) -> MatrixSlice<N, RowRange::Size, C, S::RStride, S::CStride> {
+    ) -> MatrixSlice<N, RowRange::Size, C, S::RStride, S::CStride>
+    {
         self.slice_range(rows, ..)
     }
 
@@ -812,7 +815,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     pub fn columns_range<ColRange: SliceRange<C>>(
         &self,
         cols: ColRange,
-    ) -> MatrixSlice<N, R, ColRange::Size, S::RStride, S::CStride> {
+    ) -> MatrixSlice<N, R, ColRange::Size, S::RStride, S::CStride>
+    {
         self.slice_range(.., cols)
     }
 }
@@ -841,7 +845,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn rows_range_mut<RowRange: SliceRange<R>>(
         &mut self,
         rows: RowRange,
-    ) -> MatrixSliceMut<N, RowRange::Size, C, S::RStride, S::CStride> {
+    ) -> MatrixSliceMut<N, RowRange::Size, C, S::RStride, S::CStride>
+    {
         self.slice_range_mut(rows, ..)
     }
 
@@ -850,7 +855,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn columns_range_mut<ColRange: SliceRange<C>>(
         &mut self,
         cols: ColRange,
-    ) -> MatrixSliceMut<N, R, ColRange::Size, S::RStride, S::CStride> {
+    ) -> MatrixSliceMut<N, R, ColRange::Size, S::RStride, S::CStride>
+    {
         self.slice_range_mut(.., cols)
     }
 }

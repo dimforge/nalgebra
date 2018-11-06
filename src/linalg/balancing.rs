@@ -13,9 +13,7 @@ use base::{DefaultAllocator, MatrixN, VectorN};
 ///
 /// See https://arxiv.org/pdf/1401.5766.pdf
 pub fn balance_parlett_reinsch<N: Real, D: Dim>(m: &mut MatrixN<N, D>) -> VectorN<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-{
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> {
     assert!(m.is_square(), "Unable to balance a non-square matrix.");
 
     let dim = m.data.shape().0;
@@ -67,9 +65,7 @@ where
 
 /// Computes in-place `D * m * D.inverse()`, where `D` is the matrix with diagonal `d`.
 pub fn unbalance<N: Real, D: Dim>(m: &mut MatrixN<N, D>, d: &VectorN<N, D>)
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-{
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> {
     assert!(m.is_square(), "Unable to unbalance a non-square matrix.");
     assert_eq!(m.nrows(), d.len(), "Unbalancing: mismatched dimensions.");
 

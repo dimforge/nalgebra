@@ -1,7 +1,7 @@
 use na::{U2, U3};
 
+use aliases::{TMat3, TMat4, TVec2, TVec3};
 use traits::Number;
-use aliases::{TVec2, TVec3, TMat3, TMat4};
 
 /// Build planar projection matrix along normal axis and right-multiply it to `m`.
 pub fn proj2d<N: Number>(m: &TMat3<N>, normal: &TVec2<N>) -> TMat3<N> {
@@ -57,10 +57,7 @@ pub fn scale_bias_matrix<N: Number>(scale: N, bias: N) -> TMat4<N> {
     let _1 = N::one();
 
     TMat4::new(
-        scale, _0, _0, bias,
-        _0, scale, _0, bias,
-        _0, _0, scale, bias,
-        _0, _0, _0, _1,
+        scale, _0, _0, bias, _0, scale, _0, bias, _0, _0, scale, bias, _0, _0, _0, _1,
     )
 }
 
@@ -74,11 +71,7 @@ pub fn shear2d_x<N: Number>(m: &TMat3<N>, y: N) -> TMat3<N> {
     let _0 = N::zero();
     let _1 = N::one();
 
-    let shear = TMat3::new(
-        _1,  y, _0,
-        _0, _1, _0,
-        _0, _0, _1
-    );
+    let shear = TMat3::new(_1, y, _0, _0, _1, _0, _0, _0, _1);
     m * shear
 }
 
@@ -86,12 +79,7 @@ pub fn shear2d_x<N: Number>(m: &TMat3<N>, y: N) -> TMat3<N> {
 pub fn shear_x<N: Number>(m: &TMat4<N>, y: N, z: N) -> TMat4<N> {
     let _0 = N::zero();
     let _1 = N::one();
-    let shear = TMat4::new(
-        _1, _0, _0, _0,
-         y, _1, _0, _0,
-         z, _0, _1, _0,
-        _0, _0, _0, _1,
-    );
+    let shear = TMat4::new(_1, _0, _0, _0, y, _1, _0, _0, z, _0, _1, _0, _0, _0, _0, _1);
 
     m * shear
 }
@@ -101,11 +89,7 @@ pub fn shear2d_y<N: Number>(m: &TMat3<N>, x: N) -> TMat3<N> {
     let _0 = N::zero();
     let _1 = N::one();
 
-    let shear = TMat3::new(
-        _1, _0, _0,
-        x, _1, _0,
-        _0, _0, _1
-    );
+    let shear = TMat3::new(_1, _0, _0, x, _1, _0, _0, _0, _1);
     m * shear
 }
 
@@ -113,12 +97,7 @@ pub fn shear2d_y<N: Number>(m: &TMat3<N>, x: N) -> TMat3<N> {
 pub fn shear_y<N: Number>(m: &TMat4<N>, x: N, z: N) -> TMat4<N> {
     let _0 = N::zero();
     let _1 = N::one();
-    let shear = TMat4::new(
-        _1,  x, _0, _0,
-        _0, _1, _0, _0,
-        _0,  z, _1, _0,
-        _0, _0, _0, _1,
-    );
+    let shear = TMat4::new(_1, x, _0, _0, _0, _1, _0, _0, _0, z, _1, _0, _0, _0, _0, _1);
 
     m * shear
 }
@@ -127,12 +106,7 @@ pub fn shear_y<N: Number>(m: &TMat4<N>, x: N, z: N) -> TMat4<N> {
 pub fn shear_z<N: Number>(m: &TMat4<N>, x: N, y: N) -> TMat4<N> {
     let _0 = N::zero();
     let _1 = N::one();
-    let shear = TMat4::new(
-        _1, _0,  x, _0,
-        _0, _1,  y, _0,
-        _0, _0, _1, _0,
-        _0, _0, _0, _1,
-    );
+    let shear = TMat4::new(_1, _0, x, _0, _0, _1, y, _0, _0, _0, _1, _0, _0, _0, _0, _1);
 
     m * shear
 }

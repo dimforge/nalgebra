@@ -94,8 +94,7 @@ impl<N, R: Dim, C: Dim> Deref for MatrixVec<N, R, C> {
  *
  */
 unsafe impl<N: Scalar, C: Dim> Storage<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
-where
-    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
+where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {
     type RStride = U1;
     type CStride = Dynamic;
@@ -122,17 +121,13 @@ where
 
     #[inline]
     fn into_owned(self) -> Owned<N, Dynamic, C>
-    where
-        DefaultAllocator: Allocator<N, Dynamic, C>,
-    {
+    where DefaultAllocator: Allocator<N, Dynamic, C> {
         self
     }
 
     #[inline]
     fn clone_owned(&self) -> Owned<N, Dynamic, C>
-    where
-        DefaultAllocator: Allocator<N, Dynamic, C>,
-    {
+    where DefaultAllocator: Allocator<N, Dynamic, C> {
         self.clone()
     }
 
@@ -143,8 +138,7 @@ where
 }
 
 unsafe impl<N: Scalar, R: DimName> Storage<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
-where
-    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
+where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {
     type RStride = U1;
     type CStride = R;
@@ -171,17 +165,13 @@ where
 
     #[inline]
     fn into_owned(self) -> Owned<N, R, Dynamic>
-    where
-        DefaultAllocator: Allocator<N, R, Dynamic>,
-    {
+    where DefaultAllocator: Allocator<N, R, Dynamic> {
         self
     }
 
     #[inline]
     fn clone_owned(&self) -> Owned<N, R, Dynamic>
-    where
-        DefaultAllocator: Allocator<N, R, Dynamic>,
-    {
+    where DefaultAllocator: Allocator<N, R, Dynamic> {
         self.clone()
     }
 
@@ -197,8 +187,7 @@ where
  *
  */
 unsafe impl<N: Scalar, C: Dim> StorageMut<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
-where
-    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
+where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut N {
@@ -211,17 +200,14 @@ where
     }
 }
 
-unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for MatrixVec<N, Dynamic, C> where
-    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for MatrixVec<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {}
 
-unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for MatrixVec<N, Dynamic, C> where
-    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for MatrixVec<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {}
 
 unsafe impl<N: Scalar, R: DimName> StorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
-where
-    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
+where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut N {
@@ -249,10 +235,8 @@ impl<N: Abomonation, R: Dim, C: Dim> Abomonation for MatrixVec<N, R, C> {
     }
 }
 
-unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for MatrixVec<N, R, Dynamic> where
-    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for MatrixVec<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {}
 
-unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic> where
-    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {}

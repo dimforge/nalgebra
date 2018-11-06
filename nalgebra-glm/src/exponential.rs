@@ -1,5 +1,5 @@
-use na::{Real, DefaultAllocator};
 use aliases::TVec;
+use na::{DefaultAllocator, Real};
 use traits::{Alloc, Dimension};
 
 /// Component-wise exponential.
@@ -8,7 +8,7 @@ use traits::{Alloc, Dimension};
 ///
 /// * [`exp2`](fn.exp2.html)
 pub fn exp<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     v.map(|x| x.exp())
 }
 
@@ -18,7 +18,7 @@ pub fn exp<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
 ///
 /// * [`exp`](fn.exp.html)
 pub fn exp2<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     v.map(|x| x.exp2())
 }
 
@@ -28,9 +28,8 @@ pub fn exp2<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
 ///
 /// * [`sqrt`](fn.sqrt.html)
 pub fn inversesqrt<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     v.map(|x| N::one() / x.sqrt())
-
 }
 
 /// Component-wise logarithm.
@@ -39,7 +38,7 @@ pub fn inversesqrt<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
 ///
 /// * [`log2`](fn.log2.html)
 pub fn log<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     v.map(|x| x.ln())
 }
 
@@ -49,13 +48,13 @@ pub fn log<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
 ///
 /// * [`log`](fn.log.html)
 pub fn log2<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     v.map(|x| x.log2())
 }
 
 /// Component-wise power.
 pub fn pow<N: Real, D: Dimension>(base: &TVec<N, D>, exponent: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     base.zip_map(exponent, |b, e| b.powf(e))
 }
 
@@ -68,6 +67,6 @@ pub fn pow<N: Real, D: Dimension>(base: &TVec<N, D>, exponent: &TVec<N, D>) -> T
 /// * [`inversesqrt`](fn.inversesqrt.html)
 /// * [`pow`](fn.pow.html)
 pub fn sqrt<N: Real, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     v.map(|x| x.sqrt())
 }

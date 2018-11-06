@@ -13,8 +13,7 @@ use base::{DefaultAllocator, Scalar, VectorN};
 use geometry::Point;
 
 impl<N: Scalar, D: DimName> Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new point with uninitialized coordinates.
     #[inline]
@@ -25,9 +24,7 @@ where
     /// Creates a new point with all coordinates equal to zero.
     #[inline]
     pub fn origin() -> Self
-    where
-        N: Zero,
-    {
+    where N: Zero {
         Self::from_coordinates(VectorN::from_element(N::zero()))
     }
 
@@ -63,8 +60,7 @@ where
  *
  */
 impl<N: Scalar + Bounded, D: DimName> Bounded for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn max_value() -> Self {

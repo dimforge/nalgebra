@@ -123,10 +123,18 @@ extern crate alloc;
 #[cfg(not(feature = "std"))]
 extern crate core as std;
 
+#[cfg(feature = "io")]
+extern crate pest;
+#[macro_use]
+#[cfg(feature = "io")]
+extern crate pest_derive;
+
 pub mod base;
 #[cfg(feature = "debug")]
 pub mod debug;
 pub mod geometry;
+#[cfg(feature = "io")]
+pub mod io;
 pub mod linalg;
 #[cfg(feature = "sparse")]
 pub mod sparse;
@@ -224,9 +232,7 @@ pub fn dimension<V: FiniteDimVectorSpace>() -> usize {
 /// The range must not be empty.
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
-where
-    T: Copy + PartialOrd + AdditiveGroup,
-{
+where T: Copy + PartialOrd + AdditiveGroup {
     assert!(min < max, "Invalid wrapping bounds.");
     let width = max - min;
 

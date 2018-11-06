@@ -31,5 +31,7 @@ pub fn quat_lerp<N: Real>(x: &Qua<N>, y: &Qua<N>, a: N) -> Qua<N> {
 
 /// Interpolate spherically between `x` and `y`.
 pub fn quat_slerp<N: Real>(x: &Qua<N>, y: &Qua<N>, a: N) -> Qua<N> {
-    Unit::new_normalize(*x).slerp(&Unit::new_normalize(*y), a).unwrap()
+    Unit::new_normalize(*x)
+        .slerp(&Unit::new_normalize(*y), a)
+        .unwrap()
 }

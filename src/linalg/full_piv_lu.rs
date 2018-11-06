@@ -15,26 +15,21 @@ use linalg::PermutationSequence;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Serialize,
-         PermutationSequence<DimMinimum<R, C>>: Serialize"
-    ))
+         PermutationSequence<DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"
-    ))
+         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct FullPivLU<N: Real, R: DimMin<C>, C: Dim>
-where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     lu: MatrixMN<N, R, C>,
     p: PermutationSequence<DimMinimum<R, C>>,
@@ -46,11 +41,11 @@ where
     DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
-{}
+{
+}
 
 impl<N: Real, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
-where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.
     ///
@@ -108,9 +103,7 @@ where
     /// The lower triangular matrix of this decomposition.
     #[inline]
     pub fn l(&self) -> MatrixMN<N, R, DimMinimum<R, C>>
-    where
-        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>,
-    {
+    where DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> {
         let (nrows, ncols) = self.lu.data.shape();
         let mut m = self.lu.columns_generic(0, nrows.min(ncols)).into_owned();
         m.fill_upper_triangle(N::zero(), 1);
@@ -121,9 +114,7 @@ where
     /// The upper triangular matrix of this decomposition.
     #[inline]
     pub fn u(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
-    where
-        DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>,
-    {
+    where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C> {
         let (nrows, ncols) = self.lu.data.shape();
         self.lu.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
@@ -150,8 +141,7 @@ where
         MatrixMN<N, DimMinimum<R, C>, C>,
         PermutationSequence<DimMinimum<R, C>>,
     )
-    where
-        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> + Allocator<N, DimMinimum<R, C>, C>,
+    where DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> + Allocator<N, DimMinimum<R, C>, C>
     {
         // Use reallocation for either l or u.
         let l = self.l();
@@ -164,8 +154,7 @@ where
 }
 
 impl<N: Real, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
@@ -270,8 +259,7 @@ where
 }
 
 impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.
     ///

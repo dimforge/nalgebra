@@ -20,34 +20,33 @@ use linalg::Bidiagonal;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, R, C>                +
+    serde(
+        bound(serialize = "DefaultAllocator: Allocator<N, R, C>                +
                            Allocator<N, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
          MatrixMN<N, R, DimMinimum<R, C>>: Serialize,
          MatrixMN<N, DimMinimum<R, C>, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize"
-    ))
+         VectorN<N, DimMinimum<R, C>>: Serialize")
+    )
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, R, C>                +
+    serde(
+        bound(deserialize = "DefaultAllocator: Allocator<N, R, C>                +
                            Allocator<N, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
          MatrixMN<N, R, DimMinimum<R, C>>: Deserialize<'de>,
          MatrixMN<N, DimMinimum<R, C>, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
-    ))
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>")
+    )
 )]
 #[derive(Clone, Debug)]
 pub struct SVD<N: Real, R: DimMin<C>, C: Dim>
-where
-    DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
+where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N, DimMinimum<R, C>>,
+        + Allocator<N, DimMinimum<R, C>>
 {
     /// The left-singular vectors `U` of this SVD.
     pub u: Option<MatrixMN<N, R, DimMinimum<R, C>>>,
@@ -65,7 +64,8 @@ where
     MatrixMN<N, R, DimMinimum<R, C>>: Copy,
     MatrixMN<N, DimMinimum<R, C>, C>: Copy,
     VectorN<N, DimMinimum<R, C>>: Copy,
-{}
+{
+}
 
 impl<N: Real, R: DimMin<C>, C: Dim> SVD<N, R, C>
 where
@@ -99,7 +99,8 @@ where
         compute_v: bool,
         eps: N,
         max_niter: usize,
-    ) -> Option<Self> {
+    ) -> Option<Self>
+    {
         assert!(
             matrix.len() != 0,
             "Cannot compute the SVD of an empty matrix."
@@ -287,7 +288,8 @@ where
         m22: N,
         compute_u: bool,
         compute_v: bool,
-    ) -> (Option<UnitComplex<N>>, Vector2<N>, Option<UnitComplex<N>>) {
+    ) -> (Option<UnitComplex<N>>, Vector2<N>, Option<UnitComplex<N>>)
+    {
         let two: N = ::convert(2.0f64);
         let half: N = ::convert(0.5f64);
 
@@ -342,7 +344,8 @@ where
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         end: usize,
         eps: N,
-    ) -> (usize, usize) {
+    ) -> (usize, usize)
+    {
         let mut n = end;
 
         while n > 0 {
@@ -406,7 +409,8 @@ where
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         i: usize,
         end: usize,
-    ) {
+    )
+    {
         let mut v = Vector2::new(b.off_diagonal[i], b.diagonal[i + 1]);
         b.off_diagonal[i] = N::zero();
 
@@ -440,7 +444,8 @@ where
         u: &mut Option<MatrixMN<N, R, DimMinimum<R, C>>>,
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         i: usize,
-    ) {
+    )
+    {
         let mut v = Vector2::new(b.diagonal[i], b.off_diagonal[i]);
         b.off_diagonal[i] = N::zero();
 
@@ -502,9 +507,7 @@ where
     /// Panics if the right- and left- singular vectors have not been computed at
     /// construction-time.
     pub fn pseudo_inverse(mut self, eps: N) -> MatrixMN<N, C, R>
-    where
-        DefaultAllocator: Allocator<N, C, R>,
-    {
+    where DefaultAllocator: Allocator<N, C, R> {
         assert!(
             eps >= N::zero(),
             "SVD pseudo inverse: the epsilon must be non-negative."
@@ -601,7 +604,8 @@ where
         compute_v: bool,
         eps: N,
         max_niter: usize,
-    ) -> Option<SVD<N, R, C>> {
+    ) -> Option<SVD<N, R, C>>
+    {
         SVD::try_new(self.into_owned(), compute_u, compute_v, eps, max_niter)
     }
 
@@ -622,9 +626,7 @@ where
     ///
     /// All singular values below `eps` are considered equal to 0.
     pub fn pseudo_inverse(self, eps: N) -> MatrixMN<N, C, R>
-    where
-        DefaultAllocator: Allocator<N, C, R>,
-    {
+    where DefaultAllocator: Allocator<N, C, R> {
         SVD::new(self.clone_owned(), true, true).pseudo_inverse(eps)
     }
 }

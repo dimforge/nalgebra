@@ -19,22 +19,17 @@ use linalg::Hessenberg;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: Serialize"
-    ))
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: Deserialize<'de>"
-    ))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct RealSchur<N: Real, D: Dim>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D, D>
 {
     q: MatrixN<N, D>,
     t: MatrixN<N, D>,
@@ -44,7 +39,8 @@ impl<N: Real, D: Dim> Copy for RealSchur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
-{}
+{
+}
 
 impl<N: Real, D: Dim> RealSchur<N, D>
 where
@@ -86,7 +82,8 @@ where
         eps: N,
         max_niter: usize,
         compute_q: bool,
-    ) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)> {
+    ) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)>
+    {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvectors and eigenvalues of a non-square matrix."
@@ -290,9 +287,7 @@ where
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     fn do_complex_eigenvalues(t: &MatrixN<N, D>, out: &mut VectorN<Complex<N>, D>)
-    where
-        DefaultAllocator: Allocator<Complex<N>, D>,
-    {
+    where DefaultAllocator: Allocator<Complex<N>, D> {
         let dim = t.nrows();
         let mut m = 0;
 
@@ -390,9 +385,7 @@ where
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<Complex<N>, D>
-    where
-        DefaultAllocator: Allocator<Complex<N>, D>,
-    {
+    where DefaultAllocator: Allocator<Complex<N>, D> {
         let mut out = unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1) };
         Self::do_complex_eigenvalues(&self.t, &mut out);
         out
@@ -565,9 +558,7 @@ where
     /// Computes the eigenvalues of this matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<Complex<N>, D>
     // FIXME: add balancing?
-    where
-        DefaultAllocator: Allocator<Complex<N>, D>,
-    {
+    where DefaultAllocator: Allocator<Complex<N>, D> {
         let dim = self.data.shape().0;
         let mut work = unsafe { VectorN::new_uninitialized_generic(dim, U1) };
 

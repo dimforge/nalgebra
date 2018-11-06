@@ -46,9 +46,7 @@ impl<N: Real> PartialEq for Orthographic3<N> {
 #[cfg(feature = "serde-serialize")]
 impl<N: Real + Serialize> Serialize for Orthographic3<N> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
+    where S: Serializer {
         self.matrix.serialize(serializer)
     }
 }
@@ -56,9 +54,7 @@ impl<N: Real + Serialize> Serialize for Orthographic3<N> {
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Real + Deserialize<'a>> Deserialize<'a> for Orthographic3<N> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where
-        Des: Deserializer<'a>,
-    {
+    where Des: Deserializer<'a> {
         let matrix = Matrix4::<N>::deserialize(deserializer)?;
 
         Ok(Orthographic3::from_matrix_unchecked(matrix))
@@ -238,9 +234,7 @@ impl<N: Real> Orthographic3<N> {
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
     pub fn project_vector<SB>(&self, p: &Vector<N, U3, SB>) -> Vector3<N>
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         Vector3::new(
             self.matrix[(0, 0)] * p[0],
             self.matrix[(1, 1)] * p[1],
@@ -325,8 +319,7 @@ impl<N: Real> Orthographic3<N> {
 }
 
 impl<N: Real> Distribution<Orthographic3<N>> for Standard
-where
-    Standard: Distribution<N>,
+where Standard: Distribution<N>
 {
     fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Orthographic3<N> {
         let left = r.gen();
@@ -342,8 +335,7 @@ where
 
 #[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for Orthographic3<N>
-where
-    Matrix4<N>: Send,
+where Matrix4<N>: Send
 {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let left = Arbitrary::arbitrary(g);

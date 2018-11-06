@@ -1,5 +1,5 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use num::Zero;
 use num_complex::Complex;
@@ -19,27 +19,22 @@ use lapack;
 #[cfg_attr(
     feature = "serde-serialize",
     serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+        bound(serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize"
-        )
+         MatrixN<N, D>: Serialize")
     )
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+        bound(deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Deserialize<'de>"
-        )
+         MatrixN<N, D>: Deserialize<'de>")
     )
 )]
 #[derive(Clone, Debug)]
 pub struct RealSchur<N: Scalar, D: Dim>
-where
-    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
 {
     re: VectorN<N, D>,
     im: VectorN<N, D>,
@@ -56,8 +51,7 @@ where
 }
 
 impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
     ///
@@ -152,9 +146,7 @@ where
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<Complex<N>, D>
-    where
-        DefaultAllocator: Allocator<Complex<N>, D>,
-    {
+    where DefaultAllocator: Allocator<Complex<N>, D> {
         let mut out = unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1) };
 
         for i in 0..out.len() {

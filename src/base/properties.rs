@@ -100,8 +100,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D, D>
 {
     /// Checks that this matrix is orthogonal and has a determinant equal to 1.
     #[inline]

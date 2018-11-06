@@ -1,4 +1,4 @@
-use na::{Real, Unit, Rotation3, UnitQuaternion, U3};
+use na::{Real, Rotation3, Unit, UnitQuaternion, U3};
 
 use aliases::{Qua, TMat3, TMat4, TVec3, TVec4};
 
@@ -19,7 +19,9 @@ pub fn quat_extract_real_component<N: Real>(q: &Qua<N>) -> N {
 
 /// Normalized linear interpolation between two quaternions.
 pub fn quat_fast_mix<N: Real>(x: &Qua<N>, y: &Qua<N>, a: N) -> Qua<N> {
-    Unit::new_unchecked(*x).nlerp(&Unit::new_unchecked(*y), a).unwrap()
+    Unit::new_unchecked(*x)
+        .nlerp(&Unit::new_unchecked(*y), a)
+        .unwrap()
 }
 
 //pub fn quat_intermediate<N: Real>(prev: &Qua<N>, curr: &Qua<N>, next: &Qua<N>) -> Qua<N> {
@@ -54,12 +56,16 @@ pub fn quat_rotate_vec<N: Real>(q: &Qua<N>, v: &TVec4<N>) -> TVec4<N> {
 
 /// The rotation required to align `orig` to `dest`.
 pub fn quat_rotation<N: Real>(orig: &TVec3<N>, dest: &TVec3<N>) -> Qua<N> {
-    UnitQuaternion::rotation_between(orig, dest).unwrap_or_else(UnitQuaternion::identity).unwrap()
+    UnitQuaternion::rotation_between(orig, dest)
+        .unwrap_or_else(UnitQuaternion::identity)
+        .unwrap()
 }
 
 /// The spherical linear interpolation between two quaternions.
 pub fn quat_short_mix<N: Real>(x: &Qua<N>, y: &Qua<N>, a: N) -> Qua<N> {
-    Unit::new_normalize(*x).slerp(&Unit::new_normalize(*y), a).unwrap()
+    Unit::new_normalize(*x)
+        .slerp(&Unit::new_normalize(*y), a)
+        .unwrap()
 }
 
 //pub fn quat_squad<N: Real>(q1: &Qua<N>, q2: &Qua<N>, s1: &Qua<N>, s2: &Qua<N>, h: N) -> Qua<N> {
@@ -68,7 +74,9 @@ pub fn quat_short_mix<N: Real>(x: &Qua<N>, y: &Qua<N>, a: N) -> Qua<N> {
 
 /// Converts a quaternion to a rotation matrix.
 pub fn quat_to_mat3<N: Real>(x: &Qua<N>) -> TMat3<N> {
-    UnitQuaternion::new_unchecked(*x).to_rotation_matrix().unwrap()
+    UnitQuaternion::new_unchecked(*x)
+        .to_rotation_matrix()
+        .unwrap()
 }
 
 /// Converts a quaternion to a rotation matrix in homogenous coordinates.
@@ -87,4 +95,3 @@ pub fn to_quat<N: Real>(x: &TMat4<N>) -> Qua<N> {
     let rot = x.fixed_slice::<U3, U3>(0, 0).into_owned();
     mat3_to_quat(&rot)
 }
-

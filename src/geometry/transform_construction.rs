@@ -9,8 +9,7 @@ use base::{DefaultAllocator, MatrixN};
 use geometry::{TCategory, Transform};
 
 impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
-where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 {
     /// Creates a new identity transform.
     #[inline]
@@ -20,8 +19,7 @@ where
 }
 
 impl<N: Real, D: DimNameAdd<U1>, C: TCategory> One for Transform<N, D, C>
-where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 {
     /// Creates a new identity transform.
     #[inline]

@@ -26,23 +26,18 @@ use geometry::{Point, Translation};
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "R: Serialize,
+    serde(bound(serialize = "R: Serialize,
                      DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: Serialize"
-    ))
+                     Owned<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "R: Deserialize<'de>,
+    serde(bound(deserialize = "R: Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: Deserialize<'de>"
-    ))
+                       Owned<N, D>: Deserialize<'de>"))
 )]
 pub struct Isometry<N: Real, D: DimName, R>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// The pure rotational part of this isometry.
     pub rotation: R,
@@ -97,11 +92,11 @@ impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Isome
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{}
+{
+}
 
 impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Isometry<N, D, R>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -110,8 +105,7 @@ where
 }
 
 impl<N: Real, D: DimName, R: Rotation<Point<N, D>>> Isometry<N, D, R>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new isometry from its rotational and translational parts.
     #[inline]
@@ -175,8 +169,7 @@ where
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the dummy ZST field).
 impl<N: Real, D: DimName, R> Isometry<N, D, R>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this isometry into its equivalent homogeneous transformation matrix.
     #[inline]
@@ -198,7 +191,8 @@ impl<N: Real, D: DimName, R> Eq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + Eq,
     DefaultAllocator: Allocator<N, D>,
-{}
+{
+}
 
 impl<N: Real, D: DimName, R> PartialEq for Isometry<N, D, R>
 where
@@ -248,7 +242,8 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool {
+    ) -> bool
+    {
         self.translation
             .relative_eq(&other.translation, epsilon, max_relative)
             && self

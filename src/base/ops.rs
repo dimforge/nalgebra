@@ -724,9 +724,7 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     /// Adds a scalar to `self`.
     #[inline]
     pub fn add_scalar(&self, rhs: N) -> MatrixMN<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         let mut res = self.clone_owned();
         res.add_scalar_mut(rhs);
         res
@@ -735,9 +733,7 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     /// Adds a scalar to `self` in-place.
     #[inline]
     pub fn add_scalar_mut(&mut self, rhs: N)
-    where
-        S: StorageMut<N, R, C>,
-    {
+    where S: StorageMut<N, R, C> {
         for e in self.iter_mut() {
             *e += rhs
         }

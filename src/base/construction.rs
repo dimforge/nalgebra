@@ -26,8 +26,7 @@ use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, Ve
  *
  */
 impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
-where
-    DefaultAllocator: Allocator<N, R, C>,
+where DefaultAllocator: Allocator<N, R, C>
 {
     /// Creates a new uninitialized matrix. If the matrix has a compile-time dimension, this panics
     /// if `nrows != R::to_usize()` or `ncols != C::to_usize()`.
@@ -55,18 +54,14 @@ where
     /// Creates a matrix with all its elements set to 0.
     #[inline]
     pub fn zeros_generic(nrows: R, ncols: C) -> Self
-    where
-        N: Zero,
-    {
+    where N: Zero {
         Self::from_element_generic(nrows, ncols, N::zero())
     }
 
     /// Creates a matrix with all its elements filled by an iterator.
     #[inline]
     pub fn from_iterator_generic<I>(nrows: R, ncols: C, iter: I) -> Self
-    where
-        I: IntoIterator<Item = N>,
-    {
+    where I: IntoIterator<Item = N> {
         Self::from_data(DefaultAllocator::allocate_from_iterator(nrows, ncols, iter))
     }
 
@@ -105,9 +100,7 @@ where
     /// coordinates.
     #[inline]
     pub fn from_fn_generic<F>(nrows: R, ncols: C, mut f: F) -> Self
-    where
-        F: FnMut(usize, usize) -> N,
-    {
+    where F: FnMut(usize, usize) -> N {
         let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols) };
 
         for j in 0..ncols.value() {
@@ -125,9 +118,7 @@ where
     /// to the identity matrix. All other entries are set to zero.
     #[inline]
     pub fn identity_generic(nrows: R, ncols: C) -> Self
-    where
-        N: Zero + One,
-    {
+    where N: Zero + One {
         Self::from_diagonal_element_generic(nrows, ncols, N::one())
     }
 
@@ -137,9 +128,7 @@ where
     /// to the identity matrix. All other entries are set to zero.
     #[inline]
     pub fn from_diagonal_element_generic(nrows: R, ncols: C, elt: N) -> Self
-    where
-        N: Zero + One,
-    {
+    where N: Zero + One {
         let mut res = Self::zeros_generic(nrows, ncols);
 
         for i in 0..::min(nrows.value(), ncols.value()) {
@@ -155,9 +144,7 @@ where
     /// Panics if `elts.len()` is larger than the minimum among `nrows` and `ncols`.
     #[inline]
     pub fn from_partial_diagonal_generic(nrows: R, ncols: C, elts: &[N]) -> Self
-    where
-        N: Zero,
-    {
+    where N: Zero {
         let mut res = Self::zeros_generic(nrows, ncols);
         assert!(
             elts.len() <= ::min(nrows.value(), ncols.value()),
@@ -177,9 +164,7 @@ where
     /// not have the same dimensions.
     #[inline]
     pub fn from_rows<SB>(rows: &[Matrix<N, U1, C, SB>]) -> Self
-    where
-        SB: Storage<N, U1, C>,
-    {
+    where SB: Storage<N, U1, C> {
         assert!(rows.len() > 0, "At least one row must be given.");
         let nrows = R::try_to_usize().unwrap_or(rows.len());
         let ncols = rows[0].len();
@@ -207,9 +192,7 @@ where
     /// columns do not have the same dimensions.
     #[inline]
     pub fn from_columns<SB>(columns: &[Vector<N, R, SB>]) -> Self
-    where
-        SB: Storage<N, R>,
-    {
+    where SB: Storage<N, R> {
         assert!(columns.len() > 0, "At least one column must be given.");
         let ncols = C::try_to_usize().unwrap_or(columns.len());
         let nrows = columns[0].len();
@@ -235,9 +218,7 @@ where
     #[inline]
     #[cfg(feature = "std")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
-    where
-        Standard: Distribution<N>,
-    {
+    where Standard: Distribution<N> {
         Self::from_fn_generic(nrows, ncols, |_, _| rand::random())
     }
 
@@ -248,7 +229,8 @@ where
         ncols: C,
         distribution: &mut Distr,
         rng: &mut G,
-    ) -> Self {
+    ) -> Self
+    {
         Self::from_fn_generic(nrows, ncols, |_, _| distribution.sample(rng))
     }
 }
@@ -261,9 +243,7 @@ where
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     #[inline]
     pub fn from_diagonal<SB: Storage<N, D>>(diag: &Vector<N, D, SB>) -> Self
-    where
-        N: Zero,
-    {
+    where N: Zero {
         let (dim, _) = diag.data.shape();
         let mut res = Self::zeros_generic(dim, dim);
 
@@ -703,9 +683,7 @@ where
     /// The column vector with a 1 as its first component, and zero elsewhere.
     #[inline]
     pub fn x() -> Self
-    where
-        R::Value: Cmp<typenum::U0, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U0, Output = Greater> {
         let mut res = Self::zeros();
         unsafe {
             *res.vget_unchecked_mut(0) = N::one();
@@ -717,9 +695,7 @@ where
     /// The column vector with a 1 as its second component, and zero elsewhere.
     #[inline]
     pub fn y() -> Self
-    where
-        R::Value: Cmp<typenum::U1, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U1, Output = Greater> {
         let mut res = Self::zeros();
         unsafe {
             *res.vget_unchecked_mut(1) = N::one();
@@ -731,9 +707,7 @@ where
     /// The column vector with a 1 as its third component, and zero elsewhere.
     #[inline]
     pub fn z() -> Self
-    where
-        R::Value: Cmp<typenum::U2, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U2, Output = Greater> {
         let mut res = Self::zeros();
         unsafe {
             *res.vget_unchecked_mut(2) = N::one();
@@ -745,9 +719,7 @@ where
     /// The column vector with a 1 as its fourth component, and zero elsewhere.
     #[inline]
     pub fn w() -> Self
-    where
-        R::Value: Cmp<typenum::U3, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U3, Output = Greater> {
         let mut res = Self::zeros();
         unsafe {
             *res.vget_unchecked_mut(3) = N::one();
@@ -759,9 +731,7 @@ where
     /// The column vector with a 1 as its fifth component, and zero elsewhere.
     #[inline]
     pub fn a() -> Self
-    where
-        R::Value: Cmp<typenum::U4, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U4, Output = Greater> {
         let mut res = Self::zeros();
         unsafe {
             *res.vget_unchecked_mut(4) = N::one();
@@ -773,9 +743,7 @@ where
     /// The column vector with a 1 as its sixth component, and zero elsewhere.
     #[inline]
     pub fn b() -> Self
-    where
-        R::Value: Cmp<typenum::U5, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U5, Output = Greater> {
         let mut res = Self::zeros();
         unsafe {
             *res.vget_unchecked_mut(5) = N::one();
@@ -787,54 +755,42 @@ where
     /// The unit column vector with a 1 as its first component, and zero elsewhere.
     #[inline]
     pub fn x_axis() -> Unit<Self>
-    where
-        R::Value: Cmp<typenum::U0, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U0, Output = Greater> {
         Unit::new_unchecked(Self::x())
     }
 
     /// The unit column vector with a 1 as its second component, and zero elsewhere.
     #[inline]
     pub fn y_axis() -> Unit<Self>
-    where
-        R::Value: Cmp<typenum::U1, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U1, Output = Greater> {
         Unit::new_unchecked(Self::y())
     }
 
     /// The unit column vector with a 1 as its third component, and zero elsewhere.
     #[inline]
     pub fn z_axis() -> Unit<Self>
-    where
-        R::Value: Cmp<typenum::U2, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U2, Output = Greater> {
         Unit::new_unchecked(Self::z())
     }
 
     /// The unit column vector with a 1 as its fourth component, and zero elsewhere.
     #[inline]
     pub fn w_axis() -> Unit<Self>
-    where
-        R::Value: Cmp<typenum::U3, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U3, Output = Greater> {
         Unit::new_unchecked(Self::w())
     }
 
     /// The unit column vector with a 1 as its fifth component, and zero elsewhere.
     #[inline]
     pub fn a_axis() -> Unit<Self>
-    where
-        R::Value: Cmp<typenum::U4, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U4, Output = Greater> {
         Unit::new_unchecked(Self::a())
     }
 
     /// The unit column vector with a 1 as its sixth component, and zero elsewhere.
     #[inline]
     pub fn b_axis() -> Unit<Self>
-    where
-        R::Value: Cmp<typenum::U5, Output = Greater>,
-    {
+    where R::Value: Cmp<typenum::U5, Output = Greater> {
         Unit::new_unchecked(Self::b())
     }
 }

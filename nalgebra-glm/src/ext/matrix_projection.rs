@@ -1,6 +1,6 @@
 use na::{self, Real, U3};
 
-use aliases::{TVec2, TVec3, TVec4, TMat4};
+use aliases::{TMat4, TVec2, TVec3, TVec4};
 
 /// Define a picking region.
 ///
@@ -13,11 +13,15 @@ pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec
     let shift = TVec3::new(
         (viewport.z - (center.x - viewport.x) * na::convert(2.0)) / delta.x,
         (viewport.w - (center.y - viewport.y) * na::convert(2.0)) / delta.y,
-        N::zero()
+        N::zero(),
     );
 
     let result = TMat4::new_translation(&shift);
-    result.prepend_nonuniform_scaling(&TVec3::new(viewport.z / delta.x, viewport.w / delta.y, N::one()))
+    result.prepend_nonuniform_scaling(&TVec3::new(
+        viewport.z / delta.x,
+        viewport.w / delta.y,
+        N::one(),
+    ))
 }
 
 /// Map the specified object coordinates `(obj.x, obj.y, obj.z)` into window coordinates using OpenGL near and far clip planes definition.
@@ -36,7 +40,13 @@ pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_no`](fn.unproject_no.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn project<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
+pub fn project<N: Real>(
+    obj: &TVec3<N>,
+    model: &TMat4<N>,
+    proj: &TMat4<N>,
+    viewport: TVec4<N>,
+) -> TVec3<N>
+{
     project_no(obj, model, proj, viewport)
 }
 
@@ -58,7 +68,13 @@ pub fn project<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewp
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_no`](fn.unproject_no.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn project_no<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
+pub fn project_no<N: Real>(
+    obj: &TVec3<N>,
+    model: &TMat4<N>,
+    proj: &TMat4<N>,
+    viewport: TVec4<N>,
+) -> TVec3<N>
+{
     let proj = project_zo(obj, model, proj, viewport);
     TVec3::new(proj.x, proj.y, proj.z * na::convert(0.5) + na::convert(0.5))
 }
@@ -81,7 +97,13 @@ pub fn project_no<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vi
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_no`](fn.unproject_no.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn project_zo<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
+pub fn project_zo<N: Real>(
+    obj: &TVec3<N>,
+    model: &TMat4<N>,
+    proj: &TMat4<N>,
+    viewport: TVec4<N>,
+) -> TVec3<N>
+{
     let normalized = proj * model * TVec4::new(obj.x, obj.y, obj.z, N::one());
     let scale = N::one() / normalized.w;
 
@@ -108,7 +130,13 @@ pub fn project_zo<N: Real>(obj: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vi
 /// * [`project_zo`](fn.project_zo.html)
 /// * [`unproject_no`](fn.unproject_no.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn unproject<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
+pub fn unproject<N: Real>(
+    win: &TVec3<N>,
+    model: &TMat4<N>,
+    proj: &TMat4<N>,
+    viewport: TVec4<N>,
+) -> TVec3<N>
+{
     unproject_no(win, model, proj, viewport)
 }
 
@@ -130,7 +158,13 @@ pub fn unproject<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, vie
 /// * [`project_zo`](fn.project_zo.html)
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn unproject_no<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
+pub fn unproject_no<N: Real>(
+    win: &TVec3<N>,
+    model: &TMat4<N>,
+    proj: &TMat4<N>,
+    viewport: TVec4<N>,
+) -> TVec3<N>
+{
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
     let pt = TVec4::new(
@@ -162,7 +196,13 @@ pub fn unproject_no<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, 
 /// * [`project_zo`](fn.project_zo.html)
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_no`](fn.unproject_no.html)
-pub fn unproject_zo<N: Real>(win: &TVec3<N>, model: &TMat4<N>, proj: &TMat4<N>, viewport: TVec4<N>) -> TVec3<N> {
+pub fn unproject_zo<N: Real>(
+    win: &TVec3<N>,
+    model: &TMat4<N>,
+    proj: &TMat4<N>,
+    viewport: TVec4<N>,
+) -> TVec3<N>
+{
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
     let pt = TVec4::new(

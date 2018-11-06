@@ -59,8 +59,7 @@ impl_structures!(
 );
 
 impl<N: Real> Transformation<Point2<N>> for UnitComplex<N>
-where
-    DefaultAllocator: Allocator<N, U2>,
+where DefaultAllocator: Allocator<N, U2>
 {
     #[inline]
     fn transform_point(&self, pt: &Point2<N>) -> Point2<N> {
@@ -74,8 +73,7 @@ where
 }
 
 impl<N: Real> ProjectiveTransformation<Point2<N>> for UnitComplex<N>
-where
-    DefaultAllocator: Allocator<N, U2>,
+where DefaultAllocator: Allocator<N, U2>
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point2<N>) -> Point2<N> {
@@ -91,8 +89,7 @@ where
 }
 
 impl<N: Real> AffineTransformation<Point2<N>> for UnitComplex<N>
-where
-    DefaultAllocator: Allocator<N, U2>,
+where DefaultAllocator: Allocator<N, U2>
 {
     type Rotation = Self;
     type NonUniformScaling = Id;
@@ -135,8 +132,7 @@ where
 }
 
 impl<N: Real> Similarity<Point2<N>> for UnitComplex<N>
-where
-    DefaultAllocator: Allocator<N, U2>,
+where DefaultAllocator: Allocator<N, U2>
 {
     type Scaling = Id;
 
@@ -166,8 +162,7 @@ macro_rules! marker_impl(
 marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
 impl<N: Real> Rotation<Point2<N>> for UnitComplex<N>
-where
-    DefaultAllocator: Allocator<N, U2>,
+where DefaultAllocator: Allocator<N, U2>
 {
     #[inline]
     fn powf(&self, n: N) -> Option<Self> {

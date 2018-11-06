@@ -8,8 +8,7 @@ pub struct ShapeConstraint;
 /// Constraints `C1` and `R2` to be equivalent.
 pub trait AreMultipliable<R1: Dim, C1: Dim, R2: Dim, C2: Dim>: DimEq<C1, R2> {}
 
-impl<R1: Dim, C1: Dim, R2: Dim, C2: Dim> AreMultipliable<R1, C1, R2, C2> for ShapeConstraint where
-    ShapeConstraint: DimEq<C1, R2>
+impl<R1: Dim, C1: Dim, R2: Dim, C2: Dim> AreMultipliable<R1, C1, R2, C2> for ShapeConstraint where ShapeConstraint: DimEq<C1, R2>
 {}
 
 /// Constraints `D1` and `D2` to be equivalent.

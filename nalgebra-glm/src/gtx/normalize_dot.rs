@@ -1,7 +1,7 @@
-use na::{Real, DefaultAllocator};
+use na::{DefaultAllocator, Real};
 
-use traits::{Dimension, Alloc};
 use aliases::TVec;
+use traits::{Alloc, Dimension};
 
 /// The dot product of the normalized version of `x` and `y`.
 ///
@@ -11,7 +11,7 @@ use aliases::TVec;
 ///
 /// * [`normalize_dot`](fn.normalize_dot.html`)
 pub fn fast_normalize_dot<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     // XXX: improve those.
     x.normalize().dot(&y.normalize())
 }
@@ -22,7 +22,7 @@ pub fn fast_normalize_dot<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>)
 ///
 /// * [`fast_normalize_dot`](fn.fast_normalize_dot.html`)
 pub fn normalize_dot<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-    where DefaultAllocator: Alloc<N, D> {
+where DefaultAllocator: Alloc<N, D> {
     // XXX: improve those.
     x.normalize().dot(&y.normalize())
 }

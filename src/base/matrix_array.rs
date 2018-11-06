@@ -107,7 +107,8 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
     GenericArray<N, Prod<R::Value, C::Value>>: Copy,
-{}
+{
+}
 
 impl<N, R, C> Clone for MatrixArray<N, R, C>
 where
@@ -132,7 +133,8 @@ where
     C: DimName,
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
-{}
+{
+}
 
 impl<N, R, C> PartialEq for MatrixArray<N, R, C>
 where
@@ -182,17 +184,13 @@ where
 
     #[inline]
     fn into_owned(self) -> Owned<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         self
     }
 
     #[inline]
     fn clone_owned(&self) -> Owned<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
+    where DefaultAllocator: Allocator<N, R, C> {
         let it = self.iter().cloned();
 
         DefaultAllocator::allocate_from_iterator(self.shape().0, self.shape().1, it)
@@ -232,7 +230,8 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
     DefaultAllocator: Allocator<N, R, C, Buffer = Self>,
-{}
+{
+}
 
 unsafe impl<N, R, C> ContiguousStorageMut<N, R, C> for MatrixArray<N, R, C>
 where
@@ -242,7 +241,8 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
     DefaultAllocator: Allocator<N, R, C, Buffer = Self>,
-{}
+{
+}
 
 /*
  *
@@ -260,9 +260,7 @@ where
     Prod<R::Value, C::Value>: ArrayLength<N>,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
+    where S: Serializer {
         let mut serializer = serializer.serialize_seq(Some(R::dim() * C::dim()))?;
 
         for e in self.iter() {
@@ -283,9 +281,7 @@ where
     Prod<R::Value, C::Value>: ArrayLength<N>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'a>,
-    {
+    where D: Deserializer<'a> {
         deserializer.deserialize_seq(MatrixArrayVisitor::new())
     }
 }
@@ -330,9 +326,7 @@ where
 
     #[inline]
     fn visit_seq<V>(self, mut visitor: V) -> Result<MatrixArray<N, R, C>, V::Error>
-    where
-        V: SeqAccess<'a>,
-    {
+    where V: SeqAccess<'a> {
         let mut out: Self::Value = unsafe { mem::uninitialized() };
         let mut curr = 0;
 

@@ -20,8 +20,7 @@ use geometry::{Point, Translation};
  *
  */
 impl<N: Real, D: DimName> Identity<Multiplicative> for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn identity() -> Self {
@@ -30,8 +29,7 @@ where
 }
 
 impl<N: Real, D: DimName> Inverse<Multiplicative> for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn inverse(&self) -> Self {
@@ -45,8 +43,7 @@ where
 }
 
 impl<N: Real, D: DimName> AbstractMagma<Multiplicative> for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
@@ -75,8 +72,7 @@ impl_multiplicative_structures!(
  *
  */
 impl<N: Real, D: DimName> Transformation<Point<N, D>> for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
@@ -90,8 +86,7 @@ where
 }
 
 impl<N: Real, D: DimName> ProjectiveTransformation<Point<N, D>> for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
@@ -105,8 +100,7 @@ where
 }
 
 impl<N: Real, D: DimName> AffineTransformation<Point<N, D>> for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     type Rotation = Id;
     type NonUniformScaling = Id;
@@ -149,8 +143,7 @@ where
 }
 
 impl<N: Real, D: DimName> Similarity<Point<N, D>> for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     type Scaling = Id;
 
@@ -181,8 +174,7 @@ marker_impl!(Isometry, DirectIsometry);
 
 /// Subgroups of the n-dimensional translation group `T(n)`.
 impl<N: Real, D: DimName> AlgaTranslation<Point<N, D>> for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn to_vector(&self) -> VectorN<N, D> {

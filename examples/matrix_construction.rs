@@ -48,12 +48,11 @@ fn main() {
         4,
         3,
         [
-        // Components listed column-by-column.
-        1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0, 0.0
-    ].iter()
-            .cloned(),
+            // Components listed column-by-column.
+            1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+        ]
+        .iter()
+        .cloned(),
     );
 
     assert_eq!(dm, dm1);

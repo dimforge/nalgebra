@@ -99,8 +99,7 @@ impl<N: Real> Rotation2<N> {
 }
 
 impl<N: Real> Distribution<Rotation2<N>> for Standard
-where
-    OpenClosed01: Distribution<N>,
+where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
@@ -111,8 +110,7 @@ where
 
 #[cfg(feature = "arbitrary")]
 impl<N: Real + Arbitrary> Arbitrary for Rotation2<N>
-where
-    Owned<N, U2, U2>: Send,
+where Owned<N, U2, U2>: Send
 {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
@@ -144,9 +142,7 @@ impl<N: Real> Rotation3<N> {
 
     /// Builds a 3D rotation matrix from an axis and a rotation angle.
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
-    where
-        SB: Storage<N, U3>,
-    {
+    where SB: Storage<N, U3> {
         if angle.is_zero() {
             Self::identity()
         } else {
@@ -384,8 +380,7 @@ impl<N: Real> Rotation3<N> {
 }
 
 impl<N: Real> Distribution<Rotation3<N>> for Standard
-where
-    OpenClosed01: Distribution<N>,
+where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]

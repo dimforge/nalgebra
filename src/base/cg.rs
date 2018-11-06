@@ -238,9 +238,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     /// Computes in-place the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
     pub fn append_scaling_mut(&mut self, scaling: N)
-    where
-        D: DimNameSub<U1>,
-    {
+    where D: DimNameSub<U1> {
         let mut to_scale = self.fixed_rows_mut::<DimNameDiff<D, U1>>(0);
         to_scale *= scaling;
     }
@@ -248,9 +246,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     /// Computes in-place the transformation equal to an uniform scaling factor followed by `self`.
     #[inline]
     pub fn prepend_scaling_mut(&mut self, scaling: N)
-    where
-        D: DimNameSub<U1>,
-    {
+    where D: DimNameSub<U1> {
         let mut to_scale = self.fixed_columns_mut::<DimNameDiff<D, U1>>(0);
         to_scale *= scaling;
     }
@@ -319,16 +315,16 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
 }
 
 impl<N: Real, D: DimNameSub<U1>> Transformation<Point<N, DimNameDiff<D, U1>>> for MatrixN<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>
+where DefaultAllocator: Allocator<N, D, D>
         + Allocator<N, DimNameDiff<D, U1>>
-        + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>,
+        + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>
 {
     #[inline]
     fn transform_vector(
         &self,
         v: &VectorN<N, DimNameDiff<D, U1>>,
-    ) -> VectorN<N, DimNameDiff<D, U1>> {
+    ) -> VectorN<N, DimNameDiff<D, U1>>
+    {
         let transform = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
         let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
         let n = normalizer.tr_dot(&v);

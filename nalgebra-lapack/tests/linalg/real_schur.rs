@@ -1,6 +1,6 @@
-use std::cmp;
-use nl::RealSchur;
 use na::{DMatrix, Matrix4};
+use nl::RealSchur;
+use std::cmp;
 
 quickcheck! {
     fn schur(n: usize) -> bool {

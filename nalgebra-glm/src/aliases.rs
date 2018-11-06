@@ -1,9 +1,7 @@
-use na::{MatrixMN, VectorN,
-         Matrix2, Matrix3, Matrix4,
-         Matrix2x3, Matrix3x2, Matrix4x2,
-         Matrix2x4, Matrix3x4, Matrix4x3,
-         Quaternion,
-         U1, U2, U3, U4};
+use na::{
+    Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4, Matrix4x2, Matrix4x3,
+    MatrixMN, Quaternion, VectorN, U1, U2, U3, U4,
+};
 
 /// A matrix with components of type `N`. It has `R` rows, and `C` columns.
 ///
@@ -194,13 +192,13 @@ pub type UVec3 = TVec3<u32>;
 /// A 4D vector with `u32` components.
 pub type UVec4 = TVec4<u32>;
 /// A 1D vector with `f32` components.
-pub type Vec1  = TVec1<f32>;
+pub type Vec1 = TVec1<f32>;
 /// A 2D vector with `f32` components.
-pub type Vec2  = TVec2<f32>;
+pub type Vec2 = TVec2<f32>;
 /// A 3D vector with `f32` components.
-pub type Vec3  = TVec3<f32>;
+pub type Vec3 = TVec3<f32>;
 /// A 4D vector with `f32` components.
-pub type Vec4  = TVec4<f32>;
+pub type Vec4 = TVec4<f32>;
 
 /// A 1D vector with `u64` components.
 pub type U64Vec1 = TVec1<u64>;
@@ -269,7 +267,6 @@ pub type I8Vec2 = TVec2<i8>;
 pub type I8Vec3 = TVec3<i8>;
 /// A 4D vector with `i8` components.
 pub type I8Vec4 = TVec4<i8>;
-
 
 /// A 2x2 matrix with components of type `N`.
 pub type TMat2<N> = Matrix2<N>;

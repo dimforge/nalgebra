@@ -2,8 +2,8 @@
 extern crate approx;
 extern crate nalgebra as na;
 
-use std::f32;
 use na::{Isometry2, Point2, Vector2};
+use std::f32;
 
 fn main() {
     let t = Isometry2::new(Vector2::new(1.0, 1.0), f32::consts::PI);

@@ -19,8 +19,7 @@ use geometry::{Point, Rotation};
  *
  */
 impl<N: Real, D: DimName> Identity<Multiplicative> for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D, D>
 {
     #[inline]
     fn identity() -> Self {
@@ -29,8 +28,7 @@ where
 }
 
 impl<N: Real, D: DimName> Inverse<Multiplicative> for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D, D>
 {
     #[inline]
     fn inverse(&self) -> Self {
@@ -44,8 +42,7 @@ where
 }
 
 impl<N: Real, D: DimName> AbstractMagma<Multiplicative> for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D, D>
 {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
@@ -74,8 +71,7 @@ impl_multiplicative_structures!(
  *
  */
 impl<N: Real, D: DimName> Transformation<Point<N, D>> for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     #[inline]
     fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
@@ -89,8 +85,7 @@ where
 }
 
 impl<N: Real, D: DimName> ProjectiveTransformation<Point<N, D>> for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
@@ -104,8 +99,7 @@ where
 }
 
 impl<N: Real, D: DimName> AffineTransformation<Point<N, D>> for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     type Rotation = Self;
     type NonUniformScaling = Id;
@@ -148,8 +142,7 @@ where
 }
 
 impl<N: Real, D: DimName> Similarity<Point<N, D>> for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     type Scaling = Id;
 
@@ -181,8 +174,7 @@ marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
 /// Subgroups of the n-dimensional rotation group `SO(n)`.
 impl<N: Real, D: DimName> linear::Rotation<Point<N, D>> for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     #[inline]
     fn powf(&self, _: N) -> Option<Self> {

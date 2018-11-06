@@ -30,9 +30,7 @@ impl Dynamic {
 #[cfg(feature = "serde-serialize")]
 impl Serialize for Dynamic {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
+    where S: Serializer {
         self.value.serialize(serializer)
     }
 }
@@ -40,9 +38,7 @@ impl Serialize for Dynamic {
 #[cfg(feature = "serde-serialize")]
 impl<'de> Deserialize<'de> for Dynamic {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
+    where D: Deserializer<'de> {
         usize::deserialize(deserializer).map(|x| Dynamic { value: x })
     }
 }
@@ -368,7 +364,8 @@ impl<
         G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
     > IsNotStaticOne
     for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
-{}
+{
+}
 
 impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> NamedDim
     for UInt<U, B>
@@ -409,4 +406,5 @@ impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Syn
 
 impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> IsNotStaticOne
     for UInt<U, B>
-{}
+{
+}

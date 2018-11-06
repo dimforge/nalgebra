@@ -13,8 +13,7 @@ use storage::{Storage, StorageMut};
 use {DefaultAllocator, Dim, Matrix, MatrixMN, Real, Scalar, Vector, VectorN, U1};
 
 pub struct CsCholesky<N: Real, D: Dim>
-where
-    DefaultAllocator: Allocator<usize, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
 {
     // Non-zero pattern of the original matrix upper-triangular part.
     // Unlike the original matrix, the `original_p` array does contain the last sentinel value
@@ -33,8 +32,7 @@ where
 }
 
 impl<N: Real, D: Dim> CsCholesky<N, D>
-where
-    DefaultAllocator: Allocator<usize, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
 {
     /// Computes the cholesky decomposition of the sparse matrix `m`.
     pub fn new(m: &CsMatrix<N, D, D>) -> Self {
@@ -263,7 +261,8 @@ where
         tree: &[usize],
         marks: &mut Vec<bool>,
         out: &mut Vec<usize>,
-    ) {
+    )
+    {
         marks.clear();
         marks.resize(tree.len(), false);
 

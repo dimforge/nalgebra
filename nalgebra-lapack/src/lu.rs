@@ -20,30 +20,21 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<i32, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Serialize,
-         PermutationSequence<DimMinimum<R, C>>: Serialize"
-        )
-    )
+         PermutationSequence<DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<i32, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"
-        )
-    )
+         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct LU<N: Scalar, R: DimMin<C>, C: Dim>
-where
-    DefaultAllocator: Allocator<i32, DimMinimum<R, C>> + Allocator<N, R, C>,
+where DefaultAllocator: Allocator<i32, DimMinimum<R, C>> + Allocator<N, R, C>
 {
     lu: MatrixMN<N, R, C>,
     p: VectorN<i32, DimMinimum<R, C>>,
@@ -139,9 +130,7 @@ where
     /// Applies the permutation matrix to a given matrix or vector in-place.
     #[inline]
     pub fn permute<C2: Dim>(&self, rhs: &mut MatrixMN<N, R, C2>)
-    where
-        DefaultAllocator: Allocator<N, R, C2>,
-    {
+    where DefaultAllocator: Allocator<N, R, C2> {
         let (nrows, ncols) = rhs.shape();
 
         N::xlaswp(
@@ -156,9 +145,7 @@ where
     }
 
     fn generic_solve_mut<R2: Dim, C2: Dim>(&self, trans: u8, b: &mut MatrixMN<N, R2, C2>) -> bool
-    where
-        DefaultAllocator: Allocator<N, R2, C2> + Allocator<i32, R2>,
-    {
+    where DefaultAllocator: Allocator<N, R2, C2> + Allocator<i32, R2> {
         let dim = self.lu.nrows();
 
         assert!(
@@ -246,9 +233,7 @@ where
     ///
     /// Returns `false` if no solution was found (the decomposed matrix is singular).
     pub fn solve_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
-    where
-        DefaultAllocator: Allocator<N, R2, C2> + Allocator<i32, R2>,
-    {
+    where DefaultAllocator: Allocator<N, R2, C2> + Allocator<i32, R2> {
         self.generic_solve_mut(b'N', b)
     }
 
@@ -257,9 +242,7 @@ where
     ///
     /// Returns `false` if no solution was found (the decomposed matrix is singular).
     pub fn solve_transpose_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
-    where
-        DefaultAllocator: Allocator<N, R2, C2> + Allocator<i32, R2>,
-    {
+    where DefaultAllocator: Allocator<N, R2, C2> + Allocator<i32, R2> {
         self.generic_solve_mut(b'T', b)
     }
 
