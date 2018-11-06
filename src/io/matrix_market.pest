@@ -5,7 +5,7 @@ Header = { "%%" ~ (!NEWLINE ~ ANY)* }
 Shape = { Dimension ~ Dimension ~ Dimension }
 Document = {
     SOI ~
-    NEWLINE ~
+    NEWLINE* ~
     Header ~
     (NEWLINE ~ Comments)* ~
     (NEWLINE ~ Shape) ~
