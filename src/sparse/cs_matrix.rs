@@ -7,8 +7,43 @@ use std::slice;
 
 use allocator::Allocator;
 use constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
+use sparse::cs_utils;
 use storage::{Storage, StorageMut};
-use {DefaultAllocator, Dim, Matrix, MatrixMN, Real, Scalar, Vector, VectorN, U1};
+use {
+    DVector, DefaultAllocator, Dim, Dynamic, Matrix, MatrixMN, MatrixVec, Real, Scalar, Vector,
+    VectorN, U1,
+};
+
+pub struct ColumnEntries<'a, N> {
+    curr: usize,
+    i: &'a [usize],
+    v: &'a [N],
+}
+
+impl<'a, N> ColumnEntries<'a, N> {
+    #[inline]
+    pub fn new(i: &'a [usize], v: &'a [N]) -> Self {
+        assert_eq!(i.len(), v.len());
+        ColumnEntries { curr: 0, i, v }
+    }
+}
+
+impl<'a, N: Copy> Iterator for ColumnEntries<'a, N> {
+    type Item = (usize, N);
+
+    #[inline]
+    fn next(&mut self) -> Option<(usize, N)> {
+        if self.curr >= self.i.len() {
+            None
+        } else {
+            let res = Some((unsafe { *self.i.get_unchecked(self.curr) }, unsafe {
+                *self.v.get_unchecked(self.curr)
+            }));
+            self.curr += 1;
+            res
+        }
+    }
+}
 
 // FIXME: this structure exists for now only because impl trait
 // cannot be used for trait method return types.
@@ -17,12 +52,15 @@ pub trait CsStorageIter<'a, N, R, C = U1> {
     type ColumnRowIndices: Iterator<Item = usize>;
 
     fn column_row_indices(&'a self, j: usize) -> Self::ColumnRowIndices;
+    #[inline(always)]
     fn column_entries(&'a self, j: usize) -> Self::ColumnEntries;
 }
 
 pub trait CsStorageIterMut<'a, N: 'a, R, C = U1> {
+    type ValuesMut: Iterator<Item = &'a mut N>;
     type ColumnEntriesMut: Iterator<Item = (usize, &'a mut N)>;
 
+    fn values_mut(&'a mut self) -> Self::ValuesMut;
     fn column_entries_mut(&'a mut self, j: usize) -> Self::ColumnEntriesMut;
 }
 
@@ -41,7 +79,7 @@ pub trait CsStorageMut<N, R, C = U1>:
 {
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct CsVecStorage<N: Scalar, R: Dim, C: Dim>
 where
     DefaultAllocator: Allocator<usize, C>,
@@ -59,6 +97,12 @@ where
     pub fn values(&self) -> &[N] {
         &self.vals
     }
+    pub fn p(&self) -> &[usize] {
+        self.p.as_slice()
+    }
+    pub fn i(&self) -> &[usize] {
+        &self.i
+    }
 }
 
 impl<N: Scalar, R: Dim, C: Dim> CsVecStorage<N, R, C> where DefaultAllocator: Allocator<usize, C> {}
@@ -67,17 +111,13 @@ impl<'a, N: Scalar, R: Dim, C: Dim> CsStorageIter<'a, N, R, C> for CsVecStorage<
 where
     DefaultAllocator: Allocator<usize, C>,
 {
-    type ColumnEntries =
-        iter::Zip<iter::Cloned<slice::Iter<'a, usize>>, iter::Cloned<slice::Iter<'a, N>>>;
+    type ColumnEntries = ColumnEntries<'a, N>;
     type ColumnRowIndices = iter::Cloned<slice::Iter<'a, usize>>;
 
     #[inline]
     fn column_entries(&'a self, j: usize) -> Self::ColumnEntries {
         let rng = self.column_range(j);
-        self.i[rng.clone()]
-            .iter()
-            .cloned()
-            .zip(self.vals[rng].iter().cloned())
+        ColumnEntries::new(&self.i[rng.clone()], &self.vals[rng])
     }
 
     #[inline]
@@ -137,7 +177,13 @@ impl<'a, N: Scalar, R: Dim, C: Dim> CsStorageIterMut<'a, N, R, C> for CsVecStora
 where
     DefaultAllocator: Allocator<usize, C>,
 {
+    type ValuesMut = slice::IterMut<'a, N>;
     type ColumnEntriesMut = iter::Zip<iter::Cloned<slice::Iter<'a, usize>>, slice::IterMut<'a, N>>;
+
+    #[inline]
+    fn values_mut(&'a mut self) -> Self::ValuesMut {
+        self.vals.iter_mut()
+    }
 
     #[inline]
     fn column_entries_mut(&'a mut self, j: usize) -> Self::ColumnEntriesMut {
@@ -163,13 +209,18 @@ pub struct CsSliceStorage<'a, N: Scalar, R: Dim, C: DimAdd<U1>> {
 }*/
 
 /// A compressed sparse column matrix.
-#[derive(Clone, Debug)]
-pub struct CsMatrix<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C> = CsVecStorage<N, R, C>> {
+#[derive(Clone, Debug, PartialEq)]
+pub struct CsMatrix<
+    N: Scalar,
+    R: Dim = Dynamic,
+    C: Dim = Dynamic,
+    S: CsStorage<N, R, C> = CsVecStorage<N, R, C>,
+> {
     pub data: S,
     _phantoms: PhantomData<(N, R, C)>,
 }
 
-pub type CsVector<N, R, S = CsVecStorage<N, R, U1>> = CsMatrix<N, R, U1, S>;
+pub type CsVector<N, R = Dynamic, S = CsVecStorage<N, R, U1>> = CsMatrix<N, R, U1, S>;
 
 impl<N: Scalar, R: Dim, C: Dim> CsMatrix<N, R, C>
 where
@@ -198,22 +249,66 @@ where
             _phantoms: PhantomData,
         }
     }
+
+    pub fn from_parts_generic(
+        nrows: R,
+        ncols: C,
+        p: VectorN<usize, C>,
+        i: Vec<usize>,
+        vals: Vec<N>,
+    ) -> Self
+    where
+        N: Zero + ClosedAdd,
+        DefaultAllocator: Allocator<N, R>,
+    {
+        assert_eq!(ncols.value(), p.len(), "Invalid inptr size.");
+        assert_eq!(i.len(), vals.len(), "Invalid value size.");
+
+        // Check p.
+        for ptr in &p {
+            assert!(*ptr < i.len(), "Invalid inptr value.");
+        }
+
+        for ptr in p.as_slice().windows(2) {
+            assert!(ptr[0] <= ptr[1], "Invalid inptr ordering.");
+        }
+
+        // Check i.
+        for i in &i {
+            assert!(*i < nrows.value(), "Invalid row ptr value.")
+        }
+
+        let mut res = CsMatrix {
+            data: CsVecStorage {
+                shape: (nrows, ncols),
+                p,
+                i,
+                vals,
+            },
+            _phantoms: PhantomData,
+        };
+
+        // Sort and remove duplicates.
+        res.sort();
+        res.dedup();
+
+        res
+    }
 }
 
-fn cumsum<D: Dim>(a: &mut VectorN<usize, D>, b: &mut VectorN<usize, D>) -> usize
-where
-    DefaultAllocator: Allocator<usize, D>,
-{
-    assert!(a.len() == b.len());
-    let mut sum = 0;
-
-    for i in 0..a.len() {
-        b[i] = sum;
-        sum += a[i];
-        a[i] = b[i];
+impl<N: Scalar + Zero + ClosedAdd> CsMatrix<N> {
+    pub fn from_parts(
+        nrows: usize,
+        ncols: usize,
+        p: Vec<usize>,
+        i: Vec<usize>,
+        vals: Vec<N>,
+    ) -> Self {
+        let nrows = Dynamic::new(nrows);
+        let ncols = Dynamic::new(ncols);
+        let p = DVector::from_data(MatrixVec::new(ncols, U1, p));
+        Self::from_parts_generic(nrows, ncols, p, i, vals)
     }
-
-    sum
 }
 
 impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
@@ -288,7 +383,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
             workspace[row_id] += 1;
         }
 
-        let _ = cumsum(&mut workspace, &mut res.data.p);
+        let _ = cs_utils::cumsum(&mut workspace, &mut res.data.p);
 
         // Fill the result.
         for j in 0..ncols.value() {
@@ -302,6 +397,13 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
         }
 
         res
+    }
+}
+
+impl<N: Scalar, R: Dim, C: Dim, S: CsStorageMut<N, R, C>> CsMatrix<N, R, C, S> {
+    #[inline]
+    pub fn values_mut(&mut self) -> impl Iterator<Item = &mut N> {
+        self.data.values_mut()
     }
 }
 
@@ -340,5 +442,47 @@ where
                 self.data.vals[i] = workspace[irow];
             }
         }
+    }
+
+    // Remove dupliate entries on a sorted CsMatrix.
+    pub(crate) fn dedup(&mut self)
+    where
+        N: Zero + ClosedAdd,
+    {
+        let mut curr_i = 0;
+
+        for j in 0..self.ncols() {
+            let range = self.data.column_range(j);
+            self.data.p[j] = curr_i;
+
+            if range.start != range.end {
+                let mut value = N::zero();
+                let mut irow = self.data.i[range.start];
+
+                for idx in range {
+                    let curr_irow = self.data.i[idx];
+
+                    if curr_irow == irow {
+                        value += self.data.vals[idx];
+                    } else {
+                        self.data.i[curr_i] = irow;
+                        self.data.vals[curr_i] = value;
+                        value = self.data.vals[idx];
+                        irow = curr_irow;
+                        curr_i += 1;
+                    }
+                }
+
+                // Handle the last entry.
+                self.data.i[curr_i] = irow;
+                self.data.vals[curr_i] = value;
+                curr_i += 1;
+            }
+        }
+
+        self.data.i.truncate(curr_i);
+        self.data.i.shrink_to_fit();
+        self.data.vals.truncate(curr_i);
+        self.data.vals.shrink_to_fit();
     }
 }

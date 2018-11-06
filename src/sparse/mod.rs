@@ -8,3 +8,4 @@ mod cs_matrix_cholesky;
 mod cs_matrix_conversion;
 mod cs_matrix_ops;
 mod cs_matrix_solve;
+pub mod cs_utils;

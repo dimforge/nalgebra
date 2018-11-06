@@ -26,6 +26,7 @@ abomonation-serialize = [ "abomonation" ]
 sparse = [ ]
 debug = [ ]
 alloc = [ ]
+io = [ "pest", "pest_derive" ]
 
 [dependencies]
 typenum        = "1.10"
@@ -41,6 +42,8 @@ serde_derive   = { version = "1.0", optional = true }
 abomonation    = { version = "0.5", optional = true }
 mint           = { version = "0.5", optional = true }
 quickcheck     = { version = "0.6", optional = true }
+pest           = { version = "2.0", optional = true }
+pest_derive    = { version = "2.0", optional = true }
 
 [dev-dependencies]
 serde_json = "1.0"
