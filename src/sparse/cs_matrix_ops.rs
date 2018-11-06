@@ -175,6 +175,41 @@ where
             }
         }
 
+        // NOTE: the following has a lower complexity, but is slower in many cases, likely because
+        // of branching inside of the inner loop.
+        //
+        // let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
+        // let mut timestamps = VectorN::zeros_generic(nrows1, U1);
+        // let mut workspace = unsafe { VectorN::new_uninitialized_generic(nrows1, U1) };
+        // let mut nz = 0;
+        //
+        // for j in 0..ncols2.value() {
+        //     res.data.p[j] = nz;
+        //     let new_size_bound = nz + nrows1.value();
+        //     res.data.i.resize(new_size_bound, 0);
+        //     res.data.vals.resize(new_size_bound, N::zero());
+        //
+        //     for (i, val) in rhs.data.column_entries(j) {
+        //         nz = self.scatter(
+        //             i,
+        //             val,
+        //             timestamps.as_mut_slice(),
+        //             j + 1,
+        //             workspace.as_mut_slice(),
+        //             nz,
+        //             &mut res,
+        //         );
+        //     }
+        //
+        //     // Keep the output sorted.
+        //     let range = res.data.p[j]..nz;
+        //     res.data.i[range.clone()].sort();
+        //
+        //     for p in range {
+        //         res.data.vals[p] = workspace[res.data.i[p]]
+        //     }
+        // }
+
         res.data.i.truncate(nz);
         res.data.i.shrink_to_fit();
         res.data.vals.truncate(nz);
