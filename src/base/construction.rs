@@ -596,6 +596,13 @@ macro_rules! impl_constructors(
             ) -> Self {
                 Self::from_distribution_generic($($gargs, )* distribution, rng)
             }
+
+            /// Creates a matrix backed by a given vector.
+            #[inline]
+            #[cfg(feature = "std")]
+            pub fn from_vec($($args: usize,)* data: Vec<N>) -> Self {
+                Self::from_vec_generic($($gargs, )* data)
+            }
         }
 
         impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
