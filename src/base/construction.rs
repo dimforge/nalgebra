@@ -257,6 +257,13 @@ where DefaultAllocator: Allocator<N, R, C>
     {
         Self::from_fn_generic(nrows, ncols, |_, _| distribution.sample(rng))
     }
+
+    /// Creates a matrix backed by a given vector.
+    #[inline]
+    #[cfg(feature = "std")]
+    pub fn from_vec(nrows: R, ncols: C, data: Vec<N>) -> Self {
+        Self::from_iterator_generic(nrows, ncols, data)
+    }
 }
 
 impl<N, D: Dim> MatrixN<N, D>
