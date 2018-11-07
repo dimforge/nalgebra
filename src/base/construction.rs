@@ -258,7 +258,23 @@ where DefaultAllocator: Allocator<N, R, C>
         Self::from_fn_generic(nrows, ncols, |_, _| distribution.sample(rng))
     }
 
-    /// Creates a matrix backed by a given vector.
+    /// Creates a matrix backed by a given `Vec`.
+    ///
+    /// The output matrix is filled column-by-column.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Dynamic, DMatrix, Matrix, U1};
+    ///
+    /// let vec = vec![0, 1, 2, 3, 4, 5];
+    /// let vec_ptr = vec.as_ptr();
+    ///
+    /// let matrix = Matrix::from_vec_generic(Dynamic::new(vec.len()), U1, vec);
+    /// let matrix_storage_ptr = matrix.data.as_ptr();
+    ///
+    /// // `matrix` is backed by exactly the same `Vec` as it was constructed from.
+    /// assert_eq!(matrix_storage_ptr, vec_ptr);
+    /// ```
     #[inline]
     #[cfg(feature = "std")]
     pub fn from_vec_generic(nrows: R, ncols: C, data: Vec<N>) -> Self {
@@ -597,7 +613,26 @@ macro_rules! impl_constructors(
                 Self::from_distribution_generic($($gargs, )* distribution, rng)
             }
 
-            /// Creates a matrix backed by a given vector.
+            /// Creates a matrix backed by a given `Vec`.
+            ///
+            /// The output matrix is filled column-by-column.
+            ///
+            /// # Example
+            /// ```
+            /// # use nalgebra::{DMatrix, Matrix2x3};
+            ///
+            /// let m = Matrix2x3::from_vec(vec![0, 1, 2, 3, 4, 5]);
+            ///
+            /// assert!(m.m11 == 0 && m.m12 == 2 && m.m13 == 4 &&
+            ///         m.m21 == 1 && m.m22 == 3 && m.m23 == 5);
+            ///
+            ///
+            /// // The two additional arguments represent the matrix dimensions.
+            /// let dm = DMatrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]);
+            ///
+            /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 2 && dm[(0, 2)] == 4 &&
+            ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
+            /// ```
             #[inline]
             #[cfg(feature = "std")]
             pub fn from_vec($($args: usize,)* data: Vec<N>) -> Self {
