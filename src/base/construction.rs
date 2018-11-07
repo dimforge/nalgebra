@@ -261,7 +261,7 @@ where DefaultAllocator: Allocator<N, R, C>
     /// Creates a matrix backed by a given vector.
     #[inline]
     #[cfg(feature = "std")]
-    pub fn from_vec(nrows: R, ncols: C, data: Vec<N>) -> Self {
+    pub fn from_vec_generic(nrows: R, ncols: C, data: Vec<N>) -> Self {
         Self::from_iterator_generic(nrows, ncols, data)
     }
 }
