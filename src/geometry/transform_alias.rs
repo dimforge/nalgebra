@@ -2,16 +2,16 @@ use base::dimension::{U2, U3};
 
 use geometry::{TAffine, TGeneral, TProjective, Transform};
 
-/// A 2D general transformation that may not be inversible. Stored as an homogeneous 3x3 matrix.
+/// A 2D general transformation that may not be invertible. Stored as an homogeneous 3x3 matrix.
 pub type Transform2<N> = Transform<N, U2, TGeneral>;
-/// An inversible 2D general transformation. Stored as an homogeneous 3x3 matrix.
+/// An invertible 2D general transformation. Stored as an homogeneous 3x3 matrix.
 pub type Projective2<N> = Transform<N, U2, TProjective>;
 /// A 2D affine transformation. Stored as an homogeneous 3x3 matrix.
 pub type Affine2<N> = Transform<N, U2, TAffine>;
 
 /// A 3D general transformation that may not be inversible. Stored as an homogeneous 4x4 matrix.
 pub type Transform3<N> = Transform<N, U3, TGeneral>;
-/// An inversible 3D general transformation. Stored as an homogeneous 4x4 matrix.
+/// An invertible 3D general transformation. Stored as an homogeneous 4x4 matrix.
 pub type Projective3<N> = Transform<N, U3, TProjective>;
 /// A 3D affine transformation. Stored as an homogeneous 4x4 matrix.
 pub type Affine3<N> = Transform<N, U3, TAffine>;
