@@ -23,6 +23,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Add impl `From<Vector>` for `Point`.
   * Add impl `From<Vector4>` for `Quaternion`.
   * Add impl `From<Vector>` for `Translation`.
+  * Add the `::from_vec` constructor to construct a matrix from a `Vec` (a `DMatrix` will reuse the original `Vec`
+  as-is for its storage).
   
 ### Modified
   * The `Point::from_coordinates` methods is deprecated. Use `Point::from` instead.
