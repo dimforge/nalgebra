@@ -240,3 +240,21 @@ unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for MatrixVe
 
 unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {}
+
+impl<N, R: Dim> Extend<N> for MatrixVec<N, R, Dynamic>
+{
+    /// Extends the number of columns of the `MatrixVec` with elements
+    /// from the given iterator.
+    ///
+    /// # Panics
+    /// This function panics if the number of elements yielded by the
+    /// given iterator is not a multiple of the number of rows of the
+    /// `MatrixVec`.
+    fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I)
+    {
+        self.data.extend(iter);
+        self.ncols = Dynamic::new(self.data.len() / self.nrows.value());
+        assert!(self.data.len() % self.nrows.value() == 0,
+          "The number of elements produced by the given iterator was not a multiple of the number of rows.");
+    }
+}
