@@ -27,6 +27,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   as-is for its storage).
   
 ### Modified
+  * The orthographic projection no longer require that `bottom < top`, that `left < right`, and that `znear < zfar`. The
+  only restriction now ith that they must not be equal (in which case the projection would be singular).
   * The `Point::from_coordinates` methods is deprecated. Use `Point::from` instead.
   * The `.transform_point` and `.transform_vector` methods are now inherent methods for matrices so that the user does not have to
   explicitly import the `Transform` trait from the alga crate.
