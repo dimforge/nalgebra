@@ -751,3 +751,25 @@ where
         self.data.extend(iter);
     }
 }
+
+/// Extend the number of rows of the `Vector` with elements from
+/// a given iterator.
+impl<N, S> Extend<N> for Matrix<N, Dynamic, U1, S>
+where
+    N: Scalar,
+    S: Extend<N>,
+{
+    /// Extend the number of rows of a `Vector` with elements
+    /// from the given iterator.
+    ///
+    /// # Example
+    /// ```
+    /// use nalgebra::DVector;
+    /// let mut vector = DVector::from_vec(3, vec![0, 1, 2]);
+    /// vector.extend(vec![3, 4, 5]);
+    /// assert!(vector.eq(&DVector::from_vec(6, vec![0, 1, 2, 3, 4, 5])));
+    /// ```
+    fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I) {
+        self.data.extend(iter);
+    }
+}
