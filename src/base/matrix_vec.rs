@@ -258,3 +258,14 @@ impl<N, R: Dim> Extend<N> for MatrixVec<N, R, Dynamic>
           "The number of elements produced by the given iterator was not a multiple of the number of rows.");
     }
 }
+
+impl<N> Extend<N> for MatrixVec<N, Dynamic, U1>
+{
+    /// Extends the number of rows of the `MatrixVec` with elements
+    /// from the given iterator.
+    fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I)
+    {
+        self.data.extend(iter);
+        self.nrows = Dynamic::new(self.data.len());
+    }
+}
