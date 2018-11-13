@@ -717,13 +717,12 @@ where
     ///
     /// # Example
     /// ```
-    /// use nalgebra::{Dynamic, Matrix, MatrixMN, Matrix3};
+    /// # use nalgebra::{DMatrix, Dynamic, Matrix, MatrixMN, Matrix3};
     ///
     /// let data = vec![0, 1, 2,      // column 1
     ///                 3, 4, 5];     // column 2
     ///
-    /// let mut matrix : MatrixMN<_, Dynamic, Dynamic> =
-    ///   Matrix::from_vec_generic(Dynamic::new(3), Dynamic::new(2), data);
+    /// let mut matrix = DMatrix::from_vec(3, 2, data);
     ///
     /// matrix.extend(vec![6, 7, 8]); // column 3
     ///
@@ -738,14 +737,14 @@ where
     /// `Matrix`.
     ///
     /// ```should_panic
-    /// # use nalgebra::{Dynamic, Matrix, MatrixMN, Matrix3, U3};
+    /// # use nalgebra::{DMatrix, Dynamic, MatrixMN};
     /// let data = vec![0, 1, 2,  // column 1
     ///                 3, 4, 5]; // column 2
     ///
-    /// let mut matrix : MatrixMN<_, U3, Dynamic> =
-    ///   Matrix::from_vec_generic(U3, Dynamic::new(2), data);
+    /// let mut matrix = DMatrix::from_vec(3, 2, data);
     ///
-    /// matrix.extend(vec![6, 7, 8, 9]); // column 3
+    /// // The following panics because the vec length is not a multiple of 3.
+    /// matrix.extend(vec![6, 7, 8, 9]);
     /// ```
     fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I) {
         self.data.extend(iter);
@@ -764,7 +763,7 @@ where
     ///
     /// # Example
     /// ```
-    /// use nalgebra::DVector;
+    /// # use nalgebra::DVector;
     /// let mut vector = DVector::from_vec(3, vec![0, 1, 2]);
     /// vector.extend(vec![3, 4, 5]);
     /// assert!(vector.eq(&DVector::from_vec(6, vec![0, 1, 2, 3, 4, 5])));
