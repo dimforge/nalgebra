@@ -772,3 +772,66 @@ where
         self.data.extend(iter);
     }
 }
+
+impl<N, R, S, RV, SV> Extend<Vector<N, RV, SV>> for Matrix<N, R, Dynamic, S>
+where
+    N: Scalar,
+    R: Dim,
+    S: Extend<Vector<N, RV, SV>>,
+    RV: Dim,
+    SV: Storage<N, RV>
+{
+    /// Extends the number of columns of a `Matrix` with `Vector`s
+    /// from a given iterator.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{DMatrix, Vector3, Matrix3x4};
+    ///
+    /// let data = vec![0, 1, 2,          // column 1
+    ///                 3, 4, 5];         // column 2
+    ///
+    /// let mut matrix = DMatrix::from_vec(3, 2, data);
+    ///
+    /// matrix.extend(
+    ///   vec![Vector3::new(6,  7,  8),   // column 3
+    ///        Vector3::new(9, 10, 11)]); // column 4
+    ///
+    /// assert!(matrix.eq(&Matrix3x4::new(0, 3, 6,  9,
+    ///                                   1, 4, 7, 10,
+    ///                                   2, 5, 8, 11)));
+    /// ```
+    ///
+    /// # Panics
+    /// This function panics if the dimension of each `Vector` yielded
+    /// by the given iterator is not equal to the number of rows of
+    /// this `Matrix`.
+    ///
+    /// ```should_panic
+    /// # use nalgebra::{DMatrix, Vector2, Matrix3x4};
+    /// let mut matrix =
+    ///   DMatrix::from_vec(3, 2,
+    ///                     vec![0, 1, 2,   // column 1
+    ///                          3, 4, 5]); // column 2
+    ///
+    /// // The following panics because this matrix can only be extended with 3-dimensional vectors.
+    /// matrix.extend(
+    ///   vec![Vector2::new(6,  7)]); // too few dimensions!
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use nalgebra::{DMatrix, Vector4, Matrix3x4};
+    /// let mut matrix =
+    ///   DMatrix::from_vec(3, 2,
+    ///                     vec![0, 1, 2,   // column 1
+    ///                          3, 4, 5]); // column 2
+    ///
+    /// // The following panics because this matrix can only be extended with 3-dimensional vectors.
+    /// matrix.extend(
+    ///   vec![Vector4::new(6, 7, 8, 9)]); // too few dimensions!
+    /// ```
+    fn extend<I: IntoIterator<Item=Vector<N, RV, SV>>>(&mut self, iter: I)
+    {
+        self.data.extend(iter);
+    }
+}

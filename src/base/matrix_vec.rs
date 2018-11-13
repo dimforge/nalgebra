@@ -9,7 +9,7 @@ use base::allocator::Allocator;
 use base::default_allocator::DefaultAllocator;
 use base::dimension::{Dim, DimName, Dynamic, U1};
 use base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
-use base::Scalar;
+use base::{Scalar, Vector};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -256,6 +256,34 @@ impl<N, R: Dim> Extend<N> for MatrixVec<N, R, Dynamic>
         self.ncols = Dynamic::new(self.data.len() / self.nrows.value());
         assert!(self.data.len() % self.nrows.value() == 0,
           "The number of elements produced by the given iterator was not a multiple of the number of rows.");
+    }
+}
+
+impl<N, R, RV, SV> Extend<Vector<N, RV, SV>> for MatrixVec<N, R, Dynamic>
+where
+    N: Scalar,
+    R: Dim,
+    RV: Dim,
+    SV: Storage<N, RV>
+{
+    /// Extends the number of columns of the `MatrixVec` with vectors
+    /// from the given iterator.
+    ///
+    /// # Panics
+    /// This function panics if the number of rows of each `Vector`
+    /// yielded by the iterator is not equal to the number of rows
+    /// of this `MatrixVec`.
+    fn extend<I: IntoIterator<Item=Vector<N, RV, SV>>>(&mut self, iter: I)
+    {
+        let nrows = self.nrows.value();
+        let iter = iter.into_iter();
+        let (lower, _upper) = iter.size_hint();
+        self.data.reserve(nrows * lower);
+        for vector in iter {
+            assert_eq!(nrows, vector.shape().0);
+            self.data.extend(vector.iter());
+        }
+        self.ncols = Dynamic::new(self.data.len() / nrows);
     }
 }
 
