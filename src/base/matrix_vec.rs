@@ -10,6 +10,7 @@ use base::default_allocator::DefaultAllocator;
 use base::dimension::{Dim, DimName, Dynamic, U1};
 use base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
 use base::{Scalar, Vector};
+use base::constraint::{SameNumberOfRows, ShapeConstraint};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -264,7 +265,8 @@ where
     N: Scalar,
     R: Dim,
     RV: Dim,
-    SV: Storage<N, RV>
+    SV: Storage<N, RV>,
+    ShapeConstraint: SameNumberOfRows<R, RV>,
 {
     /// Extends the number of columns of the `MatrixVec` with vectors
     /// from the given iterator.
