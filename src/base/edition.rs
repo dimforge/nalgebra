@@ -779,7 +779,8 @@ where
     R: Dim,
     S: Extend<Vector<N, RV, SV>>,
     RV: Dim,
-    SV: Storage<N, RV>
+    SV: Storage<N, RV>,
+    ShapeConstraint: SameNumberOfRows<R, RV>,
 {
     /// Extends the number of columns of a `Matrix` with `Vector`s
     /// from a given iterator.
