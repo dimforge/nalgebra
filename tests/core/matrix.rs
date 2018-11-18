@@ -275,8 +275,16 @@ fn to_homogeneous() {
     let b = DVector::from_row_slice(3, &[1.0, 2.0, 3.0]);
     let expected_b = DVector::from_row_slice(4, &[1.0, 2.0, 3.0, 0.0]);
 
+    let c = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    let expected_c = Matrix3::new(1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 0.0, 0.0, 1.0);
+
+    let d = DMatrix::from_row_slice(2, &[1.0, 2.0, 3.0, 4.0]);
+    let expected_d = DMatrix::from_row_slice(3, 3, &[1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 0.0, 0.0, 1.0]);
+
     assert_eq!(a.to_homogeneous(), expected_a);
     assert_eq!(b.to_homogeneous(), expected_b);
+    assert_eq!(c.to_homogeneous(), expected_c);
+    assert_eq!(d.to_homogeneous(), expected_d);
 }
 
 #[test]
