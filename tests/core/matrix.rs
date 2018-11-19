@@ -278,7 +278,7 @@ fn to_homogeneous() {
     let c = Matrix2::new(1.0, 2.0, 3.0, 4.0);
     let expected_c = Matrix3::new(1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 0.0, 0.0, 1.0);
 
-    let d = DMatrix::from_row_slice(2, &[1.0, 2.0, 3.0, 4.0]);
+    let d = DMatrix::from_row_slice(2, 2, &[1.0, 2.0, 3.0, 4.0]);
     let expected_d = DMatrix::from_row_slice(3, 3, &[1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 0.0, 0.0, 1.0]);
 
     assert_eq!(a.to_homogeneous(), expected_a);

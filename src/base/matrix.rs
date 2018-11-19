@@ -20,7 +20,7 @@ use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring};
 
 use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use base::dimension::{Dim, DimNameAdd, DimAdd, DimNameSum, DimSum, IsNotStaticOne, U1, U2, U3};
+use base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3};
 use base::iter::{MatrixIter, MatrixIterMut};
 use base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
@@ -830,15 +830,17 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: Scalar + One, D: DimNameAdd<U1> + IsNotStaticOne> MatrixN<N, D> {
+impl<N: Scalar + One + Zero, D: Dim + DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>> Matrix<N, D, D, S> {
 
     /// Yields the homogeneous matrix for this matrix, i.e., appending an additional dimension and
     /// and setting the diagonal element to `1`.
     #[inline]
-    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
-    where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> {
-        let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
-        res.fixed_slice_mut::<D, D>(0, 0).copy_from(&self);
+    pub fn to_homogeneous(&self) -> MatrixN<N, DimSum<D, U1>>
+    where DefaultAllocator: Allocator<N, DimSum<D, U1>, DimSum<D, U1>> {
+        assert!(self.is_square(), "Only square matrices can currently be transformed to homogeneous coordinates.");
+        let dim = DimSum::<D, U1>::from_usize(self.nrows() + 1);
+        let mut res = MatrixN::identity_generic(dim, dim); 
+        res.generic_slice_mut::<D, D>((0, 0), self.data.shape()).copy_from(&self);
         res
     }
 
