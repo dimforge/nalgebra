@@ -201,6 +201,9 @@ where DefaultAllocator: Allocator<N, D, D>
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
     {
+        // We could use `MatrixN::to_homogeneous()` here, but that would imply
+        // adding the additional traits `DimAdd` and `IsNotStaticOne`. Maybe
+        // these things will get nicer once specialization lands in Rust.
         let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
         res.fixed_slice_mut::<D, D>(0, 0).copy_from(&self.matrix);
 
