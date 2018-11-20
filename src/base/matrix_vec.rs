@@ -88,6 +88,13 @@ impl<N, R: Dim, C: Dim> Deref for MatrixVec<N, R, C> {
     }
 }
 
+impl<N, R: Dim, C: Dim> Into<Vec<N>> for MatrixVec<N, R, C>
+{
+    fn into(self) -> Vec<N> {
+        self.data
+    }
+}
+
 /*
  *
  * Dynamic − Static
