@@ -830,7 +830,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: Scalar + One + Zero, D: Dim + DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>> Matrix<N, D, D, S> {
+impl<N: Scalar + One + Zero, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>> Matrix<N, D, D, S> {
 
     /// Yields the homogeneous matrix for this matrix, i.e., appending an additional dimension and
     /// and setting the diagonal element to `1`.
