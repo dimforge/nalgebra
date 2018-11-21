@@ -53,6 +53,8 @@ mod similarity_construction;
 mod similarity_conversion;
 mod similarity_ops;
 
+mod swizzle;
+
 mod transform;
 mod transform_alga;
 mod transform_alias;
