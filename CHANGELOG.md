@@ -7,7 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.17.0] - WIP
 
 ### Added
-  * Add swizzling up to dimension 3. For example, you can do `v.zxy()` as an equivalent to `Vector3::new(v.z, v.x, v.w)`.
+  * Add swizzling up to dimension 3 for vectors. For example, you can do `v.zxy()` as an equivalent to `Vector3::new(v.z, v.x, v.y)`.
+  * Add swizzling up to dimension 3 for points. For example, you can do `p.zxy()` as an equivalent to `Point3::new(p.z, p.x, p.y)`.
   * Add `.copy_from_slice` to copy matrix components from a slice in column-major order.
   * Add `.dot` to quaternions.
   * Add `.zip_zip_map` for iterating on three matrices simultaneously, and applying a closure to them.
@@ -25,6 +26,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Add impl `From<Vector>` for `Translation`.
   * Add the `::from_vec` constructor to construct a matrix from a `Vec` (a `DMatrix` will reuse the original `Vec`
   as-is for its storage).
+  * Add `.to_homogeneous` to square matrices (and with dimensions higher than 1x1). This will increase their number of row
+  and columns by 1. The new column and row are filled with 0, except for the diagonal element which is set to 1.
+  * Implement `Extend<Vec>` for matrices with a dynamic storage. The provided `Vec` is assumed to represent a column-major
+  matrix with the same number of rows as the one being extended. This will effectively append new columns on the right of
+  the matrix being extended.
+  * Implement `Extend<Vec>` for vectors with a dynamic storage. This will concatenate the vector with the given `Vec`.
+  * Implement `Extend<Matrix<...>>` for matrices with dynamic storage. This will concatenate the columns of both matrices.
+  * Implement `Into<Vec>` for the `MatrixVec` storage.
   
 ### Modified
   * The orthographic projection no longer require that `bottom < top`, that `left < right`, and that `znear < zfar`. The
