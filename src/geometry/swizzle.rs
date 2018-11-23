@@ -26,7 +26,7 @@ impl_swizzle!(
     where U2: xz() -> Point2[0, 2];
     where U1: yx() -> Point2[1, 0];
     where U1: yy() -> Point2[1, 1];
-    where U1: yz() -> Point2[1, 2];
+    where U2: yz() -> Point2[1, 2];
     where U2: zx() -> Point2[2, 0];
     where U2: zy() -> Point2[2, 1];
     where U2: zz() -> Point2[2, 2];

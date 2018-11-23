@@ -23,7 +23,7 @@ impl_swizzle!(
     where U2: xz() -> Vector2[0, 2];
     where U1: yx() -> Vector2[1, 0];
     where U1: yy() -> Vector2[1, 1];
-    where U1: yz() -> Vector2[1, 2];
+    where U2: yz() -> Vector2[1, 2];
     where U2: zx() -> Vector2[2, 0];
     where U2: zy() -> Vector2[2, 1];
     where U2: zz() -> Vector2[2, 2];
