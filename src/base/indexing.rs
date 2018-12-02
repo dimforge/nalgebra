@@ -276,7 +276,7 @@ pub trait MatrixIndex<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>: Sized
 }
 
 /// A helper trait used for indexing operations.
-pub trait MutMatrixIndex<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>: MatrixIndex<'a, N, R, C, S> {
+pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>: MatrixIndex<'a, N, R, C, S> {
     /// The output type returned by methods.
     type OutputMut : 'a;
 
@@ -419,7 +419,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
     pub fn get_mut<'a, I>(&'a mut self, index: I) -> Option<I::OutputMut>
     where
         S: StorageMut<N, R, C>,
-        I: MutMatrixIndex<'a, N, R, C, S>
+        I: MatrixIndexMut<'a, N, R, C, S>
     {
         index.get_mut(self)
     }
@@ -440,7 +440,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
     pub fn index_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
         S: StorageMut<N, R, C>,
-        I: MutMatrixIndex<'a, N, R, C, S>
+        I: MatrixIndexMut<'a, N, R, C, S>
     {
         index.index_mut(self)
     }
@@ -461,7 +461,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
     pub unsafe fn get_unchecked_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
         S: StorageMut<N, R, C>,
-        I: MutMatrixIndex<'a, N, R, C, S>
+        I: MatrixIndexMut<'a, N, R, C, S>
     {
         index.get_unchecked_mut(self)
     }
@@ -491,7 +491,7 @@ where
     }
 }
 
-impl<'a, N, R, C, S> MutMatrixIndex<'a, N, R, C, S> for usize
+impl<'a, N, R, C, S> MatrixIndexMut<'a, N, R, C, S> for usize
 where
     N: Scalar,
     R: Dim,
@@ -536,7 +536,7 @@ where
     }
 }
 
-impl<'a, N, R, C, S> MutMatrixIndex<'a, N, R, C, S> for (usize, usize)
+impl<'a, N, R, C, S> MatrixIndexMut<'a, N, R, C, S> for (usize, usize)
 where
     N: Scalar,
     R: Dim,
@@ -600,7 +600,7 @@ macro_rules! impl_usize_slice_index {
             }
         }
 
-        impl<'a, N, $R, $C, S> MutMatrixIndex<'a, N, $R, $C, S> for ($RIdx, $CIdx)
+        impl<'a, N, $R, $C, S> MatrixIndexMut<'a, N, $R, $C, S> for ($RIdx, $CIdx)
         where
             N: Scalar,
             $R: Dim,
