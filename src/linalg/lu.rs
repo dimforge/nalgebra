@@ -290,7 +290,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
 
         let mut res = N::one();
         for i in 0..dim {
-            res *= unsafe { *self.lu.get_unchecked(i, i) };
+            res *= unsafe { *self.lu.get_unchecked((i, i)) };
         }
 
         res * self.p.determinant()

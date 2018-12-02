@@ -82,7 +82,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
         for i in 0..nrows.value() {
             for j in 0..ncols.value() {
-                unsafe { *res.get_unchecked_mut(i, j) = *iter.next().unwrap() }
+                unsafe { *res.get_unchecked_mut((i, j)) = *iter.next().unwrap() }
             }
         }
 
@@ -105,7 +105,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
-                unsafe { *res.get_unchecked_mut(i, j) = f(i, j) }
+                unsafe { *res.get_unchecked_mut((i, j)) = f(i, j) }
             }
         }
 
@@ -132,7 +132,7 @@ where DefaultAllocator: Allocator<N, R, C>
         let mut res = Self::zeros_generic(nrows, ncols);
 
         for i in 0..::min(nrows.value(), ncols.value()) {
-            unsafe { *res.get_unchecked_mut(i, i) = elt }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt }
         }
 
         res
@@ -152,7 +152,7 @@ where DefaultAllocator: Allocator<N, R, C>
         );
 
         for (i, elt) in elts.iter().enumerate() {
-            unsafe { *res.get_unchecked_mut(i, i) = *elt }
+            unsafe { *res.get_unchecked_mut((i, i)) = *elt }
         }
 
         res
@@ -313,7 +313,7 @@ where
 
         for i in 0..diag.len() {
             unsafe {
-                *res.get_unchecked_mut(i, i) = *diag.vget_unchecked(i);
+                *res.get_unchecked_mut((i, i)) = *diag.vget_unchecked(i);
             }
         }
 
@@ -791,7 +791,7 @@ macro_rules! componentwise_constructors_impl(
             pub fn new($($args: N),*) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
-                    $( *res.get_unchecked_mut($irow, $icol) = $args; )*
+                    $( *res.get_unchecked_mut(($irow, $icol)) = $args; )*
 
                     res
                 }

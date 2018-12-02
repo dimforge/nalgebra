@@ -79,7 +79,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
             let coeff;
 
             unsafe {
-                let diag = *self.get_unchecked(i, i);
+                let diag = *self.get_unchecked((i, i));
 
                 if diag.is_zero() {
                     return false;
@@ -161,7 +161,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
             let coeff;
 
             unsafe {
-                let diag = *self.get_unchecked(i, i);
+                let diag = *self.get_unchecked((i, i));
 
                 if diag.is_zero() {
                     return false;
@@ -258,7 +258,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);
 
-                let diag = *self.get_unchecked(i, i);
+                let diag = *self.get_unchecked((i, i));
 
                 if diag.is_zero() {
                     return false;
@@ -304,7 +304,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);
-                let diag = *self.get_unchecked(i, i);
+                let diag = *self.get_unchecked((i, i));
 
                 if diag.is_zero() {
                     return false;
