@@ -142,12 +142,12 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
     pub fn iamax_full(&self) -> (usize, usize) {
         assert!(!self.is_empty(), "The input matrix must not be empty.");
 
-        let mut the_max = unsafe { self.get_unchecked(0, 0).abs() };
+        let mut the_max = unsafe { self.get_unchecked((0, 0)).abs() };
         let mut the_ij = (0, 0);
 
         for j in 0..self.ncols() {
             for i in 0..self.nrows() {
-                let val = unsafe { self.get_unchecked(i, j).abs() };
+                let val = unsafe { self.get_unchecked((i, j)).abs() };
 
                 if val > the_max {
                     the_max = val;
@@ -197,27 +197,27 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         // because the `for` loop below won't be very efficient on those.
         if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = *self.get_unchecked(0, 0) * *rhs.get_unchecked(0, 0);
-                let b = *self.get_unchecked(1, 0) * *rhs.get_unchecked(1, 0);
+                let a = *self.get_unchecked((0, 0)) * *rhs.get_unchecked((0, 0));
+                let b = *self.get_unchecked((1, 0)) * *rhs.get_unchecked((1, 0));
 
                 return a + b;
             }
         }
         if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = *self.get_unchecked(0, 0) * *rhs.get_unchecked(0, 0);
-                let b = *self.get_unchecked(1, 0) * *rhs.get_unchecked(1, 0);
-                let c = *self.get_unchecked(2, 0) * *rhs.get_unchecked(2, 0);
+                let a = *self.get_unchecked((0, 0)) * *rhs.get_unchecked((0, 0));
+                let b = *self.get_unchecked((1, 0)) * *rhs.get_unchecked((1, 0));
+                let c = *self.get_unchecked((2, 0)) * *rhs.get_unchecked((2, 0));
 
                 return a + b + c;
             }
         }
         if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let mut a = *self.get_unchecked(0, 0) * *rhs.get_unchecked(0, 0);
-                let mut b = *self.get_unchecked(1, 0) * *rhs.get_unchecked(1, 0);
-                let c = *self.get_unchecked(2, 0) * *rhs.get_unchecked(2, 0);
-                let d = *self.get_unchecked(3, 0) * *rhs.get_unchecked(3, 0);
+                let mut a = *self.get_unchecked((0, 0)) * *rhs.get_unchecked((0, 0));
+                let mut b = *self.get_unchecked((1, 0)) * *rhs.get_unchecked((1, 0));
+                let c = *self.get_unchecked((2, 0)) * *rhs.get_unchecked((2, 0));
+                let d = *self.get_unchecked((3, 0)) * *rhs.get_unchecked((3, 0));
 
                 a += c;
                 b += d;
@@ -257,14 +257,14 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             acc7 = N::zero();
 
             while self.nrows() - i >= 8 {
-                acc0 += unsafe { *self.get_unchecked(i + 0, j) * *rhs.get_unchecked(i + 0, j) };
-                acc1 += unsafe { *self.get_unchecked(i + 1, j) * *rhs.get_unchecked(i + 1, j) };
-                acc2 += unsafe { *self.get_unchecked(i + 2, j) * *rhs.get_unchecked(i + 2, j) };
-                acc3 += unsafe { *self.get_unchecked(i + 3, j) * *rhs.get_unchecked(i + 3, j) };
-                acc4 += unsafe { *self.get_unchecked(i + 4, j) * *rhs.get_unchecked(i + 4, j) };
-                acc5 += unsafe { *self.get_unchecked(i + 5, j) * *rhs.get_unchecked(i + 5, j) };
-                acc6 += unsafe { *self.get_unchecked(i + 6, j) * *rhs.get_unchecked(i + 6, j) };
-                acc7 += unsafe { *self.get_unchecked(i + 7, j) * *rhs.get_unchecked(i + 7, j) };
+                acc0 += unsafe { *self.get_unchecked((i + 0, j)) * *rhs.get_unchecked((i + 0, j)) };
+                acc1 += unsafe { *self.get_unchecked((i + 1, j)) * *rhs.get_unchecked((i + 1, j)) };
+                acc2 += unsafe { *self.get_unchecked((i + 2, j)) * *rhs.get_unchecked((i + 2, j)) };
+                acc3 += unsafe { *self.get_unchecked((i + 3, j)) * *rhs.get_unchecked((i + 3, j)) };
+                acc4 += unsafe { *self.get_unchecked((i + 4, j)) * *rhs.get_unchecked((i + 4, j)) };
+                acc5 += unsafe { *self.get_unchecked((i + 5, j)) * *rhs.get_unchecked((i + 5, j)) };
+                acc6 += unsafe { *self.get_unchecked((i + 6, j)) * *rhs.get_unchecked((i + 6, j)) };
+                acc7 += unsafe { *self.get_unchecked((i + 7, j)) * *rhs.get_unchecked((i + 7, j)) };
                 i += 8;
             }
 
@@ -274,7 +274,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             res += acc3 + acc7;
 
             for k in i..self.nrows() {
-                res += unsafe { *self.get_unchecked(k, j) * *rhs.get_unchecked(k, j) }
+                res += unsafe { *self.get_unchecked((k, j)) * *rhs.get_unchecked((k, j)) }
             }
         }
 
@@ -314,7 +314,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j in 0..self.nrows() {
             for i in 0..self.ncols() {
-                res += unsafe { *self.get_unchecked(j, i) * *rhs.get_unchecked(i, j) }
+                res += unsafe { *self.get_unchecked((j, i)) * *rhs.get_unchecked((i, j)) }
             }
         }
 

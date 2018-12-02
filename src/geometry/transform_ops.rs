@@ -143,7 +143,7 @@ md_impl_all!(
 
         if C::has_normalizer() {
             let normalizer = self.matrix().fixed_slice::<U1, D>(D::dim(), 0);
-            let n = normalizer.tr_dot(&rhs.coords) + unsafe { *self.matrix().get_unchecked(D::dim(), D::dim()) };
+            let n = normalizer.tr_dot(&rhs.coords) + unsafe { *self.matrix().get_unchecked((D::dim(), D::dim())) };
 
             if !n.is_zero() {
                 return (transform * rhs + translation) / n;

@@ -18,6 +18,7 @@ mod construction;
 mod construction_slice;
 mod conversion;
 mod edition;
+pub mod indexing;
 mod matrix;
 mod matrix_alga;
 mod array_storage;

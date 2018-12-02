@@ -42,7 +42,7 @@ where
         let mut res = unsafe { MatrixMN::<N2, R2, C2>::new_uninitialized_generic(nrows2, ncols2) };
         for i in 0..nrows {
             for j in 0..ncols {
-                unsafe { *res.get_unchecked_mut(i, j) = N2::from_subset(self.get_unchecked(i, j)) }
+                unsafe { *res.get_unchecked_mut((i, j)) = N2::from_subset(self.get_unchecked((i, j))) }
             }
         }
 
@@ -63,7 +63,7 @@ where
         let mut res = Self::new_uninitialized_generic(nrows, ncols);
         for i in 0..nrows2 {
             for j in 0..ncols2 {
-                *res.get_unchecked_mut(i, j) = m.get_unchecked(i, j).to_subset_unchecked()
+                *res.get_unchecked_mut((i, j)) = m.get_unchecked((i, j)).to_subset_unchecked()
             }
         }
 

@@ -348,7 +348,7 @@ where DefaultAllocator: Allocator<N, D, D>
         let translation = self.fixed_slice::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1);
         let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
         let n = normalizer.tr_dot(&pt.coords)
-            + unsafe { *self.get_unchecked(D::dim() - 1, D::dim() - 1) };
+            + unsafe { *self.get_unchecked((D::dim() - 1, D::dim() - 1)) };
 
         if !n.is_zero() {
             return transform * (pt / n) + translation;
