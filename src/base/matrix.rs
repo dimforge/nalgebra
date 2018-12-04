@@ -374,7 +374,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..res.ncols() {
             for i in 0..res.nrows() {
                 unsafe {
-                    *res.get_unchecked_mut(i, j) = *self.get_unchecked(i, j);
+                    *res.get_unchecked_mut(i, j) = o!(self.get_unchecked(i, j));
                 }
             }
         }
@@ -393,7 +393,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
+                    let a = o!(self.data.get_unchecked(i, j));
                     *res.data.get_unchecked_mut(i, j) = f(a)
                 }
             }
@@ -419,7 +419,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
+                    let a = o!(self.data.get_unchecked(i, j));
                     *res.data.get_unchecked_mut(i, j) = f(i, j, a)
                 }
             }
@@ -451,8 +451,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
-                    let b = *rhs.data.get_unchecked(i, j);
+                    let a = o!(self.data.get_unchecked(i, j));
+                    let b = o!(rhs.data.get_unchecked(i, j));
                     *res.data.get_unchecked_mut(i, j) = f(a, b)
                 }
             }
@@ -492,9 +492,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
-                    let b = *b.data.get_unchecked(i, j);
-                    let c = *c.data.get_unchecked(i, j);
+                    let a = o!(self.data.get_unchecked(i, j));
+                    let b = o!(b.data.get_unchecked(i, j));
+                    let c = o!(c.data.get_unchecked(i, j));
                     *res.data.get_unchecked_mut(i, j) = f(a, b, c)
                 }
             }
@@ -522,7 +522,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
-                    *out.get_unchecked_mut(j, i) = *self.get_unchecked(i, j);
+                    *out.get_unchecked_mut(j, i) = o!(self.get_unchecked(i, j));
                 }
             }
         }
@@ -598,7 +598,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut(i, j) = *slice.get_unchecked(i + j * nrows);
+                    *self.get_unchecked_mut(i, j) = o!(slice.get_unchecked(i + j * nrows));
                 }
             }
         }
@@ -621,7 +621,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..self.ncols() {
             for i in 0..self.nrows() {
                 unsafe {
-                    *self.get_unchecked_mut(i, j) = *other.get_unchecked(i, j);
+                    *self.get_unchecked_mut(i, j) = o!(other.get_unchecked(i, j));
                 }
             }
         }
@@ -645,7 +645,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut(i, j) = *other.get_unchecked(j, i);
+                    *self.get_unchecked_mut(i, j) = o!(other.get_unchecked(j, i));
                 }
             }
         }
@@ -661,7 +661,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    *e = f(*e)
+                    *e = f(o!(e))
                 }
             }
         }
@@ -803,7 +803,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
         for i in 0..dim.value() {
             unsafe {
-                *res.vget_unchecked_mut(i) = *self.get_unchecked(i, i);
+                *res.vget_unchecked_mut(i) = o!(self.get_unchecked(i, i));
             }
         }
 
@@ -823,7 +823,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         let mut res = N::zero();
 
         for i in 0..dim.value() {
-            res += unsafe { *self.get_unchecked(i, i) };
+            res += unsafe { o!(self.get_unchecked(i, i)) };
         }
 
         res
@@ -1084,7 +1084,7 @@ where
 
         for i in 0..nrows {
             for j in 0..ncols {
-                lengths[(i, j)] = val_width(self[(i, j)], f);
+                lengths[(i, j)] = val_width(o!(self[(i, j)]), f);
                 max_length = ::max(max_length, lengths[(i, j)]);
             }
         }
@@ -1139,8 +1139,8 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         assert!(self.shape() == (2, 1), "2D perpendicular product ");
 
         unsafe {
-            *self.get_unchecked(0, 0) * *b.get_unchecked(1, 0)
-                - *self.get_unchecked(1, 0) * *b.get_unchecked(0, 0)
+            o!(self.get_unchecked(0, 0)) * o!(b.get_unchecked(1, 0))
+                - o!(self.get_unchecked(1, 0)) * o!(b.get_unchecked(0, 0))
         }
     }
 
@@ -1175,17 +1175,17 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 let ncols = SameShapeC::<C, C2>::from_usize(1);
                 let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
 
-                let ax = *self.get_unchecked(0, 0);
-                let ay = *self.get_unchecked(1, 0);
-                let az = *self.get_unchecked(2, 0);
+                let ax = o!(self.get_unchecked(0, 0));
+                let ay = o!(self.get_unchecked(1, 0));
+                let az = o!(self.get_unchecked(2, 0));
 
-                let bx = *b.get_unchecked(0, 0);
-                let by = *b.get_unchecked(1, 0);
-                let bz = *b.get_unchecked(2, 0);
+                let bx = o!(b.get_unchecked(0, 0));
+                let by = o!(b.get_unchecked(1, 0));
+                let bz = o!(b.get_unchecked(2, 0));
 
-                *res.get_unchecked_mut(0, 0) = ay * bz - az * by;
-                *res.get_unchecked_mut(1, 0) = az * bx - ax * bz;
-                *res.get_unchecked_mut(2, 0) = ax * by - ay * bx;
+                *res.get_unchecked_mut(0, 0) = c!(ay) * c!(bz) - c!(az) * c!(by);
+                *res.get_unchecked_mut(1, 0) = c!(az) * c!(bx) - c!(ax) * c!(bz);
+                *res.get_unchecked_mut(2, 0) = c!(ax) * c!(by) - c!(ay) * c!(bx);
 
                 res
             }
@@ -1196,17 +1196,17 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 let ncols = SameShapeC::<C, C2>::from_usize(3);
                 let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
 
-                let ax = *self.get_unchecked(0, 0);
-                let ay = *self.get_unchecked(0, 1);
-                let az = *self.get_unchecked(0, 2);
+                let ax = o!(self.get_unchecked(0, 0));
+                let ay = o!(self.get_unchecked(0, 1));
+                let az = o!(self.get_unchecked(0, 2));
 
-                let bx = *b.get_unchecked(0, 0);
-                let by = *b.get_unchecked(0, 1);
-                let bz = *b.get_unchecked(0, 2);
+                let bx = o!(b.get_unchecked(0, 0));
+                let by = o!(b.get_unchecked(0, 1));
+                let bz = o!(b.get_unchecked(0, 2));
 
-                *res.get_unchecked_mut(0, 0) = ay * bz - az * by;
-                *res.get_unchecked_mut(0, 1) = az * bx - ax * bz;
-                *res.get_unchecked_mut(0, 2) = ax * by - ay * bx;
+                *res.get_unchecked_mut(0, 0) = c!(ay) * c!(bz) - c!(az) * c!(by);
+                *res.get_unchecked_mut(0, 1) = c!(az) * c!(bx) - c!(ax) * c!(bz);
+                *res.get_unchecked_mut(0, 2) = c!(ax )* c!(by) - c!(ay) * c!(bx);
 
                 res
             }
@@ -1341,7 +1341,7 @@ impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     pub fn lerp<S2: Storage<N, D>>(&self, rhs: &Vector<N, D, S2>, t: N) -> VectorN<N, D>
     where DefaultAllocator: Allocator<N, D> {
         let mut res = self.clone_owned();
-        res.axpy(t, rhs, N::one() - t);
+        res.axpy(c!(t), rhs, N::one() - c!(t));
         res
     }
 }

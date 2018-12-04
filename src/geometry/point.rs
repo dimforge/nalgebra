@@ -37,7 +37,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Copy for Point<N, D>
+impl<N: Scalar + Copy, D: DimName> Copy for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,

@@ -44,7 +44,7 @@ where
     {
         let mut res = Self::one();
         for i in 0..scaling.len() {
-            res[(i, i)] = scaling[i];
+            res[(i, i)] = o!(scaling[i]);
         }
 
         res
@@ -260,7 +260,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     {
         for i in 0..scaling.len() {
             let mut to_scale = self.fixed_rows_mut::<U1>(i);
-            to_scale *= scaling[i];
+            to_scale *= o!(scaling[i]);
         }
     }
 
@@ -275,7 +275,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     {
         for i in 0..scaling.len() {
             let mut to_scale = self.fixed_columns_mut::<U1>(i);
-            to_scale *= scaling[i];
+            to_scale *= o!(scaling[i]);
         }
     }
 
@@ -288,7 +288,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     {
         for i in 0..D::dim() {
             for j in 0..D::dim() - 1 {
-                self[(j, i)] += shift[j] * self[(D::dim() - 1, i)];
+                self[(j, i)] += o!(shift[j]) * o!(self[(D::dim() - 1, i)]);
             }
         }
     }

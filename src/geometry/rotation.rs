@@ -39,7 +39,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Copy for Rotation<N, D>
+impl<N: Scalar + Copy, D: DimName> Copy for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     <DefaultAllocator as Allocator<N, D, D>>::Buffer: Copy,

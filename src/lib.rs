@@ -75,7 +75,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
 // #![feature(plugin)]
 //
 // #![plugin(clippy)]
-
 #![deny(non_camel_case_types)]
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
@@ -87,6 +86,8 @@ an optimized set of tools for computer graphics and physics. Those features incl
        html_root_url = "http://nalgebra.org/rustdoc")]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
+
+//#[macro_use]
 
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;
@@ -120,6 +121,19 @@ extern crate alloc;
 
 #[cfg(not(feature = "std"))]
 extern crate core as std;
+
+// to_owned
+macro_rules! o {
+    ($e:expr) => {
+        $e.to_owned()
+    };
+}
+
+macro_rules! c {
+    ($e:expr) => {
+        $e.clone()
+    };
+}
 
 pub mod base;
 #[cfg(feature = "debug")]
@@ -635,3 +649,4 @@ pub fn try_convert_ref<From: SupersetOf<To>, To>(t: &From) -> Option<To> {
 pub unsafe fn convert_ref_unchecked<From: SupersetOf<To>, To>(t: &From) -> To {
     t.to_subset_unchecked()
 }
+

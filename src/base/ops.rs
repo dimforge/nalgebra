@@ -119,7 +119,7 @@ where
     #[inline]
     pub fn neg_mut(&mut self) {
         for e in self.iter_mut() {
-            *e = -*e
+            *e = -o!(e)
         }
     }
 }
@@ -164,7 +164,7 @@ macro_rules! componentwise_binop_impl(
                     let out  = out.data.as_mut_slice();
                     for i in 0 .. arr1.len() {
                         unsafe {
-                            *out.get_unchecked_mut(i) = arr1.get_unchecked(i).$method(*arr2.get_unchecked(i));
+                            *out.get_unchecked_mut(i) = o!(arr1.get_unchecked(i)).$method(o!(arr2.get_unchecked(i)));
                         }
                     }
                 }
@@ -172,7 +172,7 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. self.ncols() {
                         for i in 0 .. self.nrows() {
                             unsafe {
-                                let val = self.get_unchecked(i, j).$method(*rhs.get_unchecked(i, j));
+                                let val = o!(self.get_unchecked(i, j)).$method(o!(rhs.get_unchecked(i, j)));
                                 *out.get_unchecked_mut(i, j) = val;
                             }
                         }
@@ -196,7 +196,7 @@ macro_rules! componentwise_binop_impl(
                     let arr2 = rhs.data.as_slice();
                     for i in 0 .. arr2.len() {
                         unsafe {
-                            arr1.get_unchecked_mut(i).$method_assign(*arr2.get_unchecked(i));
+                            arr1.get_unchecked_mut(i).$method_assign(o!(arr2.get_unchecked(i)));
                         }
                     }
                 }
@@ -204,7 +204,7 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. rhs.ncols() {
                         for i in 0 .. rhs.nrows() {
                             unsafe {
-                                self.get_unchecked_mut(i, j).$method_assign(*rhs.get_unchecked(i, j))
+                                self.get_unchecked_mut(i, j).$method_assign(o!(rhs.get_unchecked(i, j)))
                             }
                         }
                     }
@@ -226,7 +226,7 @@ macro_rules! componentwise_binop_impl(
                     let arr2 = rhs.data.as_mut_slice();
                     for i in 0 .. arr1.len() {
                         unsafe {
-                            let res = arr1.get_unchecked(i).$method(*arr2.get_unchecked(i));
+                            let res = o!(arr1.get_unchecked(i)).$method(o!(arr2.get_unchecked(i)));
                             *arr2.get_unchecked_mut(i) = res;
                         }
                     }
@@ -236,7 +236,7 @@ macro_rules! componentwise_binop_impl(
                         for i in 0 .. self.nrows() {
                             unsafe {
                                 let r = rhs.get_unchecked_mut(i, j);
-                                *r = self.get_unchecked(i, j).$method(*r)
+                                *r = o!(self.get_unchecked(i, j)).$method(o!(r))
                             }
                         }
                     }
@@ -422,7 +422,7 @@ macro_rules! componentwise_scalarop_impl(
 
                 // for left in res.iter_mut() {
                 for left in res.as_mut_slice().iter_mut() {
-                    *left = left.$method(rhs)
+                    *left = o!(left).$method(o!(rhs))
                 }
 
                 res
@@ -448,7 +448,7 @@ macro_rules! componentwise_scalarop_impl(
             fn $method_assign(&mut self, rhs: N) {
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
-                        unsafe { self.get_unchecked_mut(i, j).$method_assign(rhs) };
+                        unsafe { self.get_unchecked_mut(i, j).$method_assign(o!(rhs)) };
                     }
                 }
             }
@@ -704,10 +704,10 @@ where
                 for j2 in 0..ncols2.value() {
                     for i1 in 0..nrows1.value() {
                         unsafe {
-                            let coeff = *self.get_unchecked(i1, j1);
+                            let coeff = o!(self.get_unchecked(i1, j1));
 
                             for i2 in 0..nrows2.value() {
-                                *data_res = coeff * *rhs.get_unchecked(i2, j2);
+                                *data_res = c!(coeff) * o!(rhs.get_unchecked(i2, j2));
                                 data_res = data_res.offset(1);
                             }
                         }
@@ -735,7 +735,7 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     pub fn add_scalar_mut(&mut self, rhs: N)
     where S: StorageMut<N, R, C> {
         for e in self.iter_mut() {
-            *e += rhs
+            *e += c!(rhs)
         }
     }
 }

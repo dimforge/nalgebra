@@ -13,6 +13,8 @@ use base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
 use base::storage::{Storage, StorageMut};
 use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
 
+
+
 impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// Computes the index of the vector component with the largest value.
     ///
@@ -197,27 +199,27 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         // because the `for` loop below won't be very efficient on those.
         if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = *self.get_unchecked(0, 0) * *rhs.get_unchecked(0, 0);
-                let b = *self.get_unchecked(1, 0) * *rhs.get_unchecked(1, 0);
+                let a = o!(self.get_unchecked(0, 0)) * o!(rhs.get_unchecked(0, 0));
+                let b = o!(self.get_unchecked(1, 0)) * o!(rhs.get_unchecked(1, 0));
 
                 return a + b;
             }
         }
         if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = *self.get_unchecked(0, 0) * *rhs.get_unchecked(0, 0);
-                let b = *self.get_unchecked(1, 0) * *rhs.get_unchecked(1, 0);
-                let c = *self.get_unchecked(2, 0) * *rhs.get_unchecked(2, 0);
+                let a = o!(self.get_unchecked(0, 0)) * o!(rhs.get_unchecked(0, 0));
+                let b = o!(self.get_unchecked(1, 0)) * o!(rhs.get_unchecked(1, 0));
+                let c = o!(self.get_unchecked(2, 0)) * o!(rhs.get_unchecked(2, 0));
 
                 return a + b + c;
             }
         }
         if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let mut a = *self.get_unchecked(0, 0) * *rhs.get_unchecked(0, 0);
-                let mut b = *self.get_unchecked(1, 0) * *rhs.get_unchecked(1, 0);
-                let c = *self.get_unchecked(2, 0) * *rhs.get_unchecked(2, 0);
-                let d = *self.get_unchecked(3, 0) * *rhs.get_unchecked(3, 0);
+                let mut a = o!(self.get_unchecked(0, 0)) * o!(rhs.get_unchecked(0, 0));
+                let mut b = o!(self.get_unchecked(1, 0)) * o!(rhs.get_unchecked(1, 0));
+                let c = o!(self.get_unchecked(2, 0)) * o!(rhs.get_unchecked(2, 0));
+                let d = o!(self.get_unchecked(3, 0)) * o!(rhs.get_unchecked(3, 0));
 
                 a += c;
                 b += d;
@@ -257,14 +259,14 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             acc7 = N::zero();
 
             while self.nrows() - i >= 8 {
-                acc0 += unsafe { *self.get_unchecked(i + 0, j) * *rhs.get_unchecked(i + 0, j) };
-                acc1 += unsafe { *self.get_unchecked(i + 1, j) * *rhs.get_unchecked(i + 1, j) };
-                acc2 += unsafe { *self.get_unchecked(i + 2, j) * *rhs.get_unchecked(i + 2, j) };
-                acc3 += unsafe { *self.get_unchecked(i + 3, j) * *rhs.get_unchecked(i + 3, j) };
-                acc4 += unsafe { *self.get_unchecked(i + 4, j) * *rhs.get_unchecked(i + 4, j) };
-                acc5 += unsafe { *self.get_unchecked(i + 5, j) * *rhs.get_unchecked(i + 5, j) };
-                acc6 += unsafe { *self.get_unchecked(i + 6, j) * *rhs.get_unchecked(i + 6, j) };
-                acc7 += unsafe { *self.get_unchecked(i + 7, j) * *rhs.get_unchecked(i + 7, j) };
+                acc0 += unsafe { o!(self.get_unchecked(i + 0, j)) * o!(rhs.get_unchecked(i + 0, j)) };
+                acc1 += unsafe { o!(self.get_unchecked(i + 1, j)) * o!(rhs.get_unchecked(i + 1, j)) };
+                acc2 += unsafe { o!(self.get_unchecked(i + 2, j)) * o!(rhs.get_unchecked(i + 2, j)) };
+                acc3 += unsafe { o!(self.get_unchecked(i + 3, j)) * o!(rhs.get_unchecked(i + 3, j)) };
+                acc4 += unsafe { o!(self.get_unchecked(i + 4, j)) * o!(rhs.get_unchecked(i + 4, j)) };
+                acc5 += unsafe { o!(self.get_unchecked(i + 5, j)) * o!(rhs.get_unchecked(i + 5, j)) };
+                acc6 += unsafe { o!(self.get_unchecked(i + 6, j)) * o!(rhs.get_unchecked(i + 6, j)) };
+                acc7 += unsafe { o!(self.get_unchecked(i + 7, j)) * o!(rhs.get_unchecked(i + 7, j)) };
                 i += 8;
             }
 
@@ -274,7 +276,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             res += acc3 + acc7;
 
             for k in i..self.nrows() {
-                res += unsafe { *self.get_unchecked(k, j) * *rhs.get_unchecked(k, j) }
+                res += unsafe { o!(self.get_unchecked(k, j)) * o!(rhs.get_unchecked(k, j)) }
             }
         }
 
@@ -314,7 +316,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j in 0..self.nrows() {
             for i in 0..self.ncols() {
-                res += unsafe { *self.get_unchecked(j, i) * *rhs.get_unchecked(i, j) }
+                res += unsafe { o!(self.get_unchecked(j, i)) * o!(rhs.get_unchecked(i, j)) }
             }
         }
 
@@ -327,7 +329,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
             let y = y.get_unchecked_mut(i * stride1);
-            *y = a * *x.get_unchecked(i * stride2) + beta * *y;
+            *y = c!(a) * o!(x.get_unchecked(i * stride2)) + c!(beta) * o!(y);
         }
     }
 }
@@ -336,7 +338,7 @@ fn array_ax<N>(y: &mut [N], a: N, x: &[N], stride1: usize, stride2: usize, len: 
 where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
-            *y.get_unchecked_mut(i * stride1) = a * *x.get_unchecked(i * stride2);
+            *y.get_unchecked_mut(i * stride1) = c!(a) * o!(x.get_unchecked(i * stride2));
         }
     }
 }
@@ -424,14 +426,14 @@ where
 
         // FIXME: avoid bound checks.
         let col2 = a.column(0);
-        let val = unsafe { *x.vget_unchecked(0) };
-        self.axpy(alpha * val, &col2, beta);
+        let val = unsafe { o!(x.vget_unchecked(0)) };
+        self.axpy(c!(alpha) * val, &col2, beta);
 
         for j in 1..ncols2 {
             let col2 = a.column(j);
-            let val = unsafe { *x.vget_unchecked(j) };
+            let val = unsafe { o!(x.vget_unchecked(j)) };
 
-            self.axpy(alpha * val, &col2, N::one());
+            self.axpy(c!(alpha) * val, &col2, N::one());
         }
     }
 
@@ -494,9 +496,9 @@ where
 
         // FIXME: avoid bound checks.
         let col2 = a.column(0);
-        let val = unsafe { *x.vget_unchecked(0) };
-        self.axpy(alpha * val, &col2, beta);
-        self[0] += alpha * x.rows_range(1..).dot(&a.slice_range(1.., 0));
+        let val = unsafe { o!(x.vget_unchecked(0)) };
+        self.axpy(c!(alpha) * val, &col2, beta);
+        self[0] += c!(alpha) * x.rows_range(1..).dot(&a.slice_range(1.., 0));
 
         for j in 1..dim2 {
             let col2 = a.column(j);
@@ -504,11 +506,11 @@ where
 
             let val;
             unsafe {
-                val = *x.vget_unchecked(j);
-                *self.vget_unchecked_mut(j) += alpha * dot;
+                val = o!(x.vget_unchecked(j));
+                *self.vget_unchecked_mut(j) += c!(alpha) * dot;
             }
             self.rows_range_mut(j + 1..)
-                .axpy(alpha * val, &col2.rows_range(j + 1..), N::one());
+                .axpy(c!(alpha) * val, &col2.rows_range(j + 1..), N::one());
         }
     }
 
@@ -559,12 +561,12 @@ where
         if beta.is_zero() {
             for j in 0..ncols2 {
                 let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha * a.column(j).dot(x)
+                *val = c!(alpha) * a.column(j).dot(x)
             }
         } else {
             for j in 0..ncols2 {
                 let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha * a.column(j).dot(x) + beta * *val;
+                *val = c!(alpha) * a.column(j).dot(x) + c!(beta) * o!(val);
             }
         }
     }
@@ -613,8 +615,8 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j in 0..ncols1 {
             // FIXME: avoid bound checks.
-            let val = unsafe { *y.vget_unchecked(j) };
-            self.column_mut(j).axpy(alpha * val, x, beta);
+            let val = unsafe { o!(y.vget_unchecked(j)) };
+            self.column_mut(j).axpy(c!(alpha) * val, x, c!(beta));
         }
     }
 
@@ -747,7 +749,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j1 in 0..ncols1 {
             // FIXME: avoid bound checks.
-            self.column_mut(j1).gemv(alpha, a, &b.column(j1), beta);
+            self.column_mut(j1).gemv(c!(alpha), a, &b.column(j1), c!(beta));
         }
     }
 
@@ -805,7 +807,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j1 in 0..ncols1 {
             // FIXME: avoid bound checks.
-            self.column_mut(j1).gemv_tr(alpha, a, &b.column(j1), beta);
+            self.column_mut(j1).gemv_tr(c!(alpha), a, &b.column(j1), c!(beta));
         }
     }
 }
@@ -856,13 +858,13 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         assert!(dim1 == dim2 && dim1 == dim3, "ger: dimensions mismatch.");
 
         for j in 0..dim1 {
-            let val = unsafe { *y.vget_unchecked(j) };
+            let val = unsafe { o!(y.vget_unchecked(j)) };
             let subdim = Dynamic::new(dim1 - j);
             // FIXME: avoid bound checks.
             self.generic_slice_mut((j, j), (subdim, U1)).axpy(
-                alpha * val,
+                c!(alpha) * val,
                 &x.rows_range(j..),
-                beta,
+                c!(beta),
             );
         }
     }
@@ -916,11 +918,11 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
         ShapeConstraint: DimEq<D1, D2> + DimEq<D1, R3> + DimEq<D2, R3> + DimEq<C3, D4>,
     {
         work.gemv(N::one(), lhs, &mid.column(0), N::zero());
-        self.ger(alpha, work, &lhs.column(0), beta);
+        self.ger(c!(alpha), work, &lhs.column(0), beta);
 
         for j in 1..mid.ncols() {
             work.gemv(N::one(), lhs, &mid.column(j), N::zero());
-            self.ger(alpha, work, &lhs.column(j), N::one());
+            self.ger(c!(alpha), work, &lhs.column(j), N::one());
         }
     }
 
@@ -1010,11 +1012,11 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
             DimEq<D3, R4> + DimEq<D1, C4> + DimEq<D2, D3> + AreMultipliable<C4, R4, D2, U1>,
     {
         work.gemv(N::one(), mid, &rhs.column(0), N::zero());
-        self.column_mut(0).gemv_tr(alpha, &rhs, work, beta);
+        self.column_mut(0).gemv_tr(c!(alpha), &rhs, work, c!(beta));
 
         for j in 1..rhs.ncols() {
             work.gemv(N::one(), mid, &rhs.column(j), N::zero());
-            self.column_mut(j).gemv_tr(alpha, &rhs, work, beta);
+            self.column_mut(j).gemv_tr(c!(alpha), &rhs, work, c!(beta));
         }
     }
 

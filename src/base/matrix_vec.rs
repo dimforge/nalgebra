@@ -290,7 +290,8 @@ where
         self.data.reserve(nrows * lower);
         for vector in iter {
             assert_eq!(nrows, vector.shape().0);
-            self.data.extend(vector.iter());
+            // I'm sure we can do better than this, but the easiest thing I can think of rn is to force Storage to consume itself and return an iter, and then wrap that in Matrix
+            self.data.extend(vector.iter().map(|x| x.to_owned()));
         }
         self.ncols = Dynamic::new(self.data.len() / nrows);
     }

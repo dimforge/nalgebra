@@ -39,7 +39,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn fill(&mut self, val: N) {
         for e in self.iter_mut() {
-            *e = val
+            *e = c!(val)
         }
     }
 
@@ -58,7 +58,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         let n = cmp::min(nrows, ncols);
 
         for i in 0..n {
-            unsafe { *self.get_unchecked_mut(i, i) = val }
+            unsafe { *self.get_unchecked_mut(i, i) = c!(val) }
         }
     }
 
@@ -67,7 +67,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn fill_row(&mut self, i: usize, val: N) {
         assert!(i < self.nrows(), "Row index out of bounds.");
         for j in 0..self.ncols() {
-            unsafe { *self.get_unchecked_mut(i, j) = val }
+            unsafe { *self.get_unchecked_mut(i, j) = c!(val) }
         }
     }
 
@@ -76,7 +76,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn fill_column(&mut self, j: usize, val: N) {
         assert!(j < self.ncols(), "Row index out of bounds.");
         for i in 0..self.nrows() {
-            unsafe { *self.get_unchecked_mut(i, j) = val }
+            unsafe { *self.get_unchecked_mut(i, j) = c!(val) }
         }
     }
 
@@ -93,7 +93,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         assert_eq!(diag.len(), min_nrows_ncols, "Mismatched dimensions.");
 
         for i in 0..min_nrows_ncols {
-            unsafe { *self.get_unchecked_mut(i, i) = *diag.vget_unchecked(i) }
+            unsafe { *self.get_unchecked_mut(i, i) = o!(diag.vget_unchecked(i)) }
         }
     }
 
@@ -128,7 +128,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn fill_lower_triangle(&mut self, val: N, shift: usize) {
         for j in 0..self.ncols() {
             for i in (j + shift)..self.nrows() {
-                unsafe { *self.get_unchecked_mut(i, j) = val }
+                unsafe { *self.get_unchecked_mut(i, j) = c!(val) }
             }
         }
     }
@@ -146,7 +146,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
             // FIXME: is there a more efficient way to avoid the min ?
             // (necessary for rectangular matrices)
             for i in 0..cmp::min(j + 1 - shift, self.nrows()) {
-                unsafe { *self.get_unchecked_mut(i, j) = val }
+                unsafe { *self.get_unchecked_mut(i, j) = c!(val) }
             }
         }
     }
@@ -191,7 +191,7 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
         for j in 0..dim {
             for i in j + 1..dim {
                 unsafe {
-                    *self.get_unchecked_mut(i, j) = *self.get_unchecked(j, i);
+                    *self.get_unchecked_mut(i, j) = o!(self.get_unchecked(j, i));
                 }
             }
         }
@@ -206,7 +206,7 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
         for j in 1..self.ncols() {
             for i in 0..j {
                 unsafe {
-                    *self.get_unchecked_mut(i, j) = *self.get_unchecked(j, i);
+                    *self.get_unchecked_mut(i, j) = o!(self.get_unchecked(j, i));
                 }
             }
         }
@@ -579,7 +579,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data) };
             let mut res = Matrix::from_data(res);
             if new_ncols.value() > ncols {
-                res.columns_range_mut(ncols..).fill(val);
+                res.columns_range_mut(ncols..).fill(c!(val));
             }
 
             res
@@ -613,12 +613,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             }
 
             if new_ncols.value() > ncols {
-                res.columns_range_mut(ncols..).fill(val);
+                res.columns_range_mut(ncols..).fill(c!(val));
             }
 
             if new_nrows.value() > nrows {
                 res.slice_range_mut(nrows.., ..cmp::min(ncols, new_ncols.value()))
-                    .fill(val);
+                    .fill(c!(val));
             }
 
             res

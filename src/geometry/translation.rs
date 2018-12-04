@@ -39,7 +39,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Copy for Translation<N, D>
+impl<N: Scalar + Copy, D: DimName> Copy for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
