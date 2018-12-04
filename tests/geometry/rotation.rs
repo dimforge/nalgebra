@@ -1,4 +1,4 @@
-use na::{Vector2, Vector3};
+use na::{Quaternion, Real, UnitQuaternion, Vector2, Vector3};
 
 #[test]
 fn angle_2() {
@@ -14,6 +14,20 @@ fn angle_3() {
     let b = Vector3::new(8.0, 0.0, 1.0);
 
     assert_eq!(a.angle(&b), 0.0);
+}
+
+#[test]
+fn quaternion_to_euler_angles_issue_494() {
+    let quat = UnitQuaternion::from_quaternion(Quaternion::new(
+        -0.10405792,
+        -0.6993922f32,
+        -0.10406871,
+        0.69942284,
+    ));
+    let angs = quat.euler_angles();
+    assert_eq!(angs.0, 2.8461843);
+    assert_eq!(angs.1, f32::frac_pi_2());
+    assert_eq!(angs.2, 0.0);
 }
 
 #[cfg(feature = "arbitrary")]
