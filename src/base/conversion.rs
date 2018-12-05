@@ -17,7 +17,7 @@ use base::dimension::{
 use base::iter::{MatrixIter, MatrixIterMut};
 use base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::MatrixVec;
+use base::VecStorage;
 use base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
 
 // FIXME: too bad this won't work allo slice conversions.
@@ -353,7 +353,7 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, C, RStride, CStride> From<MatrixSlice<'a, N, Dynamic, C, RStride, CStride>>
-    for Matrix<N, Dynamic, C, MatrixVec<N, Dynamic, C>>
+    for Matrix<N, Dynamic, C, VecStorage<N, Dynamic, C>>
 where
     N: Scalar,
     C: Dim,
@@ -367,7 +367,7 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, R, RStride, CStride> From<MatrixSlice<'a, N, R, Dynamic, RStride, CStride>>
-    for Matrix<N, R, Dynamic, MatrixVec<N, R, Dynamic>>
+    for Matrix<N, R, Dynamic, VecStorage<N, R, Dynamic>>
 where
     N: Scalar,
     R: DimName,
@@ -397,7 +397,7 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, C, RStride, CStride> From<MatrixSliceMut<'a, N, Dynamic, C, RStride, CStride>>
-    for Matrix<N, Dynamic, C, MatrixVec<N, Dynamic, C>>
+    for Matrix<N, Dynamic, C, VecStorage<N, Dynamic, C>>
 where
     N: Scalar,
     C: Dim,
@@ -411,7 +411,7 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, R, RStride, CStride> From<MatrixSliceMut<'a, N, R, Dynamic, RStride, CStride>>
-    for Matrix<N, R, Dynamic, MatrixVec<N, R, Dynamic>>
+    for Matrix<N, R, Dynamic, VecStorage<N, R, Dynamic>>
 where
     N: Scalar,
     R: DimName,

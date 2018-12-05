@@ -2,7 +2,7 @@
 use base::dimension::Dynamic;
 use base::dimension::{U1, U2, U3, U4, U5, U6};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::matrix_vec::MatrixVec;
+use base::vec_storage::VecStorage;
 use base::storage::Owned;
 use base::Matrix;
 
@@ -119,7 +119,7 @@ pub type Matrix6x5<N> = MatrixMN<N, U6, U5>;
  */
 /// A dynamically sized column vector.
 #[cfg(any(feature = "std", feature = "alloc"))]
-pub type DVector<N> = Matrix<N, Dynamic, U1, MatrixVec<N, Dynamic, U1>>;
+pub type DVector<N> = Matrix<N, Dynamic, U1, VecStorage<N, Dynamic, U1>>;
 
 /// A statically sized D-dimensional column vector.
 pub type VectorN<N, D> = MatrixMN<N, D, U1>;
@@ -146,7 +146,7 @@ pub type Vector6<N> = VectorN<N, U6>;
  */
 /// A dynamically sized row vector.
 #[cfg(any(feature = "std", feature = "alloc"))]
-pub type RowDVector<N> = Matrix<N, U1, Dynamic, MatrixVec<N, U1, Dynamic>>;
+pub type RowDVector<N> = Matrix<N, U1, Dynamic, VecStorage<N, U1, Dynamic>>;
 
 /// A statically sized D-dimensional row vector.
 pub type RowVectorN<N, D> = MatrixMN<N, U1, D>;

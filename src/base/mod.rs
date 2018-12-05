@@ -23,7 +23,7 @@ mod matrix_alga;
 mod array_storage;
 mod matrix_slice;
 #[cfg(any(feature = "std", feature = "alloc"))]
-mod matrix_vec;
+mod vec_storage;
 mod properties;
 mod scalar;
 mod swizzle;
@@ -44,4 +44,4 @@ pub use self::alias_slice::*;
 pub use self::array_storage::*;
 pub use self::matrix_slice::*;
 #[cfg(any(feature = "std", feature = "alloc"))]
-pub use self::matrix_vec::*;
+pub use self::vec_storage::*;
