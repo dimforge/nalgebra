@@ -20,7 +20,7 @@ mod conversion;
 mod edition;
 mod matrix;
 mod matrix_alga;
-mod matrix_array;
+mod array_storage;
 mod matrix_slice;
 #[cfg(any(feature = "std", feature = "alloc"))]
 mod matrix_vec;
@@ -41,7 +41,7 @@ pub use self::dimension::*;
 
 pub use self::alias::*;
 pub use self::alias_slice::*;
-pub use self::matrix_array::*;
+pub use self::array_storage::*;
 pub use self::matrix_slice::*;
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub use self::matrix_vec::*;

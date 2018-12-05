@@ -18,7 +18,7 @@ use base::iter::{MatrixIter, MatrixIterMut};
 use base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use base::MatrixVec;
-use base::{DefaultAllocator, Matrix, MatrixArray, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
+use base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
 
 // FIXME: too bad this won't work allo slice conversions.
 impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>
@@ -336,7 +336,7 @@ impl_from_into_mint_2D!(
 );
 
 impl<'a, N, R, C, RStride, CStride> From<MatrixSlice<'a, N, R, C, RStride, CStride>>
-    for Matrix<N, R, C, MatrixArray<N, R, C>>
+    for Matrix<N, R, C, ArrayStorage<N, R, C>>
 where
     N: Scalar,
     R: DimName,
@@ -380,7 +380,7 @@ where
 }
 
 impl<'a, N, R, C, RStride, CStride> From<MatrixSliceMut<'a, N, R, C, RStride, CStride>>
-    for Matrix<N, R, C, MatrixArray<N, R, C>>
+    for Matrix<N, R, C, ArrayStorage<N, R, C>>
 where
     N: Scalar,
     R: DimName,

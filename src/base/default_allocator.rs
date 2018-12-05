@@ -18,7 +18,7 @@ use base::allocator::{Allocator, Reallocator};
 #[cfg(any(feature = "alloc", feature = "std"))]
 use base::dimension::Dynamic;
 use base::dimension::{Dim, DimName};
-use base::matrix_array::MatrixArray;
+use base::array_storage::ArrayStorage;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use base::matrix_vec::MatrixVec;
 use base::storage::{Storage, StorageMut};
@@ -42,7 +42,7 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
 {
-    type Buffer = MatrixArray<N, R, C>;
+    type Buffer = ArrayStorage<N, R, C>;
 
     #[inline]
     unsafe fn allocate_uninitialized(_: R, _: C) -> Self::Buffer {
@@ -157,7 +157,7 @@ where
         rto: RTo,
         cto: CTo,
         buf: <Self as Allocator<N, RFrom, CFrom>>::Buffer,
-    ) -> MatrixArray<N, RTo, CTo>
+    ) -> ArrayStorage<N, RTo, CTo>
     {
         let mut res = <Self as Allocator<N, RTo, CTo>>::allocate_uninitialized(rto, cto);
 
@@ -185,7 +185,7 @@ where
     unsafe fn reallocate_copy(
         rto: Dynamic,
         cto: CTo,
-        buf: MatrixArray<N, RFrom, CFrom>,
+        buf: ArrayStorage<N, RFrom, CFrom>,
     ) -> MatrixVec<N, Dynamic, CTo>
     {
         let mut res = <Self as Allocator<N, Dynamic, CTo>>::allocate_uninitialized(rto, cto);
@@ -214,7 +214,7 @@ where
     unsafe fn reallocate_copy(
         rto: RTo,
         cto: Dynamic,
-        buf: MatrixArray<N, RFrom, CFrom>,
+        buf: ArrayStorage<N, RFrom, CFrom>,
     ) -> MatrixVec<N, RTo, Dynamic>
     {
         let mut res = <Self as Allocator<N, RTo, Dynamic>>::allocate_uninitialized(rto, cto);
