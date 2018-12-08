@@ -334,8 +334,8 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
 }
 
 /// # Indexing Operations
-/// ## Indicies to Individual Elements
-/// ### Two-Dimensional Indicies
+/// ## Indices to Individual Elements
+/// ### Two-Dimensional Indices
 /// ```
 /// # use nalgebra::*;
 /// let matrix = Matrix2::new(0, 2,
@@ -359,7 +359,7 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
 /// assert_eq!(matrix.get(3), Some(&3));
 /// ```
 ///
-/// ## Indicies to Individual Rows and Columns
+/// ## Indices to Individual Rows and Columns
 /// ### Index to a Row
 /// ```
 /// # use nalgebra::*;
@@ -381,7 +381,7 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
 ///                         1)));
 /// ```
 ///
-/// ## Indicies to Parts of Individual Rows and Columns
+/// ## Indices to Parts of Individual Rows and Columns
 /// ### Index to a Partial Row
 /// ```
 /// # use nalgebra::*;
@@ -408,7 +408,7 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
 ///     .eq(&Matrix2x1::new(1,
 ///                         2)));
 /// ```
-/// ## Indicies to Ranges of Rows and Columns
+/// ## Indices to Ranges of Rows and Columns
 /// ### Index to a Range of Rows
 /// ```
 /// # use nalgebra::*;
