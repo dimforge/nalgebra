@@ -34,7 +34,7 @@ pub type CStride<N, R, C = U1> =
 /// Note that `Self` must always have a number of elements compatible with the matrix length (given
 /// by `R` and `C` if they are known at compile-time). For example, implementors of this trait
 /// should **not** allow the user to modify the size of the underlying buffer with safe methods
-/// (for example the `MatrixVec::data_mut` method is unsafe because the user could change the
+/// (for example the `VecStorage::data_mut` method is unsafe because the user could change the
 /// vector's size so that it no longer contains enough elements: this will lead to UB.
 pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     /// The static stride of this storage's rows.
