@@ -159,9 +159,9 @@ md_impl_all!(
     Mul, mul where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, CA: TCategoryMul<CB>, CB: TCategory;
     self: Transform<N, D, CA>, rhs: Transform<N, D, CB>, Output = Transform<N, D, CA::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.unwrap());
-    [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.unwrap());
-    [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.matrix());
+    [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.into_inner());
+    [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.into_inner());
+    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.matrix());
 );
 
@@ -170,9 +170,9 @@ md_impl_all!(
     Mul, mul where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
     self: Transform<N, D, C>, rhs: Rotation<N, D>, Output = Transform<N, D, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
-    [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
@@ -181,8 +181,8 @@ md_impl_all!(
     Mul, mul where N: Real;
     (D, D), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
     self: Rotation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
-    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
+    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
@@ -192,9 +192,9 @@ md_impl_all!(
     Mul, mul where N: Real;
     (U4, U4), (U4, U1) for C: TCategoryMul<TAffine>;
     self: Transform<N, U3, C>, rhs: UnitQuaternion<N>, Output = Transform<N, U3, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
-    [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
@@ -203,8 +203,8 @@ md_impl_all!(
     Mul, mul where N: Real;
     (U4, U1), (U4, U4) for C: TCategoryMul<TAffine>;
     self: UnitQuaternion<N>, rhs: Transform<N, U3, C>, Output = Transform<N, U3, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
-    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
+    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
@@ -215,9 +215,9 @@ md_impl_all!(
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
     self: Transform<N, D, C>, rhs: Isometry<N, D, R>, Output = Transform<N, D, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
-    [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
@@ -227,8 +227,8 @@ md_impl_all!(
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
     self: Isometry<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
-    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
+    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
@@ -239,9 +239,9 @@ md_impl_all!(
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
     self: Transform<N, D, C>, rhs: Similarity<N, D, R>, Output = Transform<N, D, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
-    [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
@@ -251,8 +251,8 @@ md_impl_all!(
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
     self: Similarity<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
-    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
+    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
@@ -270,9 +270,9 @@ md_impl_all!(
     Mul, mul where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
     self: Transform<N, D, C>, rhs: Translation<N, D>, Output = Transform<N, D, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
-    [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
@@ -282,8 +282,8 @@ md_impl_all!(
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
     self: Translation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
-    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
-    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
+    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
     [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 );
@@ -350,9 +350,9 @@ md_impl_all!(
 //          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
 //          self: Transform<N, D, C>, rhs: Isometry<N, D, R>, Output = Transform<N, D, C::Representative>;
-//          [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.inverse().to_homogeneous());
+//          [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.inverse().to_homogeneous());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.inverse().to_homogeneous());
-//          [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.inverse().to_homogeneous());
+//          [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.inverse().to_homogeneous());
 //          [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.inverse().to_homogeneous());
 //      );
 
@@ -363,8 +363,8 @@ md_impl_all!(
 //          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
 //          self: Isometry<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
-//          [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
-//          [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
+//          [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+//          [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 //          [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 //      );
@@ -377,9 +377,9 @@ md_impl_all!(
 //          where SB::Alloc: Allocator<N, D, D >
 //          where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
 //          self: Transform<N, D, C>, rhs: Similarity<N, D, R>, Output = Transform<N, D, C::Representative>;
-//          [val val] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+//          [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
-//          [val ref] => Self::Output::from_matrix_unchecked(self.unwrap() * rhs.to_homogeneous());
+//          [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
 //          [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 //      );
 
@@ -391,8 +391,8 @@ md_impl_all!(
 //          where SA::Alloc: Allocator<N, D, D >
 //          where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
 //          self: Similarity<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
-//          [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
-//          [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.unwrap());
+//          [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+//          [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 //          [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
 //      );
@@ -425,7 +425,7 @@ md_assign_impl_all!(
     MulAssign, mul_assign where N: Real;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, CA: TCategory, CB: SubTCategoryOf<CA>;
     self: Transform<N, D, CA>, rhs: Transform<N, D, CB>;
-    [val] => *self.matrix_mut_unchecked() *= rhs.unwrap();
+    [val] => *self.matrix_mut_unchecked() *= rhs.into_inner();
     [ref] => *self.matrix_mut_unchecked() *= rhs.matrix();
 );
 

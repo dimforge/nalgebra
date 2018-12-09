@@ -248,8 +248,16 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     ///                      3.0, 4.0, 0.0,
     ///                      0.0, 0.0, 1.0);
     /// let t = Transform2::from_matrix_unchecked(m);
-    /// assert_eq!(t.unwrap(), m);
+    /// assert_eq!(t.into_inner(), m);
     /// ```
+    #[inline]
+    pub fn into_inner(self) -> MatrixN<N, DimNameSum<D, U1>> {
+        self.matrix
+    }
+
+    /// Retrieves the underlying matrix.
+    /// Deprecated: Use [Transform::into_inner] instead.
+    #[deprecated(note="use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> MatrixN<N, DimNameSum<D, U1>> {
         self.matrix
@@ -329,7 +337,7 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     ///                      3.0, 4.0, 0.0,
     ///                      0.0, 0.0, 1.0);
     /// let t = Transform2::from_matrix_unchecked(m);
-    /// assert_eq!(t.unwrap(), m);
+    /// assert_eq!(t.into_inner(), m);
     /// ```
     #[inline]
     pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>> {
