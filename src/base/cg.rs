@@ -115,7 +115,7 @@ impl<N: Real> Matrix4<N> {
     /// Creates a new homogeneous matrix for an orthographic projection.
     #[inline]
     pub fn new_orthographic(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> Self {
-        Orthographic3::new(left, right, bottom, top, znear, zfar).unwrap()
+        Orthographic3::new(left, right, bottom, top, znear, zfar).into_inner()
     }
 
     /// Creates a new homogeneous matrix for a perspective projection.
