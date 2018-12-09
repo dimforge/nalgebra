@@ -280,8 +280,16 @@ impl<N: Real> Orthographic3<N> {
     ///     0.0,       0.0,       -2.0 / 999.9, -1000.1 / 999.9,
     ///     0.0,       0.0,        0.0,         1.0
     /// );
-    /// assert_eq!(proj.unwrap(), expected);
+    /// assert_eq!(proj.into_inner(), expected);
     /// ```
+    #[inline]
+    pub fn into_inner(self) -> Matrix4<N> {
+        self.matrix
+    }
+
+    /// Retrieves the underlying homogeneous matrix.
+    /// Deprecated: Use [Orthographic3::into_inner] instead.
+    #[deprecated(note="use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> Matrix4<N> {
         self.matrix
@@ -725,6 +733,6 @@ where Matrix4<N>: Send
 impl<N: Real> From<Orthographic3<N>> for Matrix4<N> {
     #[inline]
     fn from(orth: Orthographic3<N>) -> Self {
-        orth.unwrap()
+        orth.into_inner()
     }
 }
