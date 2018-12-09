@@ -156,7 +156,7 @@ impl<N: Real> Quaternion<N> {
     /// let inv_q = q.try_inverse();
     ///
     /// assert!(inv_q.is_some());
-    /// assert_relative_eq!(inv_q.unwrap() * q, Quaternion::identity());
+    /// assert_relative_eq!(inv_q.into_inner() * q, Quaternion::identity());
     ///
     /// //Non-invertible case
     /// let q = Quaternion::new(0.0, 0.0, 0.0, 0.0);
@@ -747,7 +747,7 @@ impl<N: Real> UnitQuaternion<N> {
         Unit::new_unchecked(Quaternion::from(
             Unit::new_unchecked(self.coords)
                 .slerp(&Unit::new_unchecked(other.coords), t)
-                .unwrap(),
+                .into_inner(),
         ))
     }
 
@@ -771,7 +771,7 @@ impl<N: Real> UnitQuaternion<N> {
     {
         Unit::new_unchecked(self.coords)
             .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
-            .map(|q| Unit::new_unchecked(Quaternion::from(q.unwrap())))
+            .map(|q| Unit::new_unchecked(Quaternion::from(q.into_inner())))
     }
 
     /// Compute the conjugate of this unit quaternion in-place.
@@ -837,7 +837,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn scaled_axis(&self) -> Vector3<N> {
         if let Some(axis) = self.axis() {
-            axis.unwrap() * self.angle()
+            axis.into_inner() * self.angle()
         } else {
             Vector3::zero()
         }
@@ -894,7 +894,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn ln(&self) -> Quaternion<N> {
         if let Some(v) = self.axis() {
-            Quaternion::from_parts(N::zero(), v.unwrap() * self.angle())
+            Quaternion::from_parts(N::zero(), v.into_inner() * self.angle())
         } else {
             Quaternion::zero()
         }
@@ -914,7 +914,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// let angle = 1.2;
     /// let rot = UnitQuaternion::from_axis_angle(&axis, angle);
     /// let pow = rot.powf(2.0);
-    /// assert_relative_eq!(pow.axis().unwrap(), axis, epsilon = 1.0e-6);
+    /// assert_relative_eq!(pow.axis().into_inner(), axis, epsilon = 1.0e-6);
     /// assert_eq!(pow.angle(), 2.4);
     /// ```
     #[inline]
@@ -1029,7 +1029,7 @@ impl<N: Real> UnitQuaternion<N> {
 impl<N: Real + fmt::Display> fmt::Display for UnitQuaternion<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(axis) = self.axis() {
-            let axis = axis.unwrap();
+            let axis = axis.into_inner();
             write!(
                 f,
                 "UnitQuaternion angle: {} − axis: ({}, {}, {})",

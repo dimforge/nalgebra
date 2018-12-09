@@ -15,7 +15,7 @@ use alga::linear::NormedSpace;
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
-/// Use `.as_ref()` or `.unwrap()` to obtain the underlying value by-reference or by-move.
+/// Use `.as_ref()` or `.into_inner()` to obtain the underlying value by-reference or by-move.
 #[repr(transparent)]
 #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Unit<T> {
@@ -113,6 +113,14 @@ impl<T> Unit<T> {
 
     /// Retrieves the underlying value.
     #[inline]
+    pub fn into_inner(self) -> T {
+        self.value
+    }
+
+    /// Retrieves the underlying value.
+    /// Deprecated: use [Unit::into_inner] instead.
+    #[deprecated(note="use `.into_inner()` instead")]
+    #[inline]
     pub fn unwrap(self) -> T {
         self.value
     }
@@ -143,7 +151,7 @@ where T::Field: RelativeEq
 {
     #[inline]
     fn to_superset(&self) -> T {
-        self.clone().unwrap()
+        self.clone().into_inner()
     }
 
     #[inline]

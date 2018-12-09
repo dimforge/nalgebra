@@ -76,7 +76,7 @@ impl<N: Real> Quaternion<N> {
     where SB: Storage<N, U3> {
         let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * ::convert(2.0f64));
 
-        rot.unwrap() * scale
+        rot.into_inner() * scale
     }
 
     /// The quaternion multiplicative identity.
@@ -176,7 +176,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// let vec = Vector3::new(4.0, 5.0, 6.0);
     /// let q = UnitQuaternion::from_axis_angle(&axis, angle);
     ///
-    /// assert_eq!(q.axis().unwrap(), axis);
+    /// assert_eq!(q.axis().into_inner(), axis);
     /// assert_eq!(q.angle(), angle);
     /// assert_relative_eq!(q * pt, Point3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
     /// assert_relative_eq!(q * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
@@ -244,7 +244,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// let rot = Rotation3::from_axis_angle(&axis, angle);
     /// let q = UnitQuaternion::from_rotation_matrix(&rot);
     /// assert_relative_eq!(q.to_rotation_matrix(), rot, epsilon = 1.0e-6);
-    /// assert_relative_eq!(q.axis().unwrap(), rot.axis().unwrap(), epsilon = 1.0e-6);
+    /// assert_relative_eq!(q.axis().into_inner(), rot.axis().into_inner(), epsilon = 1.0e-6);
     /// assert_relative_eq!(q.angle(), rot.angle(), epsilon = 1.0e-6);
     /// ```
     #[inline]
@@ -306,7 +306,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// # use nalgebra::{Vector3, UnitQuaternion};
     /// let a = Vector3::new(1.0, 2.0, 3.0);
     /// let b = Vector3::new(3.0, 1.0, 2.0);
-    /// let q = UnitQuaternion::rotation_between(&a, &b).unwrap();
+    /// let q = UnitQuaternion::rotation_between(&a, &b).into_inner();
     /// assert_relative_eq!(q * a, b);
     /// assert_relative_eq!(q.inverse() * b, a);
     /// ```
@@ -329,8 +329,8 @@ impl<N: Real> UnitQuaternion<N> {
     /// # use nalgebra::{Vector3, UnitQuaternion};
     /// let a = Vector3::new(1.0, 2.0, 3.0);
     /// let b = Vector3::new(3.0, 1.0, 2.0);
-    /// let q2 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.2).unwrap();
-    /// let q5 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.5).unwrap();
+    /// let q2 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.2).into_inner();
+    /// let q5 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.5).into_inner();
     /// assert_relative_eq!(q2 * q2 * q2 * q2 * q2 * a, b, epsilon = 1.0e-6);
     /// assert_relative_eq!(q5 * q5 * a, b, epsilon = 1.0e-6);
     /// ```
@@ -365,7 +365,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// # use nalgebra::{Unit, Vector3, UnitQuaternion};
     /// let a = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let b = Unit::new_normalize(Vector3::new(3.0, 1.0, 2.0));
-    /// let q = UnitQuaternion::rotation_between(&a, &b).unwrap();
+    /// let q = UnitQuaternion::rotation_between(&a, &b).into_inner();
     /// assert_relative_eq!(q * a, b);
     /// assert_relative_eq!(q.inverse() * b, a);
     /// ```
@@ -391,8 +391,8 @@ impl<N: Real> UnitQuaternion<N> {
     /// # use nalgebra::{Unit, Vector3, UnitQuaternion};
     /// let a = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let b = Unit::new_normalize(Vector3::new(3.0, 1.0, 2.0));
-    /// let q2 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.2).unwrap();
-    /// let q5 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.5).unwrap();
+    /// let q2 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.2).into_inner();
+    /// let q5 = UnitQuaternion::scaled_rotation_between(&a, &b, 0.5).into_inner();
     /// assert_relative_eq!(q2 * q2 * q2 * q2 * q2 * a, b, epsilon = 1.0e-6);
     /// assert_relative_eq!(q5 * q5 * a, b, epsilon = 1.0e-6);
     /// ```
@@ -701,7 +701,7 @@ mod tests {
         let mut rng = rand::prng::XorShiftRng::from_seed([0xAB; 16]);
         for _ in 0..1000 {
             let x = rng.gen::<UnitQuaternion<f32>>();
-            assert!(relative_eq!(x.unwrap().norm(), 1.0))
+            assert!(relative_eq!(x.into_inner().norm(), 1.0))
         }
     }
 }

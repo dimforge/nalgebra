@@ -616,7 +616,7 @@ impl<N: Real> Rotation3<N> {
     #[inline]
     pub fn scaled_axis(&self) -> Vector3<N> {
         if let Some(axis) = self.axis() {
-            axis.unwrap() * self.angle()
+            axis.into_inner() * self.angle()
         } else {
             Vector::zero()
         }

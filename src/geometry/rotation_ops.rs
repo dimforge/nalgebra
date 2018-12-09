@@ -125,8 +125,8 @@ md_impl_all!(
     where DefaultAllocator: Allocator<N, D>
     where ShapeConstraint:  AreMultipliable<D, D, D, U1>;
     self: Rotation<N, D>, right: Unit<Vector<N, D, S>>, Output = Unit<VectorN<N, D>>;
-    [val val] => Unit::new_unchecked(self.unwrap() * right.unwrap());
-    [ref val] => Unit::new_unchecked(self.matrix() * right.unwrap());
+    [val val] => Unit::new_unchecked(self.unwrap() * right.into_inner());
+    [ref val] => Unit::new_unchecked(self.matrix() * right.into_inner());
     [val ref] => Unit::new_unchecked(self.unwrap() * right.as_ref());
     [ref ref] => Unit::new_unchecked(self.matrix() * right.as_ref());
 );

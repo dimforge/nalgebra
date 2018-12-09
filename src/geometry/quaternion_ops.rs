@@ -469,7 +469,7 @@ quaternion_op_impl!(
     (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
     self: &'a UnitQuaternion<N>, rhs: Unit<Vector<N, U3, SB>>,
     Output = Unit<Vector3<N>> => U3, U4;
-    Unit::new_unchecked(self * rhs.unwrap());
+    Unit::new_unchecked(self * rhs.into_inner());
     'a);
 
 quaternion_op_impl!(
@@ -485,7 +485,7 @@ quaternion_op_impl!(
     (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
     self: UnitQuaternion<N>, rhs: Unit<Vector<N, U3, SB>>,
     Output = Unit<Vector3<N>> => U3, U4;
-    Unit::new_unchecked(self * rhs.unwrap());
+    Unit::new_unchecked(self * rhs.into_inner());
     );
 
 macro_rules! scalar_op_impl(

@@ -20,7 +20,7 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
     /// represents a plane that passes through the origin.
     pub fn new(axis: Unit<Vector<N, D, S>>, bias: N) -> Reflection<N, D, S> {
         Reflection {
-            axis: axis.unwrap(),
+            axis: axis.into_inner(),
             bias: bias,
         }
     }
