@@ -296,7 +296,7 @@ where
     ///
     /// let m = Matrix3::from_diagonal(&Vector3::new(1.0, 2.0, 3.0));
     /// // The two additional arguments represent the matrix dimensions.
-    /// let dm = DMatrix::from_diagonal(&DVector::from_row_slice(3, &[1.0, 2.0, 3.0]));
+    /// let dm = DMatrix::from_diagonal(&DVector::from_row_slice(&[1.0, 2.0, 3.0]));
     ///
     /// assert!(m.m11 == 1.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
     ///         m.m21 == 0.0 && m.m22 == 2.0 && m.m23 == 0.0 &&
@@ -616,7 +616,7 @@ macro_rules! impl_constructors_from_data(
             ///
             /// let v = Vector3::from_row_slice(&[0, 1, 2]);
             /// // The additional argument represents the vector dimension.
-            /// let dv = DVector::from_row_slice(3, &[0, 1, 2]);
+            /// let dv = DVector::from_row_slice(&[0, 1, 2]);
             /// let m = Matrix2x3::from_row_slice(&[0, 1, 2, 3, 4, 5]);
             /// // The two additional arguments represent the matrix dimensions.
             /// let dm = DMatrix::from_row_slice(2, 3, &[0, 1, 2, 3, 4, 5]);
@@ -643,7 +643,7 @@ macro_rules! impl_constructors_from_data(
             ///
             /// let v = Vector3::from_column_slice(&[0, 1, 2]);
             /// // The additional argument represents the vector dimension.
-            /// let dv = DVector::from_column_slice(3, &[0, 1, 2]);
+            /// let dv = DVector::from_column_slice(&[0, 1, 2]);
             /// let m = Matrix2x3::from_column_slice(&[0, 1, 2, 3, 4, 5]);
             /// // The two additional arguments represent the matrix dimensions.
             /// let dm = DMatrix::from_column_slice(2, 3, &[0, 1, 2, 3, 4, 5]);
