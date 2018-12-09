@@ -722,7 +722,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Replaces each component of `self` by the result of a closure `f` applied on its components
     /// joined with the components from `rhs`.
     #[inline]
-    pub fn zip_apply<N2, R2, C2, S2>(&mut self, rhs: Matrix<N2, R2, C2, S2>, mut f: impl FnMut(N, N2) -> N)
+    pub fn zip_apply<N2, R2, C2, S2>(&mut self, rhs: &Matrix<N2, R2, C2, S2>, mut f: impl FnMut(N, N2) -> N)
         where N2: Scalar,
               R2: Dim,
               C2: Dim,
@@ -750,7 +750,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Replaces each component of `self` by the result of a closure `f` applied on its components
     /// joined with the components from `b` and `c`.
     #[inline]
-    pub fn zip_zip_apply<N2, R2, C2, S2, N3, R3, C3, S3>(&mut self, b: Matrix<N2, R2, C2, S2>, c: Matrix<N3, R3, C3, S3>, mut f: impl FnMut(N, N2, N3) -> N)
+    pub fn zip_zip_apply<N2, R2, C2, S2, N3, R3, C3, S3>(&mut self, b: &Matrix<N2, R2, C2, S2>, c: &Matrix<N3, R3, C3, S3>, mut f: impl FnMut(N, N2, N3) -> N)
         where N2: Scalar,
               R2: Dim,
               C2: Dim,
