@@ -121,7 +121,7 @@ impl<N: Real> Matrix4<N> {
     /// Creates a new homogeneous matrix for a perspective projection.
     #[inline]
     pub fn new_perspective(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
-        Perspective3::new(aspect, fovy, znear, zfar).unwrap()
+        Perspective3::new(aspect, fovy, znear, zfar).into_inner()
     }
 
     /// Creates an isometry that corresponds to the local frame of an observer standing at the

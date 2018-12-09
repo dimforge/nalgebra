@@ -5,7 +5,7 @@ fn perspective_inverse() {
     let proj = Perspective3::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
     let inv = proj.inverse();
 
-    let id = inv * proj.unwrap();
+    let id = inv * proj.into_inner();
 
     assert!(id.is_identity(1.0e-7));
 }
