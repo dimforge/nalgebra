@@ -493,6 +493,57 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
+    /// Folds a function `f` on each entry of `self`.
+    #[inline]
+    pub fn fold<Acc>(&self, init: Acc, mut f: impl FnMut(Acc, N) -> Acc) -> Acc {
+        let (nrows, ncols) = self.data.shape();
+
+        let mut res = init;
+
+        for j in 0..ncols.value() {
+            for i in 0..nrows.value() {
+                unsafe {
+                    let a = *self.data.get_unchecked(i, j);
+                    res = f(res, a)
+                }
+            }
+        }
+
+        res
+    }
+
+    /// Folds a function `f` on each pairs of entries from `self` and `rhs`.
+    #[inline]
+    pub fn zip_fold<N2, R2, C2, S2, Acc>(&self, rhs: &Matrix<N2, R2, C2, S2>, init: Acc, mut f: impl FnMut(Acc, N, N2) -> Acc) -> Acc
+        where
+            N2: Scalar,
+            R2: Dim,
+            C2: Dim,
+            S2: Storage<N2, R2, C2>,
+            ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>
+    {
+        let (nrows, ncols) = self.data.shape();
+
+        let mut res = init;
+
+        assert!(
+            (nrows.value(), ncols.value()) == rhs.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
+
+        for j in 0..ncols.value() {
+            for i in 0..nrows.value() {
+                unsafe {
+                    let a = *self.data.get_unchecked(i, j);
+                    let b = *rhs.data.get_unchecked(i, j);
+                    res = f(res, a, b)
+                }
+            }
+        }
+
+        res
+    }
+
     /// Transposes `self` and store the result into `out`.
     #[inline]
     pub fn transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
@@ -1251,67 +1302,6 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// The squared L2 norm of this vector.
-    #[inline]
-    pub fn norm_squared(&self) -> N {
-        let mut res = N::zero();
-
-        for i in 0..self.ncols() {
-            let col = self.column(i);
-            res += col.dot(&col)
-        }
-
-        res
-    }
-
-    /// The L2 norm of this matrix.
-    #[inline]
-    pub fn norm(&self) -> N {
-        self.norm_squared().sqrt()
-    }
-
-    /// A synonym for the norm of this matrix.
-    ///
-    /// Aka the length.
-    ///
-    /// This function is simply implemented as a call to `norm()`
-    #[inline]
-    pub fn magnitude(&self) -> N {
-        self.norm()
-    }
-
-    /// A synonym for the squared norm of this matrix.
-    ///
-    /// Aka the squared length.
-    ///
-    /// This function is simply implemented as a call to `norm_squared()`
-    #[inline]
-    pub fn magnitude_squared(&self) -> N {
-        self.norm_squared()
-    }
-
-    /// Returns a normalized version of this matrix.
-    #[inline]
-    pub fn normalize(&self) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
-        self / self.norm()
-    }
-
-    /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
-    #[inline]
-    pub fn try_normalize(&self, min_norm: N) -> Option<MatrixMN<N, R, C>>
-    where DefaultAllocator: Allocator<N, R, C> {
-        let n = self.norm();
-
-        if n <= min_norm {
-            None
-        } else {
-            Some(self / n)
-        }
-    }
-}
-
 impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<N, D>>
     Vector<N, D, S>
 {
@@ -1382,32 +1372,6 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
             let res = &**self * ta + &**rhs * tb;
 
             Some(Unit::new_unchecked(res))
-        }
-    }
-}
-
-impl<N: Real, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
-    /// Normalizes this matrix in-place and returns its norm.
-    #[inline]
-    pub fn normalize_mut(&mut self) -> N {
-        let n = self.norm();
-        *self /= n;
-
-        n
-    }
-
-    /// Normalizes this matrix in-place or does nothing if its norm is smaller or equal to `eps`.
-    ///
-    /// If the normalization succeeded, returns the old normal of this matrix.
-    #[inline]
-    pub fn try_normalize_mut(&mut self, min_norm: N) -> Option<N> {
-        let n = self.norm();
-
-        if n <= min_norm {
-            None
-        } else {
-            *self /= n;
-            Some(n)
         }
     }
 }
