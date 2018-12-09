@@ -228,7 +228,7 @@ impl<N: Real> From<UnitQuaternion<N>> for Matrix4<N> {
 impl<N: Real> From<UnitQuaternion<N>> for Matrix3<N> {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Matrix3<N> {
-        q.to_rotation_matrix().unwrap()
+        q.to_rotation_matrix().into_inner()
     }
 }
 

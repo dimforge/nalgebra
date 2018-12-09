@@ -227,7 +227,7 @@ impl<N: Real> From<Rotation2<N>> for Matrix3<N> {
 impl<N: Real> From<Rotation2<N>> for Matrix2<N> {
     #[inline]
     fn from(q: Rotation2<N>) -> Matrix2<N> {
-        q.unwrap()
+        q.into_inner()
     }
 }
 
@@ -241,6 +241,6 @@ impl<N: Real> From<Rotation3<N>> for Matrix4<N> {
 impl<N: Real> From<Rotation3<N>> for Matrix3<N> {
     #[inline]
     fn from(q: Rotation3<N>) -> Matrix3<N> {
-        q.unwrap()
+        q.into_inner()
     }
 }
