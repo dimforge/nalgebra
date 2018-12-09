@@ -35,15 +35,18 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Creates a new matrix by extracting the given set of rows from `self`.
-    pub fn select_rows(&self, irows: impl ExactSizeIterator<Item = usize> + Clone) -> MatrixMN<N, Dynamic, C>
-        where DefaultAllocator: Allocator<N, Dynamic, C> {
+    pub fn select_rows<'a, I>(&self, irows: I) -> MatrixMN<N, Dynamic, C>
+        where I: IntoIterator<Item = &'a usize>,
+              I::IntoIter: ExactSizeIterator + Clone,
+              DefaultAllocator: Allocator<N, Dynamic, C> {
+        let mut irows = irows.into_iter();
         let ncols = self.data.shape().1;
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(Dynamic::new(irows.len()), ncols) };
 
         // First, check that all the indices from irows are valid.
         // This will allow us to use unchecked access in the inner loop.
         for i in irows.clone() {
-            assert!(i < self.nrows(), "Row index out of bounds.")
+            assert!(*i < self.nrows(), "Row index out of bounds.")
         }
 
         for j in 0..ncols.value() {
@@ -53,7 +56,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
             for (destination, source) in irows.clone().enumerate() {
                 unsafe {
-                    *res.vget_unchecked_mut(destination) = *src.vget_unchecked(source)
+                    *res.vget_unchecked_mut(destination) = *src.vget_unchecked(*source)
                 }
             }
         }
@@ -62,13 +65,16 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Creates a new matrix by extracting the given set of columns from `self`.
-    pub fn select_columns(&self, icols: impl ExactSizeIterator<Item = usize>) -> MatrixMN<N, R, Dynamic>
-        where DefaultAllocator: Allocator<N, R, Dynamic> {
+    pub fn select_columns<'a, I>(&self, icols: I) -> MatrixMN<N, R, Dynamic>
+        where I: IntoIterator<Item = &'a usize>,
+              I::IntoIter: ExactSizeIterator,
+              DefaultAllocator: Allocator<N, R, Dynamic> {
+        let mut icols = icols.into_iter();
         let nrows = self.data.shape().0;
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, Dynamic::new(icols.len())) };
 
         for (destination, source) in icols.enumerate() {
-            res.column_mut(destination).copy_from(&self.column(source))
+            res.column_mut(destination).copy_from(&self.column(*source))
         }
 
         res
