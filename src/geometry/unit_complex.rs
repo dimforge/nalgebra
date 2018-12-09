@@ -320,6 +320,6 @@ impl<N: Real> From<UnitComplex<N>> for Matrix3<N> {
 impl<N: Real> From<UnitComplex<N>> for Matrix2<N> {
     #[inline]
     fn from(q: UnitComplex<N>) -> Matrix2<N> {
-        q.to_rotation_matrix().unwrap()
+        q.to_rotation_matrix().into_inner()
     }
 }

@@ -154,7 +154,7 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # use nalgebra::{Rotation2, Rotation3, Vector3, Matrix2, Matrix3};
     /// # use std::f32;
     /// let rot = Rotation3::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_6);
-    /// let mat = rot.unwrap();
+    /// let mat = rot.into_inner();
     /// let expected = Matrix3::new(0.8660254, -0.5,      0.0,
     ///                             0.5,       0.8660254, 0.0,
     ///                             0.0,       0.0,       1.0);
@@ -162,11 +162,19 @@ where DefaultAllocator: Allocator<N, D, D>
     ///
     ///
     /// let rot = Rotation2::new(f32::consts::FRAC_PI_6);
-    /// let mat = rot.unwrap();
+    /// let mat = rot.into_inner();
     /// let expected = Matrix2::new(0.8660254, -0.5,
     ///                             0.5,       0.8660254);
     /// assert_eq!(mat, expected);
     /// ```
+    #[inline]
+    pub fn into_inner(self) -> MatrixN<N, D> {
+        self.matrix
+    }
+
+    /// Unwraps the underlying matrix.
+    /// Deprecated: Use [Rotation::into_inner] instead.
+    #[deprecated(note="use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> MatrixN<N, D> {
         self.matrix
