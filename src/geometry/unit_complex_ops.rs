@@ -50,7 +50,7 @@ impl<N: Real> Mul<UnitComplex<N>> for UnitComplex<N> {
 
     #[inline]
     fn mul(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.unwrap() * rhs.unwrap())
+        Unit::new_unchecked(self.into_inner() * rhs.into_inner())
     }
 }
 
@@ -59,7 +59,7 @@ impl<'a, N: Real> Mul<UnitComplex<N>> for &'a UnitComplex<N> {
 
     #[inline]
     fn mul(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.complex() * rhs.unwrap())
+        Unit::new_unchecked(self.complex() * rhs.into_inner())
     }
 }
 
@@ -68,7 +68,7 @@ impl<'b, N: Real> Mul<&'b UnitComplex<N>> for UnitComplex<N> {
 
     #[inline]
     fn mul(self, rhs: &'b UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.unwrap() * rhs.complex())
+        Unit::new_unchecked(self.into_inner() * rhs.complex())
     }
 }
 
@@ -87,7 +87,7 @@ impl<N: Real> Div<UnitComplex<N>> for UnitComplex<N> {
 
     #[inline]
     fn div(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.unwrap() * rhs.conjugate().unwrap())
+        Unit::new_unchecked(self.into_inner() * rhs.conjugate().into_inner())
     }
 }
 
@@ -96,7 +96,7 @@ impl<'a, N: Real> Div<UnitComplex<N>> for &'a UnitComplex<N> {
 
     #[inline]
     fn div(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.complex() * rhs.conjugate().unwrap())
+        Unit::new_unchecked(self.complex() * rhs.conjugate().into_inner())
     }
 }
 
@@ -105,7 +105,7 @@ impl<'b, N: Real> Div<&'b UnitComplex<N>> for UnitComplex<N> {
 
     #[inline]
     fn div(self, rhs: &'b UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.unwrap() * rhs.conjugate().unwrap())
+        Unit::new_unchecked(self.into_inner() * rhs.conjugate().into_inner())
     }
 }
 
@@ -114,7 +114,7 @@ impl<'a, 'b, N: Real> Div<&'b UnitComplex<N>> for &'a UnitComplex<N> {
 
     #[inline]
     fn div(self, rhs: &'b UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.complex() * rhs.conjugate().unwrap())
+        Unit::new_unchecked(self.complex() * rhs.conjugate().into_inner())
     }
 }
 
