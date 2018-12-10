@@ -527,6 +527,14 @@ pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::Field {
 }
 
 /// Computes the normalized version of the vector `v`.
+///
+/// # Deprecated
+/// Use these methods instead:
+/// * [Matrix::normalize]
+/// * [Quaternion::normalize]
+///
+/// Or, use [NormedSpace::normalize](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.normalize).
+#[deprecated(note = "use `Matrix::normalize` or `Quaternion::normalize` instead")]
 #[inline]
 pub fn normalize<V: NormedSpace>(v: &V) -> V {
     v.normalize()
