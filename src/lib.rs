@@ -430,6 +430,12 @@ pub fn dot<V: FiniteDimVectorSpace>(a: &V, b: &V) -> V::Field {
 }
 
 /// Computes the smallest angle between two vectors.
+///
+/// ## Deprecated
+/// Use [Matrix::angle] instead.
+///
+/// Or, use [InnerSpace::angle](https://docs.rs/alga/0.7.2/alga/linear/trait.InnerSpace.html#method.angle).
+#[deprecated(note = "use `Matrix::angle` instead")]
 #[inline]
 pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
     a.angle(b)
