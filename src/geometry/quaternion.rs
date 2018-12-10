@@ -156,7 +156,7 @@ impl<N: Real> Quaternion<N> {
     /// let inv_q = q.try_inverse();
     ///
     /// assert!(inv_q.is_some());
-    /// assert_relative_eq!(inv_q.into_inner() * q, Quaternion::identity());
+    /// assert_relative_eq!(inv_q.unwrap() * q, Quaternion::identity());
     ///
     /// //Non-invertible case
     /// let q = Quaternion::new(0.0, 0.0, 0.0, 0.0);
@@ -914,7 +914,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// let angle = 1.2;
     /// let rot = UnitQuaternion::from_axis_angle(&axis, angle);
     /// let pow = rot.powf(2.0);
-    /// assert_relative_eq!(pow.axis().into_inner(), axis, epsilon = 1.0e-6);
+    /// assert_relative_eq!(pow.axis().unwrap(), axis, epsilon = 1.0e-6);
     /// assert_eq!(pow.angle(), 2.4);
     /// ```
     #[inline]
