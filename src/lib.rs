@@ -275,6 +275,9 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 }
 
 /// The absolute value of `a`.
+///
+/// Deprecated: Use [Matrix::abs] or [Real::abs] instead.
+#[deprecated(note = "use `Matrix::abs` or `Real::abs` instead")]
 #[inline]
 pub fn abs<T: Signed>(a: &T) -> T {
     a.abs()
