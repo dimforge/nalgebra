@@ -452,6 +452,14 @@ pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude_squared`](fn.magnitude_squared.html)
 /// * [`norm_squared`](fn.norm_squared.html)
+///
+/// # Deprecated
+/// Use these methods instead:
+///   - [Matrix::norm]
+///   - [Quaternion::norm]
+///
+/// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
+#[deprecated(note = "use `Matrix::norm` or `Quaternion::norm` instead")]
 #[inline]
 pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
     v.norm()
