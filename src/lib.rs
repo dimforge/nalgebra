@@ -513,6 +513,14 @@ pub fn magnitude<V: NormedSpace>(v: &V) -> V::Field {
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`norm`](fn.norm.html)
 /// * [`norm_squared`](fn.norm_squared.html)
+///
+/// # Deprecated
+/// Use these methods instead:
+/// * [Matrix::magnitude_squared]
+/// * [Quaternion::magnitude_squared]
+///
+/// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
+#[deprecated(note = "use `Matrix::magnitude_squared` or `Quaternion::magnitude_squared` instead")]
 #[inline]
 pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::Field {
     v.norm_squared()
