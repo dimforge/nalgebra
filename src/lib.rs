@@ -541,6 +541,14 @@ pub fn normalize<V: NormedSpace>(v: &V) -> V {
 }
 
 /// Computes the normalized version of the vector `v` or returns `None` if its norm is smaller than `min_norm`.
+///
+/// # Deprecated
+/// Use these methods instead:
+/// * [Matrix::try_normalize]
+/// * [Quaternion::try_normalize]
+///
+/// Or, use [NormedSpace::try_normalize](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.try_normalize).
+#[deprecated(note = "use `Matrix::try_normalize` or `Quaternion::try_normalize` instead")]
 #[inline]
 pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::Field) -> Option<V> {
     v.try_normalize(min_norm)
