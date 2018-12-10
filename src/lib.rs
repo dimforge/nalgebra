@@ -416,6 +416,14 @@ pub fn inverse<M: Inverse<Multiplicative>>(m: &M) -> M {
  */
 
 /// Computes the dot product of two vectors.
+///
+/// ## Deprecated
+/// Use these methods instead:
+///   - [Matrix::dot]
+///   - [Quaternion::dot]
+///
+/// Or, use [FiniteDimVectorSpace::dot](https://docs.rs/alga/0.7.2/alga/linear/trait.FiniteDimVectorSpace.html#tymethod.dot).
+#[deprecated(note = "use `Matrix::dot` or `Quaternion::dot` instead")]
 #[inline]
 pub fn dot<V: FiniteDimVectorSpace>(a: &V, b: &V) -> V::Field {
     a.dot(b)
