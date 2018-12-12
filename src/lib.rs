@@ -189,6 +189,12 @@ pub fn zero<T: Identity<Additive>>() -> T {
 ///
 /// * [`one`](fn.one.html)
 /// * [`zero`](fn.zero.html)
+///
+/// # Deprecated
+/// Use [Point::origin] instead.
+///
+/// Or, use [EuclideanSpace::origin](https://docs.rs/alga/0.7.2/alga/linear/trait.EuclideanSpace.html#tymethod.origin).
+#[deprecated(note = "use `Point::origin` instead")]
 #[inline]
 pub fn origin<P: EuclideanSpace>() -> P {
     P::origin()
