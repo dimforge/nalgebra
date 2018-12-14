@@ -1,6 +1,16 @@
 //! (Reexported) Additional features not specified by GLSL specification
 
-pub use self::matrix_clip_space::{ortho, perspective};
+pub use self::matrix_clip_space::{
+    ortho, ortho_lh, ortho_lh_no, ortho_lh_zo, ortho_no, ortho_rh, ortho_rh_no, ortho_rh_zo,
+    ortho_zo,
+
+    perspective, perspective_lh, perspective_lh_no, perspective_lh_zo, perspective_no,
+    perspective_rh, perspective_rh_no, perspective_rh_zo, perspective_zo,
+
+    perspective_fov, perspective_fov_lh,perspective_fov_lh_no, perspective_fov_lh_zo,
+    perspective_fov_no, perspective_fov_rh, perspective_fov_rh_no, perspective_fov_rh_zo,
+    perspective_fov_zo,
+};
 pub use self::matrix_projection::{
     pick_matrix, project, project_no, project_zo, unproject, unproject_no, unproject_zo,
 };
