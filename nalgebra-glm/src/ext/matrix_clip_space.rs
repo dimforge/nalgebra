@@ -53,7 +53,37 @@ use na::{Real};
 //    unimplemented!()
 //}
 
-/// Creates a matrix for an orthographic parallel viewing volume, using the right handedness and OpenGL near and far clip planes definition.
+/// Creates a matrix for a orthographic-view frustum with a handedness and depth range defined by
+/// the defaults configured for the library at build time
+///
+/// # Parameters
+///
+/// * `left` - Coordinate for left bound of matrix
+/// * `right` - Coordinate for right bound of matrix
+/// * `bottom` - Coordinate for bottom bound of matrix
+/// * `top` - Coordinate for top bound of matrix
+/// * `znear` - Distance from the viewer to the near clipping plane
+/// * `zfar` - Distance from the viewer to the far clipping plane
+///
+/// # Compile Options
+///
+/// There are 3 compile options that change the behaviour of the function:
+/// 1. projection_y_flip
+/// 2. left_hand_default/right_hand_default
+/// 3. zero_to_one_clip_default/negone_to_one_clip_default
+///
+/// ##### projection_y_flip
+/// When enabled will perform a `matrix[(1,1)] *= 1` implicitly. Primary use case is for Vulkan
+/// where the viewport coordinate origin is the top left, unlike OpenGL which is the bottom left.
+///
+/// ##### left_hand_default/right_hand_default
+/// Depending on which option is set the function will return either a left hand or a right
+/// hand orthographic matrix.
+///
+/// ##### zero_to_one_clip_default/negone_to_one_clip_default
+/// Depending on which option is set the function will return a orthographic matrix meant for a
+/// 0 to 1 depth clip space or a -1 to 1 depth clip space.
+///
 pub fn ortho<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     if cfg!(feature="zero_to_one_clip_default") {
         ortho_zo(left, right, bottom, top, znear, zfar)
@@ -64,6 +94,32 @@ pub fn ortho<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -
     }
 }
 
+/// Creates a left hand matrix for a orthographic-view frustum with a depth range defined by the
+/// default configured for the library at build time
+///
+/// # Parameters
+///
+/// * `left` - Coordinate for left bound of matrix
+/// * `right` - Coordinate for right bound of matrix
+/// * `bottom` - Coordinate for bottom bound of matrix
+/// * `top` - Coordinate for top bound of matrix
+/// * `znear` - Distance from the viewer to the near clipping plane
+/// * `zfar` - Distance from the viewer to the far clipping plane
+///
+/// # Compile Options
+///
+/// There are 2 compile options that change the behaviour of the function:
+/// 1. projection_y_flip
+/// 2. zero_to_one_clip_default/negone_to_one_clip_default
+///
+/// ##### projection_y_flip
+/// When enabled will perform a `matrix[(1,1)] *= 1` implicitly. Primary use case is for Vulkan
+/// where the viewport coordinate origin is the top left, unlike OpenGL which is the bottom left.
+///
+/// ##### zero_to_one_clip_default/negone_to_one_clip_default
+/// Depending on which option is set the function will return a orthographic matrix meant for a
+/// 0 to 1 depth clip space or a -1 to 1 depth clip space.
+///
 pub fn ortho_lh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     if cfg!(feature="zero_to_one_clip_default") {
         ortho_zo(left, right, bottom, top, znear, zfar)
@@ -74,6 +130,26 @@ pub fn ortho_lh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
     }
 }
 
+/// Creates a left hand matrix for a orthographic-view frustum with a depth range of -1 to 1
+///
+/// # Parameters
+///
+/// * `left` - Coordinate for left bound of matrix
+/// * `right` - Coordinate for right bound of matrix
+/// * `bottom` - Coordinate for bottom bound of matrix
+/// * `top` - Coordinate for top bound of matrix
+/// * `znear` - Distance from the viewer to the near clipping plane
+/// * `zfar` - Distance from the viewer to the far clipping plane
+///
+/// # Compile Options
+///
+/// There are 1 compile option that changes the behaviour of the function:
+/// 1. projection_y_flip
+///
+/// ##### projection_y_flip
+/// When enabled will perform a `matrix[(1,1)] *= 1` implicitly. Primary use case is for Vulkan
+/// where the viewport coordinate origin is the top left, unlike OpenGL which is the bottom left.
+///
 pub fn ortho_lh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let zero   : N = ::convert(0.0);
     let two    : N = ::convert(2.0);
@@ -99,6 +175,26 @@ pub fn ortho_lh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     mat
 }
 
+/// Creates a left hand matrix for a orthographic-view frustum with a depth range of 0 to 1
+///
+/// # Parameters
+///
+/// * `left` - Coordinate for left bound of matrix
+/// * `right` - Coordinate for right bound of matrix
+/// * `bottom` - Coordinate for bottom bound of matrix
+/// * `top` - Coordinate for top bound of matrix
+/// * `znear` - Distance from the viewer to the near clipping plane
+/// * `zfar` - Distance from the viewer to the far clipping plane
+///
+/// # Compile Options
+///
+/// There are 1 compile option that changes the behaviour of the function:
+/// 1. projection_y_flip
+///
+/// ##### projection_y_flip
+/// When enabled will perform a `matrix[(1,1)] *= 1` implicitly. Primary use case is for Vulkan
+/// where the viewport coordinate origin is the top left, unlike OpenGL which is the bottom left.
+///
 pub fn ortho_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let zero   : N = ::convert(0.0);
     let one    : N = ::convert(1.0);
@@ -125,6 +221,32 @@ pub fn ortho_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     mat
 }
 
+/// Creates a matrix for a orthographic-view frustum with a handedness defined by the defaults
+/// configured for the library at build time and a depth range of -1 to 1
+///
+/// # Parameters
+///
+/// * `left` - Coordinate for left bound of matrix
+/// * `right` - Coordinate for right bound of matrix
+/// * `bottom` - Coordinate for bottom bound of matrix
+/// * `top` - Coordinate for top bound of matrix
+/// * `znear` - Distance from the viewer to the near clipping plane
+/// * `zfar` - Distance from the viewer to the far clipping plane
+///
+/// # Compile Options
+///
+/// There are 2 compile options that change the behaviour of the function:
+/// 1. projection_y_flip
+/// 2. left_hand_default/right_hand_default
+///
+/// ##### projection_y_flip
+/// When enabled will perform a `matrix[(1,1)] *= 1` implicitly. Primary use case is for Vulkan
+/// where the viewport coordinate origin is the top left, unlike OpenGL which is the bottom left.
+///
+/// ##### left_hand_default/right_hand_default
+/// Depending on which option is set the function will return either a left hand or a right
+/// hand orthographic matrix.
+///
 pub fn ortho_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     if cfg!(feature="left_hand_default") {
         ortho_lh_no(left, right, bottom, top, znear, zfar)
@@ -135,6 +257,32 @@ pub fn ortho_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
     }
 }
 
+/// Creates a right hand matrix for a orthographic-view frustum with a depth range defined by the
+/// default configured for the library at build time
+///
+/// # Parameters
+///
+/// * `left` - Coordinate for left bound of matrix
+/// * `right` - Coordinate for right bound of matrix
+/// * `bottom` - Coordinate for bottom bound of matrix
+/// * `top` - Coordinate for top bound of matrix
+/// * `znear` - Distance from the viewer to the near clipping plane
+/// * `zfar` - Distance from the viewer to the far clipping plane
+///
+/// # Compile Options
+///
+/// There are 2 compile options that change the behaviour of the function:
+/// 1. projection_y_flip
+/// 2. zero_to_one_clip_default/negone_to_one_clip_default
+///
+/// ##### projection_y_flip
+/// When enabled will perform a `matrix[(1,1)] *= 1` implicitly. Primary use case is for Vulkan
+/// where the viewport coordinate origin is the top left, unlike OpenGL which is the bottom left.
+///
+/// ##### zero_to_one_clip_default/negone_to_one_clip_default
+/// Depending on which option is set the function will return a orthographic matrix meant for a
+/// 0 to 1 depth clip space or a -1 to 1 depth clip space.
+///
 pub fn ortho_rh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     if cfg!(feature="zero_to_one_clip_default") {
         ortho_rh_zo(left, right, bottom, top, znear, zfar)
@@ -145,6 +293,26 @@ pub fn ortho_rh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
     }
 }
 
+/// Creates a right hand matrix for a orthographic-view frustum with a depth range of -1 to 1
+///
+/// # Parameters
+///
+/// * `left` - Coordinate for left bound of matrix
+/// * `right` - Coordinate for right bound of matrix
+/// * `bottom` - Coordinate for bottom bound of matrix
+/// * `top` - Coordinate for top bound of matrix
+/// * `znear` - Distance from the viewer to the near clipping plane
+/// * `zfar` - Distance from the viewer to the far clipping plane
+///
+/// # Compile Options
+///
+/// There are 1 compile option that changes the behaviour of the function:
+/// 1. projection_y_flip
+///
+/// ##### projection_y_flip
+/// When enabled will perform a `matrix[(1,1)] *= 1` implicitly. Primary use case is for Vulkan
+/// where the viewport coordinate origin is the top left, unlike OpenGL which is the bottom left.
+///
 pub fn ortho_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let zero   : N = ::convert(0.0);
     let two    : N = ::convert(2.0);
@@ -170,6 +338,26 @@ pub fn ortho_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     mat
 }
 
+/// Creates a right hand matrix for a orthographic-view frustum with a depth range of 0 to 1
+///
+/// # Parameters
+///
+/// * `left` - Coordinate for left bound of matrix
+/// * `right` - Coordinate for right bound of matrix
+/// * `bottom` - Coordinate for bottom bound of matrix
+/// * `top` - Coordinate for top bound of matrix
+/// * `znear` - Distance from the viewer to the near clipping plane
+/// * `zfar` - Distance from the viewer to the far clipping plane
+///
+/// # Compile Options
+///
+/// There are 1 compile option that changes the behaviour of the function:
+/// 1. projection_y_flip
+///
+/// ##### projection_y_flip
+/// When enabled will perform a `matrix[(1,1)] *= 1` implicitly. Primary use case is for Vulkan
+/// where the viewport coordinate origin is the top left, unlike OpenGL which is the bottom left.
+///
 pub fn ortho_rh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let zero   : N = ::convert(0.0);
     let one    : N = ::convert(1.0);
@@ -196,6 +384,32 @@ pub fn ortho_rh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     mat
 }
 
+/// Creates a matrix for a orthographic-view frustum with a handedness defined by the defaults
+/// configured for the library at build time and a depth range of 0 to 1
+///
+/// # Parameters
+///
+/// * `left` - Coordinate for left bound of matrix
+/// * `right` - Coordinate for right bound of matrix
+/// * `bottom` - Coordinate for bottom bound of matrix
+/// * `top` - Coordinate for top bound of matrix
+/// * `znear` - Distance from the viewer to the near clipping plane
+/// * `zfar` - Distance from the viewer to the far clipping plane
+///
+/// # Compile Options
+///
+/// There are 2 compile options that change the behaviour of the function:
+/// 1. projection_y_flip
+/// 2. left_hand_default/right_hand_default
+///
+/// ##### projection_y_flip
+/// When enabled will perform a `matrix[(1,1)] *= 1` implicitly. Primary use case is for Vulkan
+/// where the viewport coordinate origin is the top left, unlike OpenGL which is the bottom left.
+///
+/// ##### left_hand_default/right_hand_default
+/// Depending on which option is set the function will return either a left hand or a right
+/// hand orthographic matrix.
+///
 pub fn ortho_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     if cfg!(feature="left_hand_default") {
         ortho_lh_zo(left, right, bottom, top, znear, zfar)
