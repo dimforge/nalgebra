@@ -152,11 +152,12 @@ pub fn ortho_lh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
 ///
 pub fn ortho_lh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let zero   : N = ::convert(0.0);
+    let one    : N = ::convert(1.0);
     let two    : N = ::convert(2.0);
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero,
-                                             zero,zero,zero,zero,
-                                             zero,zero,zero,zero,
-                                             zero,zero,zero,zero);
+    let mut mat : TMat4<N> = TMat4::<N>::new(one ,zero,zero,zero,
+                                             zero,one ,zero,zero,
+                                             zero,zero,one ,zero,
+                                             zero,zero,zero,one );
 
     let m11 =
         if cfg!(feature="projection_y_flip") {
@@ -166,11 +167,11 @@ pub fn ortho_lh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
         };
 
     mat[(0,0)] = two / (right - left);
+    mat[(0,3)] = -(right + left) / (right - left);
     mat[(1,1)] = m11;
+    mat[(1,3)] = -(top + bottom) / (top - bottom);
     mat[(2,2)] = two / (zfar - znear);
-    mat[(3,0)] = -(right + left) / (right - left);
-    mat[(3,1)] = -(top + bottom) / (top - bottom);
-    mat[(3,2)] = -(zfar + znear) / (zfar - znear);
+    mat[(2,3)] = -(zfar + znear) / (zfar - znear);
 
     mat
 }
@@ -199,10 +200,10 @@ pub fn ortho_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     let zero   : N = ::convert(0.0);
     let one    : N = ::convert(1.0);
     let two    : N = ::convert(2.0);
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero,
-                                             zero,zero,zero,zero,
-                                             zero,zero,zero,zero,
-                                             zero,zero,zero,zero);
+    let mut mat : TMat4<N> = TMat4::<N>::new(one ,zero,zero,zero,
+                                             zero,one ,zero,zero,
+                                             zero,zero,one ,zero,
+                                             zero,zero,zero,one );
 
     let m11 =
         if cfg!(feature="projection_y_flip") {
@@ -212,11 +213,11 @@ pub fn ortho_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
         };
 
     mat[(0,0)] = two / (right - left);
+    mat[(0,3)] = - (right + left) / (right - left);
     mat[(1,1)] = m11;
+    mat[(1,3)] = - (top + bottom) / (top - bottom);
     mat[(2,2)] = one / (zfar - znear);
-    mat[(3,0)] = - (right + left) / (right - left);
-    mat[(3,1)] = - (top + bottom) / (top - bottom);
-    mat[(3,2)] = - znear / (zfar  - znear);
+    mat[(2,3)] = - znear / (zfar  - znear);
 
     mat
 }
@@ -315,11 +316,12 @@ pub fn ortho_rh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
 ///
 pub fn ortho_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let zero   : N = ::convert(0.0);
+    let one    : N = ::convert(1.0);
     let two    : N = ::convert(2.0);
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero,
-                                             zero,zero,zero,zero,
-                                             zero,zero,zero,zero,
-                                             zero,zero,zero,zero);
+    let mut mat : TMat4<N> = TMat4::<N>::new(one ,zero,zero,zero,
+                                             zero,one ,zero,zero,
+                                             zero,zero,one ,zero,
+                                             zero,zero,zero,one );
 
     let m11 =
         if cfg!(feature="projection_y_flip") {
@@ -329,11 +331,11 @@ pub fn ortho_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
         };
 
     mat[(0,0)] = two / (right - left);
+    mat[(0,3)] = - (right + left) / (right - left);
     mat[(1,1)] = m11;
+    mat[(1,3)] = - (top + bottom) / (top - bottom);
     mat[(2,2)] = - two / (zfar - znear);
-    mat[(3,0)] = - (right + left) / (right - left);
-    mat[(3,1)] = - (top + bottom) / (top - bottom);
-    mat[(3,2)] = - (zfar + znear) / (zfar  - znear);
+    mat[(2,3)] = - (zfar + znear) / (zfar  - znear);
 
     mat
 }
@@ -362,10 +364,10 @@ pub fn ortho_rh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     let zero   : N = ::convert(0.0);
     let one    : N = ::convert(1.0);
     let two    : N = ::convert(2.0);
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero,
-                                             zero,zero,zero,zero,
-                                             zero,zero,zero,zero,
-                                             zero,zero,zero,zero);
+    let mut mat : TMat4<N> = TMat4::<N>::new(one ,zero,zero,zero,
+                                             zero,one ,zero,zero,
+                                             zero,zero,one ,zero,
+                                             zero,zero,zero,one );
 
     let m11 =
         if cfg!(feature="projection_y_flip") {
@@ -375,11 +377,11 @@ pub fn ortho_rh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
         };
 
     mat[(0,0)] = two / (right - left);
+    mat[(0,3)] = - (right + left) / (right - left);
     mat[(1,1)] = m11;
+    mat[(1,3)] = - (top + bottom) / (top - bottom);
     mat[(2,2)] = - one / (zfar - znear);
-    mat[(3,0)] = - (right + left) / (right - left);
-    mat[(3,1)] = - (top + bottom) / (top - bottom);
-    mat[(3,2)] = - znear / (zfar  - znear);
+    mat[(2,3)] = - znear / (zfar  - znear);
 
     mat
 }
@@ -548,8 +550,8 @@ pub fn perspective_fov_lh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
     mat[(0,0)] = w;
     mat[(1,1)] = m11;
     mat[(2,2)] = (far + near) / (far - near);
-    mat[(2,3)] = ::convert(1.0);
-    mat[(3,2)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(2,3)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(3,2)] = ::convert(1.0);
 
     mat
 }
@@ -607,8 +609,8 @@ pub fn perspective_fov_lh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
     mat[(0,0)] = w;
     mat[(1,1)] = m11;
     mat[(2,2)] = far / (far - near);
-    mat[(2,3)] = ::convert(1.0);
-    mat[(3,2)] = -(far * near) / (far - near);
+    mat[(2,3)] = -(far * near) / (far - near);
+    mat[(3,2)] = ::convert(1.0);
 
     mat
 }
@@ -737,8 +739,8 @@ pub fn perspective_fov_rh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
     mat[(0,0)] = w;
     mat[(1,1)] = m11;
     mat[(2,2)] = - (far + near) / (far - near);
-    mat[(2,3)] =   negone;
-    mat[(3,2)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(2,3)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(3,2)] =   negone;
 
     mat
 }
@@ -797,8 +799,8 @@ pub fn perspective_fov_rh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
     mat[(0,0)] = w;
     mat[(1,1)] = m11;
     mat[(2,2)] = far / (near - far);
-    mat[(2,3)] = negone;
-    mat[(3,2)] = -(far * near) / (far - near);
+    mat[(2,3)] = -(far * near) / (far - near);
+    mat[(3,2)] = negone;
 
     mat
 }
@@ -960,8 +962,8 @@ pub fn perspective_lh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
     mat[(0,0)] = one / (aspect * tan_half_fovy);
     mat[(1,1)] = m11;
     mat[(2,2)] = (far + near) / (far - near);
-    mat[(2,3)] = one;
-    mat[(3,2)] = -(two * far * near) / (far - near);
+    mat[(2,3)] = -(two * far * near) / (far - near);
+    mat[(3,2)] = one;
 
     mat
 }
@@ -1014,8 +1016,8 @@ pub fn perspective_lh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
     mat[(0,0)] = one / (aspect * tan_half_fovy);
     mat[(1,1)] = m11;
     mat[(2,2)] = far / (far - near);
-    mat[(2,3)] = one;
-    mat[(3,2)] = -(far * near) / (far - near);
+    mat[(2,3)] = -(far * near) / (far - near);
+    mat[(3,2)] = one;
 
     mat
 }
@@ -1137,8 +1139,8 @@ pub fn perspective_rh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
     mat[(0,0)] = one / (aspect * tan_half_fovy);
     mat[(1,1)] = m11;
     mat[(2,2)] = - (far + near) / (far - near);
-    mat[(2,3)] = negone;
-    mat[(3,2)] = -(two * far * near) / (far - near);
+    mat[(2,3)] = -(two * far * near) / (far - near);
+    mat[(3,2)] = negone;
 
     mat
 }
@@ -1192,8 +1194,8 @@ pub fn perspective_rh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
     mat[(0,0)] = one / (aspect * tan_half_fovy);
     mat[(1,1)] = m11;
     mat[(2,2)] = far / (near - far);
-    mat[(2,3)] = negone;
-    mat[(3,2)] = -(far * near) / (far - near);
+    mat[(2,3)] = -(far * near) / (far - near);
+    mat[(3,2)] = negone;
 
     mat
 }
