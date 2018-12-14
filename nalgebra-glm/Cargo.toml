@@ -12,6 +12,22 @@ categories = [ "science" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
 license = "BSD-3-Clause"
 
+[features]
+
+default = ["opengl_projection"]
+
+opengl_projection = ["right_hand_default", "negone_to_one_clip_default"]
+vulkan_projection = ["right_hand_default", "zero_to_one_clip_default", "projection_y_flip"]
+directx_projection = ["left_hand_default", "zero_to_one_clip_default"]
+
+projection_y_flip = [] 
+
+left_hand_default = []
+right_hand_default = []
+
+zero_to_one_clip_default = []
+negone_to_one_clip_default = []
+
 [dependencies]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.3", default-features = false }

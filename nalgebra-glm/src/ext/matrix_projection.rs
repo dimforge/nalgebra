@@ -24,7 +24,8 @@ pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec
     ))
 }
 
-/// Map the specified object coordinates `(obj.x, obj.y, obj.z)` into window coordinates using OpenGL near and far clip planes definition.
+/// Map the specified object coordinates `(obj.x, obj.y, obj.z)` into window coordinates using
+/// the default configured depth range
 ///
 /// # Parameters:
 ///
@@ -32,6 +33,15 @@ pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec
 /// * `model` - Specifies the current modelview matrix.
 /// * `proj` - Specifies the current projection matrix.
 /// * `viewport` - Specifies the current viewport.
+///
+/// # Compile Options
+///
+/// There are 2 compile options that change the behaviour of the function:
+/// 1. zero_to_one_clip_default/negone_to_one_clip_default
+///
+/// ##### zero_to_one_clip_default/negone_to_one_clip_default
+/// Depending on which option is set the function will return a point un-projected with the depth
+/// range of either 0 to 1 or -1 to 1
 ///
 /// # See also:
 ///
@@ -47,7 +57,13 @@ pub fn project<N: Real>(
     viewport: TVec4<N>,
 ) -> TVec3<N>
 {
-    project_no(obj, model, proj, viewport)
+    if cfg!(feature="negone_to_one_clip_default") {
+        project_no(obj, model, proj, viewport)
+    } else if cfg!(feature="zero_to_one_clip_default") {
+        project_zo(obj, model, proj, viewport)
+    } else {
+        unimplemented!()
+    }
 }
 
 /// Map the specified object coordinates (obj.x, obj.y, obj.z) into window coordinates.
@@ -114,7 +130,8 @@ pub fn project_zo<N: Real>(
     )
 }
 
-/// Map the specified window coordinates (win.x, win.y, win.z) into object coordinates using OpenGL near and far clip planes definition.
+/// Map the specified window coordinates (win.x, win.y, win.z) into object coordinates using the
+/// default configured depth range
 ///
 /// # Parameters:
 ///
@@ -122,6 +139,15 @@ pub fn project_zo<N: Real>(
 /// * `model` - Specifies the current modelview matrix.
 /// * `proj` - Specifies the current projection matrix.
 /// * `viewport` - Specifies the current viewport.
+///
+/// # Compile Options
+///
+/// There are 2 compile options that change the behaviour of the function:
+/// 1. zero_to_one_clip_default/negone_to_one_clip_default
+///
+/// ##### zero_to_one_clip_default/negone_to_one_clip_default
+/// Depending on which option is set the function will return a point un-projected with the depth
+/// range of either 0 to 1 or -1 to 1
 ///
 /// # See also:
 ///
@@ -137,7 +163,13 @@ pub fn unproject<N: Real>(
     viewport: TVec4<N>,
 ) -> TVec3<N>
 {
-    unproject_no(win, model, proj, viewport)
+    if cfg!(feature="negone_to_one_clip_default") {
+        unproject_no(win, model, proj, viewport)
+    } else if cfg!(feature="zero_to_one_clip_default") {
+        unproject_zo(win, model, proj, viewport)
+    } else {
+        unimplemented!()
+    }
 }
 
 /// Map the specified window coordinates (win.x, win.y, win.z) into object coordinates.
