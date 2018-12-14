@@ -6,6 +6,7 @@ use na::Orthographic3;
 use glm::Mat4;
 use glm::Vec4;
 
+// Ensure that under default conditions the library doesn't break interface with old convention
 #[test]
 pub fn orthographic_glm_nalgebra_same()
 {
@@ -19,6 +20,7 @@ pub fn orthographic_glm_nalgebra_same()
     assert_eq!(na_mat, gl_mat);
 }
 
+// Ensure that under default conditions the library doesn't break interface with old convention
 #[test]
 pub fn perspective_glm_nalgebra_same()
 {
@@ -33,6 +35,7 @@ pub fn perspective_glm_nalgebra_same()
     assert_eq!(na_mat, gl_mat);
 }
 
+// Ensure that under default conditions the library doesn't break interface with old convention
 #[test]
 pub fn orthographic_glm_nalgebra_project_same()
 {
@@ -48,9 +51,11 @@ pub fn orthographic_glm_nalgebra_project_same()
     let na_pt = na_mat * point;
     let gl_pt = gl_mat * point;
 
+    assert_eq!(na_mat, gl_mat);
     assert_eq!(na_pt, gl_pt);
 }
 
+// Ensure that under default conditions the library doesn't break interface with old convention
 #[test]
 pub fn perspective_glm_nalgebra_project_same()
 {
@@ -67,5 +72,6 @@ pub fn perspective_glm_nalgebra_project_same()
     let na_pt = na_mat * point;
     let gl_pt = gl_mat * point;
 
+    assert_eq!(na_mat, gl_mat);
     assert_eq!(na_pt, gl_pt);
 }

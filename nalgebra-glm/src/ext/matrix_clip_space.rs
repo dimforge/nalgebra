@@ -870,7 +870,20 @@ pub fn perspective_fov_zo<N: Real>(fov: N, width: N, height: N, near: N, far: N)
 /// 0 to 1 depth clip space or a -1 to 1 depth clip space.
 ///
 pub fn perspective<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
-    // TODO: Breaking change: the arguments can be reversed back to proper glm conventions
+    // TODO: Breaking change - the arguments can be reversed back to proper glm conventions
+    //
+    //       Prior to changes to support configuring the behaviour of this function it was simply
+    //       a wrapper around Perspective3::new(). The argument order for that function is different
+    //       than the glm convention, but reordering the arguments would've caused pointlessly
+    //       un-optimal code to be generated so they were rearranged so the function would just call
+    //       straight through.
+    //
+    //       Now this call to Perspective3::new() is no longer made so the functions can have their
+    //       arguments reordered to the glm convention. Unfortunately this is a breaking change so
+    //       can't be cleanly integrated into the existing library version without breaking other
+    //       people's code. Reordering to glm isn't a huge deal but if it is done it will have to be
+    //       in a major API breaking update.
+    //
     if cfg!(feature="zero_to_one_clip_default") {
         perspective_zo(aspect, fovy, near, far)
     } else if cfg!(feature="negone_to_one_clip_default") {
