@@ -568,7 +568,7 @@ impl<N: Real> Rotation3<N> {
     /// # use nalgebra::{Unit, Rotation3, Vector3};
     /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let rot = Rotation3::from_axis_angle(&axis, 1.78);
-    /// assert_eq!(rot.angle(), 1.78);
+    /// assert_relative_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
     pub fn angle(&self) -> N {
