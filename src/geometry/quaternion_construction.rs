@@ -693,12 +693,13 @@ where
 
 #[cfg(test)]
 mod tests {
+    extern crate rand_xorshift;
     use super::*;
-    use rand::{self, SeedableRng};
+    use rand::SeedableRng;
 
     #[test]
     fn random_unit_quats_are_unit() {
-        let mut rng = rand::prng::XorShiftRng::from_seed([0xAB; 16]);
+        let mut rng = rand_xorshift::XorShiftRng::from_seed([0xAB; 16]);
         for _ in 0..1000 {
             let x = rng.gen::<UnitQuaternion<f32>>();
             assert!(relative_eq!(x.into_inner().norm(), 1.0))

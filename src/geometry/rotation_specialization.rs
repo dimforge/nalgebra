@@ -107,9 +107,10 @@ impl<N: Real> Rotation2<N> {
     ///
     /// # Example
     /// ```
+    /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Rotation2;
     /// let rot = Rotation2::new(1.78);
-    /// assert_eq!(rot.angle(), 1.78);
+    /// assert_relative_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
     pub fn angle(&self) -> N {
@@ -158,10 +159,11 @@ impl<N: Real> Rotation2<N> {
     ///
     /// # Example
     /// ```
+    /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Rotation2;
     /// let rot = Rotation2::new(0.78);
     /// let pow = rot.powf(2.0);
-    /// assert_eq!(pow.angle(), 2.0 * 0.78);
+    /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
     /// ```
     #[inline]
     pub fn powf(&self, n: N) -> Rotation2<N> {
@@ -566,7 +568,7 @@ impl<N: Real> Rotation3<N> {
     /// # use nalgebra::{Unit, Rotation3, Vector3};
     /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let rot = Rotation3::from_axis_angle(&axis, 1.78);
-    /// assert_relative_eq!(rot.angle(), 1.78);
+    /// assert_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
     pub fn angle(&self) -> N {
