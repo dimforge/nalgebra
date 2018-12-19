@@ -6,47 +6,31 @@ use na::Orthographic3;
 use glm::Mat4;
 use glm::Vec4;
 
-// Ensure that under default conditions the library doesn't break interface with old convention
 #[test]
 pub fn orthographic_glm_nalgebra_same()
 {
     let na_mat : Mat4 = Orthographic3::new(-100.0f32,100.0f32, -50.0f32, 50.0f32, 0.1f32, 100.0f32).unwrap();
-    let gl_mat : Mat4 = glm::ortho_rh_no(-100.0f32,100.0f32, -50.0f32, 50.0f32, 0.1f32, 100.0f32);
-
-    // ortho_rh_no is the same as the standard nalgebra orthographic matrix
-    //
-    // we cant use plain ortho here as the library could be configured to produce different values
+    let gl_mat : Mat4 = glm::ortho(-100.0f32,100.0f32, -50.0f32, 50.0f32, 0.1f32, 100.0f32);
 
     assert_eq!(na_mat, gl_mat);
 }
 
-// Ensure that under default conditions the library doesn't break interface with old convention
 #[test]
 pub fn perspective_glm_nalgebra_same()
 {
     let na_mat : Mat4 = Perspective3::new(16.0f32/9.0f32, 3.14f32/2.0f32, 0.1f32, 100.0f32).unwrap();
-    let gl_mat : Mat4 = glm::perspective_rh_no(16.0f32/9.0f32, 3.14f32/2.0f32, 0.1f32, 100.0f32);
-
-    // perspective_rh_no is the same as the standard nalgebra perspective matrix
-    //
-    // we cant use plain perspective here as the library could be configured to produce different
-    // values
+    let gl_mat : Mat4 = glm::perspective(16.0f32/9.0f32, 3.14f32/2.0f32, 0.1f32, 100.0f32);
 
     assert_eq!(na_mat, gl_mat);
 }
 
-// Ensure that under default conditions the library doesn't break interface with old convention
 #[test]
 pub fn orthographic_glm_nalgebra_project_same()
 {
     let point = Vec4::new(1.0,0.0,-20.0,1.0);
 
     let na_mat : Mat4 = Orthographic3::new(-100.0f32,100.0f32, -50.0f32, 50.0f32, 0.1f32, 100.0f32).unwrap();
-    let gl_mat : Mat4 = glm::ortho_rh_no(-100.0f32,100.0f32, -50.0f32, 50.0f32, 0.1f32, 100.0f32);
-
-    // ortho_rh_no is the same as the standard nalgebra orthographic matrix
-    //
-    // we cant use plain ortho here as the library could be configured to produce different values
+    let gl_mat : Mat4 = glm::ortho(-100.0f32,100.0f32, -50.0f32, 50.0f32, 0.1f32, 100.0f32);
 
     let na_pt = na_mat * point;
     let gl_pt = gl_mat * point;
@@ -55,19 +39,13 @@ pub fn orthographic_glm_nalgebra_project_same()
     assert_eq!(na_pt, gl_pt);
 }
 
-// Ensure that under default conditions the library doesn't break interface with old convention
 #[test]
 pub fn perspective_glm_nalgebra_project_same()
 {
     let point = Vec4::new(1.0,0.0,-20.0,1.0);
 
     let na_mat : Mat4 = Perspective3::new(16.0f32/9.0f32, 3.14f32/2.0f32, 0.1f32, 100.0f32).unwrap();
-    let gl_mat : Mat4 = glm::perspective_rh_no(16.0f32/9.0f32, 3.14f32/2.0f32, 0.1f32, 100.0f32);
-
-    // perspective_rh_no is the same as the standard nalgebra perspective matrix
-    //
-    // we cant use plain perspective here as the library could be configured to produce different
-    // values
+    let gl_mat : Mat4 = glm::perspective(16.0f32/9.0f32, 3.14f32/2.0f32, 0.1f32, 100.0f32);
 
     let na_pt = na_mat * point;
     let gl_pt = gl_mat * point;

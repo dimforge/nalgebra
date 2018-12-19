@@ -9,9 +9,7 @@ where DefaultAllocator: Alloc<N, D, D> {
     TMat::<N, D, D>::identity()
 }
 
-/// Build a look at view matrix with a handedness based on the defaults configured for the library
-/// at compile time.
-/// Build a look at view matrix based on the right handedness.
+/// Build a right hand look at view matrix
 ///
 /// # Parameters:
 ///
@@ -19,27 +17,12 @@ where DefaultAllocator: Alloc<N, D, D> {
 /// * `center` − Position where the camera is looking at.
 /// * `u` − Normalized up vector, how the camera is oriented. Typically `(0, 1, 0)`.
 ///
-/// # Compile Options
-///
-/// There is 1 compile option that changes the behaviour of the function:
-/// 1. left_hand_default/right_hand_default
-///
-/// #### left_hand_default/right_hand_default
-/// Depending on which option is set the function will return either a left hand or a right
-/// hand matrix. It switches between using look_at_lh and look_at_rh.
-///
 /// # See also:
 ///
 /// * [`look_at_lh`](fn.look_at_lh.html)
 /// * [`look_at_rh`](fn.look_at_rh.html)
 pub fn look_at<N: Real>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
-    if cfg!(feature="right_hand_default") {
-        look_at_rh(eye, center, up)
-    } else if cfg!(feature="left_hand_default") {
-        look_at_lh(eye, center, up)
-    } else {
-        unimplemented!()
-    }
+    look_at_rh(eye, center, up)
 }
 
 /// Build a left handed look at view matrix.

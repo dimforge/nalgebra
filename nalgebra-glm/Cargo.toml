@@ -12,32 +12,6 @@ categories = [ "science" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
 license = "BSD-3-Clause"
 
-[features]
-
-## Default to produce opengl compatible matrices and conventions
-default = ["opengl_projection"]
-
-## Produce projection matrices and default to coordinate space behaviour that is compatible with OpenGL's NDC space
-opengl_projection = ["right_hand_default", "negone_to_one_clip_default"]
-
-## Produce projection matrices and default to coordinate space behaviour that is compatible with Vulkan's NDC space
-vulkan_projection = ["right_hand_default", "zero_to_one_clip_default", "projection_y_flip"]
-
-## Produce projection matrices and default to coordinate space behaviour that is compatible with DirectX's NDC space
-directx_projection = ["left_hand_default", "zero_to_one_clip_default"]
-
-## Applies an implicit `mat[(1,1)] *= -1` to all projection matrices. Essentially flips the output of using the matrix
-## about the x axis (vertical flip)
-projection_y_flip = [] 
-
-## Whether to default to left hand (DirectX) or right hand (OpenGL/Vulkan) coordinate system behaviour
-left_hand_default = []
-right_hand_default = []
-
-## Whether to default to 0 to 1 depth range (DirectX, Vulkan, Metal) or -1 to 1 (OpenGL) behaviour
-zero_to_one_clip_default = []
-negone_to_one_clip_default = []
-
 [dependencies]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.3", default-features = false }
