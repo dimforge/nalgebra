@@ -134,7 +134,7 @@ pub fn ortho_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     mat
 }
 
-/// Creates a matrix for a right hand orthographic-view frustum with a depth range of 0 to 1
+/// Creates a matrix for a right hand orthographic-view frustum with a depth range of -1 to 1
 ///
 /// # Parameters
 ///
