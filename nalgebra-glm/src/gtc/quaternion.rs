@@ -34,30 +34,15 @@ pub fn quat_cast<N: Real>(x: &Qua<N>) -> TMat4<N> {
     ::quat_to_mat4(x)
 }
 
-/// Computes a look-at quaternion based on the defaults configured for the library at build time
+/// Computes a right hand look-at quaternion
 ///
 /// # Parameters
 ///
 /// * `direction` - Direction vector point at where to look
 /// * `up` - Object up vector
 ///
-/// # Compile Options
-///
-/// There is 1 compile option that changes the behaviour of the function:
-/// 1. left_hand_default/right_hand_default
-///
-/// ##### left_hand_default/right_hand_default
-/// Depending on which option is set the function will return either a left hand or a right
-/// hand look at quaternion.
-///
 pub fn quat_look_at<N: Real>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua<N> {
-    if cfg!(feature="right_hand_default") {
-        quat_look_at_rh(direction, up)
-    } else if cfg!(feature="left_hand_default") {
-        quat_look_at_lh(direction, up)
-    } else {
-        unimplemented!()
-    }
+    quat_look_at_rh(direction, up)
 }
 
 /// Computes a left-handed look-at quaternion (equivalent to a left-handed look-at matrix).
