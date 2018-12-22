@@ -761,7 +761,7 @@ where
 }
 
 impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Returns the absolute value of the coefficient with the largest absolute value.
+    /// Returns the absolute value of the component with the largest absolute value.
     #[inline]
     pub fn amax(&self) -> N {
         let mut max = N::zero();
@@ -777,7 +777,7 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
         max
     }
 
-    /// Returns the absolute value of the coefficient with the smallest absolute value.
+    /// Returns the absolute value of the component with the smallest absolute value.
     #[inline]
     pub fn amin(&self) -> N {
         let mut it = self.iter();
@@ -795,5 +795,43 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
         }
 
         min
+    }
+
+    /// Returns the component with the largest value.
+    #[inline]
+    pub fn max(&self) -> N {
+        let mut it = self.iter();
+        let mut max = it
+            .next()
+            .expect("max: empty matrices not supported.");
+
+        for e in it {
+            let ae = e;
+
+            if ae > max {
+                max = ae;
+            }
+        }
+
+        *max
+    }
+
+    /// Returns the component with the smallest value.
+    #[inline]
+    pub fn min(&self) -> N {
+        let mut it = self.iter();
+        let mut min = it
+            .next()
+            .expect("min: empty matrices not supported.");
+
+        for e in it {
+            let ae = e;
+
+            if ae < min {
+                min = ae;
+            }
+        }
+
+        *min
     }
 }
