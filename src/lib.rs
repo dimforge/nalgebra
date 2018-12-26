@@ -108,7 +108,7 @@ extern crate approx;
 extern crate generic_array;
 #[cfg(feature = "std")]
 extern crate matrixmultiply;
-extern crate num_complex;
+pub extern crate num_complex;
 extern crate num_traits as num;
 extern crate rand;
 extern crate typenum;
