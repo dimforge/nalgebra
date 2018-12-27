@@ -148,6 +148,15 @@ use num::Signed;
 
 pub use alga::general::{Id, Real};
 
+/// Documentation for traits implemented from `alga`.
+///
+/// For documentation purposes only; do not rely on items from this module.
+// Use https://github.com/rust-lang/rust/pull/53076, once stabilized.
+#[deprecated(note = "For documentation purposes only; do not rely on items from this module.")]
+pub mod alga_documentation {
+    pub use alga::*;
+}
+
 /*
  *
  * Multiplicative identity.
