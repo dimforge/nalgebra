@@ -7,6 +7,7 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::TypeId;
 use std::cmp::Ordering;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::mem;
 
@@ -72,7 +73,7 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 /// dynamically-sized column vector should be represented as a `Matrix<N, Dynamic, U1, S>` (given
 /// some concrete types for `N` and a compatible data storage type `S`).
 #[repr(C)]
-#[derive(Hash, Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
     /// The data storage that contains all the matrix components and informations about its number
     /// of rows and column (if needed).
@@ -1480,5 +1481,26 @@ where
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         self.as_ref().ulps_eq(other.as_ref(), epsilon, max_ulps)
+    }
+}
+
+impl<N, R, C, S> Hash for Matrix<N, R, C, S>
+where
+    N: Scalar + Hash,
+    R: Dim,
+    C: Dim,
+    S: Storage<N, R, C>,
+{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        let (nrows, ncols) = self.shape();
+        (nrows, ncols).hash(state);
+
+        for j in 0..ncols {
+            for i in 0..nrows {
+                unsafe {
+                     self.get_unchecked(i, j).hash(state);
+                }
+            }
+        }
     }
 }
