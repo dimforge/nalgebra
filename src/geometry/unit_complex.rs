@@ -212,10 +212,11 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// # Example
     /// ```
+    /// # #[macro_use] extern crate approx;
     /// # use nalgebra::UnitComplex;
     /// let rot = UnitComplex::new(0.78);
     /// let pow = rot.powf(2.0);
-    /// assert_eq!(pow.angle(), 2.0 * 0.78);
+    /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
     /// ```
     #[inline]
     pub fn powf(&self, n: N) -> Self {
