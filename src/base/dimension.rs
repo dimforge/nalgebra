@@ -27,6 +27,13 @@ impl Dynamic {
     }
 }
 
+impl Default for Dynamic {
+    /// A dynamic size equal to `0`.
+    fn default() -> Dynamic {
+        Dynamic::new(0)
+    }
+}
+
 #[cfg(feature = "serde-serialize")]
 impl Serialize for Dynamic {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -53,7 +60,7 @@ impl IsNotStaticOne for Dynamic {}
 
 /// Trait implemented by any type that can be used as a dimension. This includes type-level
 /// integers and `Dynamic` (for dimensions not known at compile-time).
-pub trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
+pub trait Dim: Any + Debug + Default + Copy + PartialEq + Send + Sync {
     #[inline(always)]
     fn is<D: Dim>() -> bool {
         TypeId::of::<Self>() == TypeId::of::<D>()
@@ -237,6 +244,12 @@ impl DimName for U1 {
     }
 }
 
+impl Default for U1 {
+    fn default() -> U1 {
+        U1
+    }
+}
+
 impl NamedDim for typenum::U1 {
     type Name = U1;
 }
@@ -280,6 +293,12 @@ macro_rules! named_dimension(
         }
 
         impl IsNotStaticOne for $D { }
+
+        impl Default for $D {
+            fn default() -> $D {
+                $D
+            }
+        }
     )*}
 );
 
@@ -297,26 +316,26 @@ named_dimension!(
 
 // For values greater than U1023, just use the typenum binary representation directly.
 impl<
-        A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        C: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        D: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        E: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        F: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        A: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        B: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        C: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        D: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        E: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        F: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        G: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
     > NamedDim for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
 {
     type Name = Self;
 }
 
 impl<
-        A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        C: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        D: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        E: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        F: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        A: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        B: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        C: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        D: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        E: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        F: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        G: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
     > Dim for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
 {
     #[inline]
@@ -337,13 +356,13 @@ impl<
 }
 
 impl<
-        A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        C: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        D: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        E: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        F: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        A: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        B: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        C: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        D: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        E: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        F: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        G: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
     > DimName for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
 {
     type Value = Self;
@@ -355,24 +374,24 @@ impl<
 }
 
 impl<
-        A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        C: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        D: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        E: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        F: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        A: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        B: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        C: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        D: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        E: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        F: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
+        G: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync,
     > IsNotStaticOne
     for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
 {}
 
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> NamedDim
+impl<U: Unsigned + DimName, B: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync> NamedDim
     for UInt<U, B>
 {
     type Name = UInt<U, B>;
 }
 
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> Dim
+impl<U: Unsigned + DimName, B: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync> Dim
     for UInt<U, B>
 {
     #[inline]
@@ -392,7 +411,7 @@ impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Syn
     }
 }
 
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> DimName
+impl<U: Unsigned + DimName, B: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync> DimName
     for UInt<U, B>
 {
     type Value = UInt<U, B>;
@@ -403,6 +422,6 @@ impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Syn
     }
 }
 
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> IsNotStaticOne
+impl<U: Unsigned + DimName, B: Bit + Any + Debug + Default + Copy + PartialEq + Send + Sync> IsNotStaticOne
     for UInt<U, B>
 {}
