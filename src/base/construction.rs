@@ -681,14 +681,14 @@ impl_constructors!(Dynamic, Dynamic;
  * Zero, One, Rand traits.
  *
  */
-impl<N, R: DimName, C: DimName> Zero for MatrixMN<N, R, C>
+impl<N, R: Dim, C: Dim> Zero for MatrixMN<N, R, C>
 where
     N: Scalar + Zero + ClosedAdd,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
     fn zero() -> Self {
-        Self::from_element(N::zero())
+        Self::zeros_generic(R::default(), C::default())
     }
 
     #[inline]
