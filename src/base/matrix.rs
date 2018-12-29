@@ -1477,7 +1477,7 @@ where
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                     self.get_unchecked(i, j).hash(state);
+                     self.get_unchecked((i, j)).hash(state);
                 }
             }
         }
