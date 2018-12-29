@@ -374,23 +374,29 @@ componentwise_binop_impl!(Sub, sub, ClosedSub;
                           SubAssign, sub_assign, sub_assign_statically_unchecked, sub_assign_statically_unchecked_mut;
                           sub_to, sub_to_statically_unchecked);
 
-impl<N, R: DimName, C: DimName> iter::Sum for MatrixMN<N, R, C>
+impl<N, R: Dim, C: Dim> iter::Sum for MatrixMN<N, R, C>
 where
     N: Scalar + ClosedAdd + Zero,
     DefaultAllocator: Allocator<N, R, C>,
 {
-    fn sum<I: Iterator<Item = MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
-        iter.fold(Matrix::zero(), |acc, x| acc + x)
+    /// If the sequence is empty, a zero matrix is produced in which any dynamic dimensions default to size 0.
+    fn sum<I: Iterator<Item = MatrixMN<N, R, C>>>(mut iter: I) -> MatrixMN<N, R, C> {
+        iter.next()
+            .map(|first| iter.fold(first, Add::add))
+            .unwrap_or(MatrixMN::zero())
     }
 }
 
-impl<'a, N, R: DimName, C: DimName> iter::Sum<&'a MatrixMN<N, R, C>> for MatrixMN<N, R, C>
+impl<'a, N, R: Dim, C: Dim> iter::Sum<&'a MatrixMN<N, R, C>> for MatrixMN<N, R, C>
 where
     N: Scalar + ClosedAdd + Zero,
     DefaultAllocator: Allocator<N, R, C>,
 {
-    fn sum<I: Iterator<Item = &'a MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
-        iter.fold(Matrix::zero(), |acc, x| acc + x)
+    /// If the sequence is empty, a zero matrix is produced in which any dynamic dimensions default to size 0.
+    fn sum<I: Iterator<Item = &'a MatrixMN<N, R, C>>>(mut iter: I) -> MatrixMN<N, R, C> {
+        iter.next()
+            .map(|first| iter.fold(first.to_owned(), Add::add))
+            .unwrap_or(MatrixMN::zero())
     }
 }
 
