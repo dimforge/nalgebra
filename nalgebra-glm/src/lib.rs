@@ -110,6 +110,8 @@
    and keep in mind it is possible to convert, e.g., an `Isometry3` to a `Mat4` and vice-versa (see the [conversions section](#conversions)).
 */
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
 extern crate num_traits as num;
 #[macro_use]
 extern crate approx;
