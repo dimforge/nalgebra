@@ -213,6 +213,7 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
     /// # use nalgebra::UnitComplex;
     /// let rot = UnitComplex::new(0.78);
     /// let pow = rot.powf(2.0);

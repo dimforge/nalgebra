@@ -108,6 +108,7 @@ impl<N: Real> Rotation2<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
     /// # use nalgebra::Rotation2;
     /// let rot = Rotation2::new(1.78);
     /// assert_relative_eq!(rot.angle(), 1.78);
@@ -160,6 +161,7 @@ impl<N: Real> Rotation2<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
+    /// # extern crate nalgebra;
     /// # use nalgebra::Rotation2;
     /// let rot = Rotation2::new(0.78);
     /// let pow = rot.powf(2.0);
