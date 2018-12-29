@@ -50,7 +50,8 @@ bench_binop_ref!(vec10000_dot_f32, VectorN<f32, U10000>, VectorN<f32, U10000>, d
 
 #[bench]
 fn vec10000_axpy_f64(bh: &mut Bencher) {
-    let mut rng = IsaacRng::new_unseeded();
+    use rand::SeedableRng;
+    let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
     let n = rng.gen::<f64>();
@@ -60,7 +61,8 @@ fn vec10000_axpy_f64(bh: &mut Bencher) {
 
 #[bench]
 fn vec10000_axpy_beta_f64(bh: &mut Bencher) {
-    let mut rng = IsaacRng::new_unseeded();
+    use rand::SeedableRng;
+    let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
     let n = rng.gen::<f64>();
@@ -71,7 +73,8 @@ fn vec10000_axpy_beta_f64(bh: &mut Bencher) {
 
 #[bench]
 fn vec10000_axpy_f64_slice(bh: &mut Bencher) {
-    let mut rng = IsaacRng::new_unseeded();
+    use rand::SeedableRng;
+    let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
     let n = rng.gen::<f64>();
@@ -86,7 +89,8 @@ fn vec10000_axpy_f64_slice(bh: &mut Bencher) {
 
 #[bench]
 fn vec10000_axpy_f64_static(bh: &mut Bencher) {
-    let mut rng = IsaacRng::new_unseeded();
+    use rand::SeedableRng;
+    let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = VectorN::<f64, U10000>::new_random();
     let b = VectorN::<f64, U10000>::new_random();
     let n = rng.gen::<f64>();
@@ -97,7 +101,8 @@ fn vec10000_axpy_f64_static(bh: &mut Bencher) {
 
 #[bench]
 fn vec10000_axpy_f32(bh: &mut Bencher) {
-    let mut rng = IsaacRng::new_unseeded();
+    use rand::SeedableRng;
+    let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
     let n = rng.gen::<f32>();
@@ -107,7 +112,8 @@ fn vec10000_axpy_f32(bh: &mut Bencher) {
 
 #[bench]
 fn vec10000_axpy_beta_f32(bh: &mut Bencher) {
-    let mut rng = IsaacRng::new_unseeded();
+    use rand::SeedableRng;
+    let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
     let n = rng.gen::<f32>();

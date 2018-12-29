@@ -282,7 +282,6 @@ pub fn perspective_fov_lh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
         "The fov must be greater than zero"
     );
 
-    let zero = N::zero();
     let mut mat = TMat4::zeros();
 
     let rad = fov;
@@ -522,7 +521,6 @@ pub fn perspective_lh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
         "The apsect ratio must not be zero."
     );
 
-    let zero = N::zero();
     let one = N::one();
     let two: N = ::convert( 2.0);
     let mut mat : TMat4<N> = TMat4::zeros();
@@ -559,7 +557,6 @@ pub fn perspective_lh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
         "The apsect ratio must not be zero."
     );
 
-    let zero = N::zero();
     let one = N::one();
     let two: N = ::convert( 2.0);
     let mut mat: TMat4<N> = TMat4::zeros();
@@ -664,7 +661,6 @@ pub fn perspective_rh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
     );
 
     let negone = -N::one();
-    let zero =  N::zero();
     let one =  N::one();
     let two =   ::convert( 2.0);
     let mut mat = TMat4::zeros();
