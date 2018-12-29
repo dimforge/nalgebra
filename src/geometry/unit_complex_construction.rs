@@ -7,10 +7,9 @@ use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
 use alga::general::Real;
-use base::allocator::Allocator;
 use base::dimension::{U1, U2};
 use base::storage::Storage;
-use base::{DefaultAllocator, Unit, Vector};
+use base::{Unit, Vector};
 use geometry::{Rotation2, UnitComplex};
 
 impl<N: Real> UnitComplex<N> {
