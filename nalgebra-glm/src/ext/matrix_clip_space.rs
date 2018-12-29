@@ -98,12 +98,12 @@ pub fn ortho_lh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     let two    : N =  ::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
-    mat[(0,0)] = two / (right - left);
-    mat[(0,3)] = -(right + left) / (right - left);
-    mat[(1,1)] = two / (top-bottom);
-    mat[(1,3)] = -(top + bottom) / (top - bottom);
-    mat[(2,2)] = two / (zfar - znear);
-    mat[(2,3)] = -(zfar + znear) / (zfar - znear);
+    mat[(0, 0)] = two / (right - left);
+    mat[(0, 3)] = -(right + left) / (right - left);
+    mat[(1, 1)] = two / (top-bottom);
+    mat[(1, 3)] = -(top + bottom) / (top - bottom);
+    mat[(2, 2)] = two / (zfar - znear);
+    mat[(2, 3)] = -(zfar + znear) / (zfar - znear);
 
     mat
 }
@@ -124,12 +124,12 @@ pub fn ortho_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     let two    : N = ::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
-    mat[(0,0)] = two / (right - left);
-    mat[(0,3)] = - (right + left) / (right - left);
-    mat[(1,1)] = two / (top - bottom);
-    mat[(1,3)] = - (top + bottom) / (top - bottom);
-    mat[(2,2)] = one / (zfar - znear);
-    mat[(2,3)] = - znear / (zfar  - znear);
+    mat[(0, 0)] = two / (right - left);
+    mat[(0, 3)] = - (right + left) / (right - left);
+    mat[(1, 1)] = two / (top - bottom);
+    mat[(1, 3)] = - (top + bottom) / (top - bottom);
+    mat[(2, 2)] = one / (zfar - znear);
+    mat[(2, 3)] = - znear / (zfar  - znear);
 
     mat
 }
@@ -179,12 +179,12 @@ pub fn ortho_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     let two    : N =  ::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
-    mat[(0,0)] = two / (right - left);
-    mat[(0,3)] = - (right + left) / (right - left);
-    mat[(1,1)] = two/(top-bottom);
-    mat[(1,3)] = - (top + bottom) / (top - bottom);
-    mat[(2,2)] = - two / (zfar - znear);
-    mat[(2,3)] = - (zfar + znear) / (zfar  - znear);
+    mat[(0, 0)] = two / (right - left);
+    mat[(0, 3)] = - (right + left) / (right - left);
+    mat[(1, 1)] = two/(top-bottom);
+    mat[(1, 3)] = - (top + bottom) / (top - bottom);
+    mat[(2, 2)] = - two / (zfar - znear);
+    mat[(2, 3)] = - (zfar + znear) / (zfar  - znear);
 
     mat
 }
@@ -205,12 +205,12 @@ pub fn ortho_rh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
     let two    : N =  ::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
-    mat[(0,0)] = two / (right - left);
-    mat[(0,3)] = - (right + left) / (right - left);
-    mat[(1,1)] = two/(top-bottom);
-    mat[(1,3)] = - (top + bottom) / (top - bottom);
-    mat[(2,2)] = - one / (zfar - znear);
-    mat[(2,3)] = - znear / (zfar  - znear);
+    mat[(0, 0)] = two / (right - left);
+    mat[(0, 3)] = - (right + left) / (right - left);
+    mat[(1, 1)] = two/(top-bottom);
+    mat[(1, 3)] = - (top + bottom) / (top - bottom);
+    mat[(2, 2)] = - one / (zfar - znear);
+    mat[(2, 3)] = - znear / (zfar  - znear);
 
     mat
 }
@@ -282,21 +282,18 @@ pub fn perspective_fov_lh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
         "The fov must be greater than zero"
     );
 
-    let zero   : N = N::zero();
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero);
+    let zero = N::zero();
+    let mut mat = TMat4::zeros();
 
     let rad = fov;
     let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
     let w = h * height / width;
 
-    mat[(0,0)] = w;
-    mat[(1,1)] = h;
-    mat[(2,2)] = (far + near) / (far - near);
-    mat[(2,3)] = - (far * near * ::convert(2.0)) / (far - near);
-    mat[(3,2)] = N::one();
+    mat[(0, 0)] = w;
+    mat[(1, 1)] = h;
+    mat[(2, 2)] = (far + near) / (far - near);
+    mat[(2, 3)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(3, 2)] = N::one();
 
     mat
 }
@@ -325,21 +322,17 @@ pub fn perspective_fov_lh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
         "The fov must be greater than zero"
     );
 
-    let zero   : N = N::zero();
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero);
+    let mut mat = TMat4::zeros();
 
     let rad = fov;
     let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
     let w = h * height / width;
 
-    mat[(0,0)] = w;
-    mat[(1,1)] = h;
-    mat[(2,2)] = far / (far - near);
-    mat[(2,3)] = -(far * near) / (far - near);
-    mat[(3,2)] = N::one();
+    mat[(0, 0)] = w;
+    mat[(1, 1)] = h;
+    mat[(2, 2)] = far / (far - near);
+    mat[(2, 3)] = -(far * near) / (far - near);
+    mat[(3, 2)] = N::one();
 
     mat
 }
@@ -396,21 +389,17 @@ pub fn perspective_fov_rh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
         "The fov must be greater than zero"
     );
 
-    let zero   : N = N::zero();
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero);
+    let mut mat = TMat4::zeros();
 
     let rad = fov;
     let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
     let w = h * height / width;
 
-    mat[(0,0)] = w;
-    mat[(1,1)] = h;
-    mat[(2,2)] = - (far + near) / (far - near);
-    mat[(2,3)] = - (far * near * ::convert(2.0)) / (far - near);
-    mat[(3,2)] = -N::one();
+    mat[(0, 0)] = w;
+    mat[(1, 1)] = h;
+    mat[(2, 2)] = - (far + near) / (far - near);
+    mat[(2, 3)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(3, 2)] = -N::one();
 
     mat
 }
@@ -439,21 +428,17 @@ pub fn perspective_fov_rh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
         "The fov must be greater than zero"
     );
 
-    let zero   : N = N::zero();
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero);
+    let mut mat = TMat4::zeros();
 
     let rad = fov;
     let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
     let w = h * height / width;
 
-    mat[(0,0)] = w;
-    mat[(1,1)] = h;
-    mat[(2,2)] = far / (near - far);
-    mat[(2,3)] = -(far * near) / (far - near);
-    mat[(3,2)] = -N::one();
+    mat[(0, 0)] = w;
+    mat[(1, 1)] = h;
+    mat[(2, 2)] = far / (near - far);
+    mat[(2, 3)] = -(far * near) / (far - near);
+    mat[(3, 2)] = -N::one();
 
     mat
 }
@@ -481,8 +466,10 @@ pub fn perspective_fov_zo<N: Real>(fov: N, width: N, height: N, near: N, far: N)
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
-    // TODO: Breaking change - the arguments can be reversed back to proper glm conventions
+    // TODO: Breaking change - revert back to proper glm conventions?
     //
     //       Prior to changes to support configuring the behaviour of this function it was simply
     //       a wrapper around Perspective3::new(). The argument order for that function is different
@@ -508,8 +495,10 @@ pub fn perspective<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective_lh<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
-    perspective_lh_no(fovy, aspect, near, far)
+    perspective_lh_no(aspect, fovy, near, far)
 }
 
 /// Creates a matrix for a left hand perspective-view frustum with a depth range of -1 to 1
@@ -521,6 +510,8 @@ pub fn perspective_lh<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> 
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective_lh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     assert!(
         !relative_eq!(far - near, N::zero()),
@@ -531,21 +522,18 @@ pub fn perspective_lh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
         "The apsect ratio must not be zero."
     );
 
-    let zero   : N = N::zero();
-    let one    : N = N::one();
-    let two    : N = ::convert( 2.0);
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero);
+    let zero = N::zero();
+    let one = N::one();
+    let two: N = ::convert( 2.0);
+    let mut mat : TMat4<N> = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
 
-    mat[(0,0)] = one / (aspect * tan_half_fovy);
-    mat[(1,1)] = one / tan_half_fovy;
-    mat[(2,2)] = (far + near) / (far - near);
-    mat[(2,3)] = -(two * far * near) / (far - near);
-    mat[(3,2)] = one;
+    mat[(0, 0)] = one / (aspect * tan_half_fovy);
+    mat[(1, 1)] = one / tan_half_fovy;
+    mat[(2, 2)] = (far + near) / (far - near);
+    mat[(2, 3)] = -(two * far * near) / (far - near);
+    mat[(3, 2)] = one;
 
     mat
 }
@@ -559,6 +547,8 @@ pub fn perspective_lh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective_lh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     assert!(
         !relative_eq!(far - near, N::zero()),
@@ -569,21 +559,18 @@ pub fn perspective_lh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
         "The apsect ratio must not be zero."
     );
 
-    let zero   : N = N::zero();
-    let one    : N = N::one();
-    let two    : N = ::convert( 2.0);
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero);
+    let zero = N::zero();
+    let one = N::one();
+    let two: N = ::convert( 2.0);
+    let mut mat: TMat4<N> = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
 
-    mat[(0,0)] = one / (aspect * tan_half_fovy);
-    mat[(1,1)] = one / tan_half_fovy;
-    mat[(2,2)] = far / (far - near);
-    mat[(2,3)] = -(far * near) / (far - near);
-    mat[(3,2)] = one;
+    mat[(0, 0)] = one / (aspect * tan_half_fovy);
+    mat[(1, 1)] = one / tan_half_fovy;
+    mat[(2, 2)] = far / (far - near);
+    mat[(2, 3)] = -(far * near) / (far - near);
+    mat[(3, 2)] = one;
 
     mat
 }
@@ -597,6 +584,8 @@ pub fn perspective_lh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     perspective_rh_no(aspect, fovy, near, far)
 }
@@ -610,6 +599,8 @@ pub fn perspective_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> 
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective_rh<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     perspective_rh_no(aspect, fovy, near, far)
 }
@@ -623,6 +614,8 @@ pub fn perspective_rh<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> 
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective_rh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     assert!(
         !relative_eq!(far - near, N::zero()),
@@ -633,22 +626,18 @@ pub fn perspective_rh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
         "The apsect ratio must not be zero."
     );
 
-    let negone : N = -N::one();
-    let zero   : N =  N::zero();
-    let one    : N =  N::one();
-    let two    : N =   ::convert( 2.0);
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero);
+    let negone = -N::one();
+    let one =  N::one();
+    let two: N =   ::convert( 2.0);
+    let mut mat = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
 
-    mat[(0,0)] = one / (aspect * tan_half_fovy);
-    mat[(1,1)] = one / tan_half_fovy;
-    mat[(2,2)] = - (far + near) / (far - near);
-    mat[(2,3)] = -(two * far * near) / (far - near);
-    mat[(3,2)] = negone;
+    mat[(0, 0)] = one / (aspect * tan_half_fovy);
+    mat[(1, 1)] = one / tan_half_fovy;
+    mat[(2, 2)] = - (far + near) / (far - near);
+    mat[(2, 3)] = -(two * far * near) / (far - near);
+    mat[(3, 2)] = negone;
 
     mat
 }
@@ -662,6 +651,8 @@ pub fn perspective_rh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective_rh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     assert!(
         !relative_eq!(far - near, N::zero()),
@@ -672,22 +663,19 @@ pub fn perspective_rh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
         "The apsect ratio must not be zero."
     );
 
-    let negone : N = -N::one();
-    let zero   : N =  N::zero();
-    let one    : N =  N::one();
-    let two    : N =   ::convert( 2.0);
-    let mut mat : TMat4<N> = TMat4::<N>::new(zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero, 
-                                             zero,zero,zero,zero);
+    let negone = -N::one();
+    let zero =  N::zero();
+    let one =  N::one();
+    let two =   ::convert( 2.0);
+    let mut mat = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
 
-    mat[(0,0)] = one / (aspect * tan_half_fovy);
-    mat[(1,1)] = one / tan_half_fovy;
-    mat[(2,2)] = far / (near - far);
-    mat[(2,3)] = -(far * near) / (far - near);
-    mat[(3,2)] = negone;
+    mat[(0, 0)] = one / (aspect * tan_half_fovy);
+    mat[(1, 1)] = one / tan_half_fovy;
+    mat[(2, 2)] = far / (near - far);
+    mat[(2, 3)] = -(far * near) / (far - near);
+    mat[(3, 2)] = negone;
 
     mat
 }
@@ -701,6 +689,8 @@ pub fn perspective_rh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     perspective_rh_zo(aspect, fovy, near, far)
 }
