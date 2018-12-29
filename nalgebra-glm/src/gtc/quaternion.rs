@@ -47,12 +47,12 @@ pub fn quat_look_at<N: Real>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua<N> {
 
 /// Computes a left-handed look-at quaternion (equivalent to a left-handed look-at matrix).
 pub fn quat_look_at_lh<N: Real>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua<N> {
-    UnitQuaternion::look_at_lh(direction, up).unwrap()
+    UnitQuaternion::look_at_lh(direction, up).into_inner()
 }
 
 /// Computes a right-handed look-at quaternion (equivalent to a right-handed look-at matrix).
 pub fn quat_look_at_rh<N: Real>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua<N> {
-    UnitQuaternion::look_at_rh(direction, up).unwrap()
+    UnitQuaternion::look_at_rh(direction, up).into_inner()
 }
 
 /// The "roll" Euler angle of the quaternion `x` assumed to be normalized.

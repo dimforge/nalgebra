@@ -14,6 +14,7 @@ mod geometry;
 mod linalg;
 
 fn reproductible_dmatrix(nrows: usize, ncols: usize) -> DMatrix<f64> {
-    let mut rng = IsaacRng::new_unseeded();
+    use rand::SeedableRng;
+    let mut rng = IsaacRng::seed_from_u64(0);
     DMatrix::<f64>::from_fn(nrows, ncols, |_, _| rng.gen())
 }

@@ -3,7 +3,6 @@ extern crate alga;
 extern crate approx;
 extern crate nalgebra as na;
 
-use alga::linear::Transformation;
 use na::{Matrix4, Point3, Vector3};
 
 fn main() {
