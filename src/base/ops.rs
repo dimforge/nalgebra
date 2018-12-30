@@ -395,7 +395,7 @@ where
     /// If the sequence is empty, a zero matrix is produced in which any dynamic dimensions default to size 0.
     fn sum<I: Iterator<Item = &'a MatrixMN<N, R, C>>>(mut iter: I) -> MatrixMN<N, R, C> {
         iter.next()
-            .map(|first| iter.fold(first.to_owned(), Add::add))
+            .map(|first| iter.fold(first.clone(), Add::add))
             .unwrap_or(MatrixMN::zero())
     }
 }
