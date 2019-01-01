@@ -374,6 +374,46 @@ componentwise_binop_impl!(Sub, sub, ClosedSub;
                           SubAssign, sub_assign, sub_assign_statically_unchecked, sub_assign_statically_unchecked_mut;
                           sub_to, sub_to_statically_unchecked);
 
+/// Matrices and vectors implement the `iter::Sum` trait. 
+/// 
+/// # Static matrices
+///
+/// ```.rust
+///use nalgebra::Matrix3x2;
+///let m1 = Matrix3x2::<f32>::zeros();
+///let m2 = Matrix3x2::<f32>::repeat(1.0);
+///let m3 = Matrix3x2::<f32>::identity();
+///let mats = vec![m1, m2, m3];
+///let expected = Matrix3x2::from_column_slice(&[2.0f32, 1.0, 1.0, 1.0, 2.0, 1.0]);
+///let sum : Matrix3x2::<f32> = mats.iter().sum();
+///assert_eq!(sum, expected);
+///```
+///
+/// # Dynamic matrices
+///
+/// ```.rust
+///use nalgebra::DMatrix;
+///let m1 = DMatrix::<f32>::zeros(3, 2);
+///let m2 = DMatrix::<f32>::repeat(3, 2, 1.0);
+///let m3 = DMatrix::<f32>::identity(3, 2);
+///let mats = vec![m1, m2, m3];
+///let expected = DMatrix::from_column_slice(3, 2, &[2.0f32, 1.0, 1.0, 1.0, 2.0, 1.0]);
+///let sum : DMatrix::<f32> = mats.iter().sum();
+///assert_eq!(sum, expected);
+///```
+///
+/// # Dynamic vectors
+///
+/// ```.rust
+///use nalgebra::DVector;
+///let v1 = DVector::<f32>::zeros(3);
+///let v2 = DVector::<f32>::repeat(3, 1.0);
+///let v3 = DVector::from_column_slice(3, &[1.0f32, 2.0, 3.0]);
+///let vecs = vec![v1, v2, v3];
+///let expected = DVector::from_column_slice(3, &[2.0f32, 3.0, 4.0]);
+///let sum : DVector::<f32> = vecs.iter().sum();
+///assert_eq!(sum, expected);
+///```
 impl<N, R: Dim, C: Dim> iter::Sum for MatrixMN<N, R, C>
 where
     N: Scalar + ClosedAdd + Zero,
