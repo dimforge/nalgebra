@@ -859,6 +859,22 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     }
 }
 
+impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
+    /// Constructs a new vector of higher dimension by appending `element` to the end of `self`.
+    #[inline]
+    pub fn push(&self, element: N) -> VectorN<N, DimSum<D, U1>>
+    where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
+        let len = self.len();
+        let hnrows = DimSum::<D, U1>::from_usize(len + 1);
+        let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
+        res.generic_slice_mut((0, 0), self.data.shape())
+            .copy_from(self);
+        res[(len, 0)] = element;
+
+        res
+    }
+}
+
 impl<N, R: Dim, C: Dim, S> AbsDiffEq for Matrix<N, R, C, S>
 where
     N: Scalar + AbsDiffEq,
