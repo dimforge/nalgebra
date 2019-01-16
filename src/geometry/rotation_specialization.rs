@@ -409,11 +409,11 @@ impl<N: Real> Rotation3<N> {
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
     /// let up = Vector3::y();
     ///
-    /// let rot = Rotation3::new_observer_frame(&dir, &up);
+    /// let rot = Rotation3::face_towards(&dir, &up);
     /// assert_relative_eq!(rot * Vector3::z(), dir.normalize());
     /// ```
     #[inline]
-    pub fn new_observer_frame<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    pub fn face_towards<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
@@ -456,7 +456,7 @@ impl<N: Real> Rotation3<N> {
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::new_observer_frame(&dir.neg(), up).inverse()
+        Self::face_towards(&dir.neg(), up).inverse()
     }
 
     /// Builds a left-handed look-at view matrix without translation.
@@ -488,7 +488,7 @@ impl<N: Real> Rotation3<N> {
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::new_observer_frame(dir, up).inverse()
+        Self::face_towards(dir, up).inverse()
     }
 
     /// The rotation matrix required to align `a` and `b` but with its angle.

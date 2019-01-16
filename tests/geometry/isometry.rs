@@ -30,7 +30,7 @@ quickcheck!(
     }
 
     fn observer_frame_3(eye: Point3<f64>, target: Point3<f64>, up: Vector3<f64>) -> bool {
-        let observer = Isometry3::new_observer_frame(&eye, &target, &up);
+        let observer = Isometry3::face_towards(&eye, &target, &up);
 
         let origin = Point3::origin();
         relative_eq!(observer * origin, eye, epsilon = 1.0e-7) &&

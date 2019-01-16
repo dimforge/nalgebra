@@ -214,23 +214,23 @@ macro_rules! isometry_construction_impl(
             /// let up = Vector3::y();
             ///
             /// // Isometry with its rotation part represented as a UnitQuaternion
-            /// let iso = Isometry3::new_observer_frame(&eye, &target, &up);
+            /// let iso = Isometry3::face_towards(&eye, &target, &up);
             /// assert_eq!(iso * Point3::origin(), eye);
             /// assert_relative_eq!(iso * Vector3::z(), Vector3::x());
             ///
             /// // Isometry with its rotation part represented as Rotation3 (a 3x3 rotation matrix).
-            /// let iso = IsometryMatrix3::new_observer_frame(&eye, &target, &up);
+            /// let iso = IsometryMatrix3::face_towards(&eye, &target, &up);
             /// assert_eq!(iso * Point3::origin(), eye);
             /// assert_relative_eq!(iso * Vector3::z(), Vector3::x());
             /// ```
             #[inline]
-            pub fn new_observer_frame(eye:    &Point3<N>,
+            pub fn face_towards(eye:    &Point3<N>,
                                       target: &Point3<N>,
                                       up:     &Vector3<N>)
                                       -> Self {
                 Self::from_parts(
                     Translation::from(eye.coords.clone()),
-                    $RotId::new_observer_frame(&(target - eye), up))
+                    $RotId::face_towards(&(target - eye), up))
             }
 
             /// Builds a right-handed look-at view matrix.

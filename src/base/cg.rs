@@ -130,8 +130,8 @@ impl<N: Real> Matrix4<N> {
     /// It maps the view direction `target - eye` to the positive `z` axis and the origin to the
     /// `eye`.
     #[inline]
-    pub fn new_observer_frame(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Self {
-        IsometryMatrix3::new_observer_frame(eye, target, up).to_homogeneous()
+    pub fn face_towards(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Self {
+        IsometryMatrix3::face_towards(eye, target, up).to_homogeneous()
     }
 
     /// Builds a right-handed look-at view matrix.
