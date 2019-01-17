@@ -233,6 +233,15 @@ macro_rules! isometry_construction_impl(
                     $RotId::face_towards(&(target - eye), up))
             }
 
+            /// Deprecated: Use [Isometry::face_towards] instead.
+            #[deprecated(note="renamed to `face_towards`")]
+            pub fn new_observer_frame(eye:    &Point3<N>,
+                                      target: &Point3<N>,
+                                      up:     &Vector3<N>)
+                                      -> Self {
+                Self::face_towards(eye, target, up)
+            }
+
             /// Builds a right-handed look-at view matrix.
             ///
             /// It maps the view direction `target - eye` to the **negative** `z` axis to and the `eye` to the origin.

@@ -464,6 +464,16 @@ impl<N: Real> UnitQuaternion<N> {
         Self::from_rotation_matrix(&Rotation::<N, U3>::face_towards(dir, up))
     }
 
+    /// Deprecated: Use [UnitQuaternion::face_towards] instead.
+    #[deprecated(note="renamed to `face_towards`")]
+    pub fn new_observer_frames<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
+        Self::face_towards(dir, up)
+    }
+
     /// Builds a right-handed look-at view matrix without translation.
     ///
     /// It maps the view direction `dir` to the **negative** `z` axis.

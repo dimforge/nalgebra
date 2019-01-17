@@ -134,6 +134,12 @@ impl<N: Real> Matrix4<N> {
         IsometryMatrix3::face_towards(eye, target, up).to_homogeneous()
     }
 
+    /// Deprecated: Use [Matrix4::face_towards] instead.
+    #[deprecated(note="renamed to `face_towards`")]
+    pub fn new_observer_frame(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Self {
+        Matrix4::face_towards(eye, target, up)
+    }
+
     /// Builds a right-handed look-at view matrix.
     #[inline]
     pub fn look_at_rh(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Self {

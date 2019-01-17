@@ -253,6 +253,16 @@ macro_rules! similarity_construction_impl(
                 Self::from_isometry(Isometry::<_, U3, $Rot>::face_towards(eye, target, up), scaling)
             }
 
+            /// Deprecated: Use [SimilarityMatrix3::face_towards] instead.
+            #[deprecated(note="renamed to `face_towards`")]
+            pub fn new_observer_frames(eye:    &Point3<N>,
+                                      target: &Point3<N>,
+                                      up:     &Vector3<N>,
+                                      scaling: N)
+                                      -> Self {
+                Self::face_towards(eye, target, up, scaling)
+            }
+
             /// Builds a right-handed look-at view matrix including scaling factor.
             ///
             /// This conforms to the common notion of right handed look-at matrix from the computer
