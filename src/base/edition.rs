@@ -1,6 +1,7 @@
 use num::{One, Zero};
 use std::cmp;
 use std::ptr;
+use std::mem;
 
 use base::allocator::{Allocator, Reallocator};
 use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
@@ -549,6 +550,29 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.resize_generic(Dynamic::new(new_nrows), Dynamic::new(new_ncols), val)
     }
 
+    /// Resizes this matrix vertically, i.e., so that it contains `new_nrows` rows while keeping the same number of columns.
+    ///
+    /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
+    /// rows than `self`, then the extra rows are filled with `val`.
+    #[cfg(any(feature = "std", feature = "alloc"))]
+    pub fn resize_vertically(self, new_nrows: usize, val: N) -> MatrixMN<N, Dynamic, C>
+        where DefaultAllocator: Reallocator<N, R, C, Dynamic, C> {
+        let ncols = self.data.shape().1;
+        self.resize_generic(Dynamic::new(new_nrows), ncols, val)
+    }
+
+    /// Resizes this matrix horizontally, i.e., so that it contains `new_ncolumns` columns while keeping the same number of columns.
+    ///
+    /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
+    /// columns than `self`, then the extra columns are filled with `val`.
+    #[cfg(any(feature = "std", feature = "alloc"))]
+    pub fn resize_horizontally(self, new_ncols: usize, val: N) -> MatrixMN<N, R, Dynamic>
+        where DefaultAllocator: Reallocator<N, R, C, R, Dynamic> {
+        let nrows = self.data.shape().0;
+        self.resize_generic(nrows, Dynamic::new(new_ncols), val)
+    }
+
+
     /// Resizes this matrix so that it contains `R2::value()` rows and `C2::value()` columns.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
@@ -623,6 +647,59 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
             res
         }
+    }
+}
+
+impl<N: Scalar> DMatrix<N> {
+    /// Resizes this matrix in-place.
+    ///
+    /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
+    /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
+    ///
+    /// Defined only for owned fully-dynamic matrices, i.e., `DMatrix`.
+    #[cfg(any(feature = "std", feature = "alloc"))]
+    pub fn resize_mut(&mut self, new_nrows: usize, new_ncols: usize, val: N)
+        where DefaultAllocator: Reallocator<N, Dynamic, Dynamic, Dynamic, Dynamic> {
+        let placeholder = unsafe { Self::new_uninitialized(0, 0) };
+        let old = mem::replace(self, placeholder);
+        let new = old.resize(new_nrows, new_ncols, val);
+        let _ = mem::replace(self, new);
+    }
+}
+
+impl<N: Scalar, C: Dim> MatrixMN<N, Dynamic, C>
+    where DefaultAllocator: Allocator<N, Dynamic, C> {
+    /// Changes the number of rows of this matrix in-place.
+    ///
+    /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
+    /// rows than `self`, then the extra rows are filled with `val`.
+    ///
+    /// Defined only for owned matrices with a dynamic number of rows (for example, `DVector`).
+    #[cfg(any(feature = "std", feature = "alloc"))]
+    pub fn resize_vertically_mut(&mut self, new_nrows: usize, val: N)
+        where DefaultAllocator: Reallocator<N, Dynamic, C, Dynamic, C> {
+        let placeholder = unsafe { Self::new_uninitialized_generic(Dynamic::new(0), self.data.shape().1) };
+        let old = mem::replace(self, placeholder);
+        let new = old.resize_vertically(new_nrows, val);
+        let _ = mem::replace(self, new);
+    }
+}
+
+impl<N: Scalar, R: Dim> MatrixMN<N, R, Dynamic>
+    where DefaultAllocator: Allocator<N, R, Dynamic> {
+    /// Changes the number of column of this matrix in-place.
+    ///
+    /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
+    /// columns than `self`, then the extra columns are filled with `val`.
+    ///
+    /// Defined only for owned matrices with a dynamic number of columns (for example, `DVector`).
+    #[cfg(any(feature = "std", feature = "alloc"))]
+    pub fn resize_horizontally_mut(&mut self, new_ncols: usize, val: N)
+        where DefaultAllocator: Reallocator<N, R, Dynamic, R, Dynamic> {
+        let placeholder = unsafe { Self::new_uninitialized_generic(self.data.shape().0, Dynamic::new(0)) };
+        let old = mem::replace(self, placeholder);
+        let new = old.resize_horizontally(new_ncols, val);
+        let _ = mem::replace(self, new);
     }
 }
 
