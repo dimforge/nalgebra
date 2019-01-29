@@ -16,7 +16,7 @@ use base::{DefaultAllocator, Vector2, Vector3};
 
 use geometry::{
     Isometry, Point, Point3, Rotation, Rotation2, Rotation3, Translation, UnitComplex,
-    UnitQuaternion,
+    UnitQuaternion, Translation2, Translation3
 };
 
 impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> Isometry<N, D, R>
@@ -89,6 +89,18 @@ impl<N: Real> Isometry<N, U2, Rotation2<N>> {
             Rotation::<N, U2>::new(angle),
         )
     }
+
+    /// Creates a new isometry from the given translation coordinates.
+    #[inline]
+    pub fn translation(x: N, y: N) -> Self {
+        Self::new(Vector2::new(x, y), N::zero())
+    }
+
+    /// Creates a new isometry from the given rotation angle.
+    #[inline]
+    pub fn rotation(angle: N) -> Self {
+        Self::new(Vector2::zeros(), angle)
+    }
 }
 
 impl<N: Real> Isometry<N, U2, UnitComplex<N>> {
@@ -99,6 +111,18 @@ impl<N: Real> Isometry<N, U2, UnitComplex<N>> {
             Translation::from_vector(translation),
             UnitComplex::from_angle(angle),
         )
+    }
+
+    /// Creates a new isometry from the given translation coordinates.
+    #[inline]
+    pub fn translation(x: N, y: N) -> Self {
+        Self::from_parts(Translation2::new(x, y), UnitComplex::identity())
+    }
+
+    /// Creates a new isometry from the given rotation angle.
+    #[inline]
+    pub fn rotation(angle: N) -> Self {
+        Self::new(Vector2::zeros(), angle)
     }
 }
 
@@ -112,6 +136,18 @@ macro_rules! isometry_construction_impl(
                 Self::from_parts(
                     Translation::from_vector(translation),
                     $RotId::<$($RotParams),*>::from_scaled_axis(axisangle))
+            }
+
+            /// Creates a new isometry from the given translation coordinates.
+            #[inline]
+            pub fn translation(x: N, y: N, z: N) -> Self {
+                Self::from_parts(Translation3::new(x, y, z), $RotId::identity())
+            }
+
+            /// Creates a new isometry from the given rotation angle.
+            #[inline]
+            pub fn rotation(axisangle: Vector3<N>) -> Self {
+                Self::new(Vector3::zeros(), axisangle)
             }
 
             /// Creates an isometry that corresponds to the local frame of an observer standing at the
