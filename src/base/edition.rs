@@ -23,7 +23,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
-    /// Extracts the upper triangular part of this matrix (including the diagonal).
+    /// Extracts the lower triangular part of this matrix (including the diagonal).
     #[inline]
     pub fn lower_triangle(&self) -> MatrixMN<N, R, C>
     where DefaultAllocator: Allocator<N, R, C> {
