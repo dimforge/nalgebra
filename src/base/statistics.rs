@@ -76,6 +76,9 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The sum of all the rows of this matrix.
+    ///
+    /// Use `.row_variance_tr` if you need the result in a column vector instead.
+    ///
     /// # Example
     ///
     /// ```
@@ -138,11 +141,12 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// # Example
     ///
     /// ```
+    /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Matrix2x3;
     ///
     /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
     ///                        4.0, 5.0, 6.0);
-    /// assert_eq!(m.variance(), 3.5);
+    /// assert_relative_eq!(m.variance(), 35.0 / 12.0, epsilon = 1.0e-8);
     /// ```
     #[inline]
     pub fn variance(&self) -> N {
@@ -156,6 +160,8 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The variance of all the rows of this matrix.
+    ///
+    /// Use `.row_variance_tr` if you need the result in a column vector instead.
     /// # Example
     ///
     /// ```
@@ -163,7 +169,7 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///
     /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
     ///                        4.0, 5.0, 6.0);
-    /// assert_eq!(m.row_variance(), RowVector3::new(4.5, 4.5, 4.5));
+    /// assert_eq!(m.row_variance(), RowVector3::new(2.25, 2.25, 2.25));
     /// ```
     #[inline]
     pub fn row_variance(&self) -> RowVectorN<N, C>
@@ -180,7 +186,7 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///
     /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
     ///                        4.0, 5.0, 6.0);
-    /// assert_eq!(m.row_variance_tr(), Vector3::new(4.5, 4.5, 4.5));
+    /// assert_eq!(m.row_variance_tr(), Vector3::new(2.25, 2.25, 2.25));
     /// ```
     #[inline]
     pub fn row_variance_tr(&self) -> VectorN<N, C>
@@ -245,6 +251,8 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The mean of all the rows of this matrix.
+    ///
+    /// Use `.row_mean_tr` if you need the result in a column vector instead.
     ///
     /// # Example
     ///
