@@ -1,4 +1,4 @@
-use num::{Signed, Zero};
+use num::Signed;
 use std::cmp::PartialOrd;
 
 use allocator::Allocator;
@@ -9,9 +9,14 @@ use constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint};
 
 
 // FIXME: this should be be a trait on alga?
+/// A trait for abstract matrix norms.
+///
+/// This may be moved to the alga crate in the future.
 pub trait Norm<N: Scalar> {
+    /// Apply this norm to the given matrix.
     fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N
         where R: Dim, C: Dim, S: Storage<N, R, C>;
+    /// Use the metric induced by this norm to compute the metric distance between the two given matrices.
     fn metric_distance<R1, C1, S1, R2, C2, S2>(&self, m1: &Matrix<N, R1, C1, S1>, m2: &Matrix<N, R2, C2, S2>) -> N
         where R1: Dim, C1: Dim, S1: Storage<N, R1, C1>,
               R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,
@@ -104,12 +109,16 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The L2 norm of this matrix.
+    ///
+    /// Use `.apply_norm` to apply a custom norm.
     #[inline]
     pub fn norm(&self) -> N {
         self.norm_squared().sqrt()
     }
 
-    /// Computes the metric distance between `self` and `rhs` using the Euclidean metric.
+    /// Compute the distance between `self` and `rhs` using the metric induced by the euclidean norm.
+    ///
+    /// Use `.apply_metric_distance` to apply a custom norm.
     #[inline]
     pub fn metric_distance<R2, C2, S2>(&self, rhs: &Matrix<N, R2, C2, S2>) -> N
         where R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,
@@ -117,11 +126,13 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.apply_metric_distance(rhs, &EuclideanNorm)
     }
 
+    /// Uses the given `norm` to compute the norm of `self`.
     #[inline]
     pub fn apply_norm(&self, norm: &impl Norm<N>) -> N {
         norm.norm(self)
     }
 
+    /// Uses the metric induced by the given `norm` to compute the metric distance between `self` and `rhs`.
     #[inline]
     pub fn apply_metric_distance<R2, C2, S2>(&self, rhs: &Matrix<N, R2, C2, S2>, norm: &impl Norm<N>) -> N
         where R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,

@@ -30,7 +30,7 @@ mod scalar;
 mod swizzle;
 mod unit;
 mod statistics;
-pub mod norm;
+mod norm;
 
 #[doc(hidden)]
 pub mod helper;

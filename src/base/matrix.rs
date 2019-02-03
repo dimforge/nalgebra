@@ -247,11 +247,13 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         MatrixIter::new(&self.data)
     }
 
+    /// Iterate through the rows of this matrix.
     #[inline]
     pub fn row_iter(&self) -> RowIter<N, R, C, S> {
         RowIter::new(self)
     }
 
+    /// Iterate through the columns of this matrix.
     #[inline]
     pub fn column_iter(&self) -> ColumnIter<N, R, C, S> {
         ColumnIter::new(self)
@@ -739,7 +741,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    let rhs = rhs.get_unchecked(i, j);
+                    let rhs = rhs.get_unchecked((i, j));
                     *e = f(*e, *rhs)
                 }
             }
@@ -776,8 +778,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    let b = b.get_unchecked(i, j);
-                    let c = c.get_unchecked(i, j);
+                    let b = b.get_unchecked((i, j));
+                    let c = c.get_unchecked((i, j));
                     *e = f(*e, *b, *c)
                 }
             }

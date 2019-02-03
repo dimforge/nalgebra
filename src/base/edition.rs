@@ -39,7 +39,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         where I: IntoIterator<Item = &'a usize>,
               I::IntoIter: ExactSizeIterator + Clone,
               DefaultAllocator: Allocator<N, Dynamic, C> {
-        let mut irows = irows.into_iter();
+        let irows = irows.into_iter();
         let ncols = self.data.shape().1;
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(Dynamic::new(irows.len()), ncols) };
 
@@ -69,7 +69,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         where I: IntoIterator<Item = &'a usize>,
               I::IntoIter: ExactSizeIterator,
               DefaultAllocator: Allocator<N, R, Dynamic> {
-        let mut icols = icols.into_iter();
+        let icols = icols.into_iter();
         let nrows = self.data.shape().0;
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, Dynamic::new(icols.len())) };
 
