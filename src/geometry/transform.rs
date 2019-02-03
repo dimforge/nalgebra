@@ -350,7 +350,6 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     /// # Examples
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix3, Transform2};
     ///
     /// let m = Matrix3::new(2.0, 2.0, -0.3,
@@ -383,7 +382,6 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     /// # Examples
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix3, Projective2};
     ///
     /// let m = Matrix3::new(2.0, 2.0, -0.3,
@@ -407,7 +405,6 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     /// # Examples
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix3, Transform2};
     ///
     /// let m = Matrix3::new(2.0, 2.0, -0.3,
@@ -437,7 +434,6 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     /// # Examples
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix3, Projective2};
     ///
     /// let m = Matrix3::new(2.0, 2.0, -0.3,

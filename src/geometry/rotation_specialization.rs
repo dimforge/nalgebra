@@ -27,7 +27,6 @@ impl<N: Real> Rotation2<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Rotation2, Point2};
     /// let rot = Rotation2::new(f32::consts::FRAC_PI_2);
@@ -56,7 +55,6 @@ impl<N: Real> Rotation2<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector2, Rotation2};
     /// let a = Vector2::new(1.0, 2.0);
     /// let b = Vector2::new(2.0, 1.0);
@@ -79,7 +77,6 @@ impl<N: Real> Rotation2<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector2, Rotation2};
     /// let a = Vector2::new(1.0, 2.0);
     /// let b = Vector2::new(2.0, 1.0);
@@ -108,7 +105,6 @@ impl<N: Real> Rotation2<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Rotation2;
     /// let rot = Rotation2::new(1.78);
     /// assert_relative_eq!(rot.angle(), 1.78);
@@ -123,7 +119,6 @@ impl<N: Real> Rotation2<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Rotation2;
     /// let rot1 = Rotation2::new(0.1);
     /// let rot2 = Rotation2::new(1.7);
@@ -141,7 +136,6 @@ impl<N: Real> Rotation2<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Rotation2;
     /// let rot1 = Rotation2::new(0.1);
     /// let rot2 = Rotation2::new(1.7);
@@ -161,7 +155,6 @@ impl<N: Real> Rotation2<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Rotation2;
     /// let rot = Rotation2::new(0.78);
     /// let pow = rot.powf(2.0);
@@ -217,7 +210,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Rotation3, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -245,7 +237,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Rotation3, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -269,7 +260,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Rotation3, Point3, Vector3};
     /// let axis = Vector3::y_axis();
@@ -322,7 +312,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Rotation3;
     /// let rot = Rotation3::from_euler_angles(0.1, 0.2, 0.3);
     /// let euler = rot.euler_angles();
@@ -363,7 +352,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Rotation3;
     /// let rot = Rotation3::from_euler_angles(0.1, 0.2, 0.3);
     /// let euler = rot.euler_angles();
@@ -403,7 +391,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Rotation3, Vector3};
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
@@ -451,7 +438,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Rotation3, Vector3};
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
@@ -483,7 +469,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Rotation3, Vector3};
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
@@ -508,7 +493,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector3, Rotation3};
     /// let a = Vector3::new(1.0, 2.0, 3.0);
     /// let b = Vector3::new(3.0, 1.0, 2.0);
@@ -531,7 +515,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector3, Rotation3};
     /// let a = Vector3::new(1.0, 2.0, 3.0);
     /// let b = Vector3::new(3.0, 1.0, 2.0);
@@ -576,7 +559,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Rotation3, Vector3};
     /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let rot = Rotation3::from_axis_angle(&axis, 1.78);
@@ -594,7 +576,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation3, Vector3, Unit};
     /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let angle = 1.2;
@@ -621,7 +602,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation3, Vector3, Unit};
     /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
     /// let rot = Rotation3::new(axisangle);
@@ -643,7 +623,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation3, Vector3, Unit};
     /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let angle = 1.2;
@@ -670,7 +649,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation3, Vector3};
     /// let rot1 = Rotation3::from_axis_angle(&Vector3::y_axis(), 1.0);
     /// let rot2 = Rotation3::from_axis_angle(&Vector3::x_axis(), 0.1);
@@ -688,7 +666,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation3, Vector3};
     /// let rot1 = Rotation3::from_axis_angle(&Vector3::y_axis(), 1.0);
     /// let rot2 = Rotation3::from_axis_angle(&Vector3::x_axis(), 0.1);
@@ -706,7 +683,6 @@ impl<N: Real> Rotation3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation3, Vector3, Unit};
     /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let angle = 1.2;

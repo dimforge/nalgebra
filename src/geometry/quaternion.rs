@@ -114,7 +114,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let q_normalized = q.normalize();
@@ -150,7 +149,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let inv_q = q.try_inverse();
@@ -240,7 +238,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// assert_relative_eq!(q.norm(), 5.47722557, epsilon = 1.0e-6);
@@ -258,7 +255,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// assert_relative_eq!(q.magnitude(), 5.47722557, epsilon = 1.0e-6);
@@ -345,7 +341,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(2.0, 5.0, 0.0, 0.0);
     /// assert_relative_eq!(q.ln(), Quaternion::new(1.683647, 1.190289, 0.0, 0.0), epsilon = 1.0e-6)
@@ -364,7 +359,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.683647, 1.190289, 0.0, 0.0);
     /// assert_relative_eq!(q.exp(), Quaternion::new(2.0, 5.0, 0.0, 0.0), epsilon = 1.0e-5)
@@ -380,7 +374,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.683647, 1.190289, 0.0, 0.0);
     /// assert_relative_eq!(q.exp_eps(1.0e-6), Quaternion::new(2.0, 5.0, 0.0, 0.0), epsilon = 1.0e-5);
@@ -410,7 +403,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// assert_relative_eq!(q.powf(1.5), Quaternion::new( -6.2576659, 4.1549037, 6.2323556, 8.3098075), epsilon = 1.0e-6);
@@ -476,7 +468,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let mut q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     ///
@@ -506,7 +497,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let mut q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// q.normalize_mut();
@@ -672,7 +662,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let rot1 = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 1.0);
     /// let rot2 = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), 0.1);
@@ -691,7 +680,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let rot1 = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 1.0);
     /// let rot2 = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), 0.1);
@@ -785,7 +773,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
     /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
     /// let mut rot = UnitQuaternion::new(axisangle);
@@ -828,7 +815,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
     /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
     /// let rot = UnitQuaternion::new(axisangle);
@@ -885,7 +871,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector3, UnitQuaternion};
     /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
     /// let q = UnitQuaternion::new(axisangle);
@@ -908,7 +893,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
     /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let angle = 1.2;
@@ -932,7 +916,6 @@ impl<N: Real> UnitQuaternion<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3, Matrix3};
     /// let q = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_6);
@@ -990,7 +973,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitQuaternion;
     /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
     /// let euler = rot.euler_angles();
@@ -1009,7 +991,6 @@ impl<N: Real> UnitQuaternion<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3, Matrix4};
     /// let rot = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_6);

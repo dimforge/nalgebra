@@ -49,7 +49,6 @@ where DefaultAllocator: Allocator<N, D>
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Isometry2, Point2, UnitComplex};
     /// let rot = UnitComplex::new(f32::consts::PI);
@@ -165,7 +164,6 @@ macro_rules! isometry_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Isometry3, IsometryMatrix3, Point3, Vector3};
             /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -206,7 +204,6 @@ macro_rules! isometry_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Isometry3, IsometryMatrix3, Point3, Vector3};
             /// let eye = Point3::new(1.0, 2.0, 3.0);
@@ -258,7 +255,6 @@ macro_rules! isometry_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Isometry3, IsometryMatrix3, Point3, Vector3};
             /// let eye = Point3::new(1.0, 2.0, 3.0);
@@ -302,7 +298,6 @@ macro_rules! isometry_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Isometry3, IsometryMatrix3, Point3, Vector3};
             /// let eye = Point3::new(1.0, 2.0, 3.0);

@@ -35,7 +35,6 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitComplex, Point2};
     /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
@@ -56,7 +55,6 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitComplex, Point2};
     /// let rot = UnitComplex::from_angle(f32::consts::FRAC_PI_2);
@@ -78,7 +76,6 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitComplex, Vector2, Point2};
     /// let angle = f32::consts::FRAC_PI_2;
@@ -138,7 +135,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector2, UnitComplex};
     /// let a = Vector2::new(1.0, 2.0);
     /// let b = Vector2::new(2.0, 1.0);
@@ -161,7 +157,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector2, UnitComplex};
     /// let a = Vector2::new(1.0, 2.0);
     /// let b = Vector2::new(2.0, 1.0);
@@ -197,7 +192,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector2, UnitComplex};
     /// let a = Unit::new_normalize(Vector2::new(1.0, 2.0));
     /// let b = Unit::new_normalize(Vector2::new(2.0, 1.0));
@@ -223,7 +217,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector2, UnitComplex};
     /// let a = Unit::new_normalize(Vector2::new(1.0, 2.0));
     /// let b = Unit::new_normalize(Vector2::new(2.0, 1.0));

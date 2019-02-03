@@ -113,7 +113,6 @@ where DefaultAllocator: Allocator<N, D>
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3, Point3};
     /// let tra = Translation3::new(0.0, 0.0, 3.0);
@@ -197,7 +196,6 @@ where DefaultAllocator: Allocator<N, D>
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Isometry2, Translation2, UnitComplex, Vector2};
     /// let mut iso = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::PI / 6.0);
@@ -220,7 +218,6 @@ where DefaultAllocator: Allocator<N, D>
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Isometry2, Translation2, UnitComplex, Vector2, Point2};
     /// let mut iso = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2);
@@ -272,7 +269,6 @@ where DefaultAllocator: Allocator<N, D>
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Isometry2, Vector2, Matrix3};
     /// let iso = Isometry2::new(Vector2::new(10.0, 20.0), f32::consts::FRAC_PI_6);

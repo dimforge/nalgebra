@@ -166,7 +166,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axis = Vector3::y_axis();
@@ -208,7 +207,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitQuaternion;
     /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
     /// let euler = rot.euler_angles();
@@ -237,7 +235,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation3, UnitQuaternion, Vector3};
     /// let axis = Vector3::y_axis();
     /// let angle = 0.1;
@@ -302,7 +299,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector3, UnitQuaternion};
     /// let a = Vector3::new(1.0, 2.0, 3.0);
     /// let b = Vector3::new(3.0, 1.0, 2.0);
@@ -325,7 +321,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector3, UnitQuaternion};
     /// let a = Vector3::new(1.0, 2.0, 3.0);
     /// let b = Vector3::new(3.0, 1.0, 2.0);
@@ -361,7 +356,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector3, UnitQuaternion};
     /// let a = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let b = Unit::new_normalize(Vector3::new(3.0, 1.0, 2.0));
@@ -387,7 +381,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector3, UnitQuaternion};
     /// let a = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let b = Unit::new_normalize(Vector3::new(3.0, 1.0, 2.0));
@@ -446,7 +439,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
@@ -488,7 +480,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
@@ -520,7 +511,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
@@ -545,7 +535,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -575,7 +564,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -606,7 +594,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -635,7 +622,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;

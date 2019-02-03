@@ -657,7 +657,6 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix2x3, Matrix3x4, Matrix2x4};
     /// let mut mat1 = Matrix2x4::identity();
     /// let mat2 = Matrix2x3::new(1.0, 2.0, 3.0,
@@ -790,7 +789,6 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix3x2, Matrix3x4, Matrix2x4};
     /// let mut mat1 = Matrix2x4::identity();
     /// let mat2 = Matrix3x2::new(1.0, 4.0,
@@ -909,7 +907,6 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{DMatrix, DVector};
     /// // Note that all those would also work with statically-sized matrices.
     /// // We use DMatrix/DVector since that's the only case where pre-allocating the
@@ -964,7 +961,6 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix2, Matrix3, Matrix2x3, Vector2};
     /// let mut mat = Matrix2::identity();
     /// let lhs = Matrix2x3::new(1.0, 2.0, 3.0,
@@ -1001,7 +997,6 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{DMatrix, DVector};
     /// // Note that all those would also work with statically-sized matrices.
     /// // We use DMatrix/DVector since that's the only case where pre-allocating the
@@ -1056,7 +1051,6 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix2, Matrix3x2, Matrix3};
     /// let mut mat = Matrix2::identity();
     /// let rhs = Matrix3x2::new(1.0, 2.0,

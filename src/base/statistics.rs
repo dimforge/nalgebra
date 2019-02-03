@@ -60,12 +60,31 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
      *
      */
     /// The sum of all the elements of this matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.sum(), 21.0);
+    /// ```
     #[inline]
     pub fn sum(&self) -> N {
         self.iter().cloned().fold(N::zero(), |a, b| a + b)
     }
 
     /// The sum of all the rows of this matrix.
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, RowVector3};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.row_sum(), RowVector3::new(5.0, 7.0, 9.0));
+    /// ```
     #[inline]
     pub fn row_sum(&self) -> RowVectorN<N, C>
         where DefaultAllocator: Allocator<N, U1, C> {
@@ -73,6 +92,16 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The sum of all the rows of this matrix. The result is transposed and returned as a column vector.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector3};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.row_sum_tr(), Vector3::new(5.0, 7.0, 9.0));
+    /// ```
     #[inline]
     pub fn row_sum_tr(&self) -> VectorN<N, C>
         where DefaultAllocator: Allocator<N, C> {
@@ -80,6 +109,16 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The sum of all the columns of this matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector2};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.column_sum(), Vector2::new(6.0, 15.0));
+    /// ```
     #[inline]
     pub fn column_sum(&self) -> VectorN<N, R>
         where DefaultAllocator: Allocator<N, R> {
@@ -95,6 +134,16 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
      *
      */
     /// The variance of all the elements of this matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.variance(), 3.5);
+    /// ```
     #[inline]
     pub fn variance(&self) -> N {
         if self.len() == 0 {
@@ -107,6 +156,15 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The variance of all the rows of this matrix.
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, RowVector3};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.row_variance(), RowVector3::new(4.5, 4.5, 4.5));
+    /// ```
     #[inline]
     pub fn row_variance(&self) -> RowVectorN<N, C>
         where DefaultAllocator: Allocator<N, U1, C> {
@@ -114,6 +172,16 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The variance of all the rows of this matrix. The result is transposed and returned as a column vector.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector3};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.row_variance_tr(), Vector3::new(4.5, 4.5, 4.5));
+    /// ```
     #[inline]
     pub fn row_variance_tr(&self) -> VectorN<N, C>
         where DefaultAllocator: Allocator<N, C> {
@@ -121,6 +189,17 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The variance of all the columns of this matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Matrix2x3, Vector2};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_relative_eq!(m.column_variance(), Vector2::new(2.0 / 3.0, 2.0 / 3.0), epsilon = 1.0e-8);
+    /// ```
     #[inline]
     pub fn column_variance(&self) -> VectorN<N, R>
         where DefaultAllocator: Allocator<N, R> {
@@ -146,6 +225,16 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
      *
      */
     /// The mean of all the elements of this matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.mean(), 3.5);
+    /// ```
     #[inline]
     pub fn mean(&self) -> N {
         if self.len() == 0 {
@@ -156,6 +245,16 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The mean of all the rows of this matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, RowVector3};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.row_mean(), RowVector3::new(2.5, 3.5, 4.5));
+    /// ```
     #[inline]
     pub fn row_mean(&self) -> RowVectorN<N, C>
         where DefaultAllocator: Allocator<N, U1, C> {
@@ -163,6 +262,16 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The mean of all the rows of this matrix. The result is transposed and returned as a column vector.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector3};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.row_mean_tr(), Vector3::new(2.5, 3.5, 4.5));
+    /// ```
     #[inline]
     pub fn row_mean_tr(&self) -> VectorN<N, C>
         where DefaultAllocator: Allocator<N, C> {
@@ -170,6 +279,16 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// The mean of all the columns of this matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector2};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.column_mean(), Vector2::new(2.0, 5.0));
+    /// ```
     #[inline]
     pub fn column_mean(&self) -> VectorN<N, R>
         where DefaultAllocator: Allocator<N, R> {

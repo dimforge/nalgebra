@@ -257,7 +257,6 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation2, Rotation3, Vector3};
     /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
     /// let tr_rot = rot.transpose();
@@ -281,7 +280,6 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation2, Rotation3, Vector3};
     /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
     /// let inv = rot.inverse();
@@ -305,7 +303,6 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation2, Rotation3, Vector3};
     /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
     /// let mut tr_rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
@@ -333,7 +330,6 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation2, Rotation3, Vector3};
     /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
     /// let mut inv = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
