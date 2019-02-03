@@ -412,7 +412,7 @@ where
             rot.rotate_rows(&mut m);
 
             if compute_q {
-                let c = rot.unwrap();
+                let c = rot.into_inner();
                 // XXX: we have to build the matrix manually because
                 // rot.to_rotation_matrix().unwrap() causes an ICE.
                 q = Some(MatrixN::from_column_slice_generic(

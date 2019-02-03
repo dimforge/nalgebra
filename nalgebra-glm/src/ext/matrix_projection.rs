@@ -24,7 +24,8 @@ pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec
     ))
 }
 
-/// Map the specified object coordinates `(obj.x, obj.y, obj.z)` into window coordinates using OpenGL near and far clip planes definition.
+/// Map the specified object coordinates `(obj.x, obj.y, obj.z)` into window coordinates with a
+/// depth range of -1 to 1
 ///
 /// # Parameters:
 ///
@@ -114,7 +115,8 @@ pub fn project_zo<N: Real>(
     )
 }
 
-/// Map the specified window coordinates (win.x, win.y, win.z) into object coordinates using OpenGL near and far clip planes definition.
+/// Map the specified window coordinates (win.x, win.y, win.z) into object coordinates using a
+/// depth range of -1 to 1
 ///
 /// # Parameters:
 ///

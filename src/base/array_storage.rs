@@ -34,7 +34,7 @@ use base::Scalar;
  */
 /// A array-based statically sized matrix data storage.
 #[repr(C)]
-pub struct MatrixArray<N, R, C>
+pub struct ArrayStorage<N, R, C>
 where
     R: DimName,
     C: DimName,
@@ -44,7 +44,11 @@ where
     data: GenericArray<N, Prod<R::Value, C::Value>>,
 }
 
-impl<N, R, C> Hash for MatrixArray<N, R, C>
+#[deprecated(note="renamed to `ArrayStorage`")]
+/// Renamed to [ArrayStorage].
+pub type MatrixArray<N, R, C> = ArrayStorage<N, R, C>;
+
+impl<N, R, C> Hash for ArrayStorage<N, R, C>
 where
     N: Hash,
     R: DimName,
@@ -57,7 +61,7 @@ where
     }
 }
 
-impl<N, R, C> Deref for MatrixArray<N, R, C>
+impl<N, R, C> Deref for ArrayStorage<N, R, C>
 where
     R: DimName,
     C: DimName,
@@ -72,7 +76,7 @@ where
     }
 }
 
-impl<N, R, C> DerefMut for MatrixArray<N, R, C>
+impl<N, R, C> DerefMut for ArrayStorage<N, R, C>
 where
     R: DimName,
     C: DimName,
@@ -85,7 +89,7 @@ where
     }
 }
 
-impl<N, R, C> Debug for MatrixArray<N, R, C>
+impl<N, R, C> Debug for ArrayStorage<N, R, C>
 where
     N: Debug,
     R: DimName,
@@ -99,7 +103,7 @@ where
     }
 }
 
-impl<N, R, C> Copy for MatrixArray<N, R, C>
+impl<N, R, C> Copy for ArrayStorage<N, R, C>
 where
     N: Copy,
     R: DimName,
@@ -109,7 +113,7 @@ where
     GenericArray<N, Prod<R::Value, C::Value>>: Copy,
 {}
 
-impl<N, R, C> Clone for MatrixArray<N, R, C>
+impl<N, R, C> Clone for ArrayStorage<N, R, C>
 where
     N: Clone,
     R: DimName,
@@ -119,13 +123,13 @@ where
 {
     #[inline]
     fn clone(&self) -> Self {
-        MatrixArray {
+        ArrayStorage {
             data: self.data.clone(),
         }
     }
 }
 
-impl<N, R, C> Eq for MatrixArray<N, R, C>
+impl<N, R, C> Eq for ArrayStorage<N, R, C>
 where
     N: Eq,
     R: DimName,
@@ -134,7 +138,7 @@ where
     Prod<R::Value, C::Value>: ArrayLength<N>,
 {}
 
-impl<N, R, C> PartialEq for MatrixArray<N, R, C>
+impl<N, R, C> PartialEq for ArrayStorage<N, R, C>
 where
     N: PartialEq,
     R: DimName,
@@ -148,7 +152,7 @@ where
     }
 }
 
-unsafe impl<N, R, C> Storage<N, R, C> for MatrixArray<N, R, C>
+unsafe impl<N, R, C> Storage<N, R, C> for ArrayStorage<N, R, C>
 where
     N: Scalar,
     R: DimName,
@@ -200,7 +204,7 @@ where
     }
 }
 
-unsafe impl<N, R, C> StorageMut<N, R, C> for MatrixArray<N, R, C>
+unsafe impl<N, R, C> StorageMut<N, R, C> for ArrayStorage<N, R, C>
 where
     N: Scalar,
     R: DimName,
@@ -220,7 +224,7 @@ where
     }
 }
 
-unsafe impl<N, R, C> ContiguousStorage<N, R, C> for MatrixArray<N, R, C>
+unsafe impl<N, R, C> ContiguousStorage<N, R, C> for ArrayStorage<N, R, C>
 where
     N: Scalar,
     R: DimName,
@@ -230,7 +234,7 @@ where
     DefaultAllocator: Allocator<N, R, C, Buffer = Self>,
 {}
 
-unsafe impl<N, R, C> ContiguousStorageMut<N, R, C> for MatrixArray<N, R, C>
+unsafe impl<N, R, C> ContiguousStorageMut<N, R, C> for ArrayStorage<N, R, C>
 where
     N: Scalar,
     R: DimName,
@@ -247,7 +251,7 @@ where
  */
 // XXX: open an issue for GenericArray so that it implements serde traits?
 #[cfg(feature = "serde-serialize")]
-impl<N, R, C> Serialize for MatrixArray<N, R, C>
+impl<N, R, C> Serialize for ArrayStorage<N, R, C>
 where
     N: Scalar + Serialize,
     R: DimName,
@@ -268,7 +272,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N, R, C> Deserialize<'a> for MatrixArray<N, R, C>
+impl<'a, N, R, C> Deserialize<'a> for ArrayStorage<N, R, C>
 where
     N: Scalar + Deserialize<'a>,
     R: DimName,
@@ -278,18 +282,18 @@ where
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where D: Deserializer<'a> {
-        deserializer.deserialize_seq(MatrixArrayVisitor::new())
+        deserializer.deserialize_seq(ArrayStorageVisitor::new())
     }
 }
 
 #[cfg(feature = "serde-serialize")]
 /// A visitor that produces a matrix array.
-struct MatrixArrayVisitor<N, R, C> {
+struct ArrayStorageVisitor<N, R, C> {
     marker: PhantomData<(N, R, C)>,
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N, R, C> MatrixArrayVisitor<N, R, C>
+impl<N, R, C> ArrayStorageVisitor<N, R, C>
 where
     N: Scalar,
     R: DimName,
@@ -299,14 +303,14 @@ where
 {
     /// Construct a new sequence visitor.
     pub fn new() -> Self {
-        MatrixArrayVisitor {
+        ArrayStorageVisitor {
             marker: PhantomData,
         }
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N, R, C> Visitor<'a> for MatrixArrayVisitor<N, R, C>
+impl<'a, N, R, C> Visitor<'a> for ArrayStorageVisitor<N, R, C>
 where
     N: Scalar + Deserialize<'a>,
     R: DimName,
@@ -314,20 +318,20 @@ where
     R::Value: Mul<C::Value>,
     Prod<R::Value, C::Value>: ArrayLength<N>,
 {
-    type Value = MatrixArray<N, R, C>;
+    type Value = ArrayStorage<N, R, C>;
 
     fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
         formatter.write_str("a matrix array")
     }
 
     #[inline]
-    fn visit_seq<V>(self, mut visitor: V) -> Result<MatrixArray<N, R, C>, V::Error>
+    fn visit_seq<V>(self, mut visitor: V) -> Result<ArrayStorage<N, R, C>, V::Error>
     where V: SeqAccess<'a> {
         let mut out: Self::Value = unsafe { mem::uninitialized() };
         let mut curr = 0;
 
         while let Some(value) = try!(visitor.next_element()) {
-            out[curr] = value;
+            *out.get_mut(curr).ok_or_else(|| V::Error::invalid_length(curr, &self))? = value;
             curr += 1;
         }
 
@@ -340,7 +344,7 @@ where
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, R, C> Abomonation for MatrixArray<N, R, C>
+impl<N, R, C> Abomonation for ArrayStorage<N, R, C>
 where
     R: DimName,
     C: DimName,

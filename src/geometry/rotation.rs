@@ -154,7 +154,7 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # use nalgebra::{Rotation2, Rotation3, Vector3, Matrix2, Matrix3};
     /// # use std::f32;
     /// let rot = Rotation3::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_6);
-    /// let mat = rot.unwrap();
+    /// let mat = rot.into_inner();
     /// let expected = Matrix3::new(0.8660254, -0.5,      0.0,
     ///                             0.5,       0.8660254, 0.0,
     ///                             0.0,       0.0,       1.0);
@@ -162,11 +162,19 @@ where DefaultAllocator: Allocator<N, D, D>
     ///
     ///
     /// let rot = Rotation2::new(f32::consts::FRAC_PI_6);
-    /// let mat = rot.unwrap();
+    /// let mat = rot.into_inner();
     /// let expected = Matrix2::new(0.8660254, -0.5,
     ///                             0.5,       0.8660254);
     /// assert_eq!(mat, expected);
     /// ```
+    #[inline]
+    pub fn into_inner(self) -> MatrixN<N, D> {
+        self.matrix
+    }
+
+    /// Unwraps the underlying matrix.
+    /// Deprecated: Use [Rotation::into_inner] instead.
+    #[deprecated(note="use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> MatrixN<N, D> {
         self.matrix
@@ -201,6 +209,9 @@ where DefaultAllocator: Allocator<N, D, D>
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
     {
+        // We could use `MatrixN::to_homogeneous()` here, but that would imply
+        // adding the additional traits `DimAdd` and `IsNotStaticOne`. Maybe
+        // these things will get nicer once specialization lands in Rust.
         let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
         res.fixed_slice_mut::<D, D>(0, 0).copy_from(&self.matrix);
 
@@ -246,7 +257,6 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation2, Rotation3, Vector3};
     /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
     /// let tr_rot = rot.transpose();
@@ -270,7 +280,6 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation2, Rotation3, Vector3};
     /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
     /// let inv = rot.inverse();
@@ -294,7 +303,6 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation2, Rotation3, Vector3};
     /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
     /// let mut tr_rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
@@ -322,7 +330,6 @@ where DefaultAllocator: Allocator<N, D, D>
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation2, Rotation3, Vector3};
     /// let rot = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));
     /// let mut inv = Rotation3::new(Vector3::new(1.0, 2.0, 3.0));

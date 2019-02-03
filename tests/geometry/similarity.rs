@@ -8,33 +8,57 @@ quickcheck!(
     fn inverse_is_identity(i: Similarity3<f64>, p: Point3<f64>, v: Vector3<f64>) -> bool {
         let ii = i.inverse();
 
-        relative_eq!(i  * ii, Similarity3::identity(), epsilon = 1.0e-7) &&
-        relative_eq!(ii *  i, Similarity3::identity(), epsilon = 1.0e-7) &&
-        relative_eq!((i  * ii) * p, p, epsilon = 1.0e-7) &&
-        relative_eq!((ii * i)  * p, p, epsilon = 1.0e-7) &&
-        relative_eq!((i  * ii) * v, v, epsilon = 1.0e-7) &&
-        relative_eq!((ii * i)  * v, v, epsilon = 1.0e-7)
+        relative_eq!(i * ii, Similarity3::identity(), epsilon = 1.0e-7)
+            && relative_eq!(ii * i, Similarity3::identity(), epsilon = 1.0e-7)
+            && relative_eq!((i * ii) * p, p, epsilon = 1.0e-7)
+            && relative_eq!((ii * i) * p, p, epsilon = 1.0e-7)
+            && relative_eq!((i * ii) * v, v, epsilon = 1.0e-7)
+            && relative_eq!((ii * i) * v, v, epsilon = 1.0e-7)
     }
 
-    fn inverse_is_parts_inversion(t: Translation3<f64>, r: UnitQuaternion<f64>, scaling: f64) -> bool {
+    fn inverse_is_parts_inversion(
+        t: Translation3<f64>,
+        r: UnitQuaternion<f64>,
+        scaling: f64,
+    ) -> bool
+    {
         if relative_eq!(scaling, 0.0) {
             true
-        }
-        else {
+        } else {
             let s = Similarity3::from_isometry(t * r, scaling);
             s.inverse() == Similarity3::from_scaling(1.0 / scaling) * r.inverse() * t.inverse()
         }
     }
 
-    fn multiply_equals_alga_transform(s: Similarity3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
-        s * v == s.transform_vector(&v) &&
-        s * p == s.transform_point(&p)  &&
-        relative_eq!(s.inverse() * v, s.inverse_transform_vector(&v), epsilon = 1.0e-7) &&
-        relative_eq!(s.inverse() * p, s.inverse_transform_point(&p), epsilon = 1.0e-7)
+    fn multiply_equals_alga_transform(
+        s: Similarity3<f64>,
+        v: Vector3<f64>,
+        p: Point3<f64>,
+    ) -> bool
+    {
+        s * v == s.transform_vector(&v)
+            && s * p == s.transform_point(&p)
+            && relative_eq!(
+                s.inverse() * v,
+                s.inverse_transform_vector(&v),
+                epsilon = 1.0e-7
+            )
+            && relative_eq!(
+                s.inverse() * p,
+                s.inverse_transform_point(&p),
+                epsilon = 1.0e-7
+            )
     }
 
-    fn composition(i: Isometry3<f64>, uq: UnitQuaternion<f64>,
-                   t: Translation3<f64>, v: Vector3<f64>, p: Point3<f64>, scaling: f64) -> bool {
+    fn composition(
+        i: Isometry3<f64>,
+        uq: UnitQuaternion<f64>,
+        t: Translation3<f64>,
+        v: Vector3<f64>,
+        p: Point3<f64>,
+        scaling: f64,
+    ) -> bool
+    {
         if relative_eq!(scaling, 0.0) {
             return true;
         }
@@ -122,11 +146,18 @@ quickcheck!(
         relative_eq!((s * i * t) * p, scaling * (i * (t * p)), epsilon = 1.0e-7)
     }
 
-    fn all_op_exist(s: Similarity3<f64>, i: Isometry3<f64>, uq: UnitQuaternion<f64>,
-                    t: Translation3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
-        let sMs  = s * s;
+    fn all_op_exist(
+        s: Similarity3<f64>,
+        i: Isometry3<f64>,
+        uq: UnitQuaternion<f64>,
+        t: Translation3<f64>,
+        v: Vector3<f64>,
+        p: Point3<f64>,
+    ) -> bool
+    {
+        let sMs = s * s;
         let sMuq = s * uq;
-        let sDs  = s / s;
+        let sDs = s / s;
         let sDuq = s / uq;
 
         let sMp = s * p;
@@ -186,81 +217,61 @@ quickcheck!(
         sDi1 /= i;
         sDi2 /= &i;
 
-        sMt == sMt1 &&
-        sMt == sMt2 &&
-
-        sMs == sMs1 &&
-        sMs == sMs2 &&
-
-        sMuq == sMuq1 &&
-        sMuq == sMuq2 &&
-
-        sMi == sMi1 &&
-        sMi == sMi2 &&
-
-        sDs == sDs1 &&
-        sDs == sDs2 &&
-
-        sDuq == sDuq1 &&
-        sDuq == sDuq2 &&
-
-        sDi == sDi1 &&
-        sDi == sDi2 &&
-
-        sMs == &s * &s &&
-        sMs ==  s * &s &&
-        sMs == &s *  s &&
-
-        sMuq == &s * &uq &&
-        sMuq ==  s * &uq &&
-        sMuq == &s *  uq &&
-
-        sDs == &s / &s &&
-        sDs ==  s / &s &&
-        sDs == &s /  s &&
-
-        sDuq == &s / &uq &&
-        sDuq ==  s / &uq &&
-        sDuq == &s /  uq &&
-
-        sMp == &s * &p &&
-        sMp ==  s * &p &&
-        sMp == &s *  p &&
-
-        sMv == &s * &v &&
-        sMv ==  s * &v &&
-        sMv == &s *  v &&
-
-        sMt == &s * &t &&
-        sMt ==  s * &t &&
-        sMt == &s *  t &&
-
-        tMs == &t * &s &&
-        tMs ==  t * &s &&
-        tMs == &t *  s &&
-
-        uqMs == &uq * &s &&
-        uqMs ==  uq * &s &&
-        uqMs == &uq *  s &&
-
-        uqDs == &uq / &s &&
-        uqDs ==  uq / &s &&
-        uqDs == &uq /  s &&
-
-        sMi == &s * &i &&
-        sMi ==  s * &i &&
-        sMi == &s *  i &&
-
-        sDi == &s / &i &&
-        sDi ==  s / &i &&
-        sDi == &s /  i &&
-
-        iMs == &i * &s &&
-        iMs ==  i * &s &&
-        iMs == &i *  s &&
-
-        iDs == &i / &s &&
-        iDs ==  i / &s &&
-        iDs == &i /  s
+        sMt == sMt1
+            && sMt == sMt2
+            && sMs == sMs1
+            && sMs == sMs2
+            && sMuq == sMuq1
+            && sMuq == sMuq2
+            && sMi == sMi1
+            && sMi == sMi2
+            && sDs == sDs1
+            && sDs == sDs2
+            && sDuq == sDuq1
+            && sDuq == sDuq2
+            && sDi == sDi1
+            && sDi == sDi2
+            && sMs == &s * &s
+            && sMs == s * &s
+            && sMs == &s * s
+            && sMuq == &s * &uq
+            && sMuq == s * &uq
+            && sMuq == &s * uq
+            && sDs == &s / &s
+            && sDs == s / &s
+            && sDs == &s / s
+            && sDuq == &s / &uq
+            && sDuq == s / &uq
+            && sDuq == &s / uq
+            && sMp == &s * &p
+            && sMp == s * &p
+            && sMp == &s * p
+            && sMv == &s * &v
+            && sMv == s * &v
+            && sMv == &s * v
+            && sMt == &s * &t
+            && sMt == s * &t
+            && sMt == &s * t
+            && tMs == &t * &s
+            && tMs == t * &s
+            && tMs == &t * s
+            && uqMs == &uq * &s
+            && uqMs == uq * &s
+            && uqMs == &uq * s
+            && uqDs == &uq / &s
+            && uqDs == uq / &s
+            && uqDs == &uq / s
+            && sMi == &s * &i
+            && sMi == s * &i
+            && sMi == &s * i
+            && sDi == &s / &i
+            && sDi == s / &i
+            && sDi == &s / i
+            && iMs == &i * &s
+            && iMs == i * &s
+            && iMs == &i * s
+            && iDs == &i / &s
+            && iDs == i / &s
+            && iDs == &i / s
     }
 );

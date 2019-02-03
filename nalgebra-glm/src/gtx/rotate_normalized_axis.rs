@@ -21,5 +21,5 @@ pub fn rotate_normalized_axis<N: Real>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) 
 /// * `angle` - Angle expressed in radians.
 /// * `axis` - Normalized axis of the rotation, must be normalized.
 pub fn quat_rotate_normalized_axis<N: Real>(q: &Qua<N>, angle: N, axis: &TVec3<N>) -> Qua<N> {
-    q * UnitQuaternion::from_axis_angle(&Unit::new_unchecked(*axis), angle).unwrap()
+    q * UnitQuaternion::from_axis_angle(&Unit::new_unchecked(*axis), angle).into_inner()
 }

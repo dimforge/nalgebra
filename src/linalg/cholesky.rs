@@ -52,7 +52,7 @@ where DefaultAllocator: Allocator<N, D, D>
 
         for j in 0..n {
             for k in 0..j {
-                let factor = unsafe { -*matrix.get_unchecked(j, k) };
+                let factor = unsafe { -*matrix.get_unchecked((j, k)) };
 
                 let (mut col_j, col_k) = matrix.columns_range_pair_mut(j, k);
                 let mut col_j = col_j.rows_range_mut(j..);
@@ -61,11 +61,11 @@ where DefaultAllocator: Allocator<N, D, D>
                 col_j.axpy(factor, &col_k, N::one());
             }
 
-            let diag = unsafe { *matrix.get_unchecked(j, j) };
+            let diag = unsafe { *matrix.get_unchecked((j, j)) };
             if diag > N::zero() {
                 let denom = diag.sqrt();
                 unsafe {
-                    *matrix.get_unchecked_mut(j, j) = denom;
+                    *matrix.get_unchecked_mut((j, j)) = denom;
                 }
 
                 let mut col = matrix.slice_range_mut(j + 1.., j);

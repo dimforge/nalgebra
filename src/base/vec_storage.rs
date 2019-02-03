@@ -1,6 +1,5 @@
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
-use std::ops::Deref;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
@@ -24,21 +23,25 @@ use abomonation::Abomonation;
 #[repr(C)]
 #[derive(Eq, Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-pub struct MatrixVec<N, R: Dim, C: Dim> {
+pub struct VecStorage<N, R: Dim, C: Dim> {
     data: Vec<N>,
     nrows: R,
     ncols: C,
 }
 
-impl<N, R: Dim, C: Dim> MatrixVec<N, R, C> {
+#[deprecated(note="renamed to `VecStorage`")]
+/// Renamed to [VecStorage].
+pub type MatrixVec<N, R, C> = VecStorage<N, R, C>;
+
+impl<N, R: Dim, C: Dim> VecStorage<N, R, C> {
     /// Creates a new dynamic matrix data storage from the given vector and shape.
     #[inline]
-    pub fn new(nrows: R, ncols: C, data: Vec<N>) -> MatrixVec<N, R, C> {
+    pub fn new(nrows: R, ncols: C, data: Vec<N>) -> VecStorage<N, R, C> {
         assert!(
             nrows.value() * ncols.value() == data.len(),
             "Data storage buffer dimension mismatch."
         );
-        MatrixVec {
+        VecStorage {
             data: data,
             nrows: nrows,
             ncols: ncols,
@@ -47,15 +50,16 @@ impl<N, R: Dim, C: Dim> MatrixVec<N, R, C> {
 
     /// The underlying data storage.
     #[inline]
-    pub fn data(&self) -> &Vec<N> {
+    pub fn as_vec(&self) -> &Vec<N> {
         &self.data
     }
 
     /// The underlying mutable data storage.
     ///
-    /// This is unsafe because this may cause UB if the vector is modified by the user.
+    /// This is unsafe because this may cause UB if the size of the vector is changed
+    /// by the user.
     #[inline]
-    pub unsafe fn data_mut(&mut self) -> &mut Vec<N> {
+    pub unsafe fn as_vec_mut(&mut self) -> &mut Vec<N> {
         &mut self.data
     }
 
@@ -77,14 +81,18 @@ impl<N, R: Dim, C: Dim> MatrixVec<N, R, C> {
 
         self.data
     }
+
+    /// The number of elements on the underlying vector.
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
 }
 
-impl<N, R: Dim, C: Dim> Deref for MatrixVec<N, R, C> {
-    type Target = Vec<N>;
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.data
+impl<N, R: Dim, C: Dim> Into<Vec<N>> for VecStorage<N, R, C>
+{
+    fn into(self) -> Vec<N> {
+        self.data
     }
 }
 
@@ -94,7 +102,7 @@ impl<N, R: Dim, C: Dim> Deref for MatrixVec<N, R, C> {
  * Dynamic − Dynamic
  *
  */
-unsafe impl<N: Scalar, C: Dim> Storage<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
+unsafe impl<N: Scalar, C: Dim> Storage<N, Dynamic, C> for VecStorage<N, Dynamic, C>
 where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {
     type RStride = U1;
@@ -134,11 +142,11 @@ where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 
     #[inline]
     fn as_slice(&self) -> &[N] {
-        &self[..]
+        &self.data
     }
 }
 
-unsafe impl<N: Scalar, R: DimName> Storage<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
+unsafe impl<N: Scalar, R: DimName> Storage<N, R, Dynamic> for VecStorage<N, R, Dynamic>
 where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {
     type RStride = U1;
@@ -178,7 +186,7 @@ where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 
     #[inline]
     fn as_slice(&self) -> &[N] {
-        &self[..]
+        &self.data
     }
 }
 
@@ -187,7 +195,7 @@ where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
  * StorageMut, ContiguousStorage.
  *
  */
-unsafe impl<N: Scalar, C: Dim> StorageMut<N, Dynamic, C> for MatrixVec<N, Dynamic, C>
+unsafe impl<N: Scalar, C: Dim> StorageMut<N, Dynamic, C> for VecStorage<N, Dynamic, C>
 where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {
     #[inline]
@@ -201,13 +209,13 @@ where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
     }
 }
 
-unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for MatrixVec<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for VecStorage<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {}
 
-unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for MatrixVec<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for VecStorage<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {}
 
-unsafe impl<N: Scalar, R: DimName> StorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic>
+unsafe impl<N: Scalar, R: DimName> StorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic>
 where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {
     #[inline]
@@ -222,7 +230,7 @@ where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Abomonation, R: Dim, C: Dim> Abomonation for MatrixVec<N, R, C> {
+impl<N: Abomonation, R: Dim, C: Dim> Abomonation for VecStorage<N, R, C> {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.data.entomb(writer)
     }
@@ -236,21 +244,21 @@ impl<N: Abomonation, R: Dim, C: Dim> Abomonation for MatrixVec<N, R, C> {
     }
 }
 
-unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for MatrixVec<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for VecStorage<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {}
 
-unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for MatrixVec<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {}
 
-impl<N, R: Dim> Extend<N> for MatrixVec<N, R, Dynamic>
+impl<N, R: Dim> Extend<N> for VecStorage<N, R, Dynamic>
 {
-    /// Extends the number of columns of the `MatrixVec` with elements
+    /// Extends the number of columns of the `VecStorage` with elements
     /// from the given iterator.
     ///
     /// # Panics
     /// This function panics if the number of elements yielded by the
     /// given iterator is not a multiple of the number of rows of the
-    /// `MatrixVec`.
+    /// `VecStorage`.
     fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I)
     {
         self.data.extend(iter);
@@ -260,7 +268,7 @@ impl<N, R: Dim> Extend<N> for MatrixVec<N, R, Dynamic>
     }
 }
 
-impl<N, R, RV, SV> Extend<Vector<N, RV, SV>> for MatrixVec<N, R, Dynamic>
+impl<N, R, RV, SV> Extend<Vector<N, RV, SV>> for VecStorage<N, R, Dynamic>
 where
     N: Scalar,
     R: Dim,
@@ -268,13 +276,13 @@ where
     SV: Storage<N, RV>,
     ShapeConstraint: SameNumberOfRows<R, RV>,
 {
-    /// Extends the number of columns of the `MatrixVec` with vectors
+    /// Extends the number of columns of the `VecStorage` with vectors
     /// from the given iterator.
     ///
     /// # Panics
     /// This function panics if the number of rows of each `Vector`
     /// yielded by the iterator is not equal to the number of rows
-    /// of this `MatrixVec`.
+    /// of this `VecStorage`.
     fn extend<I: IntoIterator<Item=Vector<N, RV, SV>>>(&mut self, iter: I)
     {
         let nrows = self.nrows.value();
@@ -289,9 +297,9 @@ where
     }
 }
 
-impl<N> Extend<N> for MatrixVec<N, Dynamic, U1>
+impl<N> Extend<N> for VecStorage<N, Dynamic, U1>
 {
-    /// Extends the number of rows of the `MatrixVec` with elements
+    /// Extends the number of rows of the `VecStorage` with elements
     /// from the given iterator.
     fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I)
     {

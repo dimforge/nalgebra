@@ -76,7 +76,7 @@ impl<N: Real> Quaternion<N> {
     where SB: Storage<N, U3> {
         let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * ::convert(2.0f64));
 
-        rot.unwrap() * scale
+        rot.into_inner() * scale
     }
 
     /// The quaternion multiplicative identity.
@@ -166,7 +166,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axis = Vector3::y_axis();
@@ -208,7 +207,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitQuaternion;
     /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
     /// let euler = rot.euler_angles();
@@ -237,7 +235,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Rotation3, UnitQuaternion, Vector3};
     /// let axis = Vector3::y_axis();
     /// let angle = 0.1;
@@ -302,7 +299,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector3, UnitQuaternion};
     /// let a = Vector3::new(1.0, 2.0, 3.0);
     /// let b = Vector3::new(3.0, 1.0, 2.0);
@@ -325,7 +321,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector3, UnitQuaternion};
     /// let a = Vector3::new(1.0, 2.0, 3.0);
     /// let b = Vector3::new(3.0, 1.0, 2.0);
@@ -361,7 +356,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector3, UnitQuaternion};
     /// let a = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let b = Unit::new_normalize(Vector3::new(3.0, 1.0, 2.0));
@@ -387,7 +381,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector3, UnitQuaternion};
     /// let a = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let b = Unit::new_normalize(Vector3::new(3.0, 1.0, 2.0));
@@ -446,22 +439,31 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
     /// let up = Vector3::y();
     ///
-    /// let q = UnitQuaternion::new_observer_frame(&dir, &up);
+    /// let q = UnitQuaternion::face_towards(&dir, &up);
     /// assert_relative_eq!(q * Vector3::z(), dir.normalize());
     /// ```
     #[inline]
-    pub fn new_observer_frame<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    pub fn face_towards<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::from_rotation_matrix(&Rotation::<N, U3>::new_observer_frame(dir, up))
+        Self::from_rotation_matrix(&Rotation::<N, U3>::face_towards(dir, up))
+    }
+
+    /// Deprecated: Use [UnitQuaternion::face_towards] instead.
+    #[deprecated(note="renamed to `face_towards`")]
+    pub fn new_observer_frames<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
+        Self::face_towards(dir, up)
     }
 
     /// Builds a right-handed look-at view matrix without translation.
@@ -478,7 +480,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
@@ -493,7 +494,7 @@ impl<N: Real> UnitQuaternion<N> {
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::new_observer_frame(&-dir, up).inverse()
+        Self::face_towards(&-dir, up).inverse()
     }
 
     /// Builds a left-handed look-at view matrix without translation.
@@ -510,7 +511,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
@@ -525,7 +525,7 @@ impl<N: Real> UnitQuaternion<N> {
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::new_observer_frame(dir, up).inverse()
+        Self::face_towards(dir, up).inverse()
     }
 
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
@@ -535,7 +535,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -565,7 +564,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -596,7 +594,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -625,7 +622,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Point3, Vector3};
     /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -693,15 +689,16 @@ where
 
 #[cfg(test)]
 mod tests {
+    extern crate rand_xorshift;
     use super::*;
-    use rand::{self, SeedableRng};
+    use rand::SeedableRng;
 
     #[test]
     fn random_unit_quats_are_unit() {
-        let mut rng = rand::prng::XorShiftRng::from_seed([0xAB; 16]);
+        let mut rng = rand_xorshift::XorShiftRng::from_seed([0xAB; 16]);
         for _ in 0..1000 {
             let x = rng.gen::<UnitQuaternion<f32>>();
-            assert!(relative_eq!(x.unwrap().norm(), 1.0))
+            assert!(relative_eq!(x.into_inner().norm(), 1.0))
         }
     }
 }

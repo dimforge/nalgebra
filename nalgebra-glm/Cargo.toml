@@ -1,6 +1,6 @@
 [package]
 name = "nalgebra-glm"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["sebcrozet <developer@crozet.re>"]
 
 description = "A computer-graphics oriented API for nalgebra, inspired by the C++ GLM library."
@@ -12,8 +12,16 @@ categories = [ "science" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
 license = "BSD-3-Clause"
 
+[features]
+default         = [ "std" ]
+std             = [ "nalgebra/std", "alga/std" ]
+stdweb          = [ "nalgebra/stdweb" ]
+arbitrary       = [ "nalgebra/arbitrary" ]
+serde-serialize = [ "nalgebra/serde-serialize" ]
+abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
+
 [dependencies]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.3", default-features = false }
-alga = "0.7"
-nalgebra = { path =  "..", version = "^0.16.4" }
+alga = { version = "0.8", default-features = false }
+nalgebra = { path =  "..", version = "^0.16.13", default-features = false }

@@ -16,7 +16,7 @@ use base::{DefaultAllocator, Vector2, Vector3};
 
 use geometry::{
     Isometry, Point, Point3, Rotation, Rotation2, Rotation3, Translation, UnitComplex,
-    UnitQuaternion,
+    UnitQuaternion, Translation2, Translation3
 };
 
 impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> Isometry<N, D, R>
@@ -49,7 +49,6 @@ where DefaultAllocator: Allocator<N, D>
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Isometry2, Point2, UnitComplex};
     /// let rot = UnitComplex::new(f32::consts::PI);
@@ -130,6 +129,18 @@ impl<N: Real> Isometry<N, U2, Rotation2<N>> {
             Rotation::<N, U2>::new(angle),
         )
     }
+
+    /// Creates a new isometry from the given translation coordinates.
+    #[inline]
+    pub fn translation(x: N, y: N) -> Self {
+        Self::new(Vector2::new(x, y), N::zero())
+    }
+
+    /// Creates a new isometry from the given rotation angle.
+    #[inline]
+    pub fn rotation(angle: N) -> Self {
+        Self::new(Vector2::zeros(), angle)
+    }
 }
 
 impl<N: Real> Isometry<N, U2, UnitComplex<N>> {
@@ -153,6 +164,18 @@ impl<N: Real> Isometry<N, U2, UnitComplex<N>> {
             UnitComplex::from_angle(angle),
         )
     }
+
+    /// Creates a new isometry from the given translation coordinates.
+    #[inline]
+    pub fn translation(x: N, y: N) -> Self {
+        Self::from_parts(Translation2::new(x, y), UnitComplex::identity())
+    }
+
+    /// Creates a new isometry from the given rotation angle.
+    #[inline]
+    pub fn rotation(angle: N) -> Self {
+        Self::new(Vector2::zeros(), angle)
+    }
 }
 
 // 3D rotation.
@@ -165,7 +188,6 @@ macro_rules! isometry_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Isometry3, IsometryMatrix3, Point3, Vector3};
             /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -191,6 +213,18 @@ macro_rules! isometry_construction_impl(
                     $RotId::<$($RotParams),*>::from_scaled_axis(axisangle))
             }
 
+            /// Creates a new isometry from the given translation coordinates.
+            #[inline]
+            pub fn translation(x: N, y: N, z: N) -> Self {
+                Self::from_parts(Translation3::new(x, y, z), $RotId::identity())
+            }
+
+            /// Creates a new isometry from the given rotation angle.
+            #[inline]
+            pub fn rotation(axisangle: Vector3<N>) -> Self {
+                Self::new(Vector3::zeros(), axisangle)
+            }
+
             /// Creates an isometry that corresponds to the local frame of an observer standing at the
             /// point `eye` and looking toward `target`.
             ///
@@ -206,7 +240,6 @@ macro_rules! isometry_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Isometry3, IsometryMatrix3, Point3, Vector3};
             /// let eye = Point3::new(1.0, 2.0, 3.0);
@@ -214,23 +247,32 @@ macro_rules! isometry_construction_impl(
             /// let up = Vector3::y();
             ///
             /// // Isometry with its rotation part represented as a UnitQuaternion
-            /// let iso = Isometry3::new_observer_frame(&eye, &target, &up);
+            /// let iso = Isometry3::face_towards(&eye, &target, &up);
             /// assert_eq!(iso * Point3::origin(), eye);
             /// assert_relative_eq!(iso * Vector3::z(), Vector3::x());
             ///
             /// // Isometry with its rotation part represented as Rotation3 (a 3x3 rotation matrix).
-            /// let iso = IsometryMatrix3::new_observer_frame(&eye, &target, &up);
+            /// let iso = IsometryMatrix3::face_towards(&eye, &target, &up);
             /// assert_eq!(iso * Point3::origin(), eye);
             /// assert_relative_eq!(iso * Vector3::z(), Vector3::x());
             /// ```
             #[inline]
-            pub fn new_observer_frame(eye:    &Point3<N>,
+            pub fn face_towards(eye:    &Point3<N>,
                                       target: &Point3<N>,
                                       up:     &Vector3<N>)
                                       -> Self {
                 Self::from_parts(
                     Translation::from(eye.coords.clone()),
-                    $RotId::new_observer_frame(&(target - eye), up))
+                    $RotId::face_towards(&(target - eye), up))
+            }
+
+            /// Deprecated: Use [Isometry::face_towards] instead.
+            #[deprecated(note="renamed to `face_towards`")]
+            pub fn new_observer_frame(eye:    &Point3<N>,
+                                      target: &Point3<N>,
+                                      up:     &Vector3<N>)
+                                      -> Self {
+                Self::face_towards(eye, target, up)
             }
 
             /// Builds a right-handed look-at view matrix.
@@ -249,7 +291,6 @@ macro_rules! isometry_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Isometry3, IsometryMatrix3, Point3, Vector3};
             /// let eye = Point3::new(1.0, 2.0, 3.0);
@@ -293,7 +334,6 @@ macro_rules! isometry_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Isometry3, IsometryMatrix3, Point3, Vector3};
             /// let eye = Point3::new(1.0, 2.0, 3.0);

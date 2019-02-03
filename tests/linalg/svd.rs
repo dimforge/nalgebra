@@ -3,14 +3,16 @@ use na::{DMatrix, Matrix6};
 
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
+    use na::{
+        DMatrix, DVector, Matrix2, Matrix2x5, Matrix3, Matrix3x5, Matrix4, Matrix5x2, Matrix5x3,
+    };
     use std::cmp;
-    use na::{DMatrix, Matrix2, Matrix3, Matrix4, Matrix5x2, Matrix5x3, Matrix2x5, Matrix3x5, DVector};
 
     quickcheck! {
         fn svd(m: DMatrix<f64>) -> bool {
             if m.len() > 0 {
                 let svd = m.clone().svd(true, true);
-                let recomp_m = svd.clone().recompose();
+                let recomp_m = svd.clone().recompose().unwrap();
                 let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
                 let ds = DMatrix::from_diagonal(&s);
 
@@ -91,7 +93,7 @@ mod quickcheck_tests {
         fn svd_pseudo_inverse(m: DMatrix<f64>) -> bool {
             if m.len() > 0 {
                 let svd = m.clone().svd(true, true);
-                let pinv = svd.pseudo_inverse(1.0e-10);
+                let pinv = svd.pseudo_inverse(1.0e-10).unwrap();
 
                 if m.nrows() > m.ncols() {
                     println!("{}", &pinv * &m);
@@ -118,10 +120,10 @@ mod quickcheck_tests {
                 let b1 = DVector::new_random(n);
                 let b2 = DMatrix::new_random(n, nb);
 
-                let sol1 = svd.solve(&b1, 1.0e-7);
-                let sol2 = svd.solve(&b2, 1.0e-7);
+                let sol1 = svd.solve(&b1, 1.0e-7).unwrap();
+                let sol2 = svd.solve(&b2, 1.0e-7).unwrap();
 
-                let recomp = svd.recompose();
+                let recomp = svd.recompose().unwrap();
                 if !relative_eq!(m, recomp, epsilon = 1.0e-6) {
                     println!("{}{}", m, recomp);
                 }
@@ -258,27 +260,26 @@ fn svd_singular_horizontal() {
     assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
 }
 
-
 #[test]
 fn svd_zeros() {
     let m = DMatrix::from_element(10, 10, 0.0);
     let svd = m.clone().svd(true, true);
-    assert_eq!(m, svd.recompose());
+    assert_eq!(Ok(m), svd.recompose());
 }
 
 #[test]
 fn svd_identity() {
     let m = DMatrix::<f64>::identity(10, 10);
     let svd = m.clone().svd(true, true);
-    assert_eq!(m, svd.recompose());
+    assert_eq!(Ok(m), svd.recompose());
 
     let m = DMatrix::<f64>::identity(10, 15);
     let svd = m.clone().svd(true, true);
-    assert_eq!(m, svd.recompose());
+    assert_eq!(Ok(m), svd.recompose());
 
     let m = DMatrix::<f64>::identity(15, 10);
     let svd = m.clone().svd(true, true);
-    assert_eq!(m, svd.recompose());
+    assert_eq!(Ok(m), svd.recompose());
 }
 
 #[test]
@@ -295,7 +296,7 @@ fn svd_with_delimited_subproblem() {
     m[(8,8)] = 16.0; m[(3,9)] = 17.0;
     m[(9,9)] = 18.0;
     let svd = m.clone().svd(true, true);
-    assert!(relative_eq!(m, svd.recompose(), epsilon = 1.0e-7));
+    assert!(relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7));
 
     // Rectangular versions.
     let mut m = DMatrix::<f64>::from_element(15, 10, 0.0);
@@ -310,10 +311,10 @@ fn svd_with_delimited_subproblem() {
     m[(8,8)] = 16.0; m[(3,9)] = 17.0;
     m[(9,9)] = 18.0;
     let svd = m.clone().svd(true, true);
-    assert!(relative_eq!(m, svd.recompose(), epsilon = 1.0e-7));
+    assert!(relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7));
 
     let svd = m.transpose().svd(true, true);
-    assert!(relative_eq!(m.transpose(), svd.recompose(), epsilon = 1.0e-7));
+    assert!(relative_eq!(m.transpose(), svd.recompose().unwrap(), epsilon = 1.0e-7));
 }
 
 #[test]
@@ -329,7 +330,15 @@ fn svd_fail() {
     println!("Singular values: {}", svd.singular_values);
     println!("u: {:.5}", svd.u.unwrap());
     println!("v: {:.5}", svd.v_t.unwrap());
-    let recomp = svd.recompose();
+    let recomp = svd.recompose().unwrap();
     println!("{:.5}{:.5}", m, recomp);
     assert!(relative_eq!(m, recomp, epsilon = 1.0e-5));
+}
+
+#[test]
+fn svd_err() {
+    let m = DMatrix::from_element(10, 10, 0.0);
+    let svd = m.clone().svd(false, false);
+    assert_eq!(Err("SVD recomposition: U and V^t have not been computed."), svd.clone().recompose());
+    assert_eq!(Err("SVD pseudo inverse: the epsilon must be non-negative."), svd.clone().pseudo_inverse(-1.0));
 }

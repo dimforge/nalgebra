@@ -115,13 +115,13 @@ impl<N: Real> Matrix4<N> {
     /// Creates a new homogeneous matrix for an orthographic projection.
     #[inline]
     pub fn new_orthographic(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> Self {
-        Orthographic3::new(left, right, bottom, top, znear, zfar).unwrap()
+        Orthographic3::new(left, right, bottom, top, znear, zfar).into_inner()
     }
 
     /// Creates a new homogeneous matrix for a perspective projection.
     #[inline]
     pub fn new_perspective(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
-        Perspective3::new(aspect, fovy, znear, zfar).unwrap()
+        Perspective3::new(aspect, fovy, znear, zfar).into_inner()
     }
 
     /// Creates an isometry that corresponds to the local frame of an observer standing at the
@@ -130,8 +130,14 @@ impl<N: Real> Matrix4<N> {
     /// It maps the view direction `target - eye` to the positive `z` axis and the origin to the
     /// `eye`.
     #[inline]
+    pub fn face_towards(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Self {
+        IsometryMatrix3::face_towards(eye, target, up).to_homogeneous()
+    }
+
+    /// Deprecated: Use [Matrix4::face_towards] instead.
+    #[deprecated(note="renamed to `face_towards`")]
     pub fn new_observer_frame(eye: &Point3<N>, target: &Point3<N>, up: &Vector3<N>) -> Self {
-        IsometryMatrix3::new_observer_frame(eye, target, up).to_homogeneous()
+        Matrix4::face_towards(eye, target, up)
     }
 
     /// Builds a right-handed look-at view matrix.
@@ -348,7 +354,7 @@ where DefaultAllocator: Allocator<N, D, D>
         let translation = self.fixed_slice::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1);
         let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
         let n = normalizer.tr_dot(&pt.coords)
-            + unsafe { *self.get_unchecked(D::dim() - 1, D::dim() - 1) };
+            + unsafe { *self.get_unchecked((D::dim() - 1, D::dim() - 1)) };
 
         if !n.is_zero() {
             return transform * (pt / n) + translation;

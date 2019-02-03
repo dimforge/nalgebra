@@ -37,6 +37,7 @@ mod translation_alga;
 mod translation_alias;
 mod translation_construction;
 mod translation_conversion;
+mod translation_coordinates;
 mod translation_ops;
 
 mod isometry;
@@ -52,6 +53,8 @@ mod similarity_alias;
 mod similarity_construction;
 mod similarity_conversion;
 mod similarity_ops;
+
+mod swizzle;
 
 mod transform;
 mod transform_alga;

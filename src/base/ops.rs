@@ -45,7 +45,7 @@ where
             "Matrix index out of bounds."
         );
 
-        unsafe { self.get_unchecked(ij.0, ij.1) }
+        unsafe { self.get_unchecked((ij.0, ij.1)) }
     }
 }
 
@@ -71,7 +71,7 @@ where
             "Matrix index out of bounds."
         );
 
-        unsafe { self.get_unchecked_mut(ij.0, ij.1) }
+        unsafe { self.get_unchecked_mut((ij.0, ij.1)) }
     }
 }
 
@@ -172,8 +172,8 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. self.ncols() {
                         for i in 0 .. self.nrows() {
                             unsafe {
-                                let val = self.get_unchecked(i, j).$method(*rhs.get_unchecked(i, j));
-                                *out.get_unchecked_mut(i, j) = val;
+                                let val = self.get_unchecked((i, j)).$method(*rhs.get_unchecked((i, j)));
+                                *out.get_unchecked_mut((i, j)) = val;
                             }
                         }
                     }
@@ -204,7 +204,7 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. rhs.ncols() {
                         for i in 0 .. rhs.nrows() {
                             unsafe {
-                                self.get_unchecked_mut(i, j).$method_assign(*rhs.get_unchecked(i, j))
+                                self.get_unchecked_mut((i, j)).$method_assign(*rhs.get_unchecked((i, j)))
                             }
                         }
                     }
@@ -235,8 +235,8 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. self.ncols() {
                         for i in 0 .. self.nrows() {
                             unsafe {
-                                let r = rhs.get_unchecked_mut(i, j);
-                                *r = self.get_unchecked(i, j).$method(*r)
+                                let r = rhs.get_unchecked_mut((i, j));
+                                *r = self.get_unchecked((i, j)).$method(*r)
                             }
                         }
                     }
@@ -448,7 +448,7 @@ macro_rules! componentwise_scalarop_impl(
             fn $method_assign(&mut self, rhs: N) {
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
-                        unsafe { self.get_unchecked_mut(i, j).$method_assign(rhs) };
+                        unsafe { self.get_unchecked_mut((i, j)).$method_assign(rhs) };
                     }
                 }
             }
@@ -657,7 +657,7 @@ where
         for i in 0..ncols1 {
             for j in 0..ncols2 {
                 let dot = self.column(i).dot(&rhs.column(j));
-                unsafe { *out.get_unchecked_mut(i, j) = dot };
+                unsafe { *out.get_unchecked_mut((i, j)) = dot };
             }
         }
     }
@@ -704,10 +704,10 @@ where
                 for j2 in 0..ncols2.value() {
                     for i1 in 0..nrows1.value() {
                         unsafe {
-                            let coeff = *self.get_unchecked(i1, j1);
+                            let coeff = *self.get_unchecked((i1, j1));
 
                             for i2 in 0..nrows2.value() {
-                                *data_res = coeff * *rhs.get_unchecked(i2, j2);
+                                *data_res = coeff * *rhs.get_unchecked((i2, j2));
                                 data_res = data_res.offset(1);
                             }
                         }
@@ -761,7 +761,7 @@ where
 }
 
 impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Returns the absolute value of the coefficient with the largest absolute value.
+    /// Returns the absolute value of the component with the largest absolute value.
     #[inline]
     pub fn amax(&self) -> N {
         let mut max = N::zero();
@@ -777,7 +777,7 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
         max
     }
 
-    /// Returns the absolute value of the coefficient with the smallest absolute value.
+    /// Returns the absolute value of the component with the smallest absolute value.
     #[inline]
     pub fn amin(&self) -> N {
         let mut it = self.iter();
@@ -795,5 +795,43 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
         }
 
         min
+    }
+
+    /// Returns the component with the largest value.
+    #[inline]
+    pub fn max(&self) -> N {
+        let mut it = self.iter();
+        let mut max = it
+            .next()
+            .expect("max: empty matrices not supported.");
+
+        for e in it {
+            let ae = e;
+
+            if ae > max {
+                max = ae;
+            }
+        }
+
+        *max
+    }
+
+    /// Returns the component with the smallest value.
+    #[inline]
+    pub fn min(&self) -> N {
+        let mut it = self.iter();
+        let mut min = it
+            .next()
+            .expect("min: empty matrices not supported.");
+
+        for e in it {
+            let ae = e;
+
+            if ae < min {
+                min = ae;
+            }
+        }
+
+        *min
     }
 }

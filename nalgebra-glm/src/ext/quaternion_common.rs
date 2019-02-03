@@ -33,5 +33,5 @@ pub fn quat_lerp<N: Real>(x: &Qua<N>, y: &Qua<N>, a: N) -> Qua<N> {
 pub fn quat_slerp<N: Real>(x: &Qua<N>, y: &Qua<N>, a: N) -> Qua<N> {
     Unit::new_normalize(*x)
         .slerp(&Unit::new_normalize(*y), a)
-        .unwrap()
+        .into_inner()
 }

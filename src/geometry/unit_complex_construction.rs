@@ -7,10 +7,9 @@ use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
 use alga::general::Real;
-use base::allocator::Allocator;
 use base::dimension::{U1, U2};
 use base::storage::Storage;
-use base::{DefaultAllocator, Unit, Vector};
+use base::{Unit, Vector};
 use geometry::{Rotation2, UnitComplex};
 
 impl<N: Real> UnitComplex<N> {
@@ -36,7 +35,6 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitComplex, Point2};
     /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
@@ -57,7 +55,6 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitComplex, Point2};
     /// let rot = UnitComplex::from_angle(f32::consts::FRAC_PI_2);
@@ -79,7 +76,6 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitComplex, Vector2, Point2};
     /// let angle = f32::consts::FRAC_PI_2;
@@ -139,7 +135,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector2, UnitComplex};
     /// let a = Vector2::new(1.0, 2.0);
     /// let b = Vector2::new(2.0, 1.0);
@@ -162,7 +157,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector2, UnitComplex};
     /// let a = Vector2::new(1.0, 2.0);
     /// let b = Vector2::new(2.0, 1.0);
@@ -198,7 +192,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector2, UnitComplex};
     /// let a = Unit::new_normalize(Vector2::new(1.0, 2.0));
     /// let b = Unit::new_normalize(Vector2::new(2.0, 1.0));
@@ -224,7 +217,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector2, UnitComplex};
     /// let a = Unit::new_normalize(Vector2::new(1.0, 2.0));
     /// let b = Unit::new_normalize(Vector2::new(2.0, 1.0));

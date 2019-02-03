@@ -16,3 +16,5 @@ extern crate serde_json;
 mod core;
 mod geometry;
 mod linalg;
+#[cfg(feature = "sparse")]
+mod sparse;

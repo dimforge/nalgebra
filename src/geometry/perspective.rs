@@ -141,6 +141,14 @@ impl<N: Real> Perspective3<N> {
 
     /// Retrieves the underlying homogeneous matrix.
     #[inline]
+    pub fn into_inner(self) -> Matrix4<N> {
+        self.matrix
+    }
+
+    /// Retrieves the underlying homogeneous matrix.
+    /// Deprecated: Use [Perspective3::into_inner] instead.
+    #[deprecated(note="use `.into_inner()` instead")]
+    #[inline]
     pub fn unwrap(self) -> Matrix4<N> {
         self.matrix
     }
@@ -279,6 +287,6 @@ impl<N: Real + Arbitrary> Arbitrary for Perspective3<N> {
 impl<N: Real> From<Perspective3<N>> for Matrix4<N> {
     #[inline]
     fn from(orth: Perspective3<N>) -> Self {
-        orth.unwrap()
+        orth.into_inner()
     }
 }
