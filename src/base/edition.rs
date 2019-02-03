@@ -1,6 +1,7 @@
 use num::{One, Zero};
 use std::cmp;
 use std::ptr;
+use std::iter::ExactSizeIterator;
 use std::mem;
 
 use base::allocator::{Allocator, Reallocator};
@@ -24,12 +25,58 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
-    /// Extracts the upper triangular part of this matrix (including the diagonal).
+    /// Extracts the lower triangular part of this matrix (including the diagonal).
     #[inline]
     pub fn lower_triangle(&self) -> MatrixMN<N, R, C>
     where DefaultAllocator: Allocator<N, R, C> {
         let mut res = self.clone_owned();
         res.fill_upper_triangle(N::zero(), 1);
+
+        res
+    }
+
+    /// Creates a new matrix by extracting the given set of rows from `self`.
+    pub fn select_rows<'a, I>(&self, irows: I) -> MatrixMN<N, Dynamic, C>
+        where I: IntoIterator<Item = &'a usize>,
+              I::IntoIter: ExactSizeIterator + Clone,
+              DefaultAllocator: Allocator<N, Dynamic, C> {
+        let irows = irows.into_iter();
+        let ncols = self.data.shape().1;
+        let mut res = unsafe { MatrixMN::new_uninitialized_generic(Dynamic::new(irows.len()), ncols) };
+
+        // First, check that all the indices from irows are valid.
+        // This will allow us to use unchecked access in the inner loop.
+        for i in irows.clone() {
+            assert!(*i < self.nrows(), "Row index out of bounds.")
+        }
+
+        for j in 0..ncols.value() {
+            // FIXME: use unchecked column indexing
+            let mut res = res.column_mut(j);
+            let mut src = self.column(j);
+
+            for (destination, source) in irows.clone().enumerate() {
+                unsafe {
+                    *res.vget_unchecked_mut(destination) = *src.vget_unchecked(*source)
+                }
+            }
+        }
+
+        res
+    }
+
+    /// Creates a new matrix by extracting the given set of columns from `self`.
+    pub fn select_columns<'a, I>(&self, icols: I) -> MatrixMN<N, R, Dynamic>
+        where I: IntoIterator<Item = &'a usize>,
+              I::IntoIter: ExactSizeIterator,
+              DefaultAllocator: Allocator<N, R, Dynamic> {
+        let icols = icols.into_iter();
+        let nrows = self.data.shape().0;
+        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, Dynamic::new(icols.len())) };
+
+        for (destination, source) in icols.enumerate() {
+            res.column_mut(destination).copy_from(&self.column(*source))
+        }
 
         res
     }
@@ -59,7 +106,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         let n = cmp::min(nrows, ncols);
 
         for i in 0..n {
-            unsafe { *self.get_unchecked_mut(i, i) = val }
+            unsafe { *self.get_unchecked_mut((i, i)) = val }
         }
     }
 
@@ -68,7 +115,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn fill_row(&mut self, i: usize, val: N) {
         assert!(i < self.nrows(), "Row index out of bounds.");
         for j in 0..self.ncols() {
-            unsafe { *self.get_unchecked_mut(i, j) = val }
+            unsafe { *self.get_unchecked_mut((i, j)) = val }
         }
     }
 
@@ -77,7 +124,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn fill_column(&mut self, j: usize, val: N) {
         assert!(j < self.ncols(), "Row index out of bounds.");
         for i in 0..self.nrows() {
-            unsafe { *self.get_unchecked_mut(i, j) = val }
+            unsafe { *self.get_unchecked_mut((i, j)) = val }
         }
     }
 
@@ -94,7 +141,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         assert_eq!(diag.len(), min_nrows_ncols, "Mismatched dimensions.");
 
         for i in 0..min_nrows_ncols {
-            unsafe { *self.get_unchecked_mut(i, i) = *diag.vget_unchecked(i) }
+            unsafe { *self.get_unchecked_mut((i, i)) = *diag.vget_unchecked(i) }
         }
     }
 
@@ -129,7 +176,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn fill_lower_triangle(&mut self, val: N, shift: usize) {
         for j in 0..self.ncols() {
             for i in (j + shift)..self.nrows() {
-                unsafe { *self.get_unchecked_mut(i, j) = val }
+                unsafe { *self.get_unchecked_mut((i, j)) = val }
             }
         }
     }
@@ -147,7 +194,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
             // FIXME: is there a more efficient way to avoid the min ?
             // (necessary for rectangular matrices)
             for i in 0..cmp::min(j + 1 - shift, self.nrows()) {
-                unsafe { *self.get_unchecked_mut(i, j) = val }
+                unsafe { *self.get_unchecked_mut((i, j)) = val }
             }
         }
     }
@@ -192,7 +239,7 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
         for j in 0..dim {
             for i in j + 1..dim {
                 unsafe {
-                    *self.get_unchecked_mut(i, j) = *self.get_unchecked(j, i);
+                    *self.get_unchecked_mut((i, j)) = *self.get_unchecked((j, i));
                 }
             }
         }
@@ -207,7 +254,7 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
         for j in 1..self.ncols() {
             for i in 0..j {
                 unsafe {
-                    *self.get_unchecked_mut(i, j) = *self.get_unchecked(j, i);
+                    *self.get_unchecked_mut((i, j)) = *self.get_unchecked((j, i));
                 }
             }
         }
@@ -778,5 +825,138 @@ unsafe fn extend_rows<N: Scalar>(
             ptr_out.offset(curr_i as isize),
             nrows,
         );
+    }
+}
+
+/// Extend the number of columns of the `Matrix` with elements from
+/// a given iterator.
+impl<N, R, S> Extend<N> for Matrix<N, R, Dynamic, S>
+where
+    N: Scalar,
+    R: Dim,
+    S: Extend<N>,
+{
+    /// Extend the number of columns of the `Matrix` with elements
+    /// from the given iterator.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{DMatrix, Dynamic, Matrix, MatrixMN, Matrix3};
+    ///
+    /// let data = vec![0, 1, 2,      // column 1
+    ///                 3, 4, 5];     // column 2
+    ///
+    /// let mut matrix = DMatrix::from_vec(3, 2, data);
+    ///
+    /// matrix.extend(vec![6, 7, 8]); // column 3
+    ///
+    /// assert!(matrix.eq(&Matrix3::new(0, 3, 6,
+    ///                                 1, 4, 7,
+    ///                                 2, 5, 8)));
+    /// ```
+    ///
+    /// # Panics
+    /// This function panics if the number of elements yielded by the
+    /// given iterator is not a multiple of the number of rows of the
+    /// `Matrix`.
+    ///
+    /// ```should_panic
+    /// # use nalgebra::{DMatrix, Dynamic, MatrixMN};
+    /// let data = vec![0, 1, 2,  // column 1
+    ///                 3, 4, 5]; // column 2
+    ///
+    /// let mut matrix = DMatrix::from_vec(3, 2, data);
+    ///
+    /// // The following panics because the vec length is not a multiple of 3.
+    /// matrix.extend(vec![6, 7, 8, 9]);
+    /// ```
+    fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I) {
+        self.data.extend(iter);
+    }
+}
+
+/// Extend the number of rows of the `Vector` with elements from
+/// a given iterator.
+impl<N, S> Extend<N> for Matrix<N, Dynamic, U1, S>
+where
+    N: Scalar,
+    S: Extend<N>,
+{
+    /// Extend the number of rows of a `Vector` with elements
+    /// from the given iterator.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::DVector;
+    /// let mut vector = DVector::from_vec(vec![0, 1, 2]);
+    /// vector.extend(vec![3, 4, 5]);
+    /// assert!(vector.eq(&DVector::from_vec(vec![0, 1, 2, 3, 4, 5])));
+    /// ```
+    fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I) {
+        self.data.extend(iter);
+    }
+}
+
+impl<N, R, S, RV, SV> Extend<Vector<N, RV, SV>> for Matrix<N, R, Dynamic, S>
+where
+    N: Scalar,
+    R: Dim,
+    S: Extend<Vector<N, RV, SV>>,
+    RV: Dim,
+    SV: Storage<N, RV>,
+    ShapeConstraint: SameNumberOfRows<R, RV>,
+{
+    /// Extends the number of columns of a `Matrix` with `Vector`s
+    /// from a given iterator.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{DMatrix, Vector3, Matrix3x4};
+    ///
+    /// let data = vec![0, 1, 2,          // column 1
+    ///                 3, 4, 5];         // column 2
+    ///
+    /// let mut matrix = DMatrix::from_vec(3, 2, data);
+    ///
+    /// matrix.extend(
+    ///   vec![Vector3::new(6,  7,  8),   // column 3
+    ///        Vector3::new(9, 10, 11)]); // column 4
+    ///
+    /// assert!(matrix.eq(&Matrix3x4::new(0, 3, 6,  9,
+    ///                                   1, 4, 7, 10,
+    ///                                   2, 5, 8, 11)));
+    /// ```
+    ///
+    /// # Panics
+    /// This function panics if the dimension of each `Vector` yielded
+    /// by the given iterator is not equal to the number of rows of
+    /// this `Matrix`.
+    ///
+    /// ```should_panic
+    /// # use nalgebra::{DMatrix, Vector2, Matrix3x4};
+    /// let mut matrix =
+    ///   DMatrix::from_vec(3, 2,
+    ///                     vec![0, 1, 2,   // column 1
+    ///                          3, 4, 5]); // column 2
+    ///
+    /// // The following panics because this matrix can only be extended with 3-dimensional vectors.
+    /// matrix.extend(
+    ///   vec![Vector2::new(6,  7)]); // too few dimensions!
+    /// ```
+    ///
+    /// ```should_panic
+    /// # use nalgebra::{DMatrix, Vector4, Matrix3x4};
+    /// let mut matrix =
+    ///   DMatrix::from_vec(3, 2,
+    ///                     vec![0, 1, 2,   // column 1
+    ///                          3, 4, 5]); // column 2
+    ///
+    /// // The following panics because this matrix can only be extended with 3-dimensional vectors.
+    /// matrix.extend(
+    ///   vec![Vector4::new(6, 7, 8, 9)]); // too few dimensions!
+    /// ```
+    fn extend<I: IntoIterator<Item=Vector<N, RV, SV>>>(&mut self, iter: I)
+    {
+        self.data.extend(iter);
     }
 }

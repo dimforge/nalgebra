@@ -17,8 +17,7 @@ pub trait Number:
 
 impl<T: Scalar + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + FromPrimitive + Bounded>
     Number for T
-{
-}
+{}
 
 #[doc(hidden)]
 pub trait Alloc<N: Scalar, R: Dimension, C: Dimension = U1>:
@@ -77,5 +76,4 @@ impl<N: Scalar, R: Dimension, C: Dimension, T> Alloc<N, R, C> for T where T: All
         + Allocator<i16, C>
         + Allocator<(usize, usize), R>
         + Allocator<(usize, usize), C>
-{
-}
+{}

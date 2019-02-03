@@ -15,13 +15,17 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Serialize"))
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: Serialize"
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Deserialize<'de>"))
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: Deserialize<'de>"
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct Cholesky<N: Scalar, D: Dim>
@@ -34,8 +38,7 @@ impl<N: Scalar, D: Dim> Copy for Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
-{
-}
+{}
 
 impl<N: CholeskyScalar + Zero, D: Dim> Cholesky<N, D>
 where DefaultAllocator: Allocator<N, D, D>
@@ -157,7 +160,7 @@ where DefaultAllocator: Allocator<N, D, D>
         // Copy lower triangle to upper triangle.
         for i in 0..dim {
             for j in i + 1..dim {
-                unsafe { *self.l.get_unchecked_mut(i, j) = *self.l.get_unchecked(j, i) };
+                unsafe { *self.l.get_unchecked_mut((i, j)) = *self.l.get_unchecked((j, i)) };
             }
         }
 

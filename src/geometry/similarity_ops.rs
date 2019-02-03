@@ -269,7 +269,7 @@ similarity_binop_impl_all!(
     [ref ref] => {
         let shift = self.isometry.rotation.transform_vector(&rhs.translation.vector) * self.scaling();
         Similarity::from_parts(
-            Translation::from_vector(&self.isometry.translation.vector + shift),
+            Translation::from(&self.isometry.translation.vector + shift),
             self.isometry.rotation.clone() * rhs.rotation.clone(),
             self.scaling())
     };
@@ -352,7 +352,7 @@ similarity_binop_impl_all!(
     [ref ref] => {
         let shift = self.isometry.rotation.transform_vector(&right.vector) * self.scaling();
         Similarity::from_parts(
-            Translation::from_vector(&self.isometry.translation.vector + shift),
+            Translation::from(&self.isometry.translation.vector + shift),
             self.isometry.rotation.clone(),
             self.scaling())
     };

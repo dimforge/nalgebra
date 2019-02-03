@@ -7,18 +7,53 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.17.0] - WIP
 
 ### Added
-  * Add swizzling up to dimension 3. For example, you can do `v.zxy()` as an equivalent to `Vector3::new(v.z, v.x, v.w)`.
+  * Add swizzling up to dimension 3 for vectors. For example, you can do `v.zxy()` as an equivalent to `Vector3::new(v.z, v.x, v.y)`.
+  * Add swizzling up to dimension 3 for points. For example, you can do `p.zxy()` as an equivalent to `Point3::new(p.z, p.x, p.y)`.
   * Add `.copy_from_slice` to copy matrix components from a slice in column-major order.
   * Add `.dot` to quaternions.
   * Add `.zip_zip_map` for iterating on three matrices simultaneously, and applying a closure to them.
   * Add `.slerp` and `.try_slerp` to unit vectors.
+  * Add `.lerp` to vectors.
   * Add `.to_projective` and `.as_projective` to `Perspective3` and `Orthographic3` in order to
   use them as `Projective3` structures.
   * Add `From/Into` impls to allow the conversion of any transformation type to a matrix.
   * Add `Into` impls to convert a matrix slice into an owned matrix.
   * Add `Point*::from_slice` to create a point from a slice.
-  * Add `.map_with_location` to matrices to apply a map which passes the component indices to the user-defined closure alongide
+  * Add `.map_with_location` to matrices to apply a map which passes the component indices to the user-defined closure alongside
   the component itself.
+  * Add impl `From<Vector>` for `Point`.
+  * Add impl `From<Vector4>` for `Quaternion`.
+  * Add impl `From<Vector>` for `Translation`.
+  * Add the `::from_vec` constructor to construct a matrix from a `Vec` (a `DMatrix` will reuse the original `Vec`
+  as-is for its storage).
+  * Add `.to_homogeneous` to square matrices (and with dimensions higher than 1x1). This will increase their number of row
+  and columns by 1. The new column and row are filled with 0, except for the diagonal element which is set to 1.
+  * Implement `Extend<Vec>` for matrices with a dynamic storage. The provided `Vec` is assumed to represent a column-major
+  matrix with the same number of rows as the one being extended. This will effectively append new columns on the right of
+  the matrix being extended.
+  * Implement `Extend<Vec>` for vectors with a dynamic storage. This will concatenate the vector with the given `Vec`.
+  * Implement `Extend<Matrix<...>>` for matrices with dynamic storage. This will concatenate the columns of both matrices.
+  * Implement `Into<Vec>` for the `MatrixVec` storage.
+  * Implement `Hash` for all matrices.
+  * Add a `.len()` method to retrieve the size of a `MatrixVec`.
+
+### Modified
+  * The orthographic projection no longer require that `bottom < top`, that `left < right`, and that `znear < zfar`. The
+  only restriction now ith that they must not be equal (in which case the projection would be singular).
+  * The `Point::from_coordinates` methods is deprecated. Use `Point::from` instead.
+  * The `.transform_point` and `.transform_vector` methods are now inherent methods for matrices so that the user does not have to
+  explicitly import the `Transform` trait from the alga crate.
+  * Renamed the matrix storage types: `MatrixArray` -> `ArrayStorage` and `MatrixVec` -> `VecStorage`.
+  * Renamed `.unwrap()` to `.into_inner()` for geometric types that wrap another type.
+    This is for the case of `Unit`, `Transform`, `Orthographic3`, `Perspective3`, `Rotation`.
+  * Deprecate several functions at the root of the crate (replaced by methods).
+
+### Removed
+    * Remove the `Deref` impl for `MatrixVec` as it could cause hard-to-understand compilation errors.
+
+### nalgebra-glm
+  * Add several alternative projection computations, e.g., `ortho_lh`, `ortho_lh_no`, `perspective_lh`, etc.
+  * Add features matching those of nalgebra, in particular: `serde-serialize`, `abmonation-serialize`, std` (enabled by default).
 
 ## [0.16.0]
 All dependencies have been updated to their latest versions.

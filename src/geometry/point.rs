@@ -19,7 +19,7 @@ use base::{DefaultAllocator, Scalar, VectorN};
 
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Point<N: Scalar, D: DimName>
 where DefaultAllocator: Allocator<N, D>
 {
@@ -44,17 +44,6 @@ where
 {
 }
 
-impl<N: Scalar, D: DimName> Clone for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: Clone,
-{
-    #[inline]
-    fn clone(&self) -> Self {
-        Point::from_coordinates(self.coords.clone())
-    }
-}
-
 #[cfg(feature = "serde-serialize")]
 impl<N: Scalar, D: DimName> Serialize for Point<N, D>
 where
@@ -77,7 +66,7 @@ where
     where Des: Deserializer<'a> {
         let coords = VectorN::<N, D>::deserialize(deserializer)?;
 
-        Ok(Point::from_coordinates(coords))
+        Ok(Point::from(coords))
     }
 }
 
@@ -105,14 +94,21 @@ where
 impl<N: Scalar, D: DimName> Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
-    /// Clones this point into one that owns its data.
-    #[inline]
-    pub fn clone(&self) -> Point<N, D> {
-        Point::from_coordinates(self.coords.clone_owned())
-    }
-
     /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
     /// end of it.
+    ///
+    /// This is the same as `.into()`.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Point2, Point3, Vector3, Vector4};
+    /// let p = Point2::new(10.0, 20.0);
+    /// assert_eq!(p.to_homogeneous(), Vector3::new(10.0, 20.0, 1.0));
+    ///
+    /// // This works in any dimension.
+    /// let p = Point3::new(10.0, 20.0, 30.0);
+    /// assert_eq!(p.to_homogeneous(), Vector4::new(10.0, 20.0, 30.0, 1.0));
+    /// ```
     #[inline]
     pub fn to_homogeneous(&self) -> VectorN<N, DimNameSum<D, U1>>
     where
@@ -128,12 +124,24 @@ where DefaultAllocator: Allocator<N, D>
     }
 
     /// Creates a new point with the given coordinates.
+    #[deprecated(note = "Use Point::from(vector) instead.")]
     #[inline]
     pub fn from_coordinates(coords: VectorN<N, D>) -> Point<N, D> {
         Point { coords: coords }
     }
 
     /// The dimension of this point.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Point2, Point3};
+    /// let p = Point2::new(1.0, 2.0);
+    /// assert_eq!(p.len(), 2);
+    ///
+    /// // This works in any dimension.
+    /// let p = Point3::new(10.0, 20.0, 30.0);
+    /// assert_eq!(p.len(), 3);
+    /// ```
     #[inline]
     pub fn len(&self) -> usize {
         self.coords.len()
@@ -142,11 +150,23 @@ where DefaultAllocator: Allocator<N, D>
     /// The stride of this point. This is the number of buffer element separating each component of
     /// this point.
     #[inline]
+    #[deprecated(note = "This methods is no longer significant and will always return 1.")]
     pub fn stride(&self) -> usize {
         self.coords.strides().0
     }
 
     /// Iterates through this point coordinates.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let p = Point3::new(1.0, 2.0, 3.0);
+    /// let mut it = p.iter().cloned();
+    ///
+    /// assert_eq!(it.next(), Some(1.0));
+    /// assert_eq!(it.next(), Some(2.0));
+    /// assert_eq!(it.next(), Some(3.0));
+    /// assert_eq!(it.next(), None);
     #[inline]
     pub fn iter(&self) -> MatrixIter<N, D, U1, <DefaultAllocator as Allocator<N, D>>::Buffer> {
         self.coords.iter()
@@ -159,6 +179,17 @@ where DefaultAllocator: Allocator<N, D>
     }
 
     /// Mutably iterates through this point coordinates.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let mut p = Point3::new(1.0, 2.0, 3.0);
+    ///
+    /// for e in p.iter_mut() {
+    ///     *e *= 10.0;
+    /// }
+    ///
+    /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     #[inline]
     pub fn iter_mut(
         &mut self,

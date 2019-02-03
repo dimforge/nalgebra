@@ -16,17 +16,21 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize"))
+         VectorN<N, DimMinimum<R, C>>: Serialize"
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<N, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"))
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct QR<N: Scalar, R: DimMin<C>, C: Dim>
@@ -41,8 +45,7 @@ where
     DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     VectorN<N, DimMinimum<R, C>>: Copy,
-{
-}
+{}
 
 impl<N: QRScalar + Zero, R: DimMin<C>, C: Dim> QR<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>

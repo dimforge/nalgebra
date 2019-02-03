@@ -18,19 +18,19 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize")
-    )
+         MatrixN<N, D>: Serialize"
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Deserialize<'de>")
-    )
+         MatrixN<N, D>: Deserialize<'de>"
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct Eigen<N: Scalar, D: Dim>
@@ -49,8 +49,7 @@ where
     DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
     VectorN<N, D>: Copy,
     MatrixN<N, D>: Copy,
-{
-}
+{}
 
 impl<N: EigenScalar + Real, D: Dim> Eigen<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>

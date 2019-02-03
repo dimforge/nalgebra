@@ -19,13 +19,17 @@ use linalg::Hessenberg;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: Serialize"))
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: Serialize"
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: Deserialize<'de>"))
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: Deserialize<'de>"
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct RealSchur<N: Real, D: Dim>
@@ -39,8 +43,7 @@ impl<N: Real, D: Dim> Copy for RealSchur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: Dim> RealSchur<N, D>
 where
@@ -409,7 +412,7 @@ where
             rot.rotate_rows(&mut m);
 
             if compute_q {
-                let c = rot.unwrap();
+                let c = rot.into_inner();
                 // XXX: we have to build the matrix manually because
                 // rot.to_rotation_matrix().unwrap() causes an ICE.
                 q = Some(MatrixN::from_column_slice_generic(

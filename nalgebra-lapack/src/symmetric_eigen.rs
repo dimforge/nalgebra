@@ -18,17 +18,21 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize"))
+         MatrixN<N, D>: Serialize"
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: Deserialize<'de>,
-         MatrixN<N, D>: Deserialize<'de>"))
+         MatrixN<N, D>: Deserialize<'de>"
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Scalar, D: Dim>
@@ -46,8 +50,7 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,
     VectorN<N, D>: Copy,
-{
-}
+{}
 
 impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>

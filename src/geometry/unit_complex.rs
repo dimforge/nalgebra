@@ -11,24 +11,50 @@ pub type UnitComplex<N> = Unit<Complex<N>>;
 
 impl<N: Real> UnitComplex<N> {
     /// The rotation angle in `]-pi; pi]` of this unit complex number.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::UnitComplex;
+    /// let rot = UnitComplex::new(1.78);
+    /// assert_eq!(rot.angle(), 1.78);
+    /// ```
     #[inline]
     pub fn angle(&self) -> N {
         self.im.atan2(self.re)
     }
 
     /// The sine of the rotation angle.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::UnitComplex;
+    /// let angle = 1.78f32;
+    /// let rot = UnitComplex::new(angle);
+    /// assert_eq!(rot.sin_angle(), angle.sin());
+    /// ```
     #[inline]
     pub fn sin_angle(&self) -> N {
         self.im
     }
 
     /// The cosine of the rotation angle.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::UnitComplex;
+    /// let angle = 1.78f32;
+    /// let rot = UnitComplex::new(angle);
+    /// assert_eq!(rot.cos_angle(),angle.cos());
+    /// ```
     #[inline]
     pub fn cos_angle(&self) -> N {
         self.re
     }
 
     /// The rotation angle returned as a 1-dimensional vector.
+    ///
+    /// This is generally used in the context of generic programming. Using
+    /// the `.angle()` method instead is more common.
     #[inline]
     pub fn scaled_axis(&self) -> Vector1<N> {
         Vector1::new(self.angle())
@@ -36,6 +62,8 @@ impl<N: Real> UnitComplex<N> {
 
     /// The rotation axis and angle in ]0, pi] of this complex number.
     ///
+    /// This is generally used in the context of generic programming. Using
+    /// the `.angle()` method instead is more common.
     /// Returns `None` if the angle is zero.
     #[inline]
     pub fn axis_angle(&self) -> Option<(Unit<Vector1<N>>, N)> {
@@ -53,24 +81,62 @@ impl<N: Real> UnitComplex<N> {
     /// The underlying complex number.
     ///
     /// Same as `self.as_ref()`.
+    ///
+    /// # Example
+    /// ```
+    /// # extern crate num_complex;
+    /// # use num_complex::Complex;
+    /// # use nalgebra::UnitComplex;
+    /// let angle = 1.78f32;
+    /// let rot = UnitComplex::new(angle);
+    /// assert_eq!(*rot.complex(), Complex::new(angle.cos(), angle.sin()));
+    /// ```
     #[inline]
     pub fn complex(&self) -> &Complex<N> {
         self.as_ref()
     }
 
     /// Compute the conjugate of this unit complex number.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::UnitComplex;
+    /// let rot = UnitComplex::new(1.78);
+    /// let conj = rot.conjugate();
+    /// assert_eq!(rot.complex().im, -conj.complex().im);
+    /// assert_eq!(rot.complex().re, conj.complex().re);
+    /// ```
     #[inline]
     pub fn conjugate(&self) -> Self {
         UnitComplex::new_unchecked(self.conj())
     }
 
     /// Inverts this complex number if it is not zero.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::UnitComplex;
+    /// let rot = UnitComplex::new(1.2);
+    /// let inv = rot.inverse();
+    /// assert_relative_eq!(rot * inv, UnitComplex::identity(), epsilon = 1.0e-6);
+    /// assert_relative_eq!(inv * rot, UnitComplex::identity(), epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn inverse(&self) -> Self {
         self.conjugate()
     }
 
     /// The rotation angle needed to make `self` and `other` coincide.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::UnitComplex;
+    /// let rot1 = UnitComplex::new(0.1);
+    /// let rot2 = UnitComplex::new(1.7);
+    /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
+    /// ```
     #[inline]
     pub fn angle_to(&self, other: &Self) -> N {
         let delta = self.rotation_to(other);
@@ -80,12 +146,36 @@ impl<N: Real> UnitComplex<N> {
     /// The unit complex number needed to make `self` and `other` coincide.
     ///
     /// The result is such that: `self.rotation_to(other) * self == other`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::UnitComplex;
+    /// let rot1 = UnitComplex::new(0.1);
+    /// let rot2 = UnitComplex::new(1.7);
+    /// let rot_to = rot1.rotation_to(&rot2);
+    ///
+    /// assert_relative_eq!(rot_to * rot1, rot2);
+    /// assert_relative_eq!(rot_to.inverse() * rot2, rot1);
+    /// ```
     #[inline]
     pub fn rotation_to(&self, other: &Self) -> Self {
         other / self
     }
 
     /// Compute in-place the conjugate of this unit complex number.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::UnitComplex;
+    /// let angle = 1.7;
+    /// let rot = UnitComplex::new(angle);
+    /// let mut conj = UnitComplex::new(angle);
+    /// conj.conjugate_mut();
+    /// assert_eq!(rot.complex().im, -conj.complex().im);
+    /// assert_eq!(rot.complex().re, conj.complex().re);
+    /// ```
     #[inline]
     pub fn conjugate_mut(&mut self) {
         let me = self.as_mut_unchecked();
@@ -93,6 +183,17 @@ impl<N: Real> UnitComplex<N> {
     }
 
     /// Inverts in-place this unit complex number.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::UnitComplex;
+    /// let angle = 1.7;
+    /// let mut rot = UnitComplex::new(angle);
+    /// rot.inverse_mut();
+    /// assert_relative_eq!(rot * UnitComplex::new(angle), UnitComplex::identity());
+    /// assert_relative_eq!(UnitComplex::new(angle) * rot, UnitComplex::identity());
+    /// ```
     #[inline]
     pub fn inverse_mut(&mut self) {
         self.conjugate_mut()
@@ -102,12 +203,30 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// This returns the unit complex number that identifies a rotation angle equal to
     /// `self.angle() × n`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::UnitComplex;
+    /// let rot = UnitComplex::new(0.78);
+    /// let pow = rot.powf(2.0);
+    /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
+    /// ```
     #[inline]
     pub fn powf(&self, n: N) -> Self {
         Self::from_angle(self.angle() * n)
     }
 
     /// Builds the rotation matrix corresponding to this unit complex number.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{UnitComplex, Rotation2};
+    /// # use std::f32;
+    /// let rot = UnitComplex::new(f32::consts::FRAC_PI_6);
+    /// let expected = Rotation2::new(f32::consts::FRAC_PI_6);
+    /// assert_eq!(rot.to_rotation_matrix(), expected);
+    /// ```
     #[inline]
     pub fn to_rotation_matrix(&self) -> Rotation2<N> {
         let r = self.re;
@@ -117,6 +236,17 @@ impl<N: Real> UnitComplex<N> {
     }
 
     /// Converts this unit complex number into its equivalent homogeneous transformation matrix.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{UnitComplex, Matrix3};
+    /// # use std::f32;
+    /// let rot = UnitComplex::new(f32::consts::FRAC_PI_6);
+    /// let expected = Matrix3::new(0.8660254, -0.5,      0.0,
+    ///                             0.5,       0.8660254, 0.0,
+    ///                             0.0,       0.0,       1.0);
+    /// assert_eq!(rot.to_homogeneous(), expected);
+    /// ```
     #[inline]
     pub fn to_homogeneous(&self) -> Matrix3<N> {
         self.to_rotation_matrix().to_homogeneous()
@@ -185,6 +315,6 @@ impl<N: Real> From<UnitComplex<N>> for Matrix3<N> {
 impl<N: Real> From<UnitComplex<N>> for Matrix2<N> {
     #[inline]
     fn from(q: UnitComplex<N>) -> Matrix2<N> {
-        q.to_rotation_matrix().unwrap()
+        q.to_rotation_matrix().into_inner()
     }
 }

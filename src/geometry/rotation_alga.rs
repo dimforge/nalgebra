@@ -89,7 +89,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        Point::from_coordinates(self.inverse_transform_vector(&pt.coords))
+        Point::from(self.inverse_transform_vector(&pt.coords))
     }
 
     #[inline]

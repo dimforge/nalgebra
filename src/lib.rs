@@ -203,6 +203,12 @@ pub fn zero<T: Identity<Additive>>() -> T {
 ///
 /// * [`one`](fn.one.html)
 /// * [`zero`](fn.zero.html)
+///
+/// # Deprecated
+/// Use [Point::origin] instead.
+///
+/// Or, use [EuclideanSpace::origin](https://docs.rs/alga/0.7.2/alga/linear/trait.EuclideanSpace.html#tymethod.origin).
+#[deprecated(note = "use `Point::origin` instead")]
 #[inline]
 pub fn origin<P: EuclideanSpace>() -> P {
     P::origin()
@@ -289,6 +295,9 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 }
 
 /// The absolute value of `a`.
+///
+/// Deprecated: Use [Matrix::abs] or [Real::abs] instead.
+#[deprecated(note = "use `Matrix::abs` or `Real::abs` instead")]
 #[inline]
 pub fn abs<T: Signed>(a: &T) -> T {
     a.abs()
@@ -427,12 +436,26 @@ pub fn inverse<M: Inverse<Multiplicative>>(m: &M) -> M {
  */
 
 /// Computes the dot product of two vectors.
+///
+/// ## Deprecated
+/// Use these methods instead:
+///   - [Matrix::dot]
+///   - [Quaternion::dot]
+///
+/// Or, use [FiniteDimVectorSpace::dot](https://docs.rs/alga/0.7.2/alga/linear/trait.FiniteDimVectorSpace.html#tymethod.dot).
+#[deprecated(note = "use `Matrix::dot` or `Quaternion::dot` instead")]
 #[inline]
 pub fn dot<V: FiniteDimVectorSpace>(a: &V, b: &V) -> V::Field {
     a.dot(b)
 }
 
 /// Computes the smallest angle between two vectors.
+///
+/// ## Deprecated
+/// Use [Matrix::angle] instead.
+///
+/// Or, use [InnerSpace::angle](https://docs.rs/alga/0.7.2/alga/linear/trait.InnerSpace.html#method.angle).
+#[deprecated(note = "use `Matrix::angle` instead")]
 #[inline]
 pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
     a.angle(b)
@@ -449,6 +472,14 @@ pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude_squared`](fn.magnitude_squared.html)
 /// * [`norm_squared`](fn.norm_squared.html)
+///
+/// # Deprecated
+/// Use these methods instead:
+/// * [Matrix::norm]
+/// * [Quaternion::norm]
+///
+/// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
+#[deprecated(note = "use `Matrix::norm` or `Quaternion::norm` instead")]
 #[inline]
 pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
     v.norm()
@@ -461,6 +492,14 @@ pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude_squared`](fn.magnitude_squared.html)
 /// * [`norm`](fn.norm.html)
+///
+/// # Deprecated
+/// Use these methods instead:
+/// * [Matrix::norm_squared]
+/// * [Quaternion::norm_squared]
+///
+/// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
+#[deprecated(note = "use `Matrix::norm_squared` or `Quaternion::norm_squared` instead")]
 #[inline]
 pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
     v.norm_squared()
@@ -473,6 +512,14 @@ pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
 /// * [`magnitude_squared`](fn.magnitude_squared.html)
 /// * [`norm`](fn.norm.html)
 /// * [`norm_squared`](fn.norm_squared.html)
+///
+/// # Deprecated
+/// Use these methods instead:
+/// * [Matrix::magnitude]
+/// * [Quaternion::magnitude]
+///
+/// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
+#[deprecated(note = "use `Matrix::magnitude` or `Quaternion::magnitude` instead")]
 #[inline]
 pub fn magnitude<V: NormedSpace>(v: &V) -> V::Field {
     v.norm()
@@ -486,18 +533,42 @@ pub fn magnitude<V: NormedSpace>(v: &V) -> V::Field {
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`norm`](fn.norm.html)
 /// * [`norm_squared`](fn.norm_squared.html)
+///
+/// # Deprecated
+/// Use these methods instead:
+/// * [Matrix::magnitude_squared]
+/// * [Quaternion::magnitude_squared]
+///
+/// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
+#[deprecated(note = "use `Matrix::magnitude_squared` or `Quaternion::magnitude_squared` instead")]
 #[inline]
 pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::Field {
     v.norm_squared()
 }
 
 /// Computes the normalized version of the vector `v`.
+///
+/// # Deprecated
+/// Use these methods instead:
+/// * [Matrix::normalize]
+/// * [Quaternion::normalize]
+///
+/// Or, use [NormedSpace::normalize](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.normalize).
+#[deprecated(note = "use `Matrix::normalize` or `Quaternion::normalize` instead")]
 #[inline]
 pub fn normalize<V: NormedSpace>(v: &V) -> V {
     v.normalize()
 }
 
 /// Computes the normalized version of the vector `v` or returns `None` if its norm is smaller than `min_norm`.
+///
+/// # Deprecated
+/// Use these methods instead:
+/// * [Matrix::try_normalize]
+/// * [Quaternion::try_normalize]
+///
+/// Or, use [NormedSpace::try_normalize](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.try_normalize).
+#[deprecated(note = "use `Matrix::try_normalize` or `Quaternion::try_normalize` instead")]
 #[inline]
 pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::Field) -> Option<V> {
     v.try_normalize(min_norm)

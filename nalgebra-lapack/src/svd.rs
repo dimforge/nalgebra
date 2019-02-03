@@ -15,21 +15,25 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, R, R> +
                            Allocator<N, C, C>,
          MatrixN<N, R>: Serialize,
          MatrixN<N, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize"))
+         VectorN<N, DimMinimum<R, C>>: Serialize"
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, R, R> +
                            Allocator<N, C, C>,
          MatrixN<N, R>: Deserialize<'de>,
          MatrixN<N, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"))
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct SVD<N: Scalar, R: DimMin<C>, C: Dim>
@@ -49,8 +53,7 @@ where
     MatrixMN<N, R, R>: Copy,
     MatrixMN<N, C, C>: Copy,
     VectorN<N, DimMinimum<R, C>>: Copy,
-{
-}
+{}
 
 /// Trait implemented by floats (`f32`, `f64`) and complex floats (`Complex<f32>`, `Complex<f64>`)
 /// supported by the Singular Value Decompotition.

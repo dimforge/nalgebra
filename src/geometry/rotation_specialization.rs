@@ -22,6 +22,17 @@ use geometry::{Rotation2, Rotation3, UnitComplex};
  */
 impl<N: Real> Rotation2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation2, Point2};
+    /// let rot = Rotation2::new(f32::consts::FRAC_PI_2);
+    ///
+    /// assert_relative_eq!(rot * Point2::new(3.0, 4.0), Point2::new(-4.0, 3.0));
+    /// ```
     pub fn new(angle: N) -> Self {
         let (sia, coa) = angle.sin_cos();
         Self::from_matrix_unchecked(MatrixN::<N, U2>::new(coa, -sia, sia, coa))
@@ -29,7 +40,9 @@ impl<N: Real> Rotation2<N> {
 
     /// Builds a 2 dimensional rotation matrix from an angle in radian wrapped in a 1-dimensional vector.
     ///
-    /// Equivalent to `Self::new(axisangle[0])`.
+    ///
+    /// This is generally used in the context of generic programming. Using
+    /// the `::new(angle)` method instead is more common.
     #[inline]
     pub fn from_scaled_axis<SB: Storage<N, U1>>(axisangle: Vector<N, U1, SB>) -> Self {
         Self::new(axisangle[0])
@@ -38,6 +51,17 @@ impl<N: Real> Rotation2<N> {
     /// The rotation matrix required to align `a` and `b` but with its angle.
     ///
     /// This is the rotation `R` such that `(R * a).angle(b) == 0 && (R * a).dot(b).is_positive()`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Vector2, Rotation2};
+    /// let a = Vector2::new(1.0, 2.0);
+    /// let b = Vector2::new(2.0, 1.0);
+    /// let rot = Rotation2::rotation_between(&a, &b);
+    /// assert_relative_eq!(rot * a, b);
+    /// assert_relative_eq!(rot.inverse() * b, a);
+    /// ```
     #[inline]
     pub fn rotation_between<SB, SC>(a: &Vector<N, U2, SB>, b: &Vector<N, U2, SC>) -> Self
     where
@@ -49,6 +73,18 @@ impl<N: Real> Rotation2<N> {
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Vector2, Rotation2};
+    /// let a = Vector2::new(1.0, 2.0);
+    /// let b = Vector2::new(2.0, 1.0);
+    /// let rot2 = Rotation2::scaled_rotation_between(&a, &b, 0.2);
+    /// let rot5 = Rotation2::scaled_rotation_between(&a, &b, 0.5);
+    /// assert_relative_eq!(rot2 * rot2 * rot2 * rot2 * rot2 * a, b, epsilon = 1.0e-6);
+    /// assert_relative_eq!(rot5 * rot5 * a, b, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn scaled_rotation_between<SB, SC>(
         a: &Vector<N, U2, SB>,
@@ -65,12 +101,29 @@ impl<N: Real> Rotation2<N> {
 
 impl<N: Real> Rotation2<N> {
     /// The rotation angle.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Rotation2;
+    /// let rot = Rotation2::new(1.78);
+    /// assert_relative_eq!(rot.angle(), 1.78);
+    /// ```
     #[inline]
     pub fn angle(&self) -> N {
         self.matrix()[(1, 0)].atan2(self.matrix()[(0, 0)])
     }
 
     /// The rotation angle needed to make `self` and `other` coincide.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Rotation2;
+    /// let rot1 = Rotation2::new(0.1);
+    /// let rot2 = Rotation2::new(1.7);
+    /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
+    /// ```
     #[inline]
     pub fn angle_to(&self, other: &Rotation2<N>) -> N {
         self.rotation_to(other).angle()
@@ -79,6 +132,18 @@ impl<N: Real> Rotation2<N> {
     /// The rotation matrix needed to make `self` and `other` coincide.
     ///
     /// The result is such that: `self.rotation_to(other) * self == other`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Rotation2;
+    /// let rot1 = Rotation2::new(0.1);
+    /// let rot2 = Rotation2::new(1.7);
+    /// let rot_to = rot1.rotation_to(&rot2);
+    ///
+    /// assert_relative_eq!(rot_to * rot1, rot2);
+    /// assert_relative_eq!(rot_to.inverse() * rot2, rot1);
+    /// ```
     #[inline]
     pub fn rotation_to(&self, other: &Rotation2<N>) -> Rotation2<N> {
         other * self.inverse()
@@ -86,12 +151,24 @@ impl<N: Real> Rotation2<N> {
 
     /// Raise the quaternion to a given floating power, i.e., returns the rotation with the angle
     /// of `self` multiplied by `n`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Rotation2;
+    /// let rot = Rotation2::new(0.78);
+    /// let pow = rot.powf(2.0);
+    /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
+    /// ```
     #[inline]
     pub fn powf(&self, n: N) -> Rotation2<N> {
         Self::new(self.angle() * n)
     }
 
     /// The rotation angle returned as a 1-dimensional vector.
+    ///
+    /// This is generally used in the context of generic programming. Using
+    /// the `.angle()` method instead is more common.
     #[inline]
     pub fn scaled_axis(&self) -> VectorN<N, U1> {
         Vector1::new(self.angle())
@@ -129,6 +206,24 @@ impl<N: Real> Rotation3<N> {
     /// # Arguments
     ///   * `axisangle` - A vector representing the rotation. Its magnitude is the amount of rotation
     ///   in radian. Its direction is the axis of rotation.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation3, Point3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// // Point and vector being transformed in the tests.
+    /// let pt = Point3::new(4.0, 5.0, 6.0);
+    /// let vec = Vector3::new(4.0, 5.0, 6.0);
+    /// let rot = Rotation3::new(axisangle);
+    ///
+    /// assert_relative_eq!(rot * pt, Point3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    /// assert_relative_eq!(rot * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    ///
+    /// // A zero vector yields an identity.
+    /// assert_eq!(Rotation3::new(Vector3::<f32>::zeros()), Rotation3::identity());
+    /// ```
     pub fn new<SB: Storage<N, U3>>(axisangle: Vector<N, U3, SB>) -> Self {
         let axisangle = axisangle.into_owned();
         let (axis, angle) = Unit::new_and_get(axisangle);
@@ -136,11 +231,52 @@ impl<N: Real> Rotation3<N> {
     }
 
     /// Builds a 3D rotation matrix from an axis scaled by the rotation angle.
+    ///
+    /// This is the same as `Self::new(axisangle)`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation3, Point3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// // Point and vector being transformed in the tests.
+    /// let pt = Point3::new(4.0, 5.0, 6.0);
+    /// let vec = Vector3::new(4.0, 5.0, 6.0);
+    /// let rot = Rotation3::new(axisangle);
+    ///
+    /// assert_relative_eq!(rot * pt, Point3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    /// assert_relative_eq!(rot * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    ///
+    /// // A zero vector yields an identity.
+    /// assert_eq!(Rotation3::from_scaled_axis(Vector3::<f32>::zeros()), Rotation3::identity());
+    /// ```
     pub fn from_scaled_axis<SB: Storage<N, U3>>(axisangle: Vector<N, U3, SB>) -> Self {
         Self::new(axisangle)
     }
 
     /// Builds a 3D rotation matrix from an axis and a rotation angle.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation3, Point3, Vector3};
+    /// let axis = Vector3::y_axis();
+    /// let angle = f32::consts::FRAC_PI_2;
+    /// // Point and vector being transformed in the tests.
+    /// let pt = Point3::new(4.0, 5.0, 6.0);
+    /// let vec = Vector3::new(4.0, 5.0, 6.0);
+    /// let rot = Rotation3::from_axis_angle(&axis, angle);
+    ///
+    /// assert_eq!(rot.axis().unwrap(), axis);
+    /// assert_eq!(rot.angle(), angle);
+    /// assert_relative_eq!(rot * pt, Point3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    /// assert_relative_eq!(rot * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
+    ///
+    /// // A zero vector yields an identity.
+    /// assert_eq!(Rotation3::from_scaled_axis(Vector3::<f32>::zeros()), Rotation3::identity());
+    /// ```
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
     where SB: Storage<N, U3> {
         if angle.is_zero() {
@@ -172,6 +308,17 @@ impl<N: Real> Rotation3<N> {
     /// Creates a new rotation from Euler angles.
     ///
     /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Rotation3;
+    /// let rot = Rotation3::from_euler_angles(0.1, 0.2, 0.3);
+    /// let euler = rot.euler_angles();
+    /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
+    /// ```
     pub fn from_euler_angles(roll: N, pitch: N, yaw: N) -> Self {
         let (sr, cr) = roll.sin_cos();
         let (sp, cp) = pitch.sin_cos();
@@ -192,16 +339,35 @@ impl<N: Real> Rotation3<N> {
 
     /// Creates Euler angles from a rotation.
     ///
-    /// The angles are produced in the form (roll, yaw, pitch).
+    /// The angles are produced in the form (roll, pitch, yaw).
+    #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
     pub fn to_euler_angles(&self) -> (N, N, N) {
+        self.euler_angles()
+    }
+
+    /// Euler angles corresponding to this rotation from a rotation.
+    ///
+    /// The angles are produced in the form (roll, pitch, yaw).
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Rotation3;
+    /// let rot = Rotation3::from_euler_angles(0.1, 0.2, 0.3);
+    /// let euler = rot.euler_angles();
+    /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
+    /// ```
+    pub fn euler_angles(&self) -> (N, N, N) {
         // Implementation informed by "Computing Euler angles from a rotation matrix", by Gregory G. Slabaugh
         //  http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.371.6578
-        if self[(2, 0)].abs() != N::one() {
+        if self[(2, 0)].abs() < N::one() {
             let yaw = -self[(2, 0)].asin();
             let roll = (self[(2, 1)] / yaw.cos()).atan2(self[(2, 2)] / yaw.cos());
             let pitch = (self[(1, 0)] / yaw.cos()).atan2(self[(0, 0)] / yaw.cos());
             (roll, yaw, pitch)
-        } else if self[(2, 0)] == -N::one() {
+        } else if self[(2, 0)] <= -N::one() {
             (self[(0, 1)].atan2(self[(0, 2)]), N::frac_pi_2(), N::zero())
         } else {
             (
@@ -215,15 +381,26 @@ impl<N: Real> Rotation3<N> {
     /// Creates a rotation that corresponds to the local frame of an observer standing at the
     /// origin and looking toward `dir`.
     ///
-    /// It maps the view direction `dir` to the positive `z` axis.
+    /// It maps the `z` axis to the direction `dir`.
     ///
     /// # Arguments
     ///   * dir - The look direction, that is, direction the matrix `z` axis will be aligned with.
     ///   * up - The vertical direction. The only requirement of this parameter is to not be
-    ///   collinear
-    ///   to `dir`. Non-collinearity is not checked.
+    ///   collinear to `dir`. Non-collinearity is not checked.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation3, Vector3};
+    /// let dir = Vector3::new(1.0, 2.0, 3.0);
+    /// let up = Vector3::y();
+    ///
+    /// let rot = Rotation3::face_towards(&dir, &up);
+    /// assert_relative_eq!(rot * Vector3::z(), dir.normalize());
+    /// ```
     #[inline]
-    pub fn new_observer_frame<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    pub fn face_towards<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
@@ -237,47 +414,92 @@ impl<N: Real> Rotation3<N> {
         ))
     }
 
+    /// Deprecated: Use [Rotation3::face_towards] instead.
+    #[deprecated(note="renamed to `face_towards`")]
+    pub fn new_observer_frames<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
+        Self::face_towards(dir, up)
+    }
+
     /// Builds a right-handed look-at view matrix without translation.
     ///
+    /// It maps the view direction `dir` to the **negative** `z` axis.
     /// This conforms to the common notion of right handed look-at matrix from the computer
     /// graphics community.
     ///
     /// # Arguments
-    ///   * eye - The eye position.
-    ///   * target - The target position.
+    ///   * dir - The direction toward which the camera looks.
     ///   * up - A vector approximately aligned with required the vertical axis. The only
-    ///   requirement of this parameter is to not be collinear to `target - eye`.
+    ///   requirement of this parameter is to not be collinear to `dir`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation3, Vector3};
+    /// let dir = Vector3::new(1.0, 2.0, 3.0);
+    /// let up = Vector3::y();
+    ///
+    /// let rot = Rotation3::look_at_rh(&dir, &up);
+    /// assert_relative_eq!(rot * dir.normalize(), -Vector3::z());
+    /// ```
     #[inline]
     pub fn look_at_rh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::new_observer_frame(&dir.neg(), up).inverse()
+        Self::face_towards(&dir.neg(), up).inverse()
     }
 
     /// Builds a left-handed look-at view matrix without translation.
     ///
+    /// It maps the view direction `dir` to the **positive** `z` axis.
     /// This conforms to the common notion of left handed look-at matrix from the computer
     /// graphics community.
     ///
     /// # Arguments
-    ///   * eye - The eye position.
-    ///   * target - The target position.
+    ///   * dir - The direction toward which the camera looks.
     ///   * up - A vector approximately aligned with required the vertical axis. The only
-    ///   requirement of this parameter is to not be collinear to `target - eye`.
+    ///   requirement of this parameter is to not be collinear to `dir`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation3, Vector3};
+    /// let dir = Vector3::new(1.0, 2.0, 3.0);
+    /// let up = Vector3::y();
+    ///
+    /// let rot = Rotation3::look_at_lh(&dir, &up);
+    /// assert_relative_eq!(rot * dir.normalize(), Vector3::z());
+    /// ```
     #[inline]
     pub fn look_at_lh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::new_observer_frame(dir, up).inverse()
+        Self::face_towards(dir, up).inverse()
     }
 
     /// The rotation matrix required to align `a` and `b` but with its angle.
     ///
     /// This is the rotation `R` such that `(R * a).angle(b) == 0 && (R * a).dot(b).is_positive()`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Vector3, Rotation3};
+    /// let a = Vector3::new(1.0, 2.0, 3.0);
+    /// let b = Vector3::new(3.0, 1.0, 2.0);
+    /// let rot = Rotation3::rotation_between(&a, &b).unwrap();
+    /// assert_relative_eq!(rot * a, b, epsilon = 1.0e-6);
+    /// assert_relative_eq!(rot.inverse() * b, a, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn rotation_between<SB, SC>(a: &Vector<N, U3, SB>, b: &Vector<N, U3, SC>) -> Option<Self>
     where
@@ -289,6 +511,18 @@ impl<N: Real> Rotation3<N> {
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
     /// direction, raised to the power `s`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Vector3, Rotation3};
+    /// let a = Vector3::new(1.0, 2.0, 3.0);
+    /// let b = Vector3::new(3.0, 1.0, 2.0);
+    /// let rot2 = Rotation3::scaled_rotation_between(&a, &b, 0.2).unwrap();
+    /// let rot5 = Rotation3::scaled_rotation_between(&a, &b, 0.5).unwrap();
+    /// assert_relative_eq!(rot2 * rot2 * rot2 * rot2 * rot2 * a, b, epsilon = 1.0e-6);
+    /// assert_relative_eq!(rot5 * rot5 * a, b, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn scaled_rotation_between<SB, SC>(
         a: &Vector<N, U3, SB>,
@@ -320,7 +554,16 @@ impl<N: Real> Rotation3<N> {
         Some(Self::identity())
     }
 
-    /// The rotation angle.
+    /// The rotation angle in [0; pi].
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Unit, Rotation3, Vector3};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let rot = Rotation3::from_axis_angle(&axis, 1.78);
+    /// assert_relative_eq!(rot.angle(), 1.78);
+    /// ```
     #[inline]
     pub fn angle(&self) -> N {
         ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - N::one())
@@ -329,6 +572,20 @@ impl<N: Real> Rotation3<N> {
     }
 
     /// The rotation axis. Returns `None` if the rotation angle is zero or PI.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3, Unit};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let angle = 1.2;
+    /// let rot = Rotation3::from_axis_angle(&axis, angle);
+    /// assert_relative_eq!(rot.axis().unwrap(), axis);
+    ///
+    /// // Case with a zero angle.
+    /// let rot = Rotation3::from_axis_angle(&axis, 0.0);
+    /// assert!(rot.axis().is_none());
+    /// ```
     #[inline]
     pub fn axis(&self) -> Option<Unit<Vector3<N>>> {
         let axis = VectorN::<N, U3>::new(
@@ -341,16 +598,62 @@ impl<N: Real> Rotation3<N> {
     }
 
     /// The rotation axis multiplied by the rotation angle.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3, Unit};
+    /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
+    /// let rot = Rotation3::new(axisangle);
+    /// assert_relative_eq!(rot.scaled_axis(), axisangle, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn scaled_axis(&self) -> Vector3<N> {
         if let Some(axis) = self.axis() {
-            axis.unwrap() * self.angle()
+            axis.into_inner() * self.angle()
         } else {
             Vector::zero()
         }
     }
 
+    /// The rotation axis and angle in ]0, pi] of this unit quaternion.
+    ///
+    /// Returns `None` if the angle is zero.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3, Unit};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let angle = 1.2;
+    /// let rot = Rotation3::from_axis_angle(&axis, angle);
+    /// let axis_angle = rot.axis_angle().unwrap();
+    /// assert_relative_eq!(axis_angle.0, axis);
+    /// assert_relative_eq!(axis_angle.1, angle);
+    ///
+    /// // Case with a zero angle.
+    /// let rot = Rotation3::from_axis_angle(&axis, 0.0);
+    /// assert!(rot.axis_angle().is_none());
+    /// ```
+    #[inline]
+    pub fn axis_angle(&self) -> Option<(Unit<Vector3<N>>, N)> {
+        if let Some(axis) = self.axis() {
+            Some((axis, self.angle()))
+        } else {
+            None
+        }
+    }
+
     /// The rotation angle needed to make `self` and `other` coincide.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3};
+    /// let rot1 = Rotation3::from_axis_angle(&Vector3::y_axis(), 1.0);
+    /// let rot2 = Rotation3::from_axis_angle(&Vector3::x_axis(), 0.1);
+    /// assert_relative_eq!(rot1.angle_to(&rot2), 1.0045657, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn angle_to(&self, other: &Rotation3<N>) -> N {
         self.rotation_to(other).angle()
@@ -359,6 +662,16 @@ impl<N: Real> Rotation3<N> {
     /// The rotation matrix needed to make `self` and `other` coincide.
     ///
     /// The result is such that: `self.rotation_to(other) * self == other`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3};
+    /// let rot1 = Rotation3::from_axis_angle(&Vector3::y_axis(), 1.0);
+    /// let rot2 = Rotation3::from_axis_angle(&Vector3::x_axis(), 0.1);
+    /// let rot_to = rot1.rotation_to(&rot2);
+    /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     pub fn rotation_to(&self, other: &Rotation3<N>) -> Rotation3<N> {
         other * self.inverse()
@@ -366,6 +679,18 @@ impl<N: Real> Rotation3<N> {
 
     /// Raise the quaternion to a given floating power, i.e., returns the rotation with the same
     /// axis as `self` and an angle equal to `self.angle()` multiplied by `n`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3, Unit};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let angle = 1.2;
+    /// let rot = Rotation3::from_axis_angle(&axis, angle);
+    /// let pow = rot.powf(2.0);
+    /// assert_relative_eq!(pow.axis().unwrap(), axis, epsilon = 1.0e-6);
+    /// assert_eq!(pow.angle(), 2.4);
+    /// ```
     #[inline]
     pub fn powf(&self, n: N) -> Rotation3<N> {
         if let Some(axis) = self.axis() {

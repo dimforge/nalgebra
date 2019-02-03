@@ -315,11 +315,149 @@ where DefaultAllocator: Alloc<f32, D> {
 //    x * (exp).exp2()
 //}
 
-/// Returns `x * (1.0 - a) + y * a`, i.e., the linear blend of x and y using the floating-point value a.
+/// Returns `x * (1.0 - a) + y * a`, i.e., the linear blend of the scalars x and y using the scalar value a.
 ///
 /// The value for a is not restricted to the range `[0, 1]`.
-pub fn mix<N: Number>(x: N, y: N, a: N) -> N {
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(glm::mix_scalar(2.0, 20.0, 0.1), 3.8);
+/// ```
+///
+/// # See also:
+///
+/// * [`mix`](fn.mix.html)
+/// * [`mix_vec`](fn.mix_vec.html)
+pub fn mix_scalar<N: Number>(x: N, y: N, a: N) -> N {
     x * (N::one() - a) + y * a
+}
+
+/// Returns `x * (1.0 - a) + y * a`, i.e., the linear blend of the vectors x and y using the scalar value a.
+///
+/// The value for a is not restricted to the range `[0, 1]`.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let x = glm::vec3(1.0, 2.0, 3.0);
+/// let y = glm::vec3(10.0, 20.0, 30.0);
+/// assert_eq!(glm::mix(&x, &y, 0.1), glm::vec3(1.9, 3.8, 5.7));
+/// ```
+///
+/// # See also:
+///
+/// * [`mix_scalar`](fn.mix_scalar.html)
+/// * [`mix_vec`](fn.mix_vec.html)
+pub fn mix<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>, a: N) -> TVec<N, D>
+where DefaultAllocator: Alloc<N, D> {
+    x * (N::one() - a) + y * a
+}
+
+/// Returns `x * (1.0 - a) + y * a`, i.e., the component-wise linear blend of `x` and `y` using the components of
+/// the vector `a` as coefficients.
+///
+/// The value for a is not restricted to the range `[0, 1]`.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let x = glm::vec3(1.0, 2.0, 3.0);
+/// let y = glm::vec3(10.0, 20.0, 30.0);
+/// let a = glm::vec3(0.1, 0.2, 0.3);
+/// assert_eq!(glm::mix_vec(&x, &y, &a), glm::vec3(1.9, 5.6, 11.1));
+/// ```
+///
+/// # See also:
+///
+/// * [`mix_scalar`](fn.mix_scalar.html)
+/// * [`mix`](fn.mix.html)
+pub fn mix_vec<N: Number, D: Dimension>(
+    x: &TVec<N, D>,
+    y: &TVec<N, D>,
+    a: &TVec<N, D>,
+) -> TVec<N, D>
+where
+    DefaultAllocator: Alloc<N, D>,
+{
+    x.component_mul(&(TVec::<N, D>::repeat(N::one()) - a)) + y.component_mul(&a)
+}
+
+/// Returns `x * (1.0 - a) + y * a`, i.e., the linear blend of the scalars x and y using the scalar value a.
+///
+/// The value for a is not restricted to the range `[0, 1]`.
+/// This is an alias for `mix_scalar`.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(glm::lerp_scalar(2.0, 20.0, 0.1), 3.8);
+/// ```
+///
+/// # See also:
+///
+/// * [`lerp`](fn.lerp.html)
+/// * [`lerp_vec`](fn.lerp_vec.html)
+pub fn lerp_scalar<N: Number>(x: N, y: N, a: N) -> N {
+    mix_scalar(x, y, a)
+}
+
+/// Returns `x * (1.0 - a) + y * a`, i.e., the linear blend of the vectors x and y using the scalar value a.
+///
+/// The value for a is not restricted to the range `[0, 1]`.
+/// This is an alias for `mix`.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let x = glm::vec3(1.0, 2.0, 3.0);
+/// let y = glm::vec3(10.0, 20.0, 30.0);
+/// assert_eq!(glm::lerp(&x, &y, 0.1), glm::vec3(1.9, 3.8, 5.7));
+/// ```
+///
+/// # See also:
+///
+/// * [`lerp_scalar`](fn.lerp_scalar.html)
+/// * [`lerp_vec`](fn.lerp_vec.html)
+pub fn lerp<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>, a: N) -> TVec<N, D>
+where DefaultAllocator: Alloc<N, D> {
+    mix(x, y, a)
+}
+
+/// Returns `x * (1.0 - a) + y * a`, i.e., the component-wise linear blend of `x` and `y` using the components of
+/// the vector `a` as coefficients.
+///
+/// The value for a is not restricted to the range `[0, 1]`.
+/// This is an alias for `mix_vec`.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// let x = glm::vec3(1.0, 2.0, 3.0);
+/// let y = glm::vec3(10.0, 20.0, 30.0);
+/// let a = glm::vec3(0.1, 0.2, 0.3);
+/// assert_eq!(glm::lerp_vec(&x, &y, &a), glm::vec3(1.9, 5.6, 11.1));
+/// ```
+///
+/// # See also:
+///
+/// * [`lerp_scalar`](fn.lerp_scalar.html)
+/// * [`lerp`](fn.lerp.html)
+pub fn lerp_vec<N: Number, D: Dimension>(
+    x: &TVec<N, D>,
+    y: &TVec<N, D>,
+    a: &TVec<N, D>,
+) -> TVec<N, D>
+where
+    DefaultAllocator: Alloc<N, D>,
+{
+    mix_vec(x, y, a)
 }
 
 /// Component-wise modulus.

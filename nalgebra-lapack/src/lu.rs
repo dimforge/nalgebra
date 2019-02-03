@@ -20,17 +20,21 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<i32, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Serialize,
-         PermutationSequence<DimMinimum<R, C>>: Serialize"))
+         PermutationSequence<DimMinimum<R, C>>: Serialize"
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<i32, DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
+         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct LU<N: Scalar, R: DimMin<C>, C: Dim>
@@ -45,8 +49,7 @@ where
     DefaultAllocator: Allocator<N, R, C> + Allocator<i32, DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     VectorN<i32, DimMinimum<R, C>>: Copy,
-{
-}
+{}
 
 impl<N: LUScalar, R: Dim, C: Dim> LU<N, R, C>
 where

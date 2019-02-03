@@ -15,17 +15,21 @@ use linalg::PermutationSequence;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(
+        serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Serialize,
-         PermutationSequence<DimMinimum<R, C>>: Serialize"))
+         PermutationSequence<DimMinimum<R, C>>: Serialize"
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(
+        deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
+         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"
+    ))
 )]
 #[derive(Clone, Debug)]
 pub struct LU<N: Real, R: DimMin<C>, C: Dim>
@@ -40,8 +44,7 @@ where
     DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
-{
-}
+{}
 
 /// Performs a LU decomposition to overwrite `out` with the inverse of `matrix`.
 ///
@@ -287,7 +290,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
 
         let mut res = N::one();
         for i in 0..dim {
-            res *= unsafe { *self.lu.get_unchecked(i, i) };
+            res *= unsafe { *self.lu.get_unchecked((i, i)) };
         }
 
         res * self.p.determinant()

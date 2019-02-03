@@ -39,7 +39,7 @@ where
 {
     #[inline]
     fn to_superset(&self) -> Quaternion<N2> {
-        Quaternion::from_vector(self.coords.to_superset())
+        Quaternion::from(self.coords.to_superset())
     }
 
     #[inline]
@@ -49,7 +49,9 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(q: &Quaternion<N2>) -> Self {
-        Self::from_vector(q.coords.to_subset_unchecked())
+        Self {
+            coords: q.coords.to_subset_unchecked(),
+        }
     }
 }
 
@@ -226,6 +228,13 @@ impl<N: Real> From<UnitQuaternion<N>> for Matrix4<N> {
 impl<N: Real> From<UnitQuaternion<N>> for Matrix3<N> {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Matrix3<N> {
-        q.to_rotation_matrix().unwrap()
+        q.to_rotation_matrix().into_inner()
+    }
+}
+
+impl<N: Real> From<Vector4<N>> for Quaternion<N> {
+    #[inline]
+    fn from(coords: Vector4<N>) -> Self {
+        Quaternion { coords }
     }
 }

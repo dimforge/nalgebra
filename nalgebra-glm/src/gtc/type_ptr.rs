@@ -113,7 +113,7 @@ pub fn mat4_to_mat2<N: Scalar>(m: &TMat4<N>) -> TMat2<N> {
 
 /// Creates a quaternion from a slice arranged as `[x, y, z, w]`.
 pub fn make_quat<N: Real>(ptr: &[N]) -> Qua<N> {
-    Quaternion::from_vector(TVec4::from_column_slice(ptr))
+    Quaternion::from(TVec4::from_column_slice(ptr))
 }
 
 /// Creates a 1D vector from a slice.

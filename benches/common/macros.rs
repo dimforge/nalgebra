@@ -4,7 +4,8 @@ macro_rules! bench_binop(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            let mut rng = IsaacRng::new_unseeded();
+            use rand::SeedableRng;
+            let mut rng = IsaacRng::seed_from_u64(0);
             let a = rng.gen::<$t1>();
             let b = rng.gen::<$t2>();
 
@@ -19,7 +20,8 @@ macro_rules! bench_binop_ref(
     ($name: ident, $t1: ty, $t2: ty, $binop: ident) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            let mut rng = IsaacRng::new_unseeded();
+            use rand::SeedableRng;
+            let mut rng = IsaacRng::seed_from_u64(0);
             let a = rng.gen::<$t1>();
             let b = rng.gen::<$t2>();
 
@@ -34,7 +36,8 @@ macro_rules! bench_binop_fn(
     ($name: ident, $t1: ty, $t2: ty, $binop: path) => {
         #[bench]
         fn $name(bh: &mut Bencher) {
-            let mut rng = IsaacRng::new_unseeded();
+            use rand::SeedableRng;
+            let mut rng = IsaacRng::seed_from_u64(0);
             let a = rng.gen::<$t1>();
             let b = rng.gen::<$t2>();
 
@@ -51,7 +54,8 @@ macro_rules! bench_unop_na(
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 13;
 
-            let mut rng = IsaacRng::new_unseeded();
+            use rand::SeedableRng;
+            let mut rng = IsaacRng::seed_from_u64(0);
 
             let elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.gen::<$t>()).collect();
             let mut i = 0;
@@ -73,7 +77,8 @@ macro_rules! bench_unop(
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 13;
 
-            let mut rng = IsaacRng::new_unseeded();
+            use rand::SeedableRng;
+            let mut rng = IsaacRng::seed_from_u64(0);
 
             let mut elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.gen::<$t>()).collect();
             let mut i = 0;
@@ -95,7 +100,8 @@ macro_rules! bench_construction(
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 13;
 
-            let mut rng = IsaacRng::new_unseeded();
+            use rand::SeedableRng;
+            let mut rng = IsaacRng::seed_from_u64(0);
 
             $(let $args: Vec<$types> = (0usize .. LEN).map(|_| rng.gen::<$types>()).collect();)*
             let mut i = 0;

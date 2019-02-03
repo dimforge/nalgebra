@@ -50,7 +50,7 @@ impl<N: Real> Mul<UnitComplex<N>> for UnitComplex<N> {
 
     #[inline]
     fn mul(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.unwrap() * rhs.unwrap())
+        Unit::new_unchecked(self.into_inner() * rhs.into_inner())
     }
 }
 
@@ -59,7 +59,7 @@ impl<'a, N: Real> Mul<UnitComplex<N>> for &'a UnitComplex<N> {
 
     #[inline]
     fn mul(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.complex() * rhs.unwrap())
+        Unit::new_unchecked(self.complex() * rhs.into_inner())
     }
 }
 
@@ -68,7 +68,7 @@ impl<'b, N: Real> Mul<&'b UnitComplex<N>> for UnitComplex<N> {
 
     #[inline]
     fn mul(self, rhs: &'b UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.unwrap() * rhs.complex())
+        Unit::new_unchecked(self.into_inner() * rhs.complex())
     }
 }
 
@@ -87,7 +87,7 @@ impl<N: Real> Div<UnitComplex<N>> for UnitComplex<N> {
 
     #[inline]
     fn div(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.unwrap() * rhs.conjugate().unwrap())
+        Unit::new_unchecked(self.into_inner() * rhs.conjugate().into_inner())
     }
 }
 
@@ -96,7 +96,7 @@ impl<'a, N: Real> Div<UnitComplex<N>> for &'a UnitComplex<N> {
 
     #[inline]
     fn div(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.complex() * rhs.conjugate().unwrap())
+        Unit::new_unchecked(self.complex() * rhs.conjugate().into_inner())
     }
 }
 
@@ -105,7 +105,7 @@ impl<'b, N: Real> Div<&'b UnitComplex<N>> for UnitComplex<N> {
 
     #[inline]
     fn div(self, rhs: &'b UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.unwrap() * rhs.conjugate().unwrap())
+        Unit::new_unchecked(self.into_inner() * rhs.conjugate().into_inner())
     }
 }
 
@@ -114,7 +114,7 @@ impl<'a, 'b, N: Real> Div<&'b UnitComplex<N>> for &'a UnitComplex<N> {
 
     #[inline]
     fn div(self, rhs: &'b UnitComplex<N>) -> UnitComplex<N> {
-        Unit::new_unchecked(self.complex() * rhs.conjugate().unwrap())
+        Unit::new_unchecked(self.complex() * rhs.conjugate().into_inner())
     }
 }
 
@@ -220,7 +220,7 @@ complex_op_impl_all!(
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
-    [ref ref] => Point2::from_coordinates(self * &rhs.coords);
+    [ref ref] => Point2::from(self * &rhs.coords);
 );
 
 // UnitComplex × Vector
@@ -260,7 +260,7 @@ complex_op_impl_all!(
     [val ref] => &self *  rhs;
     [ref ref] => {
         let shift = self * &rhs.translation.vector;
-        Isometry::from_parts(Translation::from_vector(shift), self * &rhs.rotation)
+        Isometry::from_parts(Translation::from(shift), self * &rhs.rotation)
     };
 );
 
@@ -282,10 +282,10 @@ complex_op_impl_all!(
     (U2, U1);
     self: UnitComplex<N>, rhs: Translation<N, U2>,
     Output = Isometry<N, U2, UnitComplex<N>>;
-    [val val] => Isometry::from_parts(Translation::from_vector(&self *  rhs.vector), self);
-    [ref val] => Isometry::from_parts(Translation::from_vector( self *  rhs.vector), self.clone());
-    [val ref] => Isometry::from_parts(Translation::from_vector(&self * &rhs.vector), self);
-    [ref ref] => Isometry::from_parts(Translation::from_vector( self * &rhs.vector), self.clone());
+    [val val] => Isometry::from_parts(Translation::from(&self *  rhs.vector), self);
+    [ref val] => Isometry::from_parts(Translation::from( self *  rhs.vector), self.clone());
+    [val ref] => Isometry::from_parts(Translation::from(&self * &rhs.vector), self);
+    [ref ref] => Isometry::from_parts(Translation::from( self * &rhs.vector), self.clone());
 );
 
 // Translation × UnitComplex
@@ -425,11 +425,11 @@ impl<N: Real> UnitComplex<N> {
 
         for j in 0..rhs.ncols() {
             unsafe {
-                let a = *rhs.get_unchecked(0, j);
-                let b = *rhs.get_unchecked(1, j);
+                let a = *rhs.get_unchecked((0, j));
+                let b = *rhs.get_unchecked((1, j));
 
-                *rhs.get_unchecked_mut(0, j) = r * a - i * b;
-                *rhs.get_unchecked_mut(1, j) = i * a + r * b;
+                *rhs.get_unchecked_mut((0, j)) = r * a - i * b;
+                *rhs.get_unchecked_mut((1, j)) = i * a + r * b;
             }
         }
     }
@@ -452,11 +452,11 @@ impl<N: Real> UnitComplex<N> {
         // FIXME: can we optimize that to iterate on one column at a time ?
         for j in 0..lhs.nrows() {
             unsafe {
-                let a = *lhs.get_unchecked(j, 0);
-                let b = *lhs.get_unchecked(j, 1);
+                let a = *lhs.get_unchecked((j, 0));
+                let b = *lhs.get_unchecked((j, 1));
 
-                *lhs.get_unchecked_mut(j, 0) = r * a + i * b;
-                *lhs.get_unchecked_mut(j, 1) = -i * a + r * b;
+                *lhs.get_unchecked_mut((j, 0)) = r * a + i * b;
+                *lhs.get_unchecked_mut((j, 1)) = -i * a + r * b;
             }
         }
     }

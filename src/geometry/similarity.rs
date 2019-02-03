@@ -25,17 +25,21 @@ use geometry::{Isometry, Point, Translation};
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "N: Serialize,
+    serde(bound(
+        serialize = "N: Serialize,
                      R: Serialize,
                      DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: Serialize"))
+                     Owned<N, D>: Serialize"
+    ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "N: Deserialize<'de>,
+    serde(bound(
+        deserialize = "N: Deserialize<'de>,
                        R: Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: Deserialize<'de>"))
+                       Owned<N, D>: Deserialize<'de>"
+    ))
 )]
 pub struct Similarity<N: Real, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
@@ -80,8 +84,7 @@ impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Simil
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{
-}
+{}
 
 impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Similarity<N, D, R>
 where DefaultAllocator: Allocator<N, D>
@@ -181,7 +184,7 @@ where
         );
 
         Self::from_parts(
-            Translation::from_vector(&self.isometry.translation.vector * scaling),
+            Translation::from(&self.isometry.translation.vector * scaling),
             self.isometry.rotation.clone(),
             self.scaling * scaling,
         )
@@ -266,8 +269,7 @@ impl<N: Real, D: DimName, R> Eq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + Eq,
     DefaultAllocator: Allocator<N, D>,
-{
-}
+{}
 
 impl<N: Real, D: DimName, R> PartialEq for Similarity<N, D, R>
 where

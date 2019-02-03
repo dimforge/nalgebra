@@ -17,8 +17,8 @@ use base::dimension::{
 use base::iter::{MatrixIter, MatrixIterMut};
 use base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::MatrixVec;
-use base::{DefaultAllocator, Matrix, MatrixArray, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
+use base::VecStorage;
+use base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
 
 // FIXME: too bad this won't work allo slice conversions.
 impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>
@@ -42,7 +42,7 @@ where
         let mut res = unsafe { MatrixMN::<N2, R2, C2>::new_uninitialized_generic(nrows2, ncols2) };
         for i in 0..nrows {
             for j in 0..ncols {
-                unsafe { *res.get_unchecked_mut(i, j) = N2::from_subset(self.get_unchecked(i, j)) }
+                unsafe { *res.get_unchecked_mut((i, j)) = N2::from_subset(self.get_unchecked((i, j))) }
             }
         }
 
@@ -63,7 +63,7 @@ where
         let mut res = Self::new_uninitialized_generic(nrows, ncols);
         for i in 0..nrows2 {
             for j in 0..ncols2 {
-                *res.get_unchecked_mut(i, j) = m.get_unchecked(i, j).to_subset_unchecked()
+                *res.get_unchecked_mut((i, j)) = m.get_unchecked((i, j)).to_subset_unchecked()
             }
         }
 
@@ -336,7 +336,7 @@ impl_from_into_mint_2D!(
 );
 
 impl<'a, N, R, C, RStride, CStride> From<MatrixSlice<'a, N, R, C, RStride, CStride>>
-    for Matrix<N, R, C, MatrixArray<N, R, C>>
+    for Matrix<N, R, C, ArrayStorage<N, R, C>>
 where
     N: Scalar,
     R: DimName,
@@ -353,7 +353,7 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, C, RStride, CStride> From<MatrixSlice<'a, N, Dynamic, C, RStride, CStride>>
-    for Matrix<N, Dynamic, C, MatrixVec<N, Dynamic, C>>
+    for Matrix<N, Dynamic, C, VecStorage<N, Dynamic, C>>
 where
     N: Scalar,
     C: Dim,
@@ -367,7 +367,7 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, R, RStride, CStride> From<MatrixSlice<'a, N, R, Dynamic, RStride, CStride>>
-    for Matrix<N, R, Dynamic, MatrixVec<N, R, Dynamic>>
+    for Matrix<N, R, Dynamic, VecStorage<N, R, Dynamic>>
 where
     N: Scalar,
     R: DimName,
@@ -380,7 +380,7 @@ where
 }
 
 impl<'a, N, R, C, RStride, CStride> From<MatrixSliceMut<'a, N, R, C, RStride, CStride>>
-    for Matrix<N, R, C, MatrixArray<N, R, C>>
+    for Matrix<N, R, C, ArrayStorage<N, R, C>>
 where
     N: Scalar,
     R: DimName,
@@ -397,7 +397,7 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, C, RStride, CStride> From<MatrixSliceMut<'a, N, Dynamic, C, RStride, CStride>>
-    for Matrix<N, Dynamic, C, MatrixVec<N, Dynamic, C>>
+    for Matrix<N, Dynamic, C, VecStorage<N, Dynamic, C>>
 where
     N: Scalar,
     C: Dim,
@@ -411,7 +411,7 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, N, R, RStride, CStride> From<MatrixSliceMut<'a, N, R, Dynamic, RStride, CStride>>
-    for Matrix<N, R, Dynamic, MatrixVec<N, R, Dynamic>>
+    for Matrix<N, R, Dynamic, VecStorage<N, R, Dynamic>>
 where
     N: Scalar,
     R: DimName,

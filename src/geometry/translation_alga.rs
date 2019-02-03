@@ -183,16 +183,16 @@ where DefaultAllocator: Allocator<N, D>
 
     #[inline]
     fn from_vector(v: VectorN<N, D>) -> Option<Self> {
-        Some(Self::from_vector(v))
+        Some(Self::from(v))
     }
 
     #[inline]
     fn powf(&self, n: N) -> Option<Self> {
-        Some(Self::from_vector(&self.vector * n))
+        Some(Self::from(&self.vector * n))
     }
 
     #[inline]
     fn translation_between(a: &Point<N, D>, b: &Point<N, D>) -> Option<Self> {
-        Some(Self::from_vector(b - a))
+        Some(Self::from(b - a))
     }
 }

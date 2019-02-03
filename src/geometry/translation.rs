@@ -43,8 +43,7 @@ impl<N: Scalar, D: DimName> Copy for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{
-}
+{}
 
 impl<N: Scalar, D: DimName> Clone for Translation<N, D>
 where
@@ -53,7 +52,7 @@ where
 {
     #[inline]
     fn clone(&self) -> Self {
-        Translation::from_vector(self.vector.clone())
+        Translation::from(self.vector.clone())
     }
 }
 
@@ -100,7 +99,7 @@ where
     where Des: Deserializer<'a> {
         let matrix = VectorN::<N, D>::deserialize(deserializer)?;
 
-        Ok(Translation::from_vector(matrix))
+        Ok(Translation::from(matrix))
     }
 }
 
@@ -109,18 +108,49 @@ where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new translation from the given vector.
     #[inline]
+    #[deprecated(note = "Use `::from` instead.")]
     pub fn from_vector(vector: VectorN<N, D>) -> Translation<N, D> {
         Translation { vector: vector }
     }
 
     /// Inverts `self`.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Translation2, Translation3};
+    /// let t = Translation3::new(1.0, 2.0, 3.0);
+    /// assert_eq!(t * t.inverse(), Translation3::identity());
+    /// assert_eq!(t.inverse() * t, Translation3::identity());
+    ///
+    /// // Work in all dimensions.
+    /// let t = Translation2::new(1.0, 2.0);
+    /// assert_eq!(t * t.inverse(), Translation2::identity());
+    /// assert_eq!(t.inverse() * t, Translation2::identity());
+    /// ```
     #[inline]
     pub fn inverse(&self) -> Translation<N, D>
     where N: ClosedNeg {
-        Translation::from_vector(-&self.vector)
+        Translation::from(-&self.vector)
     }
 
     /// Converts this translation into its equivalent homogeneous transformation matrix.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Translation2, Translation3, Matrix3, Matrix4};
+    /// let t = Translation3::new(10.0, 20.0, 30.0);
+    /// let expected = Matrix4::new(1.0, 0.0, 0.0, 10.0,
+    ///                             0.0, 1.0, 0.0, 20.0,
+    ///                             0.0, 0.0, 1.0, 30.0,
+    ///                             0.0, 0.0, 0.0, 1.0);
+    /// assert_eq!(t.to_homogeneous(), expected);
+    ///
+    /// let t = Translation2::new(10.0, 20.0);
+    /// let expected = Matrix3::new(1.0, 0.0, 10.0,
+    ///                             0.0, 1.0, 20.0,
+    ///                             0.0, 0.0, 1.0);
+    /// assert_eq!(t.to_homogeneous(), expected);
+    /// ```
     #[inline]
     pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
     where
@@ -136,6 +166,23 @@ where DefaultAllocator: Allocator<N, D>
     }
 
     /// Inverts `self` in-place.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Translation2, Translation3};
+    /// let t = Translation3::new(1.0, 2.0, 3.0);
+    /// let mut inv_t = Translation3::new(1.0, 2.0, 3.0);
+    /// inv_t.inverse_mut();
+    /// assert_eq!(t * inv_t, Translation3::identity());
+    /// assert_eq!(inv_t * t, Translation3::identity());
+    ///
+    /// // Work in all dimensions.
+    /// let t = Translation2::new(1.0, 2.0);
+    /// let mut inv_t = Translation2::new(1.0, 2.0);
+    /// inv_t.inverse_mut();
+    /// assert_eq!(t * inv_t, Translation2::identity());
+    /// assert_eq!(inv_t * t, Translation2::identity());
+    /// ```
     #[inline]
     pub fn inverse_mut(&mut self)
     where N: ClosedNeg {
