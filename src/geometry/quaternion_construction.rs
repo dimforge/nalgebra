@@ -452,16 +452,26 @@ impl<N: Real> UnitQuaternion<N> {
     /// let dir = Vector3::new(1.0, 2.0, 3.0);
     /// let up = Vector3::y();
     ///
-    /// let q = UnitQuaternion::new_observer_frame(&dir, &up);
+    /// let q = UnitQuaternion::face_towards(&dir, &up);
     /// assert_relative_eq!(q * Vector3::z(), dir.normalize());
     /// ```
     #[inline]
-    pub fn new_observer_frame<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    pub fn face_towards<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::from_rotation_matrix(&Rotation::<N, U3>::new_observer_frame(dir, up))
+        Self::from_rotation_matrix(&Rotation::<N, U3>::face_towards(dir, up))
+    }
+
+    /// Deprecated: Use [UnitQuaternion::face_towards] instead.
+    #[deprecated(note="renamed to `face_towards`")]
+    pub fn new_observer_frames<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    where
+        SB: Storage<N, U3>,
+        SC: Storage<N, U3>,
+    {
+        Self::face_towards(dir, up)
     }
 
     /// Builds a right-handed look-at view matrix without translation.
@@ -493,7 +503,7 @@ impl<N: Real> UnitQuaternion<N> {
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::new_observer_frame(&-dir, up).inverse()
+        Self::face_towards(&-dir, up).inverse()
     }
 
     /// Builds a left-handed look-at view matrix without translation.
@@ -525,7 +535,7 @@ impl<N: Real> UnitQuaternion<N> {
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::new_observer_frame(dir, up).inverse()
+        Self::face_towards(dir, up).inverse()
     }
 
     /// Creates a new unit quaternion rotation from a rotation axis scaled by the rotation angle.
