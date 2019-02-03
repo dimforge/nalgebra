@@ -364,7 +364,8 @@ impl<
         G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
     > IsNotStaticOne
     for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
-{}
+{
+}
 
 impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> NamedDim
     for UInt<U, B>
@@ -405,4 +406,5 @@ impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Syn
 
 impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> IsNotStaticOne
     for UInt<U, B>
-{}
+{
+}

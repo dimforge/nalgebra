@@ -1,6 +1,6 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Id, Identity, Inverse, Multiplicative, Real,
+    AbstractSemigroup, Id, Identity, TwoSidedInverse, Multiplicative, Real,
 };
 use alga::linear::{
     self, AffineTransformation, DirectIsometry, Isometry, OrthogonalTransformation,
@@ -27,16 +27,16 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: Real, D: DimName> Inverse<Multiplicative> for Rotation<N, D>
+impl<N: Real, D: DimName> TwoSidedInverse<Multiplicative> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     #[inline]
-    fn inverse(&self) -> Self {
+    fn two_sided_inverse(&self) -> Self {
         self.transpose()
     }
 
     #[inline]
-    fn inverse_mut(&mut self) {
+    fn two_sided_inverse_mut(&mut self) {
         self.transpose_mut()
     }
 }

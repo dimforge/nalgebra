@@ -68,8 +68,10 @@
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
 #![deny(missing_docs)]
-#![doc(html_favicon_url = "http://nalgebra.org/img/favicon.ico",
-       html_root_url = "http://nalgebra.org/rustdoc")]
+#![doc(
+    html_favicon_url = "http://nalgebra.org/img/favicon.ico",
+    html_root_url = "http://nalgebra.org/rustdoc"
+)]
 
 extern crate alga;
 extern crate lapack;

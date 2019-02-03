@@ -9,7 +9,7 @@ where DefaultAllocator: Alloc<N, D, D> {
     TMat::<N, D, D>::identity()
 }
 
-/// Build a right hand look at view matrix
+/// Build a look at view matrix based on the right handedness.
 ///
 /// # Parameters:
 ///

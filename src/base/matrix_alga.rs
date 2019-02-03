@@ -6,7 +6,7 @@ use num::{One, Zero};
 use alga::general::{
     AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
     AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, ClosedAdd, ClosedMul,
-    ClosedNeg, Field, Identity, Inverse, JoinSemilattice, Lattice, MeetSemilattice, Module,
+    ClosedNeg, Field, Identity, TwoSidedInverse, JoinSemilattice, Lattice, MeetSemilattice, Module,
     Multiplicative, Real, RingCommutative,
 };
 use alga::linear::{
@@ -45,18 +45,18 @@ where
     }
 }
 
-impl<N, R: DimName, C: DimName> Inverse<Additive> for MatrixMN<N, R, C>
+impl<N, R: DimName, C: DimName> TwoSidedInverse<Additive> for MatrixMN<N, R, C>
 where
     N: Scalar + ClosedNeg,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
-    fn inverse(&self) -> MatrixMN<N, R, C> {
+    fn two_sided_inverse(&self) -> MatrixMN<N, R, C> {
         -self
     }
 
     #[inline]
-    fn inverse_mut(&mut self) {
+    fn two_sided_inverse_mut(&mut self) {
         *self = -self.clone()
     }
 }

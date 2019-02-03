@@ -81,10 +81,12 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
-#![deny(missing_docs)]
+#![warn(missing_docs)] // FIXME: deny this
 #![warn(incoherent_fundamental_impls)]
-#![doc(html_favicon_url = "http://nalgebra.org/img/favicon.ico",
-       html_root_url = "http://nalgebra.org/rustdoc")]
+#![doc(
+    html_favicon_url = "http://nalgebra.org/img/favicon.ico",
+    html_root_url = "http://nalgebra.org/rustdoc"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 
@@ -121,11 +123,21 @@ extern crate alloc;
 #[cfg(not(feature = "std"))]
 extern crate core as std;
 
+#[cfg(feature = "io")]
+extern crate pest;
+#[macro_use]
+#[cfg(feature = "io")]
+extern crate pest_derive;
+
 pub mod base;
 #[cfg(feature = "debug")]
 pub mod debug;
 pub mod geometry;
+#[cfg(feature = "io")]
+pub mod io;
 pub mod linalg;
+#[cfg(feature = "sparse")]
+pub mod sparse;
 
 #[cfg(feature = "std")]
 #[deprecated(
@@ -135,11 +147,13 @@ pub use base as core;
 pub use base::*;
 pub use geometry::*;
 pub use linalg::*;
+#[cfg(feature = "sparse")]
+pub use sparse::*;
 
 use std::cmp::{self, Ordering, PartialOrd};
 
 use alga::general::{
-    Additive, AdditiveGroup, Identity, Inverse, JoinSemilattice, Lattice, MeetSemilattice,
+    Additive, AdditiveGroup, Identity, TwoSidedInverse, JoinSemilattice, Lattice, MeetSemilattice,
     Multiplicative, SupersetOf,
 };
 use alga::linear::SquareMatrix as AlgaSquareMatrix;
@@ -413,8 +427,8 @@ pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
 ///
 /// * [`try_inverse`](fn.try_inverse.html)
 #[inline]
-pub fn inverse<M: Inverse<Multiplicative>>(m: &M) -> M {
-    m.inverse()
+pub fn inverse<M: TwoSidedInverse<Multiplicative>>(m: &M) -> M {
+    m.two_sided_inverse()
 }
 
 /*

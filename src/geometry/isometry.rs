@@ -166,7 +166,7 @@ where DefaultAllocator: Allocator<N, D>
     /// ```
     #[inline]
     pub fn inverse_mut(&mut self) {
-        self.rotation.inverse_mut();
+        self.rotation.two_sided_inverse_mut();
         self.translation.inverse_mut();
         self.translation.vector = self.rotation.transform_vector(&self.translation.vector);
     }
