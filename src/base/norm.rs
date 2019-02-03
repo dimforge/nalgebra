@@ -127,12 +127,36 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Uses the given `norm` to compute the norm of `self`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Vector3, UniformNorm, LpNorm, EuclideanNorm};
+    ///
+    /// let v = Vector3::new(1.0, 2.0, 3.0);
+    /// assert_eq!(v.apply_norm(&UniformNorm), 3.0);
+    /// assert_eq!(v.apply_norm(&LpNorm(1)), 6.0);
+    /// assert_eq!(v.apply_norm(&EuclideanNorm), v.norm());
+    /// ```
     #[inline]
     pub fn apply_norm(&self, norm: &impl Norm<N>) -> N {
         norm.norm(self)
     }
 
     /// Uses the metric induced by the given `norm` to compute the metric distance between `self` and `rhs`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Vector3, UniformNorm, LpNorm, EuclideanNorm};
+    ///
+    /// let v1 = Vector3::new(1.0, 2.0, 3.0);
+    /// let v2 = Vector3::new(10.0, 20.0, 30.0);
+    ///
+    /// assert_eq!(v1.apply_metric_distance(&v2, &UniformNorm), 27.0);
+    /// assert_eq!(v1.apply_metric_distance(&v2, &LpNorm(1)), 27.0 + 18.0 + 9.0);
+    /// assert_eq!(v1.apply_metric_distance(&v2, &EuclideanNorm), (v1 - v2).norm());
+    /// ```
     #[inline]
     pub fn apply_metric_distance<R2, C2, S2>(&self, rhs: &Matrix<N, R2, C2, S2>, norm: &impl Norm<N>) -> N
         where R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,
