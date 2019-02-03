@@ -13,7 +13,7 @@
 
    ```toml
    [dependencies]
-   nalgebra-glm = "0.1"
+   nalgebra-glm = "0.3"
    ```
 
    Then, you should add an `extern crate` statement to your `lib.rs` or `main.rs` file. It is **strongly

@@ -15,7 +15,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-nalgebra = "0.16"
+nalgebra = "0.17"
 ```
 
 
@@ -81,7 +81,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
-#![warn(missing_docs)] // FIXME: deny this
+#![deny(missing_docs)]
 #![warn(incoherent_fundamental_impls)]
 #![doc(
     html_favicon_url = "http://nalgebra.org/img/favicon.ico",

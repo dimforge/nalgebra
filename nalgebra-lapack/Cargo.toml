@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra-lapack"
-version = "0.8.0"
+version = "0.9.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>" ]
 
 description   = "Linear algebra library with transformations and satically-sized or dynamically-sized matrices."
@@ -22,7 +22,7 @@ accelerate = ["lapack-src/accelerate"]
 intel-mkl  = ["lapack-src/intel-mkl"]
 
 [dependencies]
-nalgebra      = { version = "0.16", path = ".." }
+nalgebra      = { version = "0.17", path = ".." }
 num-traits    = "0.2"
 num-complex   = { version = "0.2", default-features = false }
 alga          = { version = "0.8", default-features = false }
@@ -33,7 +33,7 @@ lapack-src    = { version = "0.2", default-features = false }
 # clippy = "*"
 
 [dev-dependencies]
-nalgebra   = { version = "0.16", path = "..", features = [ "arbitrary" ] }
+nalgebra   = { version = "0.17", path = "..", features = [ "arbitrary" ] }
 quickcheck = "0.8"
 approx     = "0.3"
 rand       = "0.6"
