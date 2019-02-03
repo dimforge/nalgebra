@@ -393,7 +393,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Returns a matrix containing the result of `f` applied to each of its entries. Unlike `map`,
-    /// `f` also gets passed the row and column index, i.e. `f(value, row, col)`.
+    /// `f` also gets passed the row and column index, i.e. `f(row, col, value)`.
     #[inline]
     pub fn map_with_location<N2: Scalar, F: FnMut(usize, usize, N) -> N2>(
         &self,
