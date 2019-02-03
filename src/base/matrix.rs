@@ -832,14 +832,7 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     #[inline]
     pub fn to_homogeneous(&self) -> VectorN<N, DimSum<D, U1>>
     where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
-        let len = self.len();
-        let hnrows = DimSum::<D, U1>::from_usize(len + 1);
-        let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
-        res.generic_slice_mut((0, 0), self.data.shape())
-            .copy_from(self);
-        res[(len, 0)] = N::zero();
-
-        res
+        self.push(N::zero())
     }
 
     /// Constructs a vector from coordinates in projective space, i.e., removes a `0` at the end of
@@ -856,6 +849,22 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
         } else {
             None
         }
+    }
+}
+
+impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
+    /// Constructs a new vector of higher dimension by appending `element` to the end of `self`.
+    #[inline]
+    pub fn push(&self, element: N) -> VectorN<N, DimSum<D, U1>>
+    where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
+        let len = self.len();
+        let hnrows = DimSum::<D, U1>::from_usize(len + 1);
+        let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
+        res.generic_slice_mut((0, 0), self.data.shape())
+            .copy_from(self);
+        res[(len, 0)] = element;
+
+        res
     }
 }
 
