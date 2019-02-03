@@ -248,12 +248,31 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Iterate through the rows of this matrix.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, row) in a.row_iter().enumerate() {
+    ///     assert_eq!(row, a.row(i))
+    /// }
+    /// ```
     #[inline]
     pub fn row_iter(&self) -> RowIter<N, R, C, S> {
         RowIter::new(self)
     }
 
     /// Iterate through the columns of this matrix.
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, column) in a.column_iter().enumerate() {
+    ///     assert_eq!(column, a.column(i))
+    /// }
+    /// ```
     #[inline]
     pub fn column_iter(&self) -> ColumnIter<N, R, C, S> {
         ColumnIter::new(self)
@@ -604,12 +623,40 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Mutably iterates through this matrix rows.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, mut row) in a.row_iter_mut().enumerate() {
+    ///     row *= (i + 1) * 10;
+    /// }
+    ///
+    /// let expected = Matrix2x3::new(10, 20, 30,
+    ///                               80, 100, 120);
+    /// assert_eq!(a, expected);
+    /// ```
     #[inline]
     pub fn row_iter_mut(&mut self) -> RowIterMut<N, R, C, S> {
         RowIterMut::new(self)
     }
 
     /// Mutably iterates through this matrix columns.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, mut col) in a.column_iter_mut().enumerate() {
+    ///     col *= (i + 1) * 10;
+    /// }
+    ///
+    /// let expected = Matrix2x3::new(10, 40, 90,
+    ///                               40, 100, 180);
+    /// assert_eq!(a, expected);
+    /// ```
     #[inline]
     pub fn column_iter_mut(&mut self) -> ColumnIterMut<N, R, C, S> {
         ColumnIterMut::new(self)
