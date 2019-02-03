@@ -295,6 +295,15 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         }
     }
 
+    /// Returns a pointer to the start of the matrix.
+    ///
+    /// If the matrix is not empty, this pointer is guaranteed to be aligned
+    /// and non-null.
+    #[inline]
+    pub fn as_ptr(&self) -> *const N {
+        self.data.ptr()
+    }
+
     /// Tests whether `self` and `rhs` are equal up to a given epsilon.
     ///
     /// See `relative_eq` from the `RelativeEq` trait for more details.
@@ -620,6 +629,15 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn iter_mut(&mut self) -> MatrixIterMut<N, R, C, S> {
         MatrixIterMut::new(&mut self.data)
+    }
+
+    /// Returns a mutable pointer to the start of the matrix.
+    ///
+    /// If the matrix is not empty, this pointer is guaranteed to be aligned
+    /// and non-null.
+    #[inline]
+    pub fn as_mut_ptr(&mut self) -> *mut N {
+        self.data.ptr_mut()
     }
 
     /// Mutably iterates through this matrix rows.
