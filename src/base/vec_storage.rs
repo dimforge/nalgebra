@@ -50,15 +50,16 @@ impl<N, R: Dim, C: Dim> VecStorage<N, R, C> {
 
     /// The underlying data storage.
     #[inline]
-    pub fn data(&self) -> &Vec<N> {
+    pub fn as_vec(&self) -> &Vec<N> {
         &self.data
     }
 
     /// The underlying mutable data storage.
     ///
-    /// This is unsafe because this may cause UB if the vector is modified by the user.
+    /// This is unsafe because this may cause UB if the size of the vector is changed
+    /// by the user.
     #[inline]
-    pub unsafe fn data_mut(&mut self) -> &mut Vec<N> {
+    pub unsafe fn as_vec_mut(&mut self) -> &mut Vec<N> {
         &mut self.data
     }
 
