@@ -270,7 +270,7 @@ where DefaultAllocator: Allocator<N, R, C>
     /// let vec_ptr = vec.as_ptr();
     ///
     /// let matrix = Matrix::from_vec_generic(Dynamic::new(vec.len()), U1, vec);
-    /// let matrix_storage_ptr = matrix.data.as_ptr();
+    /// let matrix_storage_ptr = matrix.data.as_vec().as_ptr();
     ///
     /// // `matrix` is backed by exactly the same `Vec` as it was constructed from.
     /// assert_eq!(matrix_storage_ptr, vec_ptr);
