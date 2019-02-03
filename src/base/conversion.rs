@@ -12,8 +12,10 @@ use typenum::Prod;
 use base::allocator::{Allocator, SameShapeAllocator};
 use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use base::dimension::{
-    Dim, DimName, Dynamic, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
+    Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
+#[cfg(any(feature = "std", feature = "alloc"))]
+use base::dimension::Dynamic;
 use base::iter::{MatrixIter, MatrixIterMut};
 use base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
