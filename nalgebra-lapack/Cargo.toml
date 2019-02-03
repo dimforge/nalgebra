@@ -25,7 +25,7 @@ intel-mkl  = ["lapack-src/intel-mkl"]
 nalgebra      = { version = "0.16", path = ".." }
 num-traits    = "0.2"
 num-complex   = { version = "0.2", default-features = false }
-alga          = { version = "0.7", default-features = false }
+alga          = { version = "0.8", default-features = false }
 serde         = { version = "1.0", optional = true }
 serde_derive  = { version = "1.0", optional = true }
 lapack        = { version = "0.16", default-features = false }
@@ -34,6 +34,6 @@ lapack-src    = { version = "0.2", default-features = false }
 
 [dev-dependencies]
 nalgebra   = { version = "0.16", path = "..", features = [ "arbitrary" ] }
-quickcheck = "0.7"
+quickcheck = "0.8"
 approx     = "0.3"
 rand       = "0.6"

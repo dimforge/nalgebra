@@ -1,6 +1,6 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Identity, Inverse, Multiplicative, Real,
+    AbstractSemigroup, Identity, TwoSidedInverse, Multiplicative, Real,
 };
 use alga::linear::{ProjectiveTransformation, Transformation};
 
@@ -26,18 +26,18 @@ where
     }
 }
 
-impl<N: Real, D: DimNameAdd<U1>, C> Inverse<Multiplicative> for Transform<N, D, C>
+impl<N: Real, D: DimNameAdd<U1>, C> TwoSidedInverse<Multiplicative> for Transform<N, D, C>
 where
     C: SubTCategoryOf<TProjective>,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 {
     #[inline]
-    fn inverse(&self) -> Self {
+    fn two_sided_inverse(&self) -> Self {
         self.clone().inverse()
     }
 
     #[inline]
-    fn inverse_mut(&mut self) {
+    fn two_sided_inverse_mut(&mut self) {
         self.inverse_mut()
     }
 }
@@ -116,12 +116,12 @@ where
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        self.inverse() * pt
+        self.two_sided_inverse() * pt
     }
 
     #[inline]
     fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
-        self.inverse() * v
+        self.two_sided_inverse() * v
     }
 }
 

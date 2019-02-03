@@ -222,8 +222,8 @@ similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
     self: Similarity<N, D, R>, rhs: R;
     // FIXME: don't invert explicitly?
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => *self *= rhs.two_sided_inverse();
+    [ref] => *self *= rhs.two_sided_inverse();
 );
 
 // Similarity × R

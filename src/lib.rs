@@ -153,7 +153,7 @@ pub use sparse::*;
 use std::cmp::{self, Ordering, PartialOrd};
 
 use alga::general::{
-    Additive, AdditiveGroup, Identity, Inverse, JoinSemilattice, Lattice, MeetSemilattice,
+    Additive, AdditiveGroup, Identity, TwoSidedInverse, JoinSemilattice, Lattice, MeetSemilattice,
     Multiplicative, SupersetOf,
 };
 use alga::linear::SquareMatrix as AlgaSquareMatrix;
@@ -427,8 +427,8 @@ pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
 ///
 /// * [`try_inverse`](fn.try_inverse.html)
 #[inline]
-pub fn inverse<M: Inverse<Multiplicative>>(m: &M) -> M {
-    m.inverse()
+pub fn inverse<M: TwoSidedInverse<Multiplicative>>(m: &M) -> M {
+    m.two_sided_inverse()
 }
 
 /*

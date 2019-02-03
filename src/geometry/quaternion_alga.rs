@@ -2,7 +2,7 @@ use num::Zero;
 
 use alga::general::{
     AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
-    AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, Id, Identity, Inverse, Module,
+    AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, Id, Identity, TwoSidedInverse, Module,
     Multiplicative, Real,
 };
 use alga::linear::{
@@ -42,9 +42,9 @@ impl<N: Real> AbstractMagma<Additive> for Quaternion<N> {
     }
 }
 
-impl<N: Real> Inverse<Additive> for Quaternion<N> {
+impl<N: Real> TwoSidedInverse<Additive> for Quaternion<N> {
     #[inline]
-    fn inverse(&self) -> Self {
+    fn two_sided_inverse(&self) -> Self {
         -self
     }
 }
@@ -173,14 +173,14 @@ impl<N: Real> AbstractMagma<Multiplicative> for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real> Inverse<Multiplicative> for UnitQuaternion<N> {
+impl<N: Real> TwoSidedInverse<Multiplicative> for UnitQuaternion<N> {
     #[inline]
-    fn inverse(&self) -> Self {
+    fn two_sided_inverse(&self) -> Self {
         self.inverse()
     }
 
     #[inline]
-    fn inverse_mut(&mut self) {
+    fn two_sided_inverse_mut(&mut self) {
         self.inverse_mut()
     }
 }
