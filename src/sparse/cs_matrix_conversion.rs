@@ -1,19 +1,14 @@
-use alga::general::{ClosedAdd, ClosedMul};
-use num::{One, Zero};
-use std::iter;
-use std::marker::PhantomData;
-use std::ops::{Add, Mul, Range};
-use std::slice;
+use alga::general::ClosedAdd;
+use num::Zero;
 
 use allocator::Allocator;
-use constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
 use sparse::cs_utils;
-use sparse::{CsMatrix, CsStorage, CsVector};
-use storage::{Storage, StorageMut};
-use {DefaultAllocator, Dim, Dynamic, Matrix, MatrixMN, Real, Scalar, Vector, VectorN, U1};
+use sparse::{CsMatrix, CsStorage};
+use storage::Storage;
+use {DefaultAllocator, Dim, Dynamic, Matrix, MatrixMN, Scalar};
 
 impl<'a, N: Scalar + Zero + ClosedAdd> CsMatrix<N> {
-    // FIXME: implement for dimensions other than Dynamic too.
+    /// Creates a column-compressed sparse matrix from a sparse matrix in triplet form.
     pub fn from_triplet(
         nrows: usize,
         ncols: usize,
@@ -29,6 +24,7 @@ impl<'a, N: Scalar + Zero + ClosedAdd> CsMatrix<N> {
 impl<'a, N: Scalar + Zero + ClosedAdd, R: Dim, C: Dim> CsMatrix<N, R, C>
 where DefaultAllocator: Allocator<usize, C> + Allocator<N, R>
 {
+    /// Creates a column-compressed sparse matrix from a sparse matrix in triplet form.
     pub fn from_triplet_generic(
         nrows: R,
         ncols: C,

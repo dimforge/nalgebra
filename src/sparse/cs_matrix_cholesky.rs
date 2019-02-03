@@ -1,17 +1,11 @@
-use alga::general::{ClosedAdd, ClosedMul};
-use num::{One, Zero};
 use std::iter;
-use std::marker::PhantomData;
 use std::mem;
-use std::ops::{Add, Mul, Range};
-use std::slice;
 
 use allocator::Allocator;
-use constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
-use sparse::{CsMatrix, CsStorage, CsStorageIter, CsStorageIterMut, CsVecStorage, CsVector};
-use storage::{Storage, StorageMut};
-use {DefaultAllocator, Dim, Matrix, MatrixMN, Real, Scalar, Vector, VectorN, U1};
+use sparse::{CsMatrix, CsStorage, CsStorageIter, CsStorageIterMut, CsVecStorage};
+use {DefaultAllocator, Dim, Real, VectorN, U1};
 
+/// The cholesky decomposition of a column compressed sparse matrix.
 pub struct CsCholesky<N: Real, D: Dim>
 where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
 {
@@ -68,6 +62,7 @@ where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
         }
     }
 
+    /// The lower-triangular matrix of the cholesky decomposition.
     pub fn l(&self) -> Option<&CsMatrix<N, D, D>> {
         if self.ok {
             Some(&self.l)
@@ -76,6 +71,7 @@ where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
         }
     }
 
+    /// Extracts the lower-triangular matrix of the cholesky decomposition.
     pub fn unwrap_l(self) -> Option<CsMatrix<N, D, D>> {
         if self.ok {
             Some(self.l)
@@ -84,6 +80,8 @@ where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
         }
     }
 
+    /// Perform a numerical left-looking cholesky decomposition of a matrix with the same structure as the
+    /// one used to initialize `self`, but with different non-zero values provided by `values`.
     pub fn decompose_left_looking(&mut self, values: &[N]) -> bool {
         assert!(
             values.len() >= self.original_i.len(),
@@ -152,7 +150,8 @@ where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
         true
     }
 
-    // Performs the numerical Cholesky decomposition given the set of numerical values.
+    /// Perform a numerical up-looking cholesky decomposition of a matrix with the same structure as the
+    /// one used to initialize `self`, but with different non-zero values provided by `values`.
     pub fn decompose_up_looking(&mut self, values: &[N]) -> bool {
         assert!(
             values.len() >= self.original_i.len(),

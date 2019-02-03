@@ -1,17 +1,14 @@
-use alga::general::{ClosedAdd, ClosedMul};
-use num::{One, Zero};
+use alga::general::ClosedAdd;
+use num::Zero;
 use std::iter;
 use std::marker::PhantomData;
-use std::ops::{Add, Mul, Range};
+use std::ops::Range;
 use std::slice;
 
 use allocator::Allocator;
-use constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
 use sparse::cs_utils;
-use storage::{Storage, StorageMut};
 use {
-    DVector, DefaultAllocator, Dim, Dynamic, Matrix, MatrixMN, MatrixVec, Real, Scalar, Vector,
-    VectorN, U1,
+    DefaultAllocator, Dim, Dynamic, Scalar, Vector, VectorN, U1
 };
 
 pub struct ColumnEntries<'a, N> {
@@ -47,38 +44,66 @@ impl<'a, N: Copy> Iterator for ColumnEntries<'a, N> {
 
 // FIXME: this structure exists for now only because impl trait
 // cannot be used for trait method return types.
+/// Trait for iterable compressed-column matrix storage.
 pub trait CsStorageIter<'a, N, R, C = U1> {
+    /// Iterator through all the rows of a specific columns.
+    ///
+    /// The elements are given as a tuple (row_index, value).
     type ColumnEntries: Iterator<Item = (usize, N)>;
+    /// Iterator through the row indices of a specific column.
     type ColumnRowIndices: Iterator<Item = usize>;
 
+    /// Iterates through all the row indices of the j-th column.
     fn column_row_indices(&'a self, j: usize) -> Self::ColumnRowIndices;
     #[inline(always)]
+    /// Iterates through all the entries of the j-th column.
     fn column_entries(&'a self, j: usize) -> Self::ColumnEntries;
 }
 
+/// Trait for mutably iterable compressed-column sparse matrix storage.
 pub trait CsStorageIterMut<'a, N: 'a, R, C = U1> {
+    /// Mutable iterator through all the values of the sparse matrix.
     type ValuesMut: Iterator<Item = &'a mut N>;
+    /// Mutable iterator through all the rows of a specific columns.
+    ///
+    /// The elements are given as a tuple (row_index, value).
     type ColumnEntriesMut: Iterator<Item = (usize, &'a mut N)>;
 
+    /// A mutable iterator through the values buffer of the sparse matrix.
     fn values_mut(&'a mut self) -> Self::ValuesMut;
+    /// Iterates mutably through all the entries of the j-th column.
     fn column_entries_mut(&'a mut self, j: usize) -> Self::ColumnEntriesMut;
 }
 
+/// Trait for compressed column sparse matrix storage.
 pub trait CsStorage<N, R, C = U1>: for<'a> CsStorageIter<'a, N, R, C> {
+    /// The shape of the stored matrix.
     fn shape(&self) -> (R, C);
+    /// Retrieve the i-th row index of the underlying row index buffer.
+    ///
+    /// No bound-checking is performed.
     unsafe fn row_index_unchecked(&self, i: usize) -> usize;
+    /// The i-th value on the contiguous value buffer of this storage.
+    ///
+    /// No bound-checking is performed.
     unsafe fn get_value_unchecked(&self, i: usize) -> &N;
+    /// The i-th value on the contiguous value buffer of this storage.
     fn get_value(&self, i: usize) -> &N;
+    /// Retrieve the i-th row index of the underlying row index buffer.
     fn row_index(&self, i: usize) -> usize;
+    /// The value indices for the `i`-th column.
     fn column_range(&self, i: usize) -> Range<usize>;
+    /// The size of the value buffer (i.e. the entries known as possibly being non-zero).
     fn len(&self) -> usize;
 }
 
+/// Trait for compressed column sparse matrix mutable storage.
 pub trait CsStorageMut<N, R, C = U1>:
     CsStorage<N, R, C> + for<'a> CsStorageIterMut<'a, N, R, C>
 {
 }
 
+/// A storage of column-compressed sparse matrix based on a Vec.
 #[derive(Clone, Debug, PartialEq)]
 pub struct CsVecStorage<N: Scalar, R: Dim, C: Dim>
 where DefaultAllocator: Allocator<usize, C>
@@ -92,12 +117,17 @@ where DefaultAllocator: Allocator<usize, C>
 impl<N: Scalar, R: Dim, C: Dim> CsVecStorage<N, R, C>
 where DefaultAllocator: Allocator<usize, C>
 {
+    /// The value buffer of this storage.
     pub fn values(&self) -> &[N] {
         &self.vals
     }
+
+    /// The column shifts buffer.
     pub fn p(&self) -> &[usize] {
         self.p.as_slice()
     }
+
+    /// The row index buffers.
     pub fn i(&self) -> &[usize] {
         &self.i
     }
@@ -209,15 +239,18 @@ pub struct CsMatrix<
     C: Dim = Dynamic,
     S: CsStorage<N, R, C> = CsVecStorage<N, R, C>,
 > {
-    pub data: S,
+    pub(crate) data: S,
     _phantoms: PhantomData<(N, R, C)>,
 }
 
+/// A column compressed sparse vector.
 pub type CsVector<N, R = Dynamic, S = CsVecStorage<N, R, U1>> = CsMatrix<N, R, U1, S>;
 
 impl<N: Scalar, R: Dim, C: Dim> CsMatrix<N, R, C>
 where DefaultAllocator: Allocator<usize, C>
 {
+    /// Creates a new compressed sparse column matrix with the specified dimension and
+    /// `nvals` possible non-zero values.
     pub fn new_uninitialized_generic(nrows: R, ncols: C, nvals: usize) -> Self {
         let mut i = Vec::with_capacity(nvals);
         unsafe {
@@ -242,7 +275,8 @@ where DefaultAllocator: Allocator<usize, C>
         }
     }
 
-    pub fn from_parts_generic(
+    /*
+    pub(crate) fn from_parts_generic(
         nrows: R,
         ncols: C,
         p: VectorN<usize, C>,
@@ -285,11 +319,12 @@ where DefaultAllocator: Allocator<usize, C>
         res.dedup();
 
         res
-    }
+    }*/
 }
 
+/*
 impl<N: Scalar + Zero + ClosedAdd> CsMatrix<N> {
-    pub fn from_parts(
+    pub(crate) fn from_parts(
         nrows: usize,
         ncols: usize,
         p: Vec<usize>,
@@ -299,36 +334,42 @@ impl<N: Scalar + Zero + ClosedAdd> CsMatrix<N> {
     {
         let nrows = Dynamic::new(nrows);
         let ncols = Dynamic::new(ncols);
-        let p = DVector::from_data(MatrixVec::new(ncols, U1, p));
+        let p = DVector::from_data(VecStorage::new(ncols, U1, p));
         Self::from_parts_generic(nrows, ncols, p, i, vals)
     }
 }
+*/
 
 impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
-    pub fn from_data(data: S) -> Self {
+    pub(crate) fn from_data(data: S) -> Self {
         CsMatrix {
             data,
             _phantoms: PhantomData,
         }
     }
 
+    /// The size of the data buffer.
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
+    /// The number of rows of this matrix.
     pub fn nrows(&self) -> usize {
         self.data.shape().0.value()
     }
 
+    /// The number of rows of this matrix.
     pub fn ncols(&self) -> usize {
         self.data.shape().1.value()
     }
 
+    /// The shape of this matrix.
     pub fn shape(&self) -> (usize, usize) {
         let (nrows, ncols) = self.data.shape();
         (nrows.value(), ncols.value())
     }
 
+    /// Whether this matrix is square or not.
     pub fn is_square(&self) -> bool {
         let (nrows, ncols) = self.data.shape();
         nrows.value() == ncols.value()
@@ -360,6 +401,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
         true
     }
 
+    /// Computes the transpose of this sparse matrix.
     pub fn transpose(&self) -> CsMatrix<N, C, R>
     where DefaultAllocator: Allocator<usize, R> {
         let (nrows, ncols) = self.data.shape();
@@ -392,6 +434,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
 }
 
 impl<N: Scalar, R: Dim, C: Dim, S: CsStorageMut<N, R, C>> CsMatrix<N, R, C, S> {
+    /// Iterator through all the mutable values of this sparse matrix.
     #[inline]
     pub fn values_mut(&mut self) -> impl Iterator<Item = &mut N> {
         self.data.values_mut()

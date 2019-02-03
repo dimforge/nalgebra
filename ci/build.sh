@@ -11,7 +11,7 @@ if [ -z "$NO_STD" ]; then
         cargo build --verbose -p nalgebra --features "serde-serialize";
         cargo build --verbose -p nalgebra --features "abomonation-serialize";
         cargo build --verbose -p nalgebra --features "debug";
-        cargo build --verbose -p nalgebra --features "debug arbitrary mint serde-serialize abomonation-serialize";
+        cargo build --verbose -p nalgebra --all-features
     else
         cargo build -p nalgebra-lapack;
     fi

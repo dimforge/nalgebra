@@ -1,15 +1,12 @@
 use alga::general::{ClosedAdd, ClosedMul};
 use num::{One, Zero};
-use std::iter;
-use std::marker::PhantomData;
-use std::ops::{Add, Mul, Range};
-use std::slice;
+use std::ops::{Add, Mul};
 
 use allocator::Allocator;
-use constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
+use constraint::{AreMultipliable, DimEq, ShapeConstraint};
 use sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector};
-use storage::{Storage, StorageMut};
-use {DefaultAllocator, Dim, Matrix, MatrixMN, Real, Scalar, Vector, VectorN, U1};
+use storage::StorageMut;
+use {DefaultAllocator, Dim, Scalar, Vector, VectorN, U1};
 
 impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
     fn scatter<R2: Dim, C2: Dim>(
@@ -80,6 +77,7 @@ impl<N: Scalar, R, S> CsVector<N, R, S> {
 */
 
 impl<N: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
+    /// Perform a sparse axpy operation: `self = alpha * x + beta * self` operation.
     pub fn axpy_cs<D2: Dim, S2>(&mut self, alpha: N, x: &CsVector<N, D2, S2>, beta: N)
     where
         S2: CsStorage<N, D2>,

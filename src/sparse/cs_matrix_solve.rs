@@ -1,17 +1,11 @@
-use alga::general::{ClosedAdd, ClosedMul};
-use num::{One, Zero};
-use std::iter;
-use std::marker::PhantomData;
-use std::ops::{Add, Mul, Range};
-use std::slice;
-
 use allocator::Allocator;
-use constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
+use constraint::{SameNumberOfRows, ShapeConstraint};
 use sparse::{CsMatrix, CsStorage, CsVector};
 use storage::{Storage, StorageMut};
-use {DefaultAllocator, Dim, Matrix, MatrixMN, Real, Scalar, Vector, VectorN, U1};
+use {DefaultAllocator, Dim, Matrix, MatrixMN, Real, VectorN, U1};
 
 impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
+    /// Solve a lower-triangular system with a dense right-hand-side.
     pub fn solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<N, R2, C2, S2>,
@@ -29,6 +23,7 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         }
     }
 
+    /// Solve a lower-triangular system with `self` transposed and a dense right-hand-side.
     pub fn tr_solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<N, R2, C2, S2>,
@@ -46,6 +41,7 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         }
     }
 
+    /// Solve in-place a lower-triangular system with a dense right-hand-side.
     pub fn solve_lower_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
@@ -90,6 +86,7 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         true
     }
 
+    /// Solve a lower-triangular system with `self` transposed and a dense right-hand-side.
     pub fn tr_solve_lower_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
@@ -135,6 +132,7 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         true
     }
 
+    /// Solve a lower-triangular system with a sparse right-hand-side.
     pub fn solve_lower_triangular_cs<D2: Dim, S2>(
         &self,
         b: &CsVector<N, D2, S2>,
@@ -195,6 +193,7 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         Some(result)
     }
 
+    /*
     // Computes the reachable, post-ordered, nodes from `b`.
     fn lower_triangular_reach_postordered<D2: Dim, S2>(
         &self,
@@ -240,6 +239,7 @@ impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
             xi.push(j)
         }
     }
+    */
 
     // Computes the nodes reachable from `b` in an arbitrary order.
     fn lower_triangular_reach<D2: Dim, S2>(&self, b: &CsVector<N, D2, S2>, xi: &mut Vec<usize>)
