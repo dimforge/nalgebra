@@ -296,7 +296,7 @@ where
     ///
     /// let m = Matrix3::from_diagonal(&Vector3::new(1.0, 2.0, 3.0));
     /// // The two additional arguments represent the matrix dimensions.
-    /// let dm = DMatrix::from_diagonal(&DVector::from_row_slice(3, &[1.0, 2.0, 3.0]));
+    /// let dm = DMatrix::from_diagonal(&DVector::from_row_slice(&[1.0, 2.0, 3.0]));
     ///
     /// assert!(m.m11 == 1.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
     ///         m.m21 == 0.0 && m.m22 == 2.0 && m.m23 == 0.0 &&
@@ -444,63 +444,6 @@ macro_rules! impl_constructors(
                 Self::from_iterator_generic($($gargs, )* iter)
             }
 
-            /// Creates a matrix with its elements filled with the components provided by a slice
-            /// in row-major order.
-            ///
-            /// The order of elements in the slice must follow the usual mathematic writing, i.e.,
-            /// row-by-row.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-            /// # use std::iter;
-            ///
-            /// let v = Vector3::from_row_slice(&[0, 1, 2]);
-            /// // The additional argument represents the vector dimension.
-            /// let dv = DVector::from_row_slice(3, &[0, 1, 2]);
-            /// let m = Matrix2x3::from_row_slice(&[0, 1, 2, 3, 4, 5]);
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::from_row_slice(2, 3, &[0, 1, 2, 3, 4, 5]);
-            ///
-            /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
-            /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
-            /// assert!(m.m11 == 0 && m.m12 == 1 && m.m13 == 2 &&
-            ///         m.m21 == 3 && m.m22 == 4 && m.m23 == 5);
-            /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 1 && dm[(0, 2)] == 2 &&
-            ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
-            /// ```
-            #[inline]
-            pub fn from_row_slice($($args: usize,)* slice: &[N]) -> Self {
-                Self::from_row_slice_generic($($gargs, )* slice)
-            }
-
-            /// Creates a matrix with its elements filled with the components provided by a slice
-            /// in column-major order.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-            /// # use std::iter;
-            ///
-            /// let v = Vector3::from_column_slice(&[0, 1, 2]);
-            /// // The additional argument represents the vector dimension.
-            /// let dv = DVector::from_column_slice(3, &[0, 1, 2]);
-            /// let m = Matrix2x3::from_column_slice(&[0, 1, 2, 3, 4, 5]);
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::from_column_slice(2, 3, &[0, 1, 2, 3, 4, 5]);
-            ///
-            /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
-            /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
-            /// assert!(m.m11 == 0 && m.m12 == 2 && m.m13 == 4 &&
-            ///         m.m21 == 1 && m.m22 == 3 && m.m23 == 5);
-            /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 2 && dm[(0, 2)] == 4 &&
-            ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
-            /// ```
-            #[inline]
-            pub fn from_column_slice($($args: usize,)* slice: &[N]) -> Self {
-                Self::from_column_slice_generic($($gargs, )* slice)
-            }
-
             /// Creates a matrix or vector filled with the results of a function applied to each of its
             /// component coordinates.
             ///
@@ -612,32 +555,6 @@ macro_rules! impl_constructors(
             ) -> Self {
                 Self::from_distribution_generic($($gargs, )* distribution, rng)
             }
-
-            /// Creates a matrix backed by a given `Vec`.
-            ///
-            /// The output matrix is filled column-by-column.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{DMatrix, Matrix2x3};
-            ///
-            /// let m = Matrix2x3::from_vec(vec![0, 1, 2, 3, 4, 5]);
-            ///
-            /// assert!(m.m11 == 0 && m.m12 == 2 && m.m13 == 4 &&
-            ///         m.m21 == 1 && m.m22 == 3 && m.m23 == 5);
-            ///
-            ///
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]);
-            ///
-            /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 2 && dm[(0, 2)] == 4 &&
-            ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
-            /// ```
-            #[inline]
-            #[cfg(feature = "std")]
-            pub fn from_vec($($args: usize,)* data: Vec<N>) -> Self {
-                Self::from_vec_generic($($gargs, )* data)
-            }
         }
 
         impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
@@ -675,6 +592,125 @@ impl_constructors!(Dynamic, Dynamic;
                    ;
                    Dynamic::new(nrows), Dynamic::new(ncols);
                    nrows, ncols);
+
+/*
+ *
+ * Constructors that don't necessarily require all dimensions
+ * to be specified whon one dimension is already known.
+ *
+ */
+macro_rules! impl_constructors_from_data(
+    ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
+        impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
+        where DefaultAllocator: Allocator<N $(, $Dims)*> {
+            /// Creates a matrix with its elements filled with the components provided by a slice
+            /// in row-major order.
+            ///
+            /// The order of elements in the slice must follow the usual mathematic writing, i.e.,
+            /// row-by-row.
+            ///
+            /// # Example
+            /// ```
+            /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
+            /// # use std::iter;
+            ///
+            /// let v = Vector3::from_row_slice(&[0, 1, 2]);
+            /// // The additional argument represents the vector dimension.
+            /// let dv = DVector::from_row_slice(&[0, 1, 2]);
+            /// let m = Matrix2x3::from_row_slice(&[0, 1, 2, 3, 4, 5]);
+            /// // The two additional arguments represent the matrix dimensions.
+            /// let dm = DMatrix::from_row_slice(2, 3, &[0, 1, 2, 3, 4, 5]);
+            ///
+            /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
+            /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
+            /// assert!(m.m11 == 0 && m.m12 == 1 && m.m13 == 2 &&
+            ///         m.m21 == 3 && m.m22 == 4 && m.m23 == 5);
+            /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 1 && dm[(0, 2)] == 2 &&
+            ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
+            /// ```
+            #[inline]
+            pub fn from_row_slice($($args: usize,)* $data: &[N]) -> Self {
+                Self::from_row_slice_generic($($gargs, )* $data)
+            }
+
+            /// Creates a matrix with its elements filled with the components provided by a slice
+            /// in column-major order.
+            ///
+            /// # Example
+            /// ```
+            /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
+            /// # use std::iter;
+            ///
+            /// let v = Vector3::from_column_slice(&[0, 1, 2]);
+            /// // The additional argument represents the vector dimension.
+            /// let dv = DVector::from_column_slice(&[0, 1, 2]);
+            /// let m = Matrix2x3::from_column_slice(&[0, 1, 2, 3, 4, 5]);
+            /// // The two additional arguments represent the matrix dimensions.
+            /// let dm = DMatrix::from_column_slice(2, 3, &[0, 1, 2, 3, 4, 5]);
+            ///
+            /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
+            /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
+            /// assert!(m.m11 == 0 && m.m12 == 2 && m.m13 == 4 &&
+            ///         m.m21 == 1 && m.m22 == 3 && m.m23 == 5);
+            /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 2 && dm[(0, 2)] == 4 &&
+            ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
+            /// ```
+            #[inline]
+            pub fn from_column_slice($($args: usize,)* $data: &[N]) -> Self {
+                Self::from_column_slice_generic($($gargs, )* $data)
+            }
+
+            /// Creates a matrix backed by a given `Vec`.
+            ///
+            /// The output matrix is filled column-by-column.
+            ///
+            /// # Example
+            /// ```
+            /// # use nalgebra::{DMatrix, Matrix2x3};
+            ///
+            /// let m = Matrix2x3::from_vec(vec![0, 1, 2, 3, 4, 5]);
+            ///
+            /// assert!(m.m11 == 0 && m.m12 == 2 && m.m13 == 4 &&
+            ///         m.m21 == 1 && m.m22 == 3 && m.m23 == 5);
+            ///
+            ///
+            /// // The two additional arguments represent the matrix dimensions.
+            /// let dm = DMatrix::from_vec(2, 3, vec![0, 1, 2, 3, 4, 5]);
+            ///
+            /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 2 && dm[(0, 2)] == 4 &&
+            ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
+            /// ```
+            #[inline]
+            #[cfg(feature = "std")]
+            pub fn from_vec($($args: usize,)* $data: Vec<N>) -> Self {
+                Self::from_vec_generic($($gargs, )* $data)
+            }
+        }
+    }
+);
+
+// FIXME: this is not very pretty. We could find a better call syntax.
+impl_constructors_from_data!(data; R, C;                  // Arguments for Matrix<N, ..., S>
+                            => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+                            R::name(), C::name();         // Arguments for `_generic` constructors.
+                            ); // Arguments for non-generic constructors.
+
+impl_constructors_from_data!(data; R, Dynamic;
+                            => R: DimName;
+                            R::name(), Dynamic::new(data.len() / R::dim());
+                            );
+
+impl_constructors_from_data!(data; Dynamic, C;
+                            => C: DimName;
+                            Dynamic::new(data.len() / C::dim()), C::name();
+                            );
+
+impl_constructors_from_data!(data; Dynamic, Dynamic;
+                            ;
+                            Dynamic::new(nrows), Dynamic::new(ncols);
+                            nrows, ncols);
+
+
 
 /*
  *

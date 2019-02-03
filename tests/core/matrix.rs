@@ -195,10 +195,10 @@ fn from_columns() {
 #[test]
 fn from_columns_dynamic() {
     let columns = &[
-        DVector::from_row_slice(3, &[11, 21, 31]),
-        DVector::from_row_slice(3, &[12, 22, 32]),
-        DVector::from_row_slice(3, &[13, 23, 33]),
-        DVector::from_row_slice(3, &[14, 24, 34]),
+        DVector::from_row_slice(&[11, 21, 31]),
+        DVector::from_row_slice(&[12, 22, 32]),
+        DVector::from_row_slice(&[13, 23, 33]),
+        DVector::from_row_slice(&[14, 24, 34]),
     ];
 
     let expected = DMatrix::from_row_slice(3, 4, &[11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34]);
@@ -233,8 +233,8 @@ fn from_not_enough_columns() {
 #[should_panic]
 fn from_rows_with_different_dimensions() {
     let columns = &[
-        DVector::from_row_slice(3, &[11, 21, 31]),
-        DVector::from_row_slice(3, &[12, 22, 32, 33]),
+        DVector::from_row_slice(&[11, 21, 31]),
+        DVector::from_row_slice(&[12, 22, 32, 33]),
     ];
 
     let _ = DMatrix::from_columns(columns);
@@ -272,8 +272,8 @@ fn to_homogeneous() {
     let a = Vector3::new(1.0, 2.0, 3.0);
     let expected_a = Vector4::new(1.0, 2.0, 3.0, 0.0);
 
-    let b = DVector::from_row_slice(3, &[1.0, 2.0, 3.0]);
-    let expected_b = DVector::from_row_slice(4, &[1.0, 2.0, 3.0, 0.0]);
+    let b = DVector::from_row_slice(&[1.0, 2.0, 3.0]);
+    let expected_b = DVector::from_row_slice(&[1.0, 2.0, 3.0, 0.0]);
 
     let c = Matrix2::new(1.0, 2.0, 3.0, 4.0);
     let expected_c = Matrix3::new(1.0, 2.0, 0.0, 3.0, 4.0, 0.0, 0.0, 0.0, 1.0);
@@ -292,8 +292,8 @@ fn push() {
     let a = Vector3::new(1.0, 2.0, 3.0);
     let expected_a = Vector4::new(1.0, 2.0, 3.0, 4.0);
 
-    let b = DVector::from_row_slice(3, &[1.0, 2.0, 3.0]);
-    let expected_b = DVector::from_row_slice(4, &[1.0, 2.0, 3.0, 4.0]);
+    let b = DVector::from_row_slice(&[1.0, 2.0, 3.0]);
+    let expected_b = DVector::from_row_slice(&[1.0, 2.0, 3.0, 4.0]);
 
     assert_eq!(a.push(4.0), expected_a);
     assert_eq!(b.push(4.0), expected_b);

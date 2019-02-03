@@ -85,7 +85,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # extern crate num_complex;
-    /// # extern crate nalgebra;
     /// # use num_complex::Complex;
     /// # use nalgebra::UnitComplex;
     /// let angle = 1.78f32;
@@ -117,7 +116,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitComplex;
     /// let rot = UnitComplex::new(1.2);
     /// let inv = rot.inverse();
@@ -134,7 +132,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitComplex;
     /// let rot1 = UnitComplex::new(0.1);
     /// let rot2 = UnitComplex::new(1.7);
@@ -153,7 +150,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitComplex;
     /// let rot1 = UnitComplex::new(0.1);
     /// let rot2 = UnitComplex::new(1.7);
@@ -172,7 +168,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitComplex;
     /// let angle = 1.7;
     /// let rot = UnitComplex::new(angle);
@@ -192,7 +187,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitComplex;
     /// let angle = 1.7;
     /// let mut rot = UnitComplex::new(angle);
@@ -213,7 +207,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitComplex;
     /// let rot = UnitComplex::new(0.78);
     /// let pow = rot.powf(2.0);

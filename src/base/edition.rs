@@ -1,6 +1,7 @@
 use num::{One, Zero};
 use std::cmp;
 use std::ptr;
+use std::iter::ExactSizeIterator;
 
 use base::allocator::{Allocator, Reallocator};
 use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
@@ -29,6 +30,52 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     where DefaultAllocator: Allocator<N, R, C> {
         let mut res = self.clone_owned();
         res.fill_upper_triangle(N::zero(), 1);
+
+        res
+    }
+
+    /// Creates a new matrix by extracting the given set of rows from `self`.
+    pub fn select_rows<'a, I>(&self, irows: I) -> MatrixMN<N, Dynamic, C>
+        where I: IntoIterator<Item = &'a usize>,
+              I::IntoIter: ExactSizeIterator + Clone,
+              DefaultAllocator: Allocator<N, Dynamic, C> {
+        let irows = irows.into_iter();
+        let ncols = self.data.shape().1;
+        let mut res = unsafe { MatrixMN::new_uninitialized_generic(Dynamic::new(irows.len()), ncols) };
+
+        // First, check that all the indices from irows are valid.
+        // This will allow us to use unchecked access in the inner loop.
+        for i in irows.clone() {
+            assert!(*i < self.nrows(), "Row index out of bounds.")
+        }
+
+        for j in 0..ncols.value() {
+            // FIXME: use unchecked column indexing
+            let mut res = res.column_mut(j);
+            let mut src = self.column(j);
+
+            for (destination, source) in irows.clone().enumerate() {
+                unsafe {
+                    *res.vget_unchecked_mut(destination) = *src.vget_unchecked(*source)
+                }
+            }
+        }
+
+        res
+    }
+
+    /// Creates a new matrix by extracting the given set of columns from `self`.
+    pub fn select_columns<'a, I>(&self, icols: I) -> MatrixMN<N, R, Dynamic>
+        where I: IntoIterator<Item = &'a usize>,
+              I::IntoIter: ExactSizeIterator,
+              DefaultAllocator: Allocator<N, R, Dynamic> {
+        let icols = icols.into_iter();
+        let nrows = self.data.shape().0;
+        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, Dynamic::new(icols.len())) };
+
+        for (destination, source) in icols.enumerate() {
+            res.column_mut(destination).copy_from(&self.column(*source))
+        }
 
         res
     }
@@ -764,9 +811,9 @@ where
     /// # Example
     /// ```
     /// # use nalgebra::DVector;
-    /// let mut vector = DVector::from_vec(3, vec![0, 1, 2]);
+    /// let mut vector = DVector::from_vec(vec![0, 1, 2]);
     /// vector.extend(vec![3, 4, 5]);
-    /// assert!(vector.eq(&DVector::from_vec(6, vec![0, 1, 2, 3, 4, 5])));
+    /// assert!(vector.eq(&DVector::from_vec(vec![0, 1, 2, 3, 4, 5])));
     /// ```
     fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I) {
         self.data.extend(iter);
