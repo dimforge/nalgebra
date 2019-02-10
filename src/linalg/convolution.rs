@@ -1,20 +1,25 @@
-extern crate nalgebra as na;
-use na::storage::Storage;
-use na::{zero, DVector, Dim, Dynamic, Matrix, Real, VecStorage, Vector, U1};
+use storage::Storage;
+use {zero, DVector, Dim, Dynamic, Matrix, Real, VecStorage, Vector, U1};
 use std::cmp;
 
-enum ConvolveMode {
-    Full,
-    Valid,
-    Same,
-}
-
-fn convolve_full<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
+///
+/// The output is the full discrete linear convolution of the inputs
+/// 
+pub fn convolve_full<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
     vector: Vector<R, D, S>,
     kernel: Vector<R, E, Q>,
 ) -> Matrix<R, Dynamic, U1, VecStorage<R, Dynamic, U1>> {
     let vec = vector.len();
     let ker = kernel.len();
+
+    if vec == 0 || ker == 0 {
+        panic!("Convolve's inputs must not be 0-sized. ");
+    }
+
+    if ker > vec {
+        return convolve_full(kernel, vector);
+    }
+
     let newlen = vec + ker - 1;
 
     let mut conv = DVector::<R>::zeros(newlen);
@@ -36,12 +41,24 @@ fn convolve_full<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
     conv
 }
 
-fn convolve_valid<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
+///
+/// The output consists only of those elements that do not rely on the zero-padding. 
+/// 
+pub fn convolve_valid<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
     vector: Vector<R, D, S>,
     kernel: Vector<R, E, Q>,
 ) -> Matrix<R, Dynamic, U1, VecStorage<R, Dynamic, U1>> {
     let vec = vector.len();
     let ker = kernel.len();
+
+    if vec == 0 || ker == 0 {
+        panic!("Convolve's inputs must not be 0-sized. ");
+    }
+
+    if ker > vec {
+        return convolve_valid(kernel, vector);
+    }
+
     let newlen = vec - ker + 1;
 
     let mut conv = DVector::<R>::zeros(newlen);
@@ -54,12 +71,23 @@ fn convolve_valid<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
     conv
 }
 
-fn convolve_same<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
+///
+/// The output is the same size as in1, centered with respect to the ‘full’ output.
+/// 
+pub fn convolve_same<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
     vector: Vector<R, D, S>,
     kernel: Vector<R, E, Q>,
 ) -> Matrix<R, Dynamic, U1, VecStorage<R, Dynamic, U1>> {
     let vec = vector.len();
     let ker = kernel.len();
+
+    if vec == 0 || ker == 0 {
+        panic!("Convolve's inputs must not be 0-sized. ");
+    }
+
+    if ker > vec {
+        return convolve_same(kernel, vector);
+    }
 
     let mut conv = DVector::<R>::zeros(vec);
 
@@ -74,24 +102,4 @@ fn convolve_same<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
         }
     }
     conv
-}
-
-fn convolve<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
-    vector: Vector<R, D, S>,
-    kernel: Vector<R, E, Q>,
-    mode: Option<ConvolveMode>,
-) -> Matrix<R, Dynamic, U1, VecStorage<R, Dynamic, U1>> {
-    if kernel.len() > vector.len() {
-        return convolve(kernel, vector, mode);
-    }
-
-    match mode.unwrap_or(ConvolveMode::Full) {
-        ConvolveMode::Full => return convolve_full(vector, kernel),
-        ConvolveMode::Valid => return convolve_valid(vector, kernel),
-        ConvolveMode::Same => return convolve_same(vector, kernel),
-    }
-}
-
-fn main() {
-
 }
