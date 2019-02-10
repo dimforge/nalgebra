@@ -42,7 +42,7 @@ pub fn convolve_full<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>
 }
 
 ///
-/// The output consists only of those elements that do not rely on the zero-padding. 
+/// The output convolution consists only of those elements that do not rely on the zero-padding. 
 /// 
 pub fn convolve_valid<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
     vector: Vector<R, D, S>,
@@ -72,7 +72,7 @@ pub fn convolve_valid<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E
 }
 
 ///
-/// The output is the same size as in1, centered with respect to the ‘full’ output.
+/// The output convolution is the same size as vector, centered with respect to the ‘full’ output.
 /// 
 pub fn convolve_same<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
     vector: Vector<R, D, S>,
