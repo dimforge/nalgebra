@@ -1,9 +1,6 @@
 extern crate nalgebra as na;
 use na::storage::Storage;
-use na::{
-    convert, zero, DMatrix, DVector, Dim, Dynamic, Matrix, Matrix2x3, Real, VecStorage, Vector,
-    Vector2, Vector3, Vector4, Vector5, U1,
-};
+use na::{zero, DVector, Dim, Dynamic, Matrix, Real, VecStorage, Vector, U1};
 use std::cmp;
 
 enum ConvolveMode {
@@ -96,8 +93,5 @@ fn convolve<R: Real, D: Dim, E: Dim, S: Storage<R, D>, Q: Storage<R, E>>(
 }
 
 fn main() {
-    let v1 = Vector4::new(1.0, 2.0, 1.0, 0.0);
-    let v2 = Vector4::new(1.0, 2.0, 5.0, 9.0);
-    let x = convolve(v1, v2, Some(ConvolveMode::Same));
-    println!("{:?}", x);
+
 }
