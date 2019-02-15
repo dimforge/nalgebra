@@ -54,7 +54,7 @@ where
 {
     #[inline]
     fn meet(&self, other: &Self) -> Self {
-        Point::from(self.coords.meet(&other.coords))
+        Self::from(self.coords.meet(&other.coords))
     }
 }
 
@@ -65,7 +65,7 @@ where
 {
     #[inline]
     fn join(&self, other: &Self) -> Self {
-        Point::from(self.coords.join(&other.coords))
+        Self::from(self.coords.join(&other.coords))
     }
 }
 
@@ -78,6 +78,6 @@ where
     fn meet_join(&self, other: &Self) -> (Self, Self) {
         let (meet, join) = self.coords.meet_join(&other.coords);
 
-        (Point::from(meet), Point::from(join))
+        (Self::from(meet), Self::from(join))
     }
 }

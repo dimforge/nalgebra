@@ -25,7 +25,7 @@ impl<N: Real> Quaternion<N> {
     #[inline]
     #[deprecated(note = "Use `::from` instead.")]
     pub fn from_vector(vector: Vector4<N>) -> Self {
-        Quaternion { coords: vector }
+        Self { coords: vector }
     }
 
     /// Creates a new quaternion from its individual components. Note that the arguments order does
@@ -130,7 +130,7 @@ where Owned<N, U4>: Send
 {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        Quaternion::new(
+        Self::new(
             N::arbitrary(g),
             N::arbitrary(g),
             N::arbitrary(g),
@@ -683,7 +683,7 @@ where
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let axisangle = Vector3::arbitrary(g);
-        UnitQuaternion::from_scaled_axis(axisangle)
+        Self::from_scaled_axis(axisangle)
     }
 }
 

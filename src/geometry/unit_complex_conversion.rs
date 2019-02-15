@@ -74,7 +74,7 @@ impl<N1, N2, R> SubsetOf<Isometry<N2, U2, R>> for UnitComplex<N1>
 where
     N1: Real,
     N2: Real + SupersetOf<N1>,
-    R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>>,
+    R: AlgaRotation<Point2<N2>> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, U2, R> {
@@ -96,7 +96,7 @@ impl<N1, N2, R> SubsetOf<Similarity<N2, U2, R>> for UnitComplex<N1>
 where
     N1: Real,
     N2: Real + SupersetOf<N1>,
-    R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>>,
+    R: AlgaRotation<Point2<N2>> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, U2, R> {

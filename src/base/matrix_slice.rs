@@ -99,7 +99,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
 {
     #[inline]
     fn clone(&self) -> Self {
-        SliceStorage {
+        Self {
             ptr: self.ptr,
             shape: self.shape,
             strides: self.strides,

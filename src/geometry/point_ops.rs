@@ -50,7 +50,7 @@ where DefaultAllocator: Allocator<N, D>
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Point::from(-self.coords)
+        Self::Output::from(-self.coords)
     }
 }
 
@@ -61,7 +61,7 @@ where DefaultAllocator: Allocator<N, D>
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Point::from(-&self.coords)
+        Self::Output::from(-&self.coords)
     }
 }
 
