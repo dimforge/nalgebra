@@ -687,7 +687,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn rotation_to(&self, other: &UnitQuaternion<N>) -> UnitQuaternion<N> {
+    pub fn rotation_to(&self, other: &Self) -> Self{
         other / self
     }
 
@@ -703,7 +703,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(q1.lerp(&q2, 0.1), Quaternion::new(0.9, 0.1, 0.0, 0.0));
     /// ```
     #[inline]
-    pub fn lerp(&self, other: &UnitQuaternion<N>, t: N) -> Quaternion<N> {
+    pub fn lerp(&self, other: &Self, t: N) -> Quaternion<N> {
         self.as_ref().lerp(other.as_ref(), t)
     }
 
@@ -719,7 +719,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(q1.nlerp(&q2, 0.1), UnitQuaternion::new_normalize(Quaternion::new(0.9, 0.1, 0.0, 0.0)));
     /// ```
     #[inline]
-    pub fn nlerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
+    pub fn nlerp(&self, other: &Self, t: N) -> Self {
         let mut res = self.lerp(other, t);
         let _ = res.normalize_mut();
 
@@ -731,7 +731,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
     /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
     #[inline]
-    pub fn slerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
+    pub fn slerp(&self, other: &Self, t: N) -> Self {
         Unit::new_unchecked(Quaternion::from(
             Unit::new_unchecked(self.coords)
                 .slerp(&Unit::new_unchecked(other.coords), t)
@@ -902,11 +902,11 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(pow.angle(), 2.4);
     /// ```
     #[inline]
-    pub fn powf(&self, n: N) -> UnitQuaternion<N> {
+    pub fn powf(&self, n: N) -> Self {
         if let Some(v) = self.axis() {
-            UnitQuaternion::from_axis_angle(&v, self.angle() * n)
+            Self::from_axis_angle(&v, self.angle() * n)
         } else {
-            UnitQuaternion::identity()
+            Self::identity()
         }
     }
 
