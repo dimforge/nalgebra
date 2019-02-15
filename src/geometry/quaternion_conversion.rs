@@ -220,14 +220,14 @@ impl<N: Real> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
 
 impl<N: Real> From<UnitQuaternion<N>> for Matrix4<N> {
     #[inline]
-    fn from(q: UnitQuaternion<N>) -> Matrix4<N> {
+    fn from(q: UnitQuaternion<N>) -> Self {
         q.to_homogeneous()
     }
 }
 
 impl<N: Real> From<UnitQuaternion<N>> for Matrix3<N> {
     #[inline]
-    fn from(q: UnitQuaternion<N>) -> Matrix3<N> {
+    fn from(q: UnitQuaternion<N>) -> Self {
         q.to_rotation_matrix().into_inner()
     }
 }
@@ -235,6 +235,6 @@ impl<N: Real> From<UnitQuaternion<N>> for Matrix3<N> {
 impl<N: Real> From<Vector4<N>> for Quaternion<N> {
     #[inline]
     fn from(coords: Vector4<N>) -> Self {
-        Quaternion { coords }
+        Self { coords }
     }
 }
