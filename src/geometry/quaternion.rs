@@ -723,7 +723,7 @@ impl<N: Real> UnitQuaternion<N> {
         let mut res = self.lerp(other, t);
         let _ = res.normalize_mut();
 
-        UnitQuaternion::new_unchecked(res)
+        Self::new_unchecked(res)
     }
 
     /// Spherical linear interpolation between two unit quaternions.
@@ -752,10 +752,10 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn try_slerp(
         &self,
-        other: &UnitQuaternion<N>,
+        other: &Self,
         t: N,
         epsilon: N,
-    ) -> Option<UnitQuaternion<N>>
+    ) -> Option<Self>
     {
         Unit::new_unchecked(self.coords)
             .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
