@@ -43,6 +43,7 @@ mod norm;
 mod normal;
 mod normalize_dot;
 mod quaternion;
+mod dual_quaternion;
 mod rotate_normalized_axis;
 mod rotate_vector;
 mod transform;

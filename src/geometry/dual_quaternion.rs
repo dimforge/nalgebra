@@ -21,6 +21,8 @@ use base::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4
 
 use geometry::Rotation;
 
+use Quaternion;
+
 /// A quaternion. See the type alias `UnitDualQuaternion = Unit<DualQuaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
@@ -28,11 +30,13 @@ use geometry::Rotation;
 pub struct DualQuaternion<N: Real> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<N>,
+    pub re: Quaternion<N>,
+    pub du: Quaternion<N>,
 }
 
 // #[cfg(feature = "abomonation-serialize")]
 // impl<N: Real> Abomonation for DualQuaternion<N>
-// where Vector4<N>: Abomonation
+// where Matrix4x2<N>: Abomonation
 // {
 //     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
 //         self.coords.entomb(writer)
@@ -47,21 +51,19 @@ pub struct DualQuaternion<N: Real> {
 //     }
 // }
 
-// impl<N: Real + Eq> Eq for DualQuaternion<N> {}
+impl<N: Real + Eq> Eq for DualQuaternion<N> {}
 
-// impl<N: Real> PartialEq for DualQuaternion<N> {
-//     fn eq(&self, rhs: &Self) -> bool {
-//         self.coords == rhs.coords ||
-//         // Account for the double-covering of S², i.e. q = -q
-//         self.as_vector().iter().zip(rhs.as_vector().iter()).all(|(a, b)| *a == -*b)
-//     }
-// }
+impl<N: Real> PartialEq for DualQuaternion<N> {
+    fn eq(&self, rhs: &Self) -> bool {
+        self.re == rhs.re && self.du == rhs.du
+    }
+}
 
-// impl<N: Real + hash::Hash> hash::Hash for DualQuaternion<N> {
-//     fn hash<H: hash::Hasher>(&self, state: &mut H) {
-//         self.coords.hash(state)
-//     }
-// }
+impl<N: Real + hash::Hash> hash::Hash for DualQuaternion<N> {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.re.hash(state)
+    }
+}
 
 // impl<N: Real> Copy for DualQuaternion<N> {}
 
