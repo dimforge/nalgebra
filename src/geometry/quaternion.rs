@@ -577,7 +577,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[deprecated(
         note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead."
     )]
-    pub fn into_owned(self) -> UnitQuaternion<N> {
+    pub fn into_owned(self) -> Self {
         self
     }
 
@@ -586,7 +586,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[deprecated(
         note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead."
     )]
-    pub fn clone_owned(&self) -> UnitQuaternion<N> {
+    pub fn clone_owned(&self) -> Self {
         *self
     }
 
@@ -637,8 +637,8 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(conj, UnitQuaternion::from_axis_angle(&-axis, 1.78));
     /// ```
     #[inline]
-    pub fn conjugate(&self) -> UnitQuaternion<N> {
-        UnitQuaternion::new_unchecked(self.as_ref().conjugate())
+    pub fn conjugate(&self) -> Self {
+        Self::new_unchecked(self.as_ref().conjugate())
     }
 
     /// Inverts this quaternion if it is not zero.
@@ -653,7 +653,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(inv * rot, UnitQuaternion::identity());
     /// ```
     #[inline]
-    pub fn inverse(&self) -> UnitQuaternion<N> {
+    pub fn inverse(&self) -> Self {
         self.conjugate()
     }
 
@@ -668,7 +668,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.0045657, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn angle_to(&self, other: &UnitQuaternion<N>) -> N {
+    pub fn angle_to(&self, other: &Self) -> N {
         let delta = self.rotation_to(other);
         delta.angle()
     }
