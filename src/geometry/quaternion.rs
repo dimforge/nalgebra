@@ -98,14 +98,14 @@ impl<N: Real> Quaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
-    pub fn into_owned(self) -> Quaternion<N> {
+    pub fn into_owned(self) -> Self {
         self
     }
 
     /// Clones this unit quaternion into one that owns its data.
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
-    pub fn clone_owned(&self) -> Quaternion<N> {
+    pub fn clone_owned(&self) -> Self {
         Quaternion::from(self.coords.clone_owned())
     }
 
@@ -120,7 +120,7 @@ impl<N: Real> Quaternion<N> {
     /// relative_eq!(q_normalized.norm(), 1.0);
     /// ```
     #[inline]
-    pub fn normalize(&self) -> Quaternion<N> {
+    pub fn normalize(&self) -> Self {
         Quaternion::from(self.coords.normalize())
     }
 
@@ -134,7 +134,7 @@ impl<N: Real> Quaternion<N> {
     /// assert!(conj.i == -2.0 && conj.j == -3.0 && conj.k == -4.0 && conj.w == 1.0);
     /// ```
     #[inline]
-    pub fn conjugate(&self) -> Quaternion<N> {
+    pub fn conjugate(&self) -> Self {
         let v = Vector4::new(
             -self.coords[0],
             -self.coords[1],
@@ -186,7 +186,7 @@ impl<N: Real> Quaternion<N> {
     /// assert_eq!(q1.lerp(&q2, 0.1), Quaternion::new(1.9, 3.8, 5.7, 7.6));
     /// ```
     #[inline]
-    pub fn lerp(&self, other: &Quaternion<N>, t: N) -> Quaternion<N> {
+    pub fn lerp(&self, other: &Quaternion<N>, t: N) -> Self {
         self * (N::one() - t) + other * t
     }
 
@@ -346,7 +346,7 @@ impl<N: Real> Quaternion<N> {
     /// assert_relative_eq!(q.ln(), Quaternion::new(1.683647, 1.190289, 0.0, 0.0), epsilon = 1.0e-6)
     /// ```
     #[inline]
-    pub fn ln(&self) -> Quaternion<N> {
+    pub fn ln(&self) -> Self {
         let n = self.norm();
         let v = self.vector();
         let s = self.scalar();
@@ -364,7 +364,7 @@ impl<N: Real> Quaternion<N> {
     /// assert_relative_eq!(q.exp(), Quaternion::new(2.0, 5.0, 0.0, 0.0), epsilon = 1.0e-5)
     /// ```
     #[inline]
-    pub fn exp(&self) -> Quaternion<N> {
+    pub fn exp(&self) -> Self {
         self.exp_eps(N::default_epsilon())
     }
 
@@ -383,7 +383,7 @@ impl<N: Real> Quaternion<N> {
     /// assert_eq!(q.exp_eps(1.0e-6), Quaternion::identity());
     /// ```
     #[inline]
-    pub fn exp_eps(&self, eps: N) -> Quaternion<N> {
+    pub fn exp_eps(&self, eps: N) -> Self {
         let v = self.vector();
         let nn = v.norm_squared();
 
