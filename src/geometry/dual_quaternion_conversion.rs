@@ -1,18 +1,17 @@
-// use num::Zero;
+ use num::Zero;
 
-// use alga::general::{Real, SubsetOf, SupersetOf};
-// use alga::linear::Rotation as AlgaRotation;
+ use alga::general::{Real, SubsetOf, SupersetOf};
+ use alga::linear::Rotation as AlgaRotation;
 
 // #[cfg(feature = "mint")]
 // use mint;
 
-// use base::dimension::U3;
-// use base::{Matrix3, Matrix4, Vector4};
+ use base::dimension::U3;
+ use base::{Matrix3, Matrix4, Vector2};
 // use geometry::{
 //     Isometry, Point3, DualQuaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf, TAffine,
 //     Transform, Translation, UnitDualQuaternion,
 // };
-
 // /*
 //  * This file provides the following conversions:
 //  * =============================================
@@ -238,3 +237,5 @@
 //         DualQuaternion { coords }
 //     }
 // }
+
+

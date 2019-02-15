@@ -29,9 +29,17 @@ use Quaternion;
 #[derive(Debug)]
 pub struct DualQuaternion<N: Real> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
-    pub coords: Vector4<N>,
     pub re: Quaternion<N>,
     pub du: Quaternion<N>,
+}
+
+/// dq_conversion.rs, basedon on quaternion coords
+//impl<N: Real> From<Slice<Quaternion<N>>> for DualQuaternion<N> {
+impl<N: Real> DualQuaternion<N> {
+    #[inline]
+    fn from(re: Quaternion<N>, du: Quaternion<N>) -> Self {
+        DualQuaternion { re, du }
+    }
 }
 
 // #[cfg(feature = "abomonation-serialize")]
@@ -70,8 +78,7 @@ impl<N: Real> Copy for DualQuaternion<N> {}
 impl<N: Real> Clone for DualQuaternion<N> {
     #[inline]
     fn clone(&self) -> Self {
-        // DualQuaternion::from(self.coords.clone())
-        panic!("")
+        DualQuaternion::from(self.re.clone(), self.du.clone())
     }
 }
 
