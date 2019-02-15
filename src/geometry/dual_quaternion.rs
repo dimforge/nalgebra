@@ -65,14 +65,15 @@ impl<N: Real + hash::Hash> hash::Hash for DualQuaternion<N> {
     }
 }
 
-// impl<N: Real> Copy for DualQuaternion<N> {}
+impl<N: Real> Copy for DualQuaternion<N> {}
 
-// impl<N: Real> Clone for DualQuaternion<N> {
-//     #[inline]
-//     fn clone(&self) -> Self {
-//         DualQuaternion::from(self.coords.clone())
-//     }
-// }
+impl<N: Real> Clone for DualQuaternion<N> {
+    #[inline]
+    fn clone(&self) -> Self {
+        // DualQuaternion::from(self.coords.clone())
+        panic!("")
+    }
+}
 
 // #[cfg(feature = "serde-serialize")]
 // impl<N: Real> Serialize for DualQuaternion<N>
@@ -571,7 +572,7 @@ impl<N: Real + hash::Hash> hash::Hash for DualQuaternion<N> {
 // }
 
 // /// A unit quaternions. May be used to represent a rotation.
-// pub type UnitDualQuaternion<N> = Unit<DualQuaternion<N>>;
+pub type UnitDualQuaternion<N> = Unit<DualQuaternion<N>>;
 
 // impl<N: Real> UnitDualQuaternion<N> {
 //     /// Moves this unit quaternion into one that owns its data.

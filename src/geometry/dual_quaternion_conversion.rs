@@ -221,7 +221,7 @@
 // impl<N: Real> From<UnitDualQuaternion<N>> for Matrix4<N> {
 //     #[inline]
 //     fn from(q: UnitDualQuaternion<N>) -> Matrix4<N> {
-//         q.to_homogeneous()
+//         panic!("adam")
 //     }
 // }
 
