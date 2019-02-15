@@ -106,7 +106,7 @@ impl<N: Real> Quaternion<N> {
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
     pub fn clone_owned(&self) -> Self {
-        Quaternion::from(self.coords.clone_owned())
+        Self::from(self.coords.clone_owned())
     }
 
     /// Normalizes this quaternion.
@@ -121,7 +121,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn normalize(&self) -> Self {
-        Quaternion::from(self.coords.normalize())
+        Self::from(self.coords.normalize())
     }
 
     /// The conjugate of this quaternion.
@@ -141,7 +141,7 @@ impl<N: Real> Quaternion<N> {
             -self.coords[2],
             self.coords[3],
         );
-        Quaternion::from(v)
+        Self::from(v)
     }
 
     /// Inverts this quaternion if it is not zero.
@@ -163,8 +163,8 @@ impl<N: Real> Quaternion<N> {
     /// assert!(inv_q.is_none());
     /// ```
     #[inline]
-    pub fn try_inverse(&self) -> Option<Quaternion<N>> {
-        let mut res = Quaternion::from(self.coords.clone_owned());
+    pub fn try_inverse(&self) -> Option<Self> {
+        let mut res = Self::from(self.coords.clone_owned());
 
         if res.try_inverse_mut() {
             Some(res)
@@ -186,7 +186,7 @@ impl<N: Real> Quaternion<N> {
     /// assert_eq!(q1.lerp(&q2, 0.1), Quaternion::new(1.9, 3.8, 5.7, 7.6));
     /// ```
     #[inline]
-    pub fn lerp(&self, other: &Quaternion<N>, t: N) -> Self {
+    pub fn lerp(&self, other: &Self, t: N) -> Self {
         self * (N::one() - t) + other * t
     }
 
@@ -351,7 +351,7 @@ impl<N: Real> Quaternion<N> {
         let v = self.vector();
         let s = self.scalar();
 
-        Quaternion::from_parts(n.ln(), v.normalize() * (s / n).acos())
+        Self::from_parts(n.ln(), v.normalize() * (s / n).acos())
     }
 
     /// Compute the exponential of a quaternion.
@@ -388,13 +388,13 @@ impl<N: Real> Quaternion<N> {
         let nn = v.norm_squared();
 
         if nn <= eps * eps {
-            Quaternion::identity()
+            Self::identity()
         } else {
             let w_exp = self.scalar().exp();
             let n = nn.sqrt();
             let nv = v * (w_exp * n.sin() / n);
 
-            Quaternion::from_parts(w_exp * n.cos(), nv)
+            Self::from_parts(w_exp * n.cos(), nv)
         }
     }
 
@@ -408,7 +408,7 @@ impl<N: Real> Quaternion<N> {
     /// assert_relative_eq!(q.powf(1.5), Quaternion::new( -6.2576659, 4.1549037, 6.2323556, 8.3098075), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn powf(&self, n: N) -> Quaternion<N> {
+    pub fn powf(&self, n: N) -> Self {
         (self.ln() * n).exp()
     }
 
