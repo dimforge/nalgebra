@@ -68,7 +68,7 @@ impl<N: Real> Copy for Quaternion<N> {}
 impl<N: Real> Clone for Quaternion<N> {
     #[inline]
     fn clone(&self) -> Self {
-        Quaternion::from(self.coords.clone())
+        Self::from(self.coords.clone())
     }
 }
 
@@ -90,7 +90,7 @@ where Owned<N, U4>: Deserialize<'a>
     where Des: Deserializer<'a> {
         let coords = Vector4::<N>::deserialize(deserializer)?;
 
-        Ok(Quaternion::from(coords))
+        Ok(Self::from(coords))
     }
 }
 
