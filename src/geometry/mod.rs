@@ -37,6 +37,7 @@ mod translation_alga;
 mod translation_alias;
 mod translation_construction;
 mod translation_conversion;
+mod translation_coordinates;
 mod translation_ops;
 
 mod isometry;

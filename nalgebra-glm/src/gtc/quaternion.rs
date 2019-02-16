@@ -5,7 +5,7 @@ use aliases::{Qua, TMat4, TVec, TVec3};
 /// Euler angles of the quaternion `q` as (pitch, yaw, roll).
 pub fn quat_euler_angles<N: Real>(x: &Qua<N>) -> TVec3<N> {
     let q = UnitQuaternion::new_unchecked(*x);
-    let a = q.to_euler_angles();
+    let a = q.euler_angles();
     TVec3::new(a.2, a.1, a.0)
 }
 
@@ -34,19 +34,25 @@ pub fn quat_cast<N: Real>(x: &Qua<N>) -> TMat4<N> {
     ::quat_to_mat4(x)
 }
 
-/// Computes a right-handed look-at quaternion (equivalent to a right-handed look-at matrix).
+/// Computes a right hand look-at quaternion
+///
+/// # Parameters
+///
+/// * `direction` - Direction vector point at where to look
+/// * `up` - Object up vector
+///
 pub fn quat_look_at<N: Real>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua<N> {
     quat_look_at_rh(direction, up)
 }
 
 /// Computes a left-handed look-at quaternion (equivalent to a left-handed look-at matrix).
 pub fn quat_look_at_lh<N: Real>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua<N> {
-    UnitQuaternion::look_at_lh(direction, up).unwrap()
+    UnitQuaternion::look_at_lh(direction, up).into_inner()
 }
 
 /// Computes a right-handed look-at quaternion (equivalent to a right-handed look-at matrix).
 pub fn quat_look_at_rh<N: Real>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua<N> {
-    UnitQuaternion::look_at_rh(direction, up).unwrap()
+    UnitQuaternion::look_at_rh(direction, up).into_inner()
 }
 
 /// The "roll" Euler angle of the quaternion `x` assumed to be normalized.

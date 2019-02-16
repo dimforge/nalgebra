@@ -1,6 +1,5 @@
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
-use std::ops::Deref;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
@@ -51,15 +50,16 @@ impl<N, R: Dim, C: Dim> VecStorage<N, R, C> {
 
     /// The underlying data storage.
     #[inline]
-    pub fn data(&self) -> &Vec<N> {
+    pub fn as_vec(&self) -> &Vec<N> {
         &self.data
     }
 
     /// The underlying mutable data storage.
     ///
-    /// This is unsafe because this may cause UB if the vector is modified by the user.
+    /// This is unsafe because this may cause UB if the size of the vector is changed
+    /// by the user.
     #[inline]
-    pub unsafe fn data_mut(&mut self) -> &mut Vec<N> {
+    pub unsafe fn as_vec_mut(&mut self) -> &mut Vec<N> {
         &mut self.data
     }
 
@@ -81,14 +81,11 @@ impl<N, R: Dim, C: Dim> VecStorage<N, R, C> {
 
         self.data
     }
-}
 
-impl<N, R: Dim, C: Dim> Deref for VecStorage<N, R, C> {
-    type Target = Vec<N>;
-
+    /// The number of elements on the underlying vector.
     #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.data
+    pub fn len(&self) -> usize {
+        self.data.len()
     }
 }
 
@@ -145,7 +142,7 @@ where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 
     #[inline]
     fn as_slice(&self) -> &[N] {
-        &self[..]
+        &self.data
     }
 }
 
@@ -189,7 +186,7 @@ where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 
     #[inline]
     fn as_slice(&self) -> &[N] {
-        &self[..]
+        &self.data
     }
 }
 

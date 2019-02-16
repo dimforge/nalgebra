@@ -69,7 +69,6 @@ impl<N: Real> Orthographic3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Orthographic3, Point3};
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// // Check this projection actually transforms the view cuboid into the double-unit cube.
@@ -170,7 +169,6 @@ impl<N: Real> Orthographic3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Orthographic3, Point3, Matrix4};
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// let inv = proj.inverse();
@@ -271,7 +269,6 @@ impl<N: Real> Orthographic3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Orthographic3, Point3, Matrix4};
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// let expected = Matrix4::new(
@@ -299,7 +296,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// assert_relative_eq!(proj.left(), 1.0, epsilon = 1.0e-6);
@@ -316,7 +312,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// assert_relative_eq!(proj.right(), 10.0, epsilon = 1.0e-6);
@@ -333,7 +328,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// assert_relative_eq!(proj.bottom(), 2.0, epsilon = 1.0e-6);
@@ -350,7 +344,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// assert_relative_eq!(proj.top(), 20.0, epsilon = 1.0e-6);
@@ -367,7 +360,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// assert_relative_eq!(proj.znear(), 0.1, epsilon = 1.0e-6);
@@ -384,7 +376,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// assert_relative_eq!(proj.zfar(), 1000.0, epsilon = 1.0e-6);
@@ -403,7 +394,6 @@ impl<N: Real> Orthographic3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Orthographic3, Point3};
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     ///
@@ -439,7 +429,6 @@ impl<N: Real> Orthographic3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Orthographic3, Point3};
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     ///
@@ -478,7 +467,6 @@ impl<N: Real> Orthographic3<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Orthographic3, Vector3};
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     ///
@@ -504,7 +492,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let mut proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// proj.set_left(2.0);
@@ -524,7 +511,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let mut proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// proj.set_right(15.0);
@@ -544,7 +530,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let mut proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// proj.set_bottom(8.0);
@@ -564,7 +549,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let mut proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// proj.set_top(15.0);
@@ -584,7 +568,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let mut proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// proj.set_znear(8.0);
@@ -604,7 +587,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let mut proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// proj.set_zfar(15.0);
@@ -624,7 +606,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let mut proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// proj.set_left_and_right(7.0, 70.0);
@@ -650,7 +631,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let mut proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// proj.set_bottom_and_top(7.0, 70.0);
@@ -676,7 +656,6 @@ impl<N: Real> Orthographic3<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Orthographic3;
     /// let mut proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// proj.set_znear_and_zfar(50.0, 5000.0);

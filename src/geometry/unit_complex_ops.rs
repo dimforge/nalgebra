@@ -425,11 +425,11 @@ impl<N: Real> UnitComplex<N> {
 
         for j in 0..rhs.ncols() {
             unsafe {
-                let a = *rhs.get_unchecked(0, j);
-                let b = *rhs.get_unchecked(1, j);
+                let a = *rhs.get_unchecked((0, j));
+                let b = *rhs.get_unchecked((1, j));
 
-                *rhs.get_unchecked_mut(0, j) = r * a - i * b;
-                *rhs.get_unchecked_mut(1, j) = i * a + r * b;
+                *rhs.get_unchecked_mut((0, j)) = r * a - i * b;
+                *rhs.get_unchecked_mut((1, j)) = i * a + r * b;
             }
         }
     }
@@ -452,11 +452,11 @@ impl<N: Real> UnitComplex<N> {
         // FIXME: can we optimize that to iterate on one column at a time ?
         for j in 0..lhs.nrows() {
             unsafe {
-                let a = *lhs.get_unchecked(j, 0);
-                let b = *lhs.get_unchecked(j, 1);
+                let a = *lhs.get_unchecked((j, 0));
+                let b = *lhs.get_unchecked((j, 1));
 
-                *lhs.get_unchecked_mut(j, 0) = r * a + i * b;
-                *lhs.get_unchecked_mut(j, 1) = -i * a + r * b;
+                *lhs.get_unchecked_mut((j, 0)) = r * a + i * b;
+                *lhs.get_unchecked_mut((j, 1)) = -i * a + r * b;
             }
         }
     }

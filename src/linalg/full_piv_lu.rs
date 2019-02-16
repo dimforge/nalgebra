@@ -251,7 +251,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
         let mut res = self.lu[(dim - 1, dim - 1)];
         if !res.is_zero() {
             for i in 0..dim - 1 {
-                res *= unsafe { *self.lu.get_unchecked(i, i) };
+                res *= unsafe { *self.lu.get_unchecked((i, i)) };
             }
 
             res * self.p.determinant() * self.q.determinant()

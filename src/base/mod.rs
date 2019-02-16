@@ -18,6 +18,7 @@ mod construction;
 mod construction_slice;
 mod conversion;
 mod edition;
+pub mod indexing;
 mod matrix;
 mod matrix_alga;
 mod array_storage;
@@ -28,6 +29,8 @@ mod properties;
 mod scalar;
 mod swizzle;
 mod unit;
+mod statistics;
+mod norm;
 
 #[doc(hidden)]
 pub mod helper;
@@ -35,6 +38,7 @@ pub mod helper;
 pub use self::matrix::*;
 pub use self::scalar::*;
 pub use self::unit::*;
+pub use self::norm::*;
 
 pub use self::default_allocator::*;
 pub use self::dimension::*;

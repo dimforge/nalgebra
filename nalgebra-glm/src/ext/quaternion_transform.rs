@@ -19,7 +19,7 @@ pub fn quat_pow<N: Real>(q: &Qua<N>, y: N) -> Qua<N> {
 
 /// Builds a quaternion from an axis and an angle, and right-multiply it to the quaternion `q`.
 pub fn quat_rotate<N: Real>(q: &Qua<N>, angle: N, axis: &TVec3<N>) -> Qua<N> {
-    q * UnitQuaternion::from_axis_angle(&Unit::new_normalize(*axis), angle).unwrap()
+    q * UnitQuaternion::from_axis_angle(&Unit::new_normalize(*axis), angle).into_inner()
 }
 
 //pub fn quat_sqrt<N: Real>(q: &Qua<N>) -> Qua<N> {

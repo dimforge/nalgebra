@@ -160,7 +160,7 @@ where DefaultAllocator: Allocator<N, D, D>
         // Copy lower triangle to upper triangle.
         for i in 0..dim {
             for j in i + 1..dim {
-                unsafe { *self.l.get_unchecked_mut(i, j) = *self.l.get_unchecked(j, i) };
+                unsafe { *self.l.get_unchecked_mut((i, j)) = *self.l.get_unchecked((j, i)) };
             }
         }
 
