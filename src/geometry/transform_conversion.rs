@@ -57,7 +57,7 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
-        Transform::from_matrix_unchecked(::convert_ref_unchecked(m))
+        Self::from_matrix_unchecked(::convert_ref_unchecked(m))
     }
 }
 
