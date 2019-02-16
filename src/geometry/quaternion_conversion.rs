@@ -103,7 +103,7 @@ impl<N1, N2, R> SubsetOf<Isometry<N2, U3, R>> for UnitQuaternion<N1>
 where
     N1: Real,
     N2: Real + SupersetOf<N1>,
-    R: AlgaRotation<Point3<N2>> + SupersetOf<UnitQuaternion<N1>>,
+    R: AlgaRotation<Point3<N2>> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, U3, R> {
@@ -125,7 +125,7 @@ impl<N1, N2, R> SubsetOf<Similarity<N2, U3, R>> for UnitQuaternion<N1>
 where
     N1: Real,
     N2: Real + SupersetOf<N1>,
-    R: AlgaRotation<Point3<N2>> + SupersetOf<UnitQuaternion<N1>>,
+    R: AlgaRotation<Point3<N2>> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, U3, R> {
@@ -186,7 +186,7 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaterni
 #[cfg(feature = "mint")]
 impl<N: Real> From<mint::Quaternion<N>> for Quaternion<N> {
     fn from(q: mint::Quaternion<N>) -> Self {
-        Quaternion::new(q.s, q.v.x, q.v.y, q.v.z)
+        Self::new(q.s, q.v.x, q.v.y, q.v.z)
     }
 }
 

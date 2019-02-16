@@ -46,7 +46,7 @@ where DefaultAllocator: Allocator<N, D>
 impl<N: Scalar + ClosedNeg, D: DimName> Neg for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
-    type Output = Point<N, D>;
+    type Output = Self;
 
     #[inline]
     fn neg(self) -> Self::Output {

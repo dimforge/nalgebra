@@ -48,7 +48,7 @@ impl<N: HessenbergScalar + Zero, D: DimSub<U1>> Hessenberg<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the hessenberg decomposition of the matrix `m`.
-    pub fn new(mut m: MatrixN<N, D>) -> Hessenberg<N, D> {
+    pub fn new(mut m: MatrixN<N, D>) -> Self {
         let nrows = m.data.shape().0;
         let n = nrows.value() as i32;
 
@@ -83,7 +83,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
         );
         lapack_panic!(info);
 
-        Hessenberg { h: m, tau: tau }
+        Self { h: m, tau: tau }
     }
 
     /// Computes the hessenberg matrix of this decomposition.

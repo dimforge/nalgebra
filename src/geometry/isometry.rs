@@ -100,7 +100,7 @@ where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn clone(&self) -> Self {
-        Isometry::from_parts(self.translation.clone(), self.rotation.clone())
+        Self::from_parts(self.translation.clone(), self.rotation.clone())
     }
 }
 

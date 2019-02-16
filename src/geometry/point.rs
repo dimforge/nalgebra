@@ -66,7 +66,7 @@ where
     where Des: Deserializer<'a> {
         let coords = VectorN::<N, D>::deserialize(deserializer)?;
 
-        Ok(Point::from(coords))
+        Ok(Self::from(coords))
     }
 }
 
@@ -126,8 +126,8 @@ where DefaultAllocator: Allocator<N, D>
     /// Creates a new point with the given coordinates.
     #[deprecated(note = "Use Point::from(vector) instead.")]
     #[inline]
-    pub fn from_coordinates(coords: VectorN<N, D>) -> Point<N, D> {
-        Point { coords: coords }
+    pub fn from_coordinates(coords: VectorN<N, D>) -> Self {
+        Self { coords: coords }
     }
 
     /// The dimension of this point.

@@ -24,7 +24,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Index<usize> for Matrix<N, 
     type Output = N;
 
     #[inline]
-    fn index(&self, i: usize) -> &N {
+    fn index(&self, i: usize) -> &Self::Output {
         let ij = self.vector_to_matrix_index(i);
         &self[ij]
     }
@@ -38,7 +38,7 @@ where
     type Output = N;
 
     #[inline]
-    fn index(&self, ij: (usize, usize)) -> &N {
+    fn index(&self, ij: (usize, usize)) -> &Self::Output {
         let shape = self.shape();
         assert!(
             ij.0 < shape.0 && ij.1 < shape.1,

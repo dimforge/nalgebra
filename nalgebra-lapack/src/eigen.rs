@@ -127,7 +127,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                 lapack_check!(info);
 
                 if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Eigen {
+                    return Some(Self {
                         eigenvalues: wr,
                         left_eigenvectors: Some(vl),
                         eigenvectors: Some(vr),
@@ -156,7 +156,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                 lapack_check!(info);
 
                 if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Eigen {
+                    return Some(Self {
                         eigenvalues: wr,
                         left_eigenvectors: Some(vl),
                         eigenvectors: None,
@@ -185,7 +185,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                 lapack_check!(info);
 
                 if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Eigen {
+                    return Some(Self {
                         eigenvalues: wr,
                         left_eigenvectors: None,
                         eigenvectors: Some(vr),
@@ -212,7 +212,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                 lapack_check!(info);
 
                 if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Eigen {
+                    return Some(Self {
                         eigenvalues: wr,
                         left_eigenvectors: None,
                         eigenvectors: None,

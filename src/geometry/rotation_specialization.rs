@@ -125,7 +125,7 @@ impl<N: Real> Rotation2<N> {
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
     /// ```
     #[inline]
-    pub fn angle_to(&self, other: &Rotation2<N>) -> N {
+    pub fn angle_to(&self, other: &Self) -> N {
         self.rotation_to(other).angle()
     }
 
@@ -145,7 +145,7 @@ impl<N: Real> Rotation2<N> {
     /// assert_relative_eq!(rot_to.inverse() * rot2, rot1);
     /// ```
     #[inline]
-    pub fn rotation_to(&self, other: &Rotation2<N>) -> Rotation2<N> {
+    pub fn rotation_to(&self, other: &Self) -> Self {
         other * self.inverse()
     }
 
@@ -161,7 +161,7 @@ impl<N: Real> Rotation2<N> {
     /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
     /// ```
     #[inline]
-    pub fn powf(&self, n: N) -> Rotation2<N> {
+    pub fn powf(&self, n: N) -> Self {
         Self::new(self.angle() * n)
     }
 
@@ -655,7 +655,7 @@ impl<N: Real> Rotation3<N> {
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.0045657, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn angle_to(&self, other: &Rotation3<N>) -> N {
+    pub fn angle_to(&self, other: &Self) -> N {
         self.rotation_to(other).angle()
     }
 
@@ -673,7 +673,7 @@ impl<N: Real> Rotation3<N> {
     /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn rotation_to(&self, other: &Rotation3<N>) -> Rotation3<N> {
+    pub fn rotation_to(&self, other: &Self) -> Self {
         other * self.inverse()
     }
 
@@ -692,7 +692,7 @@ impl<N: Real> Rotation3<N> {
     /// assert_eq!(pow.angle(), 2.4);
     /// ```
     #[inline]
-    pub fn powf(&self, n: N) -> Rotation3<N> {
+    pub fn powf(&self, n: N) -> Self {
         if let Some(axis) = self.axis() {
             Self::from_axis_angle(&axis, self.angle() * n)
         } else if self.matrix()[(0, 0)] < N::zero() {
