@@ -683,7 +683,7 @@ where
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let axisangle = Vector3::arbitrary(g);
-        UnitQuaternion::from_scaled_axis(axisangle)
+        Self::from_scaled_axis(axisangle)
     }
 }
 
