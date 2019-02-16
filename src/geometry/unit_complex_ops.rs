@@ -45,8 +45,8 @@ use geometry::{Isometry, Point2, Rotation, Similarity, Translation, UnitComplex}
  */
 
 // UnitComplex × UnitComplex
-impl<N: Real> Mul<UnitComplex<N>> for UnitComplex<N> {
-    type Output = UnitComplex<N>;
+impl<N: Real> Mul<Self> for UnitComplex<N> {
+    type Output = Self;
 
     #[inline]
     fn mul(self, rhs: Self) -> Self {
@@ -82,11 +82,11 @@ impl<'a, 'b, N: Real> Mul<&'b UnitComplex<N>> for &'a UnitComplex<N> {
 }
 
 // UnitComplex ÷ UnitComplex
-impl<N: Real> Div<UnitComplex<N>> for UnitComplex<N> {
-    type Output = UnitComplex<N>;
+impl<N: Real> Div<Self> for UnitComplex<N> {
+    type Output = Self;
 
     #[inline]
-    fn div(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
+    fn div(self, rhs: Self) -> Self {
         Unit::new_unchecked(self.into_inner() * rhs.conjugate().into_inner())
     }
 }
