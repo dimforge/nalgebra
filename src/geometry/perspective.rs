@@ -27,7 +27,7 @@ impl<N: Real> Copy for Perspective3<N> {}
 impl<N: Real> Clone for Perspective3<N> {
     #[inline]
     fn clone(&self) -> Self {
-        Perspective3::from_matrix_unchecked(self.matrix.clone())
+        Self::from_matrix_unchecked(self.matrix.clone())
     }
 }
 
@@ -58,7 +58,7 @@ impl<'a, N: Real + Deserialize<'a>> Deserialize<'a> for Perspective3<N> {
     where Des: Deserializer<'a> {
         let matrix = Matrix4::<N>::deserialize(deserializer)?;
 
-        Ok(Perspective3::from_matrix_unchecked(matrix))
+        Ok(Self::from_matrix_unchecked(matrix))
     }
 }
 
@@ -75,7 +75,7 @@ impl<N: Real> Perspective3<N> {
         );
 
         let matrix = Matrix4::identity();
-        let mut res = Perspective3::from_matrix_unchecked(matrix);
+        let mut res = Self::from_matrix_unchecked(matrix);
 
         res.set_fovy(fovy);
         res.set_aspect(aspect);
@@ -93,7 +93,7 @@ impl<N: Real> Perspective3<N> {
     /// projection.
     #[inline]
     pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> Self {
-        Perspective3 { matrix: matrix }
+        Self { matrix: matrix }
     }
 
     /// Retrieves the inverse of the underlying homogeneous matrix.
