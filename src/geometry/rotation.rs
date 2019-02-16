@@ -53,7 +53,7 @@ where
 {
     #[inline]
     fn clone(&self) -> Self {
-        Rotation::from_matrix_unchecked(self.matrix.clone())
+        Self::from_matrix_unchecked(self.matrix.clone())
     }
 }
 
@@ -100,7 +100,7 @@ where
     where Des: Deserializer<'a> {
         let matrix = MatrixN::<N, D>::deserialize(deserializer)?;
 
-        Ok(Rotation::from_matrix_unchecked(matrix))
+        Ok(Self::from_matrix_unchecked(matrix))
     }
 }
 
@@ -241,13 +241,13 @@ where DefaultAllocator: Allocator<N, D, D>
     /// assert_eq!(*rot.matrix(), mat);
     /// ```
     #[inline]
-    pub fn from_matrix_unchecked(matrix: MatrixN<N, D>) -> Rotation<N, D> {
+    pub fn from_matrix_unchecked(matrix: MatrixN<N, D>) -> Self {
         assert!(
             matrix.is_square(),
             "Unable to create a rotation from a non-square matrix."
         );
 
-        Rotation { matrix: matrix }
+        Self { matrix: matrix }
     }
 
     /// Transposes `self`.
@@ -269,8 +269,8 @@ where DefaultAllocator: Allocator<N, D, D>
     /// assert_relative_eq!(tr_rot * rot, Rotation2::identity(), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn transpose(&self) -> Rotation<N, D> {
-        Rotation::from_matrix_unchecked(self.matrix.transpose())
+    pub fn transpose(&self) -> Self {
+        Self::from_matrix_unchecked(self.matrix.transpose())
     }
 
     /// Inverts `self`.
@@ -292,7 +292,7 @@ where DefaultAllocator: Allocator<N, D, D>
     /// assert_relative_eq!(inv * rot, Rotation2::identity(), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn inverse(&self) -> Rotation<N, D> {
+    pub fn inverse(&self) -> Self {
         self.transpose()
     }
 
@@ -357,7 +357,7 @@ impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     #[inline]
-    fn eq(&self, right: &Rotation<N, D>) -> bool {
+    fn eq(&self, right: &Self) -> bool {
         self.matrix == right.matrix
     }
 }
