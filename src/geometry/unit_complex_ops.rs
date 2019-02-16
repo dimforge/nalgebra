@@ -64,10 +64,10 @@ impl<'a, N: Real> Mul<UnitComplex<N>> for &'a UnitComplex<N> {
 }
 
 impl<'b, N: Real> Mul<&'b UnitComplex<N>> for UnitComplex<N> {
-    type Output = UnitComplex<N>;
+    type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: &'b UnitComplex<N>) -> UnitComplex<N> {
+    fn mul(self, rhs: &'b UnitComplex<N>) -> Self {
         Unit::new_unchecked(self.into_inner() * rhs.complex())
     }
 }
