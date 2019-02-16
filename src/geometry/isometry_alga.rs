@@ -121,7 +121,7 @@ where
     type Translation = Translation<N, D>;
 
     #[inline]
-    fn decompose(&self) -> (Translation<N, D>, R, Id, R) {
+    fn decompose(&self) -> (Self::Translation, R, Id, R) {
         (
             self.translation.clone(),
             self.rotation.clone(),
