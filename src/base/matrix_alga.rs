@@ -51,7 +51,7 @@ where
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
-    fn two_sided_inverse(&self) -> MatrixMN<N, R, C> {
+    fn two_sided_inverse(&self) -> Self {
         -self
     }
 
@@ -203,7 +203,7 @@ impl<N: Real, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
     #[inline]
-    fn orthonormalize(vs: &mut [MatrixMN<N, R, C>]) -> usize {
+    fn orthonormalize(vs: &mut [Self]) -> usize {
         let mut nbasis_elements = 0;
 
         for i in 0..vs.len() {
