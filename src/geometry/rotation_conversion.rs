@@ -102,7 +102,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Rotation<N1, D>
 where
     N1: Real,
     N2: Real + SupersetOf<N1>,
-    R: AlgaRotation<Point<N2, D>> + SupersetOf<Rotation<N1, D>>,
+    R: AlgaRotation<Point<N2, D>> + SupersetOf<Self>,
     DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -125,7 +125,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Rotation<N1, D>
 where
     N1: Real,
     N2: Real + SupersetOf<N1>,
-    R: AlgaRotation<Point<N2, D>> + SupersetOf<Rotation<N1, D>>,
+    R: AlgaRotation<Point<N2, D>> + SupersetOf<Self>,
     DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
     #[inline]
