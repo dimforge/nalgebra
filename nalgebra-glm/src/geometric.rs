@@ -33,7 +33,6 @@ pub fn faceforward<N: Number, D: Dimension>(
 where
     DefaultAllocator: Alloc<N, D>,
 {
-
     if nref.dot(i) < N::zero() {
         n.clone()
     } else {
