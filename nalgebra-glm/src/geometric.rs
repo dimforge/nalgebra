@@ -33,7 +33,11 @@ pub fn faceforward<N: Number, D: Dimension>(
 where
     DefaultAllocator: Alloc<N, D>,
 {
-    nref.dot(i).signum() * n.clone()
+    if nref.dot(i) < N::zero() {
+        n.clone()
+    } else {
+        -n.clone()
+    }
 }
 
 /// The magnitude of a vector.
