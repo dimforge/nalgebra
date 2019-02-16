@@ -145,7 +145,7 @@ where
 {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        Point::from(VectorN::arbitrary(g))
+        Self::from(VectorN::arbitrary(g))
     }
 }
 
@@ -163,7 +163,7 @@ macro_rules! componentwise_constructors_impl(
             #[doc = $doc]
             #[doc = "```"]
             #[inline]
-            pub fn new($($args: N),*) -> Point<N, $D> {
+            pub fn new($($args: N),*) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
                     $( *res.get_unchecked_mut($irow) = $args; )*
@@ -194,7 +194,7 @@ macro_rules! from_array_impl(
     ($($D: ty, $len: expr);*) => {$(
       impl <N: Scalar> From<[N; $len]> for Point<N, $D> {
           fn from (coords: [N; $len]) -> Self {
-              Point {
+              Self {
                 coords: coords.into()
               }
           }

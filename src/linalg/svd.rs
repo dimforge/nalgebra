@@ -271,7 +271,7 @@ where
             }
         }
 
-        Some(SVD {
+        Some(Self {
             u: u,
             v_t: v_t,
             singular_values: b.diagonal,

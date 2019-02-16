@@ -106,20 +106,20 @@ where
         translation: Translation<N, D>,
         rotation: R,
         scaling: N,
-    ) -> Similarity<N, D, R>
+    ) -> Self
     {
-        Similarity::from_isometry(Isometry::from_parts(translation, rotation), scaling)
+        Self::from_isometry(Isometry::from_parts(translation, rotation), scaling)
     }
 
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
-    pub fn from_isometry(isometry: Isometry<N, D, R>, scaling: N) -> Similarity<N, D, R> {
+    pub fn from_isometry(isometry: Isometry<N, D, R>, scaling: N) -> Self {
         assert!(
             !relative_eq!(scaling, N::zero()),
             "The scaling factor must not be zero."
         );
 
-        Similarity {
+        Self {
             isometry: isometry,
             scaling: scaling,
         }
@@ -127,13 +127,13 @@ where
 
     /// Creates a new similarity that applies only a scaling factor.
     #[inline]
-    pub fn from_scaling(scaling: N) -> Similarity<N, D, R> {
+    pub fn from_scaling(scaling: N) -> Self {
         Self::from_isometry(Isometry::identity(), scaling)
     }
 
     /// Inverts `self`.
     #[inline]
-    pub fn inverse(&self) -> Similarity<N, D, R> {
+    pub fn inverse(&self) -> Self {
         let mut res = self.clone();
         res.inverse_mut();
         res
@@ -277,7 +277,7 @@ where
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
-    fn eq(&self, right: &Similarity<N, D, R>) -> bool {
+    fn eq(&self, right: &Self) -> bool {
         self.isometry == right.isometry && self.scaling == right.scaling
     }
 }

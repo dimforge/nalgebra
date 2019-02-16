@@ -67,7 +67,7 @@ impl<N: Real> Index<usize> for Quaternion<N> {
     type Output = N;
 
     #[inline]
-    fn index(&self, i: usize) -> &N {
+    fn index(&self, i: usize) -> &Self::Output {
         &self.coords[i]
     }
 }

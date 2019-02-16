@@ -219,28 +219,28 @@ impl<N: Real> From<mint::EulerAngles<N, mint::IntraXYZ>> for Rotation3<N> {
 
 impl<N: Real> From<Rotation2<N>> for Matrix3<N> {
     #[inline]
-    fn from(q: Rotation2<N>) -> Matrix3<N> {
+    fn from(q: Rotation2<N>) ->Self {
         q.to_homogeneous()
     }
 }
 
 impl<N: Real> From<Rotation2<N>> for Matrix2<N> {
     #[inline]
-    fn from(q: Rotation2<N>) -> Matrix2<N> {
+    fn from(q: Rotation2<N>) -> Self {
         q.into_inner()
     }
 }
 
 impl<N: Real> From<Rotation3<N>> for Matrix4<N> {
     #[inline]
-    fn from(q: Rotation3<N>) -> Matrix4<N> {
+    fn from(q: Rotation3<N>) -> Self {
         q.to_homogeneous()
     }
 }
 
 impl<N: Real> From<Rotation3<N>> for Matrix3<N> {
     #[inline]
-    fn from(q: Rotation3<N>) -> Matrix3<N> {
+    fn from(q: Rotation3<N>) -> Self {
         q.into_inner()
     }
 }

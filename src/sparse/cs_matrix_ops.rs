@@ -138,7 +138,7 @@ where
 {
     type Output = CsMatrix<N, R1, C2>;
 
-    fn mul(self, rhs: &'b CsMatrix<N, R2, C2, S2>) -> CsMatrix<N, R1, C2> {
+    fn mul(self, rhs: &'b CsMatrix<N, R2, C2, S2>) -> Self::Output {
         let (nrows1, ncols1) = self.data.shape();
         let (nrows2, ncols2) = rhs.data.shape();
         assert_eq!(
@@ -231,7 +231,7 @@ where
 {
     type Output = CsMatrix<N, R1, C2>;
 
-    fn add(self, rhs: &'b CsMatrix<N, R2, C2, S2>) -> CsMatrix<N, R1, C2> {
+    fn add(self, rhs: &'b CsMatrix<N, R2, C2, S2>) -> Self::Output {
         let (nrows1, ncols1) = self.data.shape();
         let (nrows2, ncols2) = rhs.data.shape();
         assert_eq!(
@@ -294,7 +294,7 @@ where
 {
     type Output = Self;
 
-    fn mul(mut self, rhs: N) -> Self {
+    fn mul(mut self, rhs: N) -> Self::Output {
         for e in self.values_mut() {
             *e *= rhs
         }
