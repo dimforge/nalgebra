@@ -49,7 +49,7 @@ impl<N: Real> Mul<UnitComplex<N>> for UnitComplex<N> {
     type Output = UnitComplex<N>;
 
     #[inline]
-    fn mul(self, rhs: UnitComplex<N>) -> UnitComplex<N> {
+    fn mul(self, rhs: Self) -> Self {
         Unit::new_unchecked(self.into_inner() * rhs.into_inner())
     }
 }

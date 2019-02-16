@@ -85,7 +85,7 @@ impl<N: Real> UnitComplex<N> {
     /// ```
     #[inline]
     pub fn from_cos_sin_unchecked(cos: N, sin: N) -> Self {
-        UnitComplex::new_unchecked(Complex::new(cos, sin))
+        Self::new_unchecked(Complex::new(cos, sin))
     }
 
     /// Builds a unit complex rotation from an angle in radian wrapped in a 1-dimensional vector.
