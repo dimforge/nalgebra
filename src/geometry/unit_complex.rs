@@ -108,7 +108,7 @@ impl<N: Real> UnitComplex<N> {
     /// ```
     #[inline]
     pub fn conjugate(&self) -> Self {
-        UnitComplex::new_unchecked(self.conj())
+        Self::new_unchecked(self.conj())
     }
 
     /// Inverts this complex number if it is not zero.
@@ -314,7 +314,7 @@ impl<N: Real> From<UnitComplex<N>> for Matrix3<N> {
 
 impl<N: Real> From<UnitComplex<N>> for Matrix2<N> {
     #[inline]
-    fn from(q: UnitComplex<N>) -> Matrix2<N> {
+    fn from(q: UnitComplex<N>) -> Self {
         q.to_rotation_matrix().into_inner()
     }
 }

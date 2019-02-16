@@ -18,8 +18,8 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
     ///
     /// The bias is the position of the plane on the axis. In particular, a bias equal to zero
     /// represents a plane that passes through the origin.
-    pub fn new(axis: Unit<Vector<N, D, S>>, bias: N) -> Reflection<N, D, S> {
-        Reflection {
+    pub fn new(axis: Unit<Vector<N, D, S>>, bias: N) -> Self {
+        Self {
             axis: axis.into_inner(),
             bias: bias,
         }
@@ -30,7 +30,7 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
     pub fn new_containing_point(
         axis: Unit<Vector<N, D, S>>,
         pt: &Point<N, D>,
-    ) -> Reflection<N, D, S>
+    ) -> Self
     where
         D: DimName,
         DefaultAllocator: Allocator<N, D>,

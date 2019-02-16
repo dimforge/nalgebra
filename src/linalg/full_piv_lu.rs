@@ -61,7 +61,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
         let mut q = PermutationSequence::identity_generic(min_nrows_ncols);
 
         if min_nrows_ncols.value() == 0 {
-            return FullPivLU {
+            return Self {
                 lu: matrix,
                 p: p,
                 q: q,
@@ -91,7 +91,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
             }
         }
 
-        FullPivLU {
+        Self {
             lu: matrix,
             p: p,
             q: q,

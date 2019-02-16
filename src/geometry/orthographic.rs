@@ -26,7 +26,7 @@ impl<N: Real> Copy for Orthographic3<N> {}
 impl<N: Real> Clone for Orthographic3<N> {
     #[inline]
     fn clone(&self) -> Self {
-        Orthographic3::from_matrix_unchecked(self.matrix.clone())
+        Self::from_matrix_unchecked(self.matrix.clone())
     }
 }
 
@@ -57,7 +57,7 @@ impl<'a, N: Real + Deserialize<'a>> Deserialize<'a> for Orthographic3<N> {
     where Des: Deserializer<'a> {
         let matrix = Matrix4::<N>::deserialize(deserializer)?;
 
-        Ok(Orthographic3::from_matrix_unchecked(matrix))
+        Ok(Self::from_matrix_unchecked(matrix))
     }
 }
 
@@ -135,7 +135,7 @@ impl<N: Real> Orthographic3<N> {
     /// ```
     #[inline]
     pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> Self {
-        Orthographic3 { matrix: matrix }
+        Self { matrix: matrix }
     }
 
     /// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.

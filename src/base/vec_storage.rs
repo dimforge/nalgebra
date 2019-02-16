@@ -36,12 +36,12 @@ pub type MatrixVec<N, R, C> = VecStorage<N, R, C>;
 impl<N, R: Dim, C: Dim> VecStorage<N, R, C> {
     /// Creates a new dynamic matrix data storage from the given vector and shape.
     #[inline]
-    pub fn new(nrows: R, ncols: C, data: Vec<N>) -> VecStorage<N, R, C> {
+    pub fn new(nrows: R, ncols: C, data: Vec<N>) -> Self {
         assert!(
             nrows.value() * ncols.value() == data.len(),
             "Data storage buffer dimension mismatch."
         );
-        VecStorage {
+        Self {
             data: data,
             nrows: nrows,
             ncols: ncols,

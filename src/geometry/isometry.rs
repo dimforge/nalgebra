@@ -100,7 +100,7 @@ where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn clone(&self) -> Self {
-        Isometry::from_parts(self.translation.clone(), self.rotation.clone())
+        Self::from_parts(self.translation.clone(), self.rotation.clone())
     }
 }
 
@@ -122,8 +122,8 @@ where DefaultAllocator: Allocator<N, D>
     /// assert_relative_eq!(iso * Point3::new(1.0, 2.0, 3.0), Point3::new(-1.0, 2.0, 0.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_parts(translation: Translation<N, D>, rotation: R) -> Isometry<N, D, R> {
-        Isometry {
+    pub fn from_parts(translation: Translation<N, D>, rotation: R) -> Self {
+        Self {
             rotation: rotation,
             translation: translation,
             _noconstruct: PhantomData,
@@ -144,7 +144,7 @@ where DefaultAllocator: Allocator<N, D>
     /// assert_eq!(inv * (iso * pt), pt);
     /// ```
     #[inline]
-    pub fn inverse(&self) -> Isometry<N, D, R> {
+    pub fn inverse(&self) -> Self {
         let mut res = self.clone();
         res.inverse_mut();
         res
@@ -306,7 +306,7 @@ where
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
-    fn eq(&self, right: &Isometry<N, D, R>) -> bool {
+    fn eq(&self, right: &Self) -> bool {
         self.translation == right.translation && self.rotation == right.rotation
     }
 }

@@ -54,14 +54,14 @@ where DefaultAllocator: Allocator<N, R, C>
         + Allocator<N, DimMinimum<R, C>>
 {
     /// Computes the QR decomposition of the matrix `m`.
-    pub fn new(mut m: MatrixMN<N, R, C>) -> QR<N, R, C> {
+    pub fn new(mut m: MatrixMN<N, R, C>) -> Self {
         let (nrows, ncols) = m.data.shape();
 
         let mut info = 0;
         let mut tau = unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), U1) };
 
         if nrows.value() == 0 || ncols.value() == 0 {
-            return QR { qr: m, tau: tau };
+            return Self { qr: m, tau: tau };
         }
 
         let lwork = N::xgeqrf_work_size(
@@ -86,7 +86,7 @@ where DefaultAllocator: Allocator<N, R, C>
             &mut info,
         );
 
-        QR { qr: m, tau: tau }
+        Self { qr: m, tau: tau }
     }
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.

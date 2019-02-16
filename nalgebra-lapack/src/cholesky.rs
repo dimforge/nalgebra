@@ -62,7 +62,7 @@ where DefaultAllocator: Allocator<N, D, D>
         N::xpotrf(uplo, dim, m.as_mut_slice(), dim, &mut info);
         lapack_check!(info);
 
-        Some(Cholesky { l: m })
+        Some(Self { l: m })
     }
 
     /// Retrieves the lower-triangular factor of the cholesky decomposition.

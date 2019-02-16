@@ -83,7 +83,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
             }
         }
 
-        SymmetricTridiagonal {
+        Self {
             tri: m,
             off_diagonal: off_diagonal,
         }

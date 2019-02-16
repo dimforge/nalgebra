@@ -69,7 +69,7 @@ where DefaultAllocator: Allocator<(usize, usize), D>
     #[inline]
     pub fn identity_generic(dim: D) -> Self {
         unsafe {
-            PermutationSequence {
+            Self {
                 len: 0,
                 ipiv: VectorN::new_uninitialized_generic(dim, U1),
             }

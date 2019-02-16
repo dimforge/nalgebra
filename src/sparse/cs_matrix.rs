@@ -21,7 +21,7 @@ impl<'a, N> ColumnEntries<'a, N> {
     #[inline]
     pub fn new(i: &'a [usize], v: &'a [N]) -> Self {
         assert_eq!(i.len(), v.len());
-        ColumnEntries { curr: 0, i, v }
+        Self { curr: 0, i, v }
     }
 }
 
@@ -29,7 +29,7 @@ impl<'a, N: Copy> Iterator for ColumnEntries<'a, N> {
     type Item = (usize, N);
 
     #[inline]
-    fn next(&mut self) -> Option<(usize, N)> {
+    fn next(&mut self) -> Option<Self::Item> {
         if self.curr >= self.i.len() {
             None
         } else {

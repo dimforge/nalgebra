@@ -152,7 +152,7 @@ impl<N: Scalar, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline]
-    pub fn from_data(data: S) -> Matrix<N, R, C, S> {
+    pub fn from_data(data: S) -> Self {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 

@@ -55,7 +55,7 @@ where
         + Allocator<N, D>,
 {
     /// Computes the Schur decomposition of a square matrix.
-    pub fn new(m: MatrixN<N, D>) -> RealSchur<N, D> {
+    pub fn new(m: MatrixN<N, D>) -> Self {
         Self::try_new(m, N::default_epsilon(), 0).unwrap()
     }
 
@@ -70,7 +70,7 @@ where
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_new(m: MatrixN<N, D>, eps: N, max_niter: usize) -> Option<RealSchur<N, D>> {
+    pub fn try_new(m: MatrixN<N, D>, eps: N, max_niter: usize) -> Option<Self> {
         let mut work = unsafe { VectorN::new_uninitialized_generic(m.data.shape().0, U1) };
 
         Self::do_decompose(m, &mut work, eps, max_niter, true).map(|(q, t)| RealSchur {
