@@ -186,7 +186,7 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaterni
 #[cfg(feature = "mint")]
 impl<N: Real> From<mint::Quaternion<N>> for Quaternion<N> {
     fn from(q: mint::Quaternion<N>) -> Self {
-        Quaternion::new(q.s, q.v.x, q.v.y, q.v.z)
+        Self::new(q.s, q.v.x, q.v.y, q.v.z)
     }
 }
 

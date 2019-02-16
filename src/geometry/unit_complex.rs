@@ -108,7 +108,7 @@ impl<N: Real> UnitComplex<N> {
     /// ```
     #[inline]
     pub fn conjugate(&self) -> Self {
-        UnitComplex::new_unchecked(self.conj())
+        Self::new_unchecked(self.conj())
     }
 
     /// Inverts this complex number if it is not zero.
