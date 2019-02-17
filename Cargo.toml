@@ -12,6 +12,8 @@ categories = [ "science" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
 license = "BSD-3-Clause"
 
+exclude = ["/ci/*", "/.travis.yml", "/Makefile"]
+
 [lib]
 name = "nalgebra"
 path = "src/lib.rs"
