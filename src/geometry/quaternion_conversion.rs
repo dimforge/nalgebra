@@ -225,6 +225,20 @@ impl<N: Real> From<UnitQuaternion<N>> for Matrix4<N> {
     }
 }
 
+impl<N: Real> From<UnitQuaternion<N>> for Rotation3<N> {
+    #[inline]
+    fn from(q: UnitQuaternion<N>) -> Self {
+        q.to_rotation_matrix()
+    }
+}
+
+impl<N: Real> From<Rotation3<N>> for UnitQuaternion<N> {
+    #[inline]
+    fn from(q: Rotation3<N>) -> Self {
+        Self::from_rotation_matrix(&q)
+    }
+}
+
 impl<N: Real> From<UnitQuaternion<N>> for Matrix3<N> {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
