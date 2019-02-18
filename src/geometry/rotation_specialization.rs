@@ -13,7 +13,7 @@ use base::dimension::{U1, U2, U3};
 use base::storage::Storage;
 use base::{Matrix2, Matrix3, MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
 
-use geometry::{Rotation2, Rotation3, UnitComplex};
+use geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
 /*
  *
@@ -191,6 +191,20 @@ impl<N: Real> Rotation2<N> {
     pub fn rotation_to(&self, other: &Self) -> Self {
         other * self.inverse()
     }
+
+
+    /* FIXME: requires alga v0.9 to be released so that Complex implements VectorSpace.
+    /// Ensure this rotation is an orthonormal rotation matrix. This is useful when repeated
+    /// computations might cause the matrix from progressively not being orthonormal anymore.
+    #[inline]
+    pub fn renormalize(&mut self) {
+        let mut c = UnitComplex::from(*self);
+        let _ = c.renormalize();
+
+        *self = Self::from_matrix_eps(self.matrix(), N::default_epsilon(), 0, c.into())
+    }
+    */
+
 
     /// Raise the quaternion to a given floating power, i.e., returns the rotation with the angle
     /// of `self` multiplied by `n`.
@@ -467,6 +481,16 @@ impl<N: Real> Rotation3<N> {
                 N::zero(),
             )
         }
+    }
+
+    /// Ensure this rotation is an orthonormal rotation matrix. This is useful when repeated
+    /// computations might cause the matrix from progressively not being orthonormal anymore.
+    #[inline]
+    pub fn renormalize(&mut self) {
+        let mut c = UnitQuaternion::from(*self);
+        let _ = c.renormalize();
+
+        *self = Self::from_matrix_eps(self.matrix(), N::default_epsilon(), 0, c.into())
     }
 
     /// Creates a rotation that corresponds to the local frame of an observer standing at the
