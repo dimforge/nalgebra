@@ -304,17 +304,3 @@ impl<N: Real> UlpsEq for UnitComplex<N> {
             && self.im.ulps_eq(&other.im, epsilon, max_ulps)
     }
 }
-
-impl<N: Real> From<UnitComplex<N>> for Matrix3<N> {
-    #[inline]
-    fn from(q: UnitComplex<N>) -> Matrix3<N> {
-        q.to_homogeneous()
-    }
-}
-
-impl<N: Real> From<UnitComplex<N>> for Matrix2<N> {
-    #[inline]
-    fn from(q: UnitComplex<N>) -> Self {
-        q.to_rotation_matrix().into_inner()
-    }
-}

@@ -11,9 +11,9 @@ use std::ops::Neg;
 
 use base::dimension::{U1, U2, U3};
 use base::storage::Storage;
-use base::{MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
+use base::{Matrix2, Matrix3, MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
 
-use geometry::{Rotation2, Rotation3, UnitComplex};
+use geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
 /*
  *
@@ -35,7 +35,7 @@ impl<N: Real> Rotation2<N> {
     /// ```
     pub fn new(angle: N) -> Self {
         let (sia, coa) = angle.sin_cos();
-        Self::from_matrix_unchecked(MatrixN::<N, U2>::new(coa, -sia, sia, coa))
+        Self::from_matrix_unchecked(Matrix2::new(coa, -sia, sia, coa))
     }
 
     /// Builds a 2 dimensional rotation matrix from an angle in radian wrapped in a 1-dimensional vector.
@@ -46,6 +46,51 @@ impl<N: Real> Rotation2<N> {
     #[inline]
     pub fn from_scaled_axis<SB: Storage<N, U1>>(axisangle: Vector<N, U1, SB>) -> Self {
         Self::new(axisangle[0])
+    }
+
+    /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This is an iterative method. See `.from_matrix_eps` to provide mover
+    /// convergence parameters and starting solution.
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    pub fn from_matrix(m: &Matrix2<N>) -> Self {
+        Self::from_matrix_eps(m, N::default_epsilon(), 0, Self::identity())
+    }
+
+    /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    ///
+    /// # Parameters
+    ///
+    /// * `m`: the matrix from which the rotational part is to be extracted.
+    /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
+    /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
+    /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
+    ///           to the actual solution is provided. Can be set to `Rotation2::identity()` if no other
+    ///           guesses come to mind.
+    pub fn from_matrix_eps(m: &Matrix2<N>, eps: N, mut max_iter: usize, guess: Self) -> Self {
+        if max_iter == 0 {
+            max_iter = usize::max_value();
+        }
+
+        let mut rot = guess.into_inner();
+
+        for _ in 0..max_iter {
+            let axis = rot.column(0).perp(&m.column(0)) +
+                rot.column(1).perp(&m.column(1));
+            let denom = rot.column(0).dot(&m.column(0)) +
+                rot.column(1).dot(&m.column(1));
+
+            let angle = axis / (denom.abs() + N::default_epsilon());
+            if angle.abs() > eps {
+                rot = Self::new(angle) * rot;
+            } else {
+                break;
+            }
+        }
+
+        Self::from_matrix_unchecked(rot)
     }
 
     /// The rotation matrix required to align `a` and `b` but with its angle.
@@ -97,9 +142,7 @@ impl<N: Real> Rotation2<N> {
     {
         ::convert(UnitComplex::scaled_rotation_between(a, b, s).to_rotation_matrix())
     }
-}
 
-impl<N: Real> Rotation2<N> {
     /// The rotation angle.
     ///
     /// # Example
@@ -148,6 +191,20 @@ impl<N: Real> Rotation2<N> {
     pub fn rotation_to(&self, other: &Self) -> Self {
         other * self.inverse()
     }
+
+
+    /* FIXME: requires alga v0.9 to be released so that Complex implements VectorSpace.
+    /// Ensure this rotation is an orthonormal rotation matrix. This is useful when repeated
+    /// computations might cause the matrix from progressively not being orthonormal anymore.
+    #[inline]
+    pub fn renormalize(&mut self) {
+        let mut c = UnitComplex::from(*self);
+        let _ = c.renormalize();
+
+        *self = Self::from_matrix_eps(self.matrix(), N::default_epsilon(), 0, c.into())
+    }
+    */
+
 
     /// Raise the quaternion to a given floating power, i.e., returns the rotation with the angle
     /// of `self` multiplied by `n`.
@@ -228,6 +285,54 @@ impl<N: Real> Rotation3<N> {
         let axisangle = axisangle.into_owned();
         let (axis, angle) = Unit::new_and_get(axisangle);
         Self::from_axis_angle(&axis, angle)
+    }
+
+    /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This is an iterative method. See `.from_matrix_eps` to provide mover
+    /// convergence parameters and starting solution.
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    pub fn from_matrix(m: &Matrix3<N>) -> Self {
+        Self::from_matrix_eps(m, N::default_epsilon(), 0, Self::identity())
+    }
+
+    /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    ///
+    /// # Parameters
+    ///
+    /// * `m`: the matrix from which the rotational part is to be extracted.
+    /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
+    /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
+    /// * `guess`: a guess of the solution. Convergence will be significantly faster if an initial solution close
+    ///           to the actual solution is provided. Can be set to `Rotation3::identity()` if no other
+    ///           guesses come to mind.
+    pub fn from_matrix_eps(m: &Matrix3<N>, eps: N, mut max_iter: usize, guess: Self) -> Self {
+        if max_iter == 0 {
+            max_iter = usize::max_value();
+        }
+
+        let mut rot = guess.into_inner();
+
+        for _ in 0..max_iter {
+            let axis = rot.column(0).cross(&m.column(0)) +
+                rot.column(1).cross(&m.column(1)) +
+                rot.column(2).cross(&m.column(2));
+            let denom = rot.column(0).dot(&m.column(0)) +
+                rot.column(1).dot(&m.column(1)) +
+                rot.column(2).dot(&m.column(2));
+
+            let axisangle = axis / (denom.abs() + N::default_epsilon());
+
+            if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps) {
+                rot = Rotation3::from_axis_angle(&axis, angle) * rot;
+            } else {
+                break;
+            }
+        }
+
+        Self::from_matrix_unchecked(rot)
     }
 
     /// Builds a 3D rotation matrix from an axis scaled by the rotation angle.
@@ -376,6 +481,16 @@ impl<N: Real> Rotation3<N> {
                 N::zero(),
             )
         }
+    }
+
+    /// Ensure this rotation is an orthonormal rotation matrix. This is useful when repeated
+    /// computations might cause the matrix from progressively not being orthonormal anymore.
+    #[inline]
+    pub fn renormalize(&mut self) {
+        let mut c = UnitQuaternion::from(*self);
+        let _ = c.renormalize();
+
+        *self = Self::from_matrix_eps(self.matrix(), N::default_epsilon(), 0, c.into())
     }
 
     /// Creates a rotation that corresponds to the local frame of an observer standing at the

@@ -4,7 +4,16 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.17.0] - WIP
+## [0.18.0] - WIP
+
+### Added
+  * Add `.renormalize` to `Unit<...>` and `Rotation3` to correct potential drift due to repeated operations.
+    Those drifts can cause them not to be pure rotations anymore.
+  * Add the `::from_matrix` constructor too all rotation types to extract a rotation from a raw matrix.
+  * Add the `::from_matrix_eps` constructor too all rotation types to extract a rotation from a raw matrix. This takes
+    more argument than `::from_matrix` to control the convergence of the underlying optimization algorithm.
+
+## [0.17.0]
 
 ### Added
   * Add swizzling up to dimension 3 for vectors. For example, you can do `v.zxy()` as an equivalent to `Vector3::new(v.z, v.x, v.y)`.

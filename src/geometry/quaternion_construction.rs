@@ -15,9 +15,9 @@ use base::dimension::U3;
 use base::storage::Storage;
 #[cfg(feature = "arbitrary")]
 use base::Vector3;
-use base::{Unit, Vector, Vector4};
+use base::{Unit, Vector, Vector4, Matrix3};
 
-use geometry::{Quaternion, Rotation, UnitQuaternion};
+use geometry::{Quaternion, Rotation3, UnitQuaternion};
 
 impl<N: Real> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
@@ -245,7 +245,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_relative_eq!(q.angle(), rot.angle(), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_rotation_matrix(rotmat: &Rotation<N, U3>) -> Self {
+    pub fn from_rotation_matrix(rotmat: &Rotation3<N>) -> Self {
         // Robust matrix to quaternion transformation.
         // See http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion
         let tr = rotmat[(0, 0)] + rotmat[(1, 1)] + rotmat[(2, 2)];
@@ -291,6 +291,32 @@ impl<N: Real> UnitQuaternion<N> {
         }
 
         Self::new_unchecked(res)
+    }
+
+    /// Builds an unit quaternion by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This is an iterative method. See `.from_matrix_eps` to provide mover
+    /// convergence parameters and starting solution.
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    pub fn from_matrix(m: &Matrix3<N>) -> Self {
+        Rotation3::from_matrix(m).into()
+    }
+
+    /// Builds an unit quaternion by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    ///
+    /// # Parameters
+    ///
+    /// * `m`: the matrix from which the rotational part is to be extracted.
+    /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
+    /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
+    /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
+    ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
+    ///           guesses come to mind.
+    pub fn from_matrix_eps(m: &Matrix3<N>, eps: N, max_iter: usize, guess: Self) -> Self {
+        let guess = Rotation3::from(guess);
+        Rotation3::from_matrix_eps(m, eps, max_iter, guess).into()
     }
 
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
@@ -453,7 +479,7 @@ impl<N: Real> UnitQuaternion<N> {
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        Self::from_rotation_matrix(&Rotation::<N, U3>::face_towards(dir, up))
+        Self::from_rotation_matrix(&Rotation3::face_towards(dir, up))
     }
 
     /// Deprecated: Use [UnitQuaternion::face_towards] instead.
