@@ -506,6 +506,30 @@ impl<N: Real> Quaternion<N> {
     pub fn normalize_mut(&mut self) -> N {
         self.coords.normalize_mut()
     }
+
+    /// Calculates the wedge product
+    #[inline]
+    pub fn wedge(&self, other: &Self) -> Self {
+        (self * other - other * self) / ::convert(2.0f64)
+    }
+
+    /// Calculates the antiwedge product
+    #[inline]
+    pub fn antiwedge(&self, other: &Self) -> Self {
+        (self * other + other * self) / ::convert(2.0f64)
+    }
+
+    /// Calculates the parallel bisector
+    #[inline]
+    pub fn para(&self, other: &Self) -> Self {
+        (self - other * self * other) / ::convert(2.0f64)
+    }
+
+    /// Calculates the perpendicular bisector
+    #[inline]
+    pub fn perp(&self, other: &Self) -> Self {
+        (self + other * self * other) / ::convert(2.0f64)
+    }
 }
 
 impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
