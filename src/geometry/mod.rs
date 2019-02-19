@@ -26,6 +26,13 @@ mod quaternion_conversion;
 mod quaternion_coordinates;
 mod quaternion_ops;
 
+mod dual_quaternion;
+mod dual_quaternion_alga;
+mod dual_quaternion_construction;
+mod dual_quaternion_conversion;
+mod dual_quaternion_coordinates;
+mod dual_quaternion_ops;
+
 mod unit_complex;
 mod unit_complex_alga;
 mod unit_complex_construction;
