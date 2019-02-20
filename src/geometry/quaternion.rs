@@ -528,7 +528,7 @@ impl<N: Real> Quaternion<N> {
         self.coords.normalize_mut()
     }
 
-       /// Calculates quaternionic sin
+    /// Calculates quaternionic sin
     #[inline]
     pub fn cos(&self) -> Self {
         let z = self.imag().magnitude();
