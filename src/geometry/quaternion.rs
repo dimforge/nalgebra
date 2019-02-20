@@ -528,12 +528,35 @@ impl<N: Real> Quaternion<N> {
         self.coords.normalize_mut()
     }
 
-       /// Calculates quaternionic sin
+    /// Calculates square
+    #[inline]
+    fn squared(&self) -> Self {
+        self * self
+    }
+
+    /// Calculates square root
+    #[inline]
+    fn sqrt(&self) -> Self {
+        self.powf(::convert(0.5))
+    }
+
+    /// Calculates quaternionic cos
     #[inline]
     pub fn cos(&self) -> Self {
         let z = self.imag().magnitude();
         let w = -self.w.sin() * sinhc(z);
         Self::from_parts(self.w.cos() * z.cosh(), self.imag() * w)
+    }
+
+    /// Calculates quaternionic arcsin
+    #[inline]
+    pub fn acos(&self) -> Self {
+        let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
+        let identity = Quaternion::identity();
+
+        let z = (self + (self.squared() - identity).sqrt()).ln();
+
+        -(u * z)
     }
 
     /// Calculates quaternionic sin
@@ -543,7 +566,19 @@ impl<N: Real> Quaternion<N> {
         let w = self.w.cos() * sinhc(z);
         Self::from_parts(self.w.sin() * z.cosh(), self.imag() * w)
     }
+
+    /// Calculates quaternion arcsin
+    #[inline]
+    pub fn asin(&self) -> Self {
+        let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
+        let identity = Quaternion::identity();
+
+        let z = ((u * self) + (identity - self.squared()).sqrt()).ln();
+
+        -(u * z)
+    }
 }
+
 
 impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
     type Epsilon = N;
