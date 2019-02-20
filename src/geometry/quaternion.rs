@@ -21,6 +21,27 @@ use base::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4
 
 use geometry::Rotation;
 
+/// Calculates the cardinal sine function
+#[inline]
+fn sinc<N: Real>(v: N) -> N {
+    if v == N::zero() {
+        N::zero()
+    }
+    else {
+        v.sin() / v
+    }
+}
+
+#[inline]
+fn sinhc<N: Real>(v: N) -> N {
+    if v == N::zero() {
+        N::zero()
+    }
+    else {
+        v.sinh() / v
+    }
+}
+
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
@@ -505,6 +526,22 @@ impl<N: Real> Quaternion<N> {
     #[inline]
     pub fn normalize_mut(&mut self) -> N {
         self.coords.normalize_mut()
+    }
+
+       /// Calculates quaternionic sin
+    #[inline]
+    pub fn cos(&self) -> Self {
+        let z = self.imag().magnitude();
+        let w = -self.w.sin() * sinhc(z);
+        Self::from_parts(self.w.cos() * z.cosh(), self.imag() * w)
+    }
+
+    /// Calculates quaternionic sin
+    #[inline]
+    pub fn sin(&self) -> Self {
+        let z = self.imag().magnitude();
+        let w = self.w.cos() * sinhc(z);
+        Self::from_parts(self.w.sin() * z.cosh(), self.imag() * w)
     }
 }
 
