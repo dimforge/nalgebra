@@ -12,18 +12,10 @@ use {zero, Real, Vector, VectorN, U1};
 /// * `vector` - A Vector with size > 0
 /// * `kernel` - A Vector with size > 0
 ///
-/// # Note:
-///     This function is commutative. If kernel > vector,
-///     they will swap their roles as in
-///     (self, kernel) = (kernel,self)
+///  This function is commutative. If kernel > vector,
+///  they will swap their roles as in
+///  (self, kernel) = (kernel,self)
 ///
-/// # Example
-///
-/// ```
-/// let vec = Vector3::new(1.0,2.0,3.0);
-/// let ker = Vector2::new(0.4,0.6);
-/// let convolve = convolve_full(vec,ker);
-/// ```
 pub fn convolve_full<N, D1, D2, S1, S2>(
     vector: Vector<N, D1, S1>,
     kernel: Vector<N, D2, S2>,
@@ -77,19 +69,11 @@ where
 ///
 /// * `vector` - A Vector with size > 0
 /// * `kernel` - A Vector with size > 0
+/// 
+/// This function is commutative. If kernel > vector,
+/// they will swap their roles as in
+/// (self, kernel) = (kernel,self)
 ///
-/// # Note:
-///     This function is commutative. If kernel > vector,
-///     they will swap their roles as in
-///     (self, kernel) = (kernel,self)
-///
-/// # Example
-///
-/// ```
-/// let vec = Vector3::new(1.0,2.0,3.0);
-/// let ker = Vector2::new(0.4,0.6);
-/// let convolve = convolve_valid(vec,ker);
-/// ```
 pub fn convolve_valid<N, D1, D2, S1, S2>(
     vector: Vector<N, D1, S1>,
     kernel: Vector<N, D2, S2>,
@@ -133,18 +117,10 @@ where
 /// * `vector` - A Vector with size > 0
 /// * `kernel` - A Vector with size > 0
 ///
-/// # Note:
-///     This function is commutative. If kernel > vector,
-///     they will swap their roles as in
-///     (self, kernel) = (kernel,self)
+/// This function is commutative. If kernel > vector,
+/// they will swap their roles as in
+/// (self, kernel) = (kernel,self)
 ///
-/// # Example
-///
-/// ```
-/// let vec = Vector3::new(1.0,2.0,3.0);
-/// let ker = Vector2::new(0.4,0.6);
-/// let convolve = convolve_same(vec,ker);
-/// ```
 pub fn convolve_same<N, D1, D2, S1, S2>(
     vector: Vector<N, D1, S1>,
     kernel: Vector<N, D2, S2>,
