@@ -579,7 +579,6 @@ impl<N: Real> Quaternion<N> {
     }
 }
 
-
 impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
     type Epsilon = N;
 
