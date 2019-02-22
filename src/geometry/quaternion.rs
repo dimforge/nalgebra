@@ -548,7 +548,7 @@ impl<N: Real> Quaternion<N> {
         Self::from_parts(self.w.cos() * z.cosh(), self.imag() * w)
     }
 
-    /// Calculates quaternionic arcsin
+    /// Calculates quaternionic acos
     #[inline]
     pub fn acos(&self) -> Self {
         let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
